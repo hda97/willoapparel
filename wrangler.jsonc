@@ -2,8 +2,10 @@
   // Situs statis willoapparel.com. Semua file situs ada di folder public/.
   "name": "willoapparel",
   "compatibility_date": "2026-09-01",
+  "main": "worker.js",
   "assets": {
     "directory": "./public",
+    "binding": "ASSETS",
     // Sajikan /halaman.html apa adanya (tanpa redirect), sesuai URL di sitemap.
     "html_handling": "none"
   }
