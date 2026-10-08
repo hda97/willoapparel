@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://willoapparel.com/sitemap.xml
