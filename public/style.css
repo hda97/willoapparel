@@ -420,3 +420,17 @@ ul { list-style: none; }
   .hero-stats { flex-wrap: wrap; gap: 1rem; }
   .about-floating-card { right: 0; bottom: -1rem; }
 }
+
+/* ===========================
+   CARA PESAN, FAQ, TOMBOL WA MELAYANG
+=========================== */
+.step-num { font-family: var(--font); font-weight: 800; font-size: 1.6rem; color: var(--accent); }
+.steps-cta { text-align: center; margin-top: 2.5rem; }
+.faq-list { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 0.8rem; }
+.faq-item { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.3rem; }
+.faq-item summary { cursor: pointer; font-weight: 600; font-size: 1rem; list-style: none; display: flex; justify-content: space-between; gap: 1rem; }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after { content: '+'; color: var(--accent); font-weight: 700; }
+.faq-item[open] summary::after { content: '−'; }
+.faq-item p { margin-top: 0.7rem; color: var(--white60); line-height: 1.7; font-size: 0.92rem; }
+.wa-float { position: fixed; right: 16px; bottom: 16px; z-index: 999; background: var(--green); color: #fff; font-weight: 700; text-decoration: none; padding: 12px 18px; border-radius: 999px; box-shadow: 0 4px 14px rgba(0,0,0,.3); }
