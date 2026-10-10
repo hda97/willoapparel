@@ -130,6 +130,15 @@ a{color:inherit}
 .checks li{border:1px solid var(--ink);padding:10px 12px;font-weight:600;font-size:14px;background:var(--cream-2)}
 .checks li::before{content:"✓ ";color:var(--orange);font-weight:800}
 
+/* artikel */
+.posts{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px}
+.post{display:flex;flex-direction:column;gap:10px;text-decoration:none;background:var(--cream-2);border:2px solid var(--ink);padding:22px 20px;transition:transform .15s,box-shadow .15s}
+.post:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--orange)}
+.post .mono{color:var(--orange);font-weight:700}
+.post h3{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:26px;line-height:1.05}
+.post p{color:var(--ink-2);font-size:15px;flex:1}
+.post b{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+
 /* faq */
 .faq{max-width:860px}
 .faq details{border-bottom:2px solid var(--ink)}
