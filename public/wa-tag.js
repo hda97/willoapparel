@@ -19,3 +19,13 @@
     } catch (e) {}
   });
 })();
+
+// Catat setiap klik tombol WhatsApp ke Google Analytics (GA4) sebagai event "klik_whatsapp".
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="wa.me/"]');
+  if (!a || typeof gtag !== 'function') return;
+  gtag('event', 'klik_whatsapp', {
+    halaman: location.pathname,
+    tombol: (a.className || 'tautan') + ' | ' + (a.textContent || '').trim().slice(0, 40)
+  });
+});
