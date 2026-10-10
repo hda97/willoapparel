@@ -7,6 +7,8 @@
     "directory": "./public",
     "binding": "ASSETS",
     // Sajikan /halaman.html apa adanya (tanpa redirect), sesuai URL di sitemap.
-    "html_handling": "none"
+    "html_handling": "none",
+    // Jalankan worker.js dulu supaya www bisa dialihkan.
+    "run_worker_first": true
   }
 }
