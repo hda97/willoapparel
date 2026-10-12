@@ -3,6 +3,13 @@
   "name": "willoapparel",
   "compatibility_date": "2026-09-01",
   "main": "worker.js",
+  // Domain utama & www lewat Worker ini (DNS A @ dan www 192.0.2.1, proxied).
+  // Ditulis di sini supaya setiap deploy otomatis memasang ulang route-nya.
+  "routes": [
+    { "pattern": "willoapparel.com/*", "zone_name": "willoapparel.com" },
+    { "pattern": "*.willoapparel.com/*", "zone_name": "willoapparel.com" }
+  ],
+  "workers_dev": true,
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
