@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-N4FLLMXDVK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-N4FLLMXDVK');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Desain Kaos Custom Sendiri, Langsung Pesan via WhatsApp | Willo Apparel</title>
+<meta name="description" content="Coba desain kaos custom sendiri: pilih kaos dan warna, unggah logo, atur posisi depan atau belakang, pilih ukuran, lalu pesan langsung lewat WhatsApp Willo Apparel Ngawi. Mulai 1 pcs.">
+<link rel="canonical" href="https://willoapparel.com/desain-kaos.html">
+<meta property="og:title" content="Desain Kaos Custom Sendiri | Willo Apparel">
+<meta property="og:description" content="Unggah logomu, atur posisinya, lalu pesan langsung via WhatsApp. Mulai 1 pcs.">
+<meta property="og:image" content="https://willoapparel.com/kaos-gantung.jpg">
+<meta property="og:url" content="https://willoapparel.com/desain-kaos.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="id_ID">
+<link rel="icon" type="image/png" href="/logo-willo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600;700&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#161513; --ink2:#3d3a35; --muted:#5c5852; --line:#dcd6cb; --bg:#EEEAE2; --soft:#F6F3EE; --accent:#D9541F; --display:'Anton',Impact,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:'Archivo',system-ui,sans-serif; color:var(--ink); background:var(--bg); line-height:1.55; font-size:16px; }
+  a { color:inherit; }
+  header { position:sticky; top:0; z-index:20; background:rgba(238,234,226,.95); border-bottom:1px solid var(--line); }
+  .ticker { background:var(--accent); border-bottom:1px solid var(--ink); font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; text-align:center; padding:7px 12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .wrap { max-width:1140px; margin:0 auto; padding:0 16px; }
+  .nav { display:flex; align-items:center; justify-content:space-between; height:64px; gap:12px; }
+  .logo { display:flex; align-items:center; gap:10px; text-decoration:none; font-family:var(--display); font-size:20px; letter-spacing:.02em; }
+  .logo img { height:38px; width:auto; }
+  .nav-cta { font-family:var(--display); font-size:14px; letter-spacing:.04em; text-transform:uppercase; text-decoration:none; background:var(--ink); color:var(--bg); padding:9px 14px; border:2px solid var(--ink); box-shadow:3px 3px 0 var(--accent); white-space:nowrap; }
+  .hero { padding:32px 0 24px; }
+  .eyebrow { display:inline-block; background:var(--ink); color:var(--bg); font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; padding:5px 9px; margin-bottom:14px; text-decoration:none; }
+  h1 { font-family:var(--display); font-weight:400; text-transform:uppercase; font-size:clamp(32px,5.4vw,56px); line-height:1; margin:0 0 12px; }
+  .lead { font-size:17px; color:var(--ink2); max-width:680px; margin:0; }
+
+  .studio { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:28px; align-items:start; padding-bottom:56px; }
+  .stage { position:sticky; top:84px; background:var(--soft); border:2px solid var(--ink); box-shadow:6px 6px 0 var(--accent); padding:14px; }
+  .views { display:flex; gap:0; border:2px solid var(--ink); margin-bottom:12px; }
+  .views button { flex:1; }
+  canvas#kanvas { width:100%; height:auto; display:block; touch-action:none; cursor:grab; background:#fff; border:1px solid var(--line); }
+  canvas#kanvas.drag { cursor:grabbing; }
+  .hint { font-size:13px; color:var(--muted); margin:10px 0 0; }
+
+  .step { background:var(--soft); border:2px solid var(--ink); padding:18px 18px 20px; margin-bottom:18px; }
+  .step h2 { font-family:var(--display); font-weight:400; text-transform:uppercase; font-size:24px; line-height:1.1; margin:0 0 14px; display:flex; gap:10px; align-items:center; }
+  .step h2 b { font-family:var(--mono); font-size:12px; background:var(--accent); color:var(--ink); border:2px solid var(--ink); padding:3px 7px; font-weight:700; }
+  .label { font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:14px 0 8px; display:block; }
+  .opt { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { font:inherit; font-weight:600; font-size:15px; background:#fff; color:var(--ink); border:2px solid var(--ink); padding:9px 14px; cursor:pointer; }
+  .chip[aria-pressed="true"] { background:var(--ink); color:var(--bg); box-shadow:3px 3px 0 var(--accent); }
+  .views .chip { border:0; border-right:2px solid var(--ink); font-family:var(--mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase; }
+  .views .chip:last-child { border-right:0; }
+  .views .chip[aria-pressed="true"] { box-shadow:none; }
+  .swatch { width:40px; height:40px; border:2px solid var(--ink); cursor:pointer; padding:0; position:relative; }
+  .swatch[aria-pressed="true"] { outline:3px solid var(--accent); outline-offset:2px; }
+  .colname { font-size:14px; color:var(--ink2); margin-top:8px; }
+
+  .drop { display:block; border:2px dashed var(--ink); background:#fff; padding:18px; text-align:center; cursor:pointer; }
+  .drop:hover, .drop.over { background:#fff7f2; border-color:var(--accent); }
+  .drop strong { display:block; font-size:16px; }
+  .drop span { font-size:13px; color:var(--muted); }
+  .drop input { position:absolute; width:1px; height:1px; opacity:0; }
+  .logo-info { display:flex; align-items:center; gap:10px; margin-top:12px; font-size:14px; }
+  .logo-info img { width:44px; height:44px; object-fit:contain; background:#fff; border:1px solid var(--line); }
+  .linkbtn { background:none; border:0; color:var(--accent); font:inherit; font-weight:700; cursor:pointer; padding:0; text-decoration:underline; }
+  .err { color:#b42318; font-size:14px; margin:8px 0 0; }
+
+  .slider { display:grid; grid-template-columns:90px 1fr 58px; gap:10px; align-items:center; margin:10px 0; font-size:14px; }
+  .slider output { font-family:var(--mono); font-size:12px; text-align:right; }
+  input[type=range] { width:100%; accent-color:var(--accent); }
+  .tools { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+  .tools .chip { font-size:13px; padding:7px 11px; }
+  .chip:disabled { opacity:.4; cursor:not-allowed; }
+
+  .sizes { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+  .size { border:2px solid var(--ink); background:#fff; padding:8px; text-align:center; }
+  .size b { display:block; font-family:var(--display); font-weight:400; font-size:20px; }
+  .qty { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:4px; }
+  .qty button { width:30px; height:30px; border:2px solid var(--ink); background:var(--bg); font-weight:700; cursor:pointer; font-size:16px; line-height:1; }
+  .qty input { width:42px; text-align:center; font:inherit; font-weight:700; border:1px solid var(--line); padding:4px 0; }
+  .total { margin-top:12px; font-weight:700; }
+
+  .field { display:block; margin-top:12px; }
+  .field span { display:block; font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  .field input, .field textarea { width:100%; font:inherit; padding:10px 12px; border:2px solid var(--ink); background:#fff; }
+  .field textarea { min-height:84px; resize:vertical; }
+
+  .ringkas { background:var(--ink); color:var(--bg); border:2px solid var(--ink); box-shadow:6px 6px 0 var(--accent); padding:20px 18px; }
+  .ringkas h2 { color:var(--bg); }
+  .ringkas ul { list-style:none; padding:0; margin:0 0 6px; font-size:15px; }
+  .ringkas li { padding:6px 0; border-bottom:1px dashed #4a463f; display:flex; justify-content:space-between; gap:12px; }
+  .ringkas li span:first-child { color:#a39e95; }
+  .ringkas li span:last-child { text-align:right; }
+  .ringkas .note { font-size:13px; color:#c9c3b8; margin:12px 0 0; }
+  .btn { display:block; width:100%; text-align:center; background:var(--accent); color:var(--ink); text-decoration:none; font-family:var(--display); font-weight:400; font-size:19px; letter-spacing:.04em; text-transform:uppercase; padding:15px 18px; border:2px solid var(--bg); box-shadow:4px 4px 0 var(--bg); margin-top:16px; cursor:pointer; }
+  .btn:hover { transform:translate(-2px,-2px); box-shadow:6px 6px 0 var(--bg); }
+  .btn-2 { background:transparent; color:var(--bg); font-size:16px; padding:11px 16px; box-shadow:none; }
+  .btn-2:hover { box-shadow:none; transform:none; background:#2a2824; }
+  .btn.disabled { opacity:.5; pointer-events:none; }
+
+  .info { padding:8px 0 48px; max-width:880px; }
+  .info h2 { font-family:var(--display); font-weight:400; text-transform:uppercase; font-size:clamp(24px,3.6vw,32px); margin:32px 0 10px; }
+  .info h2::before { content:"✦  "; color:var(--accent); }
+  .info p, .info li { color:var(--ink2); }
+  .info a { color:var(--accent); font-weight:600; }
+  footer { background:var(--ink); color:#a39e95; padding:32px 0 40px; font-size:14px; }
+  footer a { color:var(--bg); }
+  .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+
+  @media (max-width:900px) {
+    .studio { grid-template-columns:1fr; }
+    .stage { position:static; }
+  }
+  @media (max-width:600px) { .logo span { display:none; } .hero { padding:24px 0 18px; } .slider { grid-template-columns:72px 1fr 50px; } }
+</style>
+</head>
+<body>
+<div class="ticker">MOQ 1 pcs &#10022; Desain gratis &#10022; Kirim ke seluruh Indonesia &#10022; Senin–Sabtu 08.00–16.00</div>
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="/"><img src="/logo-willo.png" alt="Logo Willo Apparel" width="31" height="38"><span>WILLO APPAREL</span></a>
+    <a class="nav-cta" href="https://wa.me/6285816900722?text=Halo+Willo+Apparel%2C+saya+dari+halaman+desain+kaos.+Mau+tanya-tanya+dulu.">Chat WA &rarr;</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <a class="eyebrow" href="/">&larr; Willo Apparel · Sablon Ngawi</a>
+    <h1>Desain Kaosmu Sendiri, Langsung Pesan</h1>
+    <p class="lead">Pilih kaos dan warnanya, unggah logo, atur posisinya di depan atau belakang, lalu pilih ukuran. Pesananmu langsung terkirim ke WhatsApp admin Willo Apparel. Bisa mulai 1 pcs.</p>
+  </div>
+</section>
+
+<main class="wrap studio">
+  <div class="stage">
+    <div class="views" role="group" aria-label="Tampilan kaos">
+      <button type="button" class="chip" data-view="depan" aria-pressed="true">Tampak depan</button>
+      <button type="button" class="chip" data-view="belakang" aria-pressed="false">Tampak belakang</button>
+    </div>
+    <canvas id="kanvas" width="600" height="660" aria-label="Pratinjau desain kaos"></canvas>
+    <p class="hint" id="hint">Unggah logo di langkah 2, lalu geser logo langsung di gambar kaos.</p>
+  </div>
+
+  <div class="panel">
+    <section class="step">
+      <h2><b>01</b> Pilih kaos</h2>
+      <span class="label">Jenis lengan</span>
+      <div class="opt" id="lengan">
+        <button type="button" class="chip" data-val="pendek" aria-pressed="true">Lengan pendek</button>
+        <button type="button" class="chip" data-val="panjang" aria-pressed="false">Lengan panjang</button>
+      </div>
+      <span class="label">Warna kaos</span>
+      <div class="opt" id="warna"></div>
+      <div class="colname" id="namaWarna"></div>
+    </section>
+
+    <section class="step">
+      <h2><b>02</b> Unggah logo</h2>
+      <p style="margin:0 0 10px;font-size:15px;color:var(--ink2)">Logo dipasang di sisi yang sedang tampil: <strong id="sisiAktif">depan</strong>. Pindah ke "Tampak belakang" untuk menambah logo di punggung.</p>
+      <label class="drop" id="drop">
+        <input type="file" id="file" accept="image/png,image/jpeg,image/webp">
+        <strong>Pilih file logo</strong>
+        <span>PNG, JPG, atau WebP, maksimal 5 MB. PNG tanpa latar paling rapi.</span>
+      </label>
+      <p class="err" id="fileErr" hidden></p>
+      <div class="logo-info" id="logoInfo" hidden>
+        <img id="logoThumb" alt="">
+        <span id="logoName"></span>
+        <button type="button" class="linkbtn" id="hapusLogo">Hapus</button>
+      </div>
+      <p style="margin:12px 0 0;font-size:14px;color:var(--muted)">Belum punya logo? Lewati saja dan tulis idemu di catatan. Desain dibantu gratis oleh tim kami.</p>
+    </section>
+
+    <section class="step" id="stepAtur">
+      <h2><b>03</b> Atur logo</h2>
+      <div class="slider"><label for="ukuran">Ukuran</label><input type="range" id="ukuran" min="10" max="100" value="45"><output id="ukuranOut">±23 cm</output></div>
+      <div class="slider"><label for="putar">Putar</label><input type="range" id="putar" min="-180" max="180" value="0"><output id="putarOut">0°</output></div>
+      <div class="tools">
+        <button type="button" class="chip" data-pos="dada-kiri">Dada kiri</button>
+        <button type="button" class="chip" data-pos="tengah">Tengah</button>
+        <button type="button" class="chip" data-pos="atas">Atas</button>
+        <button type="button" class="chip" id="undo">&#8630; Urungkan</button>
+        <button type="button" class="chip" id="redo">&#8631; Ulangi</button>
+        <button type="button" class="chip" id="reset">Reset</button>
+      </div>
+      <p class="hint">Ukuran dalam cm adalah perkiraan untuk kaos ukuran L. Admin akan memastikan ukuran sablon sebelum produksi.</p>
+    </section>
+
+    <section class="step">
+      <h2><b>04</b> Ukuran &amp; jumlah</h2>
+      <div class="sizes" id="sizes"></div>
+      <div class="total" id="totalPcs">Total: 0 pcs</div>
+      <p class="hint">Butuh ukuran anak atau ukuran lain? Tulis di catatan.</p>
+    </section>
+
+    <section class="step">
+      <h2><b>05</b> Data pemesan</h2>
+      <label class="field"><span>Nama</span><input id="nama" autocomplete="name" placeholder="Nama kamu"></label>
+      <label class="field"><span>Kota / alamat kirim</span><input id="alamat" autocomplete="street-address" placeholder="Contoh: Ngawi, ambil di workshop"></label>
+      <label class="field"><span>Catatan (opsional)</span><textarea id="catatan" placeholder="Contoh: butuh tanggal 20, warna logo mau diganti putih, minta dibantu desain tulisan di belakang"></textarea></label>
+    </section>
+
+    <section class="ringkas step">
+      <h2><b>06</b> Ringkasan pesanan</h2>
+      <ul id="ringkasan"></ul>
+      <p class="note">Kaos custom mulai Rp 65.000/pcs. Harga pasti tergantung ukuran sablon, bahan, dan jumlah, dan dihitung gratis oleh admin di WhatsApp. Tidak ada pembayaran di halaman ini.</p>
+      <p class="err" id="pesanErr" hidden style="color:#ffb4a6"></p>
+      <a class="btn" id="pesanWA" href="https://wa.me/6285816900722" target="_blank" rel="noopener">Pesan via WhatsApp &rarr;</a>
+      <button type="button" class="btn btn-2" id="simpan">Simpan gambar desain</button>
+      <p class="note">Setelah chat WhatsApp terbuka, kirim juga gambar desain atau file logo aslimu di chat yang sama supaya hasil sablonnya tajam.</p>
+    </section>
+  </div>
+</main>
+
+<section class="wrap info">
+  <h2>Cara kerja pesanan dari halaman ini</h2>
+  <ol>
+    <li>Atur desain di atas, lalu tekan <strong>Pesan via WhatsApp</strong>. Detail pesananmu sudah tertulis otomatis di chat.</li>
+    <li>Kirim gambar desain atau file logo aslimu di chat yang sama.</li>
+    <li>Admin mengecek desain, menghitung harga, dan mengirim mockup final untuk kamu setujui.</li>
+    <li>Kaos dikerjakan 3–7 hari kerja setelah desain disetujui, lalu dikirim atau bisa diambil di workshop Ngawi.</li>
+  </ol>
+  <p>Ingin tahu jenis sablon yang cocok untuk logomu? Baca <a href="/panduan-jenis-sablon-kaos.html">panduan DTF, sablon manual, atau rubber</a> dan <a href="/faktor-harga-sablon-kaos.html">faktor yang menentukan harga sablon kaos</a>.</p>
+</section>
+
+<footer>
+  <div class="wrap">&copy; 2026 Willo Apparel &middot; Jl. PB. Sudirman No.31, Ngawi, Jawa Timur &middot; WhatsApp <a href="https://wa.me/6285816900722">0858-1690-0722</a> &middot; <a href="https://www.instagram.com/willo.apparel">@willo.apparel</a></div>
+</footer>
+
+<script>
+(function () {
+  var WA = '6285816900722';
+  var W = 600, H = 660;
+  var PX_PER_CM = 6;              // lebar badan kaos L ±50 cm = 300 px di kanvas
+  var WARNA = [
+    ['Hitam', '#1b1b1d'], ['Putih', '#f7f7f5'], ['Abu misty', '#b9bcbf'], ['Navy', '#1f2a44'],
+    ['Maroon', '#6b1f2a'], ['Merah', '#c0262d'], ['Hijau army', '#4b5531'], ['Botol', '#1f4a3a'],
+    ['Biru benhur', '#2f5fae'], ['Kuning mustard', '#d9a21b'], ['Cokelat', '#6b4a33'], ['Krem', '#e6d8bd']
+  ];
+  var UKURAN = ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+  var POS = { 'dada-kiri': [355, 205, 14], 'tengah': [300, 300, 45], 'atas': [300, 200, 45] };
+  // Batas area sablon (titik tengah logo) per tampilan
+  var AREA = { x1: 165, x2: 435, y1: 130, y2: 560 };
+
+  var st = {
+    lengan: 'pendek', warna: 0, view: 'depan',
+    sisi: { depan: null, belakang: null },  // {img, src, name, x, y, size, rot}
+    qty: { S: 0, M: 0, L: 0, XL: 0, XXL: 0, XXXL: 0 }
+  };
+  var hist = [], fut = [];
+
+  var cv = document.getElementById('kanvas'), cx = cv.getContext('2d');
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = W * dpr; cv.height = H * dpr;
+
+  function $(id) { return document.getElementById(id); }
+  function hexRgb(h) { var n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+  function luma(h) { var c = hexRgb(h); return (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) / 255; }
+  function shade(h, k) { var c = hexRgb(h).map(function (v) { return Math.max(0, Math.min(255, Math.round(k < 0 ? v * (1 + k) : v + (255 - v) * k))); }); return 'rgb(' + c.join(',') + ')'; }
+
+  // ---------- gambar kaos ----------
+  function bodyPath(lengan, view) {
+    var p = new Path2D();
+    var neckY = view === 'depan' ? 128 : 84;
+    p.moveTo(235, 58);
+    p.lineTo(128, 92);
+    if (lengan === 'pendek') {
+      p.lineTo(38, 196); p.lineTo(98, 252); p.lineTo(150, 208);
+    } else {
+      p.lineTo(70, 200); p.lineTo(40, 470); p.lineTo(98, 482); p.lineTo(150, 268); p.lineTo(150, 222);
+    }
+    p.lineTo(150, 612);
+    p.quadraticCurveTo(300, 626, 450, 612);
+    if (lengan === 'pendek') {
+      p.lineTo(450, 208); p.lineTo(502, 252); p.lineTo(562, 196);
+    } else {
+      p.lineTo(450, 222); p.lineTo(450, 268); p.lineTo(502, 482); p.lineTo(560, 470); p.lineTo(530, 200);
+    }
+    p.lineTo(472, 92);
+    p.lineTo(365, 58);
+    p.quadraticCurveTo(300, neckY + (view === 'depan' ? 12 : 0), 235, 58);
+    p.closePath();
+    return p;
+  }
+
+  function drawShirt(c, lengan, view, warnaHex) {
+    var dark = luma(warnaHex) < 0.45;
+    var stroke = dark ? shade(warnaHex, 0.28) : shade(warnaHex, -0.32);
+    var body = bodyPath(lengan, view);
+    c.save();
+    c.shadowColor = 'rgba(0,0,0,.18)'; c.shadowBlur = 18; c.shadowOffsetY = 8;
+    c.fillStyle = warnaHex; c.fill(body);
+    c.restore();
+    // bayangan lembut
+    c.save(); c.clip(body);
+    var g = c.createLinearGradient(0, 0, W, 0);
+    g.addColorStop(0, 'rgba(0,0,0,.14)'); g.addColorStop(0.28, 'rgba(0,0,0,0)');
+    g.addColorStop(0.72, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.14)');
+    c.fillStyle = g; c.fillRect(0, 0, W, H);
+    var g2 = c.createLinearGradient(0, 60, 0, 620);
+    g2.addColorStop(0, 'rgba(255,255,255,.10)'); g2.addColorStop(1, 'rgba(0,0,0,.08)');
+    c.fillStyle = g2; c.fillRect(0, 0, W, H);
+    c.restore();
+    c.lineWidth = 2; c.strokeStyle = stroke; c.lineJoin = 'round'; c.stroke(body);
+    // kerah
+    c.beginPath();
+    var ny = view === 'depan' ? 128 : 84;
+    c.moveTo(235, 58); c.quadraticCurveTo(300, ny + (view === 'depan' ? 12 : 0), 365, 58);
+    c.lineWidth = 12; c.strokeStyle = shade(warnaHex, dark ? 0.08 : -0.08); c.stroke();
+    c.lineWidth = 1.5; c.strokeStyle = stroke; c.stroke();
+    if (view === 'belakang') {
+      c.beginPath(); c.moveTo(240, 64); c.quadraticCurveTo(300, 104, 360, 64);
+      c.setLineDash([4, 4]); c.lineWidth = 1; c.stroke(); c.setLineDash([]);
+    }
+    // jahitan lengan & bawah
+    c.lineWidth = 1; c.strokeStyle = stroke; c.setLineDash([4, 4]);
+    c.beginPath();
+    if (lengan === 'pendek') { c.moveTo(48, 205); c.lineTo(104, 256); c.moveTo(552, 205); c.lineTo(496, 256); }
+    else { c.moveTo(42, 458); c.lineTo(100, 470); c.moveTo(558, 458); c.lineTo(500, 470); }
+    c.moveTo(150, 598); c.quadraticCurveTo(300, 612, 450, 598);
+    c.moveTo(150, lengan === 'pendek' ? 208 : 222); c.lineTo(128, 92);
+    c.moveTo(450, lengan === 'pendek' ? 208 : 222); c.lineTo(472, 92);
+    c.stroke(); c.setLineDash([]);
+    return body;
+  }
+
+  function logoBox(L) {
+    var r = L.img.naturalHeight / L.img.naturalWidth;
+    var w = L.size * 3, h = w * r;    // size 10..100 -> lebar 30..300 px kanvas (±5..50 cm), dibatasi area
+    var maxW = 270, maxH = 330;
+    var k = Math.min(1, maxW / w, maxH / h);
+    return { w: w * k, h: h * k };
+  }
+
+  function drawLogo(c, L, body, selected) {
+    if (!L) return;
+    var b = logoBox(L);
+    c.save(); c.clip(body);
+    c.translate(L.x, L.y); c.rotate(L.rot * Math.PI / 180);
+    c.drawImage(L.img, -b.w / 2, -b.h / 2, b.w, b.h);
+    if (selected) {
+      c.strokeStyle = '#D9541F'; c.lineWidth = 1.5; c.setLineDash([6, 4]);
+      c.strokeRect(-b.w / 2 - 4, -b.h / 2 - 4, b.w + 8, b.h + 8); c.setLineDash([]);
+    }
+    c.restore();
+  }
+
+  function render() {
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cx.clearRect(0, 0, W, H);
+    cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H);
+    var body = drawShirt(cx, st.lengan, st.view, WARNA[st.warna][1]);
+    drawLogo(cx, st.sisi[st.view], body, true);
+    cx.fillStyle = '#9a948a'; cx.font = '700 11px "JetBrains Mono", monospace';
+    cx.fillText(st.view === 'depan' ? 'DEPAN' : 'BELAKANG', 16, 24);
+  }
+
+  // ---------- riwayat urungkan/ulangi ----------
+  function snap() {
+    var o = {};
+    ['depan', 'belakang'].forEach(function (s) { var L = st.sisi[s]; o[s] = L ? { img: L.img, src: L.src, name: L.name, x: L.x, y: L.y, size: L.size, rot: L.rot } : null; });
+    return o;
+  }
+  function push() { hist.push(snap()); if (hist.length > 60) hist.shift(); fut = []; tools(); }
+  function restore(o) { st.sisi = { depan: o.depan && Object.assign({}, o.depan), belakang: o.belakang && Object.assign({}, o.belakang) }; }
+  $('undo').onclick = function () { if (!hist.length) return; fut.push(snap()); restore(hist.pop()); sync(); };
+  $('redo').onclick = function () { if (!fut.length) return; hist.push(snap()); restore(fut.pop()); sync(); };
+  $('reset').onclick = function () {
+    var L = st.sisi[st.view]; if (!L) return; push();
+    L.x = 300; L.y = 300; L.size = 45; L.rot = 0; sync();
+  };
+
+  // ---------- kontrol ----------
+  function press(group, el) { group.querySelectorAll('[aria-pressed]').forEach(function (b) { b.setAttribute('aria-pressed', b === el ? 'true' : 'false'); }); }
+
+  document.querySelectorAll('.views .chip').forEach(function (b) {
+    b.onclick = function () { st.view = b.dataset.view; press(b.parentNode, b); sync(); };
+  });
+  $('lengan').querySelectorAll('.chip').forEach(function (b) {
+    b.onclick = function () { st.lengan = b.dataset.val; press($('lengan'), b); sync(); };
+  });
+  WARNA.forEach(function (w, i) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'swatch'; b.style.background = w[1];
+    b.title = w[0]; b.setAttribute('aria-label', 'Warna ' + w[0]);
+    b.setAttribute('aria-pressed', i === 0 ? 'true' : 'false');
+    b.onclick = function () { st.warna = i; press($('warna'), b); sync(); };
+    $('warna').appendChild(b);
+  });
+
+  UKURAN.forEach(function (u) {
+    var d = document.createElement('div'); d.className = 'size';
+    d.innerHTML = '<b>' + u + '</b><div class="qty"><button type="button" aria-label="Kurangi ' + u + '">−</button><input inputmode="numeric" aria-label="Jumlah ukuran ' + u + '" value="0"><button type="button" aria-label="Tambah ' + u + '">+</button></div>';
+    var bs = d.querySelectorAll('button'), inp = d.querySelector('input');
+    function set(v) { v = Math.max(0, Math.min(999, parseInt(v, 10) || 0)); st.qty[u] = v; inp.value = v; summary(); }
+    bs[0].onclick = function () { set(st.qty[u] - 1); };
+    bs[1].onclick = function () { set(st.qty[u] + 1); };
+    inp.oninput = function () { set(inp.value.replace(/\D/g, '')); };
+    $('sizes').appendChild(d);
+  });
+
+  ['nama', 'alamat', 'catatan'].forEach(function (id) { $(id).addEventListener('input', summary); });
+
+  var uk = $('ukuran'), pt = $('putar');
+  uk.addEventListener('pointerdown', function () { if (st.sisi[st.view]) push(); });
+  pt.addEventListener('pointerdown', function () { if (st.sisi[st.view]) push(); });
+  uk.addEventListener('keydown', function () { if (st.sisi[st.view]) push(); });
+  pt.addEventListener('keydown', function () { if (st.sisi[st.view]) push(); });
+  uk.oninput = function () { var L = st.sisi[st.view]; if (L) { L.size = +uk.value; sync(); } };
+  pt.oninput = function () { var L = st.sisi[st.view]; if (L) { L.rot = +pt.value; sync(); } };
+  document.querySelectorAll('[data-pos]').forEach(function (b) {
+    b.onclick = function () {
+      var L = st.sisi[st.view]; if (!L) return; push();
+      var p = POS[b.dataset.pos];
+      L.x = p[0]; L.y = st.view === 'belakang' && b.dataset.pos === 'atas' ? 175 : p[1]; L.size = p[2];
+      sync();
+    };
+  });
+
+  // ---------- unggah logo ----------
+  var MAX = 5 * 1024 * 1024;
+  function err(msg) { var e = $('fileErr'); e.textContent = msg || ''; e.hidden = !msg; }
+  function load(file) {
+    err('');
+    if (!file) return;
+    if (!/^image\/(png|jpeg|webp)$/.test(file.type)) { err('Format file harus PNG, JPG, atau WebP.'); return; }
+    if (file.size > MAX) { err('Ukuran file lebih dari 5 MB. Kecilkan dulu, atau kirim file aslinya lewat WhatsApp nanti.'); return; }
+    var rd = new FileReader();
+    rd.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        push();
+        var sisi = st.view;
+        var prev = st.sisi[sisi];
+        st.sisi[sisi] = { img: img, src: rd.result, name: file.name, x: prev ? prev.x : 300, y: prev ? prev.y : (sisi === 'depan' ? 280 : 260), size: prev ? prev.size : 45, rot: prev ? prev.rot : 0 };
+        sync();
+      };
+      img.onerror = function () { err('File gambar tidak bisa dibaca. Coba file lain.'); };
+      img.src = rd.result;
+    };
+    rd.readAsDataURL(file);
+  }
+  $('file').onchange = function () { load(this.files[0]); this.value = ''; };
+  var dz = $('drop');
+  ['dragenter', 'dragover'].forEach(function (ev) { dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.add('over'); }); });
+  ['dragleave', 'drop'].forEach(function (ev) { dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.remove('over'); }); });
+  dz.addEventListener('drop', function (e) { load(e.dataTransfer.files[0]); });
+  $('hapusLogo').onclick = function () { push(); st.sisi[st.view] = null; sync(); };
+
+  // ---------- geser logo di kanvas ----------
+  var drag = null;
+  function pt2(e) { var r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; }
+  cv.addEventListener('pointerdown', function (e) {
+    var L = st.sisi[st.view]; if (!L) return;
+    var p = pt2(e); push();
+    drag = { dx: p.x - L.x, dy: p.y - L.y };
+    cv.setPointerCapture(e.pointerId); cv.classList.add('drag');
+  });
+  cv.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    var L = st.sisi[st.view], p = pt2(e);
+    L.x = Math.max(AREA.x1, Math.min(AREA.x2, p.x - drag.dx));
+    L.y = Math.max(AREA.y1, Math.min(AREA.y2, p.y - drag.dy));
+    render(); summary();
+  });
+  function end() { drag = null; cv.classList.remove('drag'); }
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+
+  // ---------- ringkasan & WhatsApp ----------
+  function cm(L) { return Math.round(logoBox(L).w / PX_PER_CM); }
+  function posisi(L, sisi) {
+    if (sisi === 'depan' && L.x > 330 && L.y < 250 && cm(L) <= 12) return 'dada kiri';
+    if (L.y < 230) return 'atas';
+    if (L.y > 420) return 'bawah';
+    return 'tengah';
+  }
+  function descLogo(sisi) {
+    var L = st.sisi[sisi]; if (!L) return null;
+    return 'ada, ' + posisi(L, sisi) + ', lebar ±' + cm(L) + ' cm' + (L.rot ? ', diputar ' + L.rot + '°' : '');
+  }
+  function totalPcs() { return UKURAN.reduce(function (s, u) { return s + st.qty[u]; }, 0); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  function pesan() {
+    var rinci = UKURAN.filter(function (u) { return st.qty[u]; }).map(function (u) { return u + ' x' + st.qty[u]; }).join(', ');
+    var dpn = descLogo('depan'), blk = descLogo('belakang');
+    var t = [
+      'Halo Willo Apparel, saya mau pesan kaos custom dari halaman Desain Kaos di website.',
+      '',
+      '• Jenis: Lengan ' + st.lengan,
+      '• Warna kaos: ' + WARNA[st.warna][0],
+      '• Logo depan: ' + (dpn || 'tidak ada'),
+      '• Logo belakang: ' + (blk || 'tidak ada'),
+      '• Ukuran & jumlah: ' + rinci + ' (total ' + totalPcs() + ' pcs)',
+      '• Nama: ' + $('nama').value.trim(),
+      '• Kota/alamat: ' + ($('alamat').value.trim() || '-')
+    ];
+    var cat = $('catatan').value.trim();
+    if (cat) t.push('• Catatan: ' + cat);
+    t.push('');
+    t.push(dpn || blk ? 'Gambar desain dan file logonya saya kirim setelah pesan ini.' : 'Saya belum punya logo, mohon dibantu desainnya.');
+    t.push('Mohon info harga dan estimasi selesainya. Terima kasih.');
+    var s = t.join('\n');
+    try { if (Number(localStorage.getItem('willo_dari_google') || 0) > Date.now()) s += ' (dari Google)'; } catch (e) {}
+    return 'https://wa.me/' + WA + '?text=' + encodeURIComponent(s);
+  }
+
+  function masalah() {
+    if (!totalPcs()) return 'Isi jumlah kaos minimal 1 pcs di langkah 4.';
+    if (!$('nama').value.trim()) return 'Isi nama kamu di langkah 5.';
+    return '';
+  }
+
+  function summary() {
+    var rinci = UKURAN.filter(function (u) { return st.qty[u]; }).map(function (u) { return u + ' ×' + st.qty[u]; }).join(', ');
+    var rows = [
+      ['Kaos', 'Lengan ' + st.lengan + ', ' + WARNA[st.warna][0]],
+      ['Logo depan', descLogo('depan') || 'tidak ada'],
+      ['Logo belakang', descLogo('belakang') || 'tidak ada'],
+      ['Ukuran', rinci || 'belum dipilih'],
+      ['Jumlah', totalPcs() + ' pcs']
+    ];
+    $('ringkasan').innerHTML = rows.map(function (r) { return '<li><span>' + r[0] + '</span><span>' + esc(r[1]) + '</span></li>'; }).join('');
+    $('totalPcs').textContent = 'Total: ' + totalPcs() + ' pcs';
+    $('pesanWA').href = pesan();
+    $('pesanErr').hidden = true;
+  }
+
+  $('pesanWA').addEventListener('click', function (e) {
+    var m = masalah();
+    if (m) { e.preventDefault(); var pe = $('pesanErr'); pe.textContent = m; pe.hidden = false; return; }
+    this.href = pesan();
+  });
+
+  // ---------- simpan gambar (depan + belakang) ----------
+  $('simpan').onclick = function () {
+    var ex = document.createElement('canvas'), k = 2;
+    ex.width = W * 2 * k; ex.height = (H + 60) * k;
+    var c = ex.getContext('2d'); c.scale(k, k);
+    c.fillStyle = '#fff'; c.fillRect(0, 0, W * 2, H + 60);
+    ['depan', 'belakang'].forEach(function (s, i) {
+      c.save(); c.translate(i * W, 0);
+      var body = drawShirt(c, st.lengan, s, WARNA[st.warna][1]);
+      drawLogo(c, st.sisi[s], body, false);
+      c.fillStyle = '#161513'; c.font = '700 16px "JetBrains Mono", monospace';
+      c.fillText(s.toUpperCase(), 24, 34);
+      c.restore();
+    });
+    c.fillStyle = '#161513'; c.font = '600 18px Archivo, sans-serif';
+    c.fillText('Willo Apparel · Lengan ' + st.lengan + ' · ' + WARNA[st.warna][0] + ' · WA 0858-1690-0722', 24, H + 38);
+    ex.toBlob(function (blob) {
+      if (!blob) return;
+      var nama = 'desain-kaos-willo.png';
+      var f = null;
+      try { f = new File([blob], nama, { type: 'image/png' }); } catch (e) {}
+      if (f && navigator.canShare && navigator.canShare({ files: [f] }) && /Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        navigator.share({ files: [f], title: 'Desain kaos Willo Apparel' }).catch(function () {});
+        return;
+      }
+      var url = URL.createObjectURL(blob), a = document.createElement('a');
+      a.href = url; a.download = nama; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+    }, 'image/png');
+  };
+
+  // ---------- sinkronisasi tampilan ----------
+  function tools() {
+    var L = st.sisi[st.view];
+    ['ukuran', 'putar'].forEach(function (id) { $(id).disabled = !L; });
+    document.querySelectorAll('#stepAtur [data-pos], #reset').forEach(function (b) { b.disabled = !L; });
+    $('undo').disabled = !hist.length; $('redo').disabled = !fut.length;
+  }
+  function sync() {
+    var L = st.sisi[st.view];
+    $('sisiAktif').textContent = st.view;
+    $('namaWarna').textContent = 'Warna: ' + WARNA[st.warna][0];
+    if (L) {
+      uk.value = L.size; pt.value = L.rot;
+      $('logoInfo').hidden = false; $('logoThumb').src = L.src; $('logoName').textContent = L.name;
+      $('hint').textContent = 'Geser logo langsung di gambar kaos. Atur ukuran dan putaran di langkah 3.';
+    } else {
+      $('logoInfo').hidden = true;
+      $('hint').textContent = st.view === 'depan' ? 'Unggah logo di langkah 2, lalu geser logo langsung di gambar kaos.' : 'Belum ada logo di belakang. Unggah logo di langkah 2 untuk menambahkannya.';
+    }
+    $('ukuranOut').textContent = L ? '±' + cm(L) + ' cm' : '–';
+    $('putarOut').textContent = L ? L.rot + '°' : '–';
+    tools(); render(); summary();
+  }
+
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+  sync();
+})();
+</script>
+<script src="/wa-tag.js" defer></script>
+</body>
+</html>
