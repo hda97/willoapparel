@@ -1,0 +1,24 @@
+# Setelah situs berubah di main, beri tahu mesin pencari (Bing, Yandex, Seznam, Naver lewat IndexNow)
+# bahwa halaman di sitemap sudah diperbarui. Google membaca sitemap sendiri lewat robots.txt.
+name: Kirim sitemap (IndexNow)
+on:
+  push:
+    branches: [main]
+    paths: ["public/**"]
+  workflow_dispatch:
+jobs:
+  indexnow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tunggu deploy Cloudflare selesai
+        run: sleep 180
+      - name: Kirim semua URL sitemap ke IndexNow
+        run: |
+          KEY=4a00f68c3c1a77a9770efaee5f4393bd
+          URLS=$(grep -o '<loc>[^<]*' public/sitemap.xml | sed 's/<loc>//' | jq -R . | jq -s -c .)
+          BODY=$(jq -n -c --arg key "$KEY" --argjson urls "$URLS" '{host:"willoapparel.com",key:$key,keyLocation:("https://willoapparel.com/"+$key+".txt"),urlList:$urls}')
+          echo "$BODY"
+          CODE=$(curl -s -o resp.txt -w '%{http_code}' -X POST https://api.indexnow.org/indexnow -H 'Content-Type: application/json; charset=utf-8' -d "$BODY")
+          cat resp.txt; echo; echo "HTTP $CODE"
+          case "$CODE" in 200|202) ;; *) exit 1 ;; esac
