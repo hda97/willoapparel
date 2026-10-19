@@ -45,105 +45,185 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600;700&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
-  :root { --ink:#161513; --ink2:#3d3a35; --muted:#5c5852; --line:#dcd6cb; --bg:#EEEAE2; --soft:#F6F3EE; --accent:#D9541F; --display:'Anton',Impact,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace; }
+  :root { --ink:#161513; --ink2:#3d3a35; --muted:#6b665e; --line:#e6e0d6; --bg:#EEEAE2; --soft:#F6F3EE; --card:#ffffff; --accent:#D9541F; --accent-soft:#fbe9e0; --wa:#25D366; --r:20px; --r-sm:12px; --shadow:0 1px 2px rgba(22,21,19,.04), 0 12px 32px rgba(22,21,19,.07); --display:'Anton',Impact,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace; }
   * { box-sizing:border-box; }
-  .wa-float { position:fixed; right:16px; bottom:16px; background:#25D366; color:#fff; text-decoration:none; font-weight:700; padding:12px 18px; border-radius:999px; border:2px solid var(--ink); box-shadow:3px 3px 0 var(--ink); z-index:30; transition:opacity .2s; }
-  .wa-float.hide { opacity:0; pointer-events:none; }
   html { scroll-behavior:smooth; }
-  #pesan { scroll-margin-top:80px; }
-  body { margin:0; font-family:'Archivo',system-ui,sans-serif; color:var(--ink); background:var(--bg); line-height:1.55; font-size:16px; }
+  body { margin:0; font-family:'Archivo',system-ui,sans-serif; color:var(--ink); background:var(--bg); line-height:1.55; font-size:16px; -webkit-font-smoothing:antialiased; }
   a { color:inherit; }
-  header { position:sticky; top:0; z-index:20; background:rgba(238,234,226,.95); border-bottom:1px solid var(--line); }
-  .ticker { background:var(--accent); border-bottom:1px solid var(--ink); font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; text-align:center; padding:7px 12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .wrap { max-width:1140px; margin:0 auto; padding:0 16px; }
+  button { font:inherit; color:inherit; }
+  :focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+  header { position:sticky; top:0; z-index:20; background:rgba(238,234,226,.9); backdrop-filter:saturate(1.4) blur(10px); -webkit-backdrop-filter:saturate(1.4) blur(10px); border-bottom:1px solid rgba(22,21,19,.06); }
+  .ticker { background:var(--accent); color:var(--ink); font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; text-align:center; padding:7px 12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .wrap { max-width:1160px; margin:0 auto; padding:0 16px; }
   .nav { display:flex; align-items:center; justify-content:space-between; height:64px; gap:12px; }
   .logo { display:flex; align-items:center; gap:10px; text-decoration:none; font-family:var(--display); font-size:20px; letter-spacing:.02em; }
   .logo img { height:38px; width:auto; }
-  .nav-cta { font-family:var(--display); font-size:14px; letter-spacing:.04em; text-transform:uppercase; text-decoration:none; background:var(--ink); color:var(--bg); padding:9px 14px; border:2px solid var(--ink); box-shadow:3px 3px 0 var(--accent); white-space:nowrap; }
-  .hero { padding:32px 0 24px; }
-  .eyebrow { display:inline-block; background:var(--ink); color:var(--bg); font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; padding:5px 9px; margin-bottom:14px; text-decoration:none; }
-  h1 { font-family:var(--display); font-weight:400; text-transform:uppercase; font-size:clamp(32px,5.4vw,56px); line-height:1; margin:0 0 12px; }
-  .lead { font-size:17px; color:var(--ink2); max-width:680px; margin:0; }
+  .nav-cta { font-weight:700; font-size:14px; text-decoration:none; background:var(--ink); color:var(--bg); padding:10px 16px; border-radius:999px; white-space:nowrap; transition:background .2s; }
+  .nav-cta:hover { background:#2d2a26; }
 
-  .studio { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:28px; align-items:start; padding-bottom:56px; }
-  .stage { position:sticky; top:84px; background:var(--soft); border:2px solid var(--ink); box-shadow:6px 6px 0 var(--accent); padding:14px; }
-  .views { display:flex; gap:0; border:2px solid var(--ink); margin-bottom:12px; }
-  .views button { flex:1; }
-  canvas#kanvas { width:100%; height:auto; display:block; touch-action:none; cursor:grab; background:#fff; border:1px solid var(--line); }
+  .hero { padding:28px 0 20px; }
+  .eyebrow { display:inline-flex; align-items:center; gap:6px; color:var(--muted); font-size:14px; font-weight:600; text-decoration:none; margin-bottom:10px; }
+  .eyebrow:hover { color:var(--accent); }
+  h1 { font-family:var(--display); font-weight:400; text-transform:uppercase; font-size:clamp(30px,5vw,52px); line-height:1.02; margin:0 0 10px; letter-spacing:.005em; }
+  .lead { font-size:17px; color:var(--ink2); max-width:640px; margin:0; }
+
+  .studio { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:24px; align-items:start; padding-bottom:48px; }
+
+  /* Pratinjau */
+  .stage { position:sticky; top:80px; background:var(--card); border-radius:28px; box-shadow:var(--shadow); padding:14px; }
+  .canvas-wrap { position:relative; border-radius:20px; overflow:hidden; background:radial-gradient(120% 90% at 50% 20%, #ffffff 0%, #f4f0e9 70%, #ece6dc 100%); padding:56px 0 8px; }
+  canvas#kanvas { width:100%; height:auto; display:block; touch-action:none; cursor:grab; }
   canvas#kanvas.drag { cursor:grabbing; }
-  .hint { font-size:13px; color:var(--muted); margin:10px 0 0; }
+  .views { position:absolute; top:12px; left:50%; transform:translateX(-50%); display:flex; padding:4px; gap:2px; background:rgba(255,255,255,.85); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border-radius:999px; box-shadow:0 2px 10px rgba(22,21,19,.08); z-index:2; }
+  .views .seg { border:0; background:transparent; padding:8px 16px; border-radius:999px; font-size:14px; font-weight:600; cursor:pointer; color:var(--muted); white-space:nowrap; transition:background .2s,color .2s; }
+  .views .seg[aria-pressed="true"] { background:var(--ink); color:#fff; }
+  .float-tools { position:absolute; right:12px; bottom:12px; display:flex; gap:6px; z-index:2; }
+  .icon-btn { width:40px; height:40px; border-radius:50%; border:0; background:rgba(255,255,255,.9); box-shadow:0 2px 10px rgba(22,21,19,.1); cursor:pointer; font-size:17px; display:grid; place-items:center; transition:transform .15s; }
+  .icon-btn:hover:not(:disabled) { transform:scale(1.06); }
+  .icon-btn:disabled { opacity:.35; cursor:default; }
+  .hint { font-size:13.5px; color:var(--muted); margin:12px 4px 2px; display:flex; gap:8px; align-items:flex-start; }
+  .hint::before { content:"💡"; font-size:13px; }
 
-  .step { background:var(--soft); border:2px solid var(--ink); padding:18px 18px 20px; margin-bottom:18px; }
-  .step h2 { font-family:var(--display); font-weight:400; text-transform:uppercase; font-size:24px; line-height:1.1; margin:0 0 14px; display:flex; gap:10px; align-items:center; }
-  .step h2 b { font-family:var(--mono); font-size:12px; background:var(--accent); color:var(--ink); border:2px solid var(--ink); padding:3px 7px; font-weight:700; }
-  .label { font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:14px 0 8px; display:block; }
-  .opt { display:flex; flex-wrap:wrap; gap:8px; }
-  .chip { font:inherit; font-weight:600; font-size:15px; background:#fff; color:var(--ink); border:2px solid var(--ink); padding:9px 14px; cursor:pointer; }
-  .chip[aria-pressed="true"] { background:var(--ink); color:var(--bg); box-shadow:3px 3px 0 var(--accent); }
-  .views .chip { border:0; border-right:2px solid var(--ink); font-family:var(--mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase; }
-  .views .chip:last-child { border-right:0; }
-  .views .chip[aria-pressed="true"] { box-shadow:none; }
-  .swatch { width:40px; height:40px; border:2px solid var(--ink); cursor:pointer; padding:0; position:relative; }
-  .swatch[aria-pressed="true"] { outline:3px solid var(--accent); outline-offset:2px; }
-  .colname { font-size:14px; color:var(--ink2); margin-top:8px; }
+  /* Panel langkah */
+  .panel { background:var(--card); border-radius:28px; box-shadow:var(--shadow); overflow:hidden; }
+  .tabs { display:flex; gap:4px; padding:10px; background:var(--soft); border-bottom:1px solid var(--line); overflow-x:auto; scrollbar-width:none; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tab { flex:1; display:flex; align-items:center; justify-content:center; gap:8px; border:0; background:transparent; padding:10px 12px; border-radius:14px; font-size:14.5px; font-weight:600; color:var(--muted); cursor:pointer; white-space:nowrap; transition:background .2s,color .2s; }
+  .tab i { font-style:normal; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; font-size:12px; font-weight:700; background:#e7e1d6; color:var(--ink2); transition:background .2s; }
+  .tab[aria-selected="true"] { background:var(--card); color:var(--ink); box-shadow:0 1px 6px rgba(22,21,19,.08); }
+  .tab[aria-selected="true"] i { background:var(--accent); color:#fff; }
+  .tab.done i { background:#1f8a4c; color:#fff; }
+  .pane { padding:22px 22px 8px; animation:muncul .25s ease; }
+  .pane[hidden] { display:none; }
+  @keyframes muncul { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+  .pane h2 { font-size:21px; font-weight:700; margin:0 0 4px; letter-spacing:-.01em; }
+  .pane .sub { margin:0 0 18px; color:var(--muted); font-size:15px; }
+  .label { font-size:13px; font-weight:700; color:var(--ink2); margin:20px 0 10px; display:block; }
+  .label:first-of-type { margin-top:0; }
+  .opt { display:flex; flex-wrap:wrap; gap:10px; }
 
-  .drop { display:block; border:2px dashed var(--ink); background:#fff; padding:18px; text-align:center; cursor:pointer; }
-  .drop:hover, .drop.over { background:#fff7f2; border-color:var(--accent); }
-  .drop strong { display:block; font-size:16px; }
+  .choice { flex:1; min-width:140px; display:flex; flex-direction:column; align-items:flex-start; gap:2px; text-align:left; padding:14px 16px; border-radius:16px; border:1.5px solid var(--line); background:var(--card); cursor:pointer; transition:border-color .2s, background .2s, box-shadow .2s; }
+  .choice b { font-size:15.5px; }
+  .choice small { font-size:13px; color:var(--muted); }
+  .choice:hover { border-color:#cfc6b8; }
+  .choice[aria-pressed="true"] { border-color:var(--accent); background:var(--accent-soft); box-shadow:0 0 0 3px rgba(217,84,31,.12); }
+
+  .swatches { display:grid; grid-template-columns:repeat(auto-fill,minmax(42px,1fr)); gap:10px; max-width:420px; }
+  .swatch { width:42px; height:42px; border-radius:50%; border:0; cursor:pointer; padding:0; box-shadow:inset 0 0 0 1px rgba(0,0,0,.12); transition:transform .15s, box-shadow .2s; position:relative; }
+  .swatch:hover { transform:scale(1.08); }
+  .swatch[aria-pressed="true"] { box-shadow:inset 0 0 0 1px rgba(0,0,0,.12), 0 0 0 3px #fff, 0 0 0 5px var(--accent); }
+  .colname { font-size:14px; color:var(--muted); margin-top:12px; }
+  .colname b { color:var(--ink); }
+
+  .side-note { display:flex; align-items:center; gap:10px; background:var(--soft); border-radius:var(--r-sm); padding:10px 12px; font-size:14px; color:var(--ink2); margin-bottom:14px; }
+  .side-note .mini-seg { margin-left:auto; display:flex; background:#fff; border-radius:999px; padding:3px; box-shadow:inset 0 0 0 1px var(--line); }
+  .mini-seg button { border:0; background:transparent; border-radius:999px; padding:5px 11px; font-size:13px; font-weight:600; cursor:pointer; color:var(--muted); }
+  .mini-seg button[aria-pressed="true"] { background:var(--ink); color:#fff; }
+  .drop { display:flex; flex-direction:column; align-items:center; gap:4px; border:1.5px dashed #cdc4b5; border-radius:18px; background:var(--soft); padding:26px 18px; text-align:center; cursor:pointer; transition:border-color .2s, background .2s; position:relative; }
+  .drop:hover, .drop.over { background:var(--accent-soft); border-color:var(--accent); }
+  .drop .ico { width:46px; height:46px; border-radius:50%; background:#fff; display:grid; place-items:center; font-size:20px; box-shadow:0 2px 8px rgba(22,21,19,.08); margin-bottom:6px; }
+  .drop strong { font-size:16px; }
   .drop span { font-size:13px; color:var(--muted); }
+  .drop.compact { flex-direction:row; justify-content:center; padding:12px 16px; gap:10px; }
+  .drop.compact .ico { width:32px; height:32px; font-size:15px; margin:0; }
+  .drop.compact span:not(.ico) { display:none; }
   .drop input { position:absolute; width:1px; height:1px; opacity:0; }
-  .logo-info { display:flex; align-items:center; gap:10px; margin-top:12px; font-size:14px; }
-  .logo-info img { width:44px; height:44px; object-fit:contain; background:#fff; border:1px solid var(--line); }
-  .linkbtn { background:none; border:0; color:var(--accent); font:inherit; font-weight:700; cursor:pointer; padding:0; text-decoration:underline; }
-  .err { color:#b42318; font-size:14px; margin:8px 0 0; }
+  .logo-info { display:flex; align-items:center; gap:12px; margin-top:12px; padding:10px; border-radius:14px; background:var(--soft); font-size:14px; }
+  .logo-info img { width:46px; height:46px; object-fit:contain; background:#fff; border-radius:10px; }
+  .logo-info span { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600; }
+  .linkbtn { background:none; border:0; color:#b42318; font-weight:600; cursor:pointer; padding:6px 8px; border-radius:8px; }
+  .linkbtn:hover { background:#fde8e6; }
+  .err { color:#b42318; font-size:14px; margin:10px 0 0; }
+  .atur { margin-top:18px; padding-top:4px; }
+  .atur[aria-disabled="true"] { opacity:.45; pointer-events:none; }
+  .slider { display:grid; grid-template-columns:70px 1fr 56px; gap:12px; align-items:center; margin:12px 0; font-size:14px; font-weight:600; }
+  .slider output { font-family:var(--mono); font-size:12px; text-align:right; color:var(--muted); }
+  input[type=range] { -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:999px; background:#e7e1d6; outline-offset:6px; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:22px; height:22px; border-radius:50%; background:#fff; border:0; box-shadow:0 0 0 2px var(--accent), 0 2px 6px rgba(0,0,0,.2); cursor:pointer; }
+  input[type=range]::-moz-range-thumb { width:22px; height:22px; border-radius:50%; background:#fff; border:0; box-shadow:0 0 0 2px var(--accent), 0 2px 6px rgba(0,0,0,.2); cursor:pointer; }
+  .pills { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+  .pill { border:1.5px solid var(--line); background:#fff; border-radius:999px; padding:8px 14px; font-size:14px; font-weight:600; cursor:pointer; transition:border-color .2s, background .2s; }
+  .pill:hover:not(:disabled) { border-color:var(--accent); background:var(--accent-soft); }
+  .pill:disabled { opacity:.45; cursor:default; }
+  .small { font-size:13px; color:var(--muted); margin:12px 0 0; }
 
-  .slider { display:grid; grid-template-columns:90px 1fr 58px; gap:10px; align-items:center; margin:10px 0; font-size:14px; }
-  .slider output { font-family:var(--mono); font-size:12px; text-align:right; }
-  input[type=range] { width:100%; accent-color:var(--accent); }
-  .tools { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
-  .tools .chip { font-size:13px; padding:7px 11px; }
-  .chip:disabled { opacity:.4; cursor:not-allowed; }
+  .sizes { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+  .size { border-radius:16px; background:var(--soft); padding:12px 8px; text-align:center; transition:background .2s, box-shadow .2s; }
+  .size.on { background:var(--accent-soft); box-shadow:inset 0 0 0 1.5px var(--accent); }
+  .size b { display:block; font-size:17px; font-weight:700; }
+  .qty { display:inline-flex; align-items:center; gap:2px; margin-top:8px; background:#fff; border-radius:999px; padding:3px; box-shadow:inset 0 0 0 1px var(--line); }
+  .qty button { width:30px; height:30px; border:0; border-radius:50%; background:transparent; font-weight:700; cursor:pointer; font-size:17px; line-height:1; color:var(--ink2); }
+  .qty button:hover { background:var(--soft); }
+  .qty input { width:34px; text-align:center; font:inherit; font-weight:700; border:0; padding:4px 0; background:transparent; -moz-appearance:textfield; }
+  .total { margin-top:14px; font-weight:700; font-size:15px; }
 
-  .sizes { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
-  .size { border:2px solid var(--ink); background:#fff; padding:8px; text-align:center; }
-  .size b { display:block; font-family:var(--display); font-weight:400; font-size:20px; }
-  .qty { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:4px; }
-  .qty button { width:30px; height:30px; border:2px solid var(--ink); background:var(--bg); font-weight:700; cursor:pointer; font-size:16px; line-height:1; }
-  .qty input { width:42px; text-align:center; font:inherit; font-weight:700; border:1px solid var(--line); padding:4px 0; }
-  .total { margin-top:12px; font-weight:700; }
+  .field { display:block; margin-top:14px; }
+  .field span { display:block; font-size:13px; font-weight:700; color:var(--ink2); margin-bottom:6px; }
+  .field input, .field textarea { width:100%; font:inherit; padding:12px 14px; border:1.5px solid var(--line); border-radius:14px; background:#fff; transition:border-color .2s, box-shadow .2s; }
+  .field input:focus, .field textarea:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(217,84,31,.15); }
+  .field textarea { min-height:88px; resize:vertical; }
 
-  .field { display:block; margin-top:12px; }
-  .field span { display:block; font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
-  .field input, .field textarea { width:100%; font:inherit; padding:10px 12px; border:2px solid var(--ink); background:#fff; }
-  .field textarea { min-height:84px; resize:vertical; }
+  .ringkas { margin-top:20px; background:var(--soft); border-radius:18px; padding:16px 16px 6px; }
+  .ringkas h3 { margin:0 0 6px; font-size:15px; }
+  .ringkas ul { list-style:none; padding:0; margin:0; font-size:14.5px; }
+  .ringkas li { padding:8px 0; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; gap:12px; }
+  .ringkas li:last-child { border-bottom:0; }
+  .ringkas li span:first-child { color:var(--muted); }
+  .ringkas li span:last-child { text-align:right; font-weight:600; }
+  .note { font-size:13px; color:var(--muted); margin:12px 0 0; }
 
-  .ringkas { background:var(--ink); color:var(--bg); border:2px solid var(--ink); box-shadow:6px 6px 0 var(--accent); padding:20px 18px; }
-  .ringkas h2 { color:var(--bg); }
-  .ringkas ul { list-style:none; padding:0; margin:0 0 6px; font-size:15px; }
-  .ringkas li { padding:6px 0; border-bottom:1px dashed #4a463f; display:flex; justify-content:space-between; gap:12px; }
-  .ringkas li span:first-child { color:#a39e95; }
-  .ringkas li span:last-child { text-align:right; }
-  .ringkas .note { font-size:13px; color:#c9c3b8; margin:12px 0 0; }
-  .btn { display:block; width:100%; text-align:center; background:var(--accent); color:var(--ink); text-decoration:none; font-family:var(--display); font-weight:400; font-size:19px; letter-spacing:.04em; text-transform:uppercase; padding:15px 18px; border:2px solid var(--bg); box-shadow:4px 4px 0 var(--bg); margin-top:16px; cursor:pointer; }
-  .btn:hover { transform:translate(-2px,-2px); box-shadow:6px 6px 0 var(--bg); }
-  .btn-2 { background:transparent; color:var(--bg); font-size:16px; padding:11px 16px; box-shadow:none; }
-  .btn-2:hover { box-shadow:none; transform:none; background:#2a2824; }
-  .btn.disabled { opacity:.5; pointer-events:none; }
+  .btn { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; text-align:center; background:var(--wa); color:#fff; text-decoration:none; font-weight:700; font-size:17px; padding:15px 18px; border:0; border-radius:16px; margin-top:16px; cursor:pointer; box-shadow:0 8px 20px rgba(37,211,102,.28); transition:transform .15s, box-shadow .2s; }
+  .btn:hover { transform:translateY(-1px); box-shadow:0 12px 24px rgba(37,211,102,.34); }
+  .btn svg { width:22px; height:22px; fill:currentColor; }
+  .btn-2 { background:#fff; color:var(--ink); box-shadow:inset 0 0 0 1.5px var(--line); font-size:15px; padding:12px 16px; margin-top:10px; }
+  .btn-2:hover { box-shadow:inset 0 0 0 1.5px #cfc6b8; transform:none; }
 
-  .info { padding:8px 0 48px; max-width:880px; }
-  .info h2 { font-family:var(--display); font-weight:400; text-transform:uppercase; font-size:clamp(24px,3.6vw,32px); margin:32px 0 10px; }
-  .info h2::before { content:"✦  "; color:var(--accent); }
-  .info p, .info li { color:var(--ink2); }
-  .info a { color:var(--accent); font-weight:600; }
-  footer { background:var(--ink); color:#a39e95; padding:32px 0 88px; font-size:14px; }
-  footer a { color:var(--bg); }
-  .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+  .nav-steps { display:flex; justify-content:space-between; gap:10px; padding:16px 22px 22px; }
+  .nav-steps button { border:0; border-radius:14px; padding:12px 20px; font-weight:700; font-size:15px; cursor:pointer; transition:background .2s; }
+  .back { background:transparent; color:var(--muted); }
+  .back:hover { background:var(--soft); }
+  .next { background:var(--ink); color:#fff; margin-left:auto; }
+  .next:hover { background:#2d2a26; }
 
+  /* Bilah bawah di HP */
+  .bar { display:none; }
   @media (max-width:900px) {
-    .studio { grid-template-columns:1fr; }
-    .stage { position:static; }
+    .studio { grid-template-columns:1fr; gap:16px; }
+    .stage { position:relative; top:auto; border-radius:24px; padding:10px; }
+    .panel { border-radius:24px; }
+    .bar { display:flex; align-items:center; gap:12px; position:fixed; left:12px; right:12px; bottom:12px; z-index:30; background:rgba(22,21,19,.94); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); color:#fff; border-radius:20px; padding:10px 10px 10px 18px; box-shadow:0 10px 30px rgba(0,0,0,.25); transition:transform .25s, opacity .25s; }
+    .bar.hide { transform:translateY(130%); opacity:0; pointer-events:none; }
+    .bar div { flex:1; min-width:0; font-size:13px; line-height:1.3; color:#c9c3b8; }
+    .bar div b { display:block; color:#fff; font-size:15px; }
+    .bar button { border:0; background:var(--wa); color:#fff; font-weight:700; border-radius:14px; padding:11px 16px; cursor:pointer; font-size:15px; white-space:nowrap; }
+    footer { padding-bottom:96px !important; }
   }
-  @media (max-width:600px) { .logo span { display:none; } .hero { padding:24px 0 18px; } .slider { grid-template-columns:72px 1fr 50px; } }
+  @media (max-width:600px) {
+    .logo span { display:none; }
+    .hero { padding:18px 0 14px; }
+    .tab { padding:9px 10px; font-size:13.5px; gap:6px; }
+    .tab span { display:none; }
+    .tab[aria-selected="true"] span { display:inline; }
+    .pane { padding:20px 16px 4px; }
+    .nav-steps { padding:14px 16px 18px; }
+    .views .seg { padding:7px 13px; font-size:13px; }
+    .sizes { gap:8px; }
+    .size { padding:10px 4px; }
+    .qty button { width:26px; height:26px; font-size:15px; }
+    .qty input { width:26px; }
+  }
+
+  .info { padding-top:8px; padding-bottom:48px; max-width:860px; }
+  .info h2 { font-family:var(--display); font-weight:400; text-transform:uppercase; font-size:clamp(24px,3.4vw,30px); margin:28px 0 10px; }
+  .info ol { padding-left:0; list-style:none; counter-reset:n; display:grid; gap:10px; }
+  .info li { counter-increment:n; background:var(--card); border-radius:16px; padding:14px 16px 14px 56px; position:relative; color:var(--ink2); box-shadow:0 1px 2px rgba(22,21,19,.04); }
+  .info li::before { content:counter(n); position:absolute; left:16px; top:13px; width:28px; height:28px; border-radius:50%; background:var(--accent-soft); color:var(--accent); font-weight:700; display:grid; place-items:center; font-size:14px; }
+  .info p { color:var(--ink2); }
+  .info a { color:var(--accent); font-weight:600; }
+  footer { background:var(--ink); color:#a39e95; padding:32px 0 40px; font-size:14px; }
+  .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+  footer a { color:var(--bg); }
+  @media (prefers-reduced-motion:reduce) { *, *::before { animation:none !important; transition:none !important; } html { scroll-behavior:auto; } }
 </style>
 </head>
 <body>
@@ -159,40 +239,63 @@
   <div class="wrap">
     <a class="eyebrow" href="/">&larr; Willo Apparel · Sablon Ngawi</a>
     <h1>Desain Kaosmu Sendiri, Langsung Pesan</h1>
-    <p class="lead">Pilih kaos dan warnanya, unggah logo, atur posisinya di depan atau belakang, lalu pilih ukuran. Pesananmu langsung terkirim ke WhatsApp admin Willo Apparel. Bisa mulai 1 pcs.</p>
+    <p class="lead">Pilih kaos, unggah logo, atur posisinya, lalu pilih ukuran. Pesananmu langsung masuk ke WhatsApp admin Willo Apparel. Bisa mulai 1 pcs.</p>
   </div>
 </section>
 
 <main class="wrap studio">
   <div class="stage">
-    <div class="views" role="group" aria-label="Tampilan kaos">
-      <button type="button" class="chip" data-view="depan" aria-pressed="true">Tampak depan</button>
-      <button type="button" class="chip" data-view="belakang" aria-pressed="false">Tampak belakang</button>
+    <div class="canvas-wrap">
+      <div class="views" role="group" aria-label="Tampilan kaos">
+        <button type="button" class="seg" data-view="depan" aria-pressed="true">Depan</button>
+        <button type="button" class="seg" data-view="belakang" aria-pressed="false">Belakang</button>
+      </div>
+      <canvas id="kanvas" width="600" height="660" aria-label="Pratinjau desain kaos"></canvas>
+      <div class="float-tools">
+        <button type="button" class="icon-btn" id="undo" aria-label="Urungkan" title="Urungkan">&#8630;</button>
+        <button type="button" class="icon-btn" id="redo" aria-label="Ulangi" title="Ulangi">&#8631;</button>
+        <button type="button" class="icon-btn" id="reset" aria-label="Kembalikan posisi logo" title="Kembalikan posisi logo">&#10227;</button>
+      </div>
     </div>
-    <canvas id="kanvas" width="600" height="660" aria-label="Pratinjau desain kaos"></canvas>
     <p class="hint" id="hint">Unggah logo di langkah 2, lalu geser logo langsung di gambar kaos.</p>
   </div>
 
   <div class="panel">
-    <section class="step">
-      <h2><b>01</b> Pilih kaos</h2>
+    <div class="tabs" role="tablist" aria-label="Langkah desain">
+      <button type="button" class="tab" role="tab" id="tab-1" aria-controls="pane-1" aria-selected="true"><i>1</i><span>Kaos</span></button>
+      <button type="button" class="tab" role="tab" id="tab-2" aria-controls="pane-2" aria-selected="false"><i>2</i><span>Logo</span></button>
+      <button type="button" class="tab" role="tab" id="tab-3" aria-controls="pane-3" aria-selected="false"><i>3</i><span>Ukuran</span></button>
+      <button type="button" class="tab" role="tab" id="tab-4" aria-controls="pane-4" aria-selected="false"><i>4</i><span>Pesan</span></button>
+    </div>
+
+    <section class="pane" role="tabpanel" id="pane-1" aria-labelledby="tab-1">
+      <h2>Pilih kaosnya</h2>
+      <p class="sub">Bahan cotton combed, nyaman dipakai harian.</p>
       <span class="label">Jenis lengan</span>
       <div class="opt" id="lengan">
-        <button type="button" class="chip" data-val="pendek" aria-pressed="true">Lengan pendek</button>
-        <button type="button" class="chip" data-val="panjang" aria-pressed="false">Lengan panjang</button>
+        <button type="button" class="choice" data-val="pendek" aria-pressed="true"><b>Lengan pendek</b><small>Paling sering dipesan</small></button>
+        <button type="button" class="choice" data-val="panjang" aria-pressed="false"><b>Lengan panjang</b><small>Rapi untuk seragam</small></button>
       </div>
       <span class="label">Warna kaos</span>
-      <div class="opt" id="warna"></div>
+      <div class="swatches" id="warna"></div>
       <div class="colname" id="namaWarna"></div>
     </section>
 
-    <section class="step">
-      <h2><b>02</b> Unggah logo</h2>
-      <p style="margin:0 0 10px;font-size:15px;color:var(--ink2)">Logo dipasang di sisi yang sedang tampil: <strong id="sisiAktif">depan</strong>. Pindah ke "Tampak belakang" untuk menambah logo di punggung.</p>
+    <section class="pane" role="tabpanel" id="pane-2" aria-labelledby="tab-2" hidden>
+      <h2>Tambahkan logo</h2>
+      <p class="sub">Belum punya logo? Lewati saja, desain dibantu gratis oleh tim kami.</p>
+      <div class="side-note">Logo untuk sisi
+        <div class="mini-seg" role="group" aria-label="Sisi kaos">
+          <button type="button" data-view="depan" aria-pressed="true">Depan</button>
+          <button type="button" data-view="belakang" aria-pressed="false">Belakang</button>
+        </div>
+      </div>
+      <span class="sr" id="sisiAktif">depan</span>
       <label class="drop" id="drop">
         <input type="file" id="file" accept="image/png,image/jpeg,image/webp">
-        <strong>Pilih file logo</strong>
-        <span>PNG, JPG, atau WebP, maksimal 5 MB. PNG tanpa latar paling rapi.</span>
+        <span class="ico" aria-hidden="true">&#8679;</span>
+        <strong>Ketuk untuk pilih logo</strong>
+        <span>atau seret file ke sini · PNG, JPG, WebP, maks 5 MB</span>
       </label>
       <p class="err" id="fileErr" hidden></p>
       <div class="logo-info" id="logoInfo" hidden>
@@ -200,47 +303,49 @@
         <span id="logoName"></span>
         <button type="button" class="linkbtn" id="hapusLogo">Hapus</button>
       </div>
-      <p style="margin:12px 0 0;font-size:14px;color:var(--muted)">Belum punya logo? Lewati saja dan tulis idemu di catatan. Desain dibantu gratis oleh tim kami.</p>
-    </section>
-
-    <section class="step" id="stepAtur">
-      <h2><b>03</b> Atur logo</h2>
-      <div class="slider"><label for="ukuran">Ukuran</label><input type="range" id="ukuran" min="10" max="100" value="45"><output id="ukuranOut">±23 cm</output></div>
-      <div class="slider"><label for="putar">Putar</label><input type="range" id="putar" min="-180" max="180" value="0"><output id="putarOut">0°</output></div>
-      <div class="tools">
-        <button type="button" class="chip" data-pos="dada-kiri">Dada kiri</button>
-        <button type="button" class="chip" data-pos="tengah">Tengah</button>
-        <button type="button" class="chip" data-pos="atas">Atas</button>
-        <button type="button" class="chip" id="undo">&#8630; Urungkan</button>
-        <button type="button" class="chip" id="redo">&#8631; Ulangi</button>
-        <button type="button" class="chip" id="reset">Reset</button>
+      <div class="atur" id="stepAtur" aria-disabled="true">
+        <span class="label">Atur logo</span>
+        <div class="slider"><label for="ukuran">Ukuran</label><input type="range" id="ukuran" min="10" max="100" value="45"><output id="ukuranOut">–</output></div>
+        <div class="slider"><label for="putar">Putar</label><input type="range" id="putar" min="-180" max="180" value="0"><output id="putarOut">–</output></div>
+        <div class="pills">
+          <button type="button" class="pill" data-pos="dada-kiri">Dada kiri</button>
+          <button type="button" class="pill" data-pos="tengah">Tengah</button>
+          <button type="button" class="pill" data-pos="atas">Atas</button>
+        </div>
+        <p class="small">Ukuran cm adalah perkiraan untuk kaos L. Admin memastikan ukuran sablon sebelum produksi.</p>
       </div>
-      <p class="hint">Ukuran dalam cm adalah perkiraan untuk kaos ukuran L. Admin akan memastikan ukuran sablon sebelum produksi.</p>
     </section>
 
-    <section class="step">
-      <h2><b>04</b> Ukuran &amp; jumlah</h2>
+    <section class="pane" role="tabpanel" id="pane-3" aria-labelledby="tab-3" hidden>
+      <h2>Ukuran &amp; jumlah</h2>
+      <p class="sub">Isi jumlah untuk tiap ukuran. Boleh campur, mulai 1 pcs.</p>
       <div class="sizes" id="sizes"></div>
       <div class="total" id="totalPcs">Total: 0 pcs</div>
-      <p class="hint">Butuh ukuran anak atau ukuran lain? Tulis di catatan.</p>
+      <p class="err" id="ukErr" hidden>Isi jumlah minimal 1 pcs dulu, ya.</p>
+      <p class="small">Butuh ukuran anak atau ukuran lain? Tulis di catatan pada langkah berikutnya.</p>
     </section>
 
-    <section class="step">
-      <h2><b>05</b> Data pemesan</h2>
+    <section class="pane" role="tabpanel" id="pane-4" aria-labelledby="tab-4" hidden>
+      <h2>Kirim pesanan</h2>
+      <p class="sub">Tidak ada pembayaran di sini. Admin menghitung harga di WhatsApp.</p>
       <label class="field"><span>Nama</span><input id="nama" autocomplete="name" placeholder="Nama kamu"></label>
       <label class="field"><span>Kota / alamat kirim</span><input id="alamat" autocomplete="street-address" placeholder="Contoh: Ngawi, ambil di workshop"></label>
-      <label class="field"><span>Catatan (opsional)</span><textarea id="catatan" placeholder="Contoh: butuh tanggal 20, warna logo mau diganti putih, minta dibantu desain tulisan di belakang"></textarea></label>
+      <label class="field"><span>Catatan (opsional)</span><textarea id="catatan" placeholder="Contoh: butuh tanggal 20, minta dibantu desain tulisan di belakang"></textarea></label>
+      <div class="ringkas" id="pesan">
+        <h3>Ringkasan</h3>
+        <ul id="ringkasan"></ul>
+      </div>
+      <p class="note">Kaos custom mulai Rp 65.000/pcs. Harga pasti tergantung ukuran sablon, bahan, dan jumlah.</p>
+      <p class="err" id="pesanErr" hidden></p>
+      <a class="btn" id="pesanWA" href="https://wa.me/6285816900722" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>Pesan via WhatsApp</a>
+      <button type="button" class="btn btn-2" id="simpan">Simpan gambar desain</button>
+      <p class="note">Setelah chat terbuka, kirim juga gambar desain atau file logo aslimu supaya hasil sablonnya tajam.</p>
     </section>
 
-    <section class="ringkas step" id="pesan">
-      <h2><b>06</b> Ringkasan pesanan</h2>
-      <ul id="ringkasan"></ul>
-      <p class="note">Kaos custom mulai Rp 65.000/pcs. Harga pasti tergantung ukuran sablon, bahan, dan jumlah, dan dihitung gratis oleh admin di WhatsApp. Tidak ada pembayaran di halaman ini.</p>
-      <p class="err" id="pesanErr" hidden style="color:#ffb4a6"></p>
-      <a class="btn" id="pesanWA" href="https://wa.me/6285816900722" target="_blank" rel="noopener">Pesan via WhatsApp &rarr;</a>
-      <button type="button" class="btn btn-2" id="simpan">Simpan gambar desain</button>
-      <p class="note">Setelah chat WhatsApp terbuka, kirim juga gambar desain atau file logo aslimu di chat yang sama supaya hasil sablonnya tajam.</p>
-    </section>
+    <div class="nav-steps">
+      <button type="button" class="back" id="prevStep">&larr; Kembali</button>
+      <button type="button" class="next" id="nextStep">Lanjut &rarr;</button>
+    </div>
   </div>
 </main>
 
@@ -380,11 +485,8 @@
   function render() {
     cx.setTransform(dpr, 0, 0, dpr, 0, 0);
     cx.clearRect(0, 0, W, H);
-    cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H);
     var body = drawShirt(cx, st.lengan, st.view, WARNA[st.warna][1]);
     drawLogo(cx, st.sisi[st.view], body, true);
-    cx.fillStyle = '#9a948a'; cx.font = '700 11px "JetBrains Mono", monospace';
-    cx.fillText(st.view === 'depan' ? 'DEPAN' : 'BELAKANG', 16, 24);
   }
 
   // ---------- riwayat urungkan/ulangi ----------
@@ -405,10 +507,11 @@
   // ---------- kontrol ----------
   function press(group, el) { group.querySelectorAll('[aria-pressed]').forEach(function (b) { b.setAttribute('aria-pressed', b === el ? 'true' : 'false'); }); }
 
-  document.querySelectorAll('.views .chip').forEach(function (b) {
-    b.onclick = function () { st.view = b.dataset.view; press(b.parentNode, b); sync(); };
+  var viewBtns = document.querySelectorAll('[data-view]');
+  viewBtns.forEach(function (b) {
+    b.onclick = function () { st.view = b.dataset.view; sync(); };
   });
-  $('lengan').querySelectorAll('.chip').forEach(function (b) {
+  $('lengan').querySelectorAll('.choice').forEach(function (b) {
     b.onclick = function () { st.lengan = b.dataset.val; press($('lengan'), b); sync(); };
   });
   WARNA.forEach(function (w, i) {
@@ -424,7 +527,7 @@
     var d = document.createElement('div'); d.className = 'size';
     d.innerHTML = '<b>' + u + '</b><div class="qty"><button type="button" aria-label="Kurangi ' + u + '">−</button><input inputmode="numeric" aria-label="Jumlah ukuran ' + u + '" value="0"><button type="button" aria-label="Tambah ' + u + '">+</button></div>';
     var bs = d.querySelectorAll('button'), inp = d.querySelector('input');
-    function set(v) { v = Math.max(0, Math.min(999, parseInt(v, 10) || 0)); st.qty[u] = v; inp.value = v; summary(); }
+    function set(v) { v = Math.max(0, Math.min(999, parseInt(v, 10) || 0)); st.qty[u] = v; inp.value = v; d.classList.toggle('on', v > 0); summary(); }
     bs[0].onclick = function () { set(st.qty[u] - 1); };
     bs[1].onclick = function () { set(st.qty[u] + 1); };
     inp.oninput = function () { set(inp.value.replace(/\D/g, '')); };
@@ -538,8 +641,8 @@
   }
 
   function masalah() {
-    if (!totalPcs()) return 'Isi jumlah kaos minimal 1 pcs di langkah 4.';
-    if (!$('nama').value.trim()) return 'Isi nama kamu di langkah 5.';
+    if (!totalPcs()) return 'Isi jumlah kaos minimal 1 pcs di langkah 3 (Ukuran).';
+    if (!$('nama').value.trim()) return 'Isi nama kamu dulu, ya.';
     return '';
   }
 
@@ -599,17 +702,21 @@
   function tools() {
     var L = st.sisi[st.view];
     ['ukuran', 'putar'].forEach(function (id) { $(id).disabled = !L; });
+    $('stepAtur').setAttribute('aria-disabled', L ? 'false' : 'true');
     document.querySelectorAll('#stepAtur [data-pos], #reset').forEach(function (b) { b.disabled = !L; });
     $('undo').disabled = !hist.length; $('redo').disabled = !fut.length;
   }
   function sync() {
     var L = st.sisi[st.view];
     $('sisiAktif').textContent = st.view;
+    viewBtns.forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.view === st.view ? 'true' : 'false'); });
     $('namaWarna').textContent = 'Warna: ' + WARNA[st.warna][0];
+    $('drop').classList.toggle('compact', !!L);
+    $('drop').querySelector('strong').textContent = L ? 'Ganti logo' : 'Ketuk untuk pilih logo';
     if (L) {
       uk.value = L.size; pt.value = L.rot;
       $('logoInfo').hidden = false; $('logoThumb').src = L.src; $('logoName').textContent = L.name;
-      $('hint').textContent = 'Geser logo langsung di gambar kaos. Atur ukuran dan putaran di langkah 3.';
+      $('hint').textContent = 'Geser logo langsung di gambar kaos. Atur ukuran dan putaran di langkah 2.';
     } else {
       $('logoInfo').hidden = true;
       $('hint').textContent = st.view === 'depan' ? 'Unggah logo di langkah 2, lalu geser logo langsung di gambar kaos.' : 'Belum ada logo di belakang. Unggah logo di langkah 2 untuk menambahkannya.';
@@ -623,10 +730,60 @@
   sync();
 })();
 </script>
-<a class="wa-float" id="waFloat" href="#pesan" aria-label="Lanjut ke ringkasan pesanan WhatsApp">Pesan via WA &darr;</a>
+<div class="bar" id="bar">
+  <div><b id="barPcs">0 pcs</b><span id="barInfo">Lengan pendek · Hitam</span></div>
+  <button type="button" id="barGo">Pesan via WA &rarr;</button>
+</div>
 <script>
-(function(){var f=document.getElementById('waFloat'),t=document.getElementById('pesan');if(!f||!t||!('IntersectionObserver' in window))return;
-new IntersectionObserver(function(e){f.classList.toggle('hide',e[0].isIntersecting)}).observe(t);})();
+(function () {
+  var tabs = [].slice.call(document.querySelectorAll('.tab')), cur = 0;
+  var prev = document.getElementById('prevStep'), next = document.getElementById('nextStep');
+  function show(i, scroll) {
+    cur = Math.max(0, Math.min(tabs.length - 1, i));
+    tabs.forEach(function (t, k) {
+      t.setAttribute('aria-selected', k === cur ? 'true' : 'false');
+      t.tabIndex = k === cur ? 0 : -1;
+      t.classList.toggle('done', k < cur);
+      document.getElementById(t.getAttribute('aria-controls')).hidden = k !== cur;
+    });
+    prev.style.visibility = cur === 0 ? 'hidden' : 'visible';
+    next.style.display = cur === tabs.length - 1 ? 'none' : '';
+    next.innerHTML = cur === tabs.length - 2 ? 'Lanjut ke pesanan &rarr;' : 'Lanjut &rarr;';
+    bar.classList.toggle('hide', cur === tabs.length - 1);
+    if (scroll) document.querySelector('.panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  var bar = document.getElementById('bar');
+  tabs.forEach(function (t, k) {
+    t.onclick = function () { show(k); };
+    t.onkeydown = function (e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); show(cur + (e.key === 'ArrowRight' ? 1 : -1)); tabs[cur].focus(); }
+    };
+  });
+  prev.onclick = function () { show(cur - 1, innerWidth <= 900); };
+  next.onclick = function () { show(cur + 1, innerWidth <= 900); };
+  document.getElementById('barGo').onclick = function () { show(tabs.length - 1, true); };
+  // Ringkas info bilah bawah mengikuti isi ringkasan
+  var pcs = document.getElementById('totalPcs'), warna = document.getElementById('namaWarna');
+  function upd() {
+    if (!/^Total: 0 /.test(pcs.textContent)) document.getElementById('ukErr').hidden = true;
+    document.getElementById('barPcs').textContent = pcs.textContent.replace('Total: ', '');
+    var l = document.querySelector('#lengan [aria-pressed="true"] b');
+    document.getElementById('barInfo').textContent = (l ? l.textContent : '') + ' · ' + warna.textContent.replace('Warna: ', '');
+  }
+  new MutationObserver(upd).observe(pcs, { childList: true, characterData: true, subtree: true });
+  new MutationObserver(upd).observe(warna, { childList: true, characterData: true, subtree: true });
+  document.getElementById('lengan').addEventListener('click', function () { setTimeout(upd, 0); });
+  // Kesalahan pesanan: arahkan ke langkah yang perlu dilengkapi
+  document.getElementById('pesanWA').addEventListener('click', function () {
+    setTimeout(function () {
+      var e = document.getElementById('pesanErr');
+      if (e.hidden) return;
+      if (/langkah 3/.test(e.textContent)) { e.hidden = true; document.getElementById('ukErr').hidden = false; show(2, true); }
+      else document.getElementById('nama').focus();
+    }, 0);
+  });
+  upd(); show(0);
+})();
 </script>
 <script src="/wa-tag.js" defer></script>
 </body>
