@@ -10,8 +10,6 @@
     { "pattern": "*.willoapparel.com/*", "zone_name": "willoapparel.com" }
   ],
   "workers_dev": true,
-  // Catatan kunjungan mentah (lihat worker.js). Dibaca lewat Analytics Engine SQL API.
-  "analytics_engine_datasets": [{ "binding": "LOG", "dataset": "willo_kunjungan" }],
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
