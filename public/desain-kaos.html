@@ -394,14 +394,14 @@
 
   // ---------- gambar kaos: foto mockup polos Willo, diwarnai di kanvas ----------
   // kaos-*.png = peta bayangan abu-abu (128 = kain rata); diwarnai lewat hard-light supaya lipatan tetap terlihat
-  var MK = { depan: [244, 13], belakang: [255, 13], panjang: [252, 11] };   // [tengah badan x, atas kerah y]
+  var MK = { depan: [246, 9], belakang: [240, 9], panjang: [272, 11], 'panjang-belakang': [264, 10] };   // [tengah badan x, atas kerah y]
   var TOP = 46, SK = 2, cache = {};
   Object.keys(MK).forEach(function (k) {
-    var im = new Image(); im.src = '/mockup/kaos-' + k + '.png';
+    var im = new Image(); im.src = '/mockup/kaos-' + k + '.png?v=2';
     im.onload = function () { cache = {}; render(); };
     MK[k].push(im);
   });
-  function mk(lengan, view) { return lengan === 'panjang' ? MK.panjang : MK[view]; }
+  function mk(lengan, view) { return MK[lengan === 'panjang' ? (view === 'belakang' ? 'panjang-belakang' : 'panjang') : view]; }
   function shirtLayer(lengan, view, hex) {
     var key = lengan + view + hex; if (cache[key]) return cache[key];
     var m = mk(lengan, view), im = m[2];
