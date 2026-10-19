@@ -20,9 +20,22 @@
   });
 })();
 
+// Catatan kunjungan milik sendiri (worker.js → Analytics Engine): satu sinyal "view" per halaman
+// dari browser sungguhan, dan satu sinyal "wa" per klik tombol WhatsApp.
+function willoKirim(t) {
+  try {
+    var q = new URLSearchParams(location.search);
+    var u = '/_k?t=' + t + '&p=' + encodeURIComponent(location.pathname) +
+      '&r=' + encodeURIComponent(document.referrer || '') + '&u=' + encodeURIComponent(q.get('utm_source') || '');
+    if (navigator.sendBeacon) navigator.sendBeacon(u); else fetch(u, { keepalive: true });
+  } catch (e) {}
+}
+willoKirim('view');
+
 // Catat setiap klik tombol WhatsApp ke Google Analytics (GA4) sebagai event "klik_whatsapp".
 document.addEventListener('click', function (e) {
   var a = e.target.closest && e.target.closest('a[href*="wa.me/"]');
+  if (a) willoKirim('wa');
   if (!a || typeof gtag !== 'function') return;
   gtag('event', 'klik_whatsapp', {
     halaman: location.pathname,
