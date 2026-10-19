@@ -250,7 +250,7 @@
         <button type="button" class="seg" data-view="depan" aria-pressed="true">Depan</button>
         <button type="button" class="seg" data-view="belakang" aria-pressed="false">Belakang</button>
       </div>
-      <canvas id="kanvas" width="600" height="660" aria-label="Pratinjau desain kaos"></canvas>
+      <canvas id="kanvas" width="600" height="580" aria-label="Pratinjau desain kaos"></canvas>
       <div class="float-tools">
         <button type="button" class="icon-btn" id="undo" aria-label="Urungkan" title="Urungkan">&#8630;</button>
         <button type="button" class="icon-btn" id="redo" aria-label="Ulangi" title="Ulangi">&#8631;</button>
@@ -367,7 +367,7 @@
 <script>
 (function () {
   var WA = '6285816900722';
-  var W = 600, H = 660;
+  var W = 600, H = 580;
   var PX_PER_CM = 6;              // lebar badan kaos L ±50 cm = 300 px di kanvas
   var WARNA = [
     ['Hitam', '#1b1b1d'], ['Putih', '#f7f7f5'], ['Abu misty', '#b9bcbf'], ['Navy', '#1f2a44'],
@@ -375,9 +375,9 @@
     ['Biru benhur', '#2f5fae'], ['Kuning mustard', '#d9a21b'], ['Cokelat', '#6b4a33'], ['Krem', '#e6d8bd']
   ];
   var UKURAN = ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
-  var POS = { 'dada-kiri': [355, 205, 14], 'tengah': [300, 300, 45], 'atas': [300, 200, 45] };
+  var POS = { 'dada-kiri': [352, 170, 14], 'tengah': [300, 250, 45], 'atas': [300, 175, 45] };
   // Batas area sablon (titik tengah logo) per tampilan
-  var AREA = { x1: 165, x2: 435, y1: 130, y2: 560 };
+  var AREA = { x1: 165, x2: 435, y1: 110, y2: 470 };
 
   var st = {
     lengan: 'pendek', warna: 0, view: 'depan',
@@ -391,74 +391,39 @@
   cv.width = W * dpr; cv.height = H * dpr;
 
   function $(id) { return document.getElementById(id); }
-  function hexRgb(h) { var n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
-  function luma(h) { var c = hexRgb(h); return (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) / 255; }
-  function shade(h, k) { var c = hexRgb(h).map(function (v) { return Math.max(0, Math.min(255, Math.round(k < 0 ? v * (1 + k) : v + (255 - v) * k))); }); return 'rgb(' + c.join(',') + ')'; }
 
-  // ---------- gambar kaos ----------
-  function bodyPath(lengan, view) {
-    var p = new Path2D();
-    var neckY = view === 'depan' ? 128 : 84;
-    p.moveTo(235, 58);
-    p.lineTo(128, 92);
-    if (lengan === 'pendek') {
-      p.lineTo(38, 196); p.lineTo(98, 252); p.lineTo(150, 208);
-    } else {
-      p.lineTo(70, 200); p.lineTo(40, 470); p.lineTo(98, 482); p.lineTo(150, 268); p.lineTo(150, 222);
-    }
-    p.lineTo(150, 612);
-    p.quadraticCurveTo(300, 626, 450, 612);
-    if (lengan === 'pendek') {
-      p.lineTo(450, 208); p.lineTo(502, 252); p.lineTo(562, 196);
-    } else {
-      p.lineTo(450, 222); p.lineTo(450, 268); p.lineTo(502, 482); p.lineTo(560, 470); p.lineTo(530, 200);
-    }
-    p.lineTo(472, 92);
-    p.lineTo(365, 58);
-    p.quadraticCurveTo(300, neckY + (view === 'depan' ? 12 : 0), 235, 58);
-    p.closePath();
-    return p;
+  // ---------- gambar kaos: foto mockup polos Willo, diwarnai di kanvas ----------
+  // kaos-*.png = peta bayangan abu-abu (128 = kain rata); diwarnai lewat hard-light supaya lipatan tetap terlihat
+  var MK = { depan: [244, 13], belakang: [255, 13], panjang: [252, 11] };   // [tengah badan x, atas kerah y]
+  var TOP = 46, SK = 2, cache = {};
+  Object.keys(MK).forEach(function (k) {
+    var im = new Image(); im.src = '/mockup/kaos-' + k + '.png';
+    im.onload = function () { cache = {}; render(); };
+    MK[k].push(im);
+  });
+  function mk(lengan, view) { return lengan === 'panjang' ? MK.panjang : MK[view]; }
+  function shirtLayer(lengan, view, hex) {
+    var key = lengan + view + hex; if (cache[key]) return cache[key];
+    var m = mk(lengan, view), im = m[2];
+    if (!im.complete || !im.naturalWidth) return null;
+    var oc = document.createElement('canvas'); oc.width = W * SK; oc.height = H * SK;
+    var c = oc.getContext('2d'); c.scale(SK, SK);
+    var x = 300 - m[0], y = TOP - m[1];
+    c.drawImage(im, x, y);
+    c.globalCompositeOperation = 'source-in'; c.fillStyle = hex; c.fillRect(0, 0, W, H);
+    c.globalCompositeOperation = 'hard-light'; c.drawImage(im, x, y);
+    c.globalCompositeOperation = 'destination-in'; c.drawImage(im, x, y);
+    cache[key] = oc; return oc;
   }
 
   function drawShirt(c, lengan, view, warnaHex) {
-    var dark = luma(warnaHex) < 0.45;
-    var stroke = dark ? shade(warnaHex, 0.28) : shade(warnaHex, -0.32);
-    var body = bodyPath(lengan, view);
+    var layer = shirtLayer(lengan, view, warnaHex);
+    if (!layer) return null;
     c.save();
-    c.shadowColor = 'rgba(0,0,0,.18)'; c.shadowBlur = 18; c.shadowOffsetY = 8;
-    c.fillStyle = warnaHex; c.fill(body);
+    c.shadowColor = 'rgba(0,0,0,.18)'; c.shadowBlur = 22; c.shadowOffsetY = 10;
+    c.drawImage(layer, 0, 0, W, H);
     c.restore();
-    // bayangan lembut
-    c.save(); c.clip(body);
-    var g = c.createLinearGradient(0, 0, W, 0);
-    g.addColorStop(0, 'rgba(0,0,0,.14)'); g.addColorStop(0.28, 'rgba(0,0,0,0)');
-    g.addColorStop(0.72, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.14)');
-    c.fillStyle = g; c.fillRect(0, 0, W, H);
-    var g2 = c.createLinearGradient(0, 60, 0, 620);
-    g2.addColorStop(0, 'rgba(255,255,255,.10)'); g2.addColorStop(1, 'rgba(0,0,0,.08)');
-    c.fillStyle = g2; c.fillRect(0, 0, W, H);
-    c.restore();
-    c.lineWidth = 2; c.strokeStyle = stroke; c.lineJoin = 'round'; c.stroke(body);
-    // kerah
-    c.beginPath();
-    var ny = view === 'depan' ? 128 : 84;
-    c.moveTo(235, 58); c.quadraticCurveTo(300, ny + (view === 'depan' ? 12 : 0), 365, 58);
-    c.lineWidth = 12; c.strokeStyle = shade(warnaHex, dark ? 0.08 : -0.08); c.stroke();
-    c.lineWidth = 1.5; c.strokeStyle = stroke; c.stroke();
-    if (view === 'belakang') {
-      c.beginPath(); c.moveTo(240, 64); c.quadraticCurveTo(300, 104, 360, 64);
-      c.setLineDash([4, 4]); c.lineWidth = 1; c.stroke(); c.setLineDash([]);
-    }
-    // jahitan lengan & bawah
-    c.lineWidth = 1; c.strokeStyle = stroke; c.setLineDash([4, 4]);
-    c.beginPath();
-    if (lengan === 'pendek') { c.moveTo(48, 205); c.lineTo(104, 256); c.moveTo(552, 205); c.lineTo(496, 256); }
-    else { c.moveTo(42, 458); c.lineTo(100, 470); c.moveTo(558, 458); c.lineTo(500, 470); }
-    c.moveTo(150, 598); c.quadraticCurveTo(300, 612, 450, 598);
-    c.moveTo(150, lengan === 'pendek' ? 208 : 222); c.lineTo(128, 92);
-    c.moveTo(450, lengan === 'pendek' ? 208 : 222); c.lineTo(472, 92);
-    c.stroke(); c.setLineDash([]);
-    return body;
+    return layer;
   }
 
   function logoBox(L) {
@@ -470,16 +435,21 @@
   }
 
   function drawLogo(c, L, body, selected) {
-    if (!L) return;
+    if (!L || !body) return;
     var b = logoBox(L);
-    c.save(); c.clip(body);
-    c.translate(L.x, L.y); c.rotate(L.rot * Math.PI / 180);
-    c.drawImage(L.img, -b.w / 2, -b.h / 2, b.w, b.h);
+    // logo digambar di lapisan terpisah lalu dipotong mengikuti bentuk kaos
+    var lc = document.createElement('canvas'); lc.width = W * SK; lc.height = H * SK;
+    var g = lc.getContext('2d'); g.scale(SK, SK);
+    g.translate(L.x, L.y); g.rotate(L.rot * Math.PI / 180);
+    g.drawImage(L.img, -b.w / 2, -b.h / 2, b.w, b.h);
+    g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'destination-in'; g.drawImage(body, 0, 0);
+    c.drawImage(lc, 0, 0, W, H);
     if (selected) {
+      c.save(); c.translate(L.x, L.y); c.rotate(L.rot * Math.PI / 180);
       c.strokeStyle = '#D9541F'; c.lineWidth = 1.5; c.setLineDash([6, 4]);
       c.strokeRect(-b.w / 2 - 4, -b.h / 2 - 4, b.w + 8, b.h + 8); c.setLineDash([]);
+      c.restore();
     }
-    c.restore();
   }
 
   function render() {
@@ -501,7 +471,7 @@
   $('redo').onclick = function () { if (!fut.length) return; hist.push(snap()); restore(fut.pop()); sync(); };
   $('reset').onclick = function () {
     var L = st.sisi[st.view]; if (!L) return; push();
-    L.x = 300; L.y = 300; L.size = 45; L.rot = 0; sync();
+    L.x = 300; L.y = 250; L.size = 45; L.rot = 0; sync();
   };
 
   // ---------- kontrol ----------
@@ -547,7 +517,7 @@
     b.onclick = function () {
       var L = st.sisi[st.view]; if (!L) return; push();
       var p = POS[b.dataset.pos];
-      L.x = p[0]; L.y = st.view === 'belakang' && b.dataset.pos === 'atas' ? 175 : p[1]; L.size = p[2];
+      L.x = p[0]; L.y = st.view === 'belakang' && b.dataset.pos === 'atas' ? 160 : p[1]; L.size = p[2];
       sync();
     };
   });
@@ -567,7 +537,7 @@
         push();
         var sisi = st.view;
         var prev = st.sisi[sisi];
-        st.sisi[sisi] = { img: img, src: rd.result, name: file.name, x: prev ? prev.x : 300, y: prev ? prev.y : (sisi === 'depan' ? 280 : 260), size: prev ? prev.size : 45, rot: prev ? prev.rot : 0 };
+        st.sisi[sisi] = { img: img, src: rd.result, name: file.name, x: prev ? prev.x : 300, y: prev ? prev.y : (sisi === 'depan' ? 240 : 220), size: prev ? prev.size : 45, rot: prev ? prev.rot : 0 };
         sync();
       };
       img.onerror = function () { err('File gambar tidak bisa dibaca. Coba file lain.'); };
@@ -604,9 +574,9 @@
   // ---------- ringkasan & WhatsApp ----------
   function cm(L) { return Math.round(logoBox(L).w / PX_PER_CM); }
   function posisi(L, sisi) {
-    if (sisi === 'depan' && L.x > 330 && L.y < 250 && cm(L) <= 12) return 'dada kiri';
-    if (L.y < 230) return 'atas';
-    if (L.y > 420) return 'bawah';
+    if (sisi === 'depan' && L.x > 330 && L.y < 215 && cm(L) <= 12) return 'dada kiri';
+    if (L.y < 195) return 'atas';
+    if (L.y > 380) return 'bawah';
     return 'tengah';
   }
   function descLogo(sisi) {
