@@ -95,17 +95,17 @@ h1{font:700 clamp(40px,10vw,64px)/.9 var(--display);margin:0;letter-spacing:.02e
     <button class="btn" type="submit">Kirim</button>
   </form>
   <div class="bar">
-    <button class="btn mic" id="bMic" type="button">🎙 Mic mati</button>
     <button class="btn" id="bTeam" type="button">Rapat dewan</button>
     <button class="btn" id="bHolo" type="button">Hologram</button>
     <button class="btn" id="bColor" type="button">Warna</button>
     <button class="btn" id="bRatio" type="button">9:16</button>
     <button class="btn rec" id="bRec" type="button"><span class="r"></span><span id="recTxt">Rekam</span></button>
+    <button class="btn" id="bSet" type="button">Pengaturan</button>
     <button class="btn" id="bHide" type="button">Sembunyikan</button>
   </div>
 </div>
 
-<div class="intro" id="intro">
+<div class="intro" id="intro" hidden>
   <div class="card">
     <div class="eyebrow">Willo Apparel · Tim Marketing OS</div>
     <h1>Tim Willo HUD</h1>
@@ -127,7 +127,7 @@ h1{font:700 clamp(40px,10vw,64px)/.9 var(--display);margin:0;letter-spacing:.02e
       <div class="field"><label for="inKey">API key</label><input id="inKey" type="password" placeholder="Tempel API key (AIza… atau AQ.…)" autocomplete="off"></div>
       <p class="note">Gemini gratis: buat key di aistudio.google.com → Get API key. Claude: console.anthropic.com (perlu saldo). Key hanya disimpan di perangkat ini, tidak ikut ke link.</p>
     </details>
-    <button class="go" id="go" type="button">Panggil tim</button>
+    <button class="go" id="go" type="button">Simpan &amp; tutup</button>
     <p class="err" id="err" hidden></p>
     <p class="note">Bangunkan dengan "Halo tim" (atau "Halo Lisbon", "Halo Jarvis"). Perintah: sebut nama anggota + pertanyaan, "absen", "rapat dewan", "siapa saja timnya", "hologram tim / kaos / logo / bola dunia", "besarkan", "kecilkan", "warna merah / biru / emas", "status proyek", "jam berapa", "rekam", "berhenti rekam", "tim, tidur". Tanpa API key, tiap anggota menjawab dengan masukan tetapnya; dengan key, mereka menjawab bebas sesuai karakter. Kamera &amp; mikrofon hanya jalan lewat link https://.</p>
   </div>
@@ -505,13 +505,14 @@ function frameHUD(time, now){
     const amp = act ? (0.25 + Math.abs(Math.sin(time * 9 + i * 0.7) * Math.sin(time * 3.3 + i))) : 0.08;
     ctx.fillStyle = col(act ? 0.9 : 0.4); const bh = amp * 26 * U; ctx.fillRect(bx + i * 6 * U, by - bh / 2, 3 * U, bh);
   }
-  text(listening ? 'MENDENGARKAN…' : thinking ? `${speaker.name.toUpperCase()} BERPIKIR…` : speaking ? `${speaker.name.toUpperCase()} BICARA` : (prefs.ai ? `TIM SIAGA · AI ${prefs.ai.toUpperCase()}` : 'TIM SIAGA'), bx + 180 * U, by, 11, 0.85);
+  text(!SR ? 'KETIK DI KOTAK' : needTap && !listening ? 'KETUK LAYAR SEKALI UNTUK MENYALAKAN MIC' : listening && !speaking && !thinking ? 'MIC AKTIF · MENDENGARKAN…' : thinking ? `${speaker.name.toUpperCase()} BERPIKIR…` : speaking ? `${speaker.name.toUpperCase()} BICARA` : (prefs.ai ? `TIM SIAGA · AI ${prefs.ai.toUpperCase()}` : 'TIM SIAGA'), bx + 180 * U, by, 11, 0.85);
   if (heard) text(`> ${heard}`.slice(0, 60), bx, by + 26 * U, 12, 0.7);
   if (reply){ const shown = reply.slice(0, Math.floor((now - replyAt) / 28)); wrapText(shown, bx, by + 48 * U, Math.min(W * 0.6, 560 * U), 15); }
   if (lastErr) text(`! ${lastErr}`.slice(0, 70), bx, by - 26 * U, 10, 0.75);
 }
 // daftar anggota di kiri atas; yang bicara diberi tanda dan garis
 function rosterHUD(time, now, m){
+  if (!(speaking || thinking || now - speakerAt < 3000)) return;   // daftar tim hanya tampil saat dipanggil
   const x = m + 6 * U; let y = m + 52 * U; const lh = 14 * U;
   if (y + (TEAM.length + 3) * lh > H - 200 * U) return;   // layar terlalu pendek: lewati
   const live = speaking || thinking || now - speakerAt < 2500;
@@ -560,7 +561,7 @@ function standbyHUD(time, now){
   ctx.fillStyle = col(0.4 + p * 0.5); ctx.beginPath(); ctx.arc(0, 0, R * 0.12, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
   text('TIM SIAGA', cx, cy + R * 1.5, 16, 0.95, 'center');
-  text(listening ? 'Ucapkan "Halo tim" sekarang…' : (IOS || needTap) ? 'Ketuk 🎙, lalu ucapkan "Halo tim"' : 'Ucapkan "Halo tim" (atau ketik)', cx, cy + R * 1.5 + 24 * U, 12, 0.75, 'center');
+  text(listening ? 'Ucapkan "Halo tim" sekarang…' : needTap ? 'Ketuk layar sekali, lalu ucapkan "Halo tim"' : 'Ucapkan "Halo tim" (atau ketik)', cx, cy + R * 1.5 + 24 * U, 12, 0.75, 'center');
   if (lastErr) text(`! ${lastErr}`.slice(0, 60), cx, cy + R * 1.5 + 70 * U, 10, 0.7, 'center');
   if (heard) text(`> ${heard}`.slice(0, 50), cx, cy + R * 1.5 + 48 * U, 11, 0.5, 'center');
 }
@@ -575,10 +576,17 @@ let speaking = false, listening = false, heard = '', reply = '', replyAt = 0, vo
 function pickVoice(){ const v = speechSynthesis?.getVoices?.() || []; voice = v.find(x => /^id/i.test(x.lang)) || null; }
 try { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; } catch (e) {}
 let speakToken = 0, speakTimer = 0;
-let sayQueue = [], queueTimer = 0;
+let sayQueue = [], queueTimer = 0, lastSpoken = '', audioLocked = false, audioUnlocked = false;
+// browser hanya mengizinkan suara setelah ada sentuhan; sentuhan pertama di mana saja membuka kuncinya
+function unlockAudio(){
+  if (audioUnlocked) return; audioUnlocked = true;
+  try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } catch (e) {}
+  if (audioLocked){ audioLocked = false; lastErr = ''; if (reply && active) say(reply.replace(/^[^:]+:\s*/, ''), true, speaker); }
+}
+addEventListener('pointerdown', () => { unlockAudio(); if (camStarted && SR && !listening) startListening(); }, {capture: true});
 function doneSpeaking(tok){
   if (tok !== speakToken) return;                       // ucapan lama yang terpotong, abaikan
-  clearTimeout(speakTimer); speaking = false; quietUntil = performance.now() + 500;
+  clearTimeout(speakTimer); speaking = false; quietUntil = performance.now() + 900;
   if (sayQueue.length){ const [m, t] = sayQueue.shift(); queueTimer = setTimeout(() => say(t, true, m, true), 250); return; }
   if (wantListen && !listening) setTimeout(restartRecog, 350);
 }
@@ -590,16 +598,19 @@ function say(t, speak = true, m = null, fromQueue = false){
   if (m) setSpeaker(m); else m = speaker;
   speakerAt = performance.now();
   reply = `${m.name.toUpperCase()}: ${t}`; replyAt = performance.now();
+  if (active && holoIdx === 0) showHolo();
   if (!speak || !window.speechSynthesis) return;
   try {
     const tok = ++speakToken;
     const busy = speechSynthesis.speaking || speechSynthesis.pending;
     if (busy) speechSynthesis.cancel();
     // matikan mic sebentar supaya suara asisten terdengar keras di iPhone dan tidak terdengar ulang oleh mic
-    if (listening){ try { recog.abort(); } catch (e) {} listening = false; updMic(); }
+    if (IOS && listening){ try { recog.abort(); } catch (e) {} listening = false; updMic(); }
+    lastSpoken = t;
     const u = new SpeechSynthesisUtterance(t); u.lang = 'id-ID'; if (voice) u.voice = voice; u.rate = m.rate; u.pitch = m.pitch;
     speaking = true;
-    u.onend = u.onerror = () => doneSpeaking(tok);
+    u.onend = () => doneSpeaking(tok);
+    u.onerror = ev => { if (ev.error === 'not-allowed'){ audioLocked = true; lastErr = 'Ketuk layar sekali supaya suara tim bisa keluar (aturan browser).'; } doneSpeaking(tok); };
     clearTimeout(speakTimer); speakTimer = setTimeout(() => doneSpeaking(tok), 1500 + t.length * 85 / m.rate);   // pengaman
     if (busy) setTimeout(() => { if (tok === speakToken) speechSynthesis.speak(u); }, 80); else speechSynthesis.speak(u);
   } catch (e) { speaking = false; }
@@ -762,7 +773,7 @@ const FILLERS = ['Hmm.', 'Sebentar.', 'Oke.', 'Baik.', 'Pertanyaan bagus.'];
 async function askAI(raw){
   const asker = speaker;
   say(FILLERS[Math.floor(Math.random() * FILLERS.length)], true, asker);
-  thinking = true; reply = `${asker.name.toUpperCase()}: …`; replyAt = performance.now();
+  thinking = true; speakerAt = performance.now(); reply = `${asker.name.toUpperCase()}: …`; replyAt = performance.now();
   chatLog.push({role: 'user', text: `(kepada ${asker.name}) ${raw}`}); chatLog = chatLog.slice(-8);
   if (chatLog[0]?.role !== 'user') chatLog.shift();
   try {
@@ -798,6 +809,11 @@ let recog = null, wantListen = false, quietUntil = 0, needTap = false;
 let interimTimer = 0, doneText = '', doneAt = 0;
 // hasil final yang sama dengan kalimat yang sudah dijalankan lebih awal diabaikan
 const norm = x => x.toLowerCase().replace(/[^a-z0-9]/g, '');
+// suara tim sendiri yang tertangkap mic (kata-katanya sebagian besar sama dengan ucapan terakhir tim)
+function isEcho(tx){
+  const a = tx.toLowerCase().split(/\s+/).filter(w => w.length > 2), b = new Set(lastSpoken.toLowerCase().replace(/[.,!?]/g, '').split(/\s+/));
+  return a.length > 0 && a.filter(w => b.has(w.replace(/[.,!?]/g, ''))).length / a.length > 0.6;
+}
 function alreadyDone(tx){ return doneText && performance.now() - doneAt < 6000 && norm(tx).startsWith(norm(doneText).slice(0, Math.max(4, norm(doneText).length - 3))); }
 /* mode siaga: tim baru aktif saat mendengar "Halo tim" (atau Jarvis / Lisbon / nama anggota) */
 let active = false, activeAt = 0;
@@ -827,12 +843,13 @@ function onSpeech(t){
 const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 let lastErr = '';
 function makeRecog(){
-  recog = new SR(); recog.lang = 'id-ID'; recog.continuous = !IOS; recog.interimResults = true; recog.maxAlternatives = 1;
+  recog = new SR(); recog.lang = 'id-ID'; recog.continuous = true; recog.interimResults = true; recog.maxAlternatives = 1;
   recog.onstart = () => { listening = true; lastErr = ''; updMic(); };
   recog.onresult = e => {
     if (speaking || performance.now() < quietUntil) return;           // abaikan suara asisten sendiri
     for (let i = e.resultIndex; i < e.results.length; i++){
       const r = e.results[i], tx = r[0].transcript.trim();
+      if (isEcho(tx)) continue;
       heard = tx; clearTimeout(interimTimer);
       if (r.isFinal){ if (!alreadyDone(tx)) onSpeech(tx); }
       // pengenal suara HP sering menunggu 1–2 dtk sebelum "final"; kalau kalimat tidak berubah 0,7 dtk, jalankan
@@ -848,27 +865,24 @@ function makeRecog(){
     if (e.error === 'no-speech') lastErr = 'Tidak terdengar suara. Ketuk mic lalu bicara lebih dekat.';
   };
   recog.onend = () => { listening = false; updMic();
-    if (!IOS && wantListen && !speaking) setTimeout(restartRecog, 300); };
+    if (wantListen && !(IOS && speaking)) setTimeout(restartRecog, 250); };
 }
 function restartRecog(){
-  if (!wantListen || listening || speaking || IOS) return;
-  try { recog.start(); } catch (e) { needTap = true; updMic(); }
+  if (!wantListen || listening || (IOS && speaking)) return;
+  try { recog.start(); needTap = false; } catch (e) { needTap = true; updMic(); }
   // kalau dalam 1,5 detik mic tidak benar-benar menyala, minta ketukan
-  setTimeout(() => { if (wantListen && !listening && !speaking){ needTap = true; updMic(); } }, 1500);
+  setTimeout(() => { if (wantListen && !listening && !(IOS && speaking)){ needTap = true; updMic(); } }, 2500);
 }
 function startListening(){
   if (!SR){ say('Pengenal suara tidak tersedia di browser ini. Ketik di kotak, mis. "halo tim".', false); return false; }
   if (!recog) makeRecog();
   try { speechSynthesis.cancel(); } catch (e) {}
-  wantListen = !IOS; needTap = false;
+  wantListen = true; needTap = false;
   try { recog.start(); } catch (e) { try { recog.abort(); } catch (er) {} setTimeout(() => { try { recog.start(); } catch (er) {} }, 250); }
   updMic(); return true;
 }
 function stopListening(){ wantListen = false; try { recog?.stop(); } catch (e) {} listening = false; updMic(); }
-function updMic(){
-  const b = $('bMic'); b.classList.toggle('on', listening);
-  b.textContent = listening ? '🎙 Mendengar…' : IOS ? '🎙 Ketuk lalu bicara' : needTap ? '🎙 Ketuk untuk dengar' : wantListen ? '🎙 Mendengar' : '🎙 Mic mati';
-}
+function updMic(){}   // tidak ada tombol mic lagi; status mic tampil di HUD
 // ketuk 🎙 selalu berarti "dengarkan sekarang" (dulu ketukan saat mendengar justru mematikan mic)
 function listen(){
   if (listening){ try { recog.abort(); } catch (e) {} listening = false; setTimeout(startListening, 200); return; }
@@ -894,7 +908,9 @@ function frame(now){
     try { if (faceLM && tick % LITE.faceEvery === 0) processFace(faceLM.detectForVideo(video, now)); else processHands(handsLM.detectForVideo(video, now), now); } catch (e) {}
   }
   const boot = active ? Math.min(1, (now - activeAt) / 1400) : 0;
-  if (!camOn){ // pratinjau di layar awal
+  // efek & tampilan tim hanya saat dipanggil: hologram tim hilang 3 dtk setelah tim selesai bicara
+  if (active && holoIdx === 0 && holo.shown && !holo.grab && !speaking && !thinking && now - speakerAt > 3000) holo.shown = false;
+  if (!camOn && !camStarted){ // pratinjau di layar awal
     holo.shown = true; holo.tx = W / 2; holo.ty = H * 0.5; holo.ts = Math.min(W, H) * 0.45; holo.troll = Math.sin(time * 0.5) * 0.15;
   }
 
@@ -958,9 +974,17 @@ async function initModels(){
   handsLM = await make(HandLandmarker, {baseOptions: {modelAssetPath: HAND_MODEL}, runningMode: 'VIDEO', numHands: 2});
   try { faceLM = await make(FaceLandmarker, {baseOptions: {modelAssetPath: FACE_MODEL}, runningMode: 'VIDEO', numFaces: 1}); } catch (e) { console.error(e); }
 }
-let camStarted = false;
+let camStarted = false, starting = false;
+function savePrefs(){
+  prefs.name = $('inName').value.trim() || 'Huda'; prefs.proj = $('inProj').value.trim() || 'SEO Willo';
+  prefs.ai = $('inAI').value; prefs.key = $('inKey').value.trim(); if (!prefs.key) prefs.ai = '';
+  try { localStorage.setItem('willo-tim-hud', JSON.stringify(prefs)); } catch (e) {}
+  if (prefs.ai === 'gemini' && prefs.key) geminiModels().catch(() => {});
+}
 async function start(){
-  const go = $('go'), err = $('err'); go.disabled = true; err.hidden = true;
+  if (camStarted || starting){ savePrefs(); $('intro').hidden = true; unlockAudio(); if (!listening) startListening(); return; }
+  starting = true;
+  const go = $('go'), err = $('err'); err.hidden = true; const oldGo = go.textContent;
   prefs.name = $('inName').value.trim() || 'Huda'; prefs.proj = $('inProj').value.trim() || 'SEO Willo';
   prefs.ai = $('inAI').value; prefs.key = $('inKey').value.trim(); if (!prefs.key) prefs.ai = '';
   try { localStorage.setItem('willo-tim-hud', JSON.stringify(prefs)); } catch (e) {}
@@ -976,6 +1000,7 @@ async function start(){
     video.srcObject = stream; await video.play();
     camOn = true; holo.shown = false; holo.vis = 0; workMeter = 0;
     aspect = video.videoWidth >= video.videoHeight ? 16/9 : 9/16;
+    go.textContent = 'Simpan & tutup';
   }catch(e){
     // tanpa kamera tim tetap bisa diajak bicara
     console.error(e); const n = e && e.name, m = e && e.message;
@@ -984,8 +1009,8 @@ async function start(){
       (m === 'insecure' || m === 'nocam') ? 'Kamera butuh link https://, tim tetap bisa diajak bicara.' : 'Kamera gagal menyala, tim tetap bisa diajak bicara.';
   }
   if (!camOn) aspect = innerWidth < innerHeight ? 9/16 : 16/9;
-  camStarted = true; layout(); $('intro').hidden = true; active = false;
-  activate();
+  go.textContent = oldGo; camStarted = true; layout(); $('intro').hidden = true; active = false;
+  // tim menunggu dipanggil dengan suara ("Halo tim", "Gus, ...")
   lastErr = camErr || (SR ? '' : 'Browser ini tidak punya pengenal suara. Ketik perintah di kotak bawah.');
   // model pelacak tangan/wajah dimuat di belakang; kalau gagal, suara & hologram tetap jalan
   if (prefs.ai === 'gemini' && prefs.key) geminiModels().catch(() => {});
@@ -996,57 +1021,37 @@ async function start(){
 let rec = null, chunks = [];
 const canRec = !!(stage.captureStream && window.MediaRecorder);
 if (!canRec){ $('bRec').disabled = true; $('bRec').title = 'Pakai screen record HP.'; }
-// rekaman = video kanvas + suara mikrofon (suaramu, dan suara tim yang keluar dari speaker ikut tertangkap mic)
-function pickMime(audio){
-  const list = audio ? ['video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm']
-                     : ['video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm'];
-  for (const m of list) if (MediaRecorder.isTypeSupported?.(m)) return m; return '';
-}
-let recMic = null, recStarting = false;
-async function getRecMic(){
-  try {
-    // tanpa peredam gema supaya suara tim dari speaker tidak dibuang
-    return await navigator.mediaDevices.getUserMedia({audio: {echoCancellation: false, noiseSuppression: false, autoGainControl: true}});
-  } catch (e) { lastErr = 'Rekam tanpa suara: mikrofon tidak diizinkan.'; return null; }
-}
-async function toggleRec(){
-  if (!canRec || recStarting) return; if (rec){ rec.stop(); return; }
-  recStarting = true;
-  try { await startRec(); } catch (e) { console.error(e); lastErr = 'Rekam gagal: ' + (e.message || e); rec = null; recMic?.getTracks().forEach(t => t.stop()); recMic = null; }
-  recStarting = false;
-}
-async function startRec(){
-  recMic = navigator.mediaDevices?.getUserMedia ? await getRecMic() : null;
-  const tracks = [...stage.captureStream(30).getVideoTracks(), ...(recMic ? recMic.getAudioTracks() : [])];
-  const mime = pickMime(!!recMic); chunks = [];
-  const opts = {videoBitsPerSecond: MOBILE ? 5e6 : 8e6, audioBitsPerSecond: 128000}; if (mime) opts.mimeType = mime;
-  try { rec = new MediaRecorder(new MediaStream(tracks), opts); }
-  catch (e) { delete opts.mimeType; rec = new MediaRecorder(new MediaStream(tracks), opts); }
+// rekaman = video kanvas saja (tanpa mikrofon, supaya ringan dan tidak mengganggu pengenal suara)
+function pickMime(){ for (const m of ['video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp8', 'video/webm']) if (MediaRecorder.isTypeSupported?.(m)) return m; return ''; }
+function toggleRec(){
+  if (!canRec) return; if (rec){ rec.stop(); return; }
+  const mime = pickMime(); chunks = [];
+  const opts = {videoBitsPerSecond: MOBILE ? 4e6 : 8e6}; if (mime) opts.mimeType = mime;
+  try { rec = new MediaRecorder(stage.captureStream(MOBILE ? 24 : 30), opts); } catch (e) { lastErr = 'Rekam gagal: ' + (e.message || e); rec = null; return; }
   rec.ondataavailable = e => e.data.size && chunks.push(e.data);
   rec.onstop = () => { const type = rec.mimeType || mime || 'video/webm', ext = type.includes('mp4') ? 'mp4' : 'webm';
     const a = $('dl'); a.href = URL.createObjectURL(new Blob(chunks, {type})); a.download = `tim-willo-hud-${Date.now()}.${ext}`; a.textContent = `Unduh rekaman (.${ext})`; a.hidden = false;
-    recMic?.getTracks().forEach(t => t.stop()); recMic = null;
     rec = null; $('bRec').classList.remove('live'); $('recTxt').textContent = 'Rekam'; try { a.click(); } catch (e) {} };
-  rec.start(250);
-  $('bRec').classList.add('live'); $('recTxt').textContent = recMic ? 'Stop' : 'Stop (tanpa suara)'; $('dl').hidden = true;
+  rec.start(1000); $('bRec').classList.add('live'); $('recTxt').textContent = 'Stop'; $('dl').hidden = true;
 }
 const colorOrder = ['biru', 'merah', 'emas'];
 $('go').addEventListener('click', start);
-$('bMic').addEventListener('click', listen);
+$('bSet').addEventListener('click', e => { e.stopPropagation(); $('go').disabled = false; $('intro').hidden = false; });
 $('bTeam').addEventListener('click', () => { if (!active && camOn) activate(); teamCommand('rapat dewan'); });
 $('bHolo').addEventListener('click', () => { if (!holo.shown) showHolo(); else setHolo(holoIdx + 1); say(`Hologram ${HOLOS[holoIdx].name.toLowerCase()}.`, false); });
 $('bColor').addEventListener('click', () => setColor(colorOrder[(colorOrder.indexOf(colName) + 1) % 3]));
 $('bRatio').addEventListener('click', () => { if (rec) return; aspect = aspect < 1 ? 16/9 : 9/16; layout(); });
 $('bRec').addEventListener('click', toggleRec);
 $('bHide').addEventListener('click', e => { e.stopPropagation(); $('hud').hidden = true; });
-$('wrap').addEventListener('click', () => { const was = $('hud').hidden; $('hud').hidden = false; if (!was && camStarted && (IOS || needTap || !listening)) listen(); });
+$('wrap').addEventListener('click', () => { const was = $('hud').hidden; $('hud').hidden = false; if (!was && camStarted && !listening) startListening(); });
 $('cmdForm').addEventListener('submit', e => { e.preventDefault(); const v = $('cmdIn').value.trim(); if (v){ onSpeech(v); $('cmdIn').value = ''; } });
 addEventListener('keydown', e => { if (e.target.tagName === 'INPUT') return; if (e.code === 'Space'){ e.preventDefault(); listen(); } });
 window.__fx2 = {onSpeech, get active(){ return active; }};
 addEventListener('resize', () => { if (!rec) layout(); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden && camOn){ video.play().catch(() => {}); restartRecog(); } });
 layout(); setHolo(0); setColor('biru'); requestAnimationFrame(frame);
-say('Tim siaga. Tekan Panggil tim.', false);
+say('Tim siaga. Ucapkan "Halo tim".', false);
+start();   // kamera & mic langsung menyala; tim dipanggil dengan suara
 window.__fx = {handle, holo, get hands(){ return hands; }, get face(){ return face; }, get faceLM(){ return faceLM; }};
 </script>
 </body>
