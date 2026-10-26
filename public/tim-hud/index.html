@@ -1,0 +1,991 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tim Willo HUD</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: kamera penuh dengan lapisan HUD, kontrol melayang di bawah. Satu tema gelap ala layar bengkel. */
+:root{
+  --hud:#59e3ff;
+  --bg:#03070b;
+  --panel:#06121acc;
+  --line:#59e3ff33;
+  --fg:#dff7ff;
+  --muted:#7fa6b5;
+  --rec:#ff3b4a;
+  --display:"Rajdhani",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font:15px/1.4 var(--display);overflow:hidden;-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+#wrap{position:fixed;inset:0;display:grid;place-items:center}
+#stage{display:block;background:#000}
+#cam{position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none}
+.hud{position:fixed;inset:0;pointer-events:none;padding:
+  max(12px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px))
+  max(12px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  display:flex;flex-direction:column;justify-content:flex-end;gap:10px;align-items:center}
+.bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;pointer-events:auto}
+.btn{appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--fg);font:700 14px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;
+  padding:11px 14px;border-radius:10px;cursor:pointer;backdrop-filter:blur(8px);display:inline-flex;gap:8px;align-items:center}
+.btn:hover{border-color:var(--hud)}
+.btn:focus-visible{outline:2px solid var(--hud);outline-offset:2px}
+.btn.mic{background:var(--hud);color:#021016;border-color:var(--hud)}
+.btn.mic.on{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 8px #59e3ff33}}
+.btn.rec .r{width:10px;height:10px;border-radius:50%;background:var(--rec)}
+.btn.rec.live{background:var(--rec);border-color:var(--rec)}
+.btn.rec.live .r{background:#fff;border-radius:2px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.cmd{pointer-events:auto;display:flex;gap:6px;width:min(460px,100%)}
+.cmd input{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);color:var(--fg);font:14px var(--mono);padding:10px 12px;border-radius:10px}
+.cmd input:focus{outline:2px solid var(--hud);outline-offset:1px}
+.dl{pointer-events:auto;font-family:var(--mono);font-size:12px;color:var(--hud);background:var(--panel);border:1px solid var(--hud);padding:8px 12px;border-radius:999px;text-decoration:none}
+.intro{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 40%,#0a2230ee,#03070bf5);
+  padding:24px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px));overflow:auto}
+.card{max-width:460px;width:100%;display:flex;flex-direction:column;gap:16px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--hud)}
+h1{font:700 clamp(40px,10vw,64px)/.9 var(--display);margin:0;letter-spacing:.02em;text-transform:uppercase;text-wrap:balance}
+.lead{color:var(--muted);margin:0;font-size:16px}
+.feat{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.feat li{border:1px solid var(--line);border-radius:10px;padding:10px;font-size:14px}
+.feat b{display:block;color:var(--hud);font-size:15px;letter-spacing:.04em;text-transform:uppercase}
+.feat span{color:var(--muted);font-size:13px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.ai{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:10px}
+.ai summary{cursor:pointer;font-weight:700;letter-spacing:.04em;color:var(--hud)}
+.ai[open]{gap:10px}
+.ai .field{margin-top:8px}
+.field select{background:#06121a;border:1px solid var(--line);color:var(--fg);font:600 15px var(--display);padding:10px 12px;border-radius:10px}
+.field input{background:#06121a;border:1px solid var(--line);color:var(--fg);font:600 16px var(--display);padding:10px 12px;border-radius:10px}
+.field input:focus{outline:2px solid var(--hud);outline-offset:1px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.go{appearance:none;border:0;background:var(--hud);color:#021016;font:700 18px/1 var(--display);letter-spacing:.12em;text-transform:uppercase;padding:16px 18px;border-radius:12px;cursor:pointer}
+.go:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.go:disabled{opacity:.6;cursor:progress}
+.note{font-family:var(--mono);font-size:11px;color:var(--muted);margin:0}
+.err{font-size:14px;color:#ffb39a;margin:0}
+@media (max-width:420px){.feat,.fields{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.btn.mic.on{animation:none}}
+</style>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "@mediapipe/tasks-vision":"https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs"
+}}
+</script>
+</head>
+<body>
+<div id="wrap"><canvas id="stage" aria-label="Kamera dengan HUD hologram"></canvas></div>
+<video id="cam" playsinline muted autoplay></video>
+
+<div class="hud" id="hud">
+  <a class="dl" id="dl" hidden>Unduh rekaman</a>
+  <form class="cmd" id="cmdForm" autocomplete="off">
+    <input id="cmdIn" type="text" placeholder="Ketik, mis. halo tim · Gus, apa strategi kita?" aria-label="Perintah untuk asisten">
+    <button class="btn" type="submit">Kirim</button>
+  </form>
+  <div class="bar">
+    <button class="btn mic" id="bMic" type="button">🎙 Mic mati</button>
+    <button class="btn" id="bTeam" type="button">Rapat dewan</button>
+    <button class="btn" id="bHolo" type="button">Hologram</button>
+    <button class="btn" id="bColor" type="button">Warna</button>
+    <button class="btn" id="bRatio" type="button">9:16</button>
+    <button class="btn rec" id="bRec" type="button"><span class="r"></span><span id="recTxt">Rekam</span></button>
+    <button class="btn" id="bHide" type="button">Sembunyikan</button>
+  </div>
+</div>
+
+<div class="intro" id="intro">
+  <div class="card">
+    <div class="eyebrow">Willo Apparel · Tim Marketing OS</div>
+    <h1>Tim Willo HUD</h1>
+    <p class="lead">Layar bengkel ala Iron Man, tapi yang menjawab bukan satu asisten: seluruh tim marketing Willo. 8 Dewan Ahli dan 10 agent mengorbit di hologram, dan siapa pun yang kamu panggil namanya akan menjawab dengan suaranya sendiri.</p>
+    <ul class="feat">
+      <li><b>Panggil nama</b><span>"Gus, apa strategi kita?" "Saul, tulis judul halaman."</span></li>
+      <li><b>Hologram tim</b><span>18 anggota mengorbit; yang bicara menyala. Cubit dua tangan untuk memegang.</span></li>
+      <li><b>Rapat dewan</b><span>Ucapkan "rapat dewan": 8 ahli memberi masukan bergiliran.</span></li>
+      <li><b>Absen tim</b><span>Ucapkan "absen": 18 anggota menyapa satu per satu.</span></li>
+    </ul>
+    <div class="fields">
+      <div class="field"><label for="inName">Panggil aku</label><input id="inName" type="text" value="Huda" maxlength="24"></div>
+      <div class="field"><label for="inProj">Nama proyek</label><input id="inProj" type="text" value="SEO Willo" maxlength="28"></div>
+    </div>
+    <details class="ai">
+      <summary>Otak AI supaya tim bisa ngobrol bebas (opsional)</summary>
+      <div class="field"><label for="inAI">Penyedia</label>
+        <select id="inAI"><option value="">Tanpa AI · perintah saja</option><option value="gemini">Gemini · gratis (Google AI Studio)</option><option value="claude">Claude · berbayar (Anthropic API)</option></select></div>
+      <div class="field"><label for="inKey">API key</label><input id="inKey" type="password" placeholder="Tempel API key (AIza… atau AQ.…)" autocomplete="off"></div>
+      <p class="note">Gemini gratis: buat key di aistudio.google.com → Get API key. Claude: console.anthropic.com (perlu saldo). Key hanya disimpan di perangkat ini, tidak ikut ke link.</p>
+    </details>
+    <button class="go" id="go" type="button">Panggil tim</button>
+    <p class="err" id="err" hidden></p>
+    <p class="note">Bangunkan dengan "Halo tim" (atau "Halo Lisbon", "Halo Jarvis"). Perintah: sebut nama anggota + pertanyaan, "absen", "rapat dewan", "siapa saja timnya", "hologram tim / kaos / logo / bola dunia", "besarkan", "kecilkan", "warna merah / biru / emas", "status proyek", "jam berapa", "rekam", "berhenti rekam", "tim, tidur". Tanpa API key, tiap anggota menjawab dengan masukan tetapnya; dengan key, mereka menjawab bebas sesuai karakter. Kamera &amp; mikrofon hanya jalan lewat link https://.</p>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { FilesetResolver, HandLandmarker, FaceLandmarker } from '@mediapipe/tasks-vision';
+const WASM = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm';
+const HAND_MODEL = window.__HAND_MODEL__ || 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
+const FACE_MODEL = window.__FACE_MODEL__ || 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
+
+const $ = id => document.getElementById(id);
+const stage = $('stage'), ctx = stage.getContext('2d'), video = $('cam');
+let W = 1280, H = 720, aspect = 16/9, U = 1;
+
+/* ---------- pengguna ---------- */
+const prefs = {name: 'Huda', proj: 'SEO Willo', ai: '', key: ''};
+try { Object.assign(prefs, JSON.parse(localStorage.getItem('willo-tim-hud') || '{}')); } catch (e) {}
+$('inName').value = prefs.name; $('inProj').value = prefs.proj; $('inAI').value = prefs.ai || ''; $('inKey').value = prefs.key || '';
+
+/* ---------- tim Willo: 8 Dewan Ahli + 10 agent ---------- */
+// pitch & rate membedakan suara tiap anggota (browser biasanya hanya punya satu suara Indonesia)
+const TEAM = [
+  {id: 'gus', name: 'Gus', grp: 'dewan', role: 'Ketua Dewan · Strategi bisnis', from: 'Breaking Bad', alias: ['gus', 'gustavo'], pitch: 0.7, rate: 0.92,
+    style: 'tenang, sopan, sangat terukur, selalu bicara soal sistem dan disiplin',
+    hi: 'Gus di sini. Saya memegang strategi. Kita menang di satu pasar dulu, lalu melebar.',
+    tip: 'Kuasai Ngawi dulu, lalu melebar seperti lingkaran ke Madiun dan Magetan. Ulangi di setiap halaman: bisa pesan satu pcs, desain dibantu gratis.'},
+  {id: 'walter', name: 'Walter', grp: 'dewan', role: 'Strategi konten', from: 'Breaking Bad', alias: ['walter', 'walt'], pitch: 0.8, rate: 1.0,
+    style: 'perfeksionis, bangga pada mutu, suka menjelaskan rumus konten yang benar',
+    hi: 'Walter. Saya mengurus konten. Yang paling bisa menjelaskan, dialah yang paling dipercaya.',
+    tip: 'Bangun pusat ilmu sablon. Setiap artikel harus menjawab hal yang pembeli belum paham, ditutup ajakan: kirim desainmu ke admin, kami bantu gratis.'},
+  {id: 'goodman', name: 'Saul Goodman', grp: 'dewan', role: 'Persuasi & konversi WA', from: 'Better Call Saul', alias: ['saul goodman', 'goodman', 'pak saul'], pitch: 1.05, rate: 1.15,
+    style: 'lincah, lucu, jago kalimat penjual, tetap jujur soal fakta',
+    hi: 'Saul Goodman, siap membela halamanmu! Tugas saya membuat pengunjung berani menekan tombol WhatsApp.',
+    tip: 'Jawab lima ketakutan pembeli di bagian atas halaman: hasil tidak sesuai, telat, mahal, minimal order besar, tidak bisa desain. Willo punya jawaban untuk semuanya.'},
+  {id: 'chuck', name: 'Chuck', grp: 'dewan', role: 'SEO teknis', from: 'Better Call Saul', alias: ['chuck', 'chak'], pitch: 0.85, rate: 0.95,
+    style: 'kaku, teliti, taat aturan Google sampai ke detail',
+    hi: 'Chuck. SEO teknis. Saya tidak percaya jalan pintas.',
+    tip: 'Pastikan setiap halaman baru ditautkan dari beranda dan dari dua halaman terkait, dan schema alamatnya persis sama dengan Google Maps.'},
+  {id: 'johan', name: 'Johan', grp: 'dewan', role: 'Intelijen pesaing', from: 'Monster', alias: ['johan', 'yohan'], pitch: 1.0, rate: 0.9,
+    style: 'lembut, misterius, membaca gerak pesaing dengan dingin',
+    hi: 'Johan. Saya memperhatikan pesaing, bahkan sebelum mereka sadar sedang diperhatikan.',
+    tip: 'Banyak pesaing lokal hanya punya Instagram. Kejar kata kunci ekor panjang seperti sablon kaos satu pcs Ngawi; di situ celahnya.'},
+  {id: 'gillen', name: 'Dr. Gillen', grp: 'dewan', role: 'Data & pengukuran', from: 'Monster', alias: ['gillen', 'dokter gillen', 'dr gillen', 'gilen'], pitch: 0.9, rate: 1.0,
+    style: 'analitis, ilmiah, bicara dengan bukti dan pola, menolak kata sepertinya',
+    hi: 'Dokter Gillen. Saya hanya percaya angka.',
+    tip: 'Ukur satu hal: dari seratus orang yang masuk halaman, berapa yang chat WhatsApp. Klik tombol WA sudah tercatat, tinggal dibaca tiap minggu.'},
+  {id: 'minelli', name: 'Minelli', grp: 'dewan', role: 'SEO lokal & Google Maps', from: 'The Mentalist', alias: ['minelli', 'mineli'], pitch: 0.65, rate: 0.95,
+    style: 'bapak-bapak bijak, praktis, akrab dengan pasar lokal',
+    hi: 'Minelli. Urusan peta dan ulasan Google, serahkan ke saya.',
+    tip: 'Minta admin mengirim tautan ulasan setelah setiap pesanan selesai, dan unggah foto hasil sablon asli ke profil Google setiap minggu.'},
+  {id: 'hightower', name: 'Hightower', grp: 'dewan', role: 'Brand & relasi lokal', from: 'The Mentalist', alias: ['hightower', 'haitower', 'high tower'], pitch: 1.2, rate: 0.98,
+    style: 'tegas, berwibawa, menjaga nama baik merek',
+    hi: 'Hightower. Saya menjaga nama baik Willo.',
+    tip: 'Kumpulkan backlink lokal: sekolah, kampus, komunitas, dan panitia event yang pernah pesan. Minta mereka menulis kaos oleh Willo Apparel.'},
+  {id: 'lisbon', name: 'Lisbon', grp: 'agent', role: 'Orkestrator tim', from: 'The Mentalist', alias: ['lisbon', 'lisben', 'lisboa'], pitch: 1.25, rate: 1.05,
+    style: 'pemimpin lapangan yang tegas, hangat, rapi membagi tugas, menjawab ringkas',
+    hi: 'Lisbon, pemimpin agent. Saya membagi tugas dan memastikan semuanya selesai.',
+    tip: 'Alur kita tetap: Jane cari peluang, Saul menulis, Van Pelt mendesain, Mike dan Tenma memeriksa, Cho menerbitkan.'},
+  {id: 'lunge', name: 'Lunge', grp: 'agent', role: 'Pemantau Search Console', from: 'Monster', alias: ['lunge', 'lunj', 'lange', 'lung'], pitch: 0.75, rate: 1.1,
+    style: 'detektif obsesif, kaku, mencatat semua, bicara cepat dan padat',
+    hi: 'Lunge. Saya memantau data Search Console. Tidak ada yang luput dari catatan saya.',
+    tip: 'Halaman yang sudah tampil di Google tapi jarang diklik, judulnya perlu diperbaiki. Itu daftar kerja termudah minggu ini.'},
+  {id: 'jane', name: 'Jane', grp: 'agent', role: 'Analis peluang kata kunci', from: 'The Mentalist', alias: ['jane', 'jen', 'jein', 'patrick'], pitch: 1.0, rate: 1.08,
+    style: 'cerdas, santai, jenaka, jago membaca isi kepala pembeli',
+    hi: 'Jane. Saya membaca apa yang dicari orang, kadang sebelum mereka sendiri tahu.',
+    tip: 'Orang jarang mengetik sablon kaos saja. Mereka mengetik kebutuhannya: kaos kelas, kaos reuni, kaos panitia. Buat halaman untuk tiap kebutuhan.'},
+  {id: 'jesse', name: 'Jesse', grp: 'agent', role: 'Pemburu tren pasar', from: 'Breaking Bad', alias: ['jesse', 'jesi', 'jessy', 'jessie'], pitch: 1.1, rate: 1.15,
+    style: 'anak muda, semangat, gaul, sering bilang "yo"',
+    hi: 'Yo, Jesse di sini! Saya berburu tren yang lagi naik.',
+    tip: 'Yo, siapkan halaman musiman sebelum ramai: wisuda, class meeting, Agustusan, dan Hari Santri. Tren tanpa data tidak saya pakai.'},
+  {id: 'kim', name: 'Kim', grp: 'agent', role: 'Penjaga Buku Panduan', from: 'Better Call Saul', alias: ['kim', 'kimmy'], pitch: 1.3, rate: 1.0,
+    style: 'teliti, profesional, tenang, menjaga konsistensi gaya bahasa',
+    hi: 'Kim. Saya menjaga Buku Panduan Willo supaya semua tulisan satu suara.',
+    tip: 'Aturan kita: harga ditulis mulai, harga pasti di WhatsApp, dan alamat selalu Jalan PB Sudirman nomor 31 Ngawi.'},
+  {id: 'saul', name: 'Saul', grp: 'agent', role: 'Penulis halaman', from: 'Better Call Saul', alias: ['saul', 'sol'], pitch: 1.1, rate: 1.12,
+    style: 'penulis muda yang persuasif, bersemangat, belajar dari Saul Goodman',
+    hi: 'Saul, penulis halaman. Saya menulis supaya orang mau chat.',
+    tip: 'Setiap halaman saya tutup dengan satu ajakan saja: chat admin WhatsApp, kirim desainmu, kami bantu gratis.'},
+  {id: 'vanpelt', name: 'Van Pelt', grp: 'agent', role: 'Desainer halaman', from: 'The Mentalist', alias: ['van pelt', 'vanpelt', 'fan pelt', 'grace'], pitch: 1.4, rate: 1.05,
+    style: 'ramah, kreatif, ceria, peduli tampilan',
+    hi: 'Van Pelt, desainer. Saya membuat halaman enak dilihat di HP.',
+    tip: 'Tampilkan foto hasil sablon asli di bagian atas, dan tombol WhatsApp selalu terlihat di layar HP.'},
+  {id: 'mike', name: 'Mike', grp: 'agent', role: 'Pemeriksa teknis SEO', from: 'Better Call Saul', alias: ['mike', 'maik', 'mik'], pitch: 0.6, rate: 0.9,
+    style: 'pensiunan polisi, irit kata, kering, sangat bisa diandalkan',
+    hi: 'Mike. Saya memeriksa. Kalau ada yang rusak, saya tahu.',
+    tip: 'Judul, deskripsi, tautan, dan schema saya cek sebelum terbit. Tidak ada halaman lolos tanpa itu.'},
+  {id: 'tenma', name: 'Tenma', grp: 'agent', role: 'Penjaga aturan konten', from: 'Monster', alias: ['tenma', 'tenmah', 'dokter tenma'], pitch: 0.95, rate: 0.98,
+    style: 'dokter yang lurus hati, jujur, lembut tapi tegas soal kebenaran',
+    hi: 'Tenma. Saya memastikan semua yang kita tulis jujur.',
+    tip: 'Tidak ada angka atau ulasan karangan. Kalau belum bisa dibuktikan, tidak kita tulis.'},
+  {id: 'cho', name: 'Cho', grp: 'agent', role: 'Penerbit ke Cloudflare', from: 'The Mentalist', alias: ['cho', 'co', 'choo'], pitch: 0.7, rate: 0.95,
+    style: 'datar, serius, singkat, sesekali lucu tanpa sengaja',
+    hi: 'Cho. Saya menerbitkan. Selesai.',
+    tip: 'Push ke main, Cloudflare terbit otomatis, sitemap dikirim sendiri. Tidak perlu unggah manual.'},
+];
+const DEWAN = TEAM.filter(m => m.grp === 'dewan'), AGENTS = TEAM.filter(m => m.grp === 'agent');
+const byId = Object.fromEntries(TEAM.map(m => [m.id, m]));
+// cocokkan nama terpanjang dulu ("saul goodman" sebelum "saul")
+const ALIASES = TEAM.flatMap(m => m.alias.map(a => [a, m])).sort((a, b) => b[0].length - a[0].length);
+const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function findMember(t){
+  const s = ' ' + t.toLowerCase().replace(/[.,!?:;]/g, ' ').replace(/\./g, '') + ' ';
+  for (const [a, m] of ALIASES) if (new RegExp('[\\s]' + esc(a) + '[\\s]').test(s)) return m;
+  return null;
+}
+let speaker = byId.lisbon, speakerAt = 0;
+function setSpeaker(m){ if (m){ speaker = m; speakerAt = performance.now(); } }
+
+/* ---------- warna HUD ---------- */
+const COLORS = {biru: [89, 227, 255], merah: [255, 76, 76], emas: [255, 201, 74]};
+let colName = 'biru', RGB = COLORS.biru;
+const col = (a = 1) => `rgba(${RGB[0]},${RGB[1]},${RGB[2]},${a})`;
+function setColor(n){ colName = n; RGB = COLORS[n];
+  const hex = '#' + RGB.map(v => v.toString(16).padStart(2, '0')).join('');
+  document.documentElement.style.setProperty('--hud', hex); document.documentElement.style.setProperty('--line', hex + '33');
+  for (const m of holoMats) m.uniforms.uColor.value.setRGB(RGB[0] / 255, RGB[1] / 255, RGB[2] / 255, THREE.SRGBColorSpace);
+  for (const m of lineMats) m.color.setRGB(RGB[0] / 255, RGB[1] / 255, RGB[2] / 255, THREE.SRGBColorSpace);
+}
+
+/* ---------- three.js hologram ---------- */
+const glc = document.createElement('canvas');
+const renderer = new THREE.WebGLRenderer({canvas: glc, alpha: true, antialias: true});
+renderer.setPixelRatio(1); renderer.setClearColor(0, 0);
+const scene = new THREE.Scene(), FOV = 40;
+const camera = new THREE.PerspectiveCamera(FOV, 1, 10, 20000);
+function layout(){
+  const vw = innerWidth, vh = innerHeight;
+  let cw = vw, ch = vw / aspect; if (ch > vh){ ch = vh; cw = vh * aspect; }
+  stage.style.width = cw + 'px'; stage.style.height = ch + 'px';
+  const dpr = Math.min(devicePixelRatio || 1, 2), k = Math.min(1, 1920 / Math.max(cw * dpr, ch * dpr));
+  W = Math.round(cw * dpr * k / 2) * 2; H = Math.round(ch * dpr * k / 2) * 2;
+  stage.width = W; stage.height = H; U = Math.min(W, H) / 720;
+  renderer.setSize(W, H, false); camera.aspect = W / H;
+  camera.position.set(0, 0, (H / 2) / Math.tan(THREE.MathUtils.degToRad(FOV / 2))); camera.updateProjectionMatrix();
+  $('bRatio').textContent = aspect < 1 ? '9:16' : '16:9';
+}
+const holoMats = [], lineMats = [];
+function holoMat(){
+  const m = new THREE.ShaderMaterial({
+    uniforms: {uColor: {value: new THREE.Color(0x59e3ff)}, uTime: {value: 0}, uOp: {value: 1}},
+    vertexShader: `varying vec3 vN; varying vec3 vV; varying float vY;
+      void main(){ vec4 mv = modelViewMatrix * vec4(position, 1.0); vN = normalize(normalMatrix * normal); vV = -mv.xyz; vY = (modelMatrix * vec4(position,1.0)).y; gl_Position = projectionMatrix * mv; }`,
+    fragmentShader: `uniform vec3 uColor; uniform float uTime, uOp; varying vec3 vN; varying vec3 vV; varying float vY;
+      void main(){ float f = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 2.0);
+        float scan = 0.65 + 0.35 * sin(vY * 0.35 - uTime * 7.0);
+        float flick = 0.92 + 0.08 * sin(uTime * 53.0);
+        gl_FragColor = vec4(uColor * (0.25 + f * 1.4) * scan * flick, (0.10 + f * 0.85) * uOp); }`,
+    transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending});
+  holoMats.push(m); return m;
+}
+function lineMat(op = 0.85){ const m = new THREE.LineBasicMaterial({color: 0x59e3ff, transparent: true, opacity: op, blending: THREE.AdditiveBlending, depthWrite: false}); lineMats.push(m); return m; }
+function holoMesh(geo, edgeAngle = 20){
+  const g = new THREE.Group();
+  g.add(new THREE.Mesh(geo, holoMat()));
+  g.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, edgeAngle), lineMat()));
+  return g;
+}
+function fit(obj, size = 1){
+  const box = new THREE.Box3().setFromObject(obj), c = box.getCenter(new THREE.Vector3()), d = box.getSize(new THREE.Vector3());
+  obj.position.sub(c); const w = new THREE.Group(); w.add(obj); w.scale.setScalar(size / Math.max(d.x, d.y, d.z)); return w;
+}
+function teeShape(){
+  const s = new THREE.Shape(); s.moveTo(-0.17, 0.5);
+  for (const [x, y] of [[-0.42,0.44],[-0.62,0.22],[-0.49,0.07],[-0.34,0.19],[-0.34,-0.5],[0.34,-0.5],[0.34,0.19],[0.49,0.07],[0.62,0.22],[0.42,0.44],[0.17,0.5]]) s.lineTo(x, y);
+  s.quadraticCurveTo(0, 0.3, -0.17, 0.5); return s;
+}
+function wShape(){
+  const p = [[-0.35,0.22],[-0.22,0.22],[-0.13,-0.06],[-0.05,0.18],[0.05,0.18],[0.13,-0.06],[0.22,0.22],[0.35,0.22],[0.19,-0.24],[0.08,-0.24],[0,0],[-0.08,-0.24],[-0.19,-0.24]];
+  const s = new THREE.Shape(); s.moveTo(...p[0]); for (let i = 1; i < p.length; i++) s.lineTo(...p[i]); s.closePath(); return s;
+}
+const teamNodes = [];   // {m, obj} untuk label nama di layar
+function teamHolo(){
+  teamNodes.length = 0;
+  const g = new THREE.Group();
+  const w = holoMesh(new THREE.ExtrudeGeometry(wShape(), {depth: 0.08, bevelEnabled: false})); w.scale.setScalar(0.75); g.add(w);
+  const tilt = new THREE.Group(); tilt.rotation.x = 1.12; g.add(tilt);
+  for (const [list, r, spin] of [[DEWAN, 0.52, 0.22], [AGENTS, 0.92, -0.13]]){
+    const ring = new THREE.Group(); ring.userData.spin = spin; tilt.add(ring);
+    ring.add(new THREE.Mesh(new THREE.TorusGeometry(r, 0.004, 4, 120), holoMat()));
+    list.forEach((m, i) => {
+      const a = i / list.length * Math.PI * 2;
+      const n = holoMesh(m.grp === 'dewan' ? new THREE.OctahedronGeometry(0.055, 0) : new THREE.IcosahedronGeometry(0.04, 0), 1);
+      n.position.set(Math.cos(a) * r, Math.sin(a) * r, 0); ring.add(n);
+      teamNodes.push({m, obj: n});
+    });
+  }
+  return fit(g, 1.25);
+}
+const HOLOS = [
+  {name: 'Tim Willo', still: true, make: teamHolo},
+  {name: 'Kaos', make: () => fit(holoMesh(new THREE.ExtrudeGeometry(teeShape(), {depth: 0.14, bevelEnabled: true, bevelThickness: .03, bevelSize: .02, bevelSegments: 1, curveSegments: 8})))},
+  {name: 'Logo Willo', make: () => { const g = new THREE.Group();
+    const ring = new THREE.Shape(); ring.absarc(0, 0, 0.5, 0, Math.PI * 2); const h = new THREE.Path(); h.absarc(0, 0, 0.42, 0, Math.PI * 2, true); ring.holes.push(h);
+    g.add(holoMesh(new THREE.ExtrudeGeometry(ring, {depth: 0.08, bevelEnabled: false, curveSegments: 48})));
+    const w = holoMesh(new THREE.ExtrudeGeometry(wShape(), {depth: 0.12, bevelEnabled: false})); w.position.z = 0.0; w.scale.setScalar(1.05); g.add(w);
+    return fit(g); }},
+  {name: 'Bola dunia', make: () => { const g = new THREE.Group();
+    g.add(new THREE.Mesh(new THREE.SphereGeometry(0.5, 32, 20), holoMat()));
+    g.add(new THREE.LineSegments(new THREE.WireframeGeometry(new THREE.SphereGeometry(0.5, 18, 12)), lineMat(0.45)));
+    const t = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.006, 6, 96), holoMat()); t.rotation.x = Math.PI / 2.3; g.add(t);
+    return fit(g); }},
+  {name: 'Inti mesin', make: () => { const g = new THREE.Group();
+    g.add(holoMesh(new THREE.IcosahedronGeometry(0.35, 0), 1));
+    for (let i = 0; i < 3; i++){ const t = new THREE.Mesh(new THREE.TorusGeometry(0.5 + i * 0.1, 0.01, 6, 80), holoMat()); t.rotation.set(i * 1.1, i * 0.7, 0); t.userData.spin = 0.6 + i * 0.4; g.add(t); }
+    return fit(g); }},
+];
+const holoRoot = new THREE.Group(); scene.add(holoRoot);
+const holder = new THREE.Group(); holoRoot.add(holder);
+const base = new THREE.Mesh(new THREE.RingGeometry(0.42, 0.45, 64), holoMat()); base.rotation.x = -Math.PI / 2.2; base.position.y = -0.62; holoRoot.add(base);
+const base2 = new THREE.Mesh(new THREE.RingGeometry(0.3, 0.31, 64), holoMat()); base2.rotation.x = -Math.PI / 2.2; base2.position.y = -0.62; holoRoot.add(base2);
+let holoIdx = 0, holoModel = null, holoSpawn = 0;
+function setHolo(i){
+  holoIdx = (i + HOLOS.length) % HOLOS.length;
+  if (holoModel) holder.remove(holoModel);
+  holoModel = HOLOS[holoIdx].make(); holder.add(holoModel); holoSpawn = performance.now();
+  setColor(colName);
+}
+const holo = {x: 0, y: 0, size: 0, roll: 0, yaw: 0, yawV: 0.6, vis: 0, tx: 0, ty: 0, ts: 0, troll: 0, shown: false, grab: false};
+
+/* ---------- pelacakan ---------- */
+let handsLM = null, faceLM = null, camOn = false, lastVT = -1, tick = 0;
+let hands = [], face = null, faceSeen = 0;
+const d2 = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+function toStage(p){
+  const vw = video.videoWidth, vh = video.videoHeight, s = Math.max(W / vw, H / vh);
+  return {x: W - (p.x * vw * s + (W - vw * s) / 2), y: p.y * vh * s + (H - vh * s) / 2};
+}
+const pinchState = {};
+let workMeter = 0, lastHandPos = null;
+function processHands(res, now){
+  hands = (res?.landmarks || []).map((lm, i) => {
+    const pts = lm.map(toStage);
+    const palm = d2(pts[0], pts[9]) || 1;
+    const pc = [0,5,9,13,17].reduce((s, k) => ({x: s.x + pts[k].x / 5, y: s.y + pts[k].y / 5}), {x: 0, y: 0});
+    const key = (res.handedness?.[i]?.[0]?.categoryName || 'h') + i;
+    const pd = d2(pts[4], pts[8]) / palm, was = pinchState[key] || false;
+    const pinch = was ? pd < 0.5 : pd < 0.32; pinchState[key] = pinch;
+    const ext = [[8,6],[12,10],[16,14],[20,18]].reduce((s, [t, p]) => s + Math.min(1.5, d2(pts[t], pts[0]) / (d2(pts[p], pts[0]) || 1)), 0) / 4;
+    return {pts, palm, pc, pinch, pp: {x: (pts[4].x + pts[8].x) / 2, y: (pts[4].y + pts[8].y) / 2}, angle: Math.atan2(pts[9].y - pts[0].y, pts[9].x - pts[0].x), open: Math.max(0, Math.min(1, (ext - 0.9) / 0.5))};
+  }).sort((a, b) => a.pc.x - b.pc.x);
+  // progres proyek naik saat tangan bekerja
+  if (hands.length){ const c = hands[0].pc; if (lastHandPos) workMeter += Math.min(40, d2(c, lastHandPos)) / (U * 9000); lastHandPos = c; }
+  // hologram: dua tangan mencubit = pegang
+  const pin = hands.filter(h => h.pinch);
+  if (pin.length >= 2 && active){
+    const a = pin[0].pp, b = pin[pin.length - 1].pp;
+    holo.tx = (a.x + b.x) / 2; holo.ty = (a.y + b.y) / 2;
+    holo.ts = Math.max(80 * U, d2(a, b) * 0.7);
+    holo.troll = Math.atan2(b.y - a.y, b.x - a.x);
+    if (!holo.shown){ holo.shown = true; holo.x = holo.tx; holo.y = holo.ty; holo.size = holo.ts * 0.2; say(`Hologram ${HOLOS[holoIdx].name.toLowerCase()} siap, ${prefs.name}.`, false); }
+    holo.grab = true; workMeter += 0.0015;
+  } else if (pin.length === 1 && holo.shown){
+    const h = pin[0];
+    if (h._lastX != null) {}
+    const prev = pinchDrag.x; pinchDrag.x = h.pp.x;
+    if (prev != null) holo.yawV += (h.pp.x - prev) / (W * 0.002) * 0.05;
+    holo.grab = false;
+  } else { holo.grab = false; pinchDrag.x = null; }
+}
+const pinchDrag = {x: null};
+function processFace(res){
+  const lm = res?.faceLandmarks?.[0];
+  if (!lm){ face = null; return; }
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  const P = lm.map(toStage);
+  for (const p of P){ if (p.x < x0) x0 = p.x; if (p.x > x1) x1 = p.x; if (p.y < y0) y0 = p.y; if (p.y > y1) y1 = p.y; }
+  let a = P[33], b = P[263]; if (a.x > b.x) [a, b] = [b, a];
+  const e = d2(a, b), m = {x: (a.x + b.x) / 2, y: (a.y + b.y) / 2}, nose = P[1];
+  const eyePxVideo = Math.hypot((lm[33].x - lm[263].x) * video.videoWidth, (lm[33].y - lm[263].y) * video.videoHeight) || 1;
+  const dist = 0.063 * (video.videoWidth * 0.85) / eyePxVideo;
+  const nf = {box: {x0, y0, x1, y1}, eye: b, eyeL: a, e, yaw: Math.atan((nose.x - m.x) / e * 1.6) * 57, pitch: ((nose.y - m.y) / e - 0.55) * 60, roll: Math.atan2(b.y - a.y, b.x - a.x) * 57, dist};
+  if (face){ for (const k of ['x0','y0','x1','y1']) nf.box[k] = face.box[k] + (nf.box[k] - face.box[k]) * 0.5; }
+  face = nf;
+  if (!faceSeen){ faceSeen = performance.now(); lockAt = performance.now(); }
+}
+let lockAt = 0, greeted = false;
+
+/* ---------- gambar HUD ---------- */
+function glowStroke(fn, w, a){ ctx.strokeStyle = col(a * 0.18); ctx.lineWidth = w * 4; fn(); ctx.stroke(); ctx.strokeStyle = col(a); ctx.lineWidth = w; fn(); ctx.stroke(); }
+function arc(r, a0, a1){ return () => { ctx.beginPath(); ctx.arc(0, 0, r, a0, a1); }; }
+function text(t, x, y, size = 12, a = 0.95, align = 'left'){
+  ctx.font = `600 ${size * U}px "IBM Plex Mono", monospace`; ctx.textAlign = align; ctx.textBaseline = 'middle';
+  ctx.fillStyle = col(a); ctx.fillText(t, x, y);
+}
+function palmHUD(h, time){
+  const R = h.palm * 1.05, A = h.pinch ? 0.45 : 0.95;
+  ctx.save(); ctx.translate(h.pc.x, h.pc.y);
+  // cincin skala berputar
+  ctx.save(); ctx.rotate(time * 0.6);
+  ctx.strokeStyle = col(0.8 * A); ctx.lineWidth = 1.4 * U; ctx.beginPath();
+  for (let i = 0; i < 72; i++){ const a = i / 72 * Math.PI * 2, l = i % 6 === 0 ? R * 0.14 : R * 0.06;
+    ctx.moveTo(Math.cos(a) * R * 1.3, Math.sin(a) * R * 1.3); ctx.lineTo(Math.cos(a) * (R * 1.3 - l), Math.sin(a) * (R * 1.3 - l)); }
+  ctx.stroke(); ctx.restore();
+  // busur berlawanan arah
+  ctx.save(); ctx.rotate(-time * 1.1);
+  for (let k = 0; k < 3; k++) glowStroke(arc(R * 1.08, k * 2.094, k * 2.094 + 1.3), 3 * U, 0.9 * A);
+  ctx.restore();
+  ctx.save(); ctx.rotate(time * 2.0); ctx.setLineDash([4 * U, 6 * U]); glowStroke(arc(R * 0.78, 0, Math.PI * 2), 1.2 * U, 0.7 * A); ctx.setLineDash([]); ctx.restore();
+  // indikator daya (keterbukaan telapak)
+  glowStroke(arc(R * 0.6, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (0.15 + h.open * 0.85)), 4 * U, A);
+  glowStroke(arc(R * 0.32, 0, Math.PI * 2), 1.5 * U, 0.8 * A);
+  ctx.fillStyle = col(0.9 * A); ctx.beginPath(); ctx.arc(0, 0, 3 * U, 0, Math.PI * 2); ctx.fill();
+  // garis bidik
+  ctx.strokeStyle = col(0.6 * A); ctx.lineWidth = 1 * U; ctx.beginPath();
+  for (const [x, y] of [[1,0],[-1,0],[0,1],[0,-1]]){ ctx.moveTo(x * R * 0.36, y * R * 0.36); ctx.lineTo(x * R * 0.55, y * R * 0.55); } ctx.stroke();
+  // data
+  const deg = ((h.angle * 57 + 450) % 360) | 0, sx = h.pc.x > W * 0.6 ? -1 : 1, al = sx > 0 ? 'left' : 'right';
+  ctx.strokeStyle = col(0.6 * A); ctx.beginPath(); ctx.moveTo(sx * R * 0.95, -R * 0.95); ctx.lineTo(sx * R * 1.35, -R * 1.35); ctx.lineTo(sx * R * 2.1, -R * 1.35); ctx.stroke();
+  text(`PWR ${String(Math.round(40 + h.open * 60)).padStart(3)}%`, sx * R * 1.4, -R * 1.5, 11, A, al);
+  text(`ROT ${String(deg).padStart(3, '0')}°`, sx * R * 1.4, -R * 1.22, 10, 0.7 * A, al);
+  text(`X${(h.pc.x / W * 100).toFixed(1)} Y${(h.pc.y / H * 100).toFixed(1)}`, 0, R * 1.55, 9, 0.6 * A, 'center');
+  ctx.restore();
+}
+let hexCache = [], hexT = 0;
+function faceHUD(f, time, now){
+  const b = f.box, w = b.x1 - b.x0, h = b.y1 - b.y0, pad = w * 0.12;
+  const lock = Math.min(1, (now - lockAt) / 700), grow = 1 + (1 - lock) * 0.9;
+  const cx = (b.x0 + b.x1) / 2, cy = (b.y0 + b.y1) / 2, hw = (w / 2 + pad) * grow, hh = (h / 2 + pad) * grow;
+  const L = Math.min(hw, hh) * 0.35;
+  ctx.lineWidth = 2 * U;
+  for (const [sx, sy] of [[-1,-1],[1,-1],[-1,1],[1,1]]){
+    glowStroke(() => { ctx.beginPath(); ctx.moveTo(cx + sx * hw, cy + sy * (hh - L)); ctx.lineTo(cx + sx * hw, cy + sy * hh); ctx.lineTo(cx + sx * (hw - L), cy + sy * hh); }, 2.2 * U, 0.95);
+  }
+  // reticle di mata
+  ctx.save(); ctx.translate(f.eye.x, f.eye.y); ctx.rotate(time * 1.5);
+  const er = f.e * 0.32;
+  for (let k = 0; k < 4; k++) glowStroke(arc(er, k * Math.PI / 2 + 0.2, k * Math.PI / 2 + 1.1), 1.4 * U, 0.85);
+  ctx.restore();
+  // label
+  const roomRight = cx + hw + 14 * U + 230 * U < W;
+  const tx = roomRight ? cx + hw + 14 * U : Math.max(14 * U, cx - 115 * U); let ty = roomRight ? cy - hh + 8 * U : cy + hh + 22 * U;
+  const locked = lock >= 1;
+  ctx.fillStyle = col(locked ? 0.95 : 0.6); ctx.fillRect(tx, ty - 9 * U, 6 * U, 18 * U);
+  text(locked ? 'IDENTITAS TERVERIFIKASI' : 'MEMINDAI…', tx + 12 * U, ty, 13, 1); ty += 22 * U;
+  text(`SUBJEK  : ${prefs.name.toUpperCase()}`, tx, ty, 11, 0.9); ty += 17 * U;
+  text(`AKSES   : PEMILIK`, tx, ty, 11, 0.8); ty += 17 * U;
+  text(`TIM     : ${TEAM.length} ONLINE`, tx, ty, 11, 0.8); ty += 17 * U;
+  text(`JARAK   : ${f.dist.toFixed(2)} m`, tx, ty, 11, 0.8); ty += 17 * U;
+  text(`YAW ${f.yaw.toFixed(0).padStart(4)}°  PITCH ${f.pitch.toFixed(0).padStart(4)}°`, tx, ty, 10, 0.7); ty += 17 * U;
+  // kolom heks bergulir
+  if (now - hexT > 90){ hexT = now; hexCache.unshift(Array.from({length: 4}, () => Math.floor(Math.random() * 65536).toString(16).toUpperCase().padStart(4, '0')).join(' ')); hexCache.length = 7; }
+  if (cx - hw - 12 * U - 120 * U > 0) hexCache.forEach((s, i) => text(s, cx - hw - 12 * U, cy - hh + 10 * U + i * 15 * U, 9, 0.55 - i * 0.06, 'right'));
+}
+// berapa piksel kanvas bagian bawah yang tertutup tombol (supaya teks asisten tidak ketutup)
+function uiOverlap(){
+  const hud = $('hud'); if (hud.hidden) return 0;
+  const r = stage.getBoundingClientRect(), top = $('cmdForm').getBoundingClientRect().top - 8;
+  return Math.max(0, r.bottom - top) * (W / (r.width || W));
+}
+function frameHUD(time, now){
+  const m = 22 * U, L = 46 * U;
+  for (const [x, y, sx, sy] of [[m, m, 1, 1], [W - m, m, -1, 1], [m, H - m, 1, -1], [W - m, H - m, -1, -1]]){
+    glowStroke(() => { ctx.beginPath(); ctx.moveTo(x, y + sy * L); ctx.lineTo(x, y); ctx.lineTo(x + sx * L, y); }, 2 * U, 0.8);
+  }
+  const d = new Date();
+  text(`${d.toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit', second: '2-digit'})}  ·  SISTEM ONLINE`, W / 2, m + 6 * U, 13, 0.95, 'center');
+  text(`WILLO TIM MARKETING OS v1.0`, m + 6 * U, m + 26 * U, 10, 0.6);
+  rosterHUD(time, now, m);
+  // panel proyek
+  const prog = Math.min(1, workMeter), px = W - m - 220 * U, py = m + 26 * U;
+  text(`PROYEK AKTIF`, px, py, 10, 0.65);
+  text(prefs.proj.toUpperCase(), px, py + 18 * U, 14, 1);
+  ctx.strokeStyle = col(0.5); ctx.lineWidth = 1 * U; ctx.strokeRect(px, py + 32 * U, 200 * U, 8 * U);
+  ctx.fillStyle = col(0.9); ctx.fillRect(px + 2 * U, py + 34 * U, (196 * U) * prog, 4 * U);
+  text(`${(prog * 100).toFixed(0)}% · ${prog >= 1 ? 'SELESAI' : hands.length ? 'DIKERJAKAN' : 'MENUNGGU'}`, px, py + 52 * U, 10, 0.8);
+  // gelombang suara + teks asisten
+  const by = H - m - 120 * U - uiOverlap(), bx = m + 6 * U;
+  const act = speaking || listening || thinking;
+  for (let i = 0; i < 28; i++){
+    const amp = act ? (0.25 + Math.abs(Math.sin(time * 9 + i * 0.7) * Math.sin(time * 3.3 + i))) : 0.08;
+    ctx.fillStyle = col(act ? 0.9 : 0.4); const bh = amp * 26 * U; ctx.fillRect(bx + i * 6 * U, by - bh / 2, 3 * U, bh);
+  }
+  text(listening ? 'MENDENGARKAN…' : thinking ? `${speaker.name.toUpperCase()} BERPIKIR…` : speaking ? `${speaker.name.toUpperCase()} BICARA` : (prefs.ai ? `TIM SIAGA · AI ${prefs.ai.toUpperCase()}` : 'TIM SIAGA'), bx + 180 * U, by, 11, 0.85);
+  if (heard) text(`> ${heard}`.slice(0, 60), bx, by + 26 * U, 12, 0.7);
+  if (reply){ const shown = reply.slice(0, Math.floor((now - replyAt) / 28)); wrapText(shown, bx, by + 48 * U, Math.min(W * 0.6, 560 * U), 15); }
+  if (lastErr) text(`! ${lastErr}`.slice(0, 70), bx, by - 26 * U, 10, 0.75);
+}
+// daftar anggota di kiri atas; yang bicara diberi tanda dan garis
+function rosterHUD(time, now, m){
+  const x = m + 6 * U; let y = m + 52 * U; const lh = 14 * U;
+  if (y + (TEAM.length + 3) * lh > H - 200 * U) return;   // layar terlalu pendek: lewati
+  const live = speaking || thinking || now - speakerAt < 2500;
+  for (const [title, list] of [['DEWAN AHLI', DEWAN], ['AGENT', AGENTS]]){
+    text(`${title} · ${list.length}`, x, y, 10, 0.6); y += lh;
+    for (const p of list){
+      const on = p === speaker;
+      if (on){ ctx.fillStyle = col(live ? 0.55 + 0.4 * Math.sin(time * 8) ** 2 : 0.5); ctx.fillRect(x, y - 5 * U, 3 * U, 10 * U); }
+      text(`${on ? '▶' : '·'} ${p.name.toUpperCase()}`, x + 8 * U, y, on ? 11 : 10, on ? 1 : 0.55); y += lh;
+    }
+    y += lh * 0.5;
+  }
+}
+// kartu anggota yang sedang bicara, di bawah jam
+function speakerCard(time, now){
+  const live = speaking || thinking || now - speakerAt < 4000;
+  if (!live) return;
+  const p = speaker, cx = W / 2, y = 22 * U + 34 * U;
+  const w = 260 * U, h = 44 * U;
+  ctx.fillStyle = col(0.06); ctx.fillRect(cx - w / 2, y, w, h);
+  glowStroke(() => { ctx.beginPath(); ctx.rect(cx - w / 2, y, w, h); }, 1 * U, 0.5);
+  text(`${p.name.toUpperCase()}`, cx, y + 15 * U, 15, 1, 'center');
+  text(`${p.grp === 'dewan' ? 'DEWAN AHLI' : 'AGENT'} · ${p.role.split(' · ').pop().toUpperCase()} · ${p.from.toUpperCase()}`, cx, y + 32 * U, 9, 0.7, 'center');
+}
+// label nama pada hologram tim
+const _v = new THREE.Vector3();
+function teamLabels(time){
+  if (HOLOS[holoIdx].make !== teamHolo || holo.vis < 0.3 || holo.size < 140 * U) return;
+  const live = speaking || thinking;
+  for (const {m, obj} of teamNodes){
+    obj.getWorldPosition(_v); const z = _v.z; _v.project(camera);
+    const x = (_v.x + 1) / 2 * W, y = (1 - _v.y) / 2 * H, on = m === speaker;
+    const a = (z > 0 ? 0.95 : 0.45) * holo.vis;
+    obj.scale.setScalar(on ? 1.6 + (live ? 0.5 * Math.sin(time * 10) ** 2 : 0) : 1);
+    if (on){ ctx.save(); ctx.translate(x, y); ctx.rotate(time * 2); glowStroke(arc(12 * U, 0, Math.PI * 1.4), 1.5 * U, a); ctx.restore(); }
+    text(m.name.toUpperCase(), x + 9 * U, y - 9 * U, on ? 11 : m.grp === 'dewan' ? 9 : 8, on ? 1 : a * (m.grp === 'dewan' ? 0.9 : 0.7));
+  }
+}
+function standbyHUD(time, now){
+  ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = 'rgba(0,6,10,.55)'; ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation = 'lighter';
+  const cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.12, p = 0.5 + 0.5 * Math.sin(time * 2.2);
+  ctx.save(); ctx.translate(cx, cy);
+  ctx.save(); ctx.rotate(time * 0.5); for (let k = 0; k < 3; k++) glowStroke(arc(R, k * 2.094, k * 2.094 + 1.4), 2.5 * U, 0.5 + p * 0.4); ctx.restore();
+  ctx.save(); ctx.rotate(-time * 0.9); ctx.setLineDash([3 * U, 7 * U]); glowStroke(arc(R * 0.72, 0, Math.PI * 2), 1.2 * U, 0.6); ctx.setLineDash([]); ctx.restore();
+  ctx.fillStyle = col(0.4 + p * 0.5); ctx.beginPath(); ctx.arc(0, 0, R * 0.12, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+  text('TIM SIAGA', cx, cy + R * 1.5, 16, 0.95, 'center');
+  text(listening ? 'Ucapkan "Halo tim" sekarang…' : (IOS || needTap) ? 'Ketuk 🎙, lalu ucapkan "Halo tim"' : 'Ucapkan "Halo tim" (atau ketik)', cx, cy + R * 1.5 + 24 * U, 12, 0.75, 'center');
+  if (lastErr) text(`! ${lastErr}`.slice(0, 60), cx, cy + R * 1.5 + 70 * U, 10, 0.7, 'center');
+  if (heard) text(`> ${heard}`.slice(0, 50), cx, cy + R * 1.5 + 48 * U, 11, 0.5, 'center');
+}
+function wrapText(t, x, y, maxW, size){
+  ctx.font = `600 ${size * U}px "IBM Plex Mono", monospace`; const words = t.split(' '); let line = '', yy = y;
+  for (const w of words){ const test = line ? line + ' ' + w : w; if (ctx.measureText(test).width > maxW && line){ text(line, x, yy, size, 1); line = w; yy += size * 1.4 * U; } else line = test; }
+  if (line) text(line, x, yy, size, 1);
+}
+
+/* ---------- asisten suara ---------- */
+let speaking = false, listening = false, heard = '', reply = '', replyAt = 0, voice = null;
+function pickVoice(){ const v = speechSynthesis?.getVoices?.() || []; voice = v.find(x => /^id/i.test(x.lang)) || null; }
+try { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; } catch (e) {}
+let speakToken = 0, speakTimer = 0;
+let sayQueue = [], queueTimer = 0;
+function doneSpeaking(tok){
+  if (tok !== speakToken) return;                       // ucapan lama yang terpotong, abaikan
+  clearTimeout(speakTimer); speaking = false; quietUntil = performance.now() + 500;
+  if (sayQueue.length){ const [m, t] = sayQueue.shift(); queueTimer = setTimeout(() => say(t, true, m, true), 250); return; }
+  if (wantListen && !listening) setTimeout(restartRecog, 350);
+}
+// beberapa anggota bicara bergiliran: [[anggota, teks], ...]
+function sayAll(list){ if (!list.length) return; sayQueue = list.slice(1); say(list[0][1], true, list[0][0], true);
+  if (!window.speechSynthesis) { sayQueue = []; } }
+function say(t, speak = true, m = null, fromQueue = false){
+  if (!fromQueue){ sayQueue = []; clearTimeout(queueTimer); }
+  if (m) setSpeaker(m); else m = speaker;
+  speakerAt = performance.now();
+  reply = `${m.name.toUpperCase()}: ${t}`; replyAt = performance.now();
+  if (!speak || !window.speechSynthesis) return;
+  try {
+    const tok = ++speakToken;
+    speechSynthesis.cancel();
+    // matikan mic sebentar supaya suara asisten terdengar keras di iPhone dan tidak terdengar ulang oleh mic
+    if (listening){ try { recog.abort(); } catch (e) {} listening = false; updMic(); }
+    const u = new SpeechSynthesisUtterance(t); u.lang = 'id-ID'; if (voice) u.voice = voice; u.rate = m.rate; u.pitch = m.pitch;
+    speaking = true;
+    u.onend = u.onerror = () => doneSpeaking(tok);
+    clearTimeout(speakTimer); speakTimer = setTimeout(() => doneSpeaking(tok), 1500 + t.length * 85 / m.rate);   // pengaman
+    speechSynthesis.speak(u);
+  } catch (e) { speaking = false; }
+}
+function handle(raw){
+  const t = raw.toLowerCase().replace(/jarvis|jervis|willo/g, ' ').replace(/[.,!?]/g, ' ').replace(/\s+/g, ' ').trim();
+  heard = raw;
+  const has = (...w) => w.some(x => t.includes(x));
+  if (!t) return say(`Ya, ${prefs.name}?`);
+  if (teamCommand(raw)) return;
+  if (doAction(t)) return;
+  if (prefs.ai && prefs.key) return askAI(raw);
+  if (has('halo', 'hai', 'hello', 'pagi', 'siang', 'sore', 'malam')) return say(`Halo, ${prefs.name}. Semua sistem online dan siap bekerja.`);
+  if (has('jam berapa', 'pukul')) return say(`Sekarang pukul ${new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit'})}, ${prefs.name}.`);
+  if (has('tanggal', 'hari apa')) return say(`Hari ini ${new Date().toLocaleDateString('id-ID', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'})}.`);
+  if (has('kaos')) { setHolo(1); showHolo(); return say(`Menampilkan hologram kaos.`); }
+  if (has('logo')) { setHolo(2); showHolo(); return say(`Menampilkan logo Willo.`); }
+  if (has('bola', 'dunia', 'globe')) { setHolo(3); showHolo(); return say(`Menampilkan bola dunia.`); }
+  if (has('mesin', 'inti', 'reaktor')) { setHolo(4); showHolo(); return say(`Menampilkan inti mesin.`); }
+  if (has('ganti', 'berikut', 'next')) { setHolo(holoIdx + 1); showHolo(); return say(`Hologram ${HOLOS[holoIdx].name.toLowerCase()}.`); }
+  if (has('tampilkan', 'munculkan', 'hologram')) { showHolo(); return say(`Hologram ditampilkan, ${prefs.name}.`); }
+  if (has('sembunyikan', 'hilangkan', 'tutup hologram')) { holo.shown = false; return say(`Hologram disembunyikan.`); }
+  if (has('besar', 'zoom')) { holo.ts = (holo.ts || 200 * U) * 1.4; return say(`Diperbesar.`); }
+  if (has('kecil')) { holo.ts = (holo.ts || 200 * U) / 1.4; return say(`Diperkecil.`); }
+  if (has('merah')) { setColor('merah'); return say(`Mode merah aktif.`); }
+  if (has('emas', 'kuning', 'gold')) { setColor('emas'); return say(`Mode emas aktif.`); }
+  if (has('biru')) { setColor('biru'); return say(`Kembali ke mode biru.`); }
+  if (has('berhenti rekam', 'stop rekam', 'selesai rekam')) { if (rec) toggleRec(); return say(`Rekaman disimpan.`); }
+  if (has('rekam')) { if (!rec) toggleRec(); return say(`Merekam.`); }
+  if (has('status proyek', 'progres', 'progress')) return say(`Proyek ${prefs.proj} sudah ${Math.round(Math.min(1, workMeter) * 100)} persen, ${prefs.name}.`);
+  if (has('status', 'diagnos', 'sistem')) return say(`Semua sistem normal. Pelacak tangan ${handsLM ? 'aktif' : 'mati'}, pengenal wajah ${faceLM ? 'aktif' : 'mati'}. Daya seratus persen.`);
+  if (has('siapa kamu', 'kamu siapa', 'namamu')) return say(speaker.hi);
+  if (has('sablon', 'apparel', 'usaha')) return say(`Willo Apparel, sablon kaos custom. Kunjungi willoapparel dot com.`);
+  if (has('terima kasih', 'makasih', 'thanks')) return say(`Sama-sama, ${prefs.name}.`);
+  return say(`Maaf, ${prefs.name}, itu belum bisa saya jawab tanpa otak AI. Coba sebut nama anggota, misalnya: Gus, apa strategi kita? Atau ucapkan rapat dewan.`, true, byId.lisbon);
+}
+// perintah khusus tim: panggil nama, absen, rapat dewan
+function teamCommand(raw){
+  const t = raw.toLowerCase();
+  const has = (...w) => w.some(x => t.includes(x));
+  if (has('rapat dewan', 'rapat ahli', 'dewan ahli', 'masukan dewan')){
+    setHolo(0); showHolo();
+    return sayAll([[byId.gus, `Rapat Dewan Ahli dimulai, ${prefs.name}. Satu per satu.`], ...DEWAN.map(m => [m, m.tip]), [byId.gus, 'Itu masukan dewan. Keputusan akhir tetap di tanganmu.']]), true;
+  }
+  if (has('absen', 'perkenalkan', 'perkenalan', 'semua anggota', 'halo semua', 'kumpul')){
+    setHolo(0); showHolo();
+    return sayAll([[byId.lisbon, `Absen tim Willo, ${prefs.name}. Delapan Dewan Ahli, sepuluh agent.`], ...TEAM.map(m => [m, `${m.name}, ${m.role.split(' · ').pop().toLowerCase()}. Hadir.`])]), true;
+  }
+  if (has('siapa saja', 'anggota tim', 'daftar tim', 'timnya siapa', 'siapa tim')){
+    setHolo(0); showHolo();
+    return say(`Dewan Ahli: ${DEWAN.map(m => m.name).join(', ')}. Agent: ${AGENTS.map(m => m.name).join(', ')}. Panggil nama siapa saja.`, true, byId.lisbon), true;
+  }
+  if (has('hologram tim', 'tampilkan tim', 'lihat tim')){ setHolo(0); showHolo(); return say('Hologram tim ditampilkan. Yang sedang bicara akan menyala.', true, byId.lisbon), true; }
+  const m = findMember(raw);
+  if (!m) return false;
+  setSpeaker(m);
+  // buang nama & sapaan, sisanya pertanyaan
+  let q = t; for (const a of m.alias) q = q.split(a).join(' ');
+  q = q.replace(/jarvis|willo|\b(halo|hallo|hai|hey|pak|bu|mas|mbak|dokter|dr|tolong|coba)\b/g, ' ').replace(/[.,!?]/g, ' ').replace(/\s+/g, ' ').trim();
+  if (q.length < 3) return say(m.hi, true, m), true;
+  if (doAction(q)) return true;
+  if (prefs.ai && prefs.key) return askAI(raw), true;
+  if (/siapa|tugas|kerja apa|peran|ngapain/.test(q)) return say(`${m.hi} Peran saya: ${m.role.split(' · ').pop()}.`, true, m), true;
+  return say(m.tip, true, m), true;
+}
+// aksi yang selalu dijalankan langsung (tanpa AI)
+function doAction(t){
+  const has = (...w) => w.some(x => t.includes(x));
+  const act = (fn, msg) => { fn(); say(msg); return true; };
+  if (has('jam berapa', 'pukul')) return act(() => {}, `Sekarang pukul ${new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit'})}, ${prefs.name}.`);
+  if (has('hologram kaos', 'tampilkan kaos')) return act(() => { setHolo(1); showHolo(); }, 'Menampilkan hologram kaos.');
+  if (has('hologram logo', 'tampilkan logo')) return act(() => { setHolo(2); showHolo(); }, 'Menampilkan logo Willo.');
+  if (has('bola dunia', 'globe')) return act(() => { setHolo(3); showHolo(); }, 'Menampilkan bola dunia.');
+  if (has('inti mesin', 'reaktor')) return act(() => { setHolo(4); showHolo(); }, 'Menampilkan inti mesin.');
+  if (has('ganti hologram', 'hologram berikut')) return act(() => { setHolo(holoIdx + 1); showHolo(); }, `Hologram ${HOLOS[holoIdx === HOLOS.length - 1 ? 0 : holoIdx + 1].name.toLowerCase()}.`);
+  if (has('sembunyikan hologram', 'tutup hologram')) return act(() => { holo.shown = false; }, 'Hologram disembunyikan.');
+  if (has('tampilkan hologram', 'munculkan hologram')) return act(showHolo, `Hologram ditampilkan, ${prefs.name}.`);
+  if (has('besarkan', 'perbesar')) return act(() => { holo.ts = (holo.ts || 200 * U) * 1.4; }, 'Diperbesar.');
+  if (has('kecilkan', 'perkecil')) return act(() => { holo.ts = (holo.ts || 200 * U) / 1.4; }, 'Diperkecil.');
+  if (has('warna merah', 'mode merah')) return act(() => setColor('merah'), 'Mode merah aktif.');
+  if (has('warna emas', 'mode emas', 'warna kuning')) return act(() => setColor('emas'), 'Mode emas aktif.');
+  if (has('warna biru', 'mode biru')) return act(() => setColor('biru'), 'Kembali ke mode biru.');
+  if (has('berhenti rekam', 'stop rekam', 'selesai rekam')) return act(() => { if (rec) toggleRec(); }, 'Rekaman disimpan.');
+  if (has('mulai rekam', 'rekam sekarang')) return act(() => { if (!rec) toggleRec(); }, 'Merekam.');
+  return false;
+}
+
+/* ---------- otak AI (Gemini gratis / Claude) ---------- */
+let thinking = false, chatLog = [], geminiModel = null;
+const ACTIONS = {holo_tim: () => { setHolo(0); showHolo(); }, holo_kaos: () => { setHolo(1); showHolo(); }, holo_logo: () => { setHolo(2); showHolo(); }, holo_bola: () => { setHolo(3); showHolo(); },
+  holo_mesin: () => { setHolo(4); showHolo(); }, holo_sembunyi: () => { holo.shown = false; }, warna_merah: () => setColor('merah'),
+  warna_biru: () => setColor('biru'), warna_emas: () => setColor('emas'), rekam: () => { if (!rec) toggleRec(); }, stop_rekam: () => { if (rec) toggleRec(); }};
+function systemPrompt(){
+  const m = speaker;
+  return `Kamu memerankan ${m.name}, anggota tim marketing Willo Apparel (usaha sablon kaos custom di Jl. PB. Sudirman No.31 Ngawi, willoapparel.com). ` +
+    `Posisi: ${m.grp === 'dewan' ? 'Dewan Ahli (veteran puluhan tahun, persona)' : 'agent pelaksana'}, peran ${m.role}. Karakter terinspirasi tokoh ${m.from}; gaya bicara: ${m.style}. ` +
+    `Kamu bicara dengan ${prefs.name}, pemilik Willo. Panggil dia "${prefs.name}". Jawab dalam bahasa Indonesia, MAKSIMAL 2 kalimat pendek, karena dibacakan dengan suara. Jangan mengulang namamu di awal jawaban. ` +
+    `Tim: Dewan Ahli = ${DEWAN.map(x => x.name + ' (' + x.role + ')').join(', ')}. Agent = ${AGENTS.map(x => x.name + ' (' + x.role + ')').join(', ')}. ` +
+    `Fakta Willo: bisa pesan 1 pcs, desain dibantu gratis, harga di situs ditulis "mulai", harga pasti lewat admin WhatsApp; tujuan semua kerja tim adalah chat WhatsApp dari situs. Jangan mengarang angka statistik, jumlah pesanan, atau ulasan. ` +
+    `Jika pertanyaan lebih cocok untuk anggota lain, sebutkan namanya. Proyek aktif: "${prefs.proj}". Waktu: ${new Date().toLocaleString('id-ID')}. ` +
+    `Jika ${prefs.name} meminta aksi di layar, tambahkan SATU tag di akhir jawaban dengan format [AKSI:nama]. Nama yang tersedia: ${Object.keys(ACTIONS).join(', ')}. Jangan menulis tag jika tidak perlu.`;
+}
+// Gemini: coba endpoint AI Studio dulu; key format baru ("AQ.") dicoba juga lewat endpoint Vertex AI express
+// Kuota gratis Gemini dihitung per model: pakai Flash-Lite dulu (jatah terbesar), kalau habis pindah model lain
+let geminiList = null;
+const exhausted = (() => { try { return JSON.parse(localStorage.getItem('willo-hud-quota') || '{}'); } catch (e) { return {}; } })();
+function markExhausted(m, msg){
+  const daily = /day|hari|PerDay|per_day/i.test(msg);
+  exhausted[m] = Date.now() + (daily ? 6 * 3600e3 : 65e3);
+  try { localStorage.setItem('willo-hud-quota', JSON.stringify(exhausted)); } catch (e) {}
+}
+async function geminiModels(){
+  if (geminiList) return geminiList;
+  let names = [];
+  try {
+    const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', {headers: {'x-goog-api-key': prefs.key}});
+    const j = await r.json();
+    names = (j.models || []).filter(m => (m.supportedGenerationMethods || []).includes('generateContent')).map(m => m.name.replace('models/', ''));
+  } catch (e) {}
+  const ver = n => parseFloat((n.match(/gemini-(\d+(?:\.\d+)?)/) || [0, 0])[1]);
+  const ok = n => !/image|tts|audio|live|thinking|exp|preview|embedding|vision/.test(n);
+  const lite  = names.filter(n => /^gemini-[\d.]+-flash-lite$/.test(n)).sort((x, y) => ver(y) - ver(x));
+  const flash = names.filter(n => /^gemini-[\d.]+-flash$/.test(n)).sort((x, y) => ver(y) - ver(x));
+  const rest  = names.filter(n => /flash/.test(n) && ok(n)).sort((x, y) => ver(y) - ver(x));
+  geminiList = [...new Set([...lite, ...flash, ...rest, 'gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-flash-latest', 'gemini-3.8-flash'])].slice(0, 8);
+  return geminiList;
+}
+async function askGemini(){
+  const body = JSON.stringify({systemInstruction: {parts: [{text: systemPrompt()}]},
+    contents: chatLog.map(m => ({role: m.role === 'user' ? 'user' : 'model', parts: [{text: m.who ? `[${m.who}] ${m.text}` : m.text}]})),
+    generationConfig: {maxOutputTokens: 400, temperature: 0.7}});
+  const all = await geminiModels();
+  const now = Date.now();
+  let models = all.filter(m => !(exhausted[m] > now));
+  if (!models.length) models = all.slice(0, 2);                     // semua tercatat habis: coba lagi yang utama
+  if (geminiModel && models.includes(geminiModel)) models = [geminiModel, ...models.filter(m => m !== geminiModel)];
+  const hosts = [m => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`];
+  if (/^AQ\./.test(prefs.key)) hosts.push(m => `https://aiplatform.googleapis.com/v1/publishers/google/models/${m}:generateContent`);
+  let lastErr = 'tidak ada respons', hitQuota = false;
+  for (const host of hosts) for (const m of models){
+    try {
+      const r = await fetch(host(m), {method: 'POST', headers: {'content-type': 'application/json', 'x-goog-api-key': prefs.key}, body, signal: AbortSignal.timeout ? AbortSignal.timeout(20000) : undefined});
+      const j = await r.json().catch(() => ({}));
+      if (r.ok){
+        const txt = (j.candidates?.[0]?.content?.parts || []).filter(p => !p.thought).map(p => p.text || '').join('').trim();
+        if (txt){ geminiModel = m; return txt; }
+        lastErr = 'jawaban kosong'; continue;
+      }
+      lastErr = j.error?.message || ('HTTP ' + r.status);
+      if (r.status === 429){ hitQuota = true; markExhausted(m, lastErr); continue; }   // pindah ke model berikutnya
+      if (r.status === 401 || r.status === 403){ if (!/^AQ\./.test(prefs.key)) throw new Error('key ' + lastErr); break; }
+    } catch (e) { if (/^key /.test(e.message)) throw e; lastErr = e.message; }
+  }
+  throw new Error((hitQuota ? 'quota ' : '') + lastErr);
+}
+async function askAI(raw){
+  thinking = true; reply = `${speaker.name.toUpperCase()}: …`; replyAt = performance.now();
+  const asker = speaker;
+  chatLog.push({role: 'user', text: `(kepada ${asker.name}) ${raw}`}); chatLog = chatLog.slice(-8);
+  if (chatLog[0]?.role !== 'user') chatLog.shift();
+  try {
+    let out = '';
+    if (prefs.ai === 'gemini'){
+      out = await askGemini();
+    } else {
+      const r = await fetch('https://api.anthropic.com/v1/messages', {method: 'POST', signal: AbortSignal.timeout ? AbortSignal.timeout(20000) : undefined,
+        headers: {'content-type': 'application/json', 'x-api-key': prefs.key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true'},
+        body: JSON.stringify({model: 'claude-haiku-5-5', max_tokens: 200, system: systemPrompt(),
+          messages: chatLog.map(m => ({role: m.role === 'user' ? 'user' : 'assistant', content: m.who ? `[${m.who}] ${m.text}` : m.text}))})});
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error?.message || ('HTTP ' + r.status));
+      out = (j.content || []).map(c => c.text || '').join('').trim();
+    }
+    const tag = out.match(/\[AKSI:([a-z_]+)\]/i);
+    if (tag && ACTIONS[tag[1].toLowerCase()]) ACTIONS[tag[1].toLowerCase()]();
+    out = out.replace(/\[AKSI:[^\]]*\]/gi, '').replace(/^\s*\[[^\]]{1,20}\]\s*/, '').trim() || 'Siap.';
+    chatLog.push({role: 'model', text: out, who: speaker.name});
+    thinking = false; say(out, true, asker);
+  } catch (e) {
+    thinking = false; chatLog.pop(); lastErr = 'AI: ' + String(e.message || e).slice(0, 120); console.error(e);
+    say(/key|API_KEY|auth|401|403|permission/i.test(String(e.message)) ? 'API key ditolak. Periksa lagi key-nya di layar awal.' :
+        /quota|429|rate|exhaust/i.test(String(e.message)) ? 'Kuota gratis semua model Gemini sedang habis. Tunggu satu menit; kalau tetap habis, jatah harian baru terisi sekitar pukul 14.00–15.00 WIB.' :
+        'AI tidak bisa dihubungi. Periksa internet atau API key.');
+  }
+}
+// hologram muncul di samping wajah (kanan pada layar lebar, bawah pada layar tegak)
+function showHolo(){ if (!holo.shown){ holo.shown = true; const wide = W >= H;
+  holo.x = holo.tx = wide ? W * 0.72 : W / 2; holo.y = holo.ty = wide ? H * 0.55 : H * 0.66; holo.size = 10; holo.ts = Math.min(W, H) * (wide ? 0.5 : 0.62); holo.troll = 0; } }
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recog = null, wantListen = false, quietUntil = 0, needTap = false;
+/* mode siaga: tim baru aktif saat mendengar "Halo tim" (atau Jarvis / Lisbon / nama anggota) */
+let active = false, activeAt = 0;
+const WAKE = /(jarvis|jervis|jarvi|jarfis|jarpis|charvis|jarviz|\btim\b|\bteam\b|willo|lisbon)/i;
+const SLEEP = /(tidur|matikan sistem|mode siaga|standby|istirahat|bubar)/i;
+function activate(){
+  if (active) return; active = true; activeAt = performance.now(); greeted = true;
+  workMeter = 0; setHolo(0); showHolo();
+  say(`Halo, ${prefs.name}. ${face ? 'Identitas terverifikasi. ' : ''}Tim Willo online: delapan Dewan Ahli dan sepuluh agent. Panggil nama siapa saja.`, true, byId.lisbon);
+}
+function deactivate(){ if (!active) return; say(`Baik, ${prefs.name}. Tim istirahat dulu.`, true, byId.lisbon); active = false; holo.shown = false; }
+function onSpeech(t){
+  if (!t) return;
+  heard = t;
+  if (!active){ if (WAKE.test(t) || (findMember(t) && /^(halo|hallo|hai|hey|hi)\b/i.test(t.trim()))) activate(); else lastErr = `Terdengar "${t.slice(0, 30)}" — ucapkan "Halo tim" untuk memanggil tim.`; return; }
+  if (SLEEP.test(t)) return deactivate();
+  if (WAKE.test(t) && !findMember(t.replace(/lisbon/i, '')) && /^(halo|hallo|hai|hey|hi)\b/i.test(t.trim()) && t.split(/\s+/).length <= 3) return say(`Ya, ${prefs.name}? Tim mendengarkan.`, true, byId.lisbon);
+  handle(t);
+}
+// iPhone/iPad: Safari hanya mau menyalakan mic dari ketukan, jadi pakai mode "ketuk lalu bicara"
+const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+let lastErr = '';
+function makeRecog(){
+  recog = new SR(); recog.lang = 'id-ID'; recog.continuous = !IOS; recog.interimResults = true; recog.maxAlternatives = 1;
+  recog.onstart = () => { listening = true; lastErr = ''; updMic(); };
+  recog.onresult = e => {
+    if (speaking || performance.now() < quietUntil) return;           // abaikan suara asisten sendiri
+    for (let i = e.resultIndex; i < e.results.length; i++){
+      const r = e.results[i], tx = r[0].transcript.trim();
+      heard = tx;
+      if (r.isFinal) onSpeech(tx);
+      else if (!active && WAKE.test(tx)) { onSpeech(tx); try { recog.abort(); } catch (err) {} }
+    }
+  };
+  recog.onerror = e => {
+    lastErr = 'Mic: ' + e.error;
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed'){ wantListen = false; say(IOS ? 'Mikrofon/Dikte tidak diizinkan. Aktifkan Siri & Dikte di Pengaturan, lalu izinkan mikrofon untuk Safari.' : 'Mikrofon tidak diizinkan. Izinkan mikrofon, atau ketik perintahnya.', false); }
+    if (e.error === 'no-speech') lastErr = 'Tidak terdengar suara. Ketuk mic lalu bicara lebih dekat.';
+  };
+  recog.onend = () => { listening = false; updMic();
+    if (!IOS && wantListen && !speaking) setTimeout(restartRecog, 300); };
+}
+function restartRecog(){
+  if (!wantListen || listening || speaking || IOS) return;
+  try { recog.start(); } catch (e) { needTap = true; updMic(); }
+  // kalau dalam 1,5 detik mic tidak benar-benar menyala, minta ketukan
+  setTimeout(() => { if (wantListen && !listening && !speaking){ needTap = true; updMic(); } }, 1500);
+}
+function startListening(){
+  if (!SR){ say('Pengenal suara tidak tersedia di browser ini. Ketik di kotak, mis. "halo tim".', false); return false; }
+  if (!recog) makeRecog();
+  try { speechSynthesis.cancel(); } catch (e) {}
+  wantListen = !IOS; needTap = false;
+  try { recog.start(); } catch (e) { try { recog.abort(); } catch (er) {} setTimeout(() => { try { recog.start(); } catch (er) {} }, 250); }
+  updMic(); return true;
+}
+function stopListening(){ wantListen = false; try { recog?.stop(); } catch (e) {} listening = false; updMic(); }
+function updMic(){
+  const b = $('bMic'); b.classList.toggle('on', listening);
+  b.textContent = listening ? '🎙 Mendengar…' : IOS ? '🎙 Ketuk lalu bicara' : needTap ? '🎙 Ketuk untuk dengar' : wantListen ? '🎙 Mendengar' : '🎙 Mic mati';
+}
+function listen(){ if (listening && !IOS) stopListening(); else if (listening) { try { recog.stop(); } catch (e) {} } else startListening(); }
+
+/* ---------- loop ---------- */
+let last = performance.now();
+function frame(now){
+  requestAnimationFrame(frame);
+  const dt = Math.min(0.05, (now - last) / 1000); last = now; const time = now / 1000;
+  if (camOn && handsLM && video.readyState >= 2 && video.currentTime !== lastVT){
+    lastVT = video.currentTime; tick++;
+    try { if (faceLM && tick % 2 === 0) processFace(faceLM.detectForVideo(video, now)); else processHands(handsLM.detectForVideo(video, now), now); } catch (e) {}
+  }
+  const boot = active ? Math.min(1, (now - activeAt) / 1400) : 0;
+  if (!camOn){ // pratinjau di layar awal
+    holo.shown = true; holo.tx = W / 2; holo.ty = H * 0.5; holo.ts = Math.min(W, H) * 0.45; holo.troll = Math.sin(time * 0.5) * 0.15;
+  }
+
+  // hologram
+  const k = 1 - Math.pow(0.002, dt);
+  holo.x += (holo.tx - holo.x) * k; holo.y += (holo.ty - holo.y) * k; holo.size += (holo.ts - holo.size) * k;
+  let dr = holo.troll - holo.roll; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); holo.roll += dr * k;
+  holo.yawV += (0.6 - holo.yawV) * (1 - Math.pow(0.3, dt)); holo.yaw += holo.yawV * dt;
+  holo.vis += ((holo.shown && (active || !camOn) ? 1 : 0) - holo.vis) * (1 - Math.pow(0.01, dt));
+  holoRoot.visible = holo.vis > 0.01;
+  holoRoot.position.set(holo.x - W / 2, H / 2 - holo.y, 0);
+  holoRoot.rotation.z = -holo.roll * (holo.grab || !camOn ? 1 : 1);
+  const sp = Math.min(1, (now - holoSpawn) / 500);
+  holoRoot.scale.setScalar(Math.max(0.001, holo.size * holo.vis * (0.6 + 0.4 * sp)));
+  if (HOLOS[holoIdx].still){ holder.rotation.y = Math.sin(time * 0.35) * 0.3; holder.rotation.x = 0.05; }
+  else { holder.rotation.y = holo.yaw; holder.rotation.x = 0.15; }
+  holoModel?.traverse(o => { if (o.userData.spin) o.rotation.z += o.userData.spin * dt; });
+  base.rotation.z += dt * 0.8; base2.rotation.z -= dt * 1.4;
+  for (const m of holoMats){ m.uniforms.uTime.value = time; m.uniforms.uOp.value = holo.vis; }
+  for (const m of lineMats) m.opacity = 0.85 * holo.vis;
+  renderer.render(scene, camera);
+
+  // komposisi
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+  if (camOn && video.readyState >= 2){
+    const vw = video.videoWidth, vh = video.videoHeight, s = Math.max(W / vw, H / vh);
+    ctx.save(); ctx.translate(W, 0); ctx.scale(-1, 1); ctx.drawImage(video, (W - vw * s) / 2, (H - vh * s) / 2, vw * s, vh * s); ctx.restore();
+    ctx.fillStyle = 'rgba(0,18,32,.28)'; ctx.fillRect(0, 0, W, H);
+  } else {
+    const g = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W, H) * .7); g.addColorStop(0, '#0b2533'); g.addColorStop(1, '#020508'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+  const vg = ctx.createRadialGradient(W/2, H/2, Math.min(W, H) * 0.35, W/2, H/2, Math.max(W, H) * 0.75);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,8,14,.6)'); ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+
+  ctx.globalCompositeOperation = 'lighter';
+  // sinar dari jari ke hologram saat dipegang
+  if (holo.grab) for (const h of hands.filter(h => h.pinch)){
+    const g = ctx.createLinearGradient(h.pp.x, h.pp.y, holo.x, holo.y); g.addColorStop(0, col(0.9)); g.addColorStop(1, col(0.05));
+    ctx.strokeStyle = g; ctx.lineWidth = 3 * U; ctx.beginPath(); ctx.moveTo(h.pp.x, h.pp.y); ctx.lineTo(holo.x, holo.y); ctx.stroke();
+  }
+  ctx.drawImage(glc, 0, 0, W, H);
+  teamLabels(time);
+  if (holo.vis > 0.05){ text(`HOLO · ${HOLOS[holoIdx].name.toUpperCase()} · SKALA ${(holo.size / (Math.min(W, H) * 0.42)).toFixed(2)}x`, holo.x, holo.y + holo.size * 0.62 * holo.vis + 18 * U, 10, 0.75 * holo.vis, 'center'); }
+  if (!camOn || active){
+    ctx.globalAlpha = camOn ? boot : 1;
+    if (camOn) for (const h of hands){ palmHUD(h, time);
+      for (const i of [4, 8, 12, 16, 20]){ ctx.fillStyle = col(0.9); ctx.beginPath(); ctx.arc(h.pts[i].x, h.pts[i].y, 3 * U, 0, Math.PI * 2); ctx.fill(); } }
+    if (camOn && face) faceHUD(face, time, now);
+    frameHUD(time, now); speakerCard(time, now);
+    ctx.globalAlpha = 1;
+    if (camOn && boot < 1){ const y = boot * H; const g = ctx.createLinearGradient(0, y - 60 * U, 0, y); g.addColorStop(0, col(0)); g.addColorStop(1, col(0.5)); ctx.fillStyle = g; ctx.fillRect(0, y - 60 * U, W, 60 * U); }
+  } else standbyHUD(time, now);
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+/* ---------- mulai ---------- */
+async function initModels(){
+  const fs = await FilesetResolver.forVisionTasks(WASM);
+  const make = async (Cls, o) => { try { return await Cls.createFromOptions(fs, {...o, baseOptions: {...o.baseOptions, delegate: 'GPU'}}); }
+    catch (e) { return await Cls.createFromOptions(fs, {...o, baseOptions: {...o.baseOptions, delegate: 'CPU'}}); } };
+  handsLM = await make(HandLandmarker, {baseOptions: {modelAssetPath: HAND_MODEL}, runningMode: 'VIDEO', numHands: 2});
+  say('Pelacak tangan aktif. Memuat pengenal wajah.', false);
+  try { faceLM = await make(FaceLandmarker, {baseOptions: {modelAssetPath: FACE_MODEL}, runningMode: 'VIDEO', numFaces: 1}); } catch (e) { console.error(e); }
+  say(faceLM ? 'Siaga. Ucapkan "Halo tim" untuk memanggil tim.' : 'Pengenal wajah gagal dimuat. Ucapkan "Halo tim".', false);
+}
+async function start(){
+  const go = $('go'), err = $('err'); go.disabled = true; err.hidden = true;
+  prefs.name = $('inName').value.trim() || 'Huda'; prefs.proj = $('inProj').value.trim() || 'SEO Willo';
+  prefs.ai = $('inAI').value; prefs.key = $('inKey').value.trim(); if (!prefs.key) prefs.ai = '';
+  try { localStorage.setItem('willo-tim-hud', JSON.stringify(prefs)); } catch (e) {}
+  startListening();   // harus dipanggil langsung di dalam ketukan (aturan iOS)
+  // buka kunci suara iOS dengan ucapan kosong di dalam ketukan
+  try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } catch (e) {}
+  try{
+    if (!window.isSecureContext && location.protocol !== 'file:') throw new Error('insecure');
+    if (!navigator.mediaDevices?.getUserMedia) throw new Error('nocam');
+    go.textContent = 'Meminta izin kamera…';
+    const stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'user', width: {ideal: 1280}, height: {ideal: 720}}, audio: false});
+    video.srcObject = stream; await video.play();
+    camOn = true; holo.shown = false; holo.vis = 0; workMeter = 0; active = false;
+    aspect = video.videoWidth >= video.videoHeight ? 16/9 : 9/16; layout();
+    $('intro').hidden = true;
+    say('Mengaktifkan sistem…', false);
+    await initModels();
+  }catch(e){
+    console.error(e); go.disabled = false; go.textContent = 'Coba lagi'; err.hidden = false; $('intro').hidden = false;
+    const n = e && e.name, m = e && e.message;
+    err.textContent = n === 'NotAllowedError' ? 'Izin kamera ditolak. Di iPhone: Pengaturan → Safari → Kamera → Izinkan, lalu muat ulang.' :
+      n === 'NotReadableError' ? 'Kamera sedang dipakai aplikasi lain.' :
+      (m === 'insecure' || m === 'nocam') ? 'Kamera diblokir karena halaman tidak dibuka lewat https://.' : 'Model AI gagal dimuat. Periksa internet lalu coba lagi.';
+  }
+}
+
+/* ---------- UI ---------- */
+let rec = null, chunks = [];
+const canRec = !!(stage.captureStream && window.MediaRecorder);
+if (!canRec){ $('bRec').disabled = true; $('bRec').title = 'Pakai screen record HP.'; }
+function pickMime(){ for (const m of ['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm']) if (MediaRecorder.isTypeSupported?.(m)) return m; return ''; }
+function toggleRec(){
+  if (!canRec) return; if (rec){ rec.stop(); return; }
+  const mime = pickMime(); chunks = [];
+  rec = new MediaRecorder(stage.captureStream(30), mime ? {mimeType: mime, videoBitsPerSecond: 8e6} : {videoBitsPerSecond: 8e6});
+  rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+  rec.onstop = () => { const type = rec.mimeType || mime || 'video/webm', ext = type.includes('mp4') ? 'mp4' : 'webm';
+    const a = $('dl'); a.href = URL.createObjectURL(new Blob(chunks, {type})); a.download = `tim-willo-hud-${Date.now()}.${ext}`; a.textContent = `Unduh rekaman (.${ext})`; a.hidden = false;
+    rec = null; $('bRec').classList.remove('live'); $('recTxt').textContent = 'Rekam'; try { a.click(); } catch (e) {} };
+  rec.start(250); $('bRec').classList.add('live'); $('recTxt').textContent = 'Stop'; $('dl').hidden = true;
+}
+const colorOrder = ['biru', 'merah', 'emas'];
+$('go').addEventListener('click', start);
+$('bMic').addEventListener('click', listen);
+$('bTeam').addEventListener('click', () => { if (!active && camOn) activate(); teamCommand('rapat dewan'); });
+$('bHolo').addEventListener('click', () => { if (!holo.shown) showHolo(); else setHolo(holoIdx + 1); say(`Hologram ${HOLOS[holoIdx].name.toLowerCase()}.`, false); });
+$('bColor').addEventListener('click', () => setColor(colorOrder[(colorOrder.indexOf(colName) + 1) % 3]));
+$('bRatio').addEventListener('click', () => { if (rec) return; aspect = aspect < 1 ? 16/9 : 9/16; layout(); });
+$('bRec').addEventListener('click', toggleRec);
+$('bHide').addEventListener('click', e => { e.stopPropagation(); $('hud').hidden = true; });
+$('wrap').addEventListener('click', () => { $('hud').hidden = false; });
+$('cmdForm').addEventListener('submit', e => { e.preventDefault(); const v = $('cmdIn').value.trim(); if (v){ onSpeech(v); $('cmdIn').value = ''; } });
+addEventListener('keydown', e => { if (e.target.tagName === 'INPUT') return; if (e.code === 'Space'){ e.preventDefault(); listen(); } });
+window.__fx2 = {onSpeech, get active(){ return active; }};
+addEventListener('resize', () => { if (!rec) layout(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && camOn){ video.play().catch(() => {}); restartRecog(); } });
+layout(); setHolo(0); setColor('biru'); requestAnimationFrame(frame);
+say('Tim siaga. Tekan Panggil tim.', false);
+window.__fx = {handle, holo, get hands(){ return hands; }, get face(){ return face; }, get faceLM(){ return faceLM; }};
+</script>
+</body>
+</html>
