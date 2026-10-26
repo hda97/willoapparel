@@ -593,14 +593,15 @@ function say(t, speak = true, m = null, fromQueue = false){
   if (!speak || !window.speechSynthesis) return;
   try {
     const tok = ++speakToken;
-    speechSynthesis.cancel();
+    const busy = speechSynthesis.speaking || speechSynthesis.pending;
+    if (busy) speechSynthesis.cancel();
     // matikan mic sebentar supaya suara asisten terdengar keras di iPhone dan tidak terdengar ulang oleh mic
     if (listening){ try { recog.abort(); } catch (e) {} listening = false; updMic(); }
     const u = new SpeechSynthesisUtterance(t); u.lang = 'id-ID'; if (voice) u.voice = voice; u.rate = m.rate; u.pitch = m.pitch;
     speaking = true;
     u.onend = u.onerror = () => doneSpeaking(tok);
     clearTimeout(speakTimer); speakTimer = setTimeout(() => doneSpeaking(tok), 1500 + t.length * 85 / m.rate);   // pengaman
-    speechSynthesis.speak(u);
+    if (busy) setTimeout(() => { if (tok === speakToken) speechSynthesis.speak(u); }, 80); else speechSynthesis.speak(u);
   } catch (e) { speaking = false; }
 }
 function handle(raw){
@@ -791,20 +792,26 @@ const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recog = null, wantListen = false, quietUntil = 0, needTap = false;
 /* mode siaga: tim baru aktif saat mendengar "Halo tim" (atau Jarvis / Lisbon / nama anggota) */
 let active = false, activeAt = 0;
-const WAKE = /(jarvis|jervis|jarvi|jarfis|jarpis|charvis|jarviz|\btim\b|\bteam\b|willo|lisbon)/i;
-const SLEEP = /(tidur|matikan sistem|mode siaga|standby|istirahat|bubar)/i;
-function activate(){
+const WAKE = /(jarvis|jervis|jarvi|jarfis|jarpis|charvis|jarviz|tim|team|willo|lisbon|halo|hallo|hai|hey)/i;
+const SLEEP = /(\btidur\b|matikan sistem|mode siaga|standby|bubar)/i;
+function activate(greet = true){
   if (active) return; active = true; activeAt = performance.now(); greeted = true;
   workMeter = 0; setHolo(0); showHolo();
-  say(`Halo, ${prefs.name}. ${face ? 'Identitas terverifikasi. ' : ''}Tim Willo online: delapan Dewan Ahli dan sepuluh agent. Panggil nama siapa saja.`, true, byId.lisbon);
+  if (greet) say(`Halo, ${prefs.name}. ${face ? 'Identitas terverifikasi. ' : ''}Tim Willo online: delapan Dewan Ahli dan sepuluh agent. Panggil nama siapa saja.`, true, byId.lisbon);
 }
 function deactivate(){ if (!active) return; say(`Baik, ${prefs.name}. Tim istirahat dulu.`, true, byId.lisbon); active = false; holo.shown = false; }
 function onSpeech(t){
   if (!t) return;
   heard = t;
-  if (!active){ if (WAKE.test(t) || (findMember(t) && /^(halo|hallo|hai|hey|hi)\b/i.test(t.trim()))) activate(); else lastErr = `Terdengar "${t.slice(0, 30)}" — ucapkan "Halo tim" untuk memanggil tim.`; return; }
+  if (!active){
+    if (!WAKE.test(t) && !findMember(t)){ lastErr = `Terdengar "${t.slice(0, 30)}" — ucapkan "Halo tim" untuk membangunkan tim.`; return; }
+    // bangunkan; kalau kalimatnya berisi perintah/pertanyaan, langsung dijawab
+    const rest = t.toLowerCase().replace(/jarvis|jervis|willo|\b(halo|hallo|hai|hey|hi|tim|team)\b|[.,!?]/g, ' ').trim();
+    activate(rest.length < 3); if (rest.length >= 3) handle(t); return;
+  }
   if (SLEEP.test(t)) return deactivate();
-  if (WAKE.test(t) && !findMember(t.replace(/lisbon/i, '')) && /^(halo|hallo|hai|hey|hi)\b/i.test(t.trim()) && t.split(/\s+/).length <= 3) return say(`Ya, ${prefs.name}? Tim mendengarkan.`, true, byId.lisbon);
+  // hanya sapaan ("halo tim", "halo jarvis") tanpa perintah
+  if (!t.toLowerCase().replace(/jarvis|jervis|willo|lisbon|\b(halo|hallo|hai|hey|hi|tim|team)\b|[.,!?\s]/g, '')) return say(`Ya, ${prefs.name}? Tim mendengarkan.`, true, byId.lisbon);
   handle(t);
 }
 // iPhone/iPad: Safari hanya mau menyalakan mic dari ketukan, jadi pakai mode "ketuk lalu bicara"
@@ -819,11 +826,13 @@ function makeRecog(){
       const r = e.results[i], tx = r[0].transcript.trim();
       heard = tx;
       if (r.isFinal) onSpeech(tx);
-      else if (!active && WAKE.test(tx)) { onSpeech(tx); try { recog.abort(); } catch (err) {} }
     }
   };
   recog.onerror = e => {
-    lastErr = 'Mic: ' + e.error;
+    lastErr = ({network: 'Pengenal suara butuh internet dan Google Chrome (Android) atau Safari (iPhone). Browser ini tidak didukung; ketik saja di kotak.',
+      'audio-capture': 'Mikrofon sedang dipakai aplikasi lain. Tutup aplikasi itu lalu ketuk 🎙.',
+      aborted: ''})[e.error] ?? ('Mic: ' + e.error);
+    if (e.error === 'network'){ wantListen = false; updMic(); }
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed'){ wantListen = false; say(IOS ? 'Mikrofon/Dikte tidak diizinkan. Aktifkan Siri & Dikte di Pengaturan, lalu izinkan mikrofon untuk Safari.' : 'Mikrofon tidak diizinkan. Izinkan mikrofon, atau ketik perintahnya.', false); }
     if (e.error === 'no-speech') lastErr = 'Tidak terdengar suara. Ketuk mic lalu bicara lebih dekat.';
   };
@@ -849,7 +858,11 @@ function updMic(){
   const b = $('bMic'); b.classList.toggle('on', listening);
   b.textContent = listening ? '🎙 Mendengar…' : IOS ? '🎙 Ketuk lalu bicara' : needTap ? '🎙 Ketuk untuk dengar' : wantListen ? '🎙 Mendengar' : '🎙 Mic mati';
 }
-function listen(){ if (listening && !IOS) stopListening(); else if (listening) { try { recog.stop(); } catch (e) {} } else startListening(); }
+// ketuk 🎙 selalu berarti "dengarkan sekarang" (dulu ketukan saat mendengar justru mematikan mic)
+function listen(){
+  if (listening){ try { recog.abort(); } catch (e) {} listening = false; setTimeout(startListening, 200); return; }
+  startListening();
+}
 
 /* ---------- loop ---------- */
 let last = performance.now(), lastDetect = 0, vigCache = null;
@@ -932,10 +945,9 @@ async function initModels(){
   const make = async (Cls, o) => { try { return await Cls.createFromOptions(fs, {...o, baseOptions: {...o.baseOptions, delegate: 'GPU'}}); }
     catch (e) { return await Cls.createFromOptions(fs, {...o, baseOptions: {...o.baseOptions, delegate: 'CPU'}}); } };
   handsLM = await make(HandLandmarker, {baseOptions: {modelAssetPath: HAND_MODEL}, runningMode: 'VIDEO', numHands: 2});
-  say('Pelacak tangan aktif. Memuat pengenal wajah.', false);
   try { faceLM = await make(FaceLandmarker, {baseOptions: {modelAssetPath: FACE_MODEL}, runningMode: 'VIDEO', numFaces: 1}); } catch (e) { console.error(e); }
-  say(faceLM ? 'Siaga. Ucapkan "Halo tim" untuk memanggil tim.' : 'Pengenal wajah gagal dimuat. Ucapkan "Halo tim".', false);
 }
+let camStarted = false;
 async function start(){
   const go = $('go'), err = $('err'); go.disabled = true; err.hidden = true;
   prefs.name = $('inName').value.trim() || 'Huda'; prefs.proj = $('inProj').value.trim() || 'SEO Willo';
@@ -944,24 +956,28 @@ async function start(){
   startListening();   // harus dipanggil langsung di dalam ketukan (aturan iOS)
   // buka kunci suara iOS dengan ucapan kosong di dalam ketukan
   try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } catch (e) {}
+  let camErr = '';
   try{
     if (!window.isSecureContext && location.protocol !== 'file:') throw new Error('insecure');
     if (!navigator.mediaDevices?.getUserMedia) throw new Error('nocam');
     go.textContent = 'Meminta izin kamera…';
     const stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'user', width: {ideal: MOBILE ? 960 : 1280}, height: {ideal: MOBILE ? 540 : 720}, frameRate: {ideal: 30, max: 30}}, audio: false});
     video.srcObject = stream; await video.play();
-    camOn = true; holo.shown = false; holo.vis = 0; workMeter = 0; active = false;
-    aspect = video.videoWidth >= video.videoHeight ? 16/9 : 9/16; layout();
-    $('intro').hidden = true;
-    say('Mengaktifkan sistem…', false);
-    await initModels();
+    camOn = true; holo.shown = false; holo.vis = 0; workMeter = 0;
+    aspect = video.videoWidth >= video.videoHeight ? 16/9 : 9/16;
   }catch(e){
-    console.error(e); go.disabled = false; go.textContent = 'Coba lagi'; err.hidden = false; $('intro').hidden = false;
-    const n = e && e.name, m = e && e.message;
-    err.textContent = n === 'NotAllowedError' ? 'Izin kamera ditolak. Di iPhone: Pengaturan → Safari → Kamera → Izinkan, lalu muat ulang.' :
-      n === 'NotReadableError' ? 'Kamera sedang dipakai aplikasi lain.' :
-      (m === 'insecure' || m === 'nocam') ? 'Kamera diblokir karena halaman tidak dibuka lewat https://.' : 'Model AI gagal dimuat. Periksa internet lalu coba lagi.';
+    // tanpa kamera tim tetap bisa diajak bicara
+    console.error(e); const n = e && e.name, m = e && e.message;
+    camErr = n === 'NotAllowedError' ? 'Kamera tidak diizinkan, tim tetap bisa diajak bicara.' :
+      n === 'NotReadableError' ? 'Kamera dipakai aplikasi lain, tim tetap bisa diajak bicara.' :
+      (m === 'insecure' || m === 'nocam') ? 'Kamera butuh link https://, tim tetap bisa diajak bicara.' : 'Kamera gagal menyala, tim tetap bisa diajak bicara.';
   }
+  if (!camOn) aspect = innerWidth < innerHeight ? 9/16 : 16/9;
+  camStarted = true; layout(); $('intro').hidden = true; active = false;
+  activate();
+  lastErr = camErr || (SR ? '' : 'Browser ini tidak punya pengenal suara. Ketik perintah di kotak bawah.');
+  // model pelacak tangan/wajah dimuat di belakang; kalau gagal, suara & hologram tetap jalan
+  if (camOn) initModels().catch(e => { console.error(e); lastErr = 'Pelacak tangan/wajah gagal dimuat (cek internet). Suara tetap jalan.'; });
 }
 
 /* ---------- UI ---------- */
@@ -1011,7 +1027,7 @@ $('bColor').addEventListener('click', () => setColor(colorOrder[(colorOrder.inde
 $('bRatio').addEventListener('click', () => { if (rec) return; aspect = aspect < 1 ? 16/9 : 9/16; layout(); });
 $('bRec').addEventListener('click', toggleRec);
 $('bHide').addEventListener('click', e => { e.stopPropagation(); $('hud').hidden = true; });
-$('wrap').addEventListener('click', () => { $('hud').hidden = false; });
+$('wrap').addEventListener('click', () => { const was = $('hud').hidden; $('hud').hidden = false; if (!was && camStarted && (IOS || needTap || !listening)) listen(); });
 $('cmdForm').addEventListener('submit', e => { e.preventDefault(); const v = $('cmdIn').value.trim(); if (v){ onSpeech(v); $('cmdIn').value = ''; } });
 addEventListener('keydown', e => { if (e.target.tagName === 'INPUT') return; if (e.code === 'Space'){ e.preventDefault(); listen(); } });
 window.__fx2 = {onSpeech, get active(){ return active; }};
