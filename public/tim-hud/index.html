@@ -251,7 +251,10 @@ function setColor(n){ colName = n; RGB = COLORS[n];
 
 /* ---------- three.js hologram ---------- */
 const glc = document.createElement('canvas');
-const renderer = new THREE.WebGLRenderer({canvas: glc, alpha: true, antialias: true});
+// mode ringan untuk HP: resolusi lebih kecil, 30 fps, pelacakan lebih jarang
+const MOBILE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const LITE = {maxPx: MOBILE ? 1280 : 1920, dpr: MOBILE ? 1.5 : 2, fps: MOBILE ? 30 : 60, detectMs: MOBILE ? 66 : 0, faceEvery: MOBILE ? 4 : 2};
+const renderer = new THREE.WebGLRenderer({canvas: glc, alpha: true, antialias: !MOBILE, powerPreference: 'high-performance'});
 renderer.setPixelRatio(1); renderer.setClearColor(0, 0);
 const scene = new THREE.Scene(), FOV = 40;
 const camera = new THREE.PerspectiveCamera(FOV, 1, 10, 20000);
@@ -259,10 +262,10 @@ function layout(){
   const vw = innerWidth, vh = innerHeight;
   let cw = vw, ch = vw / aspect; if (ch > vh){ ch = vh; cw = vh * aspect; }
   stage.style.width = cw + 'px'; stage.style.height = ch + 'px';
-  const dpr = Math.min(devicePixelRatio || 1, 2), k = Math.min(1, 1920 / Math.max(cw * dpr, ch * dpr));
+  const dpr = Math.min(devicePixelRatio || 1, LITE.dpr), k = Math.min(1, LITE.maxPx / Math.max(cw * dpr, ch * dpr));
   W = Math.round(cw * dpr * k / 2) * 2; H = Math.round(ch * dpr * k / 2) * 2;
   stage.width = W; stage.height = H; U = Math.min(W, H) / 720;
-  renderer.setSize(W, H, false); camera.aspect = W / H;
+  renderer.setSize(W, H, false); camera.aspect = W / H; vigCache = null;
   camera.position.set(0, 0, (H / 2) / Math.tan(THREE.MathUtils.degToRad(FOV / 2))); camera.updateProjectionMatrix();
   $('bRatio').textContent = aspect < 1 ? '9:16' : '16:9';
 }
@@ -849,13 +852,22 @@ function updMic(){
 function listen(){ if (listening && !IOS) stopListening(); else if (listening) { try { recog.stop(); } catch (e) {} } else startListening(); }
 
 /* ---------- loop ---------- */
-let last = performance.now();
+let last = performance.now(), lastDetect = 0, vigCache = null;
+// latar & vignette digambar sekali ke kanvas cadangan, bukan dibuat ulang tiap frame
+function vignette(){
+  if (vigCache && vigCache.width === W && vigCache.height === H) return vigCache;
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+  const vg = x.createRadialGradient(W/2, H/2, Math.min(W, H) * 0.35, W/2, H/2, Math.max(W, H) * 0.75);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,8,14,.6)'); x.fillStyle = vg; x.fillRect(0, 0, W, H);
+  return vigCache = c;
+}
 function frame(now){
   requestAnimationFrame(frame);
+  if (now - last < 1000 / LITE.fps - 2) return;          // batasi fps (HP: 30)
   const dt = Math.min(0.05, (now - last) / 1000); last = now; const time = now / 1000;
-  if (camOn && handsLM && video.readyState >= 2 && video.currentTime !== lastVT){
-    lastVT = video.currentTime; tick++;
-    try { if (faceLM && tick % 2 === 0) processFace(faceLM.detectForVideo(video, now)); else processHands(handsLM.detectForVideo(video, now), now); } catch (e) {}
+  if (camOn && handsLM && video.readyState >= 2 && video.currentTime !== lastVT && now - lastDetect >= LITE.detectMs){
+    lastVT = video.currentTime; lastDetect = now; tick++;
+    try { if (faceLM && tick % LITE.faceEvery === 0) processFace(faceLM.detectForVideo(video, now)); else processHands(handsLM.detectForVideo(video, now), now); } catch (e) {}
   }
   const boot = active ? Math.min(1, (now - activeAt) / 1400) : 0;
   if (!camOn){ // pratinjau di layar awal
@@ -879,7 +891,7 @@ function frame(now){
   base.rotation.z += dt * 0.8; base2.rotation.z -= dt * 1.4;
   for (const m of holoMats){ m.uniforms.uTime.value = time; m.uniforms.uOp.value = holo.vis; }
   for (const m of lineMats) m.opacity = 0.85 * holo.vis;
-  renderer.render(scene, camera);
+  if (holoRoot.visible) renderer.render(scene, camera);
 
   // komposisi
   ctx.globalCompositeOperation = 'source-over';
@@ -891,8 +903,7 @@ function frame(now){
   } else {
     const g = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W, H) * .7); g.addColorStop(0, '#0b2533'); g.addColorStop(1, '#020508'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
   }
-  const vg = ctx.createRadialGradient(W/2, H/2, Math.min(W, H) * 0.35, W/2, H/2, Math.max(W, H) * 0.75);
-  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,8,14,.6)'); ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+  ctx.drawImage(vignette(), 0, 0);
 
   ctx.globalCompositeOperation = 'lighter';
   // sinar dari jari ke hologram saat dipegang
@@ -900,7 +911,7 @@ function frame(now){
     const g = ctx.createLinearGradient(h.pp.x, h.pp.y, holo.x, holo.y); g.addColorStop(0, col(0.9)); g.addColorStop(1, col(0.05));
     ctx.strokeStyle = g; ctx.lineWidth = 3 * U; ctx.beginPath(); ctx.moveTo(h.pp.x, h.pp.y); ctx.lineTo(holo.x, holo.y); ctx.stroke();
   }
-  ctx.drawImage(glc, 0, 0, W, H);
+  if (holoRoot.visible) ctx.drawImage(glc, 0, 0, W, H);
   teamLabels(time);
   if (holo.vis > 0.05){ text(`HOLO · ${HOLOS[holoIdx].name.toUpperCase()} · SKALA ${(holo.size / (Math.min(W, H) * 0.42)).toFixed(2)}x`, holo.x, holo.y + holo.size * 0.62 * holo.vis + 18 * U, 10, 0.75 * holo.vis, 'center'); }
   if (!camOn || active){
@@ -937,7 +948,7 @@ async function start(){
     if (!window.isSecureContext && location.protocol !== 'file:') throw new Error('insecure');
     if (!navigator.mediaDevices?.getUserMedia) throw new Error('nocam');
     go.textContent = 'Meminta izin kamera…';
-    const stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'user', width: {ideal: 1280}, height: {ideal: 720}}, audio: false});
+    const stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'user', width: {ideal: MOBILE ? 960 : 1280}, height: {ideal: MOBILE ? 540 : 720}, frameRate: {ideal: 30, max: 30}}, audio: false});
     video.srcObject = stream; await video.play();
     camOn = true; holo.shown = false; holo.vis = 0; workMeter = 0; active = false;
     aspect = video.videoWidth >= video.videoHeight ? 16/9 : 9/16; layout();
@@ -980,7 +991,7 @@ async function startRec(){
   recMic = navigator.mediaDevices?.getUserMedia ? await getRecMic() : null;
   const tracks = [...stage.captureStream(30).getVideoTracks(), ...(recMic ? recMic.getAudioTracks() : [])];
   const mime = pickMime(!!recMic); chunks = [];
-  const opts = {videoBitsPerSecond: 8e6, audioBitsPerSecond: 128000}; if (mime) opts.mimeType = mime;
+  const opts = {videoBitsPerSecond: MOBILE ? 5e6 : 8e6, audioBitsPerSecond: 128000}; if (mime) opts.mimeType = mime;
   try { rec = new MediaRecorder(new MediaStream(tracks), opts); }
   catch (e) { delete opts.mimeType; rec = new MediaRecorder(new MediaStream(tracks), opts); }
   rec.ondataavailable = e => e.data.size && chunks.push(e.data);
