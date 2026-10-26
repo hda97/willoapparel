@@ -957,16 +957,39 @@ async function start(){
 let rec = null, chunks = [];
 const canRec = !!(stage.captureStream && window.MediaRecorder);
 if (!canRec){ $('bRec').disabled = true; $('bRec').title = 'Pakai screen record HP.'; }
-function pickMime(){ for (const m of ['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm']) if (MediaRecorder.isTypeSupported?.(m)) return m; return ''; }
-function toggleRec(){
-  if (!canRec) return; if (rec){ rec.stop(); return; }
-  const mime = pickMime(); chunks = [];
-  rec = new MediaRecorder(stage.captureStream(30), mime ? {mimeType: mime, videoBitsPerSecond: 8e6} : {videoBitsPerSecond: 8e6});
+// rekaman = video kanvas + suara mikrofon (suaramu, dan suara tim yang keluar dari speaker ikut tertangkap mic)
+function pickMime(audio){
+  const list = audio ? ['video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm']
+                     : ['video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm'];
+  for (const m of list) if (MediaRecorder.isTypeSupported?.(m)) return m; return '';
+}
+let recMic = null, recStarting = false;
+async function getRecMic(){
+  try {
+    // tanpa peredam gema supaya suara tim dari speaker tidak dibuang
+    return await navigator.mediaDevices.getUserMedia({audio: {echoCancellation: false, noiseSuppression: false, autoGainControl: true}});
+  } catch (e) { lastErr = 'Rekam tanpa suara: mikrofon tidak diizinkan.'; return null; }
+}
+async function toggleRec(){
+  if (!canRec || recStarting) return; if (rec){ rec.stop(); return; }
+  recStarting = true;
+  try { await startRec(); } catch (e) { console.error(e); lastErr = 'Rekam gagal: ' + (e.message || e); rec = null; recMic?.getTracks().forEach(t => t.stop()); recMic = null; }
+  recStarting = false;
+}
+async function startRec(){
+  recMic = navigator.mediaDevices?.getUserMedia ? await getRecMic() : null;
+  const tracks = [...stage.captureStream(30).getVideoTracks(), ...(recMic ? recMic.getAudioTracks() : [])];
+  const mime = pickMime(!!recMic); chunks = [];
+  const opts = {videoBitsPerSecond: 8e6, audioBitsPerSecond: 128000}; if (mime) opts.mimeType = mime;
+  try { rec = new MediaRecorder(new MediaStream(tracks), opts); }
+  catch (e) { delete opts.mimeType; rec = new MediaRecorder(new MediaStream(tracks), opts); }
   rec.ondataavailable = e => e.data.size && chunks.push(e.data);
   rec.onstop = () => { const type = rec.mimeType || mime || 'video/webm', ext = type.includes('mp4') ? 'mp4' : 'webm';
     const a = $('dl'); a.href = URL.createObjectURL(new Blob(chunks, {type})); a.download = `tim-willo-hud-${Date.now()}.${ext}`; a.textContent = `Unduh rekaman (.${ext})`; a.hidden = false;
+    recMic?.getTracks().forEach(t => t.stop()); recMic = null;
     rec = null; $('bRec').classList.remove('live'); $('recTxt').textContent = 'Rekam'; try { a.click(); } catch (e) {} };
-  rec.start(250); $('bRec').classList.add('live'); $('recTxt').textContent = 'Stop'; $('dl').hidden = true;
+  rec.start(250);
+  $('bRec').classList.add('live'); $('recTxt').textContent = recMic ? 'Stop' : 'Stop (tanpa suara)'; $('dl').hidden = true;
 }
 const colorOrder = ['biru', 'merah', 'emas'];
 $('go').addEventListener('click', start);
