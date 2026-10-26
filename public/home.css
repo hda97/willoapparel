@@ -164,11 +164,17 @@ a{color:inherit}
 .faq details[open] summary::after{transform:rotate(45deg)}
 .faq details p{padding:0 0 20px;color:var(--ink-2);max-width:720px}
 
+.art-more{display:inline-flex;margin-top:22px;cursor:pointer}
+.art-toggle:not(:checked)+.posts .post:nth-of-type(n+7){display:none}
+.art-toggle:checked~.art-more{display:none}
+
 /* testimoni */
 .testis{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
 .testi{border:1px solid #3d3a35;padding:26px 24px;position:relative}
 .testi::before{content:"\201C";font-family:var(--display);font-size:72px;line-height:.8;color:var(--orange);display:block;height:40px}
 .testi p{color:#dcd6cb;font-size:15px}
+.testi.fakta::before{content:none;height:0}
+.testi a{color:var(--orange)}
 .who{display:flex;align-items:center;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid #3d3a35}
 .who i{font-style:normal;width:38px;height:38px;background:var(--orange);color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:18px}
 .who b{display:block;font-size:15px}
