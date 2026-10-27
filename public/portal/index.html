@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
-<title>Portal Anime</title>
+<title>Portal Filter</title>
 <style>
   :root { --ui: rgba(15,18,22,.72); --line: rgba(255,255,255,.18); --acc: #8fe9ff; }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
   html, body { margin: 0; height: 100%; background: #000; color: #fff; font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
-  #stage { position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  #stage { position: fixed; inset: 0; width: 100%; height: 100%; object-fit: contain; }
   #cam { display: none; }
   .bar { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; background: linear-gradient(transparent, rgba(0,0,0,.6)); }
   .btn { appearance: none; border: 1px solid var(--line); background: var(--ui); color: #fff; padding: 10px 14px; border-radius: 999px; font: inherit; font-weight: 600; cursor: pointer; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
@@ -40,8 +40,8 @@
 </div>
 <div id="start">
   <div>
-    <h1>Portal Anime</h1>
-    <p>Bentuk bingkai pakai jempol dan telunjuk kedua tangan. Isi bingkai diberi filter. Angkat juga jari tengah untuk efek kedua di antara telunjuk dan jari tengah. Untuk ganti efek, cubitkan jempol dan telunjuk salah satu tangan sampai bersentuhan, lalu buka lagi. Efek terakhir: anime, wajah dan tangan jadi gambar kartun.</p>
+    <h1>Portal Filter</h1>
+    <p>Bentuk bingkai pakai jempol dan telunjuk kedua tangan. Isi bingkai diberi filter. Untuk ganti efek, cubitkan jempol dan telunjuk salah satu tangan sampai bersentuhan, lalu buka lagi.</p>
     <button class="go" id="go" type="button">Nyalakan kamera</button>
     <p id="err" hidden></p>
   </div>
@@ -53,15 +53,13 @@ const WASM = window.__WASM__ || 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-v
 const HAND_MODEL = window.__HAND_MODEL__ || 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
 
 const $ = id => document.getElementById(id);
-const stage = $('stage'), ctx = stage.getContext('2d'), video = $('cam');
-const FILTROS = ['PINK', 'GRID', 'POP ART', 'HALFTONE', 'RGB SPLIT', 'TERMAL', 'SEPIA', 'KACA BURAM', 'ANIME'];
-const ANIME = FILTROS.length - 1;
-const TULANG = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],
-                [9,13],[13,14],[14,15],[15,16],[13,17],[0,17],[17,18],[18,19],[19,20]];
-const HULL = [0, 1, 2, 5, 9, 13, 17];
+const stage = $('stage'), out = stage.getContext('2d'), video = $('cam');
+// semua efek digambar di kanvas kamera; kanvas tampil = (editor kode) + kamera
+const camc = document.createElement('canvas'), ctx = camc.getContext('2d');
+const FILTROS = ['PINK', 'GRID', 'POP ART', 'HALFTONE', 'RGB SPLIT', 'TERMAL', 'SEPIA', 'KACA BURAM'];
 
 let W = 720, H = 1280, S = 1, facing = 'user', stream = null, landmarker = null;
-let filtro = 0, kode = false;
+let filtro = 0, kode = true;
 
 /* ---------- WebGL: filter seluruh frame ---------- */
 const glc = document.createElement('canvas');
@@ -100,22 +98,6 @@ void main(){
     vec3 a = vec3(0.); float k = 9.*s;
     for (int i = -2; i <= 2; i++) for (int j = -2; j <= 2; j++) a += at(vec2(float(i), float(j))*k*.5);
     o = mix(a/25., vec3(245./255.), .55);
-  } else {                               // ANIME: warna rata ala cel-shading + garis tinta
-    vec3 acc = vec3(0.); float wsum = 0.;
-    for (int i = -2; i <= 2; i++) for (int j = -2; j <= 2; j++) {
-      vec3 ci = at(vec2(float(i), float(j))*1.6*s);
-      float w = exp(-dot(ci - c, ci - c)*40.);   // halus tapi tepi tetap tajam
-      acc += ci*w; wsum += w; }
-    vec3 sm = acc/wsum;
-    float l = lum(sm);
-    sm = clamp(mix(vec3(l), sm, 1.45), 0., 1.);          // warna lebih cerah
-    float q = floor(l*4. + .5)/4.;                       // 5 tingkat terang
-    vec3 cel = sm / max(l, .04) * max(q, .1);
-    cel = mix(cel, cel*vec3(1.05, .98, 1.08) + vec3(.03, .0, .05), .6);
-    float gx = lum(at(vec2(1.2*s,0.))) - lum(at(vec2(-1.2*s,0.)));
-    float gy = lum(at(vec2(0.,1.2*s))) - lum(at(vec2(0.,-1.2*s)));
-    float ed = smoothstep(.09, .2, length(vec2(gx,gy)));
-    o = clamp(mix(cel, vec3(.07,.04,.1), ed), 0., 1.);
   }
   gl_FragColor = vec4(o, 1.);
 }`;
@@ -146,30 +128,6 @@ const mask = document.createElement('canvas'), mc = mask.getContext('2d');
 
 function pathPoly(c, q){ c.beginPath(); c.moveTo(q[0][0], q[0][1]); for (let i = 1; i < q.length; i++) c.lineTo(q[i][0], q[i][1]); c.closePath(); }
 
-function handPath(c, lm, w){
-  c.lineCap = 'round'; c.lineJoin = 'round'; c.lineWidth = w;
-  c.beginPath(); for (const [a, b] of TULANG) { c.moveTo(lm[a][0], lm[a][1]); c.lineTo(lm[b][0], lm[b][1]); } c.stroke();
-  pathPoly(c, HULL.map(i => lm[i])); c.fill();
-}
-
-// kilau bintang anime yang berkelip di dalam bingkai
-const KILAU = Array.from({length: 14}, (_, i) => [((i*37) % 100)/100, ((i*61 + 17) % 100)/100, (i*0.71) % 1]);
-function drawSparkles(c, q, t){
-  const [tl, tr, br, bl] = q;
-  const pt = (u, v) => [tl[0]*(1-u)*(1-v) + tr[0]*u*(1-v) + br[0]*u*v + bl[0]*(1-u)*v,
-                        tl[1]*(1-u)*(1-v) + tr[1]*u*(1-v) + br[1]*u*v + bl[1]*(1-u)*v];
-  c.save(); c.shadowColor = 'rgba(255,120,200,.9)'; c.shadowBlur = 10*S; c.fillStyle = '#fff';
-  for (const [u, v, f] of KILAU) {
-    const k = Math.max(0, Math.sin((t*1.6 + f)*Math.PI*2)), r = (5 + 9*k)*S;
-    if (k < .05) continue;
-    const [x, y] = pt(u, v);
-    c.beginPath(); c.moveTo(x, y - r);
-    c.quadraticCurveTo(x, y, x + r, y); c.quadraticCurveTo(x, y, x, y + r);
-    c.quadraticCurveTo(x, y, x - r, y); c.quadraticCurveTo(x, y, x, y - r); c.fill();
-  }
-  c.restore();
-}
-
 function drawGrid(c, q){
   const [tl, tr, br, bl] = q, L = (a, b, t) => [a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t];
   c.save(); c.strokeStyle = '#fff'; c.lineWidth = Math.max(1, S); c.beginPath();
@@ -179,19 +137,15 @@ function drawGrid(c, q){
   c.stroke(); c.restore();
 }
 
-function renderPortal(q, hands, t, f, tanganIkut){
+function renderPortal(q, t, f){
   filterFrame(f, t);
   lc.clearRect(0, 0, W, H); lc.drawImage(glc, 0, 0);
   if (FILTROS[f] === 'GRID') drawGrid(lc, q);
-  if (f === ANIME) drawSparkles(lc, q, t);
   mc.clearRect(0, 0, W, H); mc.fillStyle = mc.strokeStyle = '#fff';
   pathPoly(mc, q); mc.fill();
-  if (f === ANIME && tanganIkut) hands.forEach(lm => handPath(mc, lm, Math.max(14, W/22)));   // tangan ikut jadi anime
   lc.save(); lc.globalCompositeOperation = 'destination-in'; lc.drawImage(mask, 0, 0); lc.restore();
   ctx.drawImage(layer, 0, 0);
   ctx.save(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2*S; ctx.lineJoin = 'round'; pathPoly(ctx, q); ctx.stroke();
-  if (f === ANIME) { ctx.fillStyle = '#ffe1f2'; ctx.font = `700 ${Math.round(17*S)}px system-ui, sans-serif`;
-    const lo = q.reduce((a, p) => p[1] > a[1] ? p : a); ctx.fillText('ANIME', Math.min(...q.map(p => p[0])) + 8*S, lo[1] + 22*S); }
   ctx.restore();
 }
 
@@ -201,34 +155,37 @@ function susunQuad(lms){
   if (tl[1] + tr[1] > br[1] + bl[1]) [tl, bl, tr, br] = [bl, tl, br, tr];
   return [tl, tr, br, bl];
 }
-// jari tengah ikut terangkat di kedua tangan -> bingkai kedua antara telunjuk & jari tengah
-function quadTengah(lms){
-  const d = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]);
-  const lurus = lm => d(lm[0], lm[12]) > 1.6*d(lm[0], lm[9]) && d(lm[8], lm[12]) > .35*d(lm[0], lm[9]);
-  if (lms.length !== 2 || !lms.every(lurus)) return null;
-  const [a, b] = [...lms].sort((x, y) => x[0][0] - y[0][0]);
-  let tl = a[12], tr = b[12], br = b[8], bl = a[8];
-  if (tl[1] + tr[1] > br[1] + bl[1]) [tl, bl, tr, br] = [bl, tl, br, tr];
-  return [tl, tr, br, bl];
-}
 function luas(q){ let s = 0; for (let i = 0; i < 4; i++) { const p = q[i], n = q[(i+1)%4]; s += p[0]*n[1] - n[0]*p[1]; } return Math.abs(s)/2; }
 
-/* ---------- tampilan kode (seperti video referensi) ---------- */
-function drawCode(){
-  const h = Math.round(H*.17), f = Math.max(10, Math.round(Math.min(W/34, h/6.4)));
-  ctx.save(); ctx.fillStyle = '#1f1f1f'; ctx.fillRect(0, 0, W, h);
-  ctx.fillStyle = '#f0f0f2'; ctx.fillRect(0, h, W, Math.round(f*1.9));
-  ctx.strokeStyle = '#3c786e'; ctx.lineWidth = 2; ctx.strokeRect(f*.8, h + f*.55, f*.9, f*.8);
-  ctx.fillStyle = '#222'; ctx.font = `${f}px system-ui, sans-serif`; ctx.fillText('—    ☐    ✕', W - f*7.5, h + f*1.3);
-  ctx.font = `${f}px ui-monospace, Menlo, Consolas, monospace`;
-  const rows = [['main.py ×', '#ddd'], ['def main():', '#569cd6'], ['    filtro_index = (filtro_index + 1) % len(FILTROS)', '#9cdcfe'],
-                [`# filter aktif: ${FILTROS[filtro]}`, '#6a9955'], ['    frame = render_portal(frame, p1, p2, p3, p4, FILTROS[filtro_index])', '#dcdcaa']];
-  rows.forEach(([s, c], i) => { ctx.fillStyle = c; ctx.fillText(s, f*.8, h*(i + .75)/5.4); });
-  ctx.restore();
+/* ---------- tampilan seperti video referensi: editor kode + bilah jendela di atas kamera ---------- */
+function drawHeader(o, w, hd){
+  const k = w/720, bar = Math.round(35*k), top = hd - bar;
+  o.save();
+  o.fillStyle = '#1f1f1f'; o.fillRect(0, 0, w, top);
+  o.fillStyle = '#181818'; o.fillRect(0, 0, w, 40*k);
+  o.font = `${16*k}px system-ui, "Segoe UI", sans-serif`; o.fillStyle = '#c8c8c8'; o.textBaseline = 'middle';
+  o.fillText('Edit    Selection    View    Go    Run    ···', 14*k, 20*k);
+  o.fillStyle = '#2b2b2b'; o.beginPath(); o.roundRect ? o.roundRect(380*k, 6*k, w - 390*k, 26*k, 6*k) : o.rect(380*k, 6*k, w - 390*k, 26*k); o.fill();
+  o.fillStyle = '#8a8a8a'; o.fillText('Portal', 392*k, 20*k);
+  o.fillStyle = '#e6e6e6'; o.fillText('main.py   ×', 14*k, 59*k);
+  o.fillStyle = '#9a9a9a'; o.fillText('main.py  >  ◎ main', 14*k, 91*k);
+  o.font = `${17*k}px ui-monospace, Menlo, Consolas, "DejaVu Sans Mono", monospace`;
+  const rows = [['9', [['def ', '#569cd6'], ['main', '#dcdcaa'], ['():', '#d4d4d4']]],
+    ['63', [['        filtro_index = (filtro_index + 1) % ', '#9cdcfe'], ['len', '#dcdcaa'], ['(FILTROS)', '#d4d4d4']]],
+    ['64', [[`    # filter aktif: ${FILTROS[filtro]}`, '#6a9955']]],
+    ['65', [['    frame = ', '#9cdcfe'], ['render_portal', '#dcdcaa'], ['(frame, p1, p2, p3, p4, FILTROS[filtro_index])', '#d4d4d4']]]];
+  rows.forEach(([n, toks], r) => { const y = (114 + r*24)*k;
+    o.fillStyle = '#6e6e6e'; o.textAlign = 'right'; o.fillText(n, 44*k, y); o.textAlign = 'left';
+    let x = 58*k; for (const [t, c] of toks) { o.fillStyle = c; o.fillText(t, x, y); x += o.measureText(t).width; } });
+  o.fillStyle = '#f0f0f2'; o.fillRect(4*k, top, w - 8*k, bar);
+  o.strokeStyle = '#3c786e'; o.lineWidth = 2*k; o.strokeRect(14*k, top + 10*k, 16*k, 14*k);
+  o.font = `${16*k}px system-ui, "Segoe UI", sans-serif`; o.fillStyle = '#1e1e1e';
+  ['—', '☐', '✕'].forEach((t, i) => o.fillText(t, w - (135 - i*50)*k, top + bar/2));
+  o.restore();
 }
 
 /* ---------- loop ---------- */
-let lastLms = null, quadHalus = null, quad2 = null, tutupN = 0, gantiTerakhir = -10, lastTs = -1;
+let quadHalus = null, tutupN = 0, gantiTerakhir = -10, lastTs = -1;
 // status cubit per sisi layar (kiri/kanan) + efek riak di titik cubit
 const cubit = {L: false, R: false}; let riak = [];
 const t0 = performance.now();
@@ -267,27 +224,24 @@ function frame(){
   if (terbuka) {
     tutupN = 0;
     quadHalus = quadHalus ? quadHalus.map((p, i) => [p[0]*.45 + q[i][0]*.55, p[1]*.45 + q[i][1]*.55]) : q;
-    lastLms = lms; renderPortal(quadHalus, lms, t, filtro, true);
+    renderPortal(quadHalus, t, filtro);
   } else if (++tutupN < 3) {
-    if (quadHalus) renderPortal(quadHalus, lastLms, t, filtro, true);   // tahan sebentar supaya tidak berkedip
+    if (quadHalus) renderPortal(quadHalus, t, filtro);   // tahan sebentar supaya tidak berkedip
   } else quadHalus = null;
-  // efek kedua (berbeda) saat jari tengah ikut diangkat
-  const q2 = quadTengah(lms), f2 = (filtro + 1) % FILTROS.length;
-  if (q2 && luas(q2) > .003*W*H) {
-    quad2 = quad2 ? quad2.map((p, i) => [p[0]*.45 + q2[i][0]*.55, p[1]*.45 + q2[i][1]*.55]) : q2;
-    renderPortal(quad2, lms, t, f2, false);
-  } else quad2 = null;
-  $('tag').textContent = quad2 ? `${FILTROS[filtro]} + ${FILTROS[f2]}` : FILTROS[filtro];
+  $('tag').textContent = FILTROS[filtro];
   riak = riak.filter(o => t - o.t < .45);
   for (const o of riak) { const k = (t - o.t)/.45;
     ctx.save(); ctx.strokeStyle = `rgba(255,255,255,${1 - k})`; ctx.lineWidth = 3*S;
     ctx.beginPath(); ctx.arc(o.x, o.y, (10 + 50*k)*S, 0, Math.PI*2); ctx.stroke(); ctx.restore(); }
-  if (kode) drawCode();
+  const hd = kode ? Math.round(W*228/720) : 0;
+  if (stage.width !== W || stage.height !== H + hd) { stage.width = W; stage.height = H + hd; }
+  if (kode) drawHeader(out, W, hd);
+  out.drawImage(camc, 0, hd);
 }
 
 function resize(){
   W = video.videoWidth; H = video.videoHeight; S = Math.min(W, H)/720;
-  for (const c of [stage, glc, layer, mask]) { c.width = W; c.height = H; }
+  for (const c of [camc, glc, layer, mask]) { c.width = W; c.height = H; }
 }
 
 async function startCam(){
@@ -309,7 +263,7 @@ $('go').onclick = async () => {
   try {
     if (!navigator.mediaDevices?.getUserMedia) throw new Error('Browser ini tidak bisa membuka kamera. Buka link https di Safari atau Chrome.');
     await Promise.all([startCam(), initHands()]);
-    $('start').hidden = true; $('bar').hidden = false; $('tag').hidden = false; setFiltro(0);
+    $('start').hidden = true; $('bar').hidden = false; $('tag').hidden = kode; setFiltro(0);
     requestAnimationFrame(frame);
   } catch (e) {
     $('err').hidden = false; $('err').textContent = 'Gagal: ' + (e.message || e) + '. Izinkan akses kamera lalu coba lagi.';
@@ -317,6 +271,7 @@ $('go').onclick = async () => {
   }
 };
 $('bCode').onclick = () => { kode = !kode; $('bCode').classList.toggle('on', kode); $('tag').hidden = kode; };
+$('bCode').classList.add('on');
 $('bFlip').onclick = async () => { facing = facing === 'user' ? 'environment' : 'user'; try { await startCam(); } catch (e) {} };
 
 /* ---------- rekam layar kanvas ---------- */
@@ -330,7 +285,7 @@ $('bRec').onclick = () => {
   rec.ondataavailable = e => e.data.size && chunks.push(e.data);
   rec.onstop = () => {
     const type = rec.mimeType || mime || 'video/webm', ext = type.includes('mp4') ? 'mp4' : 'webm';
-    const a = $('dl'); a.href = URL.createObjectURL(new Blob(chunks, {type})); a.download = `portal-anime-${Date.now()}.${ext}`;
+    const a = $('dl'); a.href = URL.createObjectURL(new Blob(chunks, {type})); a.download = `portal-filter-${Date.now()}.${ext}`;
     a.textContent = `Unduh rekaman (.${ext})`; a.hidden = false;
     rec = null; $('bRec').classList.remove('rec'); $('bRec').textContent = '● Rekam';
   };
