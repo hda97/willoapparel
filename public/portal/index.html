@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Portal Anime</title>
+<style>
+  :root { --ui: rgba(15,18,22,.72); --line: rgba(255,255,255,.18); --acc: #8fe9ff; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; height: 100%; background: #000; color: #fff; font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
+  #stage { position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  #cam { display: none; }
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; background: linear-gradient(transparent, rgba(0,0,0,.6)); }
+  .btn { appearance: none; border: 1px solid var(--line); background: var(--ui); color: #fff; padding: 10px 14px; border-radius: 999px; font: inherit; font-weight: 600; cursor: pointer; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .btn.on { border-color: var(--acc); color: var(--acc); }
+  .btn.rec { background: #d4232f; border-color: #ff7a83; }
+  .tag { position: fixed; top: calc(10px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); background: var(--ui); border: 1px solid var(--line); padding: 6px 14px; border-radius: 999px; font-weight: 700; letter-spacing: .06em; font-size: 13px; pointer-events: none; }
+  .dl { position: fixed; top: calc(52px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); background: #fff; color: #111; padding: 9px 16px; border-radius: 999px; font-weight: 700; text-decoration: none; }
+  #start { position: fixed; inset: 0; display: grid; place-items: center; background: #0d1014; padding: 24px; text-align: center; }
+  #start h1 { font-size: 26px; margin: 0 0 8px; }
+  #start p { color: #b9c2cc; max-width: 420px; margin: 0 auto 18px; }
+  #start .go { background: var(--acc); color: #06222b; border: 0; padding: 14px 26px; border-radius: 999px; font-size: 17px; font-weight: 800; }
+  #err { color: #ff9a9a; margin-top: 14px; }
+</style>
+<script type="importmap">
+{"imports":{"@mediapipe/tasks-vision":"https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs"}}
+</script>
+</head>
+<body>
+<canvas id="stage" aria-label="Kamera dengan filter portal tangan"></canvas>
+<video id="cam" playsinline muted autoplay></video>
+<div class="tag" id="tag" hidden>PINK</div>
+<a class="dl" id="dl" hidden>Unduh rekaman</a>
+<div class="bar" id="bar" hidden>
+  <button class="btn" id="bCode" type="button">Gaya kode</button>
+  <button class="btn" id="bFlip" type="button">Balik kamera</button>
+  <button class="btn" id="bRec" type="button">● Rekam</button>
+</div>
+<div id="start">
+  <div>
+    <h1>Portal Anime</h1>
+    <p>Bentuk bingkai pakai jempol dan telunjuk kedua tangan. Isi bingkai diberi filter. Angkat juga jari tengah untuk efek kedua di antara telunjuk dan jari tengah. Untuk ganti efek, cubitkan jempol dan telunjuk salah satu tangan sampai bersentuhan, lalu buka lagi. Efek terakhir: anime, wajah dan tangan jadi gambar kartun.</p>
+    <button class="go" id="go" type="button">Nyalakan kamera</button>
+    <p id="err" hidden></p>
+  </div>
+</div>
+
+<script type="module">
+import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
+const WASM = window.__WASM__ || 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm';
+const HAND_MODEL = window.__HAND_MODEL__ || 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
+
+const $ = id => document.getElementById(id);
+const stage = $('stage'), ctx = stage.getContext('2d'), video = $('cam');
+const FILTROS = ['PINK', 'GRID', 'POP ART', 'HALFTONE', 'RGB SPLIT', 'TERMAL', 'SEPIA', 'KACA BURAM', 'ANIME'];
+const ANIME = FILTROS.length - 1;
+const TULANG = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],
+                [9,13],[13,14],[14,15],[15,16],[13,17],[0,17],[17,18],[18,19],[19,20]];
+const HULL = [0, 1, 2, 5, 9, 13, 17];
+
+let W = 720, H = 1280, S = 1, facing = 'user', stream = null, landmarker = null;
+let filtro = 0, kode = false;
+
+/* ---------- WebGL: filter seluruh frame ---------- */
+const glc = document.createElement('canvas');
+const gl = glc.getContext('webgl', {preserveDrawingBuffer: true, premultipliedAlpha: false});
+const VS = `attribute vec2 p; varying vec2 uv; uniform float mir;
+void main(){ uv = vec2(mix(p.x*.5+.5, .5-p.x*.5, mir), .5-p.y*.5); gl_Position = vec4(p,0.,1.); }`;
+const FS = `precision mediump float; varying vec2 uv; uniform sampler2D tex; uniform int mode; uniform vec2 res; uniform float t, s;
+float lum(vec3 c){ return dot(c, vec3(.299,.587,.114)); }
+vec3 at(vec2 o){ return texture2D(tex, uv + o/res).rgb; }
+float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)) + t*7.13) * 43758.5453); }
+vec3 jet(float x){ return clamp(vec3(1.5-abs(4.*x-3.), 1.5-abs(4.*x-2.), 1.5-abs(4.*x-1.)), 0., 1.); }
+void main(){
+  vec2 px = uv*res; vec3 c = at(vec2(0.)); float g = lum(c); vec3 o = c;
+  if (mode == 0) {                       // PINK halftone garis
+    bool grid = mod(px.x, 6.*s) < 2.*s || mod(px.y, 6.*s) < 2.*s;
+    o = vec3(235.,40.,110.)/255.;
+    if (g > .45 && grid) o = vec3(255.,170.,200.)/255.;
+    if (g <= .45 && !grid) o = vec3(150.,10.,70.)/255.;
+  } else if (mode == 1) {                // GRID (garis digambar terpisah)
+    o = mix(c, vec3(1.), .15);
+  } else if (mode == 2) {                // POP ART
+    float b = (g + lum(at(vec2(1.,0.))) + lum(at(vec2(-1.,0.))) + lum(at(vec2(0.,1.))) + lum(at(vec2(0.,-1.))))/5.;
+    o = b > 150./255. ? vec3(255.,150.,20.)/255. : (b > 70./255. ? vec3(240.,30.,110.)/255. : vec3(0.));
+  } else if (mode == 3) {                // HALFTONE titik
+    float cs = 7.*s; vec2 cell = floor(px/cs); vec2 ctr = (cell+.5)*cs;
+    float gc = lum(texture2D(tex, ctr/res).rgb);
+    float r = (1.-gc)*cs*.62;
+    o = vec3(smoothstep(r-.8, r+.8, length(px-ctr)));
+  } else if (mode == 4) {                // RGB SPLIT
+    o = vec3(at(vec2(7.*s,0.)).r, c.g, at(vec2(-7.*s,0.)).b);
+  } else if (mode == 5) {                // TERMAL
+    o = jet(clamp((g-.12)/.76, 0., 1.));
+  } else if (mode == 6) {                // SEPIA
+    o = clamp(vec3(dot(c, vec3(.393,.769,.189)), dot(c, vec3(.349,.686,.168)), dot(c, vec3(.272,.534,.131))), 0., 1.);
+  } else if (mode == 7) {                // KACA BURAM
+    vec3 a = vec3(0.); float k = 9.*s;
+    for (int i = -2; i <= 2; i++) for (int j = -2; j <= 2; j++) a += at(vec2(float(i), float(j))*k*.5);
+    o = mix(a/25., vec3(245./255.), .55);
+  } else {                               // ANIME: warna rata ala cel-shading + garis tinta
+    vec3 acc = vec3(0.); float wsum = 0.;
+    for (int i = -2; i <= 2; i++) for (int j = -2; j <= 2; j++) {
+      vec3 ci = at(vec2(float(i), float(j))*1.6*s);
+      float w = exp(-dot(ci - c, ci - c)*40.);   // halus tapi tepi tetap tajam
+      acc += ci*w; wsum += w; }
+    vec3 sm = acc/wsum;
+    float l = lum(sm);
+    sm = clamp(mix(vec3(l), sm, 1.45), 0., 1.);          // warna lebih cerah
+    float q = floor(l*4. + .5)/4.;                       // 5 tingkat terang
+    vec3 cel = sm / max(l, .04) * max(q, .1);
+    cel = mix(cel, cel*vec3(1.05, .98, 1.08) + vec3(.03, .0, .05), .6);
+    float gx = lum(at(vec2(1.2*s,0.))) - lum(at(vec2(-1.2*s,0.)));
+    float gy = lum(at(vec2(0.,1.2*s))) - lum(at(vec2(0.,-1.2*s)));
+    float ed = smoothstep(.09, .2, length(vec2(gx,gy)));
+    o = clamp(mix(cel, vec3(.07,.04,.1), ed), 0., 1.);
+  }
+  gl_FragColor = vec4(o, 1.);
+}`;
+function sh(type, src){ const x = gl.createShader(type); gl.shaderSource(x, src); gl.compileShader(x);
+  if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x)); return x; }
+const prog = gl.createProgram();
+gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+gl.linkProgram(prog); gl.useProgram(prog);
+gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+const pl = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(pl); gl.vertexAttribPointer(pl, 2, gl.FLOAT, false, 0, 0);
+const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+const U = n => gl.getUniformLocation(prog, n);
+const uMode = U('mode'), uRes = U('res'), uT = U('t'), uS = U('s'), uMir = U('mir');
+
+function filterFrame(mode, t){
+  gl.viewport(0, 0, W, H);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, video);
+  gl.uniform1i(uMode, mode); gl.uniform2f(uRes, W, H); gl.uniform1f(uT, t); gl.uniform1f(uS, S);
+  gl.uniform1f(uMir, facing === 'user' ? 1 : 0);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+/* ---------- lapisan portal ---------- */
+const layer = document.createElement('canvas'), lc = layer.getContext('2d');
+const mask = document.createElement('canvas'), mc = mask.getContext('2d');
+
+function pathPoly(c, q){ c.beginPath(); c.moveTo(q[0][0], q[0][1]); for (let i = 1; i < q.length; i++) c.lineTo(q[i][0], q[i][1]); c.closePath(); }
+
+function handPath(c, lm, w){
+  c.lineCap = 'round'; c.lineJoin = 'round'; c.lineWidth = w;
+  c.beginPath(); for (const [a, b] of TULANG) { c.moveTo(lm[a][0], lm[a][1]); c.lineTo(lm[b][0], lm[b][1]); } c.stroke();
+  pathPoly(c, HULL.map(i => lm[i])); c.fill();
+}
+
+// kilau bintang anime yang berkelip di dalam bingkai
+const KILAU = Array.from({length: 14}, (_, i) => [((i*37) % 100)/100, ((i*61 + 17) % 100)/100, (i*0.71) % 1]);
+function drawSparkles(c, q, t){
+  const [tl, tr, br, bl] = q;
+  const pt = (u, v) => [tl[0]*(1-u)*(1-v) + tr[0]*u*(1-v) + br[0]*u*v + bl[0]*(1-u)*v,
+                        tl[1]*(1-u)*(1-v) + tr[1]*u*(1-v) + br[1]*u*v + bl[1]*(1-u)*v];
+  c.save(); c.shadowColor = 'rgba(255,120,200,.9)'; c.shadowBlur = 10*S; c.fillStyle = '#fff';
+  for (const [u, v, f] of KILAU) {
+    const k = Math.max(0, Math.sin((t*1.6 + f)*Math.PI*2)), r = (5 + 9*k)*S;
+    if (k < .05) continue;
+    const [x, y] = pt(u, v);
+    c.beginPath(); c.moveTo(x, y - r);
+    c.quadraticCurveTo(x, y, x + r, y); c.quadraticCurveTo(x, y, x, y + r);
+    c.quadraticCurveTo(x, y, x - r, y); c.quadraticCurveTo(x, y, x, y - r); c.fill();
+  }
+  c.restore();
+}
+
+function drawGrid(c, q){
+  const [tl, tr, br, bl] = q, L = (a, b, t) => [a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t];
+  c.save(); c.strokeStyle = '#fff'; c.lineWidth = Math.max(1, S); c.beginPath();
+  for (let i = 0; i <= 10; i++) { const t = i/10;
+    let a = L(tl, tr, t), b = L(bl, br, t); c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]);
+    a = L(tl, bl, t); b = L(tr, br, t); c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]); }
+  c.stroke(); c.restore();
+}
+
+function renderPortal(q, hands, t, f, tanganIkut){
+  filterFrame(f, t);
+  lc.clearRect(0, 0, W, H); lc.drawImage(glc, 0, 0);
+  if (FILTROS[f] === 'GRID') drawGrid(lc, q);
+  if (f === ANIME) drawSparkles(lc, q, t);
+  mc.clearRect(0, 0, W, H); mc.fillStyle = mc.strokeStyle = '#fff';
+  pathPoly(mc, q); mc.fill();
+  if (f === ANIME && tanganIkut) hands.forEach(lm => handPath(mc, lm, Math.max(14, W/22)));   // tangan ikut jadi anime
+  lc.save(); lc.globalCompositeOperation = 'destination-in'; lc.drawImage(mask, 0, 0); lc.restore();
+  ctx.drawImage(layer, 0, 0);
+  ctx.save(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2*S; ctx.lineJoin = 'round'; pathPoly(ctx, q); ctx.stroke();
+  if (f === ANIME) { ctx.fillStyle = '#ffe1f2'; ctx.font = `700 ${Math.round(17*S)}px system-ui, sans-serif`;
+    const lo = q.reduce((a, p) => p[1] > a[1] ? p : a); ctx.fillText('ANIME', Math.min(...q.map(p => p[0])) + 8*S, lo[1] + 22*S); }
+  ctx.restore();
+}
+
+function susunQuad(lms){
+  const [a, b] = [...lms].sort((x, y) => x[0][0] - y[0][0]);
+  let tl = a[8], tr = b[8], br = b[4], bl = a[4];
+  if (tl[1] + tr[1] > br[1] + bl[1]) [tl, bl, tr, br] = [bl, tl, br, tr];
+  return [tl, tr, br, bl];
+}
+// jari tengah ikut terangkat di kedua tangan -> bingkai kedua antara telunjuk & jari tengah
+function quadTengah(lms){
+  const d = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]);
+  const lurus = lm => d(lm[0], lm[12]) > 1.6*d(lm[0], lm[9]) && d(lm[8], lm[12]) > .35*d(lm[0], lm[9]);
+  if (lms.length !== 2 || !lms.every(lurus)) return null;
+  const [a, b] = [...lms].sort((x, y) => x[0][0] - y[0][0]);
+  let tl = a[12], tr = b[12], br = b[8], bl = a[8];
+  if (tl[1] + tr[1] > br[1] + bl[1]) [tl, bl, tr, br] = [bl, tl, br, tr];
+  return [tl, tr, br, bl];
+}
+function luas(q){ let s = 0; for (let i = 0; i < 4; i++) { const p = q[i], n = q[(i+1)%4]; s += p[0]*n[1] - n[0]*p[1]; } return Math.abs(s)/2; }
+
+/* ---------- tampilan kode (seperti video referensi) ---------- */
+function drawCode(){
+  const h = Math.round(H*.17), f = Math.max(10, Math.round(Math.min(W/34, h/6.4)));
+  ctx.save(); ctx.fillStyle = '#1f1f1f'; ctx.fillRect(0, 0, W, h);
+  ctx.fillStyle = '#f0f0f2'; ctx.fillRect(0, h, W, Math.round(f*1.9));
+  ctx.strokeStyle = '#3c786e'; ctx.lineWidth = 2; ctx.strokeRect(f*.8, h + f*.55, f*.9, f*.8);
+  ctx.fillStyle = '#222'; ctx.font = `${f}px system-ui, sans-serif`; ctx.fillText('—    ☐    ✕', W - f*7.5, h + f*1.3);
+  ctx.font = `${f}px ui-monospace, Menlo, Consolas, monospace`;
+  const rows = [['main.py ×', '#ddd'], ['def main():', '#569cd6'], ['    filtro_index = (filtro_index + 1) % len(FILTROS)', '#9cdcfe'],
+                [`# filter aktif: ${FILTROS[filtro]}`, '#6a9955'], ['    frame = render_portal(frame, p1, p2, p3, p4, FILTROS[filtro_index])', '#dcdcaa']];
+  rows.forEach(([s, c], i) => { ctx.fillStyle = c; ctx.fillText(s, f*.8, h*(i + .75)/5.4); });
+  ctx.restore();
+}
+
+/* ---------- loop ---------- */
+let lastLms = null, quadHalus = null, quad2 = null, tutupN = 0, gantiTerakhir = -10, lastTs = -1;
+// status cubit per sisi layar (kiri/kanan) + efek riak di titik cubit
+const cubit = {L: false, R: false}; let riak = [];
+const t0 = performance.now();
+
+function setFiltro(i){ filtro = (i + FILTROS.length) % FILTROS.length; $('tag').textContent = FILTROS[filtro]; }
+
+function frame(){
+  requestAnimationFrame(frame);
+  if (video.readyState < 2 || !landmarker) return;
+  if (video.videoWidth !== W || video.videoHeight !== H) resize();
+  const t = (performance.now() - t0)/1000;
+  let ts = Math.round(performance.now()); if (ts <= lastTs) ts = lastTs + 1; lastTs = ts;
+  const res = landmarker.detectForVideo(video, ts);
+  const mir = facing === 'user';
+  const lms = (res.landmarks || []).map(h => h.map(p => [(mir ? 1 - p.x : p.x)*W, p.y*H]));
+
+  ctx.save(); if (mir) { ctx.translate(W, 0); ctx.scale(-1, 1); } ctx.drawImage(video, 0, 0, W, H); ctx.restore();
+
+  // ganti efek: jempol (4) & telunjuk (8) satu tangan bersentuhan, lalu dibuka lagi
+  const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  const lihat = {L: false, R: false};
+  for (const lm of lms) {
+    const sisi = lms.length === 2 ? (lm[0][0] === Math.min(lms[0][0][0], lms[1][0][0]) ? 'L' : 'R') : (lm[0][0] < W/2 ? 'L' : 'R');
+    lihat[sisi] = true;
+    const r = dist(lm[4], lm[8]) / Math.max(1, dist(lm[0], lm[5]));
+    if (!cubit[sisi] && r < .32) {
+      cubit[sisi] = true;
+      if (t - gantiTerakhir > .7) { setFiltro(filtro + 1); gantiTerakhir = t;
+        riak.push({x: (lm[4][0] + lm[8][0])/2, y: (lm[4][1] + lm[8][1])/2, t}); }
+    } else if (cubit[sisi] && r > .5) cubit[sisi] = false;
+  }
+  for (const k of ['L', 'R']) if (!lihat[k]) cubit[k] = false;
+
+  let terbuka = false, q = null;
+  if (lms.length === 2) { q = susunQuad(lms); terbuka = luas(q) > .004*W*H; }
+  if (terbuka) {
+    tutupN = 0;
+    quadHalus = quadHalus ? quadHalus.map((p, i) => [p[0]*.45 + q[i][0]*.55, p[1]*.45 + q[i][1]*.55]) : q;
+    lastLms = lms; renderPortal(quadHalus, lms, t, filtro, true);
+  } else if (++tutupN < 3) {
+    if (quadHalus) renderPortal(quadHalus, lastLms, t, filtro, true);   // tahan sebentar supaya tidak berkedip
+  } else quadHalus = null;
+  // efek kedua (berbeda) saat jari tengah ikut diangkat
+  const q2 = quadTengah(lms), f2 = (filtro + 1) % FILTROS.length;
+  if (q2 && luas(q2) > .003*W*H) {
+    quad2 = quad2 ? quad2.map((p, i) => [p[0]*.45 + q2[i][0]*.55, p[1]*.45 + q2[i][1]*.55]) : q2;
+    renderPortal(quad2, lms, t, f2, false);
+  } else quad2 = null;
+  $('tag').textContent = quad2 ? `${FILTROS[filtro]} + ${FILTROS[f2]}` : FILTROS[filtro];
+  riak = riak.filter(o => t - o.t < .45);
+  for (const o of riak) { const k = (t - o.t)/.45;
+    ctx.save(); ctx.strokeStyle = `rgba(255,255,255,${1 - k})`; ctx.lineWidth = 3*S;
+    ctx.beginPath(); ctx.arc(o.x, o.y, (10 + 50*k)*S, 0, Math.PI*2); ctx.stroke(); ctx.restore(); }
+  if (kode) drawCode();
+}
+
+function resize(){
+  W = video.videoWidth; H = video.videoHeight; S = Math.min(W, H)/720;
+  for (const c of [stage, glc, layer, mask]) { c.width = W; c.height = H; }
+}
+
+async function startCam(){
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: facing, width: {ideal: 1280}, height: {ideal: 720}, frameRate: {ideal: 30, max: 30}}, audio: false});
+  video.srcObject = stream; await video.play();
+}
+
+async function initHands(){
+  const fs = await FilesetResolver.forVisionTasks(WASM);
+  const opt = d => ({baseOptions: {modelAssetPath: HAND_MODEL, delegate: d}, runningMode: 'VIDEO', numHands: 2,
+    minHandDetectionConfidence: .5, minTrackingConfidence: .5});
+  try { landmarker = await HandLandmarker.createFromOptions(fs, opt('GPU')); }
+  catch (e) { landmarker = await HandLandmarker.createFromOptions(fs, opt('CPU')); }
+}
+
+$('go').onclick = async () => {
+  $('go').disabled = true; $('go').textContent = 'Memuat…';
+  try {
+    if (!navigator.mediaDevices?.getUserMedia) throw new Error('Browser ini tidak bisa membuka kamera. Buka link https di Safari atau Chrome.');
+    await Promise.all([startCam(), initHands()]);
+    $('start').hidden = true; $('bar').hidden = false; $('tag').hidden = false; setFiltro(0);
+    requestAnimationFrame(frame);
+  } catch (e) {
+    $('err').hidden = false; $('err').textContent = 'Gagal: ' + (e.message || e) + '. Izinkan akses kamera lalu coba lagi.';
+    $('go').disabled = false; $('go').textContent = 'Coba lagi';
+  }
+};
+$('bCode').onclick = () => { kode = !kode; $('bCode').classList.toggle('on', kode); $('tag').hidden = kode; };
+$('bFlip').onclick = async () => { facing = facing === 'user' ? 'environment' : 'user'; try { await startCam(); } catch (e) {} };
+
+/* ---------- rekam layar kanvas ---------- */
+let rec = null, chunks = [];
+function pickMime(){ for (const m of ['video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp8', 'video/webm']) if (MediaRecorder.isTypeSupported?.(m)) return m; return ''; }
+$('bRec').onclick = () => {
+  if (rec) { rec.stop(); return; }
+  if (!(stage.captureStream && window.MediaRecorder)) { alert('Rekam tidak didukung di browser ini. Pakai perekam layar HP.'); return; }
+  const mime = pickMime(), opts = {videoBitsPerSecond: 6e6}; if (mime) opts.mimeType = mime;
+  chunks = []; rec = new MediaRecorder(stage.captureStream(30), opts);
+  rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+  rec.onstop = () => {
+    const type = rec.mimeType || mime || 'video/webm', ext = type.includes('mp4') ? 'mp4' : 'webm';
+    const a = $('dl'); a.href = URL.createObjectURL(new Blob(chunks, {type})); a.download = `portal-anime-${Date.now()}.${ext}`;
+    a.textContent = `Unduh rekaman (.${ext})`; a.hidden = false;
+    rec = null; $('bRec').classList.remove('rec'); $('bRec').textContent = '● Rekam';
+  };
+  rec.start(500); $('dl').hidden = true; $('bRec').classList.add('rec'); $('bRec').textContent = '■ Stop';
+};
+</script>
+</body>
+</html>
