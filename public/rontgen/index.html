@@ -34,8 +34,6 @@
 <div class="tag" id="tag" hidden>PINK</div>
 <a class="dl" id="dl" hidden>Unduh rekaman</a>
 <div class="bar" id="bar" hidden>
-  <button class="btn" id="bNext" type="button">Filter ▶</button>
-  <button class="btn" id="bXray" type="button">Rontgen</button>
   <button class="btn" id="bCode" type="button">Gaya kode</button>
   <button class="btn" id="bFlip" type="button">Balik kamera</button>
   <button class="btn" id="bRec" type="button">● Rekam</button>
@@ -43,7 +41,7 @@
 <div id="start">
   <div>
     <h1>Portal Rontgen</h1>
-    <p>Bentuk bingkai pakai jempol dan telunjuk kedua tangan. Isi bingkai diberi filter. Tutup bingkai sebentar (satukan telunjuk atau turunkan tangan) lalu buka lagi untuk ganti filter. Tombol Rontgen langsung mengunci efek rontgen: tangan jadi tulang bercahaya.</p>
+    <p>Bentuk bingkai pakai jempol dan telunjuk kedua tangan. Isi bingkai diberi filter. Untuk ganti efek, cubitkan jempol dan telunjuk salah satu tangan sampai bersentuhan, lalu buka lagi. Efek terakhir: rontgen, tangan jadi tulang bercahaya.</p>
     <button class="go" id="go" type="button">Nyalakan kamera</button>
     <p id="err" hidden></p>
   </div>
@@ -63,7 +61,7 @@ const TULANG = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10
 const HULL = [0, 1, 2, 5, 9, 13, 17];
 
 let W = 720, H = 1280, S = 1, facing = 'user', stream = null, landmarker = null;
-let filtro = 0, kode = false, kunci = false;
+let filtro = 0, kode = false;
 
 /* ---------- WebGL: filter seluruh frame ---------- */
 const glc = document.createElement('canvas');
@@ -212,10 +210,12 @@ function drawCode(){
 }
 
 /* ---------- loop ---------- */
-let lastLms = null, quadHalus = null, bukaSejak = null, tutupN = 0, siapGanti = false, gantiTerakhir = -10, lastTs = -1;
+let lastLms = null, quadHalus = null, tutupN = 0, gantiTerakhir = -10, lastTs = -1;
+// status cubit per sisi layar (kiri/kanan) + efek riak di titik cubit
+const cubit = {L: false, R: false}; let riak = [];
 const t0 = performance.now();
 
-function setFiltro(i){ filtro = (i + FILTROS.length) % FILTROS.length; $('tag').textContent = FILTROS[filtro]; $('bXray').classList.toggle('on', filtro === XRAY); }
+function setFiltro(i){ filtro = (i + FILTROS.length) % FILTROS.length; $('tag').textContent = FILTROS[filtro]; }
 
 function frame(){
   requestAnimationFrame(frame);
@@ -229,23 +229,34 @@ function frame(){
 
   ctx.save(); if (mir) { ctx.translate(W, 0); ctx.scale(-1, 1); } ctx.drawImage(video, 0, 0, W, H); ctx.restore();
 
-  let terbuka = false, q = null;
-  if (lms.length === 2) {
-    q = susunQuad(lms);
-    const d = Math.hypot(lms[0][8][0] - lms[1][8][0], lms[0][8][1] - lms[1][8][1]);
-    terbuka = d > .045*Math.max(W, H) && luas(q) > .004*W*H;
+  // ganti efek: jempol (4) & telunjuk (8) satu tangan bersentuhan, lalu dibuka lagi
+  const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  const lihat = {L: false, R: false};
+  for (const lm of lms) {
+    const sisi = lms.length === 2 ? (lm[0][0] === Math.min(lms[0][0][0], lms[1][0][0]) ? 'L' : 'R') : (lm[0][0] < W/2 ? 'L' : 'R');
+    lihat[sisi] = true;
+    const r = dist(lm[4], lm[8]) / Math.max(1, dist(lm[0], lm[5]));
+    if (!cubit[sisi] && r < .32) {
+      cubit[sisi] = true;
+      if (t - gantiTerakhir > .7) { setFiltro(filtro + 1); gantiTerakhir = t;
+        riak.push({x: (lm[4][0] + lm[8][0])/2, y: (lm[4][1] + lm[8][1])/2, t}); }
+    } else if (cubit[sisi] && r > .5) cubit[sisi] = false;
   }
+  for (const k of ['L', 'R']) if (!lihat[k]) cubit[k] = false;
+
+  let terbuka = false, q = null;
+  if (lms.length === 2) { q = susunQuad(lms); terbuka = luas(q) > .004*W*H; }
   if (terbuka) {
-    if (siapGanti && !kunci && t - gantiTerakhir > 1) { setFiltro(filtro + 1); gantiTerakhir = t; }
-    siapGanti = false; tutupN = 0; if (bukaSejak === null) bukaSejak = t;
+    tutupN = 0;
     quadHalus = quadHalus ? quadHalus.map((p, i) => [p[0]*.45 + q[i][0]*.55, p[1]*.45 + q[i][1]*.55]) : q;
     lastLms = lms; renderPortal(quadHalus, lms, t);
   } else if (++tutupN < 3) {
     if (quadHalus) renderPortal(quadHalus, lastLms, t);   // tahan sebentar supaya tidak berkedip
-  } else {
-    if (bukaSejak !== null && t - bukaSejak > .6) siapGanti = true;
-    bukaSejak = null; quadHalus = null;
-  }
+  } else quadHalus = null;
+  riak = riak.filter(o => t - o.t < .45);
+  for (const o of riak) { const k = (t - o.t)/.45;
+    ctx.save(); ctx.strokeStyle = `rgba(255,255,255,${1 - k})`; ctx.lineWidth = 3*S;
+    ctx.beginPath(); ctx.arc(o.x, o.y, (10 + 50*k)*S, 0, Math.PI*2); ctx.stroke(); ctx.restore(); }
   if (kode) drawCode();
 }
 
@@ -280,9 +291,6 @@ $('go').onclick = async () => {
     $('go').disabled = false; $('go').textContent = 'Coba lagi';
   }
 };
-$('bNext').onclick = () => { kunci = false; setFiltro(filtro + 1); };
-// Rontgen dikunci: tidak berganti oleh gerakan tangan sampai tombol Filter ditekan
-$('bXray').onclick = () => { kunci = true; setFiltro(XRAY); };
 $('bCode').onclick = () => { kode = !kode; $('bCode').classList.toggle('on', kode); $('tag').hidden = kode; };
 $('bFlip').onclick = async () => { facing = facing === 'user' ? 'environment' : 'user'; try { await startCam(); } catch (e) {} };
 
