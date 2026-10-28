@@ -132,6 +132,13 @@ a{color:inherit}
 .shot-cta b{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:28px;line-height:1.05}
 .shot-cta .mono{font-weight:700}
 @media (max-width:960px){.gallery{grid-template-columns:repeat(2,1fr)}}
+.ig-reels{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:12px;align-items:flex-start;-webkit-overflow-scrolling:touch}
+.ig-reels>*{flex:0 0 326px;scroll-snap-align:start}
+.ig-reels .instagram-media{margin:0!important;min-width:0!important;width:326px!important;max-width:326px!important}
+.ig-reels blockquote.instagram-media{background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:12px;padding:20px;min-height:120px}
+.ig-hint{margin-top:6px;opacity:.7;font-size:12px}
+@media (max-width:600px){.ig-reels>*{flex-basis:84%}.ig-reels .instagram-media{width:100%!important;max-width:100%!important}}
+.ig-more{margin-top:18px}.ig-more a{font-weight:700}
 @media (max-width:600px){.gallery{gap:12px}.gallery-head h3{font-size:24px}}
 
 /* tentang */
