@@ -310,6 +310,21 @@
           <span class="mono">Chat admin →</span>
         </a>
       </div>
+      <!-- DARI INSTAGRAM: reel hasil produksi asli Willo (terbaru di depan). Tambah reel baru = salin satu blockquote. -->
+      <div class="gallery-head" id="dari-instagram"><span class="idx">DARI INSTAGRAM</span><h3>Video produksi asli di workshop.</h3><p class="mono ig-hint">Geser ke samping untuk video lainnya →</p></div>
+      <div class="ig-reels">
+        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DJEVNmDzg0W/" data-instgrm-version="14"><a href="https://www.instagram.com/reel/DJEVNmDzg0W/" target="_blank" rel="noopener">Lihat video produksi Willo Apparel di Instagram</a></blockquote>
+        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DJB2lQRTLnZ/" data-instgrm-version="14"><a href="https://www.instagram.com/reel/DJB2lQRTLnZ/" target="_blank" rel="noopener">Lihat video produksi Willo Apparel di Instagram</a></blockquote>
+        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DI_I08kTMhc/" data-instgrm-version="14"><a href="https://www.instagram.com/reel/DI_I08kTMhc/" target="_blank" rel="noopener">Lihat video produksi Willo Apparel di Instagram</a></blockquote>
+        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DI3eLcOztN8/" data-instgrm-version="14"><a href="https://www.instagram.com/reel/DI3eLcOztN8/" target="_blank" rel="noopener">Lihat video produksi Willo Apparel di Instagram</a></blockquote>
+        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DI1CIZozPmV/" data-instgrm-version="14"><a href="https://www.instagram.com/reel/DI1CIZozPmV/" target="_blank" rel="noopener">Lihat video produksi Willo Apparel di Instagram</a></blockquote>
+        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DIyM537TNUg/" data-instgrm-version="14"><a href="https://www.instagram.com/reel/DIyM537TNUg/" target="_blank" rel="noopener">Lihat video produksi Willo Apparel di Instagram</a></blockquote>
+        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DIvgCT_zkid/" data-instgrm-version="14"><a href="https://www.instagram.com/reel/DIvgCT_zkid/" target="_blank" rel="noopener">Lihat video produksi Willo Apparel di Instagram</a></blockquote>
+        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DIpjz2YzhXc/" data-instgrm-version="14"><a href="https://www.instagram.com/reel/DIpjz2YzhXc/" target="_blank" rel="noopener">Lihat video produksi Willo Apparel di Instagram</a></blockquote>
+        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DIdulIrzuWx/" data-instgrm-version="14"><a href="https://www.instagram.com/reel/DIdulIrzuWx/" target="_blank" rel="noopener">Lihat video produksi Willo Apparel di Instagram</a></blockquote>
+        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DIbO4vsTDk7/" data-instgrm-version="14"><a href="https://www.instagram.com/reel/DIbO4vsTDk7/" target="_blank" rel="noopener">Lihat video produksi Willo Apparel di Instagram</a></blockquote>
+      </div>
+      <p class="ig-more"><a href="https://www.instagram.com/willo.apparel" target="_blank" rel="noopener">Lihat semua hasil di Instagram @willo.apparel →</a></p>
     </div>
   </section>
 
@@ -656,6 +671,17 @@
       var b = document.getElementById('burger'), m = document.getElementById('menu');
       b.addEventListener('click', function () { var o = m.classList.toggle('open'); b.setAttribute('aria-expanded', o); });
       m.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', function () { m.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); }); });
+    })();
+  </script>
+  <script>
+    // Muat embed Instagram hanya saat bagian "Dari Instagram" mendekati layar, supaya beranda tetap ringan.
+    (function () {
+      var el = document.getElementById("dari-instagram");
+      if (!el) return;
+      function muat() { var s = document.createElement("script"); s.async = true; s.src = "https://www.instagram.com/embed.js"; document.body.appendChild(s); }
+      if (!("IntersectionObserver" in window)) return muat();
+      var io = new IntersectionObserver(function (e) { if (e[0].isIntersecting) { io.disconnect(); muat(); } }, { rootMargin: "600px" });
+      io.observe(el);
     })();
   </script>
   <script src="/wa-tag.js" defer></script>
