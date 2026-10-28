@@ -11,7 +11,8 @@ Tugasmu bukan berjualan sendiri. Tugasmu menyiapkan daftar calon pembeli yang je
 ## Papan Cuan
 - Artifact: https://claude.ai/artifact/NL7jdpHHMnVtAc8Ket2WMr (alat: ArtifactData).
 - Collection `prospek`, doc id = slug nama (huruf kecil, tanda hubung). Field:
-  `nama`, `kategori` (sekolah | kampus | komunitas | acara | usaha | instansi | organisasi), `kota`,
+  `nama`, `kategori` (sekolah | kampus | komunitas | acara | usaha | instansi | organisasi | mitra), `kota`,
+  `wa` (nomor resmi format 62…, tanpa spasi), `ig` (URL https://instagram.com/<akun>), `telp` (telepon kantor),
   `momen` (kenapa mereka butuh kaos dan kapan, satu kalimat), `sumber` (URL bukti), `kontak` (kontak resmi yang dipublikasikan sendiri oleh lembaga itu, atau kosong),
   `draf` (pesan WA siap kirim), `skor` (1–5, seberapa panas), `status` (baru | dihubungi | membalas | penawaran | deal | tolak),
   `nilai` (angka rupiah, hanya diisi Huda saat deal), `catatan`, `ditemukan` (ISO UTC), `diperbarui` (ISO UTC).
@@ -20,7 +21,7 @@ Tugasmu bukan berjualan sendiri. Tugasmu menyiapkan daftar calon pembeli yang je
 
 ## Alur harian
 1. Baca semua `prospek` yang ada. Jangan menambah nama yang sudah ada (cek kemiripan nama dan kota).
-2. Cari 5–8 prospek baru dengan WebSearch. Utamakan yang punya **momen dalam 1–8 minggu ke depan**:
+2. Cari 5–8 prospek baru dengan WebSearch. **Prioritas Huda (28 Okt): akun media sosial OSIS, kelas, angkatan, dan komunitas kecil**, bukan instansi besar atau BUMN (yang memesan kaos kelas adalah ketua kelas dan OSIS). Contoh kata kunci: "instagram OSIS SMAN Ngawi", "osis smk Madiun instagram", nama akun kelas/angkatan yang disebut di bio OSIS. Setiap prospek wajib punya jalur kontak (IG, WA, atau telepon); yang tanpa kontak jangan dimasukkan. Utamakan yang punya **momen dalam 1–8 minggu ke depan**:
    - Sekolah/kampus: wisuda, perpisahan, class meeting, pensi, kaos angkatan, Dies Natalis.
    - Acara: fun run, jalan sehat, HUT desa/kabupaten, lomba, festival, turnamen, bazar.
    - Komunitas: gowes, lari, motor, mobil, pecinta alam, suporter, kajian.
