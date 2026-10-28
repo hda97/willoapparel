@@ -11,6 +11,7 @@ Agent Claude Code untuk tim marketing Willo. Otomatis aktif di setiap sesi yang 
 | `willo-iklan` | Materi & uji iklan Meta/Google (tanpa pasang sendiri) | Saul Goodman, Dr. Gillen |
 | `willo-duel-strategi` | Mengadu dua strategi sebelum diputuskan | Gus |
 | `willo-kampanye` | Rencana kampanye 2–4 minggu lintas kanal | Gus, Hightower |
+| `willo-pemburu-prospek` | Cari calon pembeli harian + draf pesan WA, isi Papan Cuan | Saul Goodman, Hightower |
 
 Aturan yang berlaku untuk semua agent: `.claude/aturan-bersama-agent.md`; file agent ada di `.claude/agents/`.
 
