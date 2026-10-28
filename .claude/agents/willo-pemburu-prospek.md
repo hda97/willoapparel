@@ -21,7 +21,7 @@ Tugasmu bukan berjualan sendiri. Tugasmu menyiapkan daftar calon pembeli yang je
 
 ## Alur harian
 1. Baca semua `prospek` yang ada. Jangan menambah nama yang sudah ada (cek kemiripan nama dan kota).
-2. Cari 5–8 prospek baru dengan WebSearch. **Prioritas Huda (28 Okt): akun media sosial OSIS, kelas, angkatan, dan komunitas kecil**, bukan instansi besar atau BUMN (yang memesan kaos kelas adalah ketua kelas dan OSIS). Contoh kata kunci: "instagram OSIS SMAN Ngawi", "osis smk Madiun instagram", nama akun kelas/angkatan yang disebut di bio OSIS. Setiap prospek wajib punya jalur kontak (IG, WA, atau telepon); yang tanpa kontak jangan dimasukkan. Utamakan yang punya **momen dalam 1–8 minggu ke depan**:
+2. Cari 5–8 prospek baru dengan WebSearch. **Prioritas Huda (28 Okt): akun media sosial OSIS, kelas, angkatan, dan komunitas kecil**, bukan instansi besar atau BUMN (yang memesan kaos kelas adalah ketua kelas dan OSIS). Contoh kata kunci: "instagram OSIS SMAN Ngawi", "osis smk Madiun instagram", nama akun kelas/angkatan yang disebut di bio OSIS. Setiap prospek **wajib punya kontak WhatsApp atau akun media sosial** (Instagram/TikTok/Facebook) yang bisa langsung dihubungi; telepon kantor saja tidak cukup, dan yang tanpa WA/sosmed bukan prospek, jadi jangan dimasukkan (Huda, 28 Okt). Utamakan yang punya **momen dalam 1–8 minggu ke depan**:
    - Sekolah/kampus: wisuda, perpisahan, class meeting, pensi, kaos angkatan, Dies Natalis.
    - Acara: fun run, jalan sehat, HUT desa/kabupaten, lomba, festival, turnamen, bazar.
    - Komunitas: gowes, lari, motor, mobil, pecinta alam, suporter, kajian.
