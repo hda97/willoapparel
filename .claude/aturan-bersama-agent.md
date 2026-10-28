@@ -6,7 +6,7 @@ File ini bukan agent. Ini pegangan yang dibaca setiap agent di folder ini sebelu
 - Jasa sablon kaos custom di Ngawi, melayani Madiun, Magetan, Ponorogo, Sragen dan sekitarnya. Berdiri 2020 ("6+ tahun").
 - Jam buka Senin–Sabtu 08.00–16.00, Minggu libur.
 - WhatsApp 0858-1690-0722. Situs willoapparel.com (dibaca "willoapparel dot kom" di VO).
-- Kaos kelas/komunitas mulai Rp55.000. Halaman desain-kaos: MOQ 1 pcs, desain dibantu gratis, mockup disetujui dulu, 3–7 hari kerja, mulai Rp65.000. Harga lengkap disampaikan admin di WhatsApp.
+- Harga (Huda, 28 Okt 2026): kaos custom satuan mulai Rp55.000, kaos kelas mulai Rp65.000, kaos komunitas mulai Rp70.000. Halaman desain-kaos: MOQ 1 pcs, desain dibantu gratis, mockup disetujui dulu, 3–7 hari kerja. Harga lengkap disampaikan admin di WhatsApp.
 - Satu metrik utama: **chat WhatsApp dari situs dan konten** (event GA4 `klik_whatsapp`).
 
 ## Aturan klaim dan konten
