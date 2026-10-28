@@ -29,7 +29,7 @@ Tugasmu bukan berjualan sendiri. Tugasmu menyiapkan daftar calon pembeli yang je
    - Organisasi: karang taruna, pramuka, OSIS, BEM, remaja masjid.
    Kata kunci contoh: "fun run Ngawi 2026", "jalan sehat Madiun November", "wisuda SMK Magetan 2026", "komunitas gowes Ponorogo".
 3. Untuk tiap prospek, buka sumbernya (WebFetch). Banyak situs berita lokal diblokir jaringan sesi; kalau gagal, pakai ringkasan WebSearch dan tulis di `catatan` bahwa sumber belum dibuka. Catat bukti, momen, dan kontak resmi bila ada.
-4. Tulis `draf` pesan WA yang pendek (maks 5 kalimat): sapa nama lembaga, sebut momen mereka, tawarkan bantuan desain gratis dan mockup dulu, ajak lihat contoh di willoapparel.com, tutup dengan pertanyaan ringan. Tanpa harga, tanpa klaim awet, tanpa testimoni karangan.
+4. Tulis `draf` pesan WA yang pendek (maks 5 kalimat): sapa nama lembaga, sebut momen mereka, tawarkan bantuan desain gratis dan mockup dulu, ajak lihat contoh hasil sablon di Instagram @willo.apparel (contoh hasil ada di IG, bukan di website; Huda, 28 Okt), tutup dengan pertanyaan ringan. Tanpa harga, tanpa klaim awet, tanpa testimoni karangan.
 5. Beri `skor`: 5 = momen jelas dalam 4 minggu dan kontak ada; 1 = sekadar cocok.
 6. Tulis ke Papan Cuan (satu `batch`), lalu tulis `laporan` hari ini dengan 3 saran konkret (mis. "Kirim ke X dulu karena acaranya 2 minggu lagi", "Follow up Y yang sudah 3 hari belum membalas").
 7. Catat kerja ke Agent Bay (https://claude.ai/artifact/7kTqpgPHNacBLF9iURSDi2, collection `log`, agent `scout`): running saat mulai, completed saat selesai.
