@@ -1,3 +1,19 @@
+// Penghitung pengunjung ASLI per halaman per hari (WIB) untuk pop up "X orang melihat halaman ini hari ini".
+// Satu Durable Object per halaman; menyimpan angka harian saja, tanpa IP atau data pribadi.
+import { DurableObject } from "cloudflare:workers";
+export class Pengunjung extends DurableObject {
+  async fetch(request) {
+    const u = new URL(request.url);
+    const hari = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10);
+    let n = (await this.ctx.storage.get(hari)) || 0;
+    if (u.searchParams.get("tambah") === "1") {
+      n += 1;
+      await this.ctx.storage.put(hari, n);
+    }
+    return Response.json({ hari, n });
+  }
+}
+
 // Berjalan sebelum file situs disajikan: alihkan www ke domain utama, sajikan beranda di "/".
 // Juga mencatat kunjungan halaman ke Workers Analytics Engine (dataset willo_kunjungan):
 // - "req":  setiap permintaan halaman HTML dari server (manusia + bot).
@@ -38,6 +54,14 @@ export default {
         url.pathname = "/kantor-agen-ai/";
         return Response.redirect(url.toString(), 301);
       }
+    }
+    if (url.pathname === "/_pengunjung") {
+      // ?h=kantor-agen-ai[&tambah=1] → {"hari":"YYYY-MM-DD","n":jumlah kunjungan hari ini}
+      const h = url.searchParams.get("h");
+      if (!env.PENGUNJUNG || !["kantor-agen-ai"].includes(h)) return new Response("{}", { status: 404 });
+      const stub = env.PENGUNJUNG.get(env.PENGUNJUNG.idFromName(h));
+      const r = await stub.fetch("https://do/?tambah=" + (url.searchParams.get("tambah") === "1" ? "1" : "0"));
+      return new Response(r.body, { headers: { "content-type": "application/json", "cache-control": "no-store" } });
     }
     if (url.pathname === "/_k") {
       // Sinyal dari browser: ?t=view|wa&p=/halaman.html&r=<referrer asli>&u=<utm_source>

@@ -10,6 +10,11 @@
     { "pattern": "*.willoapparel.com/*", "zone_name": "willoapparel.com" }
   ],
   "workers_dev": true,
+  // Penghitung pengunjung asli untuk pop up halaman produk (lihat class Pengunjung di worker.js).
+  "durable_objects": {
+    "bindings": [{ "name": "PENGUNJUNG", "class_name": "Pengunjung" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Pengunjung"] }],
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",

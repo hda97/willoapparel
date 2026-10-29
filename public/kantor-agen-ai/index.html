@@ -353,14 +353,25 @@
       return true;
     }
     if (tik()) { var t = setInterval(function () { if (!tik()) clearInterval(t); }, 1000); }
-    // Jumlah pembeli ASLI dari lynk.id, diisi manual saat Huda melapor. 0 = tidak tampil.
+    // Pop up hanya dari data asli. PEMBELI = penjualan lynk.id yang dilaporkan Huda (0 = tidak tampil).
     var PEMBELI = 0;
-    if (PEMBELI > 0) {
-      var b = document.getElementById("buyers");
-      b.textContent = "🛒 " + PEMBELI + " orang sudah membeli kit ini";
-      setTimeout(function () { b.hidden = false; }, 4000);
-      setTimeout(function () { b.hidden = true; }, 12000);
+    var b = document.getElementById("buyers");
+    function tampil(teks, mulai) {
+      setTimeout(function () { b.textContent = teks; b.hidden = false; }, mulai);
+      setTimeout(function () { b.hidden = true; }, mulai + 8000);
     }
+    if (PEMBELI > 0) tampil("🛒 " + PEMBELI + " orang sudah membeli kit ini", 4000);
+    // Pengunjung asli hari ini (WIB), dihitung server; satu browser dihitung sekali per hari.
+    var hariIni = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10), tambah = "1";
+    try { if (localStorage.getItem("willo_kunjung_kit") === hariIni) tambah = "0"; } catch (e) {}
+    fetch("/_pengunjung?h=kantor-agen-ai&tambah=" + tambah, { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) return;
+        try { localStorage.setItem("willo_kunjung_kit", d.hari); } catch (e) {}
+        if (d.n >= 3) tampil("👀 " + d.n + " orang melihat halaman ini hari ini", PEMBELI > 0 ? 16000 : 5000);
+      })
+      .catch(function () {});
   })();
   </script>
   <script>document.querySelectorAll('a[data-tombol]').forEach(function(a){a.target="_blank";a.rel="noopener";a.addEventListener("click",function(){try{gtag("event","klik_beli_kit",{tombol:a.dataset.tombol})}catch(e){}})});</script>
