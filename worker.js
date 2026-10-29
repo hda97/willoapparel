@@ -31,6 +31,14 @@ export default {
       url.hostname = url.hostname.slice(4);
       return Response.redirect(url.toString(), 301);
     }
+    // Short link produk digital: /kantor-agent-ai, /kantoragentai, /KANTOR-AGENT-AI, dst.
+    const pendek = url.pathname.toLowerCase().replace(/\/+$/, "");
+    if (pendek === "/kantor-agent-ai" || pendek === "/kantoragentai" || pendek === "/kantor-agen-ai") {
+      if (url.pathname !== "/kantor-agen-ai/") {
+        url.pathname = "/kantor-agen-ai/";
+        return Response.redirect(url.toString(), 301);
+      }
+    }
     if (url.pathname === "/_k") {
       // Sinyal dari browser: ?t=view|wa&p=/halaman.html&r=<referrer asli>&u=<utm_source>
       const t = url.searchParams.get("t") === "wa" ? "wa" : "view";
