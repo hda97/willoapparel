@@ -10,11 +10,18 @@
     { "pattern": "*.willoapparel.com/*", "zone_name": "willoapparel.com" }
   ],
   "workers_dev": true,
+  // Penghitung pengunjung asli untuk pop up halaman produk (lihat class Pengunjung di worker.js).
+  "durable_objects": {
+    "bindings": [{ "name": "PENGUNJUNG", "class_name": "Pengunjung" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Pengunjung"] }],
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
     // Sajikan /halaman.html apa adanya (tanpa redirect), sesuai URL di sitemap.
     "html_handling": "none",
+    // Alamat yang tidak ada → public/404.html (bukan layar putih kosong).
+    "not_found_handling": "404-page",
     // Jalankan worker.js dulu supaya www bisa dialihkan.
     "run_worker_first": true
   }
