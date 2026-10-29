@@ -1,16 +1,29 @@
-// Penghitung pengunjung ASLI per halaman per hari (WIB) untuk pop up "X orang melihat halaman ini hari ini".
-// Satu Durable Object per halaman; menyimpan angka harian saja, tanpa IP atau data pribadi.
+// Pengunjung ASLI halaman produk untuk pop up "Seseorang dari <kota> sedang melihat halaman ini".
+// Satu Durable Object per halaman. Menyimpan jumlah harian (WIB) dan kunjungan 30 menit terakhir
+// berupa kota (dari Cloudflare) + id acak browser. Tanpa nama, email, atau IP.
 import { DurableObject } from "cloudflare:workers";
 export class Pengunjung extends DurableObject {
   async fetch(request) {
     const u = new URL(request.url);
-    const hari = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10);
+    const now = Date.now();
+    const hari = new Date(now + 7 * 3600 * 1000).toISOString().slice(0, 10);
+    const v = (u.searchParams.get("v") || "").slice(0, 40);
+    const kota = (u.searchParams.get("kota") || "").slice(0, 60);
     let n = (await this.ctx.storage.get(hari)) || 0;
     if (u.searchParams.get("tambah") === "1") {
       n += 1;
       await this.ctx.storage.put(hari, n);
     }
-    return Response.json({ hari, n });
+    let baru = ((await this.ctx.storage.get("baru")) || []).filter((x) => now - x.t < 30 * 60 * 1000);
+    if (v && kota) {
+      baru = baru.filter((x) => x.v !== v);
+      baru.push({ v, kota, t: now });
+      baru = baru.slice(-30);
+      await this.ctx.storage.put("baru", baru);
+    }
+    const lain = baru.filter((x) => x.v !== v).reverse().slice(0, 3)
+      .map((x) => ({ kota: x.kota, menit: Math.floor((now - x.t) / 60000) }));
+    return Response.json({ hari, n, lain });
   }
 }
 
@@ -56,11 +69,16 @@ export default {
       }
     }
     if (url.pathname === "/_pengunjung") {
-      // ?h=kantor-agen-ai[&tambah=1] → {"hari":"YYYY-MM-DD","n":jumlah kunjungan hari ini}
+      // ?h=kantor-agen-ai&v=<id acak>[&tambah=1] → {hari, n: kunjungan hari ini, lain: [{kota, menit}]}
       const h = url.searchParams.get("h");
       if (!env.PENGUNJUNG || !["kantor-agen-ai"].includes(h)) return new Response("{}", { status: 404 });
       const stub = env.PENGUNJUNG.get(env.PENGUNJUNG.idFromName(h));
-      const r = await stub.fetch("https://do/?tambah=" + (url.searchParams.get("tambah") === "1" ? "1" : "0"));
+      const q = new URLSearchParams({
+        tambah: url.searchParams.get("tambah") === "1" ? "1" : "0",
+        v: url.searchParams.get("v") || "",
+        kota: (request.cf && (request.cf.city || request.cf.region)) || "",
+      });
+      const r = await stub.fetch("https://do/?" + q);
       return new Response(r.body, { headers: { "content-type": "application/json", "cache-control": "no-store" } });
     }
     if (url.pathname === "/_k") {

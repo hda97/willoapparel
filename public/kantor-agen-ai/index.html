@@ -361,15 +361,23 @@
       setTimeout(function () { b.hidden = true; }, mulai + 8000);
     }
     if (PEMBELI > 0) tampil("🛒 " + PEMBELI + " orang sudah membeli kit ini", 4000);
-    // Pengunjung asli hari ini (WIB), dihitung server; satu browser dihitung sekali per hari.
-    var hariIni = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10), tambah = "1";
-    try { if (localStorage.getItem("willo_kunjung_kit") === hariIni) tambah = "0"; } catch (e) {}
-    fetch("/_pengunjung?h=kantor-agen-ai&tambah=" + tambah, { cache: "no-store" })
+    // Pengunjung asli 30 menit terakhir: kota dari Cloudflare, tanpa nama/email. Diri sendiri tidak ikut ditampilkan.
+    var hariIni = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10), tambah = "1", vid = "";
+    try {
+      if (localStorage.getItem("willo_kunjung_kit") === hariIni) tambah = "0";
+      vid = localStorage.getItem("willo_vid") || "";
+      if (!vid) { vid = Math.random().toString(36).slice(2, 12); localStorage.setItem("willo_vid", vid); }
+    } catch (e) { vid = Math.random().toString(36).slice(2, 12); }
+    fetch("/_pengunjung?h=kantor-agen-ai&v=" + vid + "&tambah=" + tambah, { cache: "no-store" })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) {
         if (!d) return;
         try { localStorage.setItem("willo_kunjung_kit", d.hari); } catch (e) {}
-        if (d.n >= 3) tampil("👀 " + d.n + " orang melihat halaman ini hari ini", PEMBELI > 0 ? 16000 : 5000);
+        var mulai = PEMBELI > 0 ? 16000 : 5000;
+        (d.lain || []).slice(0, 2).forEach(function (x, i) {
+          var kapan = x.menit < 1 ? "baru saja" : x.menit + " menit lalu";
+          tampil("👀 Seseorang dari " + x.kota + " sedang melihat halaman ini · " + kapan, mulai + i * 14000);
+        });
       })
       .catch(function () {});
   })();
