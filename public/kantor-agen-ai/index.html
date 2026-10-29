@@ -375,8 +375,8 @@
         try { localStorage.setItem("willo_kunjung_kit", d.hari); } catch (e) {}
         var mulai = PEMBELI > 0 ? 16000 : 5000;
         (d.lain || []).slice(0, 2).forEach(function (x, i) {
-          var kapan = x.menit < 1 ? "baru saja" : x.menit + " menit lalu";
-          tampil("👀 Seseorang dari " + x.kota + " sedang melihat halaman ini · " + kapan, mulai + i * 14000);
+          var kapan = x.menit < 1 ? "baru saja" : x.menit + " mnt lalu";
+          tampil("👀 Pengunjung dari " + x.kota + " · " + kapan, mulai + i * 14000);
         });
       })
       .catch(function () {});
