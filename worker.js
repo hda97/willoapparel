@@ -61,8 +61,11 @@ export default {
       return Response.redirect(url.toString(), 301);
     }
     // Short link produk digital: /kantor-agent-ai, /kantoragentai, /KANTOR-AGENT-AI, dst.
-    const pendek = url.pathname.toLowerCase().replace(/\/+$/, "");
-    if (pendek === "/kantor-agent-ai" || pendek === "/kantoragentai" || pendek === "/kantor-agen-ai") {
+    // Tanda baca yang ikut tersalin (":", ".", ")", "%3A", dst.) di ujung link diabaikan.
+    let pendek = url.pathname.toLowerCase();
+    try { pendek = decodeURIComponent(pendek); } catch (e) {}
+    pendek = pendek.replace(/[^a-z0-9]+$/, "").replace(/[^a-z0-9/]/g, "");
+    if (pendek === "/kantoragentai" || pendek === "/kantoragenai") {
       if (url.pathname !== "/kantor-agen-ai/") {
         url.pathname = "/kantor-agen-ai/";
         return Response.redirect(url.toString(), 301);
