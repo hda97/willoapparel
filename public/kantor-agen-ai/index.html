@@ -151,6 +151,16 @@
       .final { padding-bottom: 72px; }
       footer { padding-bottom: 40px; }
     }
+    /* Promo perkenalan (tanggal tetap, sama untuk semua pengunjung) */
+    .promo { margin-top: 14px; background: #fff; border: 1.5px solid var(--blue); border-radius: 16px; padding: 12px 14px; display: grid; gap: 8px; }
+    .promo .t { font-size: 14px; color: var(--muted); }
+    .promo .t b { color: var(--ink); }
+    .cd { display: flex; gap: 8px; }
+    .cd div { background: var(--blue); color: #fff; border-radius: 10px; min-width: 56px; padding: 6px 8px; text-align: center; font-variant-numeric: tabular-nums; }
+    .cd b { display: block; font-size: 22px; line-height: 1.1; }
+    .cd small { font-size: 11px; opacity: .85; }
+    .buyers { position: fixed; left: 16px; bottom: 84px; background: #fff; color: var(--ink); border: 1px solid #DCE5FA; border-radius: 14px; padding: 10px 14px; font-size: 14px; box-shadow: 0 10px 30px rgba(20,22,28,.15); z-index: 11; max-width: calc(100% - 32px); }
+    @media (min-width: 860px) { .buyers { bottom: 24px; } }
   </style>
 </head>
 <body>
@@ -167,6 +177,10 @@
         <h1>10 karyawan AI yang <em>menulis &amp; menerbitkan artikel</em> situsmu setiap pagi</h1>
         <p class="sub">Panduan menyusun kantor agen AI: pilih topik yang dicari calon pembeli, tulis, periksa SEO, tolak info karangan, lalu terbit otomatis.</p>
         <div class="price"><b>Rp49rb</b><span>sekali bayar · file langsung diunduh</span></div>
+        <div class="promo" id="promo" hidden>
+          <div class="t"><b>Harga perkenalan Rp49rb</b> sampai 7 November 2026 pukul 23.59 WIB. Mulai 8 November harganya Rp79rb.</div>
+          <div class="cd" aria-live="off"><div><b data-cd="h">0</b><small>hari</small></div><div><b data-cd="j">00</b><small>jam</small></div><div><b data-cd="m">00</b><small>menit</small></div><div><b data-cd="d">00</b><small>detik</small></div></div>
+        </div>
         <ul class="ticks">
           <li>Ebook PDF 13 halaman, dari konsep sampai pemasangan</li>
           <li>Peran &amp; jobdesk 10 agen siap pakai</li>
@@ -317,10 +331,38 @@
   <footer>© Willo Apparel · Ngawi · <a href="/">willoapparel.com</a></footer>
 
   <div class="bar">
-    <div><b>Rp49rb</b><small>Ebook + 8 template</small></div>
+    <div><b>Rp49rb</b><small id="barnote">Ebook + 8 template</small></div>
     <a class="btn" href="https://lynk.id/creator.store/m4wz47xe32wp/checkout" data-tombol="beli-bar">🛒 Beli sekarang</a>
   </div>
 
+  <div class="buyers" id="buyers" hidden></div>
+  <script>
+  // Promo perkenalan: batas tetap 7 Nov 2026 23.59 WIB untuk semua pengunjung (tidak mulai ulang).
+  (function () {
+    var AKHIR = new Date("2026-11-07T23:59:59+07:00").getTime();
+    var promo = document.getElementById("promo"), note = document.getElementById("barnote");
+    var el = {}; ["h","j","m","d"].forEach(function (k) { el[k] = promo.querySelector('[data-cd="' + k + '"]'); });
+    function dua(n) { return (n < 10 ? "0" : "") + n; }
+    function tik() {
+      var sisa = Math.floor((AKHIR - Date.now()) / 1000);
+      if (sisa <= 0) { promo.hidden = true; note.textContent = "Ebook + 8 template"; return false; }
+      promo.hidden = false;
+      el.h.textContent = Math.floor(sisa / 86400); el.j.textContent = dua(Math.floor(sisa % 86400 / 3600));
+      el.m.textContent = dua(Math.floor(sisa % 3600 / 60)); el.d.textContent = dua(sisa % 60);
+      note.textContent = "Harga perkenalan s.d. 7 Nov";
+      return true;
+    }
+    if (tik()) { var t = setInterval(function () { if (!tik()) clearInterval(t); }, 1000); }
+    // Jumlah pembeli ASLI dari lynk.id, diisi manual saat Huda melapor. 0 = tidak tampil.
+    var PEMBELI = 0;
+    if (PEMBELI > 0) {
+      var b = document.getElementById("buyers");
+      b.textContent = "🛒 " + PEMBELI + " orang sudah membeli kit ini";
+      setTimeout(function () { b.hidden = false; }, 4000);
+      setTimeout(function () { b.hidden = true; }, 12000);
+    }
+  })();
+  </script>
   <script>document.querySelectorAll('a[data-tombol]').forEach(function(a){a.target="_blank";a.rel="noopener";a.addEventListener("click",function(){try{gtag("event","klik_beli_kit",{tombol:a.dataset.tombol})}catch(e){}})});</script>
 </body>
 </html>
