@@ -173,6 +173,31 @@
     .hemat { display: inline-block; background: #FFE9DE; color: #B23F12; font-weight: 800; font-size: 13px; border-radius: 999px; padding: 3px 10px; }
     .buyers { position: fixed; left: 16px; bottom: 84px; background: #fff; color: var(--ink); border: 1px solid #DCE5FA; border-radius: 14px; padding: 10px 14px; font-size: 14px; box-shadow: 0 10px 30px rgba(20,22,28,.15); z-index: 11; max-width: calc(100% - 32px); }
     @media (min-width: 860px) { .buyers { bottom: 24px; } }
+    /* Lapisan keterbacaan: teks lebih besar, kontras lebih tinggi, label tanpa huruf mesin ketik */
+    :root { --muted: #474D5C; }
+    body { font-size: 17px; line-height: 1.7; font-weight: 500; letter-spacing: .005em; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+    h1, h2, h3 { text-wrap: balance; }
+    h1 { line-height: 1.12; }
+    h2 { line-height: 1.25; }
+    p, li { text-wrap: pretty; }
+    .mono { font-family: "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: .06em; font-size: 13px; font-weight: 800; }
+    .cd, .cd b { font-family: "Plus Jakarta Sans", system-ui, sans-serif; }
+    .sub { font-size: 18px; line-height: 1.65; }
+    .lead { font-size: 17px; }
+    .pair p, .fit .pair ul, .list ul, details p, .proof p { font-size: 16.5px; line-height: 1.7; }
+    .agent p { font-size: 15.5px; line-height: 1.6; }
+    .agent .role { font-size: 15px; }
+    .note { font-size: 16px; line-height: 1.65; }
+    .promo .t { font-size: 15px; line-height: 1.6; }
+    .trust { font-size: 15px; }
+    .peek figcaption { font-size: 14px; }
+    .chip { font-size: 15px; }
+    summary { font-size: 17px; line-height: 1.5; }
+    details { padding: 18px 20px; }
+    .ticks li { line-height: 1.55; }
+    .bar small { font-size: 13px; }
+    .buyers { font-size: 15px; }
+    footer { font-size: 15px; }
   </style>
 </head>
 <body>
