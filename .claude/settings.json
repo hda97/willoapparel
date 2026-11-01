@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__AdWhispr_Ads__list_ad_accounts",
+      "mcp__AdWhispr_Ads__search_ad_targeting",
+      "mcp__AdWhispr_Ads__list_campaigns",
+      "mcp__AdWhispr_Ads__get_account_performance",
+      "mcp__AdWhispr_Ads__launch_meta_ad"
+    ]
+  }
+}
