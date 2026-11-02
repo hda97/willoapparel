@@ -30,6 +30,10 @@ export class Pengunjung extends DurableObject {
 // Warga Dunia Kotak (@duniakotak.id). Satu Durable Object "desa" berisi tabel warga (SQLite).
 // Login Google: browser kirim ID token, worker memeriksanya ke Google lalu memberi nomor kavling berurutan.
 // Email hanya disimpan di sini (untuk 1 akun = 1 kavling), TIDAK pernah ditampilkan ke publik.
+const KAVLING_DISIAPKAN = {
+  lalaliablue: 2, dian_semangat_terus: 3, "velora.nyxflare": 4, oredz_y: 5, dwabu7: 6, sayuti5044: 7,
+  thzzz146: 8, "4rchive_nov4l": 9, chan_juan_0: 10, fakhri_udah_itu_aja_89: 11, nourma_mutiara_r: 12, ustadzriyan507349: 13,
+};
 export class Warga extends DurableObject {
   constructor(ctx, env) {
     super(ctx, env);
@@ -37,6 +41,12 @@ export class Warga extends DurableObject {
     this.sql.exec(`CREATE TABLE IF NOT EXISTS warga (
       no INTEGER PRIMARY KEY AUTOINCREMENT, sub TEXT UNIQUE NOT NULL, email TEXT, nama TEXT,
       ig TEXT, usulan TEXT, dibuat INTEGER NOT NULL)`);
+    // Kavling 1 = Raka. Kavling 2-13 sudah disiapkan di video Hari 2 untuk komentator yang minta rumah
+    // (lihat KAVLING_DISIAPKAN). Pendaftar lain mulai dari kavling 14.
+    if (!this.sql.exec("SELECT 1 FROM warga LIMIT 1").toArray().length) {
+      this.sql.exec("DELETE FROM sqlite_sequence WHERE name = 'warga'");
+      this.sql.exec("INSERT INTO sqlite_sequence (name, seq) VALUES ('warga', ?)", 13);
+    }
   }
   publik(r) {
     return { no: r.no, ig: r.ig || "", usulan: r.usulan || "", dibuat: r.dibuat };
@@ -60,6 +70,11 @@ export class Warga extends DurableObject {
       const ada = this.sql.exec("SELECT no FROM warga WHERE ig = ? AND sub != ?", ig, sub).toArray()[0];
       if (ada) return Response.json({ galat: "Username ini sudah dipakai warga No. " + ada.no }, { status: 409 });
       this.sql.exec("UPDATE warga SET ig = ? WHERE sub = ?", ig, sub);
+      // Pindahkan ke kavling yang sudah disiapkan di video, kalau kavling itu masih kosong.
+      const siap = KAVLING_DISIAPKAN[ig];
+      if (siap && !this.sql.exec("SELECT 1 FROM warga WHERE no = ?", siap).toArray().length) {
+        this.sql.exec("UPDATE warga SET no = ? WHERE sub = ?", siap, sub);
+      }
       const r = this.sql.exec("SELECT * FROM warga WHERE sub = ?", sub).toArray()[0];
       return Response.json({ ...this.publik(r), nama: r.nama || "" });
     }
