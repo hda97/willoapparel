@@ -31,6 +31,14 @@ export class Pengunjung extends DurableObject {
 // Login Google: browser kirim ID token, worker memeriksanya ke Google lalu memberi nomor kavling berurutan.
 // Email hanya disimpan di sini (untuk 1 akun = 1 kavling), TIDAK pernah ditampilkan ke publik.
 // Warga sementara = 63 pengikut @duniakotak.id per 2 Nov 2026 (urutan follow). Kavling 1 = Raka.
+// Username yang terpotong di screenshot: dicocokkan dari awalannya.
+const KAVLING_AWALAN = { muhammadfebriy: 10 };
+function kavlingSiap(ig) {
+  if (KAVLING_DISIAPKAN[ig]) return KAVLING_DISIAPKAN[ig];
+  for (const [awal, no] of Object.entries(KAVLING_AWALAN)) if (ig.startsWith(awal)) return no;
+  return 0;
+}
+
 const KAVLING_DISIAPKAN = {
   "fakhri_udah_itu_aja_89": 2,
   "thzzz146": 3,
@@ -133,7 +141,7 @@ export class Warga extends DurableObject {
       if (ada) return Response.json({ galat: "Username ini sudah dipakai warga No. " + ada.no }, { status: 409 });
       this.sql.exec("UPDATE warga SET ig = ? WHERE sub = ?", ig, sub);
       // Pindahkan ke kavling yang sudah disiapkan di video, kalau kavling itu masih kosong.
-      const siap = KAVLING_DISIAPKAN[ig];
+      const siap = kavlingSiap(ig);
       if (siap && !this.sql.exec("SELECT 1 FROM warga WHERE no = ?", siap).toArray().length) {
         this.sql.exec("UPDATE warga SET no = ? WHERE sub = ?", siap, sub);
       }
@@ -146,7 +154,7 @@ export class Warga extends DurableObject {
       const ada = this.sql.exec("SELECT no FROM warga WHERE ig = ?", ig).toArray()[0];
       if (ada) return Response.json({ galat: "@" + ig + " sudah terdaftar sebagai warga No. " + ada.no + ".", no: ada.no }, { status: 409 });
       const kunci = crypto.randomUUID();
-      const siap = KAVLING_DISIAPKAN[ig];
+      const siap = kavlingSiap(ig);
       const kosong = siap && !this.sql.exec("SELECT 1 FROM warga WHERE no = ?", siap).toArray().length;
       if (kosong) {
         this.sql.exec("INSERT INTO warga (no, sub, ig, kunci, dibuat) VALUES (?, ?, ?, ?, ?)", siap, "ig:" + ig, ig, kunci, Date.now());
@@ -175,8 +183,16 @@ export class Warga extends DurableObject {
       return Response.json({ jumlah: rows.length, usulan: rows });
     }
     if (aksi === "daftar-publik") {
+      // Gabungkan warga terdaftar dengan 63 pengikut awal yang kavlingnya sudah disiapkan (sudah warga sejak video).
       const rows = this.sql.exec("SELECT no, ig, usulan, dibuat FROM warga ORDER BY no").toArray();
-      return Response.json({ jumlah: rows.length, warga: rows.map((r) => this.publik(r)) });
+      const terisi = new Set(rows.map((r) => r.no));
+      const igTerdaftar = new Set(rows.map((r) => r.ig).filter(Boolean));
+      const awalan = Object.entries(KAVLING_AWALAN).map(([a, no]) => [a + "…", no]);
+      const siap = [...Object.entries(KAVLING_DISIAPKAN), ...awalan]
+        .filter(([ig, no]) => !terisi.has(no) && !igTerdaftar.has(ig))
+        .map(([ig, no]) => ({ no, ig, usulan: "", dibuat: 0 }));
+      const semua = [...siap, ...rows.map((r) => this.publik(r))].sort((x, y) => x.no - y.no);
+      return Response.json({ jumlah: semua.length, warga: semua });
     }
     return new Response("{}", { status: 404 });
   }
