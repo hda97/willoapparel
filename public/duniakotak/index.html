@@ -49,6 +49,12 @@ h3{font-weight:900;font-size:17px;margin:0 0 10px}
 #daftar{display:flex;flex-wrap:wrap;gap:8px}
 #daftar span{background:#fff;border:2px solid #e3d7bd;border-radius:20px;padding:5px 11px;font-weight:700;font-size:13px}
 #daftar span b{color:var(--rumput)}
+.langkah{display:flex;gap:10px;align-items:center;margin:16px 0 4px;font-size:15px}
+.langkah small{font-weight:600;opacity:.75}
+.nl{width:28px;height:28px;flex:none;border-radius:50%;background:var(--tinta);color:#fff;display:grid;place-items:center;font-weight:900}
+.tombol.ig{background:linear-gradient(90deg,#f58529,#dd2a7b,#8134af);box-shadow:0 4px 0 #5a1f6e;margin-top:8px}
+label.cek{display:flex;gap:10px;align-items:center;font-weight:700;margin:12px 0 0;cursor:pointer}
+label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
 </style>
 </head>
 <body>
@@ -59,7 +65,7 @@ h3{font-weight:900;font-size:17px;margin:0 0 10px}
   </header>
 
   <h1>Jadi Warga Resmi Dunia Kotak</h1>
-  <p class="sub">Cukup tulis username Instagram-mu, langsung dapat satu kavling: rumah, pekarangan, dan namamu diukir di batu.</p>
+  <p class="sub">Follow @duniakotak.id, tulis username Instagram-mu, langsung dapat satu kavling: rumah, pekarangan, dan namamu diukir di batu.</p>
 
   <section class="kartu" id="ajak">
     <div class="hitung"><b id="jumlah">…</b> warga sudah terdaftar</div>
@@ -70,6 +76,10 @@ h3{font-weight:900;font-size:17px;margin:0 0 10px}
       <li><i>🗳️</i>Usulkan bangunan desa: usulan terbanyak dibangun duluan</li>
       <li><i>🎮</i>Kavlingmu ikut pindah saat game Dunia Kotak rilis</li>
     </ul>
+    <div class="langkah"><span class="nl">1</span><div><b>Follow @duniakotak.id dulu</b><br><small>Syarat jadi warga resmi.</small></div></div>
+    <a class="tombol ig" id="followIg" href="https://www.instagram.com/duniakotak.id/" target="_blank" rel="noopener">Follow @duniakotak.id di Instagram</a>
+    <label class="cek"><input type="checkbox" id="sudahFollow"> Saya sudah follow @duniakotak.id</label>
+    <div class="langkah"><span class="nl">2</span><div><b>Tulis username IG-mu</b></div></div>
     <label for="igDaftar">Username Instagram</label>
     <div class="baris"><input id="igDaftar" placeholder="namakamu" autocomplete="off" autocapitalize="none" maxlength="31"><button id="daftarIg">Daftar</button></div>
     <div id="pesanDaftar" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
@@ -157,10 +167,12 @@ $('simpan').onclick=async()=>{
 
 $('daftarIg').onclick=async()=>{
   const ig=$('igDaftar').value.trim().replace(/^@/,'').toLowerCase();$('pesanDaftar').textContent='';
+  if(!$('sudahFollow').checked){$('pesanDaftar').textContent='Follow @duniakotak.id dulu, lalu centang "Saya sudah follow".';return}
   if(!ig){$('pesanDaftar').textContent='Tulis username IG-mu dulu.';return}
   try{$('daftarIg').disabled=true;const o=await kirim('daftar-ig',{ig});await tampilkan(o);$('pesan').textContent='✓ Terukir! Rumahmu siap tampil di video.';muatDaftar()}
   catch(e){$('pesanDaftar').textContent=e.message}finally{$('daftarIg').disabled=false}
 };
+$('followIg').addEventListener('click',()=>{setTimeout(()=>{$('sudahFollow').checked=true},800)});
 $('igDaftar').addEventListener('keydown',e=>{if(e.key==='Enter')$('daftarIg').click()});
 
 $('kirimUsul').onclick=async()=>{
