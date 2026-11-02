@@ -114,6 +114,8 @@ export class Warga extends DurableObject {
       no INTEGER PRIMARY KEY AUTOINCREMENT, sub TEXT UNIQUE NOT NULL, email TEXT, nama TEXT,
       ig TEXT, usulan TEXT, dibuat INTEGER NOT NULL)`);
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN kunci TEXT"); } catch (e) { /* kolom sudah ada */ }
+    try { this.sql.exec("ALTER TABLE warga ADD COLUMN kode TEXT"); } catch (e) { /* kolom sudah ada */ }
+    try { this.sql.exec("ALTER TABLE warga ADD COLUMN avatar TEXT"); } catch (e) { /* kolom sudah ada */ }
     // Koreksi salah ketik username: pindahkan ke username & kavling yang benar (sekali jalan, aman diulang).
     for (const [salah, benar] of Object.entries(KOREKSI_IG)) {
       const r = this.sql.exec("SELECT no FROM warga WHERE ig = ?", salah).toArray()[0];
@@ -175,6 +177,52 @@ export class Warga extends DurableObject {
       const r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", kunci).toArray()[0];
       return Response.json({ ...this.publik(r), kunci, baru: true });
     }
+    // ---- Game mabar: login Google, ditautkan ke kavling lama (tidak membuat kavling dobel) ----
+    if (aksi === "google") {
+      const { sub, email, nama, kunci, ig } = await request.json();
+      const keluar = (r) => {
+        if (!r.kunci) { r.kunci = crypto.randomUUID(); this.sql.exec("UPDATE warga SET kunci = ? WHERE no = ?", r.kunci, r.no); }
+        return Response.json({ no: r.no, ig: r.ig || "", kunci: r.kunci });
+      };
+      let r = this.sql.exec("SELECT * FROM warga WHERE sub = ?", sub).toArray()[0];
+      if (r) return keluar(r);
+      if (kunci) {
+        r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", kunci).toArray()[0];
+        if (r && String(r.sub).startsWith("ig:")) { this.sql.exec("UPDATE warga SET sub = ?, email = ?, nama = ? WHERE no = ?", sub, email, nama, r.no); return keluar(r); }
+      }
+      if (!ig) return Response.json({ perlu: "ig" });
+      r = this.sql.exec("SELECT * FROM warga WHERE ig = ?", ig).toArray()[0];
+      if (r) {
+        if (!String(r.sub).startsWith("ig:")) return Response.json({ galat: "@" + ig + " sudah ditautkan ke akun Google lain. DM @duniakotak.id kalau ini akunmu." }, { status: 409 });
+        this.sql.exec("UPDATE warga SET sub = ?, email = ?, nama = ? WHERE no = ?", sub, email, nama, r.no);
+        return keluar(r);
+      }
+      const siap = kavlingSiap(ig);
+      const kosong = siap && !this.sql.exec("SELECT 1 FROM warga WHERE no = ?", siap).toArray().length;
+      const k = crypto.randomUUID();
+      if (kosong) this.sql.exec("INSERT INTO warga (no, sub, email, nama, ig, kunci, dibuat) VALUES (?, ?, ?, ?, ?, ?, ?)", siap, sub, email, nama, ig, k, Date.now());
+      else this.sql.exec("INSERT INTO warga (sub, email, nama, ig, kunci, dibuat) VALUES (?, ?, ?, ?, ?, ?)", sub, email, nama, ig, k, Date.now());
+      return keluar(this.sql.exec("SELECT * FROM warga WHERE kunci = ?", k).toArray()[0]);
+    }
+    // ---- Game mabar: sesi pakai kunci (HP pendaftar) atau kode warga 6 huruf (HP lain) ----
+    if (aksi === "sesi" || aksi === "kode" || aksi === "avatar") {
+      const q = await request.json();
+      let r;
+      if (aksi === "kode") r = this.sql.exec("SELECT * FROM warga WHERE kode = ?", String(q.kode || "")).toArray()[0];
+      else r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: aksi === "kode" ? "Kode warga tidak ditemukan." : "Data warga tidak ditemukan di HP ini." }, { status: 401 });
+      if (!r.kode) {
+        const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        for (let i = 0; i < 20; i++) {
+          const b = crypto.getRandomValues(new Uint8Array(6));
+          const k = [...b].map((x) => A[x % A.length]).join("");
+          if (!this.sql.exec("SELECT 1 FROM warga WHERE kode = ?", k).toArray().length) { this.sql.exec("UPDATE warga SET kode = ? WHERE no = ?", k, r.no); r.kode = k; break; }
+        }
+      }
+      if (aksi === "avatar") { this.sql.exec("UPDATE warga SET avatar = ? WHERE no = ?", String(q.avatar || "").slice(0, 600), r.no); r.avatar = q.avatar; }
+      let av = null; try { av = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
+      return Response.json({ no: r.no, ig: r.ig || "", kode: r.kode, kunci: r.kunci, avatar: av });
+    }
     if (aksi === "usulan-kunci") {
       const { kunci, usulan } = await request.json();
       const r0 = this.sql.exec("SELECT no FROM warga WHERE kunci = ?", kunci).toArray()[0];
@@ -209,6 +257,101 @@ export class Warga extends DurableObject {
   }
 }
 
+// ---- Ruang dusun untuk game mabar (willoapparel.com/duniakotak/mabar) ----
+// Satu Durable Object per dusun. WebSocket: posisi warga + chat (Sekitar & Dusun) dengan 5 pengaman anak:
+// saringan kata kasar, tolak nomor HP/link/@akun, batas kirim, laporkan (3 pelapor = bisu 1 jam), riwayat 7 hari.
+const KATA_KASAR = ["anjing","anjir","anjrit","anying","bangsat","bajingan","babi","monyet","kampret","kontol","memek","ngentot","entot","jancok","jancuk","cuk","dancok","asu","bacot","tolol","goblok","goblog","bego","idiot","tai","taik","setan","sialan","brengsek","keparat","pantek","pepek","itil","lonte","pelacur","jablay","perek","bencong","banci","bodoh","dongo","kimak","pukimak","ngewe","coli","sange","bokep","porno","telanjang","jembut","silit","matamu","raimu","gathel","jamput","pecun","kafir","sundel","bajigur","budeg","cebong","kampang","tempik","turuk","tetek","toket","fuck","shit","bitch","dick","pussy","sex","seks"];
+const LEET = { "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "@": "a", "$": "s", "!": "i" };
+function saringChat(teks) {
+  let m = String(teks || "").replace(/[\u0000-\u001f<>]/g, " ").replace(/\s+/g, " ").trim().slice(0, 120);
+  if (!m) return { galat: "Pesan kosong." };
+  const rapat = m.replace(/[\s.\-_()+]/g, "");
+  if (/\d{8,}/.test(rapat) || /(\+62|\b08)\d{6,}/.test(rapat)) return { galat: "Demi keamanan, nomor dan link tidak boleh dikirim." };
+  if (/(https?:|www\.|\.com|\.id\b|\.net|\.org|\.ly|wa\.me|t\.me|bit\.ly|s\.id|lynk|linktr)/i.test(m)) return { galat: "Demi keamanan, nomor dan link tidak boleh dikirim." };
+  if (/@[a-z0-9._]{2,}/i.test(m)) return { galat: "Demi keamanan, nomor dan link tidak boleh dikirim." };
+  m = m.split(/(\s+)/).map((w) => {
+    if (/^\s+$/.test(w)) return w;
+    const n = w.toLowerCase().replace(/[0134578@$!]/g, (c) => LEET[c] || c).replace(/[^a-z]/g, "").replace(/(.)\1+/g, "$1");
+    return n && KATA_KASAR.some((k) => n === k.replace(/(.)\1+/g, "$1") || (k.length >= 5 && n.includes(k.replace(/(.)\1+/g, "$1")))) ? "★★★" : w;
+  }).join("");
+  return { m };
+}
+export class Ruang extends DurableObject {
+  constructor(ctx, env) {
+    super(ctx, env);
+    this.sql = ctx.storage.sql;
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS chat (id INTEGER PRIMARY KEY AUTOINCREMENT, t INTEGER, no INTEGER, ig TEXT, ch TEXT, m TEXT)`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS lapor (pelapor INTEGER, terlapor INTEGER, t INTEGER, PRIMARY KEY (pelapor, terlapor))`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS bisu (no INTEGER PRIMARY KEY, sampai INTEGER)`);
+    this.pos = new Map();
+    this.kirimTerakhir = 0;
+  }
+  semua() { return this.ctx.getWebSockets().map((ws) => ({ ws, a: ws.deserializeAttachment() || {} })); }
+  siar(o, kecuali) { const s = JSON.stringify(o); for (const { ws } of this.semua()) { if (ws !== kecuali) try { ws.send(s); } catch (e) {} } }
+  async fetch(request) {
+    if (request.headers.get("Upgrade") !== "websocket") {
+      const u = new URL(request.url);
+      if (u.pathname === "/online") return Response.json({ online: this.semua().filter((x) => x.a.no).length });
+      return new Response("{}", { status: 404 });
+    }
+    const w = JSON.parse(request.headers.get("x-warga") || "{}");
+    const [c, s] = Object.values(new WebSocketPair());
+    // Satu warga = satu koneksi: tutup koneksi lama warga yang sama.
+    for (const { ws, a } of this.semua()) if (a.no === w.no) { try { ws.close(4000, "Masuk dari tempat lain"); } catch (e) {} }
+    this.ctx.acceptWebSocket(s);
+    const p0 = { x: w.x || 0, z: w.z || 0, r: 0, a: 0 };
+    s.serializeAttachment({ no: w.no, ig: w.ig, av: w.avatar || null, ...p0, kirim: 0 });
+    const lain = this.semua().filter((x) => x.ws !== s && x.a.no).map(({ a }) => ({ no: a.no, ig: a.ig, av: a.av, ...(this.pos.get(a.no) || { x: a.x, z: a.z, r: a.r || 0, a: 0 }) }));
+    const riwayat = this.sql.exec("SELECT t, no, ig, ch, m FROM chat WHERE ch = 'dusun' ORDER BY id DESC LIMIT 50").toArray().reverse();
+    s.send(JSON.stringify({ t: "halo", saya: w.no, warga: lain, chat: riwayat }));
+    this.siar({ t: "masuk", w: { no: w.no, ig: w.ig, av: w.avatar || null, ...p0 } }, s);
+    return new Response(null, { status: 101, webSocket: c });
+  }
+  async webSocketMessage(ws, data) {
+    let q; try { q = JSON.parse(data); } catch (e) { return; }
+    const a = ws.deserializeAttachment() || {};
+    if (!a.no) return;
+    const now = Date.now();
+    if (q.t === "p") {
+      const p = { x: +q.x || 0, z: +q.z || 0, r: +q.r || 0, a: q.a ? 1 : 0 };
+      if (![p.x, p.z, p.r].every(Number.isFinite)) return;
+      this.pos.set(a.no, p);
+      if (now - (a.simpan || 0) > 5000) { ws.serializeAttachment({ ...a, ...p, simpan: now }); }
+      if (now - this.kirimTerakhir > 120) {
+        this.kirimTerakhir = now;
+        const daftar = []; for (const [no, v] of this.pos) daftar.push([no, Math.round(v.x * 10) / 10, Math.round(v.z * 10) / 10, Math.round(v.r * 100) / 100, v.a]);
+        this.pos.clear();
+        this.siar({ t: "p", d: daftar });
+      }
+      return;
+    }
+    if (q.t === "c") {
+      const ch = q.ch === "dusun" ? "dusun" : "sekitar";
+      const b = this.sql.exec("SELECT sampai FROM bisu WHERE no = ?", a.no).toArray()[0];
+      if (b && b.sampai > now) { ws.send(JSON.stringify({ t: "tolak", m: "Kamu dibisukan sementara karena dilaporkan warga. Coba lagi nanti." })); return; }
+      if (now - (a.kirim || 0) < 2000) { ws.send(JSON.stringify({ t: "tolak", m: "Pelan-pelan ya, 1 pesan tiap 2 detik." })); return; }
+      const h = saringChat(q.m);
+      if (h.galat) { ws.send(JSON.stringify({ t: "tolak", m: h.galat })); return; }
+      ws.serializeAttachment({ ...a, kirim: now });
+      this.sql.exec("INSERT INTO chat (t, no, ig, ch, m) VALUES (?, ?, ?, ?, ?)", now, a.no, a.ig, ch, h.m);
+      if (Math.random() < 0.05) { this.sql.exec("DELETE FROM chat WHERE t < ?", now - 7 * 864e5); this.sql.exec("DELETE FROM lapor WHERE t < ?", now - 864e5); }
+      this.siar({ t: "c", no: a.no, ig: a.ig, ch, m: h.m, w: now });
+      return;
+    }
+    if (q.t === "e") { const e = ["sapa", "hati", "tawa", "main"].includes(q.e) ? q.e : null; if (e && now - (a.emote || 0) > 1500) { ws.serializeAttachment({ ...a, emote: now }); this.siar({ t: "e", no: a.no, e }); } return; }
+    if (q.t === "av") { const av = q.av && typeof q.av === "object" ? q.av : null; ws.serializeAttachment({ ...a, av }); this.siar({ t: "av", no: a.no, av }, ws); return; }
+    if (q.t === "lapor") {
+      const t = Math.floor(+q.no); if (!t || t === a.no) return;
+      this.sql.exec("INSERT OR REPLACE INTO lapor (pelapor, terlapor, t) VALUES (?, ?, ?)", a.no, t, now);
+      const n = this.sql.exec("SELECT COUNT(*) AS n FROM lapor WHERE terlapor = ? AND t > ?", t, now - 864e5).toArray()[0].n;
+      if (n >= 3) { this.sql.exec("INSERT OR REPLACE INTO bisu (no, sampai) VALUES (?, ?)", t, now + 3600e3); this.sql.exec("DELETE FROM lapor WHERE terlapor = ?", t); }
+      ws.send(JSON.stringify({ t: "info", m: "Laporan terkirim. Terima kasih sudah menjaga desa." }));
+    }
+  }
+  async webSocketClose(ws) { const a = ws.deserializeAttachment() || {}; if (a.no) { this.pos.delete(a.no); this.siar({ t: "keluar", no: a.no }, ws); } }
+  async webSocketError(ws) { return this.webSocketClose(ws); }
+}
+
 // Periksa ID token Google (dari tombol "Lanjut dengan Google") ke server Google.
 async function cekGoogle(env, credential) {
   if (!env.GOOGLE_CLIENT_ID || !credential || typeof credential !== "string" || credential.length > 4096) return null;
@@ -230,6 +373,24 @@ async function apiWarga(request, env, url) {
   if (aksi === "warga" && request.method === "GET") {
     return new Response((await stub.fetch("https://do/daftar-publik")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=30", "access-control-allow-origin": "*" } });
   }
+  if (aksi === "ruang") {
+    // WebSocket game: ?dusun=wetan&kunci=...
+    if (request.headers.get("Upgrade") !== "websocket") return json({ galat: "Butuh WebSocket" }, 426);
+    if (!env.RUANG) return json({ galat: "Ruang belum aktif" }, 503);
+    const kunci = String(url.searchParams.get("kunci") || "").slice(0, 64);
+    const r = await stub.fetch("https://do/sesi", { method: "POST", body: JSON.stringify({ kunci }) });
+    if (!r.ok) return json({ galat: "Masuk dulu sebagai warga." }, 401);
+    const w = await r.json();
+    const dusun = ["wetan"].includes(url.searchParams.get("dusun")) ? url.searchParams.get("dusun") : "wetan";
+    const h = new Headers(request.headers);
+    h.set("x-warga", JSON.stringify({ no: w.no, ig: w.ig, avatar: w.avatar, x: +url.searchParams.get("x") || 0, z: +url.searchParams.get("z") || 0 }));
+    return env.RUANG.get(env.RUANG.idFromName(dusun)).fetch(new Request("https://do/ws", { headers: h }));
+  }
+  if (aksi === "online" && request.method === "GET") {
+    if (!env.RUANG) return json({ online: 0 });
+    const r = await env.RUANG.get(env.RUANG.idFromName("wetan")).fetch("https://do/online");
+    return new Response(r.body, { headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
   if (aksi === "usulan" && request.method === "GET") {
     return new Response((await stub.fetch("https://do/usulan-publik")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=30", "access-control-allow-origin": "*" } });
   }
@@ -243,6 +404,12 @@ async function apiWarga(request, env, url) {
     const r = await stub.fetch("https://do/daftar-ig", { method: "POST", body: JSON.stringify({ ig: KOREKSI_IG[ig] || ig }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
+  if (aksi === "sesi" || aksi === "kode" || aksi === "avatar") {
+    const q = aksi === "kode" ? { kode: String(body.kode || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6) } : { kunci: String(body.kunci || "").slice(0, 64) };
+    if (aksi === "avatar") { try { q.avatar = JSON.stringify(body.avatar || {}).slice(0, 600); } catch (e) { return json({ galat: "Avatar tidak terbaca" }, 400); } }
+    const r = await stub.fetch("https://do/" + aksi, { method: "POST", body: JSON.stringify(q) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
   if (aksi === "usulan" && body.kunci) {
     const usulan = bersihUsulan(body.usulan);
     if (!usulan) return json({ galat: "Tulis usulanmu dulu." }, 400);
@@ -251,6 +418,12 @@ async function apiWarga(request, env, url) {
   }
   const g = await cekGoogle(env, body.credential);
   if (!g) return json({ galat: "Login Google tidak valid. Coba masuk lagi." }, 401);
+  if (aksi === "google") {
+    const ig = String(body.ig || "").trim().replace(/^@/, "").toLowerCase();
+    if (ig && !/^[a-z0-9._]{1,30}$/.test(ig)) return json({ galat: "Username IG hanya huruf, angka, titik, garis bawah (maks 30)." }, 400);
+    const r = await stub.fetch("https://do/google", { method: "POST", body: JSON.stringify({ ...g, kunci: String(body.kunci || "").slice(0, 64), ig: KOREKSI_IG[ig] || ig }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
   if (aksi === "daftar") {
     return new Response((await stub.fetch("https://do/daftar", { method: "POST", body: JSON.stringify(g) })).body, { headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
