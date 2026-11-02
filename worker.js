@@ -102,6 +102,7 @@ export class Warga extends DurableObject {
     this.sql.exec(`CREATE TABLE IF NOT EXISTS warga (
       no INTEGER PRIMARY KEY AUTOINCREMENT, sub TEXT UNIQUE NOT NULL, email TEXT, nama TEXT,
       ig TEXT, usulan TEXT, dibuat INTEGER NOT NULL)`);
+    try { this.sql.exec("ALTER TABLE warga ADD COLUMN kunci TEXT"); } catch (e) { /* kolom sudah ada */ }
     // Kavling 1 = Raka. Kavling 2-64 disiapkan untuk 63 pengikut pertama (lihat KAVLING_DISIAPKAN).
     // Pendaftar lain mulai dari kavling 65.
     if (!this.sql.exec("SELECT 1 FROM warga LIMIT 1").toArray().length) {
@@ -138,6 +139,30 @@ export class Warga extends DurableObject {
       }
       const r = this.sql.exec("SELECT * FROM warga WHERE sub = ?", sub).toArray()[0];
       return Response.json({ ...this.publik(r), nama: r.nama || "" });
+    }
+    if (aksi === "daftar-ig") {
+      // Daftar cukup dengan username IG (tanpa login Google). Satu username = satu kavling.
+      const { ig } = await request.json();
+      const ada = this.sql.exec("SELECT no FROM warga WHERE ig = ?", ig).toArray()[0];
+      if (ada) return Response.json({ galat: "@" + ig + " sudah terdaftar sebagai warga No. " + ada.no + ".", no: ada.no }, { status: 409 });
+      const kunci = crypto.randomUUID();
+      const siap = KAVLING_DISIAPKAN[ig];
+      const kosong = siap && !this.sql.exec("SELECT 1 FROM warga WHERE no = ?", siap).toArray().length;
+      if (kosong) {
+        this.sql.exec("INSERT INTO warga (no, sub, ig, kunci, dibuat) VALUES (?, ?, ?, ?, ?)", siap, "ig:" + ig, ig, kunci, Date.now());
+      } else {
+        this.sql.exec("INSERT INTO warga (sub, ig, kunci, dibuat) VALUES (?, ?, ?, ?)", "ig:" + ig, ig, kunci, Date.now());
+      }
+      const r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", kunci).toArray()[0];
+      return Response.json({ ...this.publik(r), kunci, baru: true });
+    }
+    if (aksi === "usulan-kunci") {
+      const { kunci, usulan } = await request.json();
+      const r0 = this.sql.exec("SELECT no FROM warga WHERE kunci = ?", kunci).toArray()[0];
+      if (!r0) return Response.json({ galat: "Data pendaftaranmu tidak ditemukan di perangkat ini." }, { status: 401 });
+      this.sql.exec("UPDATE warga SET usulan = ? WHERE kunci = ?", usulan, kunci);
+      const r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", kunci).toArray()[0];
+      return Response.json(this.publik(r));
     }
     if (aksi === "usulan") {
       const { sub, usulan } = await request.json();
@@ -184,6 +209,19 @@ async function apiWarga(request, env, url) {
   if (request.method !== "POST") return json({ galat: "Metode salah" }, 405);
   let body;
   try { body = await request.json(); } catch (e) { return json({ galat: "Data tidak terbaca" }, 400); }
+  const bersihUsulan = (v) => String(v || "").replace(/[\u0000-\u001f<>]/g, " ").trim().slice(0, 140);
+  if (aksi === "daftar-ig") {
+    const ig = String(body.ig || "").trim().replace(/^@/, "").toLowerCase();
+    if (!/^[a-z0-9._]{1,30}$/.test(ig)) return json({ galat: "Username IG hanya huruf, angka, titik, garis bawah (maks 30)." }, 400);
+    const r = await stub.fetch("https://do/daftar-ig", { method: "POST", body: JSON.stringify({ ig }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "usulan" && body.kunci) {
+    const usulan = bersihUsulan(body.usulan);
+    if (!usulan) return json({ galat: "Tulis usulanmu dulu." }, 400);
+    const r = await stub.fetch("https://do/usulan-kunci", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci).slice(0, 64), usulan }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
   const g = await cekGoogle(env, body.credential);
   if (!g) return json({ galat: "Login Google tidak valid. Coba masuk lagi." }, 401);
   if (aksi === "daftar") {

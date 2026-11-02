@@ -59,7 +59,7 @@ h3{font-weight:900;font-size:17px;margin:0 0 10px}
   </header>
 
   <h1>Jadi Warga Resmi Dunia Kotak</h1>
-  <p class="sub">Masuk pakai akun Google, langsung dapat satu kavling: rumah, pekarangan, dan namamu diukir di batu.</p>
+  <p class="sub">Cukup tulis username Instagram-mu, langsung dapat satu kavling: rumah, pekarangan, dan namamu diukir di batu.</p>
 
   <section class="kartu" id="ajak">
     <div class="hitung"><b id="jumlah">…</b> warga sudah terdaftar</div>
@@ -70,8 +70,11 @@ h3{font-weight:900;font-size:17px;margin:0 0 10px}
       <li><i>🗳️</i>Usulkan bangunan desa: usulan terbanyak dibangun duluan</li>
       <li><i>🎮</i>Kavlingmu ikut pindah saat game Dunia Kotak rilis</li>
     </ul>
+    <label for="igDaftar">Username Instagram</label>
+    <div class="baris"><input id="igDaftar" placeholder="namakamu" autocomplete="off" autocapitalize="none" maxlength="31"><button id="daftarIg">Daftar</button></div>
+    <div id="pesanDaftar" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
     <div id="gbtn"></div>
-    <p class="kecil">Gratis. Satu akun Google = satu kavling. Email tidak ditampilkan ke siapa pun.<br>
+    <p class="kecil">Gratis. Satu username IG = satu kavling. Pakai username milikmu sendiri ya.<br>
       Dengan mendaftar kamu setuju dengan <a href="/duniakotak/privasi.html">kebijakan privasi</a>.</p>
   </section>
 
@@ -98,7 +101,7 @@ h3{font-weight:900;font-size:17px;margin:0 0 10px}
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 <script type="module">
 const $=id=>document.getElementById(id);
-let cred=null, saya=null, gambar=null;
+let cred=null, saya=null, gambar=null, kunci=null;
 const simpanLokal=o=>{try{localStorage.setItem('dk_warga',JSON.stringify(o))}catch(e){}};
 const bacaLokal=()=>{try{return JSON.parse(localStorage.getItem('dk_warga')||'null')}catch(e){return null}};
 
@@ -111,7 +114,8 @@ async function muatDaftar(){
 }
 
 async function tampilkan(o){
-  saya=o;simpanLokal({no:o.no,ig:o.ig||'',nama:o.nama||''});
+  saya=o;if(o.kunci)kunci=o.kunci;simpanLokal({no:o.no,ig:o.ig||'',nama:o.nama||'',kunci});
+  $('ig').readOnly=!!kunci;
   $('hasil').style.display='block';
   $('noWarga').textContent='WARGA No. '+o.no;
   $('salam').textContent=(o.baru?'Selamat datang, ':'Halo lagi, ')+(o.ig?'@'+o.ig:(o.nama||'warga baru'))+'!';
@@ -145,25 +149,36 @@ async function masuk(resp){
 
 $('simpan').onclick=async()=>{
   const ig=$('ig').value.trim().replace(/^@/,'');$('pesan').textContent='';
-  if(!cred){$('pesan').textContent='Masuk dengan Google dulu (tombol di atas) untuk mengubah nama.';$('ajak').scrollIntoView({behavior:'smooth'});return}
+  if(kunci){$('pesan').textContent='Username sudah terukir. Mau ganti? DM @duniakotak.id.';return}
+  if(!cred){$('pesan').textContent='Daftar dulu lewat kolom username di atas.';$('ajak').scrollIntoView({behavior:'smooth'});return}
   try{$('simpan').disabled=true;const o=await kirim('ig',{credential:cred,ig});o.baru=false;await tampilkan(o);$('pesan').textContent='✓ Terukir! Rumahmu siap tampil di video.';muatDaftar()}
   catch(e){$('pesan').textContent=e.message}finally{$('simpan').disabled=false}
 };
 
+$('daftarIg').onclick=async()=>{
+  const ig=$('igDaftar').value.trim().replace(/^@/,'').toLowerCase();$('pesanDaftar').textContent='';
+  if(!ig){$('pesanDaftar').textContent='Tulis username IG-mu dulu.';return}
+  try{$('daftarIg').disabled=true;const o=await kirim('daftar-ig',{ig});await tampilkan(o);$('pesan').textContent='✓ Terukir! Rumahmu siap tampil di video.';muatDaftar()}
+  catch(e){$('pesanDaftar').textContent=e.message}finally{$('daftarIg').disabled=false}
+};
+$('igDaftar').addEventListener('keydown',e=>{if(e.key==='Enter')$('daftarIg').click()});
+
 $('kirimUsul').onclick=async()=>{
   $('pesanUsul').textContent='';
+  if(kunci){try{$('kirimUsul').disabled=true;const o=await kirim('usulan',{kunci,usulan:$('usul').value});saya=o;$('pesanUsul').textContent='✓ Usulanmu tercatat. Pantau video berikutnya!'}
+    catch(e){$('pesanUsul').textContent=e.message}finally{$('kirimUsul').disabled=false}return}
   if(!cred){$('pesanUsul').textContent='Masuk dengan Google dulu (tombol di atas).';$('ajak').scrollIntoView({behavior:'smooth'});return}
   try{$('kirimUsul').disabled=true;const o=await kirim('usulan',{credential:cred,usulan:$('usul').value});saya=o;$('pesanUsul').textContent='✓ Usulanmu tercatat. Pantau video berikutnya!'}
   catch(e){$('pesanUsul').textContent=e.message}finally{$('kirimUsul').disabled=false}
 };
 (async()=>{
   muatDaftar();
-  const lama=bacaLokal();if(lama&&lama.no){$('hasil').style.display='block';$('noWarga').textContent='WARGA No. '+lama.no;$('salam').textContent='Halo lagi'+(lama.ig?', @'+lama.ig:'')+'!';$('ket').textContent='Ini kavlingmu. Masuk lagi dengan Google untuk mengubah nama.';$('ig').value=lama.ig||'';gambarKavling(lama.ig?'@'+lama.ig:'? ? ?',lama.no)}
+  const lama=bacaLokal();if(lama&&lama.kunci){kunci=lama.kunci;$('ig').readOnly=true}if(lama&&lama.no){$('hasil').style.display='block';$('noWarga').textContent='WARGA No. '+lama.no;$('salam').textContent='Halo lagi'+(lama.ig?', @'+lama.ig:'')+'!';$('ket').textContent=lama.kunci?'Ini kavlingmu. Kamu masih bisa kirim usulan bangunan di bawah.':'Ini kavlingmu.';$('ig').value=lama.ig||'';gambarKavling(lama.ig?'@'+lama.ig:'? ? ?',lama.no)}
   const ua=navigator.userAgent||'';const dalamApp=/Instagram|FBAN|FBAV|FB_IAB|Line\/|TikTok|musical_ly|BytedanceWebview/i.test(ua);
-  if(dalamApp){const android=/Android/i.test(ua);const link=android?'intent://willoapparel.com/duniakotak/#Intent;scheme=https;package=com.android.chrome;end':'';
-    $('gbtn').innerHTML='<div class="tutup">Login Google tidak bisa di dalam aplikasi Instagram/TikTok.<br>'+(android?'<a class="tombol" href="'+link+'">Buka di Chrome</a>':'Ketuk ⋯ di pojok kanan atas, lalu pilih <b>Buka di browser</b>.')+'</div>';return}
+  // Login Google tidak jalan di dalam app IG/TikTok; daftar pakai username IG tetap bisa.
+  if(dalamApp)return;
   let id='';try{id=(await (await fetch('/duniakotak/api/config')).json()).clientId}catch(e){}
-  if(!id){$('gbtn').innerHTML='<div class="tutup">Pendaftaran dibuka sebentar lagi 🧱</div>';return}
+  if(!id)return;
   const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;
   s.onload=()=>{google.accounts.id.initialize({client_id:id,callback:masuk,auto_select:false,cancel_on_tap_outside:true});
     google.accounts.id.renderButton($('gbtn'),{theme:'filled_black',size:'large',shape:'pill',text:'continue_with',locale:'id',width:300});};
