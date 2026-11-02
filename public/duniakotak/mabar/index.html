@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Mabar Dunia Kotak</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#13141f">
+<link rel="icon" href="/duniakotak/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap">
+<link rel="stylesheet" href="gaya.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
+</head>
+<body>
+<canvas id="layar"></canvas>
+<div id="label"></div>
+
+<!-- HUD -->
+<div id="hud" hidden>
+ <div class="kartu profil" id="profil"><div class="ava" id="profAva">🙂</div><div><b id="profNama">@warga</b><small id="profAlamat"></small><small id="profOnline" class="hijau"></small></div></div>
+ <div class="kartu jam" id="jam"></div>
+ <div class="tombolAtas">
+  <button class="bulat" id="bRumah" title="Pulang ke rumah"><i>🏠</i>Rumah</button>
+  <button class="bulat" id="bKamera" title="Kamera HP"><i>📸</i>Kamera</button>
+  <button class="bulat" id="bAvatar" title="Ubah avatar"><i>🪞</i>Avatar</button>
+  <button class="bulat" id="bPanduan" title="Panduan"><i>❓</i>Panduan</button>
+ </div>
+ <div class="kartu chat" id="chat">
+  <div class="tab"><button data-ch="sekitar" class="on">Sekitar</button><button data-ch="dusun">Dusun</button><button id="bTutupChat" class="tutup" title="Kecilkan">–</button></div>
+  <div class="isi" id="isiChat"></div>
+  <form id="formChat" autocomplete="off"><input id="ketik" maxlength="120" placeholder="Tulis pesan…" enterkeyhint="send"><button>Kirim</button></form>
+  <div class="cepat"><button data-e="sapa">👋</button><button data-e="hati">❤️</button><button data-e="tawa">😂</button><button data-q="Main ke rumahku!">🏠 Main ke rumahku!</button></div>
+ </div>
+ <button class="bulat" id="bBukaChat" hidden><i>💬</i>Chat</button>
+ <div id="stik"><div id="kenop"></div></div>
+ <div class="zoom"><button id="putKiri" title="Putar kamera (Q)">⟲</button><button id="putKanan" title="Putar kamera (E)">⟳</button><button id="zIn" title="Dekatkan">＋</button><button id="zOut" title="Jauhkan">－</button></div>
+</div>
+
+<div id="toast"></div>
+<div id="menuWarga" class="kartu" hidden></div>
+
+<!-- Layar masuk -->
+<div id="masuk" class="layarPenuh">
+ <div class="panel">
+  <img src="/duniakotak/logo.jpg" alt="" class="logo">
+  <h1>Mabar Dunia Kotak</h1>
+  <p class="sub">Jalan-jalan di Dusun Kotak Wetan dan ngobrol dengan warga lain.</p>
+  <div id="masukIsi"><p class="muat">Memuat…</p></div>
+ </div>
+</div>
+
+<!-- Aturan desa -->
+<div id="aturan" class="layarPenuh" hidden>
+ <div class="panel">
+  <h2>Aturan Desa</h2>
+  <ol><li>Sopan ke semua warga, tidak ada kata kasar.</li><li>Jangan minta atau kirim nomor HP dan alamat asli.</li><li>Jangan menyebar link.</li></ol>
+  <p class="kecil">Chat disaring otomatis. Warga yang dilaporkan 3 orang dibisukan sementara. Riwayat chat dihapus setelah 7 hari.</p>
+  <button class="utama" id="setujuAturan">Saya setuju</button>
+ </div>
+</div>
+
+<!-- Pembuat avatar -->
+<div id="buatAvatar" class="layarPenuh" hidden>
+ <div class="panel lebar">
+  <h2>Buat tokohmu</h2>
+  <div class="dua"><canvas id="pratinjau" width="360" height="420"></canvas><div id="pilihan"></div></div>
+  <button class="utama" id="simpanAvatar">Simpan dan masuk desa</button>
+ </div>
+</div>
+
+<!-- Dialog Raka -->
+<div id="dialog" class="kartu" hidden><div class="siapa">★ Raka</div><p id="dialogTeks"></p><div class="aksi"><button id="dLewati" class="tipis">Lewati</button><button id="dLanjut" class="utama">Lanjut</button></div></div>
+
+<!-- Kamera HP -->
+<div id="kamera" class="layarPenuh" hidden>
+ <div class="panel"><h2>Kamera HP</h2>
+  <img id="foto" alt="Foto dari Dunia Kotak" style="width:min(240px,46vh*.5625);aspect-ratio:9/16;object-fit:cover;border-radius:14px;margin:0 auto;background:#222">
+  <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="tipis" id="kArah">🔄 Selfie / Pemandangan</button><button class="utama" id="kBagi">Bagikan ke Story</button><button class="tipis" id="kSimpan">⬇ Simpan</button><button class="tipis" id="kTutup">Tutup</button></div>
+  <p class="kecil">Foto ukuran story dengan bingkai Dunia Kotak. Bagian bawah sengaja kosong supaya tidak tertutup kolom balasan story.</p>
+ </div>
+</div>
+
+<div id="miring" class="layarPenuh" hidden><div class="panel"><div style="font-size:54px">📱↻</div><h2>Miringkan HP-mu</h2><p class="sub">Dunia Kotak dimainkan dengan layar mendatar.</p><button class="tipis" id="tetapTegak">Tetap main tegak</button></div></div>
+
+<script type="module" src="game.js"></script>
+</body>
+</html>

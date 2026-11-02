@@ -177,6 +177,33 @@ export class Warga extends DurableObject {
       const r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", kunci).toArray()[0];
       return Response.json({ ...this.publik(r), kunci, baru: true });
     }
+    // ---- Game mabar: login Google, ditautkan ke kavling lama (tidak membuat kavling dobel) ----
+    if (aksi === "google") {
+      const { sub, email, nama, kunci, ig } = await request.json();
+      const keluar = (r) => {
+        if (!r.kunci) { r.kunci = crypto.randomUUID(); this.sql.exec("UPDATE warga SET kunci = ? WHERE no = ?", r.kunci, r.no); }
+        return Response.json({ no: r.no, ig: r.ig || "", kunci: r.kunci });
+      };
+      let r = this.sql.exec("SELECT * FROM warga WHERE sub = ?", sub).toArray()[0];
+      if (r) return keluar(r);
+      if (kunci) {
+        r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", kunci).toArray()[0];
+        if (r && String(r.sub).startsWith("ig:")) { this.sql.exec("UPDATE warga SET sub = ?, email = ?, nama = ? WHERE no = ?", sub, email, nama, r.no); return keluar(r); }
+      }
+      if (!ig) return Response.json({ perlu: "ig" });
+      r = this.sql.exec("SELECT * FROM warga WHERE ig = ?", ig).toArray()[0];
+      if (r) {
+        if (!String(r.sub).startsWith("ig:")) return Response.json({ galat: "@" + ig + " sudah ditautkan ke akun Google lain. DM @duniakotak.id kalau ini akunmu." }, { status: 409 });
+        this.sql.exec("UPDATE warga SET sub = ?, email = ?, nama = ? WHERE no = ?", sub, email, nama, r.no);
+        return keluar(r);
+      }
+      const siap = kavlingSiap(ig);
+      const kosong = siap && !this.sql.exec("SELECT 1 FROM warga WHERE no = ?", siap).toArray().length;
+      const k = crypto.randomUUID();
+      if (kosong) this.sql.exec("INSERT INTO warga (no, sub, email, nama, ig, kunci, dibuat) VALUES (?, ?, ?, ?, ?, ?, ?)", siap, sub, email, nama, ig, k, Date.now());
+      else this.sql.exec("INSERT INTO warga (sub, email, nama, ig, kunci, dibuat) VALUES (?, ?, ?, ?, ?, ?)", sub, email, nama, ig, k, Date.now());
+      return keluar(this.sql.exec("SELECT * FROM warga WHERE kunci = ?", k).toArray()[0]);
+    }
     // ---- Game mabar: sesi pakai kunci (HP pendaftar) atau kode warga 6 huruf (HP lain) ----
     if (aksi === "sesi" || aksi === "kode" || aksi === "avatar") {
       const q = await request.json();
@@ -391,6 +418,12 @@ async function apiWarga(request, env, url) {
   }
   const g = await cekGoogle(env, body.credential);
   if (!g) return json({ galat: "Login Google tidak valid. Coba masuk lagi." }, 401);
+  if (aksi === "google") {
+    const ig = String(body.ig || "").trim().replace(/^@/, "").toLowerCase();
+    if (ig && !/^[a-z0-9._]{1,30}$/.test(ig)) return json({ galat: "Username IG hanya huruf, angka, titik, garis bawah (maks 30)." }, 400);
+    const r = await stub.fetch("https://do/google", { method: "POST", body: JSON.stringify({ ...g, kunci: String(body.kunci || "").slice(0, 64), ig: KOREKSI_IG[ig] || ig }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
   if (aksi === "daftar") {
     return new Response((await stub.fetch("https://do/daftar", { method: "POST", body: JSON.stringify(g) })).body, { headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
