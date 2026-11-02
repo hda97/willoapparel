@@ -31,6 +31,9 @@ export class Pengunjung extends DurableObject {
 // Login Google: browser kirim ID token, worker memeriksanya ke Google lalu memberi nomor kavling berurutan.
 // Email hanya disimpan di sini (untuk 1 akun = 1 kavling), TIDAK pernah ditampilkan ke publik.
 // Warga sementara = 63 pengikut @duniakotak.id per 2 Nov 2026 (urutan follow). Kavling 1 = Raka.
+// Salah ketik yang sudah dipastikan (username salah → username benar).
+const KOREKSI_IG = { fakhri_udah_itu_aja: "fakhri_udah_itu_aja_89" };
+
 // Username yang terpotong di screenshot: dicocokkan dari awalannya.
 const KAVLING_AWALAN = { muhammadfebriy: 10 };
 function kavlingSiap(ig) {
@@ -111,6 +114,14 @@ export class Warga extends DurableObject {
       no INTEGER PRIMARY KEY AUTOINCREMENT, sub TEXT UNIQUE NOT NULL, email TEXT, nama TEXT,
       ig TEXT, usulan TEXT, dibuat INTEGER NOT NULL)`);
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN kunci TEXT"); } catch (e) { /* kolom sudah ada */ }
+    // Koreksi salah ketik username: pindahkan ke username & kavling yang benar (sekali jalan, aman diulang).
+    for (const [salah, benar] of Object.entries(KOREKSI_IG)) {
+      const r = this.sql.exec("SELECT no FROM warga WHERE ig = ?", salah).toArray()[0];
+      if (!r || this.sql.exec("SELECT 1 FROM warga WHERE ig = ?", benar).toArray().length) continue;
+      const siap = kavlingSiap(benar);
+      const kosong = siap && !this.sql.exec("SELECT 1 FROM warga WHERE no = ?", siap).toArray().length;
+      this.sql.exec("UPDATE warga SET ig = ?, no = ? WHERE ig = ?", benar, kosong ? siap : r.no, salah);
+    }
     // Kavling 1 = Raka. Kavling 2-64 disiapkan untuk 63 pengikut pertama (lihat KAVLING_DISIAPKAN).
     // Pendaftar lain mulai dari kavling 65.
     if (!this.sql.exec("SELECT 1 FROM warga LIMIT 1").toArray().length) {
@@ -229,7 +240,7 @@ async function apiWarga(request, env, url) {
   if (aksi === "daftar-ig") {
     const ig = String(body.ig || "").trim().replace(/^@/, "").toLowerCase();
     if (!/^[a-z0-9._]{1,30}$/.test(ig)) return json({ galat: "Username IG hanya huruf, angka, titik, garis bawah (maks 30)." }, 400);
-    const r = await stub.fetch("https://do/daftar-ig", { method: "POST", body: JSON.stringify({ ig }) });
+    const r = await stub.fetch("https://do/daftar-ig", { method: "POST", body: JSON.stringify({ ig: KOREKSI_IG[ig] || ig }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "usulan" && body.kunci) {
