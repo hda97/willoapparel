@@ -15,12 +15,15 @@
     "bindings": [
       { "name": "PENGUNJUNG", "class_name": "Pengunjung" },
       // Daftar warga Dunia Kotak (lihat class Warga di worker.js).
-      { "name": "WARGA", "class_name": "Warga" }
+      { "name": "WARGA", "class_name": "Warga" },
+      // Ruang online game mabar per dusun (lihat class Ruang di worker.js).
+      { "name": "RUANG", "class_name": "Ruang" }
     ]
   },
   "migrations": [
     { "tag": "v1", "new_sqlite_classes": ["Pengunjung"] },
-    { "tag": "v2", "new_sqlite_classes": ["Warga"] }
+    { "tag": "v2", "new_sqlite_classes": ["Warga"] },
+    { "tag": "v3", "new_sqlite_classes": ["Ruang"] }
   ],
   // Client ID Google (publik, bukan rahasia) untuk tombol "Lanjut dengan Google" di /duniakotak/.
   // Kosong = tombol belum aktif. Isi dengan Client ID dari Google Cloud Console.
