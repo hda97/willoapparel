@@ -30,9 +30,70 @@ export class Pengunjung extends DurableObject {
 // Warga Dunia Kotak (@duniakotak.id). Satu Durable Object "desa" berisi tabel warga (SQLite).
 // Login Google: browser kirim ID token, worker memeriksanya ke Google lalu memberi nomor kavling berurutan.
 // Email hanya disimpan di sini (untuk 1 akun = 1 kavling), TIDAK pernah ditampilkan ke publik.
+// Warga sementara = 63 pengikut @duniakotak.id per 2 Nov 2026 (urutan follow). Kavling 1 = Raka.
 const KAVLING_DISIAPKAN = {
-  lalaliablue: 2, dian_semangat_terus: 3, "velora.nyxflare": 4, oredz_y: 5, dwabu7: 6, sayuti5044: 7,
-  thzzz146: 8, "4rchive_nov4l": 9, chan_juan_0: 10, fakhri_udah_itu_aja_89: 11, nourma_mutiara_r: 12, ustadzriyan507349: 13,
+  "fakhri_udah_itu_aja_89": 2,
+  "thzzz146": 3,
+  "akilq_plenger": 4,
+  "narahukama": 5,
+  "velora.nyxflare": 6,
+  "friday_apyttt": 7,
+  "dirga_ganteng61": 8,
+  "eliezarmanglassa2004": 9,
+  "iloveyou.singkatsaja": 11,
+  "crab.7546898": 12,
+  "napisahh_16": 13,
+  "_1per.son_": 14,
+  "oredz_y": 15,
+  "ustadzriyan507349": 16,
+  "arsalovemartabakmanis12": 17,
+  "m.abidzarzalkaal": 18,
+  "juan101762": 19,
+  "rina_bunda5n": 20,
+  "an.firoh": 21,
+  "dian_semangat_terus": 22,
+  "elfanother_world": 23,
+  "fraditadestiyana": 24,
+  "aliqhaisyanaramadhani": 25,
+  "tiranosaurus905": 26,
+  "gimzzzz6": 27,
+  "sukma_syarie": 28,
+  "exxel.ez": 29,
+  "adhann_86": 30,
+  "indahy1523": 31,
+  "afid_ibnu": 32,
+  "yd1ii__65aaa1": 33,
+  "ivane198": 34,
+  "aksashop_jambiborneo": 35,
+  "alvarezzzzzz_28": 36,
+  "lalaliablue": 37,
+  "nahw_kfm": 38,
+  "yanzzbukanflado": 39,
+  "_itzzyr_kays": 40,
+  "revanojonesh": 41,
+  "vinsche.s": 42,
+  "muh.pasya_": 43,
+  "tsha_cntk": 44,
+  "lcienron": 45,
+  "ibanggkobaa_": 46,
+  "lunlun.xb": 47,
+  "archvien.a": 48,
+  "zupzipzap7": 49,
+  "ritodiaz_firentina": 50,
+  "_diandra_putra_": 51,
+  "anur98755": 52,
+  "whoo.rapaaa": 53,
+  "dinnandrai": 54,
+  "dee4_12": 55,
+  "boygilbert162": 56,
+  "andyana_suherman": 57,
+  "adilillahwijaya": 58,
+  "lisya____llw_0006": 59,
+  "xdzball": 60,
+  "chan_juan_0": 61,
+  "4rchive_nov4l": 62,
+  "fajar_alflah": 63,
+  "lie_yuann": 64,
 };
 export class Warga extends DurableObject {
   constructor(ctx, env) {
@@ -41,11 +102,11 @@ export class Warga extends DurableObject {
     this.sql.exec(`CREATE TABLE IF NOT EXISTS warga (
       no INTEGER PRIMARY KEY AUTOINCREMENT, sub TEXT UNIQUE NOT NULL, email TEXT, nama TEXT,
       ig TEXT, usulan TEXT, dibuat INTEGER NOT NULL)`);
-    // Kavling 1 = Raka. Kavling 2-13 sudah disiapkan di video Hari 2 untuk komentator yang minta rumah
-    // (lihat KAVLING_DISIAPKAN). Pendaftar lain mulai dari kavling 14.
+    // Kavling 1 = Raka. Kavling 2-64 disiapkan untuk 63 pengikut pertama (lihat KAVLING_DISIAPKAN).
+    // Pendaftar lain mulai dari kavling 65.
     if (!this.sql.exec("SELECT 1 FROM warga LIMIT 1").toArray().length) {
       this.sql.exec("DELETE FROM sqlite_sequence WHERE name = 'warga'");
-      this.sql.exec("INSERT INTO sqlite_sequence (name, seq) VALUES ('warga', ?)", 13);
+      this.sql.exec("INSERT INTO sqlite_sequence (name, seq) VALUES ('warga', ?)", 64);
     }
   }
   publik(r) {
