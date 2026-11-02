@@ -520,7 +520,7 @@ function aturHUD() {
   $('putKiri').onclick = () => putar(1); $('putKanan').onclick = () => putar(-1);
   $('zIn').onclick = () => { zoom = Math.max(.6, zoom - .15); };
   $('zOut').onclick = () => { zoom = Math.min(1.8, zoom + .15); };
-  if (innerWidth < 760 && innerHeight < 500) { $('chat').hidden = true; $('bBukaChat').hidden = false; }
+  if (innerHeight < 500) { $('chat').hidden = true; $('bBukaChat').hidden = false; zoom = .85; }
 }
 function panduan() {
   const nama = S.tamu ? 'tamu' : '@' + S.saya.ig;
@@ -585,7 +585,7 @@ function loop(t) {
   const tx = me.position.x, tz = me.position.z;
   let dy = yaw - yawNow; yawNow += dy * Math.min(1, dt * 6);
   const sn = Math.sin(yawNow), cs = Math.cos(yawNow);
-  cam.position.set(tx + sn * 58 * zoom, 40 * zoom, tz + cs * 58 * zoom); cam.lookAt(tx + sn * 2, 2, tz + cs * 2);
+  cam.position.set(tx + sn * 58 * zoom, 40 * zoom, tz + cs * 58 * zoom); cam.lookAt(tx - sn * 14, 2, tz - cs * 14);
   // bayangan ikut pemain
   I.light.position.set(tx + 60, 100, tz + 72); I.light.target.position.set(tx, 0, tz); I.light.target.updateMatrixWorld();
   // kavling dekat dibangun bertahap
@@ -612,7 +612,7 @@ function siangMalam(t) {
   const langit = new THREE.Color(0x1a2448).lerp(new THREE.Color(0xbfe4ff), terang);
   sc.background = langit; sc.fog.color = langit; I.light.intensity = .5 + 1.9 * terang; R.toneMappingExposure = .85 + .4 * terang;
   const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-  $('jam').innerHTML = `Dusun Kotak Wetan · ${HARI[d.getUTCDay()]} ${String(d.getUTCHours()).padStart(2, '0')}.${String(d.getUTCMinutes()).padStart(2, '0')} ${terang > .5 ? '☀️' : '🌙'}<small>Kebun & Pasar Desa segera dibuka</small>`;
+  $('jam').innerHTML = `<span class="dsn">Dusun Kotak Wetan · </span>${HARI[d.getUTCDay()]} ${String(d.getUTCHours()).padStart(2, '0')}.${String(d.getUTCMinutes()).padStart(2, '0')} ${terang > .5 ? '☀️' : '🌙'}<small>Kebun & Pasar Desa segera dibuka</small>`;
 }
 function onResize() {
   R.setSize(innerWidth, innerHeight, false); cam.aspect = innerWidth / innerHeight; cam.fov = innerWidth / innerHeight < 1 ? 55 : 38; cam.updateProjectionMatrix();

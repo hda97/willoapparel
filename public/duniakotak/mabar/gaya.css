@@ -10,6 +10,7 @@ button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:2
 #hud>*{pointer-events:auto}
 .profil{left:max(14px,env(safe-area-inset-left));top:12px;display:flex;gap:10px;align-items:center;padding:8px 14px 8px 8px;max-width:46vw}
 .profil .ava{width:44px;height:44px;border-radius:50%;background:#f2c7a0;border:3px solid var(--biru);display:grid;place-items:center;font-size:22px;flex:none}
+.profil>div{min-width:0}
 .profil b{display:block;font-size:15px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .profil small{display:block;font-size:11px;font-weight:700;color:var(--redup);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .profil small.hijau{color:var(--hijau)}
@@ -76,5 +77,5 @@ h1{margin:0;font-weight:900;font-size:28px}h2{margin:0;font-weight:900;font-size
 #dialog p{margin:4px 0 10px;font-weight:700;font-size:14px;line-height:1.4}
 #dialog .aksi{display:flex;gap:8px;justify-content:flex-end}
 #dialog .aksi button{padding:8px 14px;font-size:13px}
-@media (max-height:430px){.chat .isi{height:70px}.bulat{width:50px;height:50px}.bulat i{font-size:19px}#stik{width:120px;height:120px}}
+@media (max-height:500px){.chat .isi{height:64px}.chat{top:66px;width:min(300px,38vw)}.chat .cepat button{padding:3px 7px;font-size:11px}#bBukaChat{top:66px}.bulat{width:46px;height:46px;font-size:9px}.bulat i{font-size:18px}.tombolAtas{gap:6px}#stik{width:112px;height:112px}#kenop{width:50px;height:50px;margin:-25px 0 0 -25px}.zoom{gap:6px}.zoom button{width:40px;height:40px;font-size:18px}.profil{max-width:32vw;padding:6px 10px 6px 6px}.profil .ava{width:36px;height:36px;font-size:18px}.profil b{font-size:13px}.jam{font-size:11px;padding:5px 12px}.jam small,.jam .dsn{display:none}}
 @media (max-width:700px) and (orientation:portrait){.dua{grid-template-columns:1fr}#pratinjau{max-width:220px;margin:0 auto}#dialog{width:calc(100vw - 32px)}.chat{width:min(300px,70vw)}}
