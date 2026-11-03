@@ -95,7 +95,8 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
       <button data-pintu="masuk" role="tab">Sudah warga? Masuk</button>
     </div>
     <div id="pMasuk" hidden>
-      <p class="kecil" style="text-align:left">Masuk dengan akun Google yang dulu dipakai daftar:</p>
+      <p class="kecil" style="text-align:left">Dulu daftar pakai Instagram/TikTok? Tulis username-nya, lalu masuk dengan Google. Kavlingmu tersambung ke akun Google itu, jadi lain kali cukup tekan Google.</p>
+      <div class="isi"><div class="at" style="margin-top:8px"><input id="unMasuk" placeholder="username (kosongkan kalau daftar via Google)" maxlength="80" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email" enterkeyhint="done"></div></div>
       <div id="gbtnMasuk" style="margin-top:10px;min-height:44px;display:flex;justify-content:center"></div>
       <p class="kecil" id="masukDalamApp" style="text-align:left;display:none">Masuk Google tidak bisa di dalam aplikasi Instagram/TikTok. <a id="bukaChrome2" href="https://willoapparel.com/duniakotak/?masuk=1" target="_blank" rel="noopener">Buka di Chrome</a>, atau pakai kode warga.</p>
       <p class="kecil" style="text-align:left">Atau pakai kode warga (ada di Kartu Warga / profil di game):</p>
@@ -117,9 +118,9 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
       <label for="kerjaDaftar">Pekerjaan</label>
       <input id="kerjaDaftar" placeholder="tulis sendiri, mis. Pelajar" maxlength="22" list="daftarKerja">
       <div data-untuk="ig"><label for="igDaftar">Username Instagram</label>
-      <div class="at"><input id="igDaftar" placeholder="namakamu" autocomplete="off" autocapitalize="none" maxlength="31"></div></div>
+      <div class="at"><input id="igDaftar" placeholder="namakamu" maxlength="80" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email" enterkeyhint="done"></div></div>
       <div data-untuk="tt" hidden><label for="ttDaftar">Username TikTok</label>
-      <div class="at"><input id="ttDaftar" placeholder="namakamu" autocomplete="off" autocapitalize="none" maxlength="25"></div></div>
+      <div class="at"><input id="ttDaftar" placeholder="namakamu" maxlength="80" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email" enterkeyhint="done"></div></div>
     </div>
     <button class="tombol" id="daftarBtn" style="width:100%">Daftar jadi warga</button>
     <div data-untuk="google" hidden>
@@ -283,15 +284,18 @@ document.querySelectorAll('.cara button').forEach(b=>b.onclick=()=>{cara=b.datas
   document.querySelectorAll('[data-untuk]').forEach(x=>x.hidden=x.dataset.untuk!==cara);
   $('daftarBtn').style.display=cara==='google'?'none':'block';$('ketCara').textContent=KET[cara];$('pesanDaftar').textContent=''});
 
+// Rapikan username: buang @, spasi (termasuk spasi otomatis keyboard HP), huruf besar, dan link profil yang ditempel.
+const un=v=>String(v||'').toLowerCase().replace(/\s+/g,'').replace(/^(https?:\/\/)?(www\.|m\.|vt\.)?(instagram\.com|tiktok\.com)\//,'').replace(/[?#].*$/,'').replace(/\/.*$/,'').replace(/^@+/,'');
 // Baca & periksa isian. Mengembalikan null (dan menulis pesan) kalau belum lengkap.
 function isian(){
-  const un=v=>v.trim().replace(/^@/,'').toLowerCase();
   const d={nama:$('namaDaftar').value.trim(),kerja:$('kerjaDaftar').value.trim()};
   if(cara==='ig')d.ig=un($('igDaftar').value);if(cara==='tt')d.tiktok=un($('ttDaftar').value);
   const p=$('pesanDaftar');p.textContent='';
   if(!d.nama){p.textContent='Tulis namamu dulu.';$('namaDaftar').focus();return null}
   if(cara==='ig'&&!d.ig){p.textContent='Tulis username Instagram-mu.';$('igDaftar').focus();return null}
   if(cara==='tt'&&!d.tiktok){p.textContent='Tulis username TikTok-mu.';$('ttDaftar').focus();return null}
+  if(d.ig&&!/^[a-z0-9._]{1,30}$/.test(d.ig)){p.textContent='@'+d.ig.slice(0,40)+' bukan username Instagram yang benar. Hanya huruf, angka, titik, garis bawah (maks 30).';$('igDaftar').focus();return null}
+  if(d.tiktok&&!/^[a-z0-9._]{2,24}$/.test(d.tiktok)){p.textContent='@'+d.tiktok.slice(0,40)+' bukan username TikTok yang benar. Hanya huruf, angka, titik, garis bawah (2-24).';$('ttDaftar').focus();return null}
   return d;
 }
 
@@ -305,8 +309,9 @@ async function daftarGoogle(){
 }
 async function masuk(resp){cred=resp.credential;
   if(pintu==='masuk'){
-    try{const o=await kirim('google',{credential:cred,kunci:kunci||''});
-      if(!o.perlu){await tampilkan(o);return}
+    const cari=un($('unMasuk').value);$('pesanLama').textContent=cari?'Mencari @'+cari+'…':'';
+    try{const o=await kirim('google',{credential:cred,kunci:kunci||'',cari});
+      if(!o.perlu){$('pesanLama').textContent='';await tampilkan(o);return}
       bukaPintu('daftar');document.querySelector('[data-cara="google"]').click();$('daftarLagi').style.display='block';
       $('pesanDaftar').textContent='Akun Google ini belum jadi warga. Isi nama (dan pekerjaan), lalu tekan Daftar.';$('namaDaftar').focus()}
     catch(e){$('pesanLama').textContent=e.message}
@@ -321,7 +326,13 @@ $('daftarLagi').onclick=()=>{if(cred)daftarGoogle()};
 $('daftarBtn').onclick=async()=>{
   const d=isian();if(!d)return;
   try{$('daftarBtn').disabled=true;const o=await kirim('daftar-ig',d);await tampilkan(o);muatDaftar()}
-  catch(e){$('pesanDaftar').textContent=e.message}finally{$('daftarBtn').disabled=false}
+  catch(e){
+    if(/sudah terdaftar/.test(e.message)){
+      // Username ini sudah jadi warga: arahkan ke Masuk, username langsung terisi.
+      bukaPintu('masuk');$('unMasuk').value=d.ig||d.tiktok||'';
+      $('pesanLama').textContent=e.message+' Itu kamu? Masuk dengan Google di bawah ini, atau pakai kode warga.';
+      $('pMasuk').scrollIntoView({behavior:'smooth',block:'start'});return}
+    $('pesanDaftar').textContent=e.message}finally{$('daftarBtn').disabled=false}
 };
 
 $('kirimUsul').onclick=async()=>{
