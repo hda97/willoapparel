@@ -181,13 +181,17 @@ function bukaPembuatAvatar(av, pertama, cumaSiapkan) {
 // =====================================================================
 // 3. DUNIA
 // =====================================================================
-const hemat = (navigator.hardwareConcurrency || 4) <= 4 || (navigator.deviceMemory || 4) <= 3;
+// HP (termasuk browser bawaan IG/TikTok) = mode hemat: tanpa bayangan, resolusi 1x, jarak pandang lebih dekat.
+// Dulu hanya dilihat dari jumlah inti prosesor, padahal HP sekarang rata-rata 8 inti -> mode hemat tidak pernah aktif.
+const uaHP = /Android|iPhone|iPad|iPod|Mobile|Instagram|FBAN|FBAV|TikTok|musical_ly|BytedanceWebview/i.test(navigator.userAgent || '') || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent || ''));
+const hemat = uaHP || (navigator.hardwareConcurrency || 4) <= 4 || (navigator.deviceMemory || 8) <= 4;
 const R = new THREE.WebGLRenderer({canvas: $('layar'), antialias: !hemat, powerPreference: 'high-performance'});
-R.setPixelRatio(Math.min(hemat ? 1.25 : 1.75, devicePixelRatio || 1));
-R.shadowMap.enabled = true; R.shadowMap.type = hemat ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
+const DPR = Math.min(hemat ? 1.5 : 1.75, devicePixelRatio || 1);
+R.setPixelRatio(DPR);
+R.shadowMap.enabled = !hemat; R.shadowMap.type = THREE.PCFSoftShadowMap;
 R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.25; R.outputColorSpace = THREE.SRGBColorSpace;
-const sc = new THREE.Scene(); sc.background = new THREE.Color(0xbfe4ff); sc.fog = new THREE.Fog(0xbfe4ff, 260, 520);
-const cam = new THREE.PerspectiveCamera(38, 1, 1, 560);
+const sc = new THREE.Scene(); sc.background = new THREE.Color(0xbfe4ff); sc.fog = hemat ? new THREE.Fog(0xbfe4ff, 210, 430) : new THREE.Fog(0xbfe4ff, 260, 520);
+const cam = new THREE.PerspectiveCamera(38, 1, 1, hemat ? 450 : 560);
 let I = null, NM = {}, KC = {};   // KC: no → kucing warga {k:[{w,n}], d, a}
 const lotRuntime = new Map();   // no → {g, extra, rects}
 const dekor = new Map();        // rects statis tambahan
@@ -200,7 +204,7 @@ async function bangunDunia() {
   reseed(301);
   I = D.village(sc, {cols: 5, rows: 12, fasumB: [[2,4],[2,5],[1,6],[2,6],[3,6],[1,7],[2,7],[3,7]], fasumH: [[2,11,1]], sungai: {gap: 6, w: 14, sawah: 40}, hutan: 1, tipis: .02,
     raka: 'done', filled: 999, isFilled: n => !!NM[n], names: NM, lazy: true, sm: hemat ? 1024 : 2048, shadowR: 70});
-  I.light.castShadow = true;
+  I.light.castShadow = !hemat;
   // kubus kembar yang banyak (jalan, hutan, sawah): dipecah per petak supaya yang di luar layar tidak digambar,
   // bentuk kubus versi ringan, dan tidak ikut bayangan (hemat untuk HP)
   pecahInstanced(I.G);
@@ -309,8 +313,9 @@ function setProxy(L, tampil) {
   M.compose(new THREE.Vector3(hx, 1.75 * VS, hz), new THREE.Quaternion(), new THREE.Vector3(s, s, .8 * s)); imA.setMatrixAt(L.proxyIdx, M);
   imW.instanceMatrix.needsUpdate = imA.instanceMatrix.needsUpdate = true;
 }
+const jarak = {rx: hemat ? 115 : 150, zf: hemat ? 150 : 190};
 function aturKavling(px, pz) {
-  const RX = hemat ? 120 : 150, ZF = hemat ? 150 : 190, ZB = 70;
+  const RX = jarak.rx, ZF = jarak.zf, ZB = hemat ? 50 : 70;
   for (const [ns, L] of Object.entries(I.lots)) {
     const n = +ns, ddx = L.c.x - px, ddz = L.c.z - pz, sn = Math.sin(yawNow), cs = Math.cos(yawNow);
     const dx = Math.abs(ddx * cs - ddz * sn), dz = ddx * sn + ddz * cs;   // dz < 0 = di depan kamera
@@ -536,7 +541,7 @@ function animSkill(dt, me) {
   const t = now | 0; if (t % 4 === 0 || !animSkill.t || now - animSkill.t > 300) { animSkill.t = now;
     // tombol hanya muncul saat skill bisa dipakai; joran sedang dipakai = tombol Mancing hilang
     const air = dekatAir(me), bisa = {sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me)};
-    for (const id in bisa) { const b = $(id); if (b.hidden === bisa[id]) { b.classList.toggle('siap', bisa[id]); b.hidden = !bisa[id]; } }
+    for (const id in bisa) { const b = $(id); if (b.classList.contains('siap') !== bisa[id] || b.hidden === bisa[id]) { b.classList.toggle('siap', bisa[id]); b.hidden = !bisa[id]; } }
     if (air) misiMaju('sungai'); }
 }
 
@@ -563,7 +568,7 @@ function tempel(obj, tinggi, teks, cls, dy = 0) {
   if (V.z > 1 || V.x < -1.2 || V.x > 1.2 || V.y < -1.2 || V.y > 1.2) return null;
   let d = pool.find(x => !x.dipakai); if (!d) { d = {el: document.createElement('div')}; lab.appendChild(d.el); pool.push(d); }
   d.dipakai = true; if (d.el.className !== cls) d.el.className = cls; if (d.el._t !== teks) { d.el.textContent = teks; d.el._t = teks; }
-  d.el.style.left = ((V.x + 1) / 2 * innerWidth) + 'px'; d.el.style.top = ((1 - V.y) / 2 * innerHeight + dy) + 'px'; d.el.style.display = '';
+  d.el.style.transform = `translate(${((V.x + 1) / 2 * innerWidth) | 0}px,${((1 - V.y) / 2 * innerHeight + dy) | 0}px) translate(-50%,-100%)`; if (d.el.style.display) d.el.style.display = '';
   return d.el;
 }
 
@@ -872,9 +877,10 @@ function aturKualitas(t, dtAsli) {
   const fps = kualitas.n / kualitas.jml; kualitas.n = 0; kualitas.jml = 0; kualitas.mulai = t;
   if (fps >= 28 || kualitas.tingkat >= 3) return;
   kualitas.tingkat++;
-  if (kualitas.tingkat === 1) R.setPixelRatio(1);
-  else if (kualitas.tingkat === 2) { R.shadowMap.enabled = false; I.light.castShadow = false; sc.traverse(m => { if (m.material) [].concat(m.material).forEach(x => { x.needsUpdate = true; }); }); }
-  else R.setPixelRatio(.75);
+  // tidak pernah di bawah 1x supaya gambar tetap tajam
+  if (kualitas.tingkat === 1 && R.shadowMap.enabled) { R.shadowMap.enabled = false; I.light.castShadow = false; sc.traverse(m => { if (m.material) [].concat(m.material).forEach(x => { x.needsUpdate = true; }); }); }
+  else if (kualitas.tingkat <= 2) R.setPixelRatio(Math.min(1.25, DPR));
+  else { R.setPixelRatio(1); jarak.rx = 95; jarak.zf = 125; }
   onResize();
 }
 function loop(t) {
@@ -922,7 +928,7 @@ function loop(t) {
   // bayangan ikut pemain
   I.light.position.set(tx + 60, 100, tz + 72); I.light.target.position.set(tx, 0, tz); I.light.target.updateMatrixWorld();
   // kavling dekat dibangun bertahap
-  if (t - tKav > 120) { tKav = t; aturKavling(tx, tz); }
+  if (t - tKav > (hemat ? 200 : 120) && dtAsli < .034) { tKav = t; aturKavling(tx, tz); }
   siangMalam(t);
   kirimPos(false);
   R.render(sc, cam);
@@ -938,7 +944,7 @@ function loop(t) {
   for (const [no, o] of S.others) if (o.obj.position.distanceTo(me.position) < 220) lbl(o.obj, 5.2, (S.bisu.has(no) ? '🔇 ' : '') + '@' + o.ig, 'nm', no);
   const now = performance.now();
   for (const o of [me, tokoh.raka, ...[...S.others.values()].map(x => x.obj)]) { const g = o.userData.gel; if (g && g.sampai > now) tempel(o, 6.6, g.m, g.emo ? 'gel emo' : 'gel', -4); }
-  pool.forEach(d => { if (!d.dipakai) d.el.style.display = 'none'; });
+  pool.forEach(d => { if (!d.dipakai && d.el.style.display !== 'none') d.el.style.display = 'none'; });
 }
 // siang/malam ikut jam WIB
 let tSM = 0;
