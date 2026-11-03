@@ -6,8 +6,8 @@ import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js'
 import {raka, pose as rpose, reseed} from './js/lib.js';
 import * as D from './js/desa.js';
 import {warga, pose as wpose, KULIT, WARNA_RAMBUT, GAYA_RAMBUT} from './js/aset/avatar.js';
-import {kucingMesh} from './js/aset/kucing.js';
-import {warungMesh, rumahKucingMesh} from './js/aset/rumah.js';
+import {kucingMesh, WARNA_KUCING, DAFTAR_KUCING} from './js/aset/kucing.js';
+import {warungMesh, rumahKucingMesh, WARNA_DINDING, WARNA_ATAP} from './js/aset/rumah.js';
 
 const $ = id => document.getElementById(id);
 const VS = D.VS;
@@ -136,8 +136,8 @@ function lanjutAvatar() {
 // 2. PEMBUAT AVATAR (aset avatar.js)
 // =====================================================================
 let pv = null;
-function bukaPembuatAvatar(av, pertama) {
-  $('buatAvatar').hidden = false;
+function bukaPembuatAvatar(av, pertama, cumaSiapkan) {
+  $('buatAvatar').hidden = false; $('buatAvatar').querySelector('h2').textContent = 'Buat tokohmu';
   if (!pv) {
     const r = new THREE.WebGLRenderer({canvas: $('pratinjau'), antialias: true, alpha: true});
     r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(360, 420, false); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping;
@@ -145,6 +145,8 @@ function bukaPembuatAvatar(av, pertama) {
     const cam = new THREE.PerspectiveCamera(30, 360 / 420, .1, 100); cam.position.set(0, 2.6, 13); cam.lookAt(0, 2.1, 0);
     pv = {r, sc, cam, obj: null, t: 0};
   }
+  if (cumaSiapkan) return;
+  pv.cam.position.set(0, 2.6, 13); pv.cam.lookAt(0, 2.1, 0);
   const gambar = () => { if (pv.obj) pv.sc.remove(pv.obj); pv.obj = warga(av); pv.obj.rotation.y = .5; pv.sc.add(pv.obj); pv.r.render(pv.sc, pv.cam); };
   const baris = (judul, list, aktif, pilih, warna) => `<div class="baris"><b>${judul}</b><div class="opsi">${list.map((v, i) => `<button data-k="${judul}" data-i="${i}" class="${warna ? 'w' : ''} ${v === aktif ? 'on' : ''}" ${warna ? `style="background:${v}" aria-label="${v}"` : ''}>${warna ? '' : esc(pilih ? pilih(v) : v)}</button>`).join('')}</div></div>`;
   const nama = {cepak: 'Cepak', belah: 'Belah', acak: 'Acak', keriting: 'Keriting', panjang: 'Panjang', kuncir: 'Kuncir', kepang: 'Kepang', bob: 'Bob', hijab: 'Hijab', kaos: 'Kaos', 'kaos-willo': 'Kaos Willo', kemeja: 'Kemeja', jaket: 'Jaket', batik: 'Batik', seragam: 'Seragam', celana: 'Celana', pendek: 'Celana pendek', sarung: 'Sarung', rok: 'Rok', 'rok-panjang': 'Rok panjang', L: 'Laki-laki', P: 'Perempuan'};
@@ -186,12 +188,13 @@ R.shadowMap.enabled = true; R.shadowMap.type = hemat ? THREE.BasicShadowMap : TH
 R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.25; R.outputColorSpace = THREE.SRGBColorSpace;
 const sc = new THREE.Scene(); sc.background = new THREE.Color(0xbfe4ff); sc.fog = new THREE.Fog(0xbfe4ff, 260, 520);
 const cam = new THREE.PerspectiveCamera(38, 1, 1, 560);
-let I = null, NM = {};
+let I = null, NM = {}, KC = {};   // KC: no → kucing warga {k:[{w,n}], d, a}
 const lotRuntime = new Map();   // no → {g, extra, rects}
 const dekor = new Map();        // rects statis tambahan
 
 async function bangunDunia() {
-  try { const w = await (await fetch('/duniakotak/api/warga')).json(); w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); }); } catch (e) {}
+  try { const w = await (await fetch('/duniakotak/api/warga')).json(); w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; }); } catch (e) {}
+  if (S.saya && S.saya.kucing) KC[S.saya.no] = S.saya.kucing;
   if (S.saya && S.saya.ig) NM[S.saya.no] = '@' + S.saya.ig;
   await document.fonts.load('900 40px Montserrat').catch(() => {});
   reseed(301);
@@ -296,6 +299,7 @@ function bangunKavling(n) {
   extra.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
   bakeGroup(g); bakeGroup(extra);
   lotRuntime.set(n, {g, extra, rects});
+  if (isi && n !== 1) pasangKucing(n);
   if (L.proxyIdx != null) setProxy(L, false);
 }
 function setProxy(L, tampil) {
@@ -313,8 +317,76 @@ function aturKavling(px, pz) {
     const dekat = dx < RX && dz > -ZF && dz < ZB;
     const ada = lotRuntime.get(n);
     if (dekat && !ada) { bangunKavling(n); return; }       // satu kavling per giliran supaya tidak patah-patah
-    if (!dekat && ada && (dx > RX + 40 || dz < -ZF - 40 || dz > ZB + 40)) { buang(ada.g); buang(ada.extra); lotRuntime.delete(n); if (L.proxyIdx != null) setProxy(L, true); }
+    if (!dekat && ada && (dx > RX + 40 || dz < -ZF - 40 || dz > ZB + 40)) { buang(ada.g); buang(ada.extra); if (ada.kc) { kucingHidup = kucingHidup.filter(c => c.parent !== ada.kc); buang(ada.kc); } lotRuntime.delete(n); if (L.proxyIdx != null) setProxy(L, true); }
   }
+}
+
+// ---------- kucing warga: kandang (warna pilihan) + maks 2 kucing di pekarangan depan ----------
+let kucingHidup = [];
+const POS_KUCING = [[-2.75, 4.35], [-5.0, 4.25]];
+function pasangKucing(n) {
+  const rt = lotRuntime.get(n); if (!rt) return;
+  if (rt.kc) { kucingHidup = kucingHidup.filter(c => c.parent !== rt.kc); buang(rt.kc); rt.kc = null; rt.rects = rt.rects.filter(r => !r.kandang); }
+  const kc = KC[n]; if (!kc || !kc.k || !kc.k.length) return;
+  const L = I.lots[n], G = new THREE.Group(), rot = L.dir === 1 ? 0 : Math.PI;
+  const k = rumahKucingMesh({warna: kc.d || 'krem', atap: kc.a || 'merah', nama: (kc.k[0].n || '').toUpperCase()}); k.scale.setScalar(1 / .55);
+  k.position.set(L.c.x + L.dir * -3.9 * VS, 0, L.c.z + L.dir * 3.4 * VS); k.rotation.y = rot; G.add(k);
+  kc.k.slice(0, 2).forEach((x, i) => {
+    const c = kucingMesh(WARNA_KUCING[x.w] ? x.w : 'oranye'); const [px, pz] = POS_KUCING[i];
+    c.position.set(L.c.x + L.dir * px * VS, 0, L.c.z + L.dir * pz * VS); c.rotation.y = rot + (i ? -.6 : .5);
+    c.userData = {ph: n * 1.7 + i * 2.1, nama: x.n || '', no: n, ry: c.rotation.y}; G.add(c); kucingHidup.push(c);
+  });
+  G.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+  sc.add(G); rt.kc = G;
+  const r = rectLot(L, -4.35, -3.45, 3.0, 3.8); r.kandang = true; rt.rects.push(r);
+}
+function bukaKucing() {
+  if (S.tamu) { toast('Daftar jadi warga dulu supaya punya rumah dan kucing.', 4000); return; }
+  const kc = JSON.parse(JSON.stringify(S.saya.kucing || {k: [{w: 'abu', n: ''}], d: 'krem', a: 'merah'}));
+  if (!kc.k || !kc.k.length) kc.k = [{w: 'abu', n: ''}];
+  const panel = $('buatAvatar'); if (!pv) bukaPembuatAvatar(S.av, false, true);
+  panel.hidden = false; panel.querySelector('h2').textContent = 'Kucing & kandangmu';
+  const gambar = () => {
+    if (pv.obj) pv.sc.remove(pv.obj);
+    const g = new THREE.Group();
+    const k = rumahKucingMesh({warna: kc.d, atap: kc.a, nama: (kc.k[0].n || '').toUpperCase()}); k.scale.setScalar(1.6); k.position.set(-.6, 0, -1); g.add(k);
+    kc.k.forEach((x, i) => { const c = kucingMesh(x.w, {skala: 1}); c.scale.setScalar(.9); c.position.set(i ? -2.6 : 1.9, 0, 1.2); c.rotation.y = i ? .5 : -.5; g.add(c); });
+    g.rotation.y = .35; pv.obj = g; pv.sc.add(g);
+    pv.cam.position.set(0, 4.6, 16.5); pv.cam.lookAt(-.3, 1.2, 0); pv.r.render(pv.sc, pv.cam);
+  };
+  const sw = (key, i, warna, on, label) => `<button data-k="${key}" data-i="${i}" class="w ${on ? 'on' : ''}" style="background:${warna}" aria-label="${esc(label)}" title="${esc(label)}"></button>`;
+  const tulis = () => {
+    let h = `<div class="baris"><b>Jumlah kucing</b><div class="opsi"><button data-k="jml" data-i="1" class="${kc.k.length === 1 ? 'on' : ''}">1 ekor</button><button data-k="jml" data-i="2" class="${kc.k.length === 2 ? 'on' : ''}">2 ekor</button><button data-k="jml" data-i="0">Tidak punya</button></div></div>`;
+    kc.k.forEach((x, j) => {
+      h += `<div class="baris"><b>Kucing ${j + 1}: ${esc(WARNA_KUCING[x.w].nama)}</b><div class="opsi">${DAFTAR_KUCING.map((w, i) => sw('w' + j, i, WARNA_KUCING[w].bulu, w === x.w, WARNA_KUCING[w].nama)).join('')}</div>
+        <input class="namaKucing" data-j="${j}" maxlength="12" placeholder="Nama kucing ${j + 1} (maks 12 huruf)" value="${esc(x.n || '')}" autocomplete="off" style="margin-top:6px;width:100%;box-sizing:border-box;padding:9px 12px;border-radius:10px;border:2px solid #cbbd9e;font:600 15px Montserrat,sans-serif"></div>`;
+    });
+    h += `<div class="baris"><b>Warna kandang</b><div class="opsi">${Object.entries(WARNA_DINDING).map(([k2, v], i) => sw('d', i, v, k2 === kc.d, k2)).join('')}</div></div>`;
+    h += `<div class="baris"><b>Warna atap kandang</b><div class="opsi">${Object.entries(WARNA_ATAP).map(([k2, v], i) => sw('a', i, v, k2 === kc.a, k2)).join('')}</div></div>`;
+    $('pilihan').innerHTML = h;
+    $('pilihan').querySelectorAll('.namaKucing').forEach(inp => inp.oninput = () => { kc.k[+inp.dataset.j].n = inp.value; if (+inp.dataset.j === 0) gambar(); });
+    $('pilihan').querySelectorAll('button').forEach(b => b.onclick = () => {
+      const k2 = b.dataset.k, i = +b.dataset.i;
+      if (k2 === 'jml') { if (!i) kc.k = []; else if (i === 1) kc.k = kc.k.slice(0, 1).concat(kc.k.length ? [] : [{w: 'abu', n: ''}]); else { if (!kc.k.length) kc.k.push({w: 'abu', n: ''}); if (kc.k.length < 2) kc.k.push({w: 'putih', n: ''}); } }
+      if (k2 === 'w0' || k2 === 'w1') kc.k[+k2[1]].w = DAFTAR_KUCING[i];
+      if (k2 === 'd') kc.d = Object.keys(WARNA_DINDING)[i];
+      if (k2 === 'a') kc.a = Object.keys(WARNA_ATAP)[i];
+      if (k2 === 'jml' && !kc.k.length) { simpanKucing(kc); return; }
+      tulis(); gambar();
+    });
+  };
+  tulis(); gambar();
+  $('simpanAvatar').textContent = 'Simpan';
+  $('simpanAvatar').onclick = () => simpanKucing(kc);
+}
+async function simpanKucing(kc) {
+  $('simpanAvatar').disabled = true;
+  try {
+    const s = await api('kucing', {kunci: S.kunci, kucing: {...kc, k: kc.k.map(x => ({w: x.w, n: String(x.n || '').trim()}))}});
+    S.saya.kucing = s.kucing; KC[S.saya.no] = s.kucing; pasangKucing(S.saya.no);
+    $('buatAvatar').hidden = true; bunyi('kirim');
+    toast(s.kucing ? 'Kucingmu sudah ada di depan rumah! Tekan 🏠 Rumah untuk melihatnya.' : 'Kucing dan kandang dihapus.', 4000);
+  } catch (e) { toast(e.message, 4000); } finally { $('simpanAvatar').disabled = false; }
 }
 
 // =====================================================================
@@ -591,6 +663,7 @@ function aturHUD() {
   $('profil').style.cursor = 'pointer';
   $('profil').onclick = () => { if (S.tamu) return toast('Daftar di willoapparel.com/duniakotak supaya dapat kavling.', 4000); toast(`Kode wargamu: ${S.saya.kode} · pakai untuk masuk dari HP lain. Jangan dibagikan.`, 6000); };
   $('bAvatar').onclick = () => bukaPembuatAvatar(JSON.parse(JSON.stringify(S.av)), false);
+  $('bKucing').onclick = () => bukaKucing();
   $('bPanduan').onclick = () => panduan();
   musikSiap();
   $('putKiri').onclick = () => putar(1); $('putKanan').onclick = () => putar(-1);
@@ -657,6 +730,7 @@ function loop(t) {
   if (dR < 40) { const tr = Math.atan2(me.position.x - tokoh.raka.position.x, me.position.z - tokoh.raka.position.z); let dr = tr - tokoh.raka.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); tokoh.raka.rotation.y += dr * Math.min(1, dt * 4); }
   if (dR < 25 && !tokoh.raka.userData.sapa) { tokoh.raka.userData.sapa = 1; gelembung('raka', S.tamu ? 'Halo! Yuk daftar jadi warga 😄' : 'Halo @' + S.saya.ig + '! Mampir ke warungku ya.'); }
   if (dR > 60) tokoh.raka.userData.sapa = 0;
+  for (const c of kucingHidup) { const u = c.userData; u.ph += dt; c.position.y = Math.max(0, Math.sin(u.ph * 1.3)) * .12; c.rotation.y = u.ry + Math.sin(u.ph * .4) * .5; }
   tokoh.oyen.userData.ph += dt; tokoh.oyen.position.y = Math.abs(Math.sin(tokoh.oyen.userData.ph * 1.3)) * .15;
   // kamera ikut pemain (dikunci di dalam hutan pembatas)
   const tx = me.position.x, tz = me.position.z;
@@ -675,6 +749,7 @@ function loop(t) {
   const lbl = (o, h, teks, cls, no) => { const el = tempel(o, h, teks, cls); if (el) el.dataset.no = no || ''; };
   lbl(me, 5.2, S.tamu ? 'Kamu (tamu)' : '@' + S.saya.ig, 'nm saya');
   lbl(tokoh.raka, 5.2, '★ Raka', 'nm raka'); lbl(tokoh.oyen, 2.6, 'Oyen', 'nm raka kucing');
+  for (const c of kucingHidup) if (c.userData.nama && c.position.distanceTo(me.position) < 60) lbl(c, 2.6, c.userData.nama, 'nm kucing');
   for (const [no, o] of S.others) if (o.obj.position.distanceTo(me.position) < 220) lbl(o.obj, 5.2, (S.bisu.has(no) ? '🔇 ' : '') + '@' + o.ig, 'nm', no);
   const now = performance.now();
   for (const o of [me, tokoh.raka, ...[...S.others.values()].map(x => x.obj)]) { const g = o.userData.gel; if (g && g.sampai > now) tempel(o, 6.6, g.m, g.emo ? 'gel emo' : 'gel', -4); }
