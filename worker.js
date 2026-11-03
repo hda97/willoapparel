@@ -458,7 +458,7 @@ async function cekGoogle(env, credential) {
 }
 
 // Misi harian warga → koin (dicek di server: sekali per misi per hari WIB).
-const MISI_HARIAN = { jalan: 10, sapa: 10, raka: 5, tetangga: 10, foto: 10, kucing: 5, bonus: 20 };
+const MISI_HARIAN = { jalan: 10, sapa: 10, raka: 5, tetangga: 10, foto: 10, ambil: 10, mancing: 10, sungai: 5, lari: 5, kucing: 5, bonus: 20 };
 // Rapikan username yang diketik/ditempel: buang @, spasi, huruf besar, dan link profil (instagram.com/x, tiktok.com/@x).
 function bersihUn(v) {
   return String(v || "").toLowerCase().replace(/\s+/g, "")

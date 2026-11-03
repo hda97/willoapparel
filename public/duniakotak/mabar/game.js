@@ -396,6 +396,10 @@ const MISI = [
   {id: 'raka', ikon: '⭐', judul: 'Temui Raka dan Oyen', target: 1, koin: 5, info: 'Mereka ada di depan rumah No. 1 (Warung Raka), ujung Jl. Melati.', antar: 1},
   {id: 'tetangga', ikon: '🏡', judul: 'Mampir ke depan rumah tetangga', target: 3, satuan: 'rumah', koin: 10},
   {id: 'foto', ikon: '📸', judul: 'Foto pakai Kamera HP, lalu simpan atau bagikan', target: 1, koin: 10},
+  {id: 'ambil', ikon: '✋', judul: 'Kumpulkan barang: kotak bercahaya di jalan', target: 5, satuan: 'barang', koin: 10},
+  {id: 'mancing', ikon: '🎣', judul: 'Mancing di sungai sampai dapat ikan', target: 2, satuan: 'ikan', koin: 10, info: 'Sungai ada di sisi timur dusun, dekat sawah.'},
+  {id: 'sungai', ikon: '🌊', judul: 'Jalan-jalan ke pinggir sungai', target: 1, koin: 5},
+  {id: 'lari', ikon: '🏃', judul: 'Olahraga: lari (dorong joystick penuh)', target: 150, satuan: 'langkah', koin: 5},
   {id: 'kucing', ikon: '🐱', judul: 'Rawat kucing: beri makan kucing (tombol 🐟)', target: 1, koin: 5, info: 'Oyen ada di rumah Raka (No. 1), atau kucing di depan rumah warga.', antar: 1},
 ];
 const BONUS_MISI = 20;
@@ -441,7 +445,7 @@ function tulisMisi() {
     const p = progresMisi(m), ok = MS.selesai.has(m.id);
     return `<div class="misi ${ok ? 'ok' : ''}"><span class="mi">${ok ? '✅' : m.ikon}</span><div><b>${esc(m.judul)}</b>
       <div class="bar"><i style="width:${Math.round(100 * (ok ? 1 : p / m.target))}%"></i></div><small>${ok ? 'Selesai' : m.target > 1 ? `${p}/${m.target} ${m.satuan || ''}` : 'Belum'}</small>${!ok && m.info ? `<small class="info">📍 ${esc(m.info)}</small>` : ''}${!ok && m.antar ? `<button class="antar" data-antar="${m.antar}">🧭 Antar ke sana</button>` : ''}</div><span class="koin">+${m.koin} 🪙</span></div>`;
-  }).join('') + `<div class="misi bonus ${MS.selesai.has('bonus') ? 'ok' : ''}"><span class="mi">🎁</span><div><b>Bonus: selesaikan semua misi</b><small>${MS.selesai.has('bonus') ? 'Sudah diambil' : 'Otomatis masuk setelah 6 misi selesai'}</small></div><span class="koin">+${BONUS_MISI} 🪙</span></div>`;
+  }).join('') + `<div class="misi bonus ${MS.selesai.has('bonus') ? 'ok' : ''}"><span class="mi">🎁</span><div><b>Bonus: selesaikan semua misi</b><small>${MS.selesai.has('bonus') ? 'Sudah diambil' : `Otomatis masuk setelah ${MISI.length} misi selesai`}</small></div><span class="koin">+${BONUS_MISI} 🪙</span></div>`;
   const isiTas = Object.entries(tas).map(([n, v]) => `${v.ikon} ${n} ×${v.n}`).join(' · ');
   $('isiMisi').innerHTML += `<div class="misi"><span class="mi">🎒</span><div><b>Tasmu</b><small>${isiTas ? esc(isiTas) : 'Masih kosong. Ambil barang di jalan atau mancing di sungai.'}</small></div><span></span></div>`;
   $('ringkasMisi').textContent = `Koinmu: 🪙 ${S.saya?.koin || 0} · Hari ini bisa dapat ${total} koin. Misi baru tiap pukul 00.00 WIB.`;
@@ -495,7 +499,7 @@ function skillAmbil() {
   const me = tokoh.saya; if (!me) return; const it = dekatItem(me);
   if (!it) { toast('Tidak ada barang di dekatmu. Cari kotak bercahaya di jalan, lalu dekati.', 3000); return; }
   hadap(me, it.position); sc.remove(it); itemDunia = itemDunia.filter(x => x !== it);
-  const j = it.userData.jenis; masukTas(j.ikon, j.nama); bunyi('emosi');
+  const j = it.userData.jenis; masukTas(j.ikon, j.nama); bunyi('emosi'); misiMaju('ambil');
   toast(`${j.ikon} ${j.nama} masuk tas (${tas[j.nama].n})`, 2200);
 }
 const mancing = {on: false, teks: '', t: 0, joran: null, batal() { if (this.joran) { tokoh.saya.remove(this.joran); this.joran = null; } }};
@@ -510,7 +514,7 @@ function skillMancing() {
   setTimeout(() => { if (!mancing.on) return; mancing.teks = '❗ Strike!'; bunyi('pesan');
     setTimeout(() => { if (!mancing.on) return; mancing.on = false; mancing.batal();
       let r = Math.random() * 100, hasil = IKAN[0]; for (const x of IKAN) { if ((r -= x[0]) < 0) { hasil = x; break; } }
-      masukTas(hasil[1], hasil[2]); bunyi('masuk'); toast(`${hasil[1]} Dapat ${hasil[2]}! (punya ${tas[hasil[2]].n})`, 3000);
+      masukTas(hasil[1], hasil[2]); bunyi('masuk'); if (hasil[1] !== '👟') misiMaju('mancing'); toast(`${hasil[1]} Dapat ${hasil[2]}! (punya ${tas[hasil[2]].n})`, 3000);
     }, 700);
   }, tunggu);
 }
@@ -529,7 +533,10 @@ function animSkill(dt, me) {
   for (const c of [tokoh.oyen, ...kucingHidup]) if (c && c.userData.senang > now) c.position.y = Math.abs(Math.sin(now / 90)) * .6;
   // tombol skill menyala bila bisa dipakai
   const t = now | 0; if (t % 4 === 0 || !animSkill.t || now - animSkill.t > 300) { animSkill.t = now;
-    $('sAmbil').classList.toggle('siap', !!dekatItem(me)); $('sMancing').classList.toggle('siap', dekatAir(me)); $('sMakan').classList.toggle('siap', !!dekatKucing(me)); }
+    // tombol hanya muncul saat skill bisa dipakai; joran sedang dipakai = tombol Mancing hilang
+    const air = dekatAir(me), bisa = {sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me)};
+    for (const id in bisa) { $(id).classList.toggle('siap', bisa[id]); $(id).hidden = !bisa[id]; }
+    if (air) misiMaju('sungai'); }
 }
 
 // =====================================================================
@@ -873,7 +880,7 @@ function loop(t) {
     if (bebas(me.position.x, nz)) { me.position.z = nz; maju = true; }
     if (!maju) gerak.tujuan = null;
     const tr = Math.atan2(vx, vz); let dr = tr - me.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); me.rotation.y += dr * Math.min(1, dt * 12);
-    const lk = Math.floor(ph / Math.PI); ph += dt * (lari ? 17 : 11); if (Math.floor(ph / Math.PI) !== lk) { bunyi('langkah'); misiMaju('jalan'); } jalanAnim(me, ph, lari ? 1.05 : .7);
+    const lk = Math.floor(ph / Math.PI); ph += dt * (lari ? 17 : 11); if (Math.floor(ph / Math.PI) !== lk) { bunyi('langkah'); misiMaju('jalan'); if (lari) misiMaju('lari'); } jalanAnim(me, ph, lari ? 1.05 : .7);
   } else jalanAnim(me, 0, 0);
   cekMisiDekat(me);
   // warga lain: interpolasi
