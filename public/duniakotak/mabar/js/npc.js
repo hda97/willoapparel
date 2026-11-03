@@ -23,7 +23,7 @@ const DATA = [
     sapa: ['Selamat pagi!', 'Rajin-rajin belajar ya', 'Sudah sarapan?']},
   {id: 'joko', nama: 'Pak Joko', peran: 'Ketua RT', kerja: 'balai', jam: [7, 20],
     a: {jenis: 'L', kulit: '#c98c5e', rambut: {gaya: 'belah', warna: '#3a2416'}, atasan: {jenis: 'batik', warna: '#7a2a2a'}, bawahan: {jenis: 'celana', warna: '#1d1d22'}},
-    kegiatan: ['Ngecek lahan fasum. Bangunan di sini nanti ditentukan dari voting komentar netizen.', 'Mendata warga baru. Tiap hari ada saja yang pindah ke sini!', 'Siapkan kerja bakti. Kamu ikut ya nanti.'],
+    kegiatan: ['Ngecek supermarket, rumah sakit, sama stadion baru. Semua hasil voting warga!', 'Mendata warga baru. Tiap hari ada saja yang pindah ke sini!', 'Siapkan kerja bakti. Kamu ikut ya nanti.'],
     sapa: ['Warga baru? Selamat datang!', 'Jaga kebersihan dusun ya', 'Ayo kerja bakti!']},
   {id: 'karto', nama: 'Mbah Karto', peran: 'Pemancing', kerja: 'sungai', jam: [6, 18],
     a: {jenis: 'L', kulit: '#a86e44', rambut: {gaya: 'cepak', warna: '#f4f4f4'}, atasan: {jenis: 'kemeja', warna: '#3a5a3a'}, bawahan: {jenis: 'sarung', warna: '#7a2a2a'}},
@@ -66,7 +66,7 @@ export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan, tinggi = () =
   const node = (i, j) => new THREE.Vector3(xs[i], tinggi(xs[i], zs[j]), zs[j]);
   let biji = 17; const acak = () => { biji = (biji * 16807) % 2147483647; return (biji - 1) / 2147483646; };
   const fas = I.fas || [];
-  // fas[2] = Warung Desa, fas[0] = lahan fasum kosong dekat rumah Raka (menunggu voting)
+  // fas[2] = Warung Desa, fas[0] = Supermarket, fas[12] = Stadion (voting 3 Nov): anak-anak main bola di stadion
   const fasA = fas[2] || node(1, 1), fasB = fas[0] || node(2, 2), fasC = fas[0] || fasA;
   const sungai = I.sungai || {x0: 0, x1: 0, jembatan: []}, jb = sungai.jembatan[Math.min(2, sungai.jembatan.length - 1)] || [zs[2], zs[2]];
   const tempat = I.tempatNPC || {
@@ -74,7 +74,7 @@ export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan, tinggi = () =
     balai: new THREE.Vector3(fasC.x - 6 * VS, 0, fasC.z + 5 * VS),
     sungai: new THREE.Vector3(sungai.x0 - .8 * VS, 0, jb[1] + 3 * VS),
     sawah: new THREE.Vector3(sungai.x1 + 6 * VS, 0, jb[1] + 4 * VS),
-    main: fasB.clone(),
+    main: fas[12] ? fas[12].clone() : fasB.clone(),
   };
   const daftar = DATA.map((d, k) => {
     const obj = warga(siapAv(d.a)); obj.traverse(m => { if (m.isMesh) { m.castShadow = bayangan; m.receiveShadow = false; } });
