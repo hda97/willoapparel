@@ -714,6 +714,38 @@ function gambarPetaMini(t) {
 // 5. LABEL & GELEMBUNG
 // =====================================================================
 const lab = $('label'); const pool = [];
+// ---------- tata letak HUD: cegah kartu/tombol saling tumpuk di layar HP (ukuran apa pun, termasuk mode diputar) ----------
+let kotakHUD = [], hudT = 0;
+const ID_HUD = ['profil', 'tombolAtas', 'petaMini', 'chipDusun', 'bBukaChat', 'chat', 'stik', 'skill', 'jam'];
+function tataHUD() {
+  const el = id => document.getElementById(id), tampak = e => e && !e.hidden && !e.closest('[hidden]') && getComputedStyle(e).display !== 'none' && getComputedStyle(e).visibility !== 'hidden' && e.getClientRects().length > 0;
+  const prof = el('profil'), atas = el('tombolAtas'), chat = el('chat'), buka = el('bBukaChat'), stik = el('stik'), peta = el('petaMini'), chip = el('chipDusun');
+  if (prof && atas) {
+    const ra = atas.getBoundingClientRect(), rp0 = prof.getBoundingClientRect();
+    // kartu profil tidak boleh menyentuh deret tombol atas (bila sebaris)
+    prof.style.maxWidth = ra.top < rp0.bottom && ra.left > rp0.left ? Math.max(150, ra.left - rp0.left - 10) + 'px' : '';
+    const rp = prof.getBoundingClientRect(), bawah = Math.max(rp.bottom, ra.top < rp.bottom + 4 && ra.left < rp.right ? ra.bottom : 0) + 8;
+    if (buka) buka.style.top = bawah + 'px';
+    if (chat) {
+      chat.style.top = bawah + 'px';
+      const isi = chat.querySelector('.isi');
+      if (isi && stik && tampak(chat)) {
+        isi.style.height = '';
+        const rs = stik.getBoundingClientRect(), rc = chat.getBoundingClientRect(), lebih = rc.bottom - (rs.top - 10);
+        const kiri = rc.right > rs.left && rc.left < rs.right;
+        if (kiri && lebih > 0) { const h = isi.getBoundingClientRect().height - lebih; isi.style.height = Math.max(36, h) + 'px'; }
+        document.body.classList.toggle('chatPenuh', kiri && chat.getBoundingClientRect().bottom > rs.top - 4);
+      } else document.body.classList.remove('chatPenuh');
+    }
+  }
+  if (peta && chip) { const r = peta.getBoundingClientRect(); chip.style.top = (r.bottom + 6) + 'px'; chip.style.right = (innerWidth - r.right) + 'px'; chip.style.maxWidth = Math.max(r.width, 210) + 'px'; }
+  kotakHUD = ID_HUD.map(el).filter(tampak).map(e => e.getBoundingClientRect());
+}
+function kenaHUD(a, b, c, d) {
+  const now = performance.now(); if (now - hudT > 500) { hudT = now; tataHUD(); }
+  return kotakHUD.some(r => a < r.right && c > r.left && b < r.bottom && d > r.top);
+}
+addEventListener('resize', () => setTimeout(tataHUD, 60)); setInterval(tataHUD, 1000);
 const taruh = [];   // kotak label nama yang sudah dipasang frame ini (supaya tidak saling tumpuk)
 const V = new THREE.Vector3();
 function tempel(obj, tinggi, teks, cls, dy = 0) {
@@ -727,7 +759,9 @@ function tempel(obj, tinggi, teks, cls, dy = 0) {
     for (let k = 0; k < 6; k++) { const tabrak = taruh.find(r => Math.abs(r.x - x) < (r.w + w) / 2 + 4 && Math.abs(r.y - y) < h); if (!tabrak) break; y = tabrak.y - h - 2; }
     taruh.push({x, y, w});
   }
-  d.el.style.transform = `translate(${x | 0}px,${y | 0}px) translate(-50%,-100%)`; if (d.el.style.display) d.el.style.display = '';
+  const w2 = (d.el._w || (d.el._w = d.el.offsetWidth || teks.length * 7.5 + 20)) / 2, xx = Math.min(innerWidth - w2 - 6, Math.max(w2 + 6, x));
+  if (Math.abs(xx - x) > w2 * 1.5 || kenaHUD(xx - w2, y - 24, xx + w2, y)) { d.el.style.display = 'none'; return d.el; }   // label tidak boleh menimpa tombol/kartu
+  d.el.style.transform = `translate(${xx | 0}px,${y | 0}px) translate(-50%,-100%)`; if (d.el.style.display) d.el.style.display = '';
   return d.el;
 }
 
@@ -852,17 +886,24 @@ lab.addEventListener('click', e => {
   };
 });
 // ---------- Kamera HP: foto 9:16 berbingkai + ajakan jadi warga ----------
-let kArah = 'selfie', fotoBlob = null;
+var kArah = 'selfie', fotoBlob = null, terangNow = 1;
 async function jepret() {
-  const W = 720, H = 1280, rt = new THREE.WebGLRenderTarget(W, H, {samples: 4});
-  const c2 = new THREE.PerspectiveCamera(46, W / H, 1, 600), me = tokoh.saya.position, ry = tokoh.saya.rotation.y;
-  if (kArah === 'selfie') { c2.position.set(me.x + Math.sin(ry) * 26, 11, me.z + Math.cos(ry) * 26); c2.lookAt(me.x, 5.5, me.z); }
-  else { const sn = Math.sin(yawNow), cs = Math.cos(yawNow); c2.position.set(me.x + sn * 22, 14, me.z + cs * 22); c2.lookAt(me.x - sn * 60, 3, me.z - cs * 60); }
-  R.setRenderTarget(rt); R.render(sc, c2); const px = new Uint8Array(W * H * 4); R.readRenderTargetPixels(rt, 0, 0, W, H, px); R.setRenderTarget(null); rt.dispose();
+  // Render langsung ke kanvas layar (bukan render target) supaya tone mapping + sRGB sama persis dengan tampilan game (sebelumnya foto jadi gelap).
+  const W = 720, H = 1280, me = tokoh.saya.position, ry = tokoh.saya.rotation.y;
+  const kotakAv = new THREE.Box3().setFromObject(tokoh.saya), tAv = Math.max(2, kotakAv.max.y - kotakAv.min.y), dasar = kotakAv.min.y;
+  const c2 = new THREE.PerspectiveCamera(46, W / H, 1, 600);
+  if (kArah === 'selfie') {
+    // avatar di tengah frame (sedikit di bawah tengah, aman dari bingkai teks atas & CTA bawah), tingginya ±45% frame
+    const jarak = tAv / .4 / (2 * Math.tan(THREE.MathUtils.degToRad(23)));
+    c2.position.set(me.x + Math.sin(ry) * jarak, dasar + tAv * .75, me.z + Math.cos(ry) * jarak); c2.lookAt(me.x, dasar + tAv * .45, me.z);
+  } else { const sn = Math.sin(yawNow), cs = Math.cos(yawNow); c2.position.set(me.x - sn * 3, dasar + 9, me.z - cs * 3); c2.lookAt(me.x - sn * 60, dasar + 2, me.z - cs * 60); }   // pandangan mata avatar (avatar tidak terpotong di bawah)
   const cv = document.createElement('canvas'); cv.width = 1080; cv.height = 1920; const x = cv.getContext('2d');
-  const tmp = document.createElement('canvas'); tmp.width = W; tmp.height = H; const id = tmp.getContext('2d').createImageData(W, H);
-  for (let y = 0; y < H; y++) id.data.set(px.subarray((H - 1 - y) * W * 4, (H - y) * W * 4), y * W * 4);   // balik atas-bawah
-  tmp.getContext('2d').putImageData(id, 0, 0); x.drawImage(tmp, 0, 0, 1080, 1920);
+  const ukur = R.getSize(new THREE.Vector2()), pr = R.getPixelRatio();
+  R.setPixelRatio(1); R.setSize(W, H, false); R.render(sc, c2);
+  x.drawImage(R.domElement, 0, 0, 1080, 1920);
+  R.setPixelRatio(pr); R.setSize(ukur.x, ukur.y, false);
+  // malam hari: terangkan sedikit supaya foto tetap jelas
+  if (terangNow < .6) { x.globalCompositeOperation = 'screen'; x.fillStyle = `rgba(90,90,110,${(.6 - terangNow) * .6})`; x.fillRect(0, 0, 1080, 1920); x.globalCompositeOperation = 'source-over'; }
   // bingkai atas
   const g = x.createLinearGradient(0, 0, 0, 380); g.addColorStop(0, 'rgba(19,20,31,.82)'); g.addColorStop(1, 'rgba(19,20,31,0)'); x.fillStyle = g; x.fillRect(0, 0, 1080, 380);
   x.strokeStyle = '#ffffff'; x.lineWidth = 14; x.strokeRect(28, 28, 1024, 1864);
@@ -872,7 +913,7 @@ async function jepret() {
   // ajakan (CTA) di atas zona aman story (teks maks y≈1620)
   const cy = 1430, cw = 900, ch = 190; x.fillStyle = 'rgba(19,20,31,.88)'; x.beginPath(); x.roundRect(540 - cw / 2, cy, cw, ch, 40); x.fill();
   x.fillStyle = '#fff'; x.font = '900 50px Montserrat, sans-serif'; x.fillText('Mau punya rumah di sini?', 540, cy + 78);
-  x.fillStyle = '#5cb8ff'; x.font = '800 40px Montserrat, sans-serif'; x.fillText('Daftar gratis: willoapparel.com/duniakotak', 540, cy + 140);
+  x.fillStyle = '#5cb8ff'; x.font = '800 35px Montserrat, sans-serif'; x.fillText('Daftar gratis: willoapparel.com/duniakotak', 540, cy + 140);
   fotoBlob = await new Promise(r => cv.toBlob(r, 'image/jpeg', .9));
   $('foto').src = URL.createObjectURL(fotoBlob);
 }
@@ -987,8 +1028,8 @@ function aturHUD() {
     if (S.tamu) return toast('Daftar jadi warga dulu untuk menyapa.');
     if (S.ws && S.ws.readyState === 1) { S.ws.send(JSON.stringify({t: 'e', e: b.dataset.e})); misiMaju('sapa'); }
   });
-  $('bTutupChat').onclick = () => { $('chat').hidden = true; $('bBukaChat').hidden = false; };
-  $('bBukaChat').onclick = () => { $('chat').hidden = false; $('bBukaChat').hidden = true; };
+  $('bTutupChat').onclick = () => { $('chat').hidden = true; $('bBukaChat').hidden = false; tataHUD(); };
+  $('bBukaChat').onclick = () => { $('chat').hidden = false; $('bBukaChat').hidden = true; tataHUD(); };
   $('bRumah').onclick = () => pergiKe(S.tamu ? 1 : S.saya.no);
   $('bKamera').onclick = () => bukaKamera();
   $('profil').style.cursor = 'pointer';
@@ -1212,9 +1253,11 @@ function siangMalam(t) {
   if (t - tSM < 5000 && tSM) return; tSM = t;
   const d = new Date(Date.now() + 7 * 3600e3), j = d.getUTCHours() + d.getUTCMinutes() / 60;
   const terang = j < 5 || j > 19.5 ? 0 : j < 6.5 ? (j - 5) / 1.5 : j > 18 ? (19.5 - j) / 1.5 : 1;
+  terangNow = terang;
   const langit = new THREE.Color(0x1a2448).lerp(new THREE.Color(0xbfe4ff), terang);
   sc.background = langit; sc.fog.color = langit; I.light.intensity = .5 + 1.9 * terang; R.toneMappingExposure = .85 + .4 * terang;
   const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  if ($('chipDusun') && $('chipDusun')._d !== DI) { $('chipDusun')._d = DI; $('chipDusun').innerHTML = `📍 <b>Dusun ${NAMA_DUSUN[DI]}</b>`; }
   $('jam').innerHTML = `<span class="dsn">Dusun ${NAMA_DUSUN[DI]} · </span>${HARI[d.getUTCDay()]} ${String(d.getUTCHours()).padStart(2, '0')}.${String(d.getUTCMinutes()).padStart(2, '0')} ${terang > .5 ? '☀️' : '🌙'}<small>Kebun & Pasar Desa segera dibuka</small>`;
 }
 function onResize() {
