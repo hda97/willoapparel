@@ -36,10 +36,20 @@
   <div class="cepat"><button data-e="sapa">👋</button><button data-e="hati">❤️</button><button data-e="tawa">😂</button><button data-q="Main ke rumahku!">🏠 Main ke rumahku!</button></div>
  </div>
  <button class="bulat" id="bBukaChat" hidden><i>💬</i>Chat</button>
+ <canvas id="petaMini" width="240" height="240" title="Buka peta desa (M)"></canvas>
  <div id="stik"><div id="kenop"></div></div>
  <div class="zoom skill"><button id="sAmbil" title="Ambil item (F)"><i>✋</i>Ambil</button><button id="sMancing" title="Mancing di sungai (R)"><i>🎣</i>Mancing</button><button id="sMakan" title="Beri makan kucing (G)"><i>🐟</i>Beri makan</button></div>
 </div>
 
+<div id="panelPeta" class="layarPenuh" hidden>
+ <div class="panel peta">
+  <div class="petaAtas"><h2>🗺️ Peta Dusun Kotak Wetan</h2><button id="tutupPeta" class="tutupX" aria-label="Tutup">✕</button></div>
+  <form id="cariPeta"><input id="cariIsi" placeholder="Cari @username atau nomor rumah" autocomplete="off" autocapitalize="off" spellcheck="false"><button>Cari</button></form>
+  <div class="petaBingkai"><canvas id="petaBesar"></canvas><div id="petaZoom"><button data-z="+">＋</button><button data-z="-">－</button><button data-z="aku" title="Lokasiku">◎</button></div></div>
+  <div id="petaInfo" class="kecil">Ketuk rumah di peta untuk melihat pemiliknya. 🔵 kamu · ⭐ Raka · 🟢 warga online</div>
+  <button class="utama" id="petaAntar" hidden>🧭 Antar ke sana</button>
+ </div>
+</div>
 <div id="panelMisi" class="layarPenuh" hidden>
  <div class="panel">
   <h2>Misi hari ini</h2>

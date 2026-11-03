@@ -559,6 +559,84 @@ function gantiAvatarSaya() {
 }
 
 // =====================================================================
+// PETA DESA (ala gmaps): foto udara dirender sekali dari atas, lalu titik pemain/warga digambar di atasnya
+// =====================================================================
+const peta = {img: null, w: 0, h: 0, b: null, pilih: null, t: 0, u: 0, v: 0, z: 2.2};
+function buatPeta() {
+  try {
+    const b = I.batas, lebar = b.x1 - b.x0, tinggi = b.z1 - b.z0, k = 1400 / Math.max(lebar, tinggi);
+    const W = Math.round(lebar * k), H = Math.round(tinggi * k);
+    const rt = new THREE.WebGLRenderTarget(W, H);
+    const oc = new THREE.OrthographicCamera(-lebar / 2, lebar / 2, tinggi / 2, -tinggi / 2, 1, 900);
+    oc.position.set((b.x0 + b.x1) / 2, 600, (b.z0 + b.z1) / 2); oc.up.set(0, 0, -1); oc.lookAt((b.x0 + b.x1) / 2, 0, (b.z0 + b.z1) / 2);
+    const fog = sc.fog, bg = sc.background; sc.fog = null; sc.background = new THREE.Color(0x3f7a3a);
+    R.setRenderTarget(rt); R.render(sc, oc); R.setRenderTarget(null); sc.fog = fog; sc.background = bg;
+    const px = new Uint8Array(W * H * 4); R.readRenderTargetPixels(rt, 0, 0, W, H, px); rt.dispose();
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d'), id = c.createImageData(W, H);
+    for (let y = 0; y < H; y++) id.data.set(px.subarray((H - 1 - y) * W * 4, (H - y) * W * 4), y * W * 4);
+    c.putImageData(id, 0, 0);
+    peta.w = W; peta.h = H; peta.b = b;
+    // nomor rumah kecil + nama jalan utama
+    c.font = `900 ${Math.max(10, Math.round(11 * k / 1.4))}px Montserrat,sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle';
+    for (const [n, L] of Object.entries(I.lots)) { const [u, v] = keP(L.c.x, L.c.z); c.fillStyle = 'rgba(0,0,0,.55)'; c.fillText(n, u + 1, v + 1); c.fillStyle = NM[n] ? '#fff' : 'rgba(255,255,255,.6)'; c.fillText(n, u, v); }
+    c.font = `900 ${Math.round(16 * k / 1.4)}px Montserrat,sans-serif`; c.fillStyle = '#e8f6ff'; c.save(); const [su, sv] = keP((I.sungai.x0 + I.sungai.x1) / 2, (b.z0 + b.z1) / 2); c.translate(su, sv); c.rotate(-Math.PI / 2); c.fillText('S U N G A I', 0, 0); c.restore();
+    peta.img = cv; peta.w = W; peta.h = H; peta.b = b;
+  } catch (e) { console.error('peta', e); $('petaMini').hidden = true; }
+  $('petaMini').onclick = bukaPeta;
+  $('tutupPeta').onclick = () => { $('panelPeta').hidden = true; };
+  // peta besar: geser 1 jari = pindah, cubit/roda = zoom, ketuk = pilih rumah
+  const cvB = $('petaBesar'), jr = new Map(); let geser = 0, jarak0 = 0, z0 = 0;
+  const keGambar = (cx, cy) => { const r = cvB.getBoundingClientRect(), s = cvB.width / r.width; return [peta.u + ((cx - r.left) * s - cvB.width / 2) / peta.z, peta.v + ((cy - r.top) * s - cvB.height / 2) / peta.z]; };
+  cvB.onpointerdown = e => { cvB.setPointerCapture(e.pointerId); jr.set(e.pointerId, {x: e.clientX, y: e.clientY}); geser = 0; if (jr.size === 2) { const [a, b2] = [...jr.values()]; jarak0 = Math.hypot(a.x - b2.x, a.y - b2.y); z0 = peta.z; } };
+  cvB.onpointermove = e => { const p = jr.get(e.pointerId); if (!p) return; const r = cvB.getBoundingClientRect(), s = cvB.width / r.width;
+    if (jr.size === 1) { const dx = e.clientX - p.x, dy = e.clientY - p.y; geser += Math.abs(dx) + Math.abs(dy); peta.u -= dx * s / peta.z; peta.v -= dy * s / peta.z; }
+    p.x = e.clientX; p.y = e.clientY;
+    if (jr.size === 2) { const [a, b2] = [...jr.values()]; peta.z = Math.max(.6, Math.min(6, z0 * Math.hypot(a.x - b2.x, a.y - b2.y) / (jarak0 || 1))); geser = 99; }
+    gambarPetaBesar(); };
+  cvB.onpointerup = cvB.onpointercancel = e => { jr.delete(e.pointerId); if (e.type === 'pointerup' && geser < 8 && !jr.size) {
+    const [u, v] = keGambar(e.clientX, e.clientY); let best = null, bd = 1e9;
+    for (const [n, L] of Object.entries(I.lots)) { const [a, c2] = keP(L.c.x, L.c.z), d = Math.hypot(a - u, c2 - v); if (d < bd) { bd = d; best = +n; } } if (best && bd < 30) pilihRumah(best); } };
+  cvB.onwheel = e => { e.preventDefault(); peta.z = Math.max(.6, Math.min(6, peta.z * (e.deltaY < 0 ? 1.15 : .87))); gambarPetaBesar(); };
+  $('petaZoom').onclick = e => { const d = e.target.dataset.z; if (!d) return; if (d === 'aku') { [peta.u, peta.v] = keP(tokoh.saya.position.x, tokoh.saya.position.z); peta.z = 2.2; } else peta.z = Math.max(.6, Math.min(6, peta.z * (d === '+' ? 1.4 : .7))); gambarPetaBesar(); };
+  $('cariPeta').onsubmit = e => { e.preventDefault(); const q = $('cariIsi').value.trim().toLowerCase().replace(/^@/, '').replace(/^no\.?\s*/, '');
+    if (!q) return; let n = /^\d+$/.test(q) && I.lots[+q] ? +q : 0;
+    if (!n) { const hit = Object.entries(NM).find(([, nm]) => nm.toLowerCase().replace(/^@/, '') === q) || Object.entries(NM).find(([, nm]) => nm.toLowerCase().includes(q)); if (hit) n = +hit[0]; }
+    if (n) pilihRumah(n); else $('petaInfo').textContent = `"${q}" tidak ketemu. Coba username lain atau nomor rumah.`; };
+  $('petaAntar').onclick = () => { if (!peta.pilih) return; $('panelPeta').hidden = true; pergiKe(peta.pilih); toast('Jalan otomatis ke rumah No. ' + peta.pilih + '… geser joystick untuk berhenti.', 3500); };
+}
+function keP(x, z) { const b = peta.b || I.batas, W = peta.w || 1, H = peta.h || 1; return [(x - b.x0) / (b.x1 - b.x0) * W, (z - b.z0) / (b.z1 - b.z0) * H]; }
+function pilihRumah(n) {
+  peta.pilih = n; [peta.u, peta.v] = keP(I.lots[n].c.x, I.lots[n].c.z); peta.z = Math.max(peta.z, 2.2); const nm = n === 1 ? 'Raka & Oyen (Warung Raka)' : NM[n] || 'kavling kosong';
+  $('petaInfo').textContent = `📍 No. ${n} · ${nm} · ${alamat(n)}`; $('petaAntar').hidden = false; gambarPetaBesar();
+}
+function bukaPeta() { $('panelPeta').hidden = false; $('petaAntar').hidden = !peta.pilih; if (!peta.pilih) [peta.u, peta.v] = keP(tokoh.saya.position.x, tokoh.saya.position.z); gambarPetaBesar(); }
+function titikPeta(c, k, me) {
+  // warga online (hijau), Raka (bintang), saya (panah biru)
+  for (const o of S.others.values()) { const [u, v] = keP(o.obj.position.x, o.obj.position.z); c.fillStyle = '#2ecc71'; c.strokeStyle = '#fff'; c.lineWidth = 2 * k; c.beginPath(); c.arc(u, v, 6 * k, 0, 7); c.fill(); c.stroke(); }
+  if (tokoh.raka) { const [u, v] = keP(tokoh.raka.position.x, tokoh.raka.position.z); c.font = `${Math.round(18 * k)}px sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('⭐', u, v); }
+  if (peta.pilih && I.lots[peta.pilih]) { const L = I.lots[peta.pilih], [u, v] = keP(L.c.x, L.c.z); c.fillStyle = '#ea4335'; c.strokeStyle = '#fff'; c.lineWidth = 2.5 * k; c.beginPath(); c.arc(u, v - 16 * k, 10 * k, Math.PI * .85, Math.PI * 2.15); c.lineTo(u, v); c.closePath(); c.fill(); c.stroke(); c.fillStyle = '#fff'; c.beginPath(); c.arc(u, v - 16 * k, 4 * k, 0, 7); c.fill(); }
+  if (me) { const [u, v] = keP(me.position.x, me.position.z); c.save(); c.translate(u, v); c.rotate(Math.PI - me.rotation.y);
+    c.fillStyle = 'rgba(66,133,244,.25)'; c.beginPath(); c.arc(0, 0, 16 * k, 0, 7); c.fill();
+    c.fillStyle = '#4285f4'; c.strokeStyle = '#fff'; c.lineWidth = 2.5 * k; c.beginPath(); c.moveTo(0, -11 * k); c.lineTo(8 * k, 8 * k); c.lineTo(0, 4 * k); c.lineTo(-8 * k, 8 * k); c.closePath(); c.fill(); c.stroke(); c.restore(); }
+}
+function gambarPetaBesar() {
+  if (!peta.img) return; const cv = $('petaBesar'), r = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1);
+  const W = Math.max(200, Math.round(r.width * dpr)), H = Math.max(160, Math.round(r.height * dpr)); if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+  const c = cv.getContext('2d'); c.fillStyle = '#3f7a3a'; c.fillRect(0, 0, W, H);
+  peta.u = Math.max(0, Math.min(peta.w, peta.u)); peta.v = Math.max(0, Math.min(peta.h, peta.v));
+  c.save(); c.translate(W / 2, H / 2); c.scale(peta.z, peta.z); c.translate(-peta.u, -peta.v); c.imageSmoothingEnabled = peta.z < 2.5;
+  c.drawImage(peta.img, 0, 0); titikPeta(c, 1.3 * dpr / peta.z, tokoh.saya); c.restore();
+}
+function gambarPetaMini(t) {
+  if (!peta.img || t - peta.t < 150) return; peta.t = t;
+  const me = tokoh.saya, cv = $('petaMini'), c = cv.getContext('2d'), S2 = cv.width, [u, v] = keP(me.position.x, me.position.z), lebar = 260;
+  c.fillStyle = '#3f7a3a'; c.fillRect(0, 0, S2, S2);
+  c.save(); const z = S2 / lebar; c.translate(S2 / 2, S2 / 2); c.scale(z, z); c.translate(-u, -v);
+  c.drawImage(peta.img, 0, 0); titikPeta(c, 1.6 / z * .9, me); c.restore();
+  if (!$('panelPeta').hidden) gambarPetaBesar();
+}
+
+// =====================================================================
 // 5. LABEL & GELEMBUNG
 // =====================================================================
 const lab = $('label'); const pool = [];
@@ -649,7 +727,7 @@ function kirimPos(paksa) {
 // 8. KONTROL
 // =====================================================================
 const gerak = {kunci: {}, stik: null, tujuan: null, jalan: false};
-addEventListener('keydown', e => { if (document.activeElement && document.activeElement.tagName === 'INPUT') return; gerak.kunci[e.key.toLowerCase()] = true; if (e.key === 'q' || e.key === 'Q') putar(1); if (e.key === 'e' || e.key === 'E') putar(-1); const kk = e.key.toLowerCase(); if (kk === 'f') skillAmbil(); if (kk === 'r') skillMancing(); if (kk === 'g') skillMakan(); if (e.key === 'Enter') { $('ketik').focus(); e.preventDefault(); } });
+addEventListener('keydown', e => { if (document.activeElement && document.activeElement.tagName === 'INPUT') return; gerak.kunci[e.key.toLowerCase()] = true; if (e.key === 'q' || e.key === 'Q') putar(1); if (e.key === 'e' || e.key === 'E') putar(-1); const kk = e.key.toLowerCase(); if (kk === 'f') skillAmbil(); if (kk === 'r') skillMancing(); if (kk === 'g') skillMakan(); if (kk === 'm' && peta.img) { if ($('panelPeta').hidden) bukaPeta(); else $('panelPeta').hidden = true; } if (e.key === 'Enter') { $('ketik').focus(); e.preventDefault(); } });
 addEventListener('keyup', e => { gerak.kunci[e.key.toLowerCase()] = false; });
 addEventListener('blur', () => { gerak.kunci = {}; });
 const stik = $('stik'), kenop = $('kenop');
@@ -811,6 +889,7 @@ async function mulai() {
   $('profNama').textContent = S.tamu ? 'Tamu' : '@' + S.saya.ig + ' · No. ' + S.saya.no;
   $('profAlamat').textContent = S.tamu ? 'Dusun Kotak Wetan' : alamat(S.saya.no) + ' · Kotak Wetan';
   $('profAva').style.background = S.av.kulit;
+  buatPeta();
   hitungOnline(); tulisChat(); aturHUD(); sambung();
   if (!baca('dk_panduan')) panduan();
   onResize(); requestAnimationFrame(loop);
@@ -932,6 +1011,7 @@ function loop(t) {
   siangMalam(t);
   kirimPos(false);
   R.render(sc, cam);
+  gambarPetaMini(t);
   // label
   pool.forEach(d => { d.dipakai = false; });
   const lbl = (o, h, teks, cls, no) => { const el = tempel(o, h, teks, cls); if (el) el.dataset.no = no || ''; };

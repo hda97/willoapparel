@@ -112,3 +112,15 @@ canvas#layar{touch-action:none}
 .misi small.info{display:block;color:#ffd9a0;margin-top:3px}
 .misi .antar{margin-top:6px;border:0;border-radius:99px;background:#ffd75a;color:#3a2a00;font-weight:900;font-size:12px;padding:6px 12px;cursor:pointer}
 #label>div{left:0;top:0;will-change:transform}
+
+/* peta mini + peta besar (ala gmaps) */
+#petaMini{position:fixed;top:calc(max(12px,env(safe-area-inset-top)) + 72px);right:max(12px,env(safe-area-inset-right));width:120px;height:120px;border-radius:18px;border:3px solid rgba(255,255,255,.85);box-shadow:0 4px 14px rgba(0,0,0,.3);background:#7fbf5a;cursor:pointer}
+@media (max-height:500px){#petaMini{top:66px;width:96px;height:96px;border-radius:14px}}
+.panel.peta{max-width:min(960px,96vw);width:100%}
+.petaAtas{display:flex;justify-content:space-between;align-items:center;gap:8px}.petaAtas h2{margin:0}
+.tutupX{border:0;background:rgba(255,255,255,.12);color:#fff;border-radius:50%;width:38px;height:38px;font-size:18px;cursor:pointer}
+#cariPeta{display:flex;gap:8px;margin:10px 0}#cariPeta input{flex:1;min-width:0;padding:10px 12px;border-radius:12px;border:0;font:700 14px Montserrat,sans-serif}#cariPeta button{border:0;border-radius:12px;padding:0 16px;font:900 14px Montserrat,sans-serif;background:#ffd75a;color:#3a2a00;cursor:pointer}
+.petaBingkai{position:relative;border-radius:14px;overflow:hidden;background:#2a4a2a}#petaBesar{display:block;width:100%;height:min(62vh,560px);touch-action:none;cursor:grab}
+#petaZoom{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px}#petaZoom button{width:40px;height:40px;border:0;border-radius:10px;background:#fff;color:#1a1c2e;font:900 20px Montserrat,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer}
+@media (max-height:500px){#petaBesar{height:52vh}.panel.peta h2{font-size:16px}#cariPeta{margin:6px 0}}
+#petaInfo{margin-top:8px;min-height:20px}
