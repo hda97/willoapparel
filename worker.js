@@ -279,6 +279,7 @@ export class Warga extends DurableObject {
       const hari = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
       let ms = { t: hari, s: [] }; try { const m0 = r.misi ? JSON.parse(r.misi) : null; if (m0 && m0.t === hari && Array.isArray(m0.s)) ms = m0; } catch (e) {}
       let dapat = 0;
+      const MISI_HARIAN = misiHari(hari);
       if (aksi === "misi" && MISI_HARIAN[q.id] && !ms.s.includes(q.id)) {
         const inti = Object.keys(MISI_HARIAN).filter((k) => k !== "bonus");
         if (q.id !== "bonus" || inti.every((k) => ms.s.includes(k))) {
@@ -465,7 +466,14 @@ async function cekGoogle(env, credential) {
 }
 
 // Misi harian warga → koin (dicek di server: sekali per misi per hari WIB).
-const MISI_HARIAN = { jalan: 10, sapa: 10, raka: 5, tetangga: 10, foto: 10, ambil: 10, mancing: 10, sungai: 5, lari: 5, kucing: 5, bonus: 20 };
+// Kolam misi + undian harian: urutan & cara undi HARUS sama dengan KOLAM_MISI/undiMisi di mabar/game.js.
+const MISI_KOLAM = [["jalan", 10], ["sapa", 10], ["raka", 5], ["tetangga", 10], ["foto", 10], ["ambil", 10], ["mancing", 10], ["sungai", 5], ["lari", 5], ["kucing", 5], ["lompat", 5], ["fasum", 10], ["stadion", 5], ["npc", 10], ["supermarket", 5], ["rs", 5]];
+function misiHari(hari) {
+  let h = 2166136261; for (const c of "dk" + hari) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
+  const r = () => { h = (h + 0x6D2B79F5) >>> 0; let t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const a = MISI_KOLAM.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return Object.fromEntries([...a.slice(0, 6), ["bonus", 20]]);
+}
 // Rapikan username yang diketik/ditempel: buang @, spasi, huruf besar, dan link profil (instagram.com/x, tiktok.com/@x).
 function bersihUn(v) {
   return String(v || "").toLowerCase().replace(/\s+/g, "")
