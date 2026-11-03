@@ -171,7 +171,7 @@ export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan, tinggi = () =
         if (!n.tuju) pilihTuju(n);
         const dx = n.tuju.x - o.position.x, dz = n.tuju.z - o.position.z, l = Math.hypot(dx, dz), s = kec * .45 * (n.cepat || 1) * dt;
         if (l <= s) { o.position.copy(n.tuju); n.tuju = null; if (acak() < .3) n.tunggu = 1 + acak() * 3; }
-        else { o.position.x += dx / l * s; o.position.z += dz / l * s; o.position.y = tinggi(o.position.x, o.position.z); hadapi(o, n.tuju.x, n.tuju.z, Math.min(1, dt * 8)); }
+        else { o.position.x += dx / l * s; o.position.z += dz / l * s; o.position.y = tinggi(o.position.x, o.position.z, o.position.y); hadapi(o, n.tuju.x, n.tuju.z, Math.min(1, dt * 8)); }
         if (o.visible) { const a = Math.sin(n.ph * 9 * (n.cepat || 1)) * .7; pose(o, {legL: a, legR: -a, armL: -a * .8, armR: a * .8}); }
       } else if (n.kerja === 'bola') {
         // main bola: berlari elips di lapangan stadion
