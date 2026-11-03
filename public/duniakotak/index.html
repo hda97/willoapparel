@@ -54,6 +54,9 @@ h3{font-weight:900;font-size:17px;margin:0 0 10px}
 .nl{width:28px;height:28px;flex:none;border-radius:50%;background:var(--tinta);color:#fff;display:grid;place-items:center;font-weight:900}
 .cara{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.cara button{font:800 15px Montserrat,sans-serif;padding:12px 6px;border-radius:12px;border:2px solid #1d2a1d;background:#fff;color:#1d2a1d;cursor:pointer}.cara button.aktif{background:#1d2a1d;color:#fff}
 #ktp{width:100%;height:auto;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,.18);margin-top:12px}.dua{display:grid;grid-template-columns:1fr 1fr;gap:8px}.dua .tombol{margin-top:10px}
+#pilihAv .br{margin-top:12px}#pilihAv b{display:block;font-size:13px;margin-bottom:6px}#pilihAv .op{display:flex;flex-wrap:wrap;gap:6px}
+#pilihAv button{font:700 13px Montserrat,sans-serif;padding:8px 10px;border-radius:10px;border:2px solid #cbbd9e;background:#fff;cursor:pointer}#pilihAv button.on{border-color:#1d2a1d;background:#1d2a1d;color:#fff}
+#pilihAv button.w{width:34px;height:34px;padding:0}#pilihAv button.w.on{outline:3px solid #1d2a1d;outline-offset:2px}
 .tombol.kedua{background:#fff;color:#1d2a1d;border:2px solid #1d2a1d;box-shadow:0 4px 0 #1d2a1d}
 .isi input{width:100%;box-sizing:border-box;font:600 16px Montserrat,sans-serif;padding:12px 14px;border-radius:12px;border:2px solid #cbbd9e;background:#fff}
 .at{position:relative}.at input{padding-left:32px}.at:before{content:"@";position:absolute;left:14px;top:50%;transform:translateY(-50%);font-weight:800;opacity:.55}
@@ -118,7 +121,12 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
     <p class="sub" id="ket">Ini kavlingmu di Dunia Kotak.</p>
     <canvas id="ktp" width="1012" height="638" style="display:none" aria-label="Kartu Warga Dunia Kotak"></canvas>
     <div class="dua"><button class="tombol" id="bagiKtp">Bagikan ke story</button><button class="tombol kedua" id="simpanKtp">Simpan kartu</button></div>
-    <p class="kecil">Foto kartu ikut berubah setelah kamu buat avatar di game mabar.</p>
+    <details id="avatarKotak" style="margin-top:14px"><summary style="font-weight:800;cursor:pointer">Pilih avatar untuk foto kartumu</summary>
+      <div id="pilihAv"></div>
+      <button class="tombol" id="simpanAv" style="width:100%">Simpan avatar</button>
+      <div id="pesanAv" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
+    </details>
+    <p class="kecil">Avatar ini juga dipakai di game mabar.</p>
     <canvas id="kanvas" width="600" height="600" aria-label="Rumah dan pekarangan kavlingmu"></canvas>
     <div id="kodeKotak" style="display:none;text-align:center;margin-top:12px">
       <small style="font-weight:700">Kode warga (untuk masuk game di HP lain)</small><br><span id="kodeWarga">––––––</span>
@@ -167,7 +175,8 @@ async function tampilkan(o){
 async function tampilKode(){
   if(!kunci)return;
   try{const s=await kirim('sesi',{kunci});$('kodeWarga').textContent=s.kode||'––––––';$('kodeKotak').style.display='block';
-    const {gambarKTP}=await import('./js/ktp.js');await gambarKTP($('ktp'),{no:s.no,nama:s.nama,ig:s.akunIg,tiktok:s.tiktok,dibuat:s.dibuat,avatar:s.avatar});$('ktp').style.display='block'}catch(e){console.error(e)}
+    K=await import('./js/ktp.js');dataKartu={no:s.no,nama:s.nama,ig:s.akunIg,tiktok:s.tiktok,dibuat:s.dibuat};
+    av=K.bersihAv(s.avatar||K.avAcak(s.no));await K.gambarKTP($('ktp'),{...dataKartu,avatar:av});$('ktp').style.display='block';tulisAv()}catch(e){console.error(e)}
 }
 
 async function gambarKavling(nama,no){
@@ -192,6 +201,27 @@ $('bagiKtp').onclick=async()=>{const {gambarStory}=await import('./js/ktp.js');c
   st.toBlob(async b=>{const f=new File([b],'story-warga-dunia-kotak.png',{type:'image/png'});
   try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],text:'Aku resmi jadi warga Dunia Kotak! Daftar gratis: willoapparel.com/duniakotak @duniakotak.id'});return}}catch(e){if(e&&e.name==='AbortError')return}
   const a=document.createElement('a');a.download=f.name;a.href=URL.createObjectURL(b);a.click()},'image/png')};
+// ---- pilih avatar untuk foto kartu (pilihan sama dengan game) ----
+let K=null,dataKartu=null,av=null,gmbTunda=0;
+const NAMA_OPSI={cepak:'Cepak',belah:'Belah',acak:'Acak',keriting:'Keriting',panjang:'Panjang',kuncir:'Kuncir',kepang:'Kepang',bob:'Bob',hijab:'Hijab',kaos:'Kaos','kaos-willo':'Kaos Willo',kemeja:'Kemeja',jaket:'Jaket',batik:'Batik',seragam:'Seragam',celana:'Celana',pendek:'Celana pendek',sarung:'Sarung',rok:'Rok','rok-panjang':'Rok panjang',L:'Laki-laki',P:'Perempuan'};
+function tulisAv(){
+  if(!K||!av)return;
+  const br=(j,list,aktif,warna)=>`<div class="br"><b>${j}</b><div class="op">${list.map((v,i)=>`<button data-k="${j}" data-i="${i}" class="${warna?'w':''} ${v===aktif?'on':''}" ${warna?`style="background:${v}" aria-label="${v}"`:''}>${warna?'':NAMA_OPSI[v]||v}</button>`).join('')}</div></div>`;
+  $('pilihAv').innerHTML=br('Jenis',['L','P'],av.jenis)+br('Kulit',K.KULIT,av.kulit,1)+br('Rambut',K.GAYA_RAMBUT[av.jenis],av.rambut.gaya)+
+    (av.rambut.gaya==='hijab'?br('Warna hijab',K.WARNA_BAJU,av.rambut.warna,1):br('Warna rambut',K.WARNA_RAMBUT,av.rambut.warna,1))+
+    br('Atasan',K.ATASAN,av.atasan.jenis)+br('Warna atasan',K.WARNA_BAJU,av.atasan.warna,1)+br('Bawahan',K.BAWAHAN[av.jenis],av.bawahan.jenis)+br('Warna bawahan',K.WARNA_BAWAH,av.bawahan.warna,1);
+  $('pilihAv').querySelectorAll('button').forEach(b=>b.onclick=()=>{const k=b.dataset.k,i=+b.dataset.i;
+    if(k==='Jenis'){av.jenis=['L','P'][i];av=K.bersihAv({...av,rambut:{gaya:'',warna:av.rambut.warna},bawahan:{jenis:'',warna:av.bawahan.warna}})}
+    if(k==='Kulit')av.kulit=K.KULIT[i];if(k==='Rambut')av.rambut.gaya=K.GAYA_RAMBUT[av.jenis][i];
+    if(k==='Warna rambut')av.rambut.warna=K.WARNA_RAMBUT[i];if(k==='Warna hijab')av.rambut.warna=K.WARNA_BAJU[i];
+    if(k==='Atasan')av.atasan.jenis=K.ATASAN[i];if(k==='Warna atasan')av.atasan.warna=K.WARNA_BAJU[i];
+    if(k==='Bawahan')av.bawahan.jenis=K.BAWAHAN[av.jenis][i];if(k==='Warna bawahan')av.bawahan.warna=K.WARNA_BAWAH[i];
+    $('pesanAv').textContent='Belum disimpan.';tulisAv();clearTimeout(gmbTunda);gmbTunda=setTimeout(()=>K.gambarKTP($('ktp'),{...dataKartu,avatar:av}),120)});
+}
+$('simpanAv').onclick=async()=>{if(!kunci||!av)return;
+  try{$('simpanAv').disabled=true;await kirim('avatar',{kunci,avatar:av});$('pesanAv').textContent='✓ Avatar tersimpan. Foto kartumu sudah berganti.'}
+  catch(e){$('pesanAv').textContent=e.message}finally{$('simpanAv').disabled=false}};
+
 let cara='ig';
 const KET={ig:'Username Instagram-mu diukir di batu depan rumah.',tt:'Username TikTok-mu diukir di batu depan rumah.',google:'Namamu diukir di batu depan rumah. Lanjut masuk dengan Google.'};
 document.querySelectorAll('.cara button').forEach(b=>b.onclick=()=>{cara=b.dataset.cara;
