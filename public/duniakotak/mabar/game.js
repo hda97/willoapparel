@@ -666,13 +666,20 @@ function gambarPetaMini(t) {
 // 5. LABEL & GELEMBUNG
 // =====================================================================
 const lab = $('label'); const pool = [];
+const taruh = [];   // kotak label nama yang sudah dipasang frame ini (supaya tidak saling tumpuk)
 const V = new THREE.Vector3();
 function tempel(obj, tinggi, teks, cls, dy = 0) {
   V.copy(obj.position); V.y += tinggi; V.project(cam);
   if (V.z > 1 || V.x < -1.2 || V.x > 1.2 || V.y < -1.2 || V.y > 1.2) return null;
   let d = pool.find(x => !x.dipakai); if (!d) { d = {el: document.createElement('div')}; lab.appendChild(d.el); pool.push(d); }
-  d.dipakai = true; if (d.el.className !== cls) d.el.className = cls; if (d.el._t !== teks) { d.el.textContent = teks; d.el._t = teks; }
-  d.el.style.transform = `translate(${((V.x + 1) / 2 * innerWidth) | 0}px,${((1 - V.y) / 2 * innerHeight + dy) | 0}px) translate(-50%,-100%)`; if (d.el.style.display) d.el.style.display = '';
+  d.dipakai = true; if (d.el.className !== cls) d.el.className = cls; if (d.el._t !== teks) { d.el.textContent = teks; d.el._t = teks; d.el._w = 0; }
+  const x = (V.x + 1) / 2 * innerWidth; let y = (1 - V.y) / 2 * innerHeight + dy;
+  if (cls.startsWith('nm')) {
+    const w = d.el._w || (d.el._w = d.el.offsetWidth || teks.length * 7.5 + 20), h = 24;
+    for (let k = 0; k < 6; k++) { const tabrak = taruh.find(r => Math.abs(r.x - x) < (r.w + w) / 2 + 4 && Math.abs(r.y - y) < h); if (!tabrak) break; y = tabrak.y - h - 2; }
+    taruh.push({x, y, w});
+  }
+  d.el.style.transform = `translate(${x | 0}px,${y | 0}px) translate(-50%,-100%)`; if (d.el.style.display) d.el.style.display = '';
   return d.el;
 }
 
@@ -1054,7 +1061,7 @@ function loop(t) {
   R.render(sc, cam);
   gambarPetaMini(t);
   // label
-  pool.forEach(d => { d.dipakai = false; });
+  pool.forEach(d => { d.dipakai = false; }); taruh.length = 0;
   const lbl = (o, h, teks, cls, no, idNpc) => { const el = tempel(o, h, teks, cls); if (el) { el.dataset.no = no || ''; el.dataset.npc = idNpc || ''; } return el; };
   lbl(me, 5.2, S.tamu ? 'Kamu (tamu)' : '@' + S.saya.ig, 'nm saya');
   lbl(tokoh.raka, 5.2, '★ Raka', 'nm raka'); lbl(tokoh.oyen, 2.6, 'Oyen', 'nm raka kucing');
