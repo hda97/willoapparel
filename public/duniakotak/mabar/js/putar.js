@@ -50,3 +50,18 @@ const ubah = () => { const lama = aktif; terapkan(); if (lama !== aktif) dispatc
 addEventListener('resize', () => { if (tunda) return; tunda = requestAnimationFrame(() => { tunda = 0; ubah(); }); }, {capture: true});
 addEventListener('orientationchange', () => setTimeout(ubah, 250));
 if (document.body) terapkan(); else addEventListener('DOMContentLoaded', terapkan);
+// Keyboard HP mengikuti arah HP, bukan arah halaman. Di browser yang mendukung (Chrome Android), sentuhan pertama
+// mengunci layar ke landscape sungguhan (layar penuh), sehingga game DAN keyboard sama-sama mendatar.
+// Browser yang tidak mendukung (iPhone, browser di dalam IG/TikTok) tetap pakai putaran CSS di atas.
+let cobaKunci = false;
+async function kunciLandscape() {
+  if (cobaKunci || !aktif) return; cobaKunci = true;
+  try {
+    if (!screen.orientation || !screen.orientation.lock) return;
+    const el = document.documentElement;
+    if (!document.fullscreenElement && el.requestFullscreen) await el.requestFullscreen({navigationUI: 'hide'});
+    await screen.orientation.lock('landscape');
+    setTimeout(ubah, 300);
+  } catch (e) { if (document.fullscreenElement && aktif) { try { await document.exitFullscreen(); } catch (e2) {} } }
+}
+addEventListener('pointerup', kunciLandscape, {capture: true});

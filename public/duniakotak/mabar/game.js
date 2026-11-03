@@ -227,6 +227,7 @@ function pasangFasum() {
     m.traverse(o => { if (!o.isMesh) return; b.setFromObject(o); const sz = b.getSize(new THREE.Vector3()); if (sz.y > 2.4 * VS && sz.x > 1.5 * VS && sz.z > 1.5 * VS) kotak.union(b); });
     fasumBangun.push({position: new THREE.Vector3(f.x, 0, f.z), nama, tinggi: kotak.isEmpty() ? 8 * VS : kotak.max.y + 1, rect: kotak.isEmpty() ? null : [kotak.min.x, kotak.max.x, kotak.min.z, kotak.max.z]});
   }
+  kumpulPijakan(g);
   bakeGroup(g);
 }
 function bangunProksi() {
@@ -251,6 +252,7 @@ function bangunProksi() {
 function bangunKulon() {
   I = kulon(sc, {names: NM, isFilled: n => !!NM[n], sm: hemat ? 1024 : 2048, shadowR: 70, hemat});
   I.light.castShadow = !hemat;
+  kumpulPijakan(I.G); kumpulPijakan(I.grupFasum);
   pecahInstanced(I.G); bakeGroup(I.G); bakeGroup(I.grupFasum);
   fasumBangun.push(...I.bangunan);
   bangunProksi();
@@ -270,6 +272,7 @@ async function bangunDunia() {
   pasangFasum();
   // kubus kembar yang banyak (jalan, hutan, sawah): dipecah per petak supaya yang di luar layar tidak digambar,
   // bentuk kubus versi ringan, dan tidak ikut bayangan (hemat untuk HP)
+  kumpulPijakan(I.G);
   pecahInstanced(I.G);
   // gabung benda statis (sungai, jembatan, fasum) supaya ringan
   bakeGroup(I.G);
@@ -1007,7 +1010,7 @@ async function mulai() {
   tokoh.raka = raka('senang'); tokoh.raka.traverse(m => { if (m.isMesh) m.castShadow = true; }); tokoh.raka.position.set(L1.gate.x + 1.6 * VS, 0, L1.gate.z + L1.dir * 1.1 * VS); tokoh.raka.rotation.y = L1.dir === 1 ? .3 : Math.PI + .3; sc.add(tokoh.raka);
   tokoh.oyen = kucingMesh('oranye'); tokoh.oyen.traverse(m => { if (m.isMesh) m.castShadow = true; }); tokoh.oyen.position.set(L1.gate.x + 2.4 * VS, 0, L1.gate.z + L1.dir * 1.7 * VS); sc.add(tokoh.oyen);
   tokoh.oyen.userData.ph = 0;
-  npc = buatNPC({sc, I, VS, warga, pose: wpose, siapAv: bersihAv, bayangan: !hemat, tinggi: (x, z) => tanah(x, z)});
+  npc = buatNPC({sc, I, VS, warga, pose: wpose, siapAv: bersihAv, bayangan: !hemat, tinggi: (x, z, r) => tanah(x, z, r)});
   // kavling di sekitar pemain dibangun dulu sebelum layar dibuka
   for (let i = 0; i < 40; i++) aturKavling(tokoh.saya.position.x, tokoh.saya.position.z);
   $('masuk').hidden = true; $('hud').hidden = false;
@@ -1070,7 +1073,36 @@ function panduan() {
 // =====================================================================
 const KEC = 15;
 // tinggi pijakan: dek jembatan lebih tinggi dari jalan
-const tanah = (x, z) => { if (I.tanah) return I.tanah(x, z); const d = I.dek; return d && x > d.x0 && x < d.x1 && d.z.some(([a, c]) => z > a && z < c) ? d.y : 0; };
+const tanahDasar = (x, z) => { if (I.tanah) return I.tanah(x, z); const d = I.dek; return d && x > d.x0 && x < d.x1 && d.z.some(([a, c]) => z > a && z < c) ? d.y : 0; };
+// Semua permukaan datar yang lebih tinggi (lantai fasum, tribun, bangku, tepi sungai, trotoar) bisa dipijak.
+// Saat dunia dibangun (sebelum digabung), kotak tiap benda yang cukup lebar dicatat ke grid; tinggi pijakan = puncak kotak.
+const PETAK_PJ = 10, NAIK_MAKS = .7 * VS, gridPJ = new Map();
+function kumpulPijakan(root) {
+  if (!root) return; root.updateMatrixWorld(true);
+  const bb = new THREE.Box3(), m = new THREE.Matrix4(), im = new THREE.Matrix4();
+  const catat = () => {
+    if (bb.max.y <= .05 || bb.max.y > 40 * VS || bb.max.x - bb.min.x < 1.2 || bb.max.z - bb.min.z < 1.2) return;
+    const k = [bb.min.x, bb.max.x, bb.min.z, bb.max.z, bb.max.y];
+    for (let i = Math.floor(k[0] / PETAK_PJ); i <= Math.floor(k[1] / PETAK_PJ); i++) for (let j = Math.floor(k[2] / PETAK_PJ); j <= Math.floor(k[3] / PETAK_PJ); j++) {
+      const key = i * 100003 + j; let a = gridPJ.get(key); if (!a) gridPJ.set(key, a = []); a.push(k);
+    }
+  };
+  root.traverse(o => {
+    if (!o.isMesh || !o.geometry || o.userData.bukanPijakan) return;
+    const mt = o.material; if (mt && !Array.isArray(mt) && mt.transparent && mt.opacity < .9) return;
+    if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
+    if (o.isInstancedMesh) { for (let n = 0; n < o.count; n++) { o.getMatrixAt(n, im); m.multiplyMatrices(o.matrixWorld, im); bb.copy(o.geometry.boundingBox).applyMatrix4(m); catat(); } }
+    else { bb.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld); catat(); }
+  });
+}
+function permukaan(x, z) { return gridPJ.get(Math.floor(x / PETAK_PJ) * 100003 + Math.floor(z / PETAK_PJ)) || []; }
+// ref = tinggi kaki saat ini: hanya permukaan yang bisa dinaiki (≤ NAIK_MAKS di atas kaki) yang dipakai, jadi atap/pohon tidak ikut.
+const tanah = (x, z, ref) => {
+  const g = tanahDasar(x, z); if (!gridPJ.size) return g;
+  const r = (ref == null ? g : ref) + NAIK_MAKS; let best = g;
+  for (const k of permukaan(x, z)) if (x >= k[0] && x <= k[1] && z >= k[2] && z <= k[3] && k[4] <= r && k[4] > best) best = k[4];
+  return best;
+};
 const lompat = {vy: 0, diTanah: true};
 function mulaiLompat() { if (!lompat.diTanah || !tokoh.saya) return; lompat.vy = gerak.lari && gerak.jalan ? 38 : 34; lompat.diTanah = false; bunyi('langkah'); misiMaju('lompat'); if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify({t: 'e', e: 'lompat'})); }   // satuan dunia per detik (avatar setinggi pintu ≈ 4,1)
 let tAkhir = performance.now(), tKav = 0, ph = 0, camY = 0;
@@ -1120,7 +1152,7 @@ function loop(t) {
     const tr = Math.atan2(vx, vz); let dr = tr - me.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); me.rotation.y += dr * Math.min(1, dt * 12);
     const lk = Math.floor(ph / Math.PI); ph += dt * (lari ? 17 : 11); if (Math.floor(ph / Math.PI) !== lk) { bunyi('langkah'); misiMaju('jalan'); if (lari) misiMaju('lari'); } jalanAnim(me, ph, lari ? 1.05 : .7);
   } else jalanAnim(me, 0, 0);
-  { const g = tanah(me.position.x, me.position.z);
+  { const g = tanah(me.position.x, me.position.z, me.position.y);
     if (lompat.diTanah) { me.position.y += (g - me.position.y) * Math.min(1, dt * 18); }
     else { lompat.vy -= 95 * dt; me.position.y += lompat.vy * dt; if (me.position.y <= g) { me.position.y = g; lompat.vy = 0; lompat.diTanah = true; } }
     if (!lompat.diTanah) { const a = Math.min(1, me.position.y / 6); wpose(me, {legL: -.5 * a, legR: .4 * a, armL: -2.4 * a, armR: -2.4 * a}); } }
@@ -1129,7 +1161,7 @@ function loop(t) {
   for (const o of S.others.values()) {
     const p = o.obj.position; const a = Math.min(1, dt * 8); p.x += (o.tx - p.x) * a; p.z += (o.tz - p.z) * a;
     if (o.lompat) { o.lompat.vy -= 95 * dt; o.lompat.y += o.lompat.vy * dt; if (o.lompat.y <= 0) o.lompat = null; }
-    p.y += (tanah(p.x, p.z) + (o.lompat ? o.lompat.y : 0) - p.y) * (o.lompat ? 1 : a);
+    p.y += (tanah(p.x, p.z, p.y - (o.lompat ? o.lompat.y : 0)) + (o.lompat ? o.lompat.y : 0) - p.y) * (o.lompat ? 1 : a);
     let dr = o.tr - o.obj.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); o.obj.rotation.y += dr * a;
     const jalan = o.a && performance.now() - (o.akhir || 0) < 600; if (jalan) { o.ph += dt * 11; jalanAnim(o.obj, o.ph, .7); } else jalanAnim(o.obj, 0, 0);
   }
@@ -1270,4 +1302,4 @@ var tegakSesi = false; try { localStorage.removeItem('dk_tegak'); } catch (e) {}
 $('tetapTegak').onclick = () => { tegakSesi = true; $('miring').hidden = true; };
 onResize();
 layarMasuk();
-window.__dk = {S, I: () => I, tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
+window.__dk = {S, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
