@@ -336,7 +336,7 @@ function pasangKucing(n) {
     c.position.set(L.c.x + L.dir * px * VS, 0, L.c.z + L.dir * pz * VS); c.rotation.y = rot + (i ? -.6 : .5);
     c.userData = {ph: n * 1.7 + i * 2.1, nama: x.n || '', no: n, ry: c.rotation.y}; G.add(c); kucingHidup.push(c);
   });
-  G.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+  G.traverse(m => { if (m.isMesh) m.castShadow = !hemat; });
   sc.add(G); rt.kc = G;
   const r = rectLot(L, -4.35, -3.45, 3.0, 3.8); r.kandang = true; rt.rects.push(r);
 }
@@ -483,8 +483,9 @@ function isiItem(me) {
     const a = Math.random() * Math.PI * 2, r = 40 + Math.random() * 150, x = me.position.x + Math.cos(a) * r, z = me.position.z + Math.sin(a) * r;
     if (!bebas(x, z)) continue;
     const j = ITEM[Math.floor(Math.random() * ITEM.length)];
-    const m = new THREE.Mesh(geomItem, new THREE.MeshStandardMaterial({color: j.w, emissive: j.w, emissiveIntensity: .35, roughness: .5}));
-    m.position.set(x, 1.4, z); m.castShadow = true; m.userData = {jenis: j, ph: Math.random() * 6}; sc.add(m); itemDunia.push(m);
+    j.mat = j.mat || new THREE.MeshLambertMaterial({color: j.w, emissive: j.w, emissiveIntensity: .35});
+    const m = new THREE.Mesh(geomItem, j.mat);
+    m.position.set(x, 1.4, z); m.userData = {jenis: j, ph: Math.random() * 6}; sc.add(m); itemDunia.push(m);
   }
 }
 const dekatItem = me => itemDunia.find(it => Math.hypot(it.position.x - me.position.x, it.position.z - me.position.z) < 2.6 * VS);
@@ -535,7 +536,7 @@ function animSkill(dt, me) {
   const t = now | 0; if (t % 4 === 0 || !animSkill.t || now - animSkill.t > 300) { animSkill.t = now;
     // tombol hanya muncul saat skill bisa dipakai; joran sedang dipakai = tombol Mancing hilang
     const air = dekatAir(me), bisa = {sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me)};
-    for (const id in bisa) { $(id).classList.toggle('siap', bisa[id]); $(id).hidden = !bisa[id]; }
+    for (const id in bisa) { const b = $(id); if (b.hidden === bisa[id]) { b.classList.toggle('siap', bisa[id]); b.hidden = !bisa[id]; } }
     if (air) misiMaju('sungai'); }
 }
 
@@ -861,9 +862,25 @@ const bebas = (x, z) => {
   for (const {rects} of lotRuntime.values()) for (const [x0, x1, z0, z1] of rects) if (x > x0 - 1.2 && x < x1 + 1.2 && z > z0 - 1.2 && z < z1 + 1.2) return false;
   return true;
 };
+// kualitas menyesuaikan HP: kalau rata-rata < 28 fps, turunkan resolusi lalu matikan bayangan
+const kualitas = {n: 0, jml: 0, tingkat: 0, mulai: 0};
+function aturKualitas(t, dtAsli) {
+  if (document.hidden || dtAsli > .5) return;
+  if (!kualitas.mulai) kualitas.mulai = t;
+  kualitas.n++; kualitas.jml += dtAsli;
+  if (t - kualitas.mulai < 4000) return;
+  const fps = kualitas.n / kualitas.jml; kualitas.n = 0; kualitas.jml = 0; kualitas.mulai = t;
+  if (fps >= 28 || kualitas.tingkat >= 3) return;
+  kualitas.tingkat++;
+  if (kualitas.tingkat === 1) R.setPixelRatio(1);
+  else if (kualitas.tingkat === 2) { R.shadowMap.enabled = false; I.light.castShadow = false; sc.traverse(m => { if (m.material) [].concat(m.material).forEach(x => { x.needsUpdate = true; }); }); }
+  else R.setPixelRatio(.75);
+  onResize();
+}
 function loop(t) {
   requestAnimationFrame(loop);
-  const dt = Math.min(.05, (t - tAkhir) / 1000); tAkhir = t;
+  const dtAsli = (t - tAkhir) / 1000;
+  const dt = Math.min(.05, dtAsli); tAkhir = t; if (I) aturKualitas(t, dtAsli);
   const me = tokoh.saya; let vx = 0, vz = 0;
   const k = gerak.kunci;
   if (k['w'] || k['arrowup']) vz -= 1; if (k['s'] || k['arrowdown']) vz += 1; if (k['a'] || k['arrowleft']) vx -= 1; if (k['d'] || k['arrowright']) vx += 1;
