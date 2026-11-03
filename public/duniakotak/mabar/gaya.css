@@ -111,3 +111,4 @@ canvas#layar{touch-action:none}
 @media (max-height:500px){.zoom.skill button{width:50px;height:50px;font-size:8px}.zoom.skill button i{font-size:19px}.zoom.skill{gap:6px}#stik::after{display:none}}
 .misi small.info{display:block;color:#ffd9a0;margin-top:3px}
 .misi .antar{margin-top:6px;border:0;border-radius:99px;background:#ffd75a;color:#3a2a00;font-weight:900;font-size:12px;padding:6px 12px;cursor:pointer}
+#label>div{left:0;top:0;will-change:transform}
