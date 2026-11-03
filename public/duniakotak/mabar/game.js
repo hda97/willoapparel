@@ -207,8 +207,11 @@ const dekor = new Map();        // rects statis tambahan
 // Kotak Wetan: 12 baris = kavling 1-200 (denah baku). Baris 13-15 = perluasan selatan untuk warga 201-260 (3 Nov 2026).
 // Kavling lama tidak bergeser relatif satu sama lain; angka ini harus sama untuk semua pemain (posisi online).
 const BARIS = 15;
-// Bangunan fasum sama persis dengan video Hari 2 (aset fasum.js): fas[1..8]. fas[0] dekat rumah Raka tetap lahan kosong untuk voting.
-const PASANG_FASUM = [[1, 'sekolah', '🏫 SD Dunia Kotak'], [2, 'warung', '🛒 Warung Desa'], [3, 'masjid', '🕌 Masjid'], [4, 'gereja', '⛪ Gereja'], [5, 'katedral', '⛪ Gereja Katolik'], [6, 'pura', '🛕 Pura'], [7, 'vihara', '☸️ Vihara'], [8, 'klenteng', '🏮 Klenteng']];
+// Baris 16 (3 Nov 2026) = baris FASUM tambahan di tepi selatan (denah lama tidak bergeser, nomor kavling tidak berubah):
+// blok (1,15) Rumah Sakit, (2,15) Stadion, (0,15)/(3,15)/(4,15) lahan kosong untuk voting berikutnya.
+const BARIS_FASUM = [[0,15],[1,15],[2,15],[3,15],[4,15]];
+// Bangunan fasum sama persis dengan video Hari 2 (aset fasum.js): fas[1..8]. fas[0] dekat rumah Raka = Supermarket (voting 3 Nov). fas[9] = terminal; fas[10..14] = baris fasum selatan.
+const PASANG_FASUM = [[0, 'supermarket', '🛒 Supermarket Dunia Kotak'], [11, 'rumahSakit', '🏥 Rumah Sakit'], [12, 'stadion', '🏟️ Stadion Dunia Kotak'], [1, 'sekolah', '🏫 SD Dunia Kotak'], [2, 'warung', '🛒 Warung Desa'], [3, 'masjid', '🕌 Masjid'], [4, 'gereja', '⛪ Gereja'], [5, 'katedral', '⛪ Gereja Katolik'], [6, 'pura', '🛕 Pura'], [7, 'vihara', '☸️ Vihara'], [8, 'klenteng', '🏮 Klenteng']];
 const fasumBangun = [];   // {pos, nama, rect}
 function pasangFasum() {
   const g = new THREE.Group(); sc.add(g);
@@ -260,7 +263,7 @@ async function bangunDunia() {
   DI = minta === 'kulon' || minta === 'wetan' ? minta : (S.saya ? dusunDari(S.saya.no) : 'wetan');
   if (DI === 'kulon') return bangunKulon();
   reseed(301);
-  I = D.village(sc, {cols: 5, rows: BARIS, fasumB: [[2,4],[2,5],[1,6],[2,6],[3,6],[1,7],[2,7],[3,7]], fasumH: [[2,11,1]], sungai: {gap: 6, w: 14, sawah: 40}, hutan: 1, tipis: .02,
+  I = D.village(sc, {cols: 5, rows: BARIS + 1, fasumB: [[2,4],[2,5],[1,6],[2,6],[3,6],[1,7],[2,7],[3,7], ...BARIS_FASUM], fasumH: [[2,11,1]], sungai: {gap: 6, w: 14, sawah: 40}, hutan: 1, tipis: .02,
     raka: 'done', filled: 999, isFilled: n => !!NM[n], names: NM, lazy: true, sm: hemat ? 1024 : 2048, shadowR: 70});
   I.light.castShadow = !hemat;
   pasangFasum();
@@ -1120,7 +1123,7 @@ function kabarDesa() {
   const ak = Object.entries(AK).filter(([no]) => +no !== S.saya?.no && NM[no]).sort((a, b) => b[1] - a[1]);
   const L = [`Sekarang sudah ${jml} warga Dunia Kotak. Kotak Wetan penuh, jadi Dusun Kotak Kulon di bukit teh sudah dibuka!`];
   if (ak[0]) L.push(`Tadi ${NM[ak[0][0]]} main ke desa, ${lalu(ak[0][1])}. Rumahnya No. ${ak[0][0]}, mampir saja.`);
-  L.push('Sudah ada masjid, gereja, gereja Katolik, pura, vihara, klenteng, SD, dan Warung Desa. Lahan dekat rumah Raka masih kosong, nanti diisi dari voting komentar.');
+  L.push('Sudah ada masjid, gereja, gereja Katolik, pura, vihara, klenteng, SD, dan Warung Desa. Hasil voting warga juga sudah berdiri: Supermarket dekat rumah Raka, lalu Rumah Sakit dan Stadion di ujung selatan desa.');
   L.push('Kata Pak RT, Kebun dan Pasar Desa segera dibuka. Siap-siap tanam tomat!');
   return L[Math.floor(npc.acak() * L.length)];
 }
@@ -1191,10 +1194,12 @@ function siangMalam(t) {
 }
 function onResize() {
   R.setSize(innerWidth, innerHeight, false); cam.aspect = innerWidth / innerHeight; cam.fov = innerWidth / innerHeight < 1 ? 55 : 38; cam.updateProjectionMatrix();
-  $('miring').hidden = !(portrait() && innerWidth < 760 && !baca('dk_tegak'));
+  $('miring').hidden = !(portrait() && innerWidth < 760 && !tegakSesi);
 }
 addEventListener('resize', onResize);
-$('tetapTegak').onclick = () => { simpan('dk_tegak', '1'); $('miring').hidden = true; };
+// pilihan "tetap tegak" hanya untuk sekali buka game (Huda 3 Nov: jangan nyangkut di mode tegak)
+var tegakSesi = false; try { localStorage.removeItem('dk_tegak'); } catch (e) {}
+$('tetapTegak').onclick = () => { tegakSesi = true; $('miring').hidden = true; };
 onResize();
 layarMasuk();
-window.__dk = {S, I: () => I, tokoh, lotRuntime, R};
+window.__dk = {S, I: () => I, tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
