@@ -522,7 +522,7 @@ function tulisMisi() {
   }).join('') + `<div class="misi bonus ${MS.selesai.has('bonus') ? 'ok' : ''}"><span class="mi">🎁</span><div><b>Bonus: selesaikan semua misi</b><small>${MS.selesai.has('bonus') ? 'Sudah diambil' : `Otomatis masuk setelah ${MISI.length} misi selesai`}</small></div><span class="koin">+${BONUS_MISI} 🪙</span></div>`;
   const isiTas = Object.entries(tas).map(([n, v]) => `${v.ikon} ${n} ×${v.n}`).join(' · ');
   $('isiMisi').innerHTML += `<div class="misi"><span class="mi">🎒</span><div><b>Tasmu</b><small>${isiTas ? esc(isiTas) : 'Masih kosong. Ambil barang di jalan atau mancing di sungai.'}</small></div><span></span></div>`;
-  $('ringkasMisi').textContent = `Koinmu: 🪙 ${S.saya?.koin || 0} · Hari ini bisa dapat ${total} koin. Misi diundi ulang tiap pukul 00.00 WIB, besok beda lagi!`;
+  $('ringkasMisi').textContent = `Koinmu: 🪙 ${S.saya?.koin || 0} · Hari ini bisa dapat ${total} koin. Misi diundi ulang tiap pukul 00.00 WIB, besok beda lagi! Jam Kumpul Warga 20.00–20.30 WIB di Stadion: koin misi 2x.`;
 }
 document.addEventListener('click', e => { const b = e.target.closest?.('[data-antar]'); if (!b) return; $('panelMisi').hidden = true; pergiKe(+b.dataset.antar); toast('Jalan otomatis ke rumah Raka… geser joystick untuk berhenti.', 3500); });
 function bukaMisi() {
@@ -719,7 +719,7 @@ function gambarPetaMini(t) {
 const lab = $('label'); const pool = [];
 // ---------- tata letak HUD: cegah kartu/tombol saling tumpuk di layar HP (ukuran apa pun, termasuk mode diputar) ----------
 let kotakHUD = [], hudT = 0;
-const ID_HUD = ['profil', 'tombolAtas', 'petaMini', 'chipDusun', 'bBukaChat', 'chat', 'stik', 'skill', 'jam'];
+const ID_HUD = ['profil', 'tombolAtas', 'petaMini', 'chipDusun', 'chipKumpul', 'bBukaChat', 'chat', 'stik', 'skill', 'jam'];
 function tataHUD() {
   const el = id => document.getElementById(id), tampak = e => e && !e.hidden && !e.closest('[hidden]') && getComputedStyle(e).display !== 'none' && getComputedStyle(e).visibility !== 'hidden' && e.getClientRects().length > 0;
   const prof = el('profil'), atas = el('tombolAtas'), chat = el('chat'), buka = el('bBukaChat'), stik = el('stik'), peta = el('petaMini'), chip = el('chipDusun');
@@ -743,7 +743,33 @@ function tataHUD() {
     }
   }
   if (peta && chip) { const r = peta.getBoundingClientRect(); chip.style.top = (r.bottom + 6) + 'px'; chip.style.right = (innerWidth - r.right) + 'px'; chip.style.maxWidth = Math.max(r.width, 210) + 'px'; }
+  infoKumpul();
+  const ck = el('chipKumpul');
+  if (ck && chip && !ck.hidden) { const r = chip.getBoundingClientRect(); ck.style.top = (r.bottom + 6) + 'px'; ck.style.right = (innerWidth - r.right) + 'px'; }
   kotakHUD = ID_HUD.map(el).filter(tampak).map(e => e.getBoundingClientRect());
+}
+// ---------- Jam Kumpul Warga: tiap malam 20.00-20.30 WIB di Stadion, koin misi 2x (dicek server) ----------
+const KUMPUL = [20, 20.5];
+let kumpulMulaiDiumumkan = '';
+function infoKumpul() {
+  const ck = document.getElementById('chipKumpul'); if (!ck || typeof jamWIB !== 'function') return;
+  const j = jamWIB(), sisa = Math.ceil((KUMPUL[0] - j) * 60), habis = Math.ceil((KUMPUL[1] - j) * 60);
+  let html = '';
+  if (j >= KUMPUL[0] - 1 && j < KUMPUL[0]) html = `⏰ <b>Jam Kumpul Warga</b> 20.00 · ${sisa} mnt lagi`;
+  else if (j >= KUMPUL[0] && j < KUMPUL[1]) {
+    html = `🎉 <b>Jam Kumpul!</b> Koin misi 2x · ${habis} mnt`;
+    const hari = hariIni(); if (kumpulMulaiDiumumkan !== hari) { kumpulMulaiDiumumkan = hari; toast('🎉 Jam Kumpul Warga dimulai! Sampai 20.30 WIB semua koin misi 2x. Ayo kumpul di Stadion, ketuk tanda kuning di kanan atas.', 6000); bunyi('masuk'); }
+  }
+  ck.hidden = !html; ck.classList.toggle('mulai', j >= KUMPUL[0] && j < KUMPUL[1]);
+  if (html && ck._h !== html) { ck._h = html; ck.innerHTML = html; }
+}
+function keStadion() {
+  if (DI !== 'wetan') { if (confirm('Jam Kumpul Warga ada di Stadion Dusun Kotak Wetan. Naik bus ke sana?')) { const u = new URL(location.href); u.searchParams.set('dusun', 'wetan'); u.searchParams.set('ke', 'stadion'); location.href = u.toString(); } return; }
+  const f = I && I.fas && I.fas[12]; if (!f) return;
+  // stadion jauh di ujung selatan: naik angkot desa (langsung sampai di depan tribun)
+  $('panelMisi').hidden = true; gerak.tujuan = null; const me = tokoh.saya; if (!me) return;
+  me.position.set(f.x, 0, f.z); me.position.y = tanah(me.position.x, me.position.z, 0); me.rotation.y = Math.PI;
+  bunyi('masuk'); toast('🚌 Naik angkot desa… sampai di Stadion Dunia Kotak!', 3500);
 }
 function kenaHUD(a, b, c, d) {
   const now = performance.now(); if (now - hudT > 500) { hudT = now; tataHUD(); }
@@ -1023,6 +1049,8 @@ async function mulai() {
   hitungOnline(); kabarWarga(); tulisChat(); aturHUD(); sambung();
   if (!baca('dk_panduan')) panduan();
   onResize(); requestAnimationFrame(loop);
+  if (new URLSearchParams(location.search).get('ke') === 'stadion') setTimeout(keStadion, 1500);
+  $('chipKumpul').onclick = keStadion;
 }
 function aturHUD() {
   $('chat').querySelectorAll('.tab button[data-ch]').forEach(b => b.onclick = () => { S.ch = b.dataset.ch; $('chat').querySelectorAll('.tab button[data-ch]').forEach(x => x.classList.toggle('on', x === b)); tulisChat(); });

@@ -149,3 +149,8 @@ body.chatPenuh #stik{visibility:hidden}
 @media (max-height:500px){:where(html:not(.putar)) .chat{width:min(380px,calc(48*var(--vw,1vw)))}:where(html:not(.putar)) .chat .isi{font-size:14px;line-height:1.4}:where(html:not(.putar)) .chat input{font-size:16px}:where(html:not(.putar)) .chat .cepat button{font-size:13px;padding:5px 9px}}
 :where(html.putar.mq-pendek) .chat{width:min(380px,calc(48*var(--vw,1vw)))}:where(html.putar.mq-pendek) .chat .isi{font-size:14px;line-height:1.4}:where(html.putar.mq-pendek) .chat input{font-size:16px}:where(html.putar.mq-pendek) .chat .cepat button{font-size:13px;padding:5px 9px}
 body.chatPenuh .chat{background:rgba(19,20,31,.92)}
+/* Jam Kumpul Warga (20.00-20.30 WIB) */
+.chipKumpul{position:fixed;top:230px;right:max(12px,env(safe-area-inset-right));background:#ffd23a;color:#1b1c21;border:0;border-radius:999px;padding:6px 12px;font:800 12px Montserrat,sans-serif;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.3);cursor:pointer}
+.chipKumpul b{font-weight:900}
+.chipKumpul.mulai{animation:kedip 1.2s ease-in-out infinite}
+@keyframes kedip{50%{transform:scale(1.06);box-shadow:0 0 0 6px rgba(255,210,58,.35)}}

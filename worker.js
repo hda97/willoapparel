@@ -283,7 +283,9 @@ export class Warga extends DurableObject {
       if (aksi === "misi" && MISI_HARIAN[q.id] && !ms.s.includes(q.id)) {
         const inti = Object.keys(MISI_HARIAN).filter((k) => k !== "bonus");
         if (q.id !== "bonus" || inti.every((k) => ms.s.includes(k))) {
-          ms.s.push(q.id); dapat = MISI_HARIAN[q.id];
+          // Jam Kumpul Warga 20.00-20.30 WIB: koin misi 2x
+          const wib = new Date(Date.now() + 7 * 3600e3), mnt = wib.getUTCHours() * 60 + wib.getUTCMinutes();
+          ms.s.push(q.id); dapat = MISI_HARIAN[q.id] * (mnt >= 1200 && mnt < 1231 ? 2 : 1);
           this.sql.exec("UPDATE warga SET koin = COALESCE(koin, 0) + ?, misi = ? WHERE no = ?", dapat, JSON.stringify(ms), r.no);
           r.koin = (r.koin || 0) + dapat;
         }
