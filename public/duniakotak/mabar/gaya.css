@@ -8,7 +8,7 @@ button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:2
 .kartu{position:fixed;background:var(--kartu);border:1px solid var(--garis);border-radius:18px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 #hud{position:fixed;inset:0;pointer-events:none}
 #hud>*{pointer-events:auto}
-.profil{left:max(14px,env(safe-area-inset-left));top:12px;display:flex;gap:10px;align-items:center;padding:8px 14px 8px 8px;max-width:46vw}
+.profil{left:max(14px,env(safe-area-inset-left));top:12px;display:flex;gap:10px;align-items:center;padding:8px 14px 8px 8px;max-width:calc(46*var(--vw,1vw))}
 .profil .ava{width:44px;height:44px;border-radius:50%;background:#f2c7a0;border:3px solid var(--biru);display:grid;place-items:center;font-size:22px;flex:none}
 .profil>div{min-width:0}
 .profil b{display:block;font-size:15px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -19,12 +19,12 @@ button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:2
 .tombolAtas{position:fixed;right:max(14px,env(safe-area-inset-right));top:10px;display:flex;gap:8px}
 .bulat{width:58px;height:58px;border-radius:50%;border:1px solid var(--garis);background:var(--kartu);color:#fff;font-size:10px;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0}
 .bulat i{font-style:normal;font-size:22px;line-height:1}
-.chat{left:max(14px,env(safe-area-inset-left));top:76px;width:min(330px,40vw);padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+.chat{left:max(14px,env(safe-area-inset-left));top:76px;width:min(330px,calc(40*var(--vw,1vw)));padding:8px 10px;display:flex;flex-direction:column;gap:6px}
 .chat .tab{display:flex;gap:6px}
 .chat .tab button{border:0;border-radius:999px;padding:5px 12px;background:transparent;color:var(--redup);font-weight:800;font-size:12px}
 .chat .tab button.on{background:var(--biru);color:#0d1530}
 .chat .tab .tutup{margin-left:auto;font-size:16px;padding:2px 10px}
-.chat .isi{height:min(118px,22vh);overflow-y:auto;font-size:12px;font-weight:700;line-height:1.35;display:flex;flex-direction:column;gap:2px;user-select:text;-webkit-user-select:text}
+.chat .isi{height:min(118px,calc(22*var(--vh,1vh)));overflow-y:auto;font-size:12px;font-weight:700;line-height:1.35;display:flex;flex-direction:column;gap:2px;user-select:text;-webkit-user-select:text}
 .chat .isi b{color:var(--emas)}
 .chat .isi b.raka{color:#ff9b5a}
 .chat .isi .sistem{color:var(--redup);font-style:italic}
@@ -44,7 +44,7 @@ button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:2
 .gel{position:absolute;transform:translate(-50%,-100%);max-width:220px;padding:7px 11px;border-radius:14px;background:#fff;color:#1a1c2e;font:700 12px Montserrat,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.18);white-space:normal;text-align:center}
 .gel:after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-bottom:0;border-top-color:#fff}
 .gel.emo{font-size:26px;padding:2px 8px;background:transparent;box-shadow:none}.gel.emo:after{display:none}
-#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:#1a1c2e;color:#fff;border-radius:12px;padding:9px 16px;font-weight:800;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;max-width:90vw;text-align:center;z-index:30}
+#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:#1a1c2e;color:#fff;border-radius:12px;padding:9px 16px;font-weight:800;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;max-width:calc(90*var(--vw,1vw));text-align:center;z-index:30}
 #toast.on{opacity:1}
 #menuWarga{z-index:25;padding:10px;display:flex;flex-direction:column;gap:6px;min-width:180px}
 #menuWarga b{font-size:13px;padding:2px 4px}
@@ -66,31 +66,27 @@ h1{margin:0;font-weight:900;font-size:28px}h2{margin:0;font-weight:900;font-size
 .muat{color:var(--redup);font-weight:700}
 .dua{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:14px;align-items:start}
 #pratinjau{width:100%;height:auto;border-radius:16px;background:linear-gradient(#9fd6ff,#eaf8ff)}
-#pilihan{display:grid;gap:9px;text-align:left;max-height:62vh;overflow:auto}
+#pilihan{display:grid;gap:9px;text-align:left;max-height:calc(62*var(--vh,1vh));overflow:auto}
 #pilihan .baris b{display:block;font-size:12px;color:var(--redup);margin-bottom:4px}
 #pilihan .opsi{display:flex;gap:6px;flex-wrap:wrap}
 #pilihan .opsi button{border:2px solid transparent;border-radius:10px;padding:6px 10px;background:rgba(255,255,255,.1);color:#fff;font-weight:800;font-size:12px}
 #pilihan .opsi button.w{width:30px;height:30px;padding:0;border-radius:50%}
 #pilihan .opsi button.on{border-color:#fff;background:rgba(92,184,255,.35)}
-#dialog{left:50%;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom));width:min(520px,calc(100vw - 340px));min-width:260px;padding:12px 16px;z-index:20}
+#dialog{left:50%;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom));width:min(520px,calc(calc(100*var(--vw,1vw)) - 340px));min-width:260px;padding:12px 16px;z-index:20}
 #dialog .siapa{font-weight:900;color:#ff9b5a;font-size:13px}
 #dialog p{margin:4px 0 10px;font-weight:700;font-size:14px;line-height:1.4}
 #dialog .aksi{display:flex;gap:8px;justify-content:flex-end}
 #dialog .aksi button{padding:8px 14px;font-size:13px}
-@media (max-height:500px){.chat .isi{height:64px}.chat{top:66px;width:min(300px,38vw)}.chat .cepat button{padding:3px 7px;font-size:11px}#bBukaChat{top:66px}.bulat{width:46px;height:46px;font-size:9px}.bulat i{font-size:18px}.tombolAtas{gap:6px}#stik{width:112px;height:112px}#kenop{width:50px;height:50px;margin:-25px 0 0 -25px}.zoom{gap:6px}.zoom button{width:40px;height:40px;font-size:18px}.profil{max-width:32vw;padding:6px 10px 6px 6px}.profil .ava{width:36px;height:36px;font-size:18px}.profil b{font-size:13px}.jam{font-size:11px;padding:5px 12px}.jam small,.jam .dsn{display:none}}
-@media (max-width:700px) and (orientation:portrait){.dua{grid-template-columns:1fr}#pratinjau{max-width:220px;margin:0 auto}#dialog{width:calc(100vw - 32px)}.chat{width:min(300px,70vw)}}
+@media (max-height:500px){:where(html:not(.putar)) .chat .isi{height:64px}:where(html:not(.putar)) .chat{top:66px;width:min(300px,calc(38*var(--vw,1vw)))}:where(html:not(.putar)) .chat .cepat button{padding:3px 7px;font-size:11px}:where(html:not(.putar)) #bBukaChat{top:66px}:where(html:not(.putar)) .bulat{width:46px;height:46px;font-size:9px}:where(html:not(.putar)) .bulat i{font-size:18px}:where(html:not(.putar)) .tombolAtas{gap:6px}:where(html:not(.putar)) #stik{width:112px;height:112px}:where(html:not(.putar)) #kenop{width:50px;height:50px;margin:-25px 0 0 -25px}:where(html:not(.putar)) .zoom{gap:6px}:where(html:not(.putar)) .zoom button{width:40px;height:40px;font-size:18px}:where(html:not(.putar)) .profil{max-width:calc(32*var(--vw,1vw));padding:6px 10px 6px 6px}:where(html:not(.putar)) .profil .ava{width:36px;height:36px;font-size:18px}:where(html:not(.putar)) .profil b{font-size:13px}:where(html:not(.putar)) .jam{font-size:11px;padding:5px 12px}:where(html:not(.putar)) .jam small,:where(html:not(.putar)) .jam .dsn{display:none}}
+:where(html.putar.mq-pendek) .chat .isi{height:64px}:where(html.putar.mq-pendek) .chat{top:66px;width:min(300px,calc(38*var(--vw,1vw)))}:where(html.putar.mq-pendek) .chat .cepat button{padding:3px 7px;font-size:11px}:where(html.putar.mq-pendek) #bBukaChat{top:66px}:where(html.putar.mq-pendek) .bulat{width:46px;height:46px;font-size:9px}:where(html.putar.mq-pendek) .bulat i{font-size:18px}:where(html.putar.mq-pendek) .tombolAtas{gap:6px}:where(html.putar.mq-pendek) #stik{width:112px;height:112px}:where(html.putar.mq-pendek) #kenop{width:50px;height:50px;margin:-25px 0 0 -25px}:where(html.putar.mq-pendek) .zoom{gap:6px}:where(html.putar.mq-pendek) .zoom button{width:40px;height:40px;font-size:18px}:where(html.putar.mq-pendek) .profil{max-width:calc(32*var(--vw,1vw));padding:6px 10px 6px 6px}:where(html.putar.mq-pendek) .profil .ava{width:36px;height:36px;font-size:18px}:where(html.putar.mq-pendek) .profil b{font-size:13px}:where(html.putar.mq-pendek) .jam{font-size:11px;padding:5px 12px}:where(html.putar.mq-pendek) .jam small,:where(html.putar.mq-pendek) .jam .dsn{display:none}
+@media (max-width:700px) and (orientation:portrait){:where(html:not(.putar)) .dua{grid-template-columns:1fr}:where(html:not(.putar)) #pratinjau{max-width:220px;margin:0 auto}:where(html:not(.putar)) #dialog{width:calc(calc(100*var(--vw,1vw)) - 32px)}:where(html:not(.putar)) .chat{width:min(300px,calc(70*var(--vw,1vw)))}}
+:where(html.putar.mq-tegak) .dua{grid-template-columns:1fr}:where(html.putar.mq-tegak) #pratinjau{max-width:220px;margin:0 auto}:where(html.putar.mq-tegak) #dialog{width:calc(calc(100*var(--vw,1vw)) - 32px)}:where(html.putar.mq-tegak) .chat{width:min(300px,calc(70*var(--vw,1vw)))}
 /* Layar tegak (HP berdiri): profil satu baris penuh, tombol di baris kedua, chat di bawahnya & tertutup dulu. */
-@media (orientation:portrait) and (max-width:700px){
- .profil{max-width:none;right:max(14px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top))}
- .jam{display:none}
- .tombolAtas{left:max(14px,env(safe-area-inset-left));right:max(14px,env(safe-area-inset-right));top:calc(max(10px,env(safe-area-inset-top)) + 70px);justify-content:space-between}
- .bulat{width:52px;height:52px;font-size:9.5px}.bulat i{font-size:20px}
- .chat{top:calc(max(10px,env(safe-area-inset-top)) + 134px);right:max(14px,env(safe-area-inset-right));width:auto}
- .chat .isi{height:min(90px,14vh)}
- #bBukaChat{top:calc(max(10px,env(safe-area-inset-top)) + 134px)}
-}
+@media (orientation:portrait) and (max-width:700px){:where(html:not(.putar)) .profil{max-width:none;right:max(14px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top))}:where(html:not(.putar)) .jam{display:none}:where(html:not(.putar)) .tombolAtas{left:max(14px,env(safe-area-inset-left));right:max(14px,env(safe-area-inset-right));top:calc(max(10px,env(safe-area-inset-top)) + 70px);justify-content:space-between}:where(html:not(.putar)) .bulat{width:52px;height:52px;font-size:9.5px}:where(html:not(.putar)) .bulat i{font-size:20px}:where(html:not(.putar)) .chat{top:calc(max(10px,env(safe-area-inset-top)) + 134px);right:max(14px,env(safe-area-inset-right));width:auto}:where(html:not(.putar)) .chat .isi{height:min(90px,calc(14*var(--vh,1vh)))}:where(html:not(.putar)) #bBukaChat{top:calc(max(10px,env(safe-area-inset-top)) + 134px)}}
+:where(html.putar.mq-tegak) .profil{max-width:none;right:max(14px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top))}:where(html.putar.mq-tegak) .jam{display:none}:where(html.putar.mq-tegak) .tombolAtas{left:max(14px,env(safe-area-inset-left));right:max(14px,env(safe-area-inset-right));top:calc(max(10px,env(safe-area-inset-top)) + 70px);justify-content:space-between}:where(html.putar.mq-tegak) .bulat{width:52px;height:52px;font-size:9.5px}:where(html.putar.mq-tegak) .bulat i{font-size:20px}:where(html.putar.mq-tegak) .chat{top:calc(max(10px,env(safe-area-inset-top)) + 134px);right:max(14px,env(safe-area-inset-right));width:auto}:where(html.putar.mq-tegak) .chat .isi{height:min(90px,calc(14*var(--vh,1vh)))}:where(html.putar.mq-tegak) #bBukaChat{top:calc(max(10px,env(safe-area-inset-top)) + 134px)}
 
-@media (max-width:900px){.jam{display:none}}
+@media (max-width:900px){:where(html:not(.putar)) .jam{display:none}}
+:where(html.putar.mq-w900) .jam{display:none}
 
 /* misi harian */
 #isiMisi{display:grid;gap:8px;text-align:left}
@@ -98,7 +94,8 @@ h1{margin:0;font-weight:900;font-size:28px}h2{margin:0;font-weight:900;font-size
 .misi .mi{font-size:24px;text-align:center}.misi b{font-size:14px;display:block;line-height:1.3}.misi small{font-size:11.5px;color:var(--redup);font-weight:700}
 .misi .bar{height:7px;border-radius:99px;background:rgba(255,255,255,.12);margin:6px 0 3px;overflow:hidden}.misi .bar i{display:block;height:100%;background:#7ad06a;border-radius:99px}
 .misi .koin{font-weight:900;font-size:13px;color:#ffd75a;white-space:nowrap}.misi.ok{opacity:.72}.misi.bonus{border-color:#ffd75a}
-@media (max-width:700px){.tombolAtas .bulat{width:46px;height:46px;font-size:8.5px}.tombolAtas .bulat i{font-size:18px}}
+@media (max-width:700px){:where(html:not(.putar)) .tombolAtas .bulat{width:46px;height:46px;font-size:8.5px}:where(html:not(.putar)) .tombolAtas .bulat i{font-size:18px}}
+:where(html.putar.mq-w700) .tombolAtas .bulat{width:46px;height:46px;font-size:8.5px}:where(html.putar.mq-w700) .tombolAtas .bulat i{font-size:18px}
 
 /* tombol skill warga (ganti tombol putar/zoom: zoom = cubit, putar = geser jari) */
 canvas#layar{touch-action:none}
@@ -108,21 +105,24 @@ canvas#layar{touch-action:none}
 .zoom.skill button.siap{opacity:1;background:#2f6b3a;border-color:#9be37f;box-shadow:0 0 0 3px rgba(155,227,127,.35);transform:scale(1.06)}
 #stik.lari{border-color:#ffd23a;background:rgba(255,210,58,.18)}#stik.lari #kenop{background:#ffd23a}
 #stik::after{content:"jalan · dorong penuh = lari";position:absolute;left:50%;bottom:-18px;transform:translateX(-50%);font-size:9px;font-weight:800;color:rgba(255,255,255,.75);white-space:nowrap;text-shadow:0 1px 2px #000}
-@media (max-height:500px){.zoom.skill button{width:50px;height:50px;font-size:8px}.zoom.skill button i{font-size:19px}.zoom.skill{gap:6px}#stik::after{display:none}}
+@media (max-height:500px){:where(html:not(.putar)) .zoom.skill button{width:50px;height:50px;font-size:8px}:where(html:not(.putar)) .zoom.skill button i{font-size:19px}:where(html:not(.putar)) .zoom.skill{gap:6px}:where(html:not(.putar)) #stik::after{display:none}}
+:where(html.putar.mq-pendek) .zoom.skill button{width:50px;height:50px;font-size:8px}:where(html.putar.mq-pendek) .zoom.skill button i{font-size:19px}:where(html.putar.mq-pendek) .zoom.skill{gap:6px}:where(html.putar.mq-pendek) #stik::after{display:none}
 .misi small.info{display:block;color:#ffd9a0;margin-top:3px}
 .misi .antar{margin-top:6px;border:0;border-radius:99px;background:#ffd75a;color:#3a2a00;font-weight:900;font-size:12px;padding:6px 12px;cursor:pointer}
 #label>div{left:0;top:0;will-change:transform}
 
 /* peta mini + peta besar (ala gmaps) */
 #petaMini{position:fixed;top:calc(max(12px,env(safe-area-inset-top)) + 72px);right:max(12px,env(safe-area-inset-right));width:120px;height:120px;border-radius:18px;border:3px solid rgba(255,255,255,.85);box-shadow:0 4px 14px rgba(0,0,0,.3);background:#7fbf5a;cursor:pointer}
-@media (max-height:500px){#petaMini{top:66px;width:96px;height:96px;border-radius:14px}}
-.panel.peta{max-width:min(960px,96vw);width:100%}
+@media (max-height:500px){:where(html:not(.putar)) #petaMini{top:66px;width:96px;height:96px;border-radius:14px}}
+:where(html.putar.mq-pendek) #petaMini{top:66px;width:96px;height:96px;border-radius:14px}
+.panel.peta{max-width:min(960px,calc(96*var(--vw,1vw)));width:100%}
 .petaAtas{display:flex;justify-content:space-between;align-items:center;gap:8px}.petaAtas h2{margin:0}
 .tutupX{border:0;background:rgba(255,255,255,.12);color:#fff;border-radius:50%;width:38px;height:38px;font-size:18px;cursor:pointer}
 #cariPeta{display:flex;gap:8px;margin:10px 0}#cariPeta input{flex:1;min-width:0;padding:10px 12px;border-radius:12px;border:0;font:700 14px Montserrat,sans-serif}#cariPeta button{border:0;border-radius:12px;padding:0 16px;font:900 14px Montserrat,sans-serif;background:#ffd75a;color:#3a2a00;cursor:pointer}
-.petaBingkai{position:relative;border-radius:14px;overflow:hidden;background:#2a4a2a}#petaBesar{display:block;width:100%;height:min(62vh,560px);touch-action:none;cursor:grab}
+.petaBingkai{position:relative;border-radius:14px;overflow:hidden;background:#2a4a2a}#petaBesar{display:block;width:100%;height:min(calc(62*var(--vh,1vh)),560px);touch-action:none;cursor:grab}
 #petaZoom{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px}#petaZoom button{width:40px;height:40px;border:0;border-radius:10px;background:#fff;color:#1a1c2e;font:900 20px Montserrat,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer}
-@media (max-height:500px){#petaBesar{height:52vh}.panel.peta h2{font-size:16px}#cariPeta{margin:6px 0}}
+@media (max-height:500px){:where(html:not(.putar)) #petaBesar{height:calc(52*var(--vh,1vh))}:where(html:not(.putar)) .panel.peta h2{font-size:16px}:where(html:not(.putar)) #cariPeta{margin:6px 0}}
+:where(html.putar.mq-pendek) #petaBesar{height:calc(52*var(--vh,1vh))}:where(html.putar.mq-pendek) .panel.peta h2{font-size:16px}:where(html.putar.mq-pendek) #cariPeta{margin:6px 0}
 #petaInfo{margin-top:8px;min-height:20px}
 
 /* NPC warga desa, bangunan fasum, jejak warga asli */
@@ -130,9 +130,10 @@ canvas#layar{touch-action:none}
 .nm.npc::after{content:" 💬"}
 .nm.fasum{background:rgba(255,255,255,.92);color:#2a2418;font-size:12px;pointer-events:none}
 .nm.jejak{background:rgba(255,255,255,.85);color:#3a3428;font-size:10.5px;padding:2px 7px;pointer-events:none}
-#ngobrol{position:fixed;left:50%;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom));width:min(520px,calc(100vw - 340px));min-width:260px;padding:12px 16px;z-index:21}
+#ngobrol{position:fixed;left:50%;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom));width:min(520px,calc(calc(100*var(--vw,1vw)) - 340px));min-width:260px;padding:12px 16px;z-index:21}
 #ngobrol .siapa{font-weight:900;color:#ffcf7a;font-size:13px}
 #ngobrol p{margin:4px 0 10px;font-weight:700;font-size:14px;line-height:1.4}
 #ngobrol .pilih{display:flex;flex-wrap:wrap;gap:6px}
 #ngobrol .pilih button{padding:8px 12px;font-size:12.5px;flex:1 1 auto}
-@media (max-width:700px) and (orientation:portrait){#ngobrol{width:calc(100vw - 32px)}}
+@media (max-width:700px) and (orientation:portrait){:where(html:not(.putar)) #ngobrol{width:calc(calc(100*var(--vw,1vw)) - 32px)}}
+:where(html.putar.mq-tegak) #ngobrol{width:calc(calc(100*var(--vw,1vw)) - 32px)}

@@ -57,6 +57,67 @@ const DATA = [
     a: {jenis: 'L', kulit: '#c98c5e', rambut: {gaya: 'belah', warna: '#8a8a90'}, atasan: {jenis: 'jaket', warna: '#7a2a2a'}, bawahan: {jenis: 'celana', warna: '#1d1d22'}},
     kegiatan: ['Ronda bareng Pak Slamet. Malam ini dingin, untung pakai jaket.', 'Pukul kentongan tiap jam. Tong, tong!', 'Ngantuk, tapi tugas tetap tugas.'],
     sapa: ['Tong, tong, tong!', 'Malam, Nak', 'Sudah malam, istirahat ya']},
+  // --- NPC tambahan 3 Nov 2026 (Huda: perbanyak NPC): penjaga fasum hasil voting + pejalan kaki ---
+  {id: 'lina', nama: 'Mbak Lina', peran: 'Kasir supermarket', kerja: 'supermarket', dx: -3, jam: [8, 21],
+    a: {jenis: 'P', kulit: '#f2c7a0', rambut: {gaya: 'kuncir', warna: '#3a2416'}, atasan: {jenis: 'seragam', warna: '#3a7bd5'}, bawahan: {jenis: 'rok-panjang', warna: '#1d1d22'}},
+    kegiatan: ['Jaga kasir supermarket. Ini hasil voting warga, lho, usulan terbanyak!', 'Nata barang di rak. Nanti hasil panen warga juga bisa dititip di sini.', 'Istirahat sebentar, kakiku pegal berdiri terus.'],
+    sapa: ['Selamat datang!', 'Belanja apa hari ini?', 'Ada promo, he he']},
+  {id: 'harto', nama: 'Pak Harto', peran: 'Satpam supermarket', kerja: 'supermarket', dx: 3, jam: [7, 23],
+    a: {jenis: 'L', kulit: '#a86e44', rambut: {gaya: 'cepak', warna: '#0b0b0e'}, atasan: {jenis: 'seragam', warna: '#2f3a52'}, bawahan: {jenis: 'celana', warna: '#1d1d22'}},
+    kegiatan: ['Jaga parkiran supermarket. Mobilnya rapi semua, kan?', 'Bantu warga angkat belanjaan.', 'Pantau pintu masuk. Aman!'],
+    sapa: ['Parkir di sini, Mas!', 'Aman terkendali', 'Hati-hati di jalan']},
+  {id: 'ayu', nama: 'dr. Ayu', peran: 'Dokter', kerja: 'rs', dx: -9, jam: [7, 20],
+    a: {jenis: 'P', kulit: '#e0aa7e', rambut: {gaya: 'hijab', warna: '#f4f4f4'}, hijab: '#f4f4f4', kacamata: true, atasan: {jenis: 'kemeja', warna: '#f4f4f4'}, bawahan: {jenis: 'rok-panjang', warna: '#4a5a7a'}},
+    kegiatan: ['Selesai periksa pasien. Rumah sakit ini juga hasil voting warga!', 'Jangan lupa minum air putih dan istirahat cukup ya.', 'Cek stok obat di apotek.'],
+    sapa: ['Sehat selalu!', 'Sudah cuci tangan?', 'Jaga kesehatan ya']},
+  {id: 'rani', nama: 'Suster Rani', peran: 'Perawat', kerja: 'rs', dx: -2.5, jam: [6, 22],
+    a: {jenis: 'P', kulit: '#f2c7a0', rambut: {gaya: 'bob', warna: '#0b0b0e'}, atasan: {jenis: 'seragam', warna: '#7ad0c0'}, bawahan: {jenis: 'celana', warna: '#7ad0c0'}},
+    kegiatan: ['Jaga di depan IGD. Semoga hari ini tidak ada yang sakit.', 'Antar pasien kontrol. Pelan-pelan jalannya, Pak.', 'Tensi darahmu berapa? Sini aku cek, he he.'],
+    sapa: ['Halo, ada keluhan?', 'Semangat sehat!', 'Pelan-pelan ya']},
+  {id: 'bambang', nama: 'Pak Bambang', peran: 'Sopir ambulans', kerja: 'rs', dx: 2, dz: 3.5, jam: [6, 24],
+    a: {jenis: 'L', kulit: '#c98c5e', rambut: {gaya: 'belah', warna: '#3a2416'}, atasan: {jenis: 'kemeja', warna: '#f4f4f4'}, bawahan: {jenis: 'celana', warna: '#2f3a52'}},
+    kegiatan: ['Lap ambulans biar kinclong. Siaga 24 jam!', 'Cek bensin ambulans. Penuh!', 'Nunggu panggilan. Semoga sepi terus.'],
+    sapa: ['Nguing nguing!', 'Siaga!', 'Minggir dikit ya, he he']},
+  {id: 'rizky', nama: 'Rizky', peran: 'Pemain bola', kerja: 'bola', fase: 0, jam: [15, 18.5],
+    a: {jenis: 'L', kulit: '#e0aa7e', rambut: {gaya: 'acak', warna: '#0b0b0e'}, atasan: {jenis: 'kaos', warna: '#e0303a'}, bawahan: {jenis: 'pendek', warna: '#f4f4f4'}},
+    kegiatan: ['Latihan sore di stadion baru! Lapangannya mantap.', 'Kejar bola! Oper sini!', 'Tim merah pasti menang!'],
+    sapa: ['Oper!', 'Gol!', 'Ayo main bola!']},
+  {id: 'fajar', nama: 'Fajar', peran: 'Pemain bola', kerja: 'bola', fase: 1.6, jam: [15, 18.5],
+    a: {jenis: 'L', kulit: '#a86e44', rambut: {gaya: 'cepak', warna: '#0b0b0e'}, atasan: {jenis: 'kaos', warna: '#3a8ad8'}, bawahan: {jenis: 'pendek', warna: '#1d1d22'}},
+    kegiatan: ['Main bola sama Rizky. Skornya 2-1, kami kalah dulu.', 'Pemanasan dulu biar tidak keseleo.', 'Kiper kami jago, tapi tadi kebobolan.'],
+    sapa: ['Tahan bolanya!', 'Ayo, tim biru!', 'Hampir!']},
+  {id: 'andi', nama: 'Andi', peran: 'Pemain bola', kerja: 'bola', fase: 3.2, jam: [15, 18.5],
+    a: {jenis: 'L', kulit: '#f2c7a0', rambut: {gaya: 'keriting', warna: '#3a2416'}, atasan: {jenis: 'kaos', warna: '#e0303a'}, bawahan: {jenis: 'pendek', warna: '#f4f4f4'}},
+    kegiatan: ['Aku striker! Tadi cetak satu gol.', 'Minum dulu, haus banget.', 'Besok ada pertandingan antar-RT, nonton ya!'],
+    sapa: ['Gol!', 'Lihat tendanganku!', 'Hore!']},
+  {id: 'bima', nama: 'Bima', peran: 'Pemain bola', kerja: 'bola', fase: 4.8, jam: [15, 18.5],
+    a: {jenis: 'L', kulit: '#c98c5e', rambut: {gaya: 'belah', warna: '#0b0b0e'}, atasan: {jenis: 'kaos', warna: '#3a8ad8'}, bawahan: {jenis: 'pendek', warna: '#1d1d22'}},
+    kegiatan: ['Jaga gawang. Bolanya jangan masuk!', 'Latihan tangkap bola.', 'Stadionnya keren, ada lampu sorot buat main malam.'],
+    sapa: ['Tangkap!', 'Awas!', 'Main yuk!']},
+  {id: 'darno', nama: 'Pak Darno', peran: 'Wasit', kerja: 'stadion', dz: -2.5, jam: [15, 18.5],
+    a: {jenis: 'L', kulit: '#a86e44', rambut: {gaya: 'cepak', warna: '#8a8a90'}, atasan: {jenis: 'kaos', warna: '#1d1d22'}, bawahan: {jenis: 'pendek', warna: '#1d1d22'}},
+    kegiatan: ['Jadi wasit latihan sore. Priit!', 'Awas pelanggaran! Main yang sportif.', 'Skornya masih 2-1.'],
+    sapa: ['Priit!', 'Sportif ya!', 'Pelanggaran!']},
+  {id: 'yuni', nama: 'Mbak Yuni', peran: 'Penjual es', kerja: 'stadion', dz: 10, dx: -4, jam: [10, 19],
+    a: {jenis: 'P', kulit: '#e0aa7e', rambut: {gaya: 'panjang', warna: '#3a2416'}, atasan: {jenis: 'kaos', warna: '#f2c14e'}, bawahan: {jenis: 'rok-panjang', warna: '#6a5a48'}},
+    kegiatan: ['Jualan es teh di depan stadion. Habis main bola pasti haus!', 'Esnya tinggal sedikit, laris!', 'Nunggu anak-anak selesai latihan.'],
+    sapa: ['Es teh, es teh!', 'Seger!', 'Haus, Mas?']},
+  {id: 'tini', nama: 'Bu Tini', peran: 'Ibu rumah tangga', kerja: 'jalan', jam: [7, 17],
+    a: {jenis: 'P', kulit: '#c98c5e', rambut: {gaya: 'hijab', warna: '#7a2a2a'}, hijab: '#b0507a', atasan: {jenis: 'batik', warna: '#c88a3a'}, bawahan: {jenis: 'rok-panjang', warna: '#3a3a3a'}},
+    kegiatan: ['Mau belanja ke supermarket baru. Katanya lengkap!', 'Pulang dari warung Bu Siti, beli bayam.', 'Jemput Sari, sudah sore.'],
+    sapa: ['Mari, Nak', 'Belanja dulu', 'Sudah makan?']},
+  {id: 'eko', nama: 'Mas Eko', peran: 'Pelari pagi', kerja: 'jalan', cepat: 1.9, jam: [5, 9],
+    a: {jenis: 'L', kulit: '#e0aa7e', rambut: {gaya: 'cepak', warna: '#0b0b0e'}, atasan: {jenis: 'kaos-willo', warna: '#1d1d22'}, bawahan: {jenis: 'pendek', warna: '#2f3a52'}},
+    kegiatan: ['Lari pagi keliling dusun. Sudah 3 putaran!', 'Biar sehat, nanti mampir stadion.', 'Hah… hah… istirahat sebentar.'],
+    sapa: ['Pagi!', 'Ayo olahraga!', 'Semangat!']},
+  {id: 'gilang', nama: 'Mas Gilang', peran: 'Kurir paket', kerja: 'jalan', cepat: 1.5, jam: [9, 18],
+    a: {jenis: 'L', kulit: '#a86e44', rambut: {gaya: 'belah', warna: '#0b0b0e'}, atasan: {jenis: 'jaket', warna: '#3aa860'}, bawahan: {jenis: 'celana', warna: '#1d1d22'}},
+    kegiatan: ['Antar paket ke warga baru. Banyak sekali yang pindah ke sini!', 'Cari rumah nomor 240-an, di ujung selatan.', 'Paketnya kaos sablon, pasti dari Willo.'],
+    sapa: ['Paket!', 'Permisi!', 'Tanda tangan di sini ya']},
+  {id: 'lastri', nama: 'Mbak Lastri', peran: 'Penjual gorengan', kerja: 'jalan', cepat: .8, jam: [14, 20.5],
+    a: {jenis: 'P', kulit: '#f2c7a0', rambut: {gaya: 'kepang', warna: '#3a2416'}, atasan: {jenis: 'kemeja', warna: '#e06a2a'}, bawahan: {jenis: 'rok-panjang', warna: '#6a5a48'}},
+    kegiatan: ['Jualan gorengan keliling. Tahu isi masih panas!', 'Mau ke stadion, anak-anak bola suka gorengan.', 'Tinggal pisang goreng tiga.'],
+    sapa: ['Gorengan, gorengan!', 'Masih anget!', 'Tahu isi, Mas?']},
 ];
 
 export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan, tinggi = () => 0}) {
@@ -75,8 +136,9 @@ export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan, tinggi = () =
     sungai: new THREE.Vector3(sungai.x0 - .8 * VS, 0, jb[1] + 3 * VS),
     sawah: new THREE.Vector3(sungai.x1 + 6 * VS, 0, jb[1] + 4 * VS),
     main: fas[12] ? fas[12].clone() : fasB.clone(),
+    ...(fas[0] && fas[11] && fas[12] && !I.tempatNPC ? {supermarket: new THREE.Vector3(fas[0].x, 0, fas[0].z + 1.8 * VS), rs: new THREE.Vector3(fas[11].x + 6.6 * VS, 0, fas[11].z + 1.4 * VS), stadion: fas[12].clone(), bola: fas[12].clone()} : {}),
   };
-  const daftar = DATA.map((d, k) => {
+  const daftar = DATA.filter(d => d.kerja === 'jalan' || tempat[d.kerja]).map((d, k) => {
     const obj = warga(siapAv(d.a)); obj.traverse(m => { if (m.isMesh) { m.castShadow = bayangan; m.receiveShadow = false; } });
     if (d.kecil) obj.scale.setScalar(.72);
     const n = {...d, obj, ph: acak() * 6, tunggu: 0, ngobrol: false, gel: 0, tinggi: d.kecil ? 3.9 : 5.2};
@@ -84,7 +146,7 @@ export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan, tinggi = () =
       n.i = 1 + Math.floor(acak() * (xs.length - 2)); n.j = 1 + Math.floor(acak() * (zs.length - 2));
       obj.position.copy(node(n.i, n.j)); n.tuju = null;
     } else {
-      const p = tempat[d.kerja].clone(); if (d.id === 'sari') p.x += 3 * VS; obj.position.copy(p); n.pusat = p.clone();
+      const p = tempat[d.kerja].clone(); if (d.id === 'sari') p.x += 3 * VS; if (d.dx) p.x += d.dx * VS; if (d.dz) p.z += d.dz * VS; obj.position.copy(p); n.pusat = p.clone();
       obj.rotation.y = d.kerja === 'sungai' ? Math.PI / 2 : 0;
     }
     obj.visible = false; sc.add(obj); return n;
@@ -111,6 +173,12 @@ export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan, tinggi = () =
         if (l <= s) { o.position.copy(n.tuju); n.tuju = null; if (acak() < .3) n.tunggu = 1 + acak() * 3; }
         else { o.position.x += dx / l * s; o.position.z += dz / l * s; o.position.y = tinggi(o.position.x, o.position.z); hadapi(o, n.tuju.x, n.tuju.z, Math.min(1, dt * 8)); }
         if (o.visible) { const a = Math.sin(n.ph * 9 * (n.cepat || 1)) * .7; pose(o, {legL: a, legR: -a, armL: -a * .8, armR: a * .8}); }
+      } else if (n.kerja === 'bola') {
+        // main bola: berlari elips di lapangan stadion
+        const t = n.ph * .7 + n.fase;
+        o.position.set(n.pusat.x + Math.cos(t) * 4.5 * VS, n.pusat.y, n.pusat.z + Math.sin(t * 1.3) * 2.6 * VS);
+        o.rotation.y = Math.atan2(-Math.sin(t) * 4.5, Math.cos(t * 1.3) * 3.4);
+        if (o.visible) { const a = Math.sin(n.ph * 13) * 1; pose(o, {legL: a, legR: -a, armL: -a, armR: a}); }
       } else if (n.kerja === 'main') {
         // kejar-kejaran melingkar di lahan fasum
         const r = 4 * VS, t = n.ph * .55 + (n.id === 'sari' ? Math.PI * .7 : 0);
