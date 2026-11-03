@@ -26,7 +26,12 @@ export const avAcak = no => { const r = n => (no * 7919 + n * 104729) % 997; con
   return bersihAv({jenis, kulit: KULIT[r(2) % 6], rambut: {gaya: GAYA_RAMBUT[jenis][r(3) % GAYA_RAMBUT[jenis].length], warna: WARNA_RAMBUT[r(4) % 6]}, atasan: {jenis: ATASAN[r(5) % 5], warna: WARNA_BAJU[r(6) % 8]}, bawahan: {jenis: BAWAHAN[jenis][0], warna: WARNA_BAWAH[r(7) % 6]}}); };
 
 const JALAN = ['Melati','Mawar','Kenanga','Anggrek','Mangga','Rambutan','Durian','Salak','Jambu','Manggis','Sawo','Nangka','Belimbing','Kelengkeng','Sirsak'];
-export const alamat = n => { const rt = Math.ceil(n / 20); return {jalan: `Jl. ${JALAN[(rt - 1) % JALAN.length]} No. ${((n - 1) % 20) + 1}`, rtrw: `${String(rt).padStart(3, '0')}/${String(Math.ceil(rt / 5)).padStart(3, '0')}`}; };
+// Kotak Wetan = warga No. 1–260; Kotak Kulon (bukit teh) = No. 261+ (dibuka otomatis saat Wetan penuh)
+const AWAL_KULON = 260;
+const JALAN_KULON = ['Teh','Kopi','Cengkeh','Kayu Manis','Pala','Lada','Vanili','Kakao','Jahe','Kunyit'];
+export const dusun = n => n > AWAL_KULON ? 'Kotak Kulon' : 'Kotak Wetan';
+export const alamat = n => { const kl = n > AWAL_KULON, k = kl ? n - AWAL_KULON : n, J = kl ? JALAN_KULON : JALAN, rt = Math.ceil(k / 20);
+  return {jalan: `Jl. ${J[(rt - 1) % J.length]} No. ${((k - 1) % 20) + 1}`, rtrw: `${String(rt).padStart(3, '0')}/${String(Math.ceil(rt / 5)).padStart(3, '0')}`, dusun: dusun(n)}; };
 
 const W = 1012, H = 638;
 
@@ -68,7 +73,7 @@ export async function gambarKTP(cv, o) {
   if (logo) { x.save(); x.beginPath(); x.roundRect(28, 18, 76, 76, 18); x.clip(); x.drawImage(logo, 28, 18, 76, 76); x.restore(); }
   x.fillStyle = '#fff'; x.textAlign = 'center';
   x.font = '900 34px Montserrat, sans-serif'; x.fillText('KARTU WARGA DUNIA KOTAK', W / 2 + 30, 52);
-  x.font = '800 24px Montserrat, sans-serif'; x.fillStyle = '#ffe9a8'; x.fillText('DUSUN KOTAK WETAN', W / 2 + 30, 88);
+  x.font = '800 24px Montserrat, sans-serif'; x.fillStyle = '#ffe9a8'; x.fillText('DUSUN ' + dusun(o.no).toUpperCase(), W / 2 + 30, 88);
   x.textAlign = 'left';
   // NIK
   const t = o.dibuat ? new Date(o.dibuat) : new Date();
@@ -135,7 +140,7 @@ export function gambarStory(kartu, o) {
   x.shadowColor = 'rgba(0,0,0,.25)'; x.shadowBlur = 12;
   x.fillText('Aku resmi jadi', 540, 400); x.fillText('warga Dunia Kotak!', 540, 485);
   x.font = '800 40px Montserrat, sans-serif'; x.fillStyle = '#16301a'; x.shadowBlur = 0;
-  x.fillText('Kavling No. ' + o.no + ' · Dusun Kotak Wetan', 540, 560);
+  x.fillText('Kavling No. ' + o.no + ' · Dusun ' + dusun(o.no), 540, 560);
   x.save(); x.translate(540, 940); x.rotate(-.035);
   x.shadowColor = 'rgba(0,0,0,.35)'; x.shadowBlur = 40; x.shadowOffsetY = 18;
   const w = 960, h = w * kartu.height / kartu.width; x.drawImage(kartu, -w / 2, -h / 2, w, h); x.restore();
