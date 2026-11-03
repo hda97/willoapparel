@@ -493,7 +493,7 @@ function tandaKoin() {
 }
 let simpanMisiT = 0;
 function misiMaju(id, n = 1, kunciUnik) {
-  if (S.tamu || !S.saya) return;
+  if (S.tamu || !S.saya || !jamKumpul()) return;
   if (MS.t !== hariIni()) { MS.t = hariIni(); MISI = undiMisi(MS.t); MS.p = {}; MS.selesai = new Set(); }
   const m = MISI.find(x => x.id === id); if (!m || MS.selesai.has(id)) return;
   if (kunciUnik != null) { const a = MS.p[id] = Array.isArray(MS.p[id]) ? MS.p[id] : []; if (a.includes(kunciUnik)) return; a.push(kunciUnik); }
@@ -518,11 +518,13 @@ function tulisMisi() {
   $('isiMisi').innerHTML = MISI.map(m => {
     const p = progresMisi(m), ok = MS.selesai.has(m.id);
     return `<div class="misi ${ok ? 'ok' : ''}"><span class="mi">${ok ? '✅' : m.ikon}</span><div><b>${esc(m.judul)}</b>
-      <div class="bar"><i style="width:${Math.round(100 * (ok ? 1 : p / m.target))}%"></i></div><small>${ok ? 'Selesai' : m.target > 1 ? `${p}/${m.target} ${m.satuan || ''}` : 'Belum'}</small>${!ok && m.info ? `<small class="info">📍 ${esc(m.info)}</small>` : ''}${!ok && m.antar ? `<button class="antar" data-antar="${m.antar}">🧭 Antar ke sana</button>` : ''}</div><span class="koin">+${m.koin} 🪙</span></div>`;
-  }).join('') + `<div class="misi bonus ${MS.selesai.has('bonus') ? 'ok' : ''}"><span class="mi">🎁</span><div><b>Bonus: selesaikan semua misi</b><small>${MS.selesai.has('bonus') ? 'Sudah diambil' : `Otomatis masuk setelah ${MISI.length} misi selesai`}</small></div><span class="koin">+${BONUS_MISI} 🪙</span></div>`;
+      <div class="bar"><i style="width:${Math.round(100 * (ok ? 1 : p / m.target))}%"></i></div><small>${ok ? 'Selesai' : m.target > 1 ? `${p}/${m.target} ${m.satuan || ''}` : 'Belum'}</small>${!ok && m.info ? `<small class="info">📍 ${esc(m.info)}</small>` : ''}${!ok && m.antar ? `<button class="antar" data-antar="${m.antar}">🧭 Antar ke sana</button>` : ''}</div><span class="koin">+${m.koin * 2} 🪙</span></div>`;
+  }).join('') + `<div class="misi bonus ${MS.selesai.has('bonus') ? 'ok' : ''}"><span class="mi">🎁</span><div><b>Bonus: selesaikan semua misi</b><small>${MS.selesai.has('bonus') ? 'Sudah diambil' : `Otomatis masuk setelah ${MISI.length} misi selesai`}</small></div><span class="koin">+${BONUS_MISI * 2} 🪙</span></div>`;
   const isiTas = Object.entries(tas).map(([n, v]) => `${v.ikon} ${n} ×${v.n}`).join(' · ');
   $('isiMisi').innerHTML += `<div class="misi"><span class="mi">🎒</span><div><b>Tasmu</b><small>${isiTas ? esc(isiTas) : 'Masih kosong. Ambil barang di jalan atau mancing di sungai.'}</small></div><span></span></div>`;
-  $('ringkasMisi').textContent = `Koinmu: 🪙 ${S.saya?.koin || 0} · Hari ini bisa dapat ${total} koin. Misi diundi ulang tiap pukul 00.00 WIB, besok beda lagi! Jam Kumpul Warga 20.00–20.30 WIB di Stadion: koin misi 2x.`;
+  const buka = jamKumpul();
+  $('ringkasMisi').textContent = buka ? `${sesiKini().ikon} ${sesiKini().nama}: misi DIBUKA sampai ${jamTeks(sesiKini().j[1])} WIB, koin 2x! Koinmu: 🪙 ${S.saya?.koin || 0} · Hari ini bisa dapat ${total * 2} koin.`
+    : `🔒 Misi hanya bisa dikerjakan saat Jam Kumpul Warga (${daftarSesi()} WIB), bareng warga lain, koin 2x. Berikutnya: ${sesiBerikut().ikon} ${sesiBerikut().nama} ${jamTeks(sesiBerikut().j[0])}. Koinmu: 🪙 ${S.saya?.koin || 0}.`;
 }
 document.addEventListener('click', e => { const b = e.target.closest?.('[data-antar]'); if (!b) return; $('panelMisi').hidden = true; pergiKe(+b.dataset.antar); toast('Jalan otomatis ke rumah Raka… geser joystick untuk berhenti.', 3500); });
 function bukaMisi() {
@@ -749,27 +751,44 @@ function tataHUD() {
   kotakHUD = ID_HUD.map(el).filter(tampak).map(e => e.getBoundingClientRect());
 }
 // ---------- Jam Kumpul Warga: tiap malam 20.00-20.30 WIB di Stadion, koin misi 2x (dicek server) ----------
-const KUMPUL = [20, 20.5];
-let kumpulMulaiDiumumkan = '';
+// Jam Kumpul Warga: misi harian HANYA bisa dikerjakan di jam ramai ini, koin 2x (server ikut mengecek jam yang sama).
+const SESI = [   // 5 event sehari (Huda 4 Nov)
+  {j: [6, 7], nama: 'Senam Pagi', tempat: 'stadion', label: 'Stadion', ikon: '🤸'},
+  {j: [12, 13], nama: 'Belanja Siang', tempat: 'supermarket', label: 'Supermarket', ikon: '🛒'},
+  {j: [16, 17], nama: 'Mancing Bareng', tempat: 'sungai', label: 'Sungai', ikon: '🎣'},
+  {j: [19, 20], nama: 'Nongkrong di Warung', tempat: 'warung', label: 'Warung Desa', ikon: '☕'},
+  {j: [20, 21], nama: 'Main Bola Malam', tempat: 'stadion', label: 'Stadion', ikon: '⚽'},
+];
+const jamTeks = h => String(Math.floor(h)).padStart(2, '0') + '.' + String(Math.round(h % 1 * 60)).padStart(2, '0');
+const sesiKini = () => { const j = jamWIB(); return SESI.find(x => j >= x.j[0] && j < x.j[1]) || null; };
+const sesiBerikut = () => { const j = jamWIB(); return SESI.find(x => j < x.j[0]) || SESI[0]; };
+const jamKumpul = () => !!sesiKini();
+const daftarSesi = () => SESI.map(x => `${jamTeks(x.j[0])}–${jamTeks(x.j[1])}`).join(', ');
+let kumpulDiumumkan = '';
 function infoKumpul() {
-  const ck = document.getElementById('chipKumpul'); if (!ck || typeof jamWIB !== 'function') return;
-  const j = jamWIB(), sisa = Math.ceil((KUMPUL[0] - j) * 60), habis = Math.ceil((KUMPUL[1] - j) * 60);
+  const ck = document.getElementById('chipKumpul'); if (!ck) return;
+  const j = jamWIB(), ki = sesiKini(), be = sesiBerikut();
   let html = '';
-  if (j >= KUMPUL[0] - 1 && j < KUMPUL[0]) html = `⏰ <b>Jam Kumpul Warga</b> 20.00 · ${sisa} mnt lagi`;
-  else if (j >= KUMPUL[0] && j < KUMPUL[1]) {
-    html = `🎉 <b>Jam Kumpul!</b> Koin misi 2x · ${habis} mnt`;
-    const hari = hariIni(); if (kumpulMulaiDiumumkan !== hari) { kumpulMulaiDiumumkan = hari; toast('🎉 Jam Kumpul Warga dimulai! Sampai 20.30 WIB semua koin misi 2x. Ayo kumpul di Stadion, ketuk tanda kuning di kanan atas.', 6000); bunyi('masuk'); }
-  }
-  ck.hidden = !html; ck.classList.toggle('mulai', j >= KUMPUL[0] && j < KUMPUL[1]);
+  if (ki) {
+    html = `${ki.ikon} <b>${ki.nama}!</b> Misi dibuka · koin 2x · ${Math.ceil((ki.j[1] - j) * 60)} mnt`;
+    const kunci = hariIni() + ki.nama; if (kumpulDiumumkan !== kunci) { kumpulDiumumkan = kunci; toast(`${ki.ikon} ${ki.nama} dimulai! Misi harian dibuka sampai ${jamTeks(ki.j[1])} WIB, koin 2x. Kumpul di ${ki.label}, ketuk tanda kuning di kanan atas.`, 6000); bunyi('masuk'); }
+  } else if (be.j[0] - j > 0 && be.j[0] - j <= 1) html = `⏰ <b>${be.nama}</b> ${jamTeks(be.j[0])} · ${Math.ceil((be.j[0] - j) * 60)} mnt lagi`;
+  ck.hidden = !html; ck.classList.toggle('mulai', !!ki);
   if (html && ck._h !== html) { ck._h = html; ck.innerHTML = html; }
 }
-function keStadion() {
-  if (DI !== 'wetan') { if (confirm('Jam Kumpul Warga ada di Stadion Dusun Kotak Wetan. Naik bus ke sana?')) { const u = new URL(location.href); u.searchParams.set('dusun', 'wetan'); u.searchParams.set('ke', 'stadion'); location.href = u.toString(); } return; }
-  const f = I && I.fas && I.fas[12]; if (!f) return;
-  // stadion jauh di ujung selatan: naik angkot desa (langsung sampai di depan tribun)
-  $('panelMisi').hidden = true; gerak.tujuan = null; const me = tokoh.saya; if (!me) return;
-  me.position.set(f.x, 0, f.z); me.position.y = tanah(me.position.x, me.position.z, 0); me.rotation.y = Math.PI;
-  bunyi('masuk'); toast('🚌 Naik angkot desa… sampai di Stadion Dunia Kotak!', 3500);
+function keKumpul() {
+  const ki = sesiKini() || sesiBerikut(), tempat = ki.tempat;
+  if (DI !== 'wetan') { if (confirm(`${ki.nama} ada di ${ki.label} Dusun Kotak Wetan. Naik bus ke sana?`)) { const u = new URL(location.href); u.searchParams.set('dusun', 'wetan'); u.searchParams.set('ke', tempat); location.href = u.toString(); } return; }
+  keTempat(tempat);
+}
+function keTempat(tempat) {
+  const me = tokoh.saya; if (!me || !I) return;
+  let x, z, ry = Math.PI, nama;
+  if (tempat === 'sungai' && I.sungai) { const s = I.sungai; x = s.x0 - 1.5; z = Math.min(I.batas.z1 - 10, Math.max(I.batas.z0 + 10, me.position.z)); ry = Math.PI / 2; nama = 'pinggir Sungai. Tekan 🎣 Mancing'; }
+  else { const T = {supermarket: [0, 'Supermarket Dunia Kotak'], warung: [2, 'Warung Desa'], stadion: [12, 'Stadion Dunia Kotak']}[tempat] || [12, 'Stadion Dunia Kotak']; const f = I.fas && I.fas[T[0]]; if (!f) return; x = f.x; z = f.z + (T[0] === 12 ? 0 : 4 * VS); nama = T[1]; }
+  $('panelMisi').hidden = true; gerak.tujuan = null;
+  me.position.set(x, 0, z); me.position.y = tanah(x, z, 0); me.rotation.y = ry;
+  bunyi('masuk'); toast(`🚌 Naik angkot desa… sampai di ${nama}!`, 3500);
 }
 // ---------- Bola di Stadion: bisa ditendang warga & pemain NPC, memantul di dalam lapangan, GOL bila masuk gawang ----------
 const BOLA = {m: null, x: 0, z: 0, y: 0, vx: 0, vz: 0, vy: 0, kirimT: 0, tendangT: 0, golT: 0, aku: false};
@@ -1112,8 +1131,8 @@ async function mulai() {
   hitungOnline(); kabarWarga(); tulisChat(); aturHUD(); sambung();
   if (!baca('dk_panduan')) panduan();
   onResize(); requestAnimationFrame(loop);
-  if (new URLSearchParams(location.search).get('ke') === 'stadion') setTimeout(keStadion, 1500);
-  $('chipKumpul').onclick = keStadion;
+  { const ke = new URLSearchParams(location.search).get('ke'); if (ke) setTimeout(() => keTempat(ke), 1500); }
+  $('chipKumpul').onclick = keKumpul;
 }
 function aturHUD() {
   $('chat').querySelectorAll('.tab button[data-ch]').forEach(b => b.onclick = () => { S.ch = b.dataset.ch; $('chat').querySelectorAll('.tab button[data-ch]').forEach(x => x.classList.toggle('on', x === b)); tulisChat(); });
