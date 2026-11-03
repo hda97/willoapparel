@@ -117,6 +117,8 @@ export class Warga extends DurableObject {
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN kode TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN avatar TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN kucing TEXT"); } catch (e) { /* kolom sudah ada */ }
+    try { this.sql.exec("ALTER TABLE warga ADD COLUMN koin INTEGER DEFAULT 0"); } catch (e) { /* kolom sudah ada */ }
+    try { this.sql.exec("ALTER TABLE warga ADD COLUMN misi TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN tiktok TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN kerja TEXT"); } catch (e) { /* kolom sudah ada */ }
     // Koreksi salah ketik username: pindahkan ke username & kavling yang benar (sekali jalan, aman diulang).
@@ -244,7 +246,7 @@ export class Warga extends DurableObject {
       return keluar(this.tambah({ sub, email, nama: namaWarga || nama, ig, tiktok, kerja }), true);
     }
     // ---- Game mabar: sesi pakai kunci (HP pendaftar) atau kode warga 6 huruf (HP lain) ----
-    if (aksi === "sesi" || aksi === "kode" || aksi === "avatar" || aksi === "profil" || aksi === "kucing") {
+    if (aksi === "sesi" || aksi === "kode" || aksi === "avatar" || aksi === "profil" || aksi === "kucing" || aksi === "misi") {
       const q = await request.json();
       let r;
       if (aksi === "kode") {
@@ -269,6 +271,18 @@ export class Warga extends DurableObject {
         }
       }
       if (aksi === "avatar") { this.sql.exec("UPDATE warga SET avatar = ? WHERE no = ?", String(q.avatar || "").slice(0, 600), r.no); r.avatar = q.avatar; }
+      // Misi harian: tiap misi sekali per hari (tanggal WIB), koin masuk di server; bonus bila semua selesai.
+      const hari = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+      let ms = { t: hari, s: [] }; try { const m0 = r.misi ? JSON.parse(r.misi) : null; if (m0 && m0.t === hari && Array.isArray(m0.s)) ms = m0; } catch (e) {}
+      let dapat = 0;
+      if (aksi === "misi" && MISI_HARIAN[q.id] && !ms.s.includes(q.id)) {
+        const inti = Object.keys(MISI_HARIAN).filter((k) => k !== "bonus");
+        if (q.id !== "bonus" || inti.every((k) => ms.s.includes(k))) {
+          ms.s.push(q.id); dapat = MISI_HARIAN[q.id];
+          this.sql.exec("UPDATE warga SET koin = COALESCE(koin, 0) + ?, misi = ? WHERE no = ?", dapat, JSON.stringify(ms), r.no);
+          r.koin = (r.koin || 0) + dapat;
+        }
+      }
       // Kucing peliharaan warga (maks 2) + warna kandang.
       if (aksi === "kucing") { this.sql.exec("UPDATE warga SET kucing = ? WHERE no = ?", q.kucing || null, r.no); r.kucing = q.kucing; }
       // Data Kartu Warga yang bisa diubah sendiri: nama & pekerjaan.
@@ -278,7 +292,7 @@ export class Warga extends DurableObject {
       }
       let av = null; try { av = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
       let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
-      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, kucing: kc, nama: r.nama || "", kerja: r.kerja || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat });
+      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, kucing: kc, koin: r.koin || 0, misi: ms.s, dapat, nama: r.nama || "", kerja: r.kerja || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat });
     }
     if (aksi === "usulan-kunci") {
       const { kunci, usulan } = await request.json();
@@ -421,6 +435,8 @@ async function cekGoogle(env, credential) {
   return { sub: t.sub, email: t.email || "", nama: (t.given_name || t.name || "").slice(0, 60) };
 }
 
+// Misi harian warga → koin (dicek di server: sekali per misi per hari WIB).
+const MISI_HARIAN = { jalan: 10, sapa: 10, raka: 5, tetangga: 10, foto: 10, kucing: 5, bonus: 20 };
 // Rapikan username yang diketik/ditempel: buang @, spasi, huruf besar, dan link profil (instagram.com/x, tiktok.com/@x).
 function bersihUn(v) {
   return String(v || "").toLowerCase().replace(/\s+/g, "")
@@ -501,6 +517,10 @@ async function apiWarga(request, env, url) {
     for (const x of k) if (x.n && saringChat(x.n).m !== x.n) return json({ galat: "Nama kucing itu tidak bisa dipakai. Pakai nama yang sopan ya." }, 400);
     const kc = k.length ? { k, d: WD.includes(b.d) ? b.d : "krem", a: WA.includes(b.a) ? b.a : "merah" } : null;
     const r = await stub.fetch("https://do/kucing", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), kucing: kc ? JSON.stringify(kc) : null }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "misi") {
+    const r = await stub.fetch("https://do/misi", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), id: String(body.id || "").slice(0, 20) }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "sesi" || aksi === "kode" || aksi === "avatar") {

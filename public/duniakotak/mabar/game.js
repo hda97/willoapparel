@@ -383,10 +383,82 @@ async function simpanKucing(kc) {
   $('simpanAvatar').disabled = true;
   try {
     const s = await api('kucing', {kunci: S.kunci, kucing: {...kc, k: kc.k.map(x => ({w: x.w, n: String(x.n || '').trim()}))}});
-    S.saya.kucing = s.kucing; KC[S.saya.no] = s.kucing; pasangKucing(S.saya.no);
+    S.saya.kucing = s.kucing; KC[S.saya.no] = s.kucing; pasangKucing(S.saya.no); if (s.kucing) misiMaju('kucing');
     $('buatAvatar').hidden = true; bunyi('kirim');
     toast(s.kucing ? 'Kucingmu sudah ada di depan rumah! Tekan 🏠 Rumah untuk melihatnya.' : 'Kucing dan kandang dihapus.', 4000);
   } catch (e) { toast(e.message, 4000); } finally { $('simpanAvatar').disabled = false; }
+}
+
+// ---------- misi harian (koin dicatat server, sekali per misi per hari WIB) ----------
+const MISI = [
+  {id: 'jalan', ikon: '👣', judul: 'Jalan-jalan keliling dusun', target: 300, satuan: 'langkah', koin: 10},
+  {id: 'sapa', ikon: '👋', judul: 'Sapa warga: kirim pesan atau emote', target: 3, satuan: 'kali', koin: 10},
+  {id: 'raka', ikon: '⭐', judul: 'Temui Raka dan Oyen', target: 1, koin: 5},
+  {id: 'tetangga', ikon: '🏡', judul: 'Mampir ke depan rumah tetangga', target: 3, satuan: 'rumah', koin: 10},
+  {id: 'foto', ikon: '📸', judul: 'Foto pakai Kamera HP, lalu simpan atau bagikan', target: 1, koin: 10},
+  {id: 'kucing', ikon: '🐱', judul: 'Rawat kucing: pilih kucing atau tengok kandangmu', target: 1, koin: 5},
+];
+const BONUS_MISI = 20;
+const hariIni = () => new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+const MS = {p: {}, selesai: new Set(), kirim: new Set(), t: ''};
+function muatMisi() {
+  MS.t = hariIni();
+  const l = bacaJ('dk_misi') || {}; MS.p = l.t === MS.t && l.no === S.saya?.no ? l.p || {} : {};
+  MS.selesai = new Set(S.saya?.misi || []);
+  tandaKoin();
+}
+function tandaKoin() {
+  const n = MISI.filter(m => MS.selesai.has(m.id)).length;
+  if ($('bMisi')) $('bMisi').innerHTML = `<i>📋</i>Misi ${n}/${MISI.length}`;
+  if (!S.tamu && S.saya) $('profOnline').dataset.koin = '🪙 ' + (S.saya.koin || 0);
+  hitungOnline();
+}
+let simpanMisiT = 0;
+function misiMaju(id, n = 1, kunciUnik) {
+  if (S.tamu || !S.saya) return;
+  if (MS.t !== hariIni()) { MS.t = hariIni(); MS.p = {}; MS.selesai = new Set(); }
+  const m = MISI.find(x => x.id === id); if (!m || MS.selesai.has(id)) return;
+  if (kunciUnik != null) { const a = MS.p[id] = Array.isArray(MS.p[id]) ? MS.p[id] : []; if (a.includes(kunciUnik)) return; a.push(kunciUnik); }
+  else MS.p[id] = (+MS.p[id] || 0) + n;
+  const now = performance.now(); if (now - simpanMisiT > 2000 || kunciUnik != null) { simpanMisiT = now; simpan('dk_misi', {t: MS.t, no: S.saya.no, p: MS.p}); }
+  if (!$('panelMisi').hidden) tulisMisi();
+  if (progresMisi(m) >= m.target) klaimMisi(id);
+}
+const progresMisi = m => Math.min(m.target, Array.isArray(MS.p[m.id]) ? MS.p[m.id].length : +MS.p[m.id] || 0);
+async function klaimMisi(id) {
+  if (MS.kirim.has(id) || MS.selesai.has(id)) return; MS.kirim.add(id);
+  try {
+    const s = await api('misi', {kunci: S.kunci, id});
+    S.saya.koin = s.koin; MS.selesai = new Set(s.misi || []);
+    if (s.dapat) { const m = MISI.find(x => x.id === id); toast(id === 'bonus' ? `🎉 Semua misi hari ini selesai! Bonus +${s.dapat} koin` : `✅ Misi selesai: ${m.judul}. +${s.dapat} koin`, 4000); bunyi('masuk'); }
+    tandaKoin(); if (!$('panelMisi').hidden) tulisMisi();
+    if (id !== 'bonus' && MISI.every(m => MS.selesai.has(m.id)) && !MS.selesai.has('bonus')) setTimeout(() => klaimMisi('bonus'), 1500);
+  } catch (e) { /* coba lagi nanti */ } finally { MS.kirim.delete(id); }
+}
+function tulisMisi() {
+  const total = MISI.reduce((a, m) => a + m.koin, 0) + BONUS_MISI;
+  $('isiMisi').innerHTML = MISI.map(m => {
+    const p = progresMisi(m), ok = MS.selesai.has(m.id);
+    return `<div class="misi ${ok ? 'ok' : ''}"><span class="mi">${ok ? '✅' : m.ikon}</span><div><b>${esc(m.judul)}</b>
+      <div class="bar"><i style="width:${Math.round(100 * (ok ? 1 : p / m.target))}%"></i></div><small>${ok ? 'Selesai' : m.target > 1 ? `${p}/${m.target} ${m.satuan || ''}` : 'Belum'}</small></div><span class="koin">+${m.koin} 🪙</span></div>`;
+  }).join('') + `<div class="misi bonus ${MS.selesai.has('bonus') ? 'ok' : ''}"><span class="mi">🎁</span><div><b>Bonus: selesaikan semua misi</b><small>${MS.selesai.has('bonus') ? 'Sudah diambil' : 'Otomatis masuk setelah 6 misi selesai'}</small></div><span class="koin">+${BONUS_MISI} 🪙</span></div>`;
+  $('ringkasMisi').textContent = `Koinmu: 🪙 ${S.saya?.koin || 0} · Hari ini bisa dapat ${total} koin. Misi baru tiap pukul 00.00 WIB.`;
+}
+function bukaMisi() {
+  if (S.tamu) { toast('Daftar jadi warga dulu supaya bisa ikut misi dan dapat koin.', 4000); return; }
+  if (MS.t !== hariIni()) muatMisi();
+  $('panelMisi').hidden = false; tulisMisi();
+}
+let cekMisiT = 0;
+function cekMisiDekat(me) {
+  const now = performance.now(); if (now - cekMisiT < 700 || S.tamu || !I) return; cekMisiT = now;
+  if (tokoh.raka && me.position.distanceTo(tokoh.raka.position) < 4 * VS) misiMaju('raka');
+  for (const [ns, rt] of lotRuntime) {
+    const n = +ns, L = I.lots[n]; if (!L) continue;
+    const dg = Math.hypot(me.position.x - L.gate.x, me.position.z - L.gate.z);
+    if (dg < 2.6 * VS && n !== 1 && n !== S.saya.no && NM[n]) misiMaju('tetangga', 1, n);
+    if (n === S.saya.no && rt.kc && Math.hypot(me.position.x - (L.c.x + L.dir * -3.9 * VS), me.position.z - (L.c.z + L.dir * 3.4 * VS)) < 2.4 * VS) misiMaju('kucing');
+  }
 }
 
 // =====================================================================
@@ -434,7 +506,7 @@ function kirimChat(m) {
   m = String(m || '').trim(); if (!m) return;
   if (S.tamu) { toast('Daftar jadi warga dulu untuk ngobrol.'); return; }
   if (!S.ws || S.ws.readyState !== 1) { toast('Sedang menyambung ke desa…'); return; }
-  S.ws.send(JSON.stringify({t: 'c', ch: S.ch, m}));
+  S.ws.send(JSON.stringify({t: 'c', ch: S.ch, m})); misiMaju('sapa');
 }
 
 // =====================================================================
@@ -478,7 +550,7 @@ function terima(q) {
   else if (q.t === 'e') { if (!S.bisu.has(q.no)) { gelembung(q.no, EMO[q.e] || '👋', true); bunyi('emosi'); } }
   else if (q.t === 'tolak' || q.t === 'info') toast(q.m, 3500);
 }
-function hitungOnline() { $('profOnline').textContent = S.tamu ? 'Mode tamu · daftar untuk ngobrol' : `● ${S.others.size + 1} warga online`; }
+function hitungOnline() { $('profOnline').textContent = S.tamu ? 'Mode tamu · daftar untuk ngobrol' : `● ${S.others.size + 1} online · 🪙 ${S.saya?.koin || 0} koin`; }
 let kirimT = 0, posLama = '';
 function kirimPos(paksa) {
   if (!S.ws || S.ws.readyState !== 1) return;
@@ -551,9 +623,9 @@ async function jepret() {
 async function bukaKamera() { $('kamera').hidden = false; bunyi('jepret'); await jepret(); }
 $('kArah').onclick = () => { kArah = kArah === 'selfie' ? 'pemandangan' : 'selfie'; jepret(); };
 $('kTutup').onclick = () => { $('kamera').hidden = true; };
-$('kSimpan').onclick = () => { if (!fotoBlob) return; const a = document.createElement('a'); a.href = URL.createObjectURL(fotoBlob); a.download = 'dunia-kotak.jpg'; a.click(); };
+$('kSimpan').onclick = () => { if (!fotoBlob) return; misiMaju('foto'); const a = document.createElement('a'); a.href = URL.createObjectURL(fotoBlob); a.download = 'dunia-kotak.jpg'; a.click(); };
 $('kBagi').onclick = async () => {
-  if (!fotoBlob) return; const f = new File([fotoBlob], 'dunia-kotak.jpg', {type: 'image/jpeg'});
+  if (!fotoBlob) return; misiMaju('foto'); const f = new File([fotoBlob], 'dunia-kotak.jpg', {type: 'image/jpeg'});
   if (navigator.canShare && navigator.canShare({files: [f]})) { try { await navigator.share({files: [f], text: 'Main di Dunia Kotak @duniakotak.id'}); } catch (e) {} }
   else { $('kSimpan').click(); toast('Foto disimpan. Unggah ke story dari galeri, lalu tag @duniakotak.id.', 4500); }
 };
@@ -654,7 +726,7 @@ function aturHUD() {
   $('chat').querySelectorAll('.cepat button').forEach(b => b.onclick = () => {
     if (b.dataset.q) return kirimChat(b.dataset.q);
     if (S.tamu) return toast('Daftar jadi warga dulu untuk menyapa.');
-    if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify({t: 'e', e: b.dataset.e}));
+    if (S.ws && S.ws.readyState === 1) { S.ws.send(JSON.stringify({t: 'e', e: b.dataset.e})); misiMaju('sapa'); }
   });
   $('bTutupChat').onclick = () => { $('chat').hidden = true; $('bBukaChat').hidden = false; };
   $('bBukaChat').onclick = () => { $('chat').hidden = false; $('bBukaChat').hidden = true; };
@@ -664,6 +736,8 @@ function aturHUD() {
   $('profil').onclick = () => { if (S.tamu) return toast('Daftar di willoapparel.com/duniakotak supaya dapat kavling.', 4000); toast(`Kode wargamu: ${S.saya.kode} · pakai untuk masuk dari HP lain. Jangan dibagikan.`, 6000); };
   $('bAvatar').onclick = () => bukaPembuatAvatar(JSON.parse(JSON.stringify(S.av)), false);
   $('bKucing').onclick = () => bukaKucing();
+  $('bMisi').onclick = () => bukaMisi(); $('tutupMisi').onclick = () => { $('panelMisi').hidden = true; };
+  muatMisi();
   $('bPanduan').onclick = () => panduan();
   musikSiap();
   $('putKiri').onclick = () => putar(1); $('putKanan').onclick = () => putar(-1);
@@ -717,8 +791,9 @@ function loop(t) {
     if (bebas(me.position.x, nz)) { me.position.z = nz; maju = true; }
     if (!maju) gerak.tujuan = null;
     const tr = Math.atan2(vx, vz); let dr = tr - me.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); me.rotation.y += dr * Math.min(1, dt * 12);
-    const lk = Math.floor(ph / Math.PI); ph += dt * 11; if (Math.floor(ph / Math.PI) !== lk) bunyi('langkah'); jalanAnim(me, ph, .7);
+    const lk = Math.floor(ph / Math.PI); ph += dt * 11; if (Math.floor(ph / Math.PI) !== lk) { bunyi('langkah'); misiMaju('jalan'); } jalanAnim(me, ph, .7);
   } else jalanAnim(me, 0, 0);
+  cekMisiDekat(me);
   // warga lain: interpolasi
   for (const o of S.others.values()) {
     const p = o.obj.position; const a = Math.min(1, dt * 8); p.x += (o.tx - p.x) * a; p.z += (o.tz - p.z) * a;
