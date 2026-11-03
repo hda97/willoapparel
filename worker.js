@@ -116,6 +116,7 @@ export class Warga extends DurableObject {
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN kunci TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN kode TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN avatar TEXT"); } catch (e) { /* kolom sudah ada */ }
+    try { this.sql.exec("ALTER TABLE warga ADD COLUMN kucing TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN tiktok TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN kerja TEXT"); } catch (e) { /* kolom sudah ada */ }
     // Koreksi salah ketik username: pindahkan ke username & kavling yang benar (sekali jalan, aman diulang).
@@ -135,7 +136,8 @@ export class Warga extends DurableObject {
   }
   publik(r) {
     // Daftar lewat Google tanpa username: nama yang ditulis warga jadi ukiran batu (label).
-    return { no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat };
+    let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
+    return { no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}) };
   }
   // Nama tampil di game & batu: username IG kalau ada, kalau tidak username TikTok.
   nm(r) { return r.ig || r.tiktok || r.nama || ""; }
@@ -242,7 +244,7 @@ export class Warga extends DurableObject {
       return keluar(this.tambah({ sub, email, nama: namaWarga || nama, ig, tiktok, kerja }), true);
     }
     // ---- Game mabar: sesi pakai kunci (HP pendaftar) atau kode warga 6 huruf (HP lain) ----
-    if (aksi === "sesi" || aksi === "kode" || aksi === "avatar" || aksi === "profil") {
+    if (aksi === "sesi" || aksi === "kode" || aksi === "avatar" || aksi === "profil" || aksi === "kucing") {
       const q = await request.json();
       let r;
       if (aksi === "kode") {
@@ -267,13 +269,16 @@ export class Warga extends DurableObject {
         }
       }
       if (aksi === "avatar") { this.sql.exec("UPDATE warga SET avatar = ? WHERE no = ?", String(q.avatar || "").slice(0, 600), r.no); r.avatar = q.avatar; }
+      // Kucing peliharaan warga (maks 2) + warna kandang.
+      if (aksi === "kucing") { this.sql.exec("UPDATE warga SET kucing = ? WHERE no = ?", q.kucing || null, r.no); r.kucing = q.kucing; }
       // Data Kartu Warga yang bisa diubah sendiri: nama & pekerjaan.
       if (aksi === "profil") {
         if (q.nama) { this.sql.exec("UPDATE warga SET nama = ? WHERE no = ?", q.nama, r.no); r.nama = q.nama; }
         if (q.kerja !== undefined) { this.sql.exec("UPDATE warga SET kerja = ? WHERE no = ?", q.kerja || null, r.no); r.kerja = q.kerja; }
       }
       let av = null; try { av = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
-      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, nama: r.nama || "", kerja: r.kerja || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat });
+      let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
+      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, kucing: kc, nama: r.nama || "", kerja: r.kerja || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat });
     }
     if (aksi === "usulan-kunci") {
       const { kunci, usulan } = await request.json();
@@ -295,7 +300,7 @@ export class Warga extends DurableObject {
     }
     if (aksi === "daftar-publik") {
       // Gabungkan warga terdaftar dengan 63 pengikut awal yang kavlingnya sudah disiapkan (sudah warga sejak video).
-      const rows = this.sql.exec("SELECT no, sub, nama, ig, tiktok, usulan, dibuat FROM warga ORDER BY no").toArray();
+      const rows = this.sql.exec("SELECT no, sub, nama, ig, tiktok, usulan, dibuat, kucing FROM warga ORDER BY no").toArray();
       const terisi = new Set(rows.map((r) => r.no));
       const igTerdaftar = new Set(rows.map((r) => r.ig).filter(Boolean));
       const awalan = Object.entries(KAVLING_AWALAN).map(([a, no]) => [a + "…", no]);
@@ -481,6 +486,21 @@ async function apiWarga(request, env, url) {
     const q = { kunci: String(body.kunci || "").slice(0, 64), nama: bersih(body.nama, 24), kerja: bersih(body.kerja, 22) };
     for (const v of [q.nama, q.kerja]) if (v && saringChat(v).m !== v) return json({ galat: "Kata itu tidak bisa dipakai. Pakai kata yang sopan ya." }, 400);
     const r = await stub.fetch("https://do/profil", { method: "POST", body: JSON.stringify(q) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "kucing") {
+    // Kucing warga: maks 2 ekor, 8 warna, nama maks 12 huruf (disaring), kandang warna dinding + atap.
+    const WK = ["oranye", "hitam", "putih", "abu", "cokelat", "krem", "tuxedo", "telon"];
+    const WD = ["krem", "putih", "kuning", "hijau", "biru", "merahMuda", "ungu", "kayu"];
+    const WA = ["merah", "oranye", "cokelat", "hijau", "biru", "abu", "hitam", "ungu"];
+    const b = body.kucing || {};
+    const k = (Array.isArray(b.k) ? b.k : []).slice(0, 2).map((x) => ({
+      w: WK.includes(x && x.w) ? x.w : "oranye",
+      n: String((x && x.n) || "").replace(/<[^>]*>/g, "").replace(/[\u0000-\u001f<>@]/g, "").replace(/\s+/g, " ").trim().slice(0, 12),
+    }));
+    for (const x of k) if (x.n && saringChat(x.n).m !== x.n) return json({ galat: "Nama kucing itu tidak bisa dipakai. Pakai nama yang sopan ya." }, 400);
+    const kc = k.length ? { k, d: WD.includes(b.d) ? b.d : "krem", a: WA.includes(b.a) ? b.a : "merah" } : null;
+    const r = await stub.fetch("https://do/kucing", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), kucing: kc ? JSON.stringify(kc) : null }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "sesi" || aksi === "kode" || aksi === "avatar") {
