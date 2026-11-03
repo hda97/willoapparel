@@ -116,6 +116,7 @@ export class Warga extends DurableObject {
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN kunci TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN kode TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN avatar TEXT"); } catch (e) { /* kolom sudah ada */ }
+    try { this.sql.exec("ALTER TABLE warga ADD COLUMN tiktok TEXT"); } catch (e) { /* kolom sudah ada */ }
     // Koreksi salah ketik username: pindahkan ke username & kavling yang benar (sekali jalan, aman diulang).
     for (const [salah, benar] of Object.entries(KOREKSI_IG)) {
       const r = this.sql.exec("SELECT no FROM warga WHERE ig = ?", salah).toArray()[0];
@@ -132,7 +133,30 @@ export class Warga extends DurableObject {
     }
   }
   publik(r) {
-    return { no: r.no, ig: r.ig || "", usulan: r.usulan || "", dibuat: r.dibuat };
+    return { no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", usulan: r.usulan || "", dibuat: r.dibuat };
+  }
+  // Nama tampil di game & batu: username IG kalau ada, kalau tidak username TikTok.
+  nm(r) { return r.ig || r.tiktok || ""; }
+  // Cek username IG/TikTok belum dipakai warga lain (selain baris "kecuali").
+  bentrok(ig, tiktok, kecuali) {
+    if (ig) { const a = this.sql.exec("SELECT no FROM warga WHERE ig = ? AND no != ?", ig, kecuali || 0).toArray()[0]; if (a) return "IG @" + ig + " sudah terdaftar sebagai warga No. " + a.no + "."; }
+    if (tiktok) { const a = this.sql.exec("SELECT no FROM warga WHERE tiktok = ? AND no != ?", tiktok, kecuali || 0).toArray()[0]; if (a) return "TikTok @" + tiktok + " sudah terdaftar sebagai warga No. " + a.no + "."; }
+    return "";
+  }
+  // Lengkapi data yang masih kosong (tidak menimpa username yang sudah ada).
+  lengkapi(r, { ig, tiktok, namaWarga }) {
+    if (ig && !r.ig && !this.bentrok(ig, "", r.no)) { this.sql.exec("UPDATE warga SET ig = ? WHERE no = ?", ig, r.no); r.ig = ig; }
+    if (tiktok && !r.tiktok && !this.bentrok("", tiktok, r.no)) { this.sql.exec("UPDATE warga SET tiktok = ? WHERE no = ?", tiktok, r.no); r.tiktok = tiktok; }
+    if (namaWarga) { this.sql.exec("UPDATE warga SET nama = ? WHERE no = ?", namaWarga, r.no); r.nama = namaWarga; }
+  }
+  // Tambah warga baru; pakai kavling yang disiapkan di video kalau username IG-nya ada di daftar & masih kosong.
+  tambah({ sub, email, nama, ig, tiktok }) {
+    const k = crypto.randomUUID();
+    const siap = ig ? kavlingSiap(ig) : 0;
+    const kosong = siap && !this.sql.exec("SELECT 1 FROM warga WHERE no = ?", siap).toArray().length;
+    if (kosong) this.sql.exec("INSERT INTO warga (no, sub, email, nama, ig, tiktok, kunci, dibuat) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", siap, sub, email || null, nama || null, ig || null, tiktok || null, k, Date.now());
+    else this.sql.exec("INSERT INTO warga (sub, email, nama, ig, tiktok, kunci, dibuat) VALUES (?, ?, ?, ?, ?, ?, ?)", sub, email || null, nama || null, ig || null, tiktok || null, k, Date.now());
+    return this.sql.exec("SELECT * FROM warga WHERE kunci = ?", k).toArray()[0];
   }
   async fetch(request) {
     const u = new URL(request.url);
@@ -162,47 +186,48 @@ export class Warga extends DurableObject {
       return Response.json({ ...this.publik(r), nama: r.nama || "" });
     }
     if (aksi === "daftar-ig") {
-      // Daftar cukup dengan username IG (tanpa login Google). Satu username = satu kavling.
-      const { ig } = await request.json();
-      const ada = this.sql.exec("SELECT no FROM warga WHERE ig = ?", ig).toArray()[0];
-      if (ada) return Response.json({ galat: "@" + ig + " sudah terdaftar sebagai warga No. " + ada.no + ".", no: ada.no }, { status: 409 });
-      const kunci = crypto.randomUUID();
-      const siap = kavlingSiap(ig);
-      const kosong = siap && !this.sql.exec("SELECT 1 FROM warga WHERE no = ?", siap).toArray().length;
-      if (kosong) {
-        this.sql.exec("INSERT INTO warga (no, sub, ig, kunci, dibuat) VALUES (?, ?, ?, ?, ?)", siap, "ig:" + ig, ig, kunci, Date.now());
-      } else {
-        this.sql.exec("INSERT INTO warga (sub, ig, kunci, dibuat) VALUES (?, ?, ?, ?)", "ig:" + ig, ig, kunci, Date.now());
-      }
-      const r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", kunci).toArray()[0];
-      return Response.json({ ...this.publik(r), kunci, baru: true });
+      // Daftar tanpa Google (dipakai di dalam aplikasi IG/TikTok): cukup username IG atau TikTok.
+      const { ig, tiktok, namaWarga } = await request.json();
+      const salah = this.bentrok(ig, tiktok, 0);
+      if (salah) return Response.json({ galat: salah }, { status: 409 });
+      const r = this.tambah({ sub: ig ? "ig:" + ig : "tt:" + tiktok, nama: namaWarga, ig, tiktok });
+      return Response.json({ ...this.publik(r), nm: this.nm(r), nama: r.nama || "", kunci: r.kunci, baru: true });
     }
     // ---- Game mabar: login Google, ditautkan ke kavling lama (tidak membuat kavling dobel) ----
     if (aksi === "google") {
-      const { sub, email, nama, kunci, ig } = await request.json();
-      const keluar = (r) => {
+      // Dipakai halaman daftar warga & game. Satu akun Google = satu kavling; kavling lama (daftar tanpa Google) ditautkan, tidak dobel.
+      const { sub, email, nama, kunci, ig, tiktok, namaWarga } = await request.json();
+      const isi = { ig, tiktok, namaWarga };
+      const keluar = (r, baru) => {
         if (!r.kunci) { r.kunci = crypto.randomUUID(); this.sql.exec("UPDATE warga SET kunci = ? WHERE no = ?", r.kunci, r.no); }
-        return Response.json({ no: r.no, ig: r.ig || "", kunci: r.kunci });
+        return Response.json({ ...this.publik(r), nm: this.nm(r), nama: r.nama || "", kunci: r.kunci, baru: !!baru });
+      };
+      const tanpaGoogle = (r) => /^(ig|tt):/.test(String(r.sub));
+      const tautkan = (r) => {
+        this.sql.exec("UPDATE warga SET sub = ?, email = ? WHERE no = ?", sub, email, r.no);
+        if (!namaWarga && !r.nama && nama) { this.sql.exec("UPDATE warga SET nama = ? WHERE no = ?", nama, r.no); r.nama = nama; }
+        this.lengkapi(r, isi);
+        return keluar(r);
       };
       let r = this.sql.exec("SELECT * FROM warga WHERE sub = ?", sub).toArray()[0];
-      if (r) return keluar(r);
+      if (r) { this.lengkapi(r, isi); return keluar(r); }
       if (kunci) {
         r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", kunci).toArray()[0];
-        if (r && String(r.sub).startsWith("ig:")) { this.sql.exec("UPDATE warga SET sub = ?, email = ?, nama = ? WHERE no = ?", sub, email, nama, r.no); return keluar(r); }
+        if (r && tanpaGoogle(r)) return tautkan(r);
       }
-      if (!ig) return Response.json({ perlu: "ig" });
-      r = this.sql.exec("SELECT * FROM warga WHERE ig = ?", ig).toArray()[0];
-      if (r) {
-        if (!String(r.sub).startsWith("ig:")) return Response.json({ galat: "@" + ig + " sudah ditautkan ke akun Google lain. DM @duniakotak.id kalau ini akunmu." }, { status: 409 });
-        this.sql.exec("UPDATE warga SET sub = ?, email = ?, nama = ? WHERE no = ?", sub, email, nama, r.no);
-        return keluar(r);
+      if (!ig && !tiktok) return Response.json({ perlu: "ig" });
+      for (const [kol, v] of [["ig", ig], ["tiktok", tiktok]]) {
+        if (!v) continue;
+        r = this.sql.exec(`SELECT * FROM warga WHERE ${kol} = ?`, v).toArray()[0];
+        if (!r) continue;
+        if (!tanpaGoogle(r)) return Response.json({ galat: "@" + v + " sudah ditautkan ke akun Google lain. DM @duniakotak.id kalau ini akunmu." }, { status: 409 });
+        const lain = this.bentrok(ig, tiktok, r.no);
+        if (lain) return Response.json({ galat: lain }, { status: 409 });
+        return tautkan(r);
       }
-      const siap = kavlingSiap(ig);
-      const kosong = siap && !this.sql.exec("SELECT 1 FROM warga WHERE no = ?", siap).toArray().length;
-      const k = crypto.randomUUID();
-      if (kosong) this.sql.exec("INSERT INTO warga (no, sub, email, nama, ig, kunci, dibuat) VALUES (?, ?, ?, ?, ?, ?, ?)", siap, sub, email, nama, ig, k, Date.now());
-      else this.sql.exec("INSERT INTO warga (sub, email, nama, ig, kunci, dibuat) VALUES (?, ?, ?, ?, ?, ?)", sub, email, nama, ig, k, Date.now());
-      return keluar(this.sql.exec("SELECT * FROM warga WHERE kunci = ?", k).toArray()[0]);
+      const salah = this.bentrok(ig, tiktok, 0);
+      if (salah) return Response.json({ galat: salah }, { status: 409 });
+      return keluar(this.tambah({ sub, email, nama: namaWarga || nama, ig, tiktok }), true);
     }
     // ---- Game mabar: sesi pakai kunci (HP pendaftar) atau kode warga 6 huruf (HP lain) ----
     if (aksi === "sesi" || aksi === "kode" || aksi === "avatar") {
@@ -221,7 +246,7 @@ export class Warga extends DurableObject {
       }
       if (aksi === "avatar") { this.sql.exec("UPDATE warga SET avatar = ? WHERE no = ?", String(q.avatar || "").slice(0, 600), r.no); r.avatar = q.avatar; }
       let av = null; try { av = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
-      return Response.json({ no: r.no, ig: r.ig || "", kode: r.kode, kunci: r.kunci, avatar: av });
+      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av });
     }
     if (aksi === "usulan-kunci") {
       const { kunci, usulan } = await request.json();
@@ -238,18 +263,18 @@ export class Warga extends DurableObject {
       return Response.json({ ...this.publik(r), nama: r.nama || "" });
     }
     if (aksi === "usulan-publik") {
-      const rows = this.sql.exec("SELECT no, ig, usulan FROM warga WHERE usulan IS NOT NULL AND usulan != '' ORDER BY no").toArray();
+      const rows = this.sql.exec("SELECT no, ig, tiktok, usulan FROM warga WHERE usulan IS NOT NULL AND usulan != '' ORDER BY no").toArray();
       return Response.json({ jumlah: rows.length, usulan: rows });
     }
     if (aksi === "daftar-publik") {
       // Gabungkan warga terdaftar dengan 63 pengikut awal yang kavlingnya sudah disiapkan (sudah warga sejak video).
-      const rows = this.sql.exec("SELECT no, ig, usulan, dibuat FROM warga ORDER BY no").toArray();
+      const rows = this.sql.exec("SELECT no, ig, tiktok, usulan, dibuat FROM warga ORDER BY no").toArray();
       const terisi = new Set(rows.map((r) => r.no));
       const igTerdaftar = new Set(rows.map((r) => r.ig).filter(Boolean));
       const awalan = Object.entries(KAVLING_AWALAN).map(([a, no]) => [a + "…", no]);
       const siap = [...Object.entries(KAVLING_DISIAPKAN), ...awalan]
         .filter(([ig, no]) => !terisi.has(no) && !igTerdaftar.has(ig))
-        .map(([ig, no]) => ({ no, ig, usulan: "", dibuat: 0 }));
+        .map(([ig, no]) => ({ no, ig, tiktok: "", usulan: "", dibuat: 0 }));
       const semua = [...siap, ...rows.map((r) => this.publik(r))].sort((x, y) => x.no - y.no);
       return Response.json({ jumlah: semua.length, warga: semua });
     }
@@ -364,6 +389,18 @@ async function cekGoogle(env, credential) {
   return { sub: t.sub, email: t.email || "", nama: (t.given_name || t.name || "").slice(0, 60) };
 }
 
+// Baca isian daftar: username IG / TikTok (boleh salah satu) dan nama warga (opsional, disaring kata kasar).
+function bacaAkun(body) {
+  const un = (v) => String(v || "").trim().replace(/^@/, "").toLowerCase();
+  let ig = un(body.ig), tiktok = un(body.tiktok);
+  if (ig && !/^[a-z0-9._]{1,30}$/.test(ig)) return { galat: "Username Instagram hanya huruf, angka, titik, garis bawah (maks 30)." };
+  if (tiktok && !/^[a-z0-9._]{2,24}$/.test(tiktok)) return { galat: "Username TikTok hanya huruf, angka, titik, garis bawah (2-24 karakter)." };
+  ig = KOREKSI_IG[ig] || ig;
+  const namaWarga = String(body.nama || "").replace(/[\u0000-\u001f<>@]/g, " ").replace(/\s+/g, " ").trim().slice(0, 24);
+  if (namaWarga && saringChat(namaWarga).m !== namaWarga) return { galat: "Nama itu tidak bisa dipakai. Pakai nama yang sopan ya." };
+  return { ig, tiktok, namaWarga };
+}
+
 async function apiWarga(request, env, url) {
   const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   const aksi = url.pathname.replace("/duniakotak/api/", "");
@@ -399,9 +436,10 @@ async function apiWarga(request, env, url) {
   try { body = await request.json(); } catch (e) { return json({ galat: "Data tidak terbaca" }, 400); }
   const bersihUsulan = (v) => String(v || "").replace(/[\u0000-\u001f<>]/g, " ").trim().slice(0, 140);
   if (aksi === "daftar-ig") {
-    const ig = String(body.ig || "").trim().replace(/^@/, "").toLowerCase();
-    if (!/^[a-z0-9._]{1,30}$/.test(ig)) return json({ galat: "Username IG hanya huruf, angka, titik, garis bawah (maks 30)." }, 400);
-    const r = await stub.fetch("https://do/daftar-ig", { method: "POST", body: JSON.stringify({ ig: KOREKSI_IG[ig] || ig }) });
+    const d = bacaAkun(body);
+    if (d.galat) return json({ galat: d.galat }, 400);
+    if (!d.ig && !d.tiktok) return json({ galat: "Isi username Instagram atau TikTok (salah satu cukup)." }, 400);
+    const r = await stub.fetch("https://do/daftar-ig", { method: "POST", body: JSON.stringify(d) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "sesi" || aksi === "kode" || aksi === "avatar") {
@@ -419,9 +457,9 @@ async function apiWarga(request, env, url) {
   const g = await cekGoogle(env, body.credential);
   if (!g) return json({ galat: "Login Google tidak valid. Coba masuk lagi." }, 401);
   if (aksi === "google") {
-    const ig = String(body.ig || "").trim().replace(/^@/, "").toLowerCase();
-    if (ig && !/^[a-z0-9._]{1,30}$/.test(ig)) return json({ galat: "Username IG hanya huruf, angka, titik, garis bawah (maks 30)." }, 400);
-    const r = await stub.fetch("https://do/google", { method: "POST", body: JSON.stringify({ ...g, kunci: String(body.kunci || "").slice(0, 64), ig: KOREKSI_IG[ig] || ig }) });
+    const d = bacaAkun(body);
+    if (d.galat) return json({ galat: d.galat }, 400);
+    const r = await stub.fetch("https://do/google", { method: "POST", body: JSON.stringify({ ...g, ...d, kunci: String(body.kunci || "").slice(0, 64) }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "daftar") {

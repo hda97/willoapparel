@@ -52,6 +52,10 @@ h3{font-weight:900;font-size:17px;margin:0 0 10px}
 .langkah{display:flex;gap:10px;align-items:center;margin:16px 0 4px;font-size:15px}
 .langkah small{font-weight:600;opacity:.75}
 .nl{width:28px;height:28px;flex:none;border-radius:50%;background:var(--tinta);color:#fff;display:grid;place-items:center;font-weight:900}
+.tombol.kedua{background:#fff;color:#1d2a1d;border:2px solid #1d2a1d;box-shadow:0 4px 0 #1d2a1d}
+.isi input{width:100%;box-sizing:border-box;font:600 16px Montserrat,sans-serif;padding:12px 14px;border-radius:12px;border:2px solid #cbbd9e;background:#fff}
+.at{position:relative}.at input{padding-left:32px}.at:before{content:"@";position:absolute;left:14px;top:50%;transform:translateY(-50%);font-weight:800;opacity:.55}
+#kodeWarga{font:900 22px Montserrat,sans-serif;letter-spacing:4px}
 .tombol.ig{background:linear-gradient(90deg,#f58529,#dd2a7b,#8134af);box-shadow:0 4px 0 #5a1f6e;margin-top:8px}
 label.cek{display:flex;gap:10px;align-items:center;font-weight:700;margin:12px 0 0;cursor:pointer}
 label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
@@ -65,13 +69,13 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
   </header>
 
   <h1>Jadi Warga Resmi Dunia Kotak</h1>
-  <p class="sub">Follow @duniakotak.id, tulis username Instagram-mu, langsung dapat satu kavling: rumah, pekarangan, dan namamu diukir di batu.</p>
+  <p class="sub">Follow @duniakotak.id, isi nama dan username Instagram atau TikTok-mu, masuk dengan Google, langsung dapat satu kavling: rumah, pekarangan, dan namamu diukir di batu.</p>
 
   <section class="kartu" id="ajak">
     <div class="hitung"><b id="jumlah">…</b> warga sudah terdaftar</div>
     <ul class="untung">
       <li><i>🏠</i>1 kavling rumah + pekarangan atas namamu</li>
-      <li><i>🪨</i>Username IG-mu diukir di batu depan rumah</li>
+      <li><i>🪨</i>Username IG atau TikTok-mu diukir di batu depan rumah</li>
       <li><i>🎬</i>Rumahmu ikut muncul di video Dunia Kotak</li>
       <li><i>🗳️</i>Usulkan bangunan desa: usulan terbanyak dibangun duluan</li>
       <li><i>🎮</i>Kavlingmu ikut pindah saat game Dunia Kotak rilis</li>
@@ -79,12 +83,25 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
     <div class="langkah"><span class="nl">1</span><div><b>Follow @duniakotak.id dulu</b><br><small>Syarat jadi warga resmi.</small></div></div>
     <a class="tombol ig" id="followIg" href="https://www.instagram.com/duniakotak.id/" target="_blank" rel="noopener">Follow @duniakotak.id di Instagram</a>
     <label class="cek"><input type="checkbox" id="sudahFollow"> Saya sudah follow @duniakotak.id</label>
-    <div class="langkah"><span class="nl">2</span><div><b>Tulis username IG-mu</b></div></div>
-    <label for="igDaftar">Username Instagram</label>
-    <div class="baris"><input id="igDaftar" placeholder="namakamu" autocomplete="off" autocapitalize="none" maxlength="31"><button id="daftarIg">Daftar</button></div>
-    <div id="pesanDaftar" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
+    <div class="langkah"><span class="nl">2</span><div><b>Isi data wargamu</b><br><small>Username cukup salah satu: Instagram atau TikTok (boleh dua-duanya).</small></div></div>
+    <div class="isi">
+      <label for="namaDaftar">Nama kamu</label>
+      <input id="namaDaftar" placeholder="mis. Raka" autocomplete="given-name" maxlength="24">
+      <label for="igDaftar">Username Instagram</label>
+      <div class="at"><input id="igDaftar" placeholder="namakamu" autocomplete="off" autocapitalize="none" maxlength="31"></div>
+      <label for="ttDaftar">Username TikTok</label>
+      <div class="at"><input id="ttDaftar" placeholder="namakamu" autocomplete="off" autocapitalize="none" maxlength="25"></div>
+    </div>
+    <div class="langkah"><span class="nl">3</span><div><b>Masuk dengan Google</b><br><small>Supaya kavlingmu aman dan bisa dipakai main game mabar.</small></div></div>
     <div id="gbtn"></div>
-    <p class="kecil">Gratis. Satu username IG = satu kavling. Pakai username milikmu sendiri ya.<br>
+    <div id="dalamApp" style="display:none">
+      <p class="kecil" style="text-align:left">Masuk Google tidak bisa di dalam aplikasi Instagram/TikTok. Buka halaman ini di Chrome, atau daftar tanpa Google.</p>
+      <a class="tombol" id="bukaChrome" href="https://willoapparel.com/duniakotak/" target="_blank" rel="noopener">Buka di Chrome</a>
+      <button class="tombol kedua" id="daftarTanpa" style="width:100%">Daftar tanpa Google</button>
+    </div>
+    <button class="tombol" id="daftarLagi" style="display:none;width:100%">Daftar</button>
+    <div id="pesanDaftar" style="font-weight:700;font-size:14px;margin-top:10px;min-height:20px"></div>
+    <p class="kecil">Gratis. Satu akun = satu kavling. Pakai username milikmu sendiri ya.<br>
       Dengan mendaftar kamu setuju dengan <a href="/duniakotak/privasi.html">kebijakan privasi</a>.</p>
   </section>
 
@@ -93,9 +110,10 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
     <h2 id="salam">Selamat datang!</h2>
     <p class="sub" id="ket">Ini kavlingmu di Dunia Kotak.</p>
     <canvas id="kanvas" width="600" height="600" aria-label="Rumah dan pekarangan kavlingmu"></canvas>
-    <label for="ig">Username Instagram (untuk diukir di batu)</label>
-    <div class="baris"><input id="ig" placeholder="namakamu" autocomplete="off" autocapitalize="none" maxlength="31"><button id="simpan">Ukir</button></div>
-    <div id="pesan"></div>
+    <div id="kodeKotak" style="display:none;text-align:center;margin-top:12px">
+      <small style="font-weight:700">Kode warga (untuk masuk game di HP lain)</small><br><span id="kodeWarga">––––––</span>
+      <a class="tombol" href="/duniakotak/mabar/">Main game mabar Dunia Kotak</a>
+    </div>
     <label for="usul">Usulan bangunan untuk desa</label>
     <div class="baris"><input id="usul" placeholder="mis. sekolah, masjid, warung, taman" maxlength="140"><button id="kirimUsul">Kirim</button></div>
     <div id="pesanUsul" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
@@ -115,24 +133,30 @@ let cred=null, saya=null, gambar=null, kunci=null;
 const simpanLokal=o=>{try{localStorage.setItem('dk_warga',JSON.stringify(o))}catch(e){}};
 const bacaLokal=()=>{try{return JSON.parse(localStorage.getItem('dk_warga')||'null')}catch(e){return null}};
 
+const nmTampil=o=>o?(o.ig||o.tiktok||''):'';
+const bersih=v=>String(v||'').replace(/[<>&"]/g,'');
 async function muatDaftar(){
   try{const r=await fetch('/duniakotak/api/warga');const d=await r.json();
     $('jumlah').textContent=d.jumlah.toLocaleString('id-ID');
     const w=d.warga.slice(-40).reverse();
-    $('daftar').innerHTML=w.length?w.map(x=>`<span><b>No. ${x.no}</b> ${x.ig?'@'+x.ig.replace(/[<>&"]/g,''):'warga baru'}</span>`).join(''):'<span>Belum ada. Jadilah yang pertama!</span>';
+    $('daftar').innerHTML=w.length?w.map(x=>`<span><b>No. ${x.no}</b> ${x.ig?'@'+bersih(x.ig):x.tiktok?'@'+bersih(x.tiktok)+' (TikTok)':'warga baru'}</span>`).join(''):'<span>Belum ada. Jadilah yang pertama!</span>';
   }catch(e){$('jumlah').textContent='–';$('daftar').innerHTML='<span>Daftar warga belum bisa dimuat.</span>'}
 }
 
 async function tampilkan(o){
-  saya=o;if(o.kunci)kunci=o.kunci;simpanLokal({no:o.no,ig:o.ig||'',nama:o.nama||'',kunci});
-  $('ig').readOnly=!!kunci;
+  saya=o;if(o.kunci)kunci=o.kunci;const nm=nmTampil(o);simpanLokal({no:o.no,ig:nm,nama:o.nama||'',kunci});
   $('hasil').style.display='block';
   $('noWarga').textContent='WARGA No. '+o.no;
-  $('salam').textContent=(o.baru?'Selamat datang, ':'Halo lagi, ')+(o.ig?'@'+o.ig:(o.nama||'warga baru'))+'!';
-  $('ket').textContent=o.ig?'Namamu sudah terukir di batu depan rumah.':'Isi username IG supaya namamu diukir di batu.';
-  $('ig').value=o.ig||'';$('usul').value=o.usulan||'';
-  gambarKavling(o.ig?'@'+o.ig:'? ? ?',o.no);
+  $('salam').textContent=(o.baru?'Selamat datang, ':'Halo lagi, ')+(o.nama||(nm?'@'+nm:'warga baru'))+'!';
+  $('ket').textContent=nm?'@'+nm+' sudah terukir di batu depan rumahmu.':'Ini kavlingmu di Dunia Kotak.';
+  $('usul').value=o.usulan||'';
+  gambarKavling(nm?'@'+nm:'? ? ?',o.no);
+  tampilKode();
   $('hasil').scrollIntoView({behavior:'smooth',block:'start'});
+}
+async function tampilKode(){
+  if(!kunci)return;
+  try{const s=await kirim('sesi',{kunci});$('kodeWarga').textContent=s.kode||'––––––';$('kodeKotak').style.display='block'}catch(e){}
 }
 
 async function gambarKavling(nama,no){
@@ -151,29 +175,35 @@ async function kirim(path,data){
   const j=await r.json().catch(()=>({galat:'Server tidak menjawab'}));if(!r.ok)throw new Error(j.galat||'Gagal');return j;
 }
 
-async function masuk(resp){
-  cred=resp.credential;
-  try{const o=await kirim('daftar',{credential:cred});await tampilkan(o);muatDaftar()}
-  catch(e){alert(e.message)}
+// Baca & periksa isian langkah 2. Mengembalikan null (dan menulis pesan) kalau belum lengkap.
+function isian(){
+  const un=v=>v.trim().replace(/^@/,'').toLowerCase();
+  const d={nama:$('namaDaftar').value.trim(),ig:un($('igDaftar').value),tiktok:un($('ttDaftar').value)};
+  const p=$('pesanDaftar');p.textContent='';
+  if(!$('sudahFollow').checked){p.textContent='Follow @duniakotak.id dulu, lalu centang "Saya sudah follow".';return null}
+  if(!d.nama){p.textContent='Tulis namamu dulu.';$('namaDaftar').focus();return null}
+  if(!d.ig&&!d.tiktok){p.textContent='Isi username Instagram atau TikTok (salah satu cukup).';$('igDaftar').focus();return null}
+  return d;
 }
 
-$('simpan').onclick=async()=>{
-  const ig=$('ig').value.trim().replace(/^@/,'');$('pesan').textContent='';
-  if(kunci){$('pesan').textContent='Username sudah terukir. Mau ganti? DM @duniakotak.id.';return}
-  if(!cred){$('pesan').textContent='Daftar dulu lewat kolom username di atas.';$('ajak').scrollIntoView({behavior:'smooth'});return}
-  try{$('simpan').disabled=true;const o=await kirim('ig',{credential:cred,ig});o.baru=false;await tampilkan(o);$('pesan').textContent='✓ Terukir! Rumahmu siap tampil di video.';muatDaftar()}
-  catch(e){$('pesan').textContent=e.message}finally{$('simpan').disabled=false}
-};
+async function daftarGoogle(){
+  const d=isian();if(!d)return;
+  try{$('daftarLagi').disabled=true;$('pesanDaftar').textContent='Mendaftarkan…';
+    const o=await kirim('google',{credential:cred,kunci:kunci||'',...d});
+    if(o.perlu){$('pesanDaftar').textContent='Isi username Instagram atau TikTok dulu.';return}
+    $('pesanDaftar').textContent='';await tampilkan(o);muatDaftar()}
+  catch(e){$('pesanDaftar').textContent=e.message;if(/Google/.test(e.message)){cred=null;$('daftarLagi').style.display='none'}}
+  finally{$('daftarLagi').disabled=false}
+}
+function masuk(resp){cred=resp.credential;$('daftarLagi').style.display='block';daftarGoogle()}
+$('daftarLagi').onclick=()=>{if(cred)daftarGoogle()};
 
-$('daftarIg').onclick=async()=>{
-  const ig=$('igDaftar').value.trim().replace(/^@/,'').toLowerCase();$('pesanDaftar').textContent='';
-  if(!$('sudahFollow').checked){$('pesanDaftar').textContent='Follow @duniakotak.id dulu, lalu centang "Saya sudah follow".';return}
-  if(!ig){$('pesanDaftar').textContent='Tulis username IG-mu dulu.';return}
-  try{$('daftarIg').disabled=true;const o=await kirim('daftar-ig',{ig});await tampilkan(o);$('pesan').textContent='✓ Terukir! Rumahmu siap tampil di video.';muatDaftar()}
-  catch(e){$('pesanDaftar').textContent=e.message}finally{$('daftarIg').disabled=false}
+$('daftarTanpa').onclick=async()=>{
+  const d=isian();if(!d)return;
+  try{$('daftarTanpa').disabled=true;const o=await kirim('daftar-ig',d);await tampilkan(o);muatDaftar()}
+  catch(e){$('pesanDaftar').textContent=e.message}finally{$('daftarTanpa').disabled=false}
 };
 $('followIg').addEventListener('click',()=>{setTimeout(()=>{$('sudahFollow').checked=true},800)});
-$('igDaftar').addEventListener('keydown',e=>{if(e.key==='Enter')$('daftarIg').click()});
 
 $('kirimUsul').onclick=async()=>{
   $('pesanUsul').textContent='';
@@ -185,15 +215,17 @@ $('kirimUsul').onclick=async()=>{
 };
 (async()=>{
   muatDaftar();
-  const lama=bacaLokal();if(lama&&lama.kunci){kunci=lama.kunci;$('ig').readOnly=true}if(lama&&lama.no){$('hasil').style.display='block';$('noWarga').textContent='WARGA No. '+lama.no;$('salam').textContent='Halo lagi'+(lama.ig?', @'+lama.ig:'')+'!';$('ket').textContent=lama.kunci?'Ini kavlingmu. Kamu masih bisa kirim usulan bangunan di bawah.':'Ini kavlingmu.';$('ig').value=lama.ig||'';gambarKavling(lama.ig?'@'+lama.ig:'? ? ?',lama.no)}
+  const lama=bacaLokal();if(lama&&lama.kunci)kunci=lama.kunci;
+  if(lama&&lama.no){$('hasil').style.display='block';$('noWarga').textContent='WARGA No. '+lama.no;$('salam').textContent='Halo lagi, '+(lama.nama||(lama.ig?'@'+lama.ig:'warga'))+'!';$('ket').textContent='Ini kavlingmu. Kamu masih bisa kirim usulan bangunan di bawah.';gambarKavling(lama.ig?'@'+lama.ig:'? ? ?',lama.no);tampilKode()}
   const ua=navigator.userAgent||'';const dalamApp=/Instagram|FBAN|FBAV|FB_IAB|Line\/|TikTok|musical_ly|BytedanceWebview/i.test(ua);
-  // Login Google tidak jalan di dalam app IG/TikTok; daftar pakai username IG tetap bisa.
-  if(dalamApp)return;
-  let id='';try{id=(await (await fetch('/duniakotak/api/config')).json()).clientId}catch(e){}
-  if(!id)return;
+  let id='';if(!dalamApp){try{id=(await (await fetch('/duniakotak/api/config')).json()).clientId}catch(e){}}
+  // Login Google tidak jalan di dalam app IG/TikTok (atau kalau Google belum siap): tawarkan Buka di Chrome / daftar tanpa Google.
+  if(dalamApp||!id){
+    if(/Android/i.test(ua))$('bukaChrome').href='intent://willoapparel.com/duniakotak/#Intent;scheme=https;package=com.android.chrome;end';
+    $('dalamApp').style.display='block';$('gbtn').style.display='none';return}
   const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;
   s.onload=()=>{google.accounts.id.initialize({client_id:id,callback:masuk,auto_select:false,cancel_on_tap_outside:true});
-    google.accounts.id.renderButton($('gbtn'),{theme:'filled_black',size:'large',shape:'pill',text:'continue_with',locale:'id',width:300});};
+    google.accounts.id.renderButton($('gbtn'),{theme:'filled_black',size:'large',shape:'pill',text:'signin_with',locale:'id',width:300});};
   document.head.appendChild(s);
 })();
 </script>

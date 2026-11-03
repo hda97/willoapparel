@@ -95,18 +95,25 @@ async function layarMasuk() {
     document.head.appendChild(sc);
   }
 }
-async function masukGoogle(credential, ig) {
+async function masukGoogle(credential, isi) {
   const g = $('galatMasuk'); g.textContent = '';
   try {
     const lama = bacaJ('dk_warga') || {};
-    const r = await api('google', {credential, kunci: lama.kunci || '', ig: ig || ''});
+    const r = await api('google', {credential, kunci: lama.kunci || '', ...(isi || {})});
     if (r.perlu === 'ig') {
-      $('masukIsi').innerHTML = `<p class="sub">Akun Google ini belum terhubung ke kavling. Tulis username IG yang kamu pakai jadi warga (atau yang mau didaftarkan).</p>
-        <div class="isian"><input id="igTaut" maxlength="31" placeholder="@username"><button class="utama" id="bTaut">Hubungkan</button></div><p class="galat" id="galatMasuk"></p>`;
-      $('bTaut').onclick = () => masukGoogle(credential, $('igTaut').value.trim().replace(/^@/, '').toLowerCase());
+      $('masukIsi').innerHTML = `<p class="sub">Akun Google ini belum terhubung ke kavling. Tulis username Instagram atau TikTok yang kamu pakai jadi warga (atau yang mau didaftarkan). Cukup salah satu.</p>
+        <div class="isian"><input id="namaTaut" maxlength="24" placeholder="Nama kamu"></div>
+        <div class="isian" style="margin-top:8px"><input id="igTaut" maxlength="31" placeholder="@username Instagram" autocapitalize="none"></div>
+        <div class="isian" style="margin:8px 0"><input id="ttTaut" maxlength="25" placeholder="@username TikTok" autocapitalize="none"></div>
+        <button class="utama" id="bTaut">Hubungkan</button><p class="galat" id="galatMasuk"></p>`;
+      const un = id => $(id).value.trim().replace(/^@/, '').toLowerCase();
+      $('bTaut').onclick = () => {
+        if (!un('igTaut') && !un('ttTaut')) { $('galatMasuk').textContent = 'Isi username Instagram atau TikTok (salah satu cukup).'; return; }
+        masukGoogle(credential, {nama: $('namaTaut').value.trim(), ig: un('igTaut'), tiktok: un('ttTaut')});
+      };
       return;
     }
-    simpan('dk_warga', {no: r.no, ig: r.ig, kunci: r.kunci});
+    simpan('dk_warga', {no: r.no, ig: r.nm || r.ig, kunci: r.kunci});
     selesaiMasuk(await api('sesi', {kunci: r.kunci}));
   } catch (e) { const g2 = $('galatMasuk'); if (g2) g2.textContent = e.message; }
 }
@@ -181,7 +188,7 @@ const lotRuntime = new Map();   // no → {g, extra, rects}
 const dekor = new Map();        // rects statis tambahan
 
 async function bangunDunia() {
-  try { const w = await (await fetch('/duniakotak/api/warga')).json(); w.warga.forEach(x => { if (x.ig) NM[x.no] = '@' + x.ig; }); } catch (e) {}
+  try { const w = await (await fetch('/duniakotak/api/warga')).json(); w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); }); } catch (e) {}
   if (S.saya && S.saya.ig) NM[S.saya.no] = '@' + S.saya.ig;
   await document.fonts.load('900 40px Montserrat').catch(() => {});
   reseed(301);
