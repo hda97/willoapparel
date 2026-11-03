@@ -137,3 +137,11 @@ canvas#layar{touch-action:none}
 #ngobrol .pilih button{padding:8px 12px;font-size:12.5px;flex:1 1 auto}
 @media (max-width:700px) and (orientation:portrait){:where(html:not(.putar)) #ngobrol{width:calc(calc(100*var(--vw,1vw)) - 32px)}}
 :where(html.putar.mq-tegak) #ngobrol{width:calc(calc(100*var(--vw,1vw)) - 32px)}
+/* keterangan dusun yang sedang dikunjungi (di bawah peta mini) */
+.chipDusun{position:fixed;top:200px;right:max(12px,env(safe-area-inset-right));background:rgba(19,20,31,.82);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;text-align:center}
+.chipDusun b{color:#ffd23a;font-weight:900}
+/* chat terbuka & menutupi joystick di layar pendek: joystick disembunyikan sementara */
+body.chatPenuh #stik{visibility:hidden}
+/* layar pendek (HP landscape): tombol skill berderet ke kiri, tidak menumpuk ke atas menabrak peta mini */
+@media (max-height:500px){:where(html:not(.putar)) .zoom.skill{flex-direction:row-reverse;align-items:flex-end}}
+:where(html.putar.mq-pendek) .zoom.skill{flex-direction:row-reverse;align-items:flex-end}

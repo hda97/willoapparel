@@ -20,7 +20,7 @@
 <div id="hud" hidden>
  <div class="kartu profil" id="profil"><div class="ava" id="profAva">🙂</div><div><b id="profNama">@warga</b><small id="profAlamat"></small><small id="profOnline" class="hijau"></small></div></div>
  <div class="kartu jam" id="jam"></div>
- <div class="tombolAtas">
+ <div class="tombolAtas" id="tombolAtas">
   <button class="bulat" id="bRumah" title="Pulang ke rumah"><i>🏠</i>Rumah</button>
   <button class="bulat" id="bKamera" title="Kamera HP"><i>📸</i>Kamera</button>
   <button class="bulat" id="bAvatar" title="Ubah avatar"><i>🪞</i>Avatar</button>
@@ -37,8 +37,9 @@
  </div>
  <button class="bulat" id="bBukaChat" hidden><i>💬</i>Chat</button>
  <canvas id="petaMini" width="240" height="240" title="Buka peta desa (M)"></canvas>
+ <div id="chipDusun" class="chipDusun" title="Dusun yang sedang kamu kunjungi">📍 Dusun Kotak Wetan</div>
  <div id="stik"><div id="kenop"></div></div>
- <div class="zoom skill"><button id="sLompat" class="siap" title="Lompat (Spasi)"><i><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2.5l7.5 8.5h-4.7v6.2H9.2V11H4.5z" fill="#fff"/><rect x="5" y="19.6" width="14" height="2.4" rx="1.2" fill="#fff" opacity=".65"/></svg></i>Lompat</button><button id="sNgobrol" title="Ngobrol dengan warga NPC (T)" hidden><i>💬</i>Ngobrol</button><button id="sAmbil" title="Ambil item (F)"><i>✋</i>Ambil</button><button id="sMancing" title="Mancing di sungai (R)"><i>🎣</i>Mancing</button><button id="sMakan" title="Beri makan kucing (G)"><i>🐟</i>Beri makan</button></div>
+ <div class="zoom skill" id="skill"><button id="sLompat" class="siap" title="Lompat (Spasi)"><i><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2.5l7.5 8.5h-4.7v6.2H9.2V11H4.5z" fill="#fff"/><rect x="5" y="19.6" width="14" height="2.4" rx="1.2" fill="#fff" opacity=".65"/></svg></i>Lompat</button><button id="sNgobrol" title="Ngobrol dengan warga NPC (T)" hidden><i>💬</i>Ngobrol</button><button id="sAmbil" title="Ambil item (F)"><i>✋</i>Ambil</button><button id="sMancing" title="Mancing di sungai (R)"><i>🎣</i>Mancing</button><button id="sMakan" title="Beri makan kucing (G)"><i>🐟</i>Beri makan</button></div>
 </div>
 
 <div id="panelPeta" class="layarPenuh" hidden>
