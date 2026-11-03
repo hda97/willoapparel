@@ -390,7 +390,7 @@ function tambahWarga(w) {
 }
 function terima(q) {
   if (q.t === 'halo') { q.warga.forEach(tambahWarga); S.chat.dusun = []; q.chat.forEach(c => tambahChat('dusun', '@' + c.ig, c.m)); hitungOnline(); }
-  else if (q.t === 'masuk') { tambahWarga(q.w); hitungOnline(); tambahChat('sekitar', '', '@' + q.w.ig + ' masuk ke desa', 'sistem'); }
+  else if (q.t === 'masuk') { tambahWarga(q.w); hitungOnline(); tambahChat('sekitar', '', '@' + q.w.ig + ' masuk ke desa', 'sistem'); bunyi('masuk'); }
   else if (q.t === 'keluar') { const o = S.others.get(q.no); if (o) { sc.remove(o.obj); S.others.delete(q.no); } hitungOnline(); }
   else if (q.t === 'p') { for (const [no, x, z, r, a] of q.d) { const o = S.others.get(no); if (o) { o.tx = x; o.tz = z; o.tr = r; o.a = a; o.akhir = performance.now(); } } }
   else if (q.t === 'av') { const o = S.others.get(q.no); if (o) { const p = o.obj.position.clone(); sc.remove(o.obj); o.obj = buatAvatarObj(bersihAv(q.av)); o.obj.position.copy(p); sc.add(o.obj); } }
@@ -401,8 +401,9 @@ function terima(q) {
     if (q.ch === 'dusun') tambahChat('dusun', '@' + q.ig, q.m);
     else if (dekat) tambahChat('sekitar', '@' + q.ig, q.m);
     if (dekat || q.ch === 'sekitar') gelembung(q.no, q.m);
+    if (saya) bunyi('kirim'); else if (dekat || q.ch === 'dusun') bunyi('pesan');
   }
-  else if (q.t === 'e') { if (!S.bisu.has(q.no)) gelembung(q.no, EMO[q.e] || '👋', true); }
+  else if (q.t === 'e') { if (!S.bisu.has(q.no)) { gelembung(q.no, EMO[q.e] || '👋', true); bunyi('emosi'); } }
   else if (q.t === 'tolak' || q.t === 'info') toast(q.m, 3500);
 }
 function hitungOnline() { $('profOnline').textContent = S.tamu ? 'Mode tamu · daftar untuk ngobrol' : `● ${S.others.size + 1} warga online`; }
@@ -475,7 +476,7 @@ async function jepret() {
   fotoBlob = await new Promise(r => cv.toBlob(r, 'image/jpeg', .9));
   $('foto').src = URL.createObjectURL(fotoBlob);
 }
-async function bukaKamera() { $('kamera').hidden = false; await jepret(); }
+async function bukaKamera() { $('kamera').hidden = false; bunyi('jepret'); await jepret(); }
 $('kArah').onclick = () => { kArah = kArah === 'selfie' ? 'pemandangan' : 'selfie'; jepret(); };
 $('kTutup').onclick = () => { $('kamera').hidden = true; };
 $('kSimpan').onclick = () => { if (!fotoBlob) return; const a = document.createElement('a'); a.href = URL.createObjectURL(fotoBlob); a.download = 'dunia-kotak.jpg'; a.click(); };
@@ -491,6 +492,70 @@ function pergiKe(no) { const L = I.lots[no]; if (!L) return; gerak.tujuan = new 
 // 9. MULAI
 // =====================================================================
 let zoom = 1, yaw = 0, yawNow = 0;
+// ---------- suara: musik latar (orisinal, loop) + efek suara (dibuat langsung, tanpa file) ----------
+// Mulai setelah sentuhan pertama (aturan browser). Tombol Suara: Semua -> Efek saja -> Senyap; diingat di HP.
+const M = {ctx: null, gain: null, fx: null, buf: null, src: null, mode: baca('dk_suara') || (baca('dk_musik') === '0' ? 'efek' : 'semua')};
+const MODE = {semua: '<i>🔊</i>Suara', efek: '<i>🔉</i>Efek', senyap: '<i>🔇</i>Senyap'};
+function tandaMusik() { $('bMusik').innerHTML = MODE[M.mode] || MODE.semua; }
+function siapAudio() {
+  if (!M.ctx) {
+    M.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    M.gain = M.ctx.createGain(); M.gain.gain.value = 0; M.gain.connect(M.ctx.destination);
+    M.fx = M.ctx.createGain(); M.fx.gain.value = M.mode === 'senyap' ? 0 : .6; M.fx.connect(M.ctx.destination);
+  }
+  if (M.ctx.state === 'suspended' && !document.hidden) M.ctx.resume();
+  return M.ctx;
+}
+async function putarMusik() {
+  try {
+    const c = siapAudio();
+    M.fx.gain.setTargetAtTime(M.mode === 'senyap' ? 0 : .6, c.currentTime, .05);
+    if (M.mode === 'semua') {
+      if (!M.buf) M.buf = await c.decodeAudioData(await (await fetch('musik.mp3')).arrayBuffer());
+      if (!M.src) { M.src = c.createBufferSource(); M.src.buffer = M.buf; M.src.loop = true; M.src.connect(M.gain); M.src.start(); }
+    }
+    M.gain.gain.setTargetAtTime(M.mode === 'semua' ? .35 : 0, c.currentTime, .4);
+  } catch (e) { /* tanpa suara kalau browser menolak */ }
+}
+// nada pendek: frekuensi awal->akhir, durasi, bentuk gelombang, keras
+function nada(f0, f1, dur, tipe = 'sine', v = .3, tunda = 0) {
+  const c = M.ctx; if (!c || M.mode === 'senyap' || c.state !== 'running') return;
+  const t = c.currentTime + tunda, o = c.createOscillator(), g = c.createGain();
+  o.type = tipe; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .008); g.gain.exponentialRampToValueAtTime(.0005, t + dur);
+  o.connect(g).connect(M.fx); o.start(t); o.stop(t + dur + .02);
+}
+let derau = null;
+function desis(dur, frek, q, v = .3, tunda = 0) {
+  const c = M.ctx; if (!c || M.mode === 'senyap' || c.state !== 'running') return;
+  if (!derau) { derau = c.createBuffer(1, c.sampleRate * .5, c.sampleRate); const d = derau.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+  const t = c.currentTime + tunda, s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+  s.buffer = derau; f.type = 'bandpass'; f.frequency.value = frek; f.Q.value = q;
+  g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0005, t + dur);
+  s.connect(f).connect(g).connect(M.fx); s.start(t, Math.random() * .3); s.stop(t + dur + .02);
+}
+const SFX = {
+  klik: () => nada(1300, 900, .05, 'triangle', .12),
+  langkah: () => desis(.07, 380 + Math.random() * 160, 1.2, .22),
+  kirim: () => { nada(520, 880, .09, 'sine', .18); nada(880, 1320, .08, 'sine', .12, .06); },
+  pesan: () => { nada(1180, 1180, .12, 'sine', .14); nada(1580, 1580, .16, 'sine', .11, .08); },
+  emosi: () => nada(300, 900, .12, 'sine', .2),
+  masuk: () => [784, 988, 1175].forEach((f, i) => nada(f, f, .35, 'triangle', .1, i * .09)),
+  jepret: () => { desis(.05, 3000, .7, .5); nada(2200, 1200, .03, 'square', .06); desis(.08, 1800, .8, .35, .09); },
+  buka: () => nada(440, 660, .14, 'triangle', .14),
+};
+function bunyi(n) { try { SFX[n] && SFX[n](); } catch (e) {} }
+function musikSiap() {
+  tandaMusik();
+  const sekali = () => { removeEventListener('pointerdown', sekali); removeEventListener('keydown', sekali); putarMusik(); };
+  addEventListener('pointerdown', sekali); addEventListener('keydown', sekali);
+  putarMusik();
+  $('bMusik').onclick = () => { M.mode = {semua: 'efek', efek: 'senyap', senyap: 'semua'}[M.mode] || 'semua'; simpan('dk_suara', M.mode); tandaMusik(); putarMusik(); };
+  // bunyi klik untuk semua tombol
+  document.addEventListener('click', e => { if (e.target.closest('button')) bunyi('klik'); }, true);
+  document.addEventListener('visibilitychange', () => { if (M.ctx) document.hidden ? M.ctx.suspend() : (M.mode !== 'senyap' && M.ctx.resume()); });
+}
+
 async function mulai() {
   $('masuk').hidden = false; $('masukIsi').innerHTML = '<p class="muat">Membangun Dusun Kotak Wetan…</p>';
   await bangunDunia();
@@ -527,6 +592,7 @@ function aturHUD() {
   $('profil').onclick = () => { if (S.tamu) return toast('Daftar di willoapparel.com/duniakotak supaya dapat kavling.', 4000); toast(`Kode wargamu: ${S.saya.kode} · pakai untuk masuk dari HP lain. Jangan dibagikan.`, 6000); };
   $('bAvatar').onclick = () => bukaPembuatAvatar(JSON.parse(JSON.stringify(S.av)), false);
   $('bPanduan').onclick = () => panduan();
+  musikSiap();
   $('putKiri').onclick = () => putar(1); $('putKanan').onclick = () => putar(-1);
   $('zIn').onclick = () => { zoom = Math.max(.6, zoom - .15); };
   $('zOut').onclick = () => { zoom = Math.min(1.8, zoom + .15); };
@@ -578,7 +644,7 @@ function loop(t) {
     if (bebas(me.position.x, nz)) { me.position.z = nz; maju = true; }
     if (!maju) gerak.tujuan = null;
     const tr = Math.atan2(vx, vz); let dr = tr - me.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); me.rotation.y += dr * Math.min(1, dt * 12);
-    ph += dt * 11; jalanAnim(me, ph, .7);
+    const lk = Math.floor(ph / Math.PI); ph += dt * 11; if (Math.floor(ph / Math.PI) !== lk) bunyi('langkah'); jalanAnim(me, ph, .7);
   } else jalanAnim(me, 0, 0);
   // warga lain: interpolasi
   for (const o of S.others.values()) {
