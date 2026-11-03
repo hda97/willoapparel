@@ -54,7 +54,7 @@ async function layarMasuk() {
   const isi = $('masukIsi');
   const lama = bacaJ('dk_warga');
   if (lama && lama.kunci) {
-    try { const s = await api('sesi', {kunci: lama.kunci}); return selesaiMasuk(s); }
+    try { const s = await api('sesi', {kunci: lama.kunci}); if (!s.bagi) { location.replace('/duniakotak/?bagi=1#hasil'); return; } return selesaiMasuk(s); }
     catch (e) { /* kunci tidak berlaku: lanjut ke pintu masuk */ }
   }
   // Satu pintu: masuk/daftar lewat willoapparel.com/duniakotak. Game hanya terbuka langsung untuk tamu (?tamu=1).
