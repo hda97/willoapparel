@@ -1,5 +1,6 @@
 // Mabar Dunia Kotak — Dusun Kotak Wetan. Denah baku (village) + aset video (rumah, pekarangan, batu nama,
 // warung panen, rumah kucing, avatar, Raka, Oyen). Online lewat /duniakotak/api/ruang (WebSocket).
+import './js/putar.js'; // HP tegak -> otomatis tampil mendatar (harus paling awal)
 import * as THREE from 'three';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
