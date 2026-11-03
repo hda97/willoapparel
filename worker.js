@@ -122,6 +122,7 @@ export class Warga extends DurableObject {
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN tiktok TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN kerja TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN bagi INTEGER DEFAULT 0"); } catch (e) { /* kolom sudah ada */ }
+    try { this.sql.exec("ALTER TABLE warga ADD COLUMN aktif INTEGER"); } catch (e) { /* kolom sudah ada */ }
     // Koreksi salah ketik username: pindahkan ke username & kavling yang benar (sekali jalan, aman diulang).
     for (const [salah, benar] of Object.entries(KOREKSI_IG)) {
       const r = this.sql.exec("SELECT no FROM warga WHERE ig = ?", salah).toArray()[0];
@@ -140,7 +141,7 @@ export class Warga extends DurableObject {
   publik(r) {
     // Daftar lewat Google tanpa username: nama yang ditulis warga jadi ukiran batu (label).
     let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
-    return { no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}) };
+    return { no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
   }
   // Nama tampil di game & batu: username IG kalau ada, kalau tidak username TikTok.
   nm(r) { return r.ig || r.tiktok || r.nama || ""; }
@@ -271,6 +272,8 @@ export class Warga extends DurableObject {
           if (!this.sql.exec("SELECT 1 FROM warga WHERE kode = ?", k).toArray().length) { this.sql.exec("UPDATE warga SET kode = ? WHERE no = ?", k, r.no); r.kode = k; break; }
         }
       }
+      // Jejak warga: kapan terakhir main (tampil di depan rumahnya di game). Ditulis paling sering tiap 5 menit.
+      const kini = Date.now(); if (!r.aktif || kini - r.aktif > 300000) { this.sql.exec("UPDATE warga SET aktif = ? WHERE no = ?", kini, r.no); r.aktif = kini; }
       if (aksi === "avatar") { this.sql.exec("UPDATE warga SET avatar = ? WHERE no = ?", String(q.avatar || "").slice(0, 600), r.no); r.avatar = q.avatar; }
       // Misi harian: tiap misi sekali per hari (tanggal WIB), koin masuk di server; bonus bila semua selesai.
       const hari = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
@@ -317,7 +320,7 @@ export class Warga extends DurableObject {
     }
     if (aksi === "daftar-publik") {
       // Gabungkan warga terdaftar dengan 63 pengikut awal yang kavlingnya sudah disiapkan (sudah warga sejak video).
-      const rows = this.sql.exec("SELECT no, sub, nama, ig, tiktok, usulan, dibuat, kucing FROM warga ORDER BY no").toArray();
+      const rows = this.sql.exec("SELECT no, sub, nama, ig, tiktok, usulan, dibuat, kucing, aktif FROM warga ORDER BY no").toArray();
       const terisi = new Set(rows.map((r) => r.no));
       const igTerdaftar = new Set(rows.map((r) => r.ig).filter(Boolean));
       const awalan = Object.entries(KAVLING_AWALAN).map(([a, no]) => [a + "…", no]);
