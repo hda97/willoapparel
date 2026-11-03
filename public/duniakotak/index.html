@@ -53,6 +53,10 @@ h3{font-weight:900;font-size:17px;margin:0 0 10px}
 .langkah small{font-weight:600;opacity:.75}
 .nl{width:28px;height:28px;flex:none;border-radius:50%;background:var(--tinta);color:#fff;display:grid;place-items:center;font-weight:900}
 .cara{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.cara button{font:800 15px Montserrat,sans-serif;padding:12px 6px;border-radius:12px;border:2px solid #1d2a1d;background:#fff;color:#1d2a1d;cursor:pointer}.cara button.aktif{background:#1d2a1d;color:#fff}
+.syarat{margin-top:14px;background:#fff4d6;border:2px dashed #e0a020;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.45;color:#4a3a10}.syarat b{display:block;margin-bottom:4px}
+.tombol.ig{background:linear-gradient(90deg,#f58529,#dd2a7b,#8134af);box-shadow:0 4px 0 #5a1f6e;font-size:16px}
+.layarStory{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:16px}.layarStory[hidden]{display:none}
+.isiStory{background:#fffaf0;border-radius:18px;padding:16px;max-width:360px;width:100%;max-height:94vh;overflow:auto;font-size:14px}.isiStory img{width:62%;display:block;margin:8px auto;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
 #ktp{width:100%;height:auto;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,.18);margin-top:12px}.dua{display:grid;grid-template-columns:1fr 1fr;gap:8px}.dua .tombol{margin-top:10px}
 #pilihAv .br{margin-top:12px}#pilihAv b{display:block;font-size:13px;margin-bottom:6px}#pilihAv .op{display:flex;flex-wrap:wrap;gap:6px}
 #pilihAv button{font:700 13px Montserrat,sans-serif;padding:8px 10px;border-radius:10px;border:2px solid #cbbd9e;background:#fff;cursor:pointer}#pilihAv button.on{border-color:#1d2a1d;background:#1d2a1d;color:#fff}
@@ -143,8 +147,11 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
     <h2 id="salam">Selamat datang!</h2>
     <p class="sub" id="ket">Ini kavlingmu di Dunia Kotak.</p>
     <canvas id="ktp" width="1012" height="638" style="display:none" aria-label="Kartu Warga Dunia Kotak"></canvas>
-    <a class="tombol main" id="mainBtn" href="/duniakotak/mabar/">▶ Main game sekarang</a>
-    <div class="dua"><button class="tombol" id="bagiKtp">Bagikan ke story</button><button class="tombol kedua" id="simpanKtp">Simpan kartu</button></div>
+    <div id="syaratMain" class="syarat" hidden><b>🔒 Satu langkah lagi sebelum main</b>Bagikan Kartu Wargamu ke Instagram Story <u>cukup 1x</u>. Setelah itu game langsung terbuka dan seterusnya bisa main tanpa share lagi.</div>
+    <button class="tombol ig" id="bagiKtp">📸 Bagikan ke Instagram Story</button>
+    <a class="tombol main" id="mainBtn" href="/duniakotak/mabar/" hidden>▶ Main game sekarang</a>
+    <button class="tombol kedua" id="simpanKtp">Simpan kartu</button>
+    <div id="layarStory" class="layarStory" hidden><div class="isiStory"><b>Tinggal 2 langkah</b><p>1. Tekan lama gambar di bawah, lalu <b>Simpan gambar</b>.<br>2. Tekan <b>Buka Instagram</b>, buat Story, pilih gambar tadi, lalu bagikan.</p><img id="gbrStory" alt="Story Kartu Warga"><a class="tombol ig" id="bukaIG" href="instagram://story-camera">Buka Instagram</a><button class="tombol kedua" id="tutupStory">Tutup</button></div></div>
     <details id="avatarKotak" style="margin-top:14px"><summary style="font-weight:800;cursor:pointer">Pilih avatar untuk foto kartumu</summary>
       <div id="pilihAv"></div>
       <button class="tombol" id="simpanAv" style="width:100%">Simpan avatar</button>
@@ -206,7 +213,7 @@ async function tampilkan(o){
 }
 async function tampilKode(){
   if(!kunci)return;
-  try{const s=await kirim('sesi',{kunci});$('kodeWarga').textContent=s.kode||'––––––';$('kodeKotak').style.display='block';
+  try{const s=await kirim('sesi',{kunci});aturSyarat(s.bagi);$('kodeWarga').textContent=s.kode||'––––––';$('kodeKotak').style.display='block';
     K=await import('./js/ktp.js');dataKartu={no:s.no,nama:s.nama,kerja:s.kerja,ig:s.akunIg,tiktok:s.tiktok,dibuat:s.dibuat};
     $('namaKartu').value=s.nama||'';$('kerjaKartu').value=s.kerja||'';if(!s.nama){$('dataKotak').open=true;$('pesanData').textContent='Tulis namamu supaya muncul di kartu.'}
     av=K.bersihAv(s.avatar||K.avAcak(s.no));await K.gambarKTP($('ktp'),{...dataKartu,avatar:av});$('ktp').style.display='block';tulisAv()}catch(e){console.error(e);if(/tidak ditemukan/.test(e.message))$('keluar').click()}
@@ -230,10 +237,19 @@ async function kirim(path,data){
 
 $('simpanKtp').onclick=()=>{const a=document.createElement('a');a.download='kartu-warga-dunia-kotak.png';a.href=$('ktp').toDataURL('image/png');a.click()};
 // Bagikan versi story 9:16 (IG/TikTok/WA). Kalau HP tidak bisa share langsung, gambar story diunduh.
+// Syarat main: bagikan Kartu Warga ke Instagram Story sekali. Dicatat di server (tidak bisa dicek ke IG).
+function aturSyarat(bagi){$('syaratMain').hidden=!!bagi;$('mainBtn').hidden=!bagi;$('bagiKtp').textContent=bagi?'📸 Bagikan lagi ke Instagram Story':'📸 Bagikan ke Instagram Story';$('bagiKtp').classList.toggle('kedua',!!bagi);$('bagiKtp').classList.toggle('ig',!bagi)}
+async function tandaiBagi(){if(!kunci)return;try{await kirim('bagikan',{kunci});aturSyarat(1);$('mainBtn').scrollIntoView({behavior:'smooth',block:'center'})}catch(e){console.error(e)}}
 $('bagiKtp').onclick=async()=>{const {gambarStory}=await import('./js/ktp.js');const st=gambarStory($('ktp'),{no:(saya||bacaLokal()||{}).no||''});
   st.toBlob(async b=>{const f=new File([b],'story-warga-dunia-kotak.png',{type:'image/png'});
-  try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],text:'Aku resmi jadi warga Dunia Kotak! Daftar gratis: willoapparel.com/duniakotak @duniakotak.id'});return}}catch(e){if(e&&e.name==='AbortError')return}
-  const a=document.createElement('a');a.download=f.name;a.href=URL.createObjectURL(b);a.click()},'image/png')};
+  // HP yang bisa share langsung: muncul pilihan aplikasi -> pilih Instagram -> Story.
+  try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});tandaiBagi();return}}catch(e){if(e&&e.name==='AbortError')return}
+  // Di dalam aplikasi IG/TikTok atau laptop: tampilkan gambar untuk disimpan, lalu tombol Buka Instagram.
+  const url=URL.createObjectURL(b);$('gbrStory').src=url;$('layarStory').hidden=false;
+  if(!/Instagram|FBAN|FBAV|TikTok|musical_ly|BytedanceWebview/i.test(navigator.userAgent||'')){const a=document.createElement('a');a.download=f.name;a.href=url;a.click()}
+  if(!/Android|iPhone|iPad/i.test(navigator.userAgent||''))$('bukaIG').href='https://www.instagram.com/';},'image/png')};
+$('bukaIG').onclick=()=>{tandaiBagi();setTimeout(()=>{$('layarStory').hidden=true},800)};
+$('tutupStory').onclick=()=>{$('layarStory').hidden=true};
 // ---- pilih avatar untuk foto kartu (pilihan sama dengan game) ----
 let K=null,dataKartu=null,av=null,gmbTunda=0;
 const NAMA_OPSI={cepak:'Cepak',belah:'Belah',acak:'Acak',keriting:'Keriting',panjang:'Panjang',kuncir:'Kuncir',kepang:'Kepang',bob:'Bob',hijab:'Hijab',kaos:'Kaos','kaos-willo':'Kaos Willo',kemeja:'Kemeja',jaket:'Jaket',batik:'Batik',seragam:'Seragam',celana:'Celana',pendek:'Celana pendek',sarung:'Sarung',rok:'Rok','rok-panjang':'Rok panjang',L:'Laki-laki',P:'Perempuan'};
