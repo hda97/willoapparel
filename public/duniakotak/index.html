@@ -55,6 +55,7 @@ h3{font-weight:900;font-size:17px;margin:0 0 10px}
 .cara{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.cara button{font:800 15px Montserrat,sans-serif;padding:12px 6px;border-radius:12px;border:2px solid #1d2a1d;background:#fff;color:#1d2a1d;cursor:pointer}.cara button.aktif{background:#1d2a1d;color:#fff}
 .syarat{margin-top:14px;background:#fff4d6;border:2px dashed #e0a020;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.45;color:#4a3a10}.syarat b{display:block;margin-bottom:4px}
 .tombol.ig{background:linear-gradient(90deg,#f58529,#dd2a7b,#8134af);box-shadow:0 4px 0 #5a1f6e;font-size:16px}
+.tombol.tt{background:#111;box-shadow:0 4px 0 #000;font-size:16px;border-left:4px solid #25f4ee;border-right:4px solid #fe2c55}.bagiDua .tombol{margin-top:14px}
 .layarStory{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:16px}.layarStory[hidden]{display:none}
 .isiStory{background:#fffaf0;border-radius:18px;padding:16px;max-width:360px;width:100%;max-height:94vh;overflow:auto;font-size:14px}.isiStory img{width:62%;display:block;margin:8px auto;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
 #ktp{width:100%;height:auto;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,.18);margin-top:12px}.dua{display:grid;grid-template-columns:1fr 1fr;gap:8px}.dua .tombol{margin-top:10px}
@@ -147,11 +148,11 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
     <h2 id="salam">Selamat datang!</h2>
     <p class="sub" id="ket">Ini kavlingmu di Dunia Kotak.</p>
     <canvas id="ktp" width="1012" height="638" style="display:none" aria-label="Kartu Warga Dunia Kotak"></canvas>
-    <div id="syaratMain" class="syarat" hidden><b>🔒 Satu langkah lagi sebelum main</b>Bagikan Kartu Wargamu ke Instagram Story <u>cukup 1x</u>. Setelah itu game langsung terbuka dan seterusnya bisa main tanpa share lagi.</div>
-    <button class="tombol ig" id="bagiKtp">📸 Bagikan ke Instagram Story</button>
+    <div id="syaratMain" class="syarat" hidden><b>🔒 Satu langkah lagi sebelum main</b>Bagikan Kartu Wargamu ke Instagram Story atau TikTok, <u>cukup 1x</u>. Setelah itu game langsung terbuka dan seterusnya bisa main tanpa share lagi.</div>
+    <div class="dua bagiDua"><button class="tombol ig" id="bagiKtp">📸 Instagram Story</button><button class="tombol tt" id="bagiTT">🎵 TikTok</button></div>
     <a class="tombol main" id="mainBtn" href="/duniakotak/mabar/" hidden>▶ Main game sekarang</a>
     <button class="tombol kedua" id="simpanKtp">Simpan kartu</button>
-    <div id="layarStory" class="layarStory" hidden><div class="isiStory"><b>Tinggal 2 langkah</b><p>1. Tekan lama gambar di bawah, lalu <b>Simpan gambar</b>.<br>2. Tekan <b>Buka Instagram</b>, buat Story, pilih gambar tadi, lalu bagikan.</p><img id="gbrStory" alt="Story Kartu Warga"><a class="tombol ig" id="bukaIG" href="instagram://story-camera">Buka Instagram</a><button class="tombol kedua" id="tutupStory">Tutup</button></div></div>
+    <div id="layarStory" class="layarStory" hidden><div class="isiStory"><b>Tinggal 2 langkah</b><p>1. Tekan lama gambar di bawah, lalu <b>Simpan gambar</b>.<br>2. Tekan <b id="langkahApp">Buka Instagram</b>, buat <span id="langkahJenis">Story</span>, pilih gambar tadi, lalu bagikan.</p><img id="gbrStory" alt="Story Kartu Warga"><a class="tombol ig" id="bukaIG" href="instagram://story-camera">Buka Instagram</a><button class="tombol kedua" id="tutupStory">Tutup</button></div></div>
     <details id="avatarKotak" style="margin-top:14px"><summary style="font-weight:800;cursor:pointer">Pilih avatar untuk foto kartumu</summary>
       <div id="pilihAv"></div>
       <button class="tombol" id="simpanAv" style="width:100%">Simpan avatar</button>
@@ -238,16 +239,20 @@ async function kirim(path,data){
 $('simpanKtp').onclick=()=>{const a=document.createElement('a');a.download='kartu-warga-dunia-kotak.png';a.href=$('ktp').toDataURL('image/png');a.click()};
 // Bagikan versi story 9:16 (IG/TikTok/WA). Kalau HP tidak bisa share langsung, gambar story diunduh.
 // Syarat main: bagikan Kartu Warga ke Instagram Story sekali. Dicatat di server (tidak bisa dicek ke IG).
-function aturSyarat(bagi){$('syaratMain').hidden=!!bagi;$('mainBtn').hidden=!bagi;$('bagiKtp').textContent=bagi?'📸 Bagikan lagi ke Instagram Story':'📸 Bagikan ke Instagram Story';$('bagiKtp').classList.toggle('kedua',!!bagi);$('bagiKtp').classList.toggle('ig',!bagi)}
+function aturSyarat(bagi){$('syaratMain').hidden=!!bagi;$('mainBtn').hidden=!bagi}
 async function tandaiBagi(){if(!kunci)return;try{await kirim('bagikan',{kunci});aturSyarat(1);$('mainBtn').scrollIntoView({behavior:'smooth',block:'center'})}catch(e){console.error(e)}}
-$('bagiKtp').onclick=async()=>{const {gambarStory}=await import('./js/ktp.js');const st=gambarStory($('ktp'),{no:(saya||bacaLokal()||{}).no||''});
+let tujuan='ig';
+const bagikan=async()=>{const {gambarStory}=await import('./js/ktp.js');const st=gambarStory($('ktp'),{no:(saya||bacaLokal()||{}).no||''});
   st.toBlob(async b=>{const f=new File([b],'story-warga-dunia-kotak.png',{type:'image/png'});
   // HP yang bisa share langsung: muncul pilihan aplikasi -> pilih Instagram -> Story.
   try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});tandaiBagi();return}}catch(e){if(e&&e.name==='AbortError')return}
   // Di dalam aplikasi IG/TikTok atau laptop: tampilkan gambar untuk disimpan, lalu tombol Buka Instagram.
   const url=URL.createObjectURL(b);$('gbrStory').src=url;$('layarStory').hidden=false;
   if(!/Instagram|FBAN|FBAV|TikTok|musical_ly|BytedanceWebview/i.test(navigator.userAgent||'')){const a=document.createElement('a');a.download=f.name;a.href=url;a.click()}
-  if(!/Android|iPhone|iPad/i.test(navigator.userAgent||''))$('bukaIG').href='https://www.instagram.com/';},'image/png')};
+  const ua=navigator.userAgent||'',hp=/Android|iPhone|iPad/i.test(ua);
+  if(tujuan==='tt'){$('bukaIG').textContent=$('langkahApp').textContent='Buka TikTok';$('langkahJenis').textContent='postingan foto atau Story';$('bukaIG').href=hp?(/Android/i.test(ua)?'intent://www.tiktok.com/#Intent;scheme=https;package=com.ss.android.ugc.trill;S.browser_fallback_url=https%3A%2F%2Fwww.tiktok.com%2F;end':'snssdk1233://'):'https://www.tiktok.com/upload'}
+  else{$('bukaIG').textContent=$('langkahApp').textContent='Buka Instagram';$('langkahJenis').textContent='Story';$('bukaIG').href=hp?'instagram://story-camera':'https://www.instagram.com/'}},'image/png')};
+$('bagiKtp').onclick=()=>{tujuan='ig';bagikan()};$('bagiTT').onclick=()=>{tujuan='tt';bagikan()};
 $('bukaIG').onclick=()=>{tandaiBagi();setTimeout(()=>{$('layarStory').hidden=true},800)};
 $('tutupStory').onclick=()=>{$('layarStory').hidden=true};
 // ---- pilih avatar untuk foto kartu (pilihan sama dengan game) ----
