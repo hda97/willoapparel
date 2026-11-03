@@ -733,11 +733,12 @@ function tataHUD() {
       chat.style.top = bawah + 'px';
       const isi = chat.querySelector('.isi');
       if (isi && stik && tampak(chat)) {
+        // layar pendek (HP landscape): chat dibuat besar sampai bawah layar supaya tulisan terbaca; joystick disembunyikan selama chat terbuka
         isi.style.height = '';
-        const rs = stik.getBoundingClientRect(), rc = chat.getBoundingClientRect(), lebih = rc.bottom - (rs.top - 10);
-        const kiri = rc.right > rs.left && rc.left < rs.right;
-        if (kiri && lebih > 0) { const h = isi.getBoundingClientRect().height - lebih; isi.style.height = Math.max(36, h) + 'px'; }
-        document.body.classList.toggle('chatPenuh', kiri && chat.getBoundingClientRect().bottom > rs.top - 4);
+        const rs = stik.getBoundingClientRect(), rc = chat.getBoundingClientRect(), ih = isi.getBoundingClientRect().height;
+        const kiri = rc.right > rs.left && rc.left < rs.right && rc.bottom > rs.top - 10;
+        if (kiri) isi.style.height = Math.max(90, innerHeight - 12 - (rc.bottom - ih)) + 'px';
+        document.body.classList.toggle('chatPenuh', kiri);
       } else document.body.classList.remove('chatPenuh');
     }
   }

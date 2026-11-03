@@ -145,3 +145,7 @@ body.chatPenuh #stik{visibility:hidden}
 /* layar pendek (HP landscape): tombol skill berderet ke kiri, tidak menumpuk ke atas menabrak peta mini */
 @media (max-height:500px){:where(html:not(.putar)) .zoom.skill{flex-direction:row-reverse;align-items:flex-end}}
 :where(html.putar.mq-pendek) .zoom.skill{flex-direction:row-reverse;align-items:flex-end}
+/* chat di HP landscape: lebih lebar & huruf lebih besar supaya terbaca (Huda 3 Nov) */
+@media (max-height:500px){:where(html:not(.putar)) .chat{width:min(380px,calc(48*var(--vw,1vw)))}:where(html:not(.putar)) .chat .isi{font-size:14px;line-height:1.4}:where(html:not(.putar)) .chat input{font-size:16px}:where(html:not(.putar)) .chat .cepat button{font-size:13px;padding:5px 9px}}
+:where(html.putar.mq-pendek) .chat{width:min(380px,calc(48*var(--vw,1vw)))}:where(html.putar.mq-pendek) .chat .isi{font-size:14px;line-height:1.4}:where(html.putar.mq-pendek) .chat input{font-size:16px}:where(html.putar.mq-pendek) .chat .cepat button{font-size:13px;padding:5px 9px}
+body.chatPenuh .chat{background:rgba(19,20,31,.92)}
