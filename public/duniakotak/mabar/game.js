@@ -74,9 +74,9 @@ async function layarMasuk() {
     h += `<div id="gbtn" style="display:flex;justify-content:center;min-height:44px"></div>`;
   }
   h += `<p class="galat" id="galatMasuk"></p>
-    <details ${clientId ? '' : 'open'}><summary class="kecil" style="cursor:pointer">Masuk dengan kode warga</summary>
-    <div class="isian" style="margin-top:8px"><input id="kode" maxlength="7" placeholder="KODE WARGA" autocapitalize="characters"><button class="utama" id="bKode">Masuk</button></div>
-    <p class="kecil" style="margin-top:6px">Kode warga ada di halaman daftar warga di HP yang kamu pakai saat daftar.</p></details>
+    <details ${clientId && !dalamApp ? '' : 'open'}><summary class="kecil" style="cursor:pointer">Masuk dengan username atau kode warga</summary>
+    <div class="isian" style="margin-top:8px"><input id="kode" maxlength="80" placeholder="username IG/TikTok atau kode warga" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go"><button class="utama" id="bKode">Masuk</button></div>
+    <p class="kecil" style="margin-top:6px">Tulis username IG/TikTok yang dipakai saat daftar, atau kode warga dari Kartu Warga.</p></details>
     <a class="tipis" style="text-decoration:none" href="/duniakotak/">Belum jadi warga? Daftar dulu</a>
     <button class="tipis" id="bTamu">Lihat-lihat dulu (tanpa chat)</button>`;
   isi.innerHTML = h;

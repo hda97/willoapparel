@@ -245,9 +245,19 @@ export class Warga extends DurableObject {
     if (aksi === "sesi" || aksi === "kode" || aksi === "avatar" || aksi === "profil") {
       const q = await request.json();
       let r;
-      if (aksi === "kode") r = this.sql.exec("SELECT * FROM warga WHERE kode = ?", String(q.kode || "")).toArray()[0];
+      if (aksi === "kode") {
+        if (String(q.kode || "").length === 6) r = this.sql.exec("SELECT * FROM warga WHERE kode = ?", String(q.kode)).toArray()[0];
+        // Satu kolom: kode warga ATAU username IG/TikTok. Username hanya bisa dipakai untuk kavling yang belum dikunci Google.
+        if (!r && q.un) {
+          const un = q.un, r2 = (KOREKSI_IG[un] && this.sql.exec("SELECT * FROM warga WHERE ig = ?", KOREKSI_IG[un]).toArray()[0])
+            || this.sql.exec("SELECT * FROM warga WHERE ig = ? OR tiktok = ? ORDER BY no LIMIT 1", un, un).toArray()[0];
+          if (r2 && !/^(ig|tt):/.test(String(r2.sub))) return Response.json({ galat: "@" + un + " sudah dikunci dengan akun Google. Masuk pakai tombol Google (buka di Chrome), atau pakai kode warga." }, { status: 401 });
+          r = r2;
+          if (r && !r.kunci) { r.kunci = crypto.randomUUID(); this.sql.exec("UPDATE warga SET kunci = ? WHERE no = ?", r.kunci, r.no); }
+        }
+      }
       else r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
-      if (!r) return Response.json({ galat: aksi === "kode" ? "Kode warga tidak ditemukan." : "Data warga tidak ditemukan di HP ini." }, { status: 401 });
+      if (!r) return Response.json({ galat: aksi === "kode" ? (q.un ? "@" + q.un + " belum terdaftar, dan bukan kode warga. Cek lagi tulisannya, atau daftar dulu." : "Kode warga tidak ditemukan.") : "Data warga tidak ditemukan di HP ini." }, { status: 401 });
       if (!r.kode) {
         const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
         for (let i = 0; i < 20; i++) {
@@ -474,7 +484,11 @@ async function apiWarga(request, env, url) {
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "sesi" || aksi === "kode" || aksi === "avatar") {
-    const q = aksi === "kode" ? { kode: String(body.kode || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6) } : { kunci: String(body.kunci || "").slice(0, 64) };
+    let q;
+    if (aksi === "kode") {
+      const raw = String(body.kode || "").slice(0, 120), un = bersihUn(raw);
+      q = { kode: raw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6), un: /^[a-z0-9._]{1,30}$/.test(un) ? un : "" };
+    } else q = { kunci: String(body.kunci || "").slice(0, 64) };
     if (aksi === "avatar") { try { q.avatar = JSON.stringify(body.avatar || {}).slice(0, 600); } catch (e) { return json({ galat: "Avatar tidak terbaca" }, 400); } }
     const r = await stub.fetch("https://do/" + aksi, { method: "POST", body: JSON.stringify(q) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
