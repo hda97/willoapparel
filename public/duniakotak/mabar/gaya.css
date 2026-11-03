@@ -90,3 +90,4 @@ h1{margin:0;font-weight:900;font-size:28px}h2{margin:0;font-weight:900;font-size
  #bBukaChat{top:calc(max(10px,env(safe-area-inset-top)) + 134px)}
 }
 
+@media (max-width:900px){.jam{display:none}}
