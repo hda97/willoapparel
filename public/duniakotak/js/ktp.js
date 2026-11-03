@@ -25,8 +25,8 @@ export function bersihAv(a) {
 export const avAcak = no => { const r = n => (no * 7919 + n * 104729) % 997; const jenis = r(1) % 2 ? 'P' : 'L';
   return bersihAv({jenis, kulit: KULIT[r(2) % 6], rambut: {gaya: GAYA_RAMBUT[jenis][r(3) % GAYA_RAMBUT[jenis].length], warna: WARNA_RAMBUT[r(4) % 6]}, atasan: {jenis: ATASAN[r(5) % 5], warna: WARNA_BAJU[r(6) % 8]}, bawahan: {jenis: BAWAHAN[jenis][0], warna: WARNA_BAWAH[r(7) % 6]}}); };
 
-const JALAN = ['Melati','Mawar','Kenanga','Anggrek','Mangga','Rambutan','Durian','Salak','Jambu','Manggis'];
-export const alamat = n => { const rt = Math.ceil(n / 20); return {jalan: `Jl. ${JALAN[(rt - 1) % 10]} No. ${((n - 1) % 20) + 1}`, rtrw: `${String(rt).padStart(3, '0')}/${rt <= 5 ? '001' : '002'}`}; };
+const JALAN = ['Melati','Mawar','Kenanga','Anggrek','Mangga','Rambutan','Durian','Salak','Jambu','Manggis','Sawo','Nangka','Belimbing','Kelengkeng','Sirsak'];
+export const alamat = n => { const rt = Math.ceil(n / 20); return {jalan: `Jl. ${JALAN[(rt - 1) % JALAN.length]} No. ${((n - 1) % 20) + 1}`, rtrw: `${String(rt).padStart(3, '0')}/${String(Math.ceil(rt / 5)).padStart(3, '0')}`}; };
 
 const W = 1012, H = 638;
 
