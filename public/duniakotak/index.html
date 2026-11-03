@@ -57,6 +57,7 @@ h3{font-weight:900;font-size:17px;margin:0 0 10px}
 #pilihAv .br{margin-top:12px}#pilihAv b{display:block;font-size:13px;margin-bottom:6px}#pilihAv .op{display:flex;flex-wrap:wrap;gap:6px}
 #pilihAv button{font:700 13px Montserrat,sans-serif;padding:8px 10px;border-radius:10px;border:2px solid #cbbd9e;background:#fff;cursor:pointer}#pilihAv button.on{border-color:#1d2a1d;background:#1d2a1d;color:#fff}
 #pilihAv button.w{width:34px;height:34px;padding:0}#pilihAv button.w.on{outline:3px solid #1d2a1d;outline-offset:2px}
+.lama{margin:16px 0 4px;padding:12px 14px;border:2px dashed #cbbd9e;border-radius:14px;background:#fffdf6}.lama summary{font-weight:800;cursor:pointer}
 .tombol.kedua{background:#fff;color:#1d2a1d;border:2px solid #1d2a1d;box-shadow:0 4px 0 #1d2a1d}
 .isi input{width:100%;box-sizing:border-box;font:600 16px Montserrat,sans-serif;padding:12px 14px;border-radius:12px;border:2px solid #cbbd9e;background:#fff}
 .at{position:relative}.at input{padding-left:32px}.at:before{content:"@";position:absolute;left:14px;top:50%;transform:translateY(-50%);font-weight:800;opacity:.55}
@@ -86,6 +87,12 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
       <li><i>🗳️</i>Usulkan bangunan desa: usulan terbanyak dibangun duluan</li>
       <li><i>🎮</i>Kavlingmu ikut pindah saat game Dunia Kotak rilis</li>
     </ul>
+    <details class="lama" id="lamaKotak"><summary>Sudah jadi warga sebelumnya? Ambil Kartu Warga-mu</summary>
+      <p class="kecil" style="text-align:left">Kalau dulu daftar di HP ini, kartumu muncul otomatis di bawah. Kalau dulu masuk pakai Google, pilih <b>Google</b> di langkah 1 lalu masuk dengan akun yang sama. Atau pakai kode warga:</p>
+      <div class="baris" style="margin-top:8px"><input id="kodeLama" placeholder="KODE WARGA" maxlength="7" autocapitalize="characters" autocomplete="off"><button id="ambilKode">Ambil</button></div>
+      <div id="pesanLama" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
+      <p class="kecil" style="text-align:left;margin-top:0">Lupa kode? DM Instagram <a href="https://www.instagram.com/duniakotak.id/" target="_blank" rel="noopener">@duniakotak.id</a> dengan nomor kavlingmu.</p>
+    </details>
     <div class="langkah"><span class="nl">1</span><div><b>Pilih cara daftar</b><br><small>Pakai akun yang kamu punya.</small></div></div>
     <div class="cara" role="tablist">
       <button data-cara="ig" class="aktif" role="tab">Instagram</button>
@@ -127,6 +134,15 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
       <div id="pesanAv" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
     </details>
     <p class="kecil">Avatar ini juga dipakai di game mabar.</p>
+    <details id="dataKotak" style="margin-top:14px"><summary style="font-weight:800;cursor:pointer">Ubah nama &amp; pekerjaan di kartu</summary>
+      <div class="isi">
+        <label for="namaKartu">Nama</label><input id="namaKartu" maxlength="24" placeholder="Nama kamu">
+        <label for="kerjaKartu">Pekerjaan</label><input id="kerjaKartu" maxlength="22" placeholder="mis. Pelajar" list="daftarKerja">
+        <datalist id="daftarKerja"><option>Pelajar</option><option>Mahasiswa</option><option>Petani</option><option>Pedagang</option><option>Peternak</option><option>Nelayan</option><option>Guru</option><option>Desainer</option><option>Penjahit</option><option>Kreator Konten</option><option>Gamer</option><option>Koki</option><option>Montir</option><option>Wiraswasta</option></datalist>
+      </div>
+      <button class="tombol" id="simpanData" style="width:100%">Simpan ke kartu</button>
+      <div id="pesanData" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
+    </details>
     <canvas id="kanvas" width="600" height="600" aria-label="Rumah dan pekarangan kavlingmu"></canvas>
     <div id="kodeKotak" style="display:none;text-align:center;margin-top:12px">
       <small style="font-weight:700">Kode warga (untuk masuk game di HP lain)</small><br><span id="kodeWarga">––––––</span>
@@ -175,7 +191,8 @@ async function tampilkan(o){
 async function tampilKode(){
   if(!kunci)return;
   try{const s=await kirim('sesi',{kunci});$('kodeWarga').textContent=s.kode||'––––––';$('kodeKotak').style.display='block';
-    K=await import('./js/ktp.js');dataKartu={no:s.no,nama:s.nama,ig:s.akunIg,tiktok:s.tiktok,dibuat:s.dibuat};
+    K=await import('./js/ktp.js');dataKartu={no:s.no,nama:s.nama,kerja:s.kerja,ig:s.akunIg,tiktok:s.tiktok,dibuat:s.dibuat};
+    $('namaKartu').value=s.nama||'';$('kerjaKartu').value=s.kerja||'';if(!s.nama){$('dataKotak').open=true;$('pesanData').textContent='Tulis namamu supaya muncul di kartu.'}
     av=K.bersihAv(s.avatar||K.avAcak(s.no));await K.gambarKTP($('ktp'),{...dataKartu,avatar:av});$('ktp').style.display='block';tulisAv()}catch(e){console.error(e)}
 }
 
@@ -222,6 +239,20 @@ $('simpanAv').onclick=async()=>{if(!kunci||!av)return;
   try{$('simpanAv').disabled=true;await kirim('avatar',{kunci,avatar:av});$('pesanAv').textContent='✓ Avatar tersimpan. Foto kartumu sudah berganti.'}
   catch(e){$('pesanAv').textContent=e.message}finally{$('simpanAv').disabled=false}};
 
+$('simpanData').onclick=async()=>{if(!kunci)return;
+  const nama=$('namaKartu').value.trim(),kerja=$('kerjaKartu').value.trim();
+  if(!nama){$('pesanData').textContent='Nama tidak boleh kosong.';return}
+  try{$('simpanData').disabled=true;const s=await kirim('profil',{kunci,nama,kerja});
+    dataKartu={...dataKartu,nama:s.nama,kerja:s.kerja};await K.gambarKTP($('ktp'),{...dataKartu,avatar:av});
+    const l=bacaLokal()||{};simpanLokal({...l,nama:s.nama});$('pesanData').textContent='✓ Kartumu sudah diperbarui.'}
+  catch(e){$('pesanData').textContent=e.message}finally{$('simpanData').disabled=false}};
+// Warga lama: ambil kartu pakai kode warga (kode ada di game / halaman ini di HP saat daftar).
+$('ambilKode').onclick=async()=>{const kode=$('kodeLama').value.trim();$('pesanLama').textContent='';
+  if(!kode){$('pesanLama').textContent='Tulis kode warga-mu.';return}
+  try{$('ambilKode').disabled=true;const s=await kirim('kode',{kode});kunci=s.kunci;
+    await tampilkan({no:s.no,ig:s.akunIg,tiktok:s.tiktok,nama:s.nama,kunci:s.kunci})}
+  catch(e){$('pesanLama').textContent=e.message}finally{$('ambilKode').disabled=false}};
+
 let cara='ig';
 const KET={ig:'Username Instagram-mu diukir di batu depan rumah.',tt:'Username TikTok-mu diukir di batu depan rumah.',google:'Namamu diukir di batu depan rumah. Lanjut masuk dengan Google.'};
 document.querySelectorAll('.cara button').forEach(b=>b.onclick=()=>{cara=b.dataset.cara;
@@ -249,7 +280,12 @@ async function daftarGoogle(){
   catch(e){$('pesanDaftar').textContent=e.message;if(/Google/.test(e.message)){cred=null;$('daftarLagi').style.display='none'}}
   finally{$('daftarLagi').disabled=false}
 }
-function masuk(resp){cred=resp.credential;daftarGoogle()}
+async function masuk(resp){cred=resp.credential;
+  if(!$('namaDaftar').value.trim()){
+    // Warga lama yang dulu masuk Google: langsung ambil kartunya tanpa isi form.
+    try{const o=await kirim('google',{credential:cred,kunci:kunci||''});if(!o.perlu){await tampilkan(o);return}}catch(e){$('pesanDaftar').textContent=e.message;return}
+  }
+  daftarGoogle()}
 $('daftarLagi').onclick=()=>{if(cred)daftarGoogle()};
 
 $('daftarBtn').onclick=async()=>{

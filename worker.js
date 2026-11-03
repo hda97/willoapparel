@@ -117,6 +117,7 @@ export class Warga extends DurableObject {
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN kode TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN avatar TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN tiktok TEXT"); } catch (e) { /* kolom sudah ada */ }
+    try { this.sql.exec("ALTER TABLE warga ADD COLUMN kerja TEXT"); } catch (e) { /* kolom sudah ada */ }
     // Koreksi salah ketik username: pindahkan ke username & kavling yang benar (sekali jalan, aman diulang).
     for (const [salah, benar] of Object.entries(KOREKSI_IG)) {
       const r = this.sql.exec("SELECT no FROM warga WHERE ig = ?", salah).toArray()[0];
@@ -231,7 +232,7 @@ export class Warga extends DurableObject {
       return keluar(this.tambah({ sub, email, nama: namaWarga || nama, ig, tiktok }), true);
     }
     // ---- Game mabar: sesi pakai kunci (HP pendaftar) atau kode warga 6 huruf (HP lain) ----
-    if (aksi === "sesi" || aksi === "kode" || aksi === "avatar") {
+    if (aksi === "sesi" || aksi === "kode" || aksi === "avatar" || aksi === "profil") {
       const q = await request.json();
       let r;
       if (aksi === "kode") r = this.sql.exec("SELECT * FROM warga WHERE kode = ?", String(q.kode || "")).toArray()[0];
@@ -246,8 +247,13 @@ export class Warga extends DurableObject {
         }
       }
       if (aksi === "avatar") { this.sql.exec("UPDATE warga SET avatar = ? WHERE no = ?", String(q.avatar || "").slice(0, 600), r.no); r.avatar = q.avatar; }
+      // Data Kartu Warga yang bisa diubah sendiri: nama & pekerjaan.
+      if (aksi === "profil") {
+        if (q.nama) { this.sql.exec("UPDATE warga SET nama = ? WHERE no = ?", q.nama, r.no); r.nama = q.nama; }
+        if (q.kerja !== undefined) { this.sql.exec("UPDATE warga SET kerja = ? WHERE no = ?", q.kerja || null, r.no); r.kerja = q.kerja; }
+      }
       let av = null; try { av = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
-      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, nama: r.nama || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat });
+      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, nama: r.nama || "", kerja: r.kerja || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat });
     }
     if (aksi === "usulan-kunci") {
       const { kunci, usulan } = await request.json();
@@ -441,6 +447,13 @@ async function apiWarga(request, env, url) {
     if (d.galat) return json({ galat: d.galat }, 400);
     if (!d.ig && !d.tiktok) return json({ galat: "Isi username Instagram atau TikTok (salah satu cukup)." }, 400);
     const r = await stub.fetch("https://do/daftar-ig", { method: "POST", body: JSON.stringify(d) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "profil") {
+    const bersih = (v, n) => String(v || "").replace(/[\u0000-\u001f<>@]/g, " ").replace(/\s+/g, " ").trim().slice(0, n);
+    const q = { kunci: String(body.kunci || "").slice(0, 64), nama: bersih(body.nama, 24), kerja: bersih(body.kerja, 22) };
+    for (const v of [q.nama, q.kerja]) if (v && saringChat(v).m !== v) return json({ galat: "Kata itu tidak bisa dipakai. Pakai kata yang sopan ya." }, 400);
+    const r = await stub.fetch("https://do/profil", { method: "POST", body: JSON.stringify(q) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "sesi" || aksi === "kode" || aksi === "avatar") {

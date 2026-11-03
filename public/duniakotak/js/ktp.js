@@ -85,7 +85,7 @@ export async function gambarKTP(cv, o) {
     ['Alamat', a.jalan],
     ['RT/RW', a.rtrw],
     ['Kavling', 'No. ' + o.no],
-    ['Pekerjaan', 'Petani / Pedagang'],
+    ['Pekerjaan', o.kerja || 'Petani / Pedagang'],
     ['Status', 'Warga Resmi'],
     ['Berlaku', 'SEUMUR HIDUP'],
   ];
