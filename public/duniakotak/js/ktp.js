@@ -1,4 +1,4 @@
-// KTP Dunia Kotak: kartu tanda penduduk versi desa kotak, digambar di kanvas (bisa disimpan/dibagikan).
+// Kartu Warga Dunia Kotak: kartu identitas warga versi desa kotak, digambar di kanvas (bisa disimpan/dibagikan ke story).
 // Foto = avatar warga (aset avatar.js yang sama dengan game). Tanpa lambang negara: ini kartu desa fiksi.
 import * as THREE from 'three';
 import {warga, pose} from '../mabar/js/aset/avatar.js';
@@ -45,15 +45,15 @@ export async function gambarKTP(cv, o) {
   const logo = await muatGambar('/duniakotak/logo.jpg');
   if (logo) { x.save(); x.beginPath(); x.roundRect(28, 18, 76, 76, 18); x.clip(); x.drawImage(logo, 28, 18, 76, 76); x.restore(); }
   x.fillStyle = '#fff'; x.textAlign = 'center';
-  x.font = '900 34px Montserrat, sans-serif'; x.fillText('DESA DUNIA KOTAK', W / 2 + 30, 52);
+  x.font = '900 34px Montserrat, sans-serif'; x.fillText('KARTU WARGA DUNIA KOTAK', W / 2 + 30, 52);
   x.font = '800 24px Montserrat, sans-serif'; x.fillStyle = '#ffe9a8'; x.fillText('DUSUN KOTAK WETAN', W / 2 + 30, 88);
   x.textAlign = 'left';
   // NIK
   const t = o.dibuat ? new Date(o.dibuat) : new Date();
   const dd = String(t.getDate()).padStart(2, '0'), mm = String(t.getMonth() + 1).padStart(2, '0'), yy = String(t.getFullYear()).slice(2);
-  const nik = `DK ${String(o.no).padStart(4, '0')} ${dd}${mm}${yy}`;
-  x.fillStyle = '#16301a'; x.font = '900 32px Montserrat, sans-serif'; x.fillText('NIK', 40, 162);
-  x.fillText(': ' + nik, 160, 162);
+  const kodeKotak = `DK-${String(o.no).padStart(4, '0')}-${dd}${mm}${yy}`;
+  x.fillStyle = '#16301a'; x.font = '900 30px Montserrat, sans-serif'; x.fillText('No. Kotak', 40, 162);
+  x.fillText(': ' + kodeKotak, 200, 162);
   // isian
   const a = alamat(o.no);
   const un = o.ig ? '@' + o.ig : (o.tiktok ? '@' + o.tiktok + ' (TikTok)' : '-');
@@ -94,4 +94,27 @@ export async function gambarKTP(cv, o) {
   x.restore();
   x.lineWidth = 6; x.strokeStyle = '#2f6b28'; x.beginPath(); x.roundRect(3, 3, W - 6, H - 6, 32); x.stroke();
   return cv;
+}
+
+// Versi story 9:16 (IG/TikTok): kartu + ajakan. Teks di antara y 250-1620 supaya tidak tertutup tombol aplikasi.
+export function gambarStory(kartu, o) {
+  const c = document.createElement('canvas'); c.width = 1080; c.height = 1920; const x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 0, 1920); g.addColorStop(0, '#5fb8ff'); g.addColorStop(.6, '#bfe6ff'); g.addColorStop(.6, '#7cc95a'); g.addColorStop(1, '#4f9a3a');
+  x.fillStyle = g; x.fillRect(0, 0, 1080, 1920);
+  x.globalAlpha = .12; x.fillStyle = '#fff';
+  for (let i = 0; i < 14; i++) for (let j = 0; j < 8; j++) if ((i * 5 + j * 3) % 4 === 0) x.fillRect(j * 140 + 20, i * 140 + 20, 90, 90);
+  x.globalAlpha = 1; x.textAlign = 'center';
+  x.fillStyle = '#fff'; x.font = '900 70px Montserrat, sans-serif';
+  x.shadowColor = 'rgba(0,0,0,.25)'; x.shadowBlur = 12;
+  x.fillText('Aku resmi jadi', 540, 400); x.fillText('warga Dunia Kotak!', 540, 485);
+  x.font = '800 40px Montserrat, sans-serif'; x.fillStyle = '#16301a'; x.shadowBlur = 0;
+  x.fillText('Kavling No. ' + o.no + ' · Dusun Kotak Wetan', 540, 560);
+  x.save(); x.translate(540, 940); x.rotate(-.035);
+  x.shadowColor = 'rgba(0,0,0,.35)'; x.shadowBlur = 40; x.shadowOffsetY = 18;
+  const w = 960, h = w * kartu.height / kartu.width; x.drawImage(kartu, -w / 2, -h / 2, w, h); x.restore();
+  x.shadowBlur = 0; x.fillStyle = '#fff'; x.beginPath(); x.roundRect(110, 1340, 860, 220, 40); x.fill();
+  x.fillStyle = '#16301a'; x.font = '800 40px Montserrat, sans-serif'; x.fillText('Mau punya rumah juga? Daftar gratis', 540, 1420);
+  x.fillStyle = '#2f6b28'; x.font = '900 50px Montserrat, sans-serif'; x.fillText('willoapparel.com/duniakotak', 540, 1495);
+  x.fillStyle = '#fff'; x.font = '900 44px Montserrat, sans-serif'; x.fillText('@duniakotak.id', 540, 1610);
+  return c;
 }
