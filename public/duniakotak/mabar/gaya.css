@@ -91,3 +91,11 @@ h1{margin:0;font-weight:900;font-size:28px}h2{margin:0;font-weight:900;font-size
 }
 
 @media (max-width:900px){.jam{display:none}}
+
+/* misi harian */
+#isiMisi{display:grid;gap:8px;text-align:left}
+.misi{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;background:var(--kartu);border:1px solid var(--garis);border-radius:14px;padding:10px 12px}
+.misi .mi{font-size:24px;text-align:center}.misi b{font-size:14px;display:block;line-height:1.3}.misi small{font-size:11.5px;color:var(--redup);font-weight:700}
+.misi .bar{height:7px;border-radius:99px;background:rgba(255,255,255,.12);margin:6px 0 3px;overflow:hidden}.misi .bar i{display:block;height:100%;background:#7ad06a;border-radius:99px}
+.misi .koin{font-weight:900;font-size:13px;color:#ffd75a;white-space:nowrap}.misi.ok{opacity:.72}.misi.bonus{border-color:#ffd75a}
+@media (max-width:700px){.tombolAtas .bulat{width:46px;height:46px;font-size:8.5px}.tombolAtas .bulat i{font-size:18px}}
