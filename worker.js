@@ -133,10 +133,11 @@ export class Warga extends DurableObject {
     }
   }
   publik(r) {
-    return { no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", usulan: r.usulan || "", dibuat: r.dibuat };
+    // Daftar lewat Google tanpa username: nama yang ditulis warga jadi ukiran batu (label).
+    return { no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat };
   }
   // Nama tampil di game & batu: username IG kalau ada, kalau tidak username TikTok.
-  nm(r) { return r.ig || r.tiktok || ""; }
+  nm(r) { return r.ig || r.tiktok || r.nama || ""; }
   // Cek username IG/TikTok belum dipakai warga lain (selain baris "kecuali").
   bentrok(ig, tiktok, kecuali) {
     if (ig) { const a = this.sql.exec("SELECT no FROM warga WHERE ig = ? AND no != ?", ig, kecuali || 0).toArray()[0]; if (a) return "IG @" + ig + " sudah terdaftar sebagai warga No. " + a.no + "."; }
@@ -215,7 +216,7 @@ export class Warga extends DurableObject {
         r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", kunci).toArray()[0];
         if (r && tanpaGoogle(r)) return tautkan(r);
       }
-      if (!ig && !tiktok) return Response.json({ perlu: "ig" });
+      if (!ig && !tiktok && !namaWarga) return Response.json({ perlu: "ig" });
       for (const [kol, v] of [["ig", ig], ["tiktok", tiktok]]) {
         if (!v) continue;
         r = this.sql.exec(`SELECT * FROM warga WHERE ${kol} = ?`, v).toArray()[0];
@@ -246,7 +247,7 @@ export class Warga extends DurableObject {
       }
       if (aksi === "avatar") { this.sql.exec("UPDATE warga SET avatar = ? WHERE no = ?", String(q.avatar || "").slice(0, 600), r.no); r.avatar = q.avatar; }
       let av = null; try { av = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
-      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av });
+      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, nama: r.nama || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat });
     }
     if (aksi === "usulan-kunci") {
       const { kunci, usulan } = await request.json();
@@ -268,13 +269,13 @@ export class Warga extends DurableObject {
     }
     if (aksi === "daftar-publik") {
       // Gabungkan warga terdaftar dengan 63 pengikut awal yang kavlingnya sudah disiapkan (sudah warga sejak video).
-      const rows = this.sql.exec("SELECT no, ig, tiktok, usulan, dibuat FROM warga ORDER BY no").toArray();
+      const rows = this.sql.exec("SELECT no, sub, nama, ig, tiktok, usulan, dibuat FROM warga ORDER BY no").toArray();
       const terisi = new Set(rows.map((r) => r.no));
       const igTerdaftar = new Set(rows.map((r) => r.ig).filter(Boolean));
       const awalan = Object.entries(KAVLING_AWALAN).map(([a, no]) => [a + "…", no]);
       const siap = [...Object.entries(KAVLING_DISIAPKAN), ...awalan]
         .filter(([ig, no]) => !terisi.has(no) && !igTerdaftar.has(ig))
-        .map(([ig, no]) => ({ no, ig, tiktok: "", usulan: "", dibuat: 0 }));
+        .map(([ig, no]) => ({ no, ig, tiktok: "", label: "", usulan: "", dibuat: 0 }));
       const semua = [...siap, ...rows.map((r) => this.publik(r))].sort((x, y) => x.no - y.no);
       return Response.json({ jumlah: semua.length, warga: semua });
     }
