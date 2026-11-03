@@ -979,7 +979,10 @@ function aturHUD() {
   $('bPanduan').onclick = () => panduan();
   $('bDusun').onclick = () => pindahDusun(DI === 'wetan' ? 'kulon' : 'wetan');
   musikSiap();
-  $('sLompat').onclick = () => mulaiLompat(); $('sNgobrol').onclick = () => { const n = npc && npc.terdekat(tokoh.saya, 7 * VS); if (n) ngobrol(n); }; $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan();
+  // pointerdown (bukan click): click tidak terpicu di HP saat jari lain masih menahan joystick -> bisa lompat sambil lari
+  $('sLompat').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); mulaiLompat(); }); $('sNgobrol').onclick = () => { const n = npc && npc.terdekat(tokoh.saya, 7 * VS); if (n) ngobrol(n); }; $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan();
+  // semua tombol skill bereaksi saat disentuh (pointerdown), jadi tetap jalan walau jari lain menahan joystick
+  for (const b of document.querySelectorAll('.zoom.skill button')) { const f = b.onclick; if (!f) continue; b.onclick = null; b.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); f.call(b, e); }); }
   if (innerHeight < 500) { $('chat').hidden = true; $('bBukaChat').hidden = false; zoom = .85; }
   if (portrait() && innerWidth <= 700) { $('chat').hidden = true; $('bBukaChat').hidden = false; }
 }
@@ -1007,7 +1010,7 @@ const KEC = 15;
 // tinggi pijakan: dek jembatan lebih tinggi dari jalan
 const tanah = (x, z) => { if (I.tanah) return I.tanah(x, z); const d = I.dek; return d && x > d.x0 && x < d.x1 && d.z.some(([a, c]) => z > a && z < c) ? d.y : 0; };
 const lompat = {vy: 0, diTanah: true};
-function mulaiLompat() { if (!lompat.diTanah || !tokoh.saya) return; lompat.vy = 34; lompat.diTanah = false; bunyi('langkah'); if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify({t: 'e', e: 'lompat'})); }   // satuan dunia per detik (avatar setinggi pintu ≈ 4,1)
+function mulaiLompat() { if (!lompat.diTanah || !tokoh.saya) return; lompat.vy = gerak.lari && gerak.jalan ? 38 : 34; lompat.diTanah = false; bunyi('langkah'); if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify({t: 'e', e: 'lompat'})); }   // satuan dunia per detik (avatar setinggi pintu ≈ 4,1)
 let tAkhir = performance.now(), tKav = 0, ph = 0, camY = 0;
 const bebas = (x, z) => {
   const b = I.batas; if (x < b.x0 || x > b.x1 || z < b.z0 || z > b.z1) return false;
