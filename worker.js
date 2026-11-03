@@ -280,12 +280,14 @@ export class Warga extends DurableObject {
       let ms = { t: hari, s: [] }; try { const m0 = r.misi ? JSON.parse(r.misi) : null; if (m0 && m0.t === hari && Array.isArray(m0.s)) ms = m0; } catch (e) {}
       let dapat = 0;
       const MISI_HARIAN = misiHari(hari);
-      if (aksi === "misi" && MISI_HARIAN[q.id] && !ms.s.includes(q.id)) {
+      // Misi harian HANYA bisa diklaim saat Jam Kumpul Warga (Huda: supaya warga online bareng), toleransi 2 menit:
+      // 5 event: 06 Senam Pagi, 12 Belanja Siang, 16 Mancing Bareng, 19 Nongkrong Warung, 20 Main Bola (sama dengan SESI di mabar/game.js)
+      const wibM = new Date(Date.now() + 7 * 3600e3), mntM = wibM.getUTCHours() * 60 + wibM.getUTCMinutes();
+      const jamKumpul = [[360, 422], [720, 782], [960, 1022], [1140, 1262]].some(([a, b]) => mntM >= a && mntM < b);
+      if (aksi === "misi" && jamKumpul && MISI_HARIAN[q.id] && !ms.s.includes(q.id)) {
         const inti = Object.keys(MISI_HARIAN).filter((k) => k !== "bonus");
         if (q.id !== "bonus" || inti.every((k) => ms.s.includes(k))) {
-          // Jam Kumpul Warga 20.00-20.30 WIB: koin misi 2x
-          const wib = new Date(Date.now() + 7 * 3600e3), mnt = wib.getUTCHours() * 60 + wib.getUTCMinutes();
-          ms.s.push(q.id); dapat = MISI_HARIAN[q.id] * (mnt >= 1200 && mnt < 1231 ? 2 : 1);
+          ms.s.push(q.id); dapat = MISI_HARIAN[q.id] * 2;   // misi hanya di Jam Kumpul Warga, koin 2x
           this.sql.exec("UPDATE warga SET koin = COALESCE(koin, 0) + ?, misi = ? WHERE no = ?", dapat, JSON.stringify(ms), r.no);
           r.koin = (r.koin || 0) + dapat;
         }
