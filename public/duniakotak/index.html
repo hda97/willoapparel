@@ -103,6 +103,8 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
     <div class="isi">
       <label for="namaDaftar">Nama kamu</label>
       <input id="namaDaftar" placeholder="mis. Raka" autocomplete="given-name" maxlength="24">
+      <label for="kerjaDaftar">Pekerjaan</label>
+      <input id="kerjaDaftar" placeholder="tulis sendiri, mis. Pelajar" maxlength="22" list="daftarKerja">
       <div data-untuk="ig"><label for="igDaftar">Username Instagram</label>
       <div class="at"><input id="igDaftar" placeholder="namakamu" autocomplete="off" autocapitalize="none" maxlength="31"></div></div>
       <div data-untuk="tt" hidden><label for="ttDaftar">Username TikTok</label>
@@ -134,7 +136,7 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
       <div id="pesanAv" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
     </details>
     <p class="kecil">Avatar ini juga dipakai di game mabar.</p>
-    <details id="dataKotak" style="margin-top:14px"><summary style="font-weight:800;cursor:pointer">Ubah nama &amp; pekerjaan di kartu</summary>
+    <details id="dataKotak" open style="margin-top:14px"><summary style="font-weight:800;cursor:pointer">Ubah nama &amp; pekerjaan di kartu</summary>
       <div class="isi">
         <label for="namaKartu">Nama</label><input id="namaKartu" maxlength="24" placeholder="Nama kamu">
         <label for="kerjaKartu">Pekerjaan</label><input id="kerjaKartu" maxlength="22" placeholder="mis. Pelajar" list="daftarKerja">
@@ -263,7 +265,7 @@ document.querySelectorAll('.cara button').forEach(b=>b.onclick=()=>{cara=b.datas
 // Baca & periksa isian. Mengembalikan null (dan menulis pesan) kalau belum lengkap.
 function isian(){
   const un=v=>v.trim().replace(/^@/,'').toLowerCase();
-  const d={nama:$('namaDaftar').value.trim()};
+  const d={nama:$('namaDaftar').value.trim(),kerja:$('kerjaDaftar').value.trim()};
   if(cara==='ig')d.ig=un($('igDaftar').value);if(cara==='tt')d.tiktok=un($('ttDaftar').value);
   const p=$('pesanDaftar');p.textContent='';
   if(!d.nama){p.textContent='Tulis namamu dulu.';$('namaDaftar').focus();return null}
