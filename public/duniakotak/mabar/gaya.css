@@ -99,3 +99,13 @@ h1{margin:0;font-weight:900;font-size:28px}h2{margin:0;font-weight:900;font-size
 .misi .bar{height:7px;border-radius:99px;background:rgba(255,255,255,.12);margin:6px 0 3px;overflow:hidden}.misi .bar i{display:block;height:100%;background:#7ad06a;border-radius:99px}
 .misi .koin{font-weight:900;font-size:13px;color:#ffd75a;white-space:nowrap}.misi.ok{opacity:.72}.misi.bonus{border-color:#ffd75a}
 @media (max-width:700px){.tombolAtas .bulat{width:46px;height:46px;font-size:8.5px}.tombolAtas .bulat i{font-size:18px}}
+
+/* tombol skill warga (ganti tombol putar/zoom: zoom = cubit, putar = geser jari) */
+canvas#layar{touch-action:none}
+.zoom.skill{gap:10px;align-items:flex-end}
+.zoom.skill button{width:62px;height:62px;font-size:9.5px;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0;line-height:1.05;opacity:.6;transition:transform .15s,opacity .15s,box-shadow .15s}
+.zoom.skill button i{font-style:normal;font-size:24px;line-height:1}
+.zoom.skill button.siap{opacity:1;background:#2f6b3a;border-color:#9be37f;box-shadow:0 0 0 3px rgba(155,227,127,.35);transform:scale(1.06)}
+#stik.lari{border-color:#ffd23a;background:rgba(255,210,58,.18)}#stik.lari #kenop{background:#ffd23a}
+#stik::after{content:"jalan · dorong penuh = lari";position:absolute;left:50%;bottom:-18px;transform:translateX(-50%);font-size:9px;font-weight:800;color:rgba(255,255,255,.75);white-space:nowrap;text-shadow:0 1px 2px #000}
+@media (max-height:500px){.zoom.skill button{width:50px;height:50px;font-size:8px}.zoom.skill button i{font-size:19px}.zoom.skill{gap:6px}#stik::after{display:none}}
