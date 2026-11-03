@@ -393,10 +393,10 @@ async function simpanKucing(kc) {
 const MISI = [
   {id: 'jalan', ikon: '👣', judul: 'Jalan-jalan keliling dusun', target: 300, satuan: 'langkah', koin: 10},
   {id: 'sapa', ikon: '👋', judul: 'Sapa warga: kirim pesan atau emote', target: 3, satuan: 'kali', koin: 10},
-  {id: 'raka', ikon: '⭐', judul: 'Temui Raka dan Oyen', target: 1, koin: 5},
+  {id: 'raka', ikon: '⭐', judul: 'Temui Raka dan Oyen', target: 1, koin: 5, info: 'Mereka ada di depan rumah No. 1 (Warung Raka), ujung Jl. Melati.', antar: 1},
   {id: 'tetangga', ikon: '🏡', judul: 'Mampir ke depan rumah tetangga', target: 3, satuan: 'rumah', koin: 10},
   {id: 'foto', ikon: '📸', judul: 'Foto pakai Kamera HP, lalu simpan atau bagikan', target: 1, koin: 10},
-  {id: 'kucing', ikon: '🐱', judul: 'Rawat kucing: beri makan kucing (tombol 🐟)', target: 1, koin: 5},
+  {id: 'kucing', ikon: '🐱', judul: 'Rawat kucing: beri makan kucing (tombol 🐟)', target: 1, koin: 5, info: 'Oyen ada di rumah Raka (No. 1), atau kucing di depan rumah warga.', antar: 1},
 ];
 const BONUS_MISI = 20;
 const hariIni = () => new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
@@ -440,12 +440,13 @@ function tulisMisi() {
   $('isiMisi').innerHTML = MISI.map(m => {
     const p = progresMisi(m), ok = MS.selesai.has(m.id);
     return `<div class="misi ${ok ? 'ok' : ''}"><span class="mi">${ok ? '✅' : m.ikon}</span><div><b>${esc(m.judul)}</b>
-      <div class="bar"><i style="width:${Math.round(100 * (ok ? 1 : p / m.target))}%"></i></div><small>${ok ? 'Selesai' : m.target > 1 ? `${p}/${m.target} ${m.satuan || ''}` : 'Belum'}</small></div><span class="koin">+${m.koin} 🪙</span></div>`;
+      <div class="bar"><i style="width:${Math.round(100 * (ok ? 1 : p / m.target))}%"></i></div><small>${ok ? 'Selesai' : m.target > 1 ? `${p}/${m.target} ${m.satuan || ''}` : 'Belum'}</small>${!ok && m.info ? `<small class="info">📍 ${esc(m.info)}</small>` : ''}${!ok && m.antar ? `<button class="antar" data-antar="${m.antar}">🧭 Antar ke sana</button>` : ''}</div><span class="koin">+${m.koin} 🪙</span></div>`;
   }).join('') + `<div class="misi bonus ${MS.selesai.has('bonus') ? 'ok' : ''}"><span class="mi">🎁</span><div><b>Bonus: selesaikan semua misi</b><small>${MS.selesai.has('bonus') ? 'Sudah diambil' : 'Otomatis masuk setelah 6 misi selesai'}</small></div><span class="koin">+${BONUS_MISI} 🪙</span></div>`;
   const isiTas = Object.entries(tas).map(([n, v]) => `${v.ikon} ${n} ×${v.n}`).join(' · ');
   $('isiMisi').innerHTML += `<div class="misi"><span class="mi">🎒</span><div><b>Tasmu</b><small>${isiTas ? esc(isiTas) : 'Masih kosong. Ambil barang di jalan atau mancing di sungai.'}</small></div><span></span></div>`;
   $('ringkasMisi').textContent = `Koinmu: 🪙 ${S.saya?.koin || 0} · Hari ini bisa dapat ${total} koin. Misi baru tiap pukul 00.00 WIB.`;
 }
+document.addEventListener('click', e => { const b = e.target.closest?.('[data-antar]'); if (!b) return; $('panelMisi').hidden = true; pergiKe(+b.dataset.antar); toast('Jalan otomatis ke rumah Raka… geser joystick untuk berhenti.', 3500); });
 function bukaMisi() {
   if (S.tamu) { toast('Daftar jadi warga dulu supaya bisa ikut misi dan dapat koin.', 4000); return; }
   if (MS.t !== hariIni()) muatMisi();
