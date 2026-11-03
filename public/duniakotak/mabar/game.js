@@ -106,10 +106,10 @@ async function masukGoogle(credential, isi) {
     if (r.perlu === 'ig') {
       $('masukIsi').innerHTML = `<p class="sub">Akun Google ini belum terhubung ke kavling. Tulis namamu. Kalau dulu daftar pakai Instagram atau TikTok, isi juga username-nya supaya kavling lamamu tersambung.</p>
         <div class="isian"><input id="namaTaut" maxlength="24" placeholder="Nama kamu"></div>
-        <div class="isian" style="margin-top:8px"><input id="igTaut" maxlength="31" placeholder="@username Instagram" autocapitalize="none"></div>
-        <div class="isian" style="margin:8px 0"><input id="ttTaut" maxlength="25" placeholder="@username TikTok" autocapitalize="none"></div>
+        <div class="isian" style="margin-top:8px"><input id="igTaut" maxlength="80" placeholder="@username Instagram" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email"></div>
+        <div class="isian" style="margin:8px 0"><input id="ttTaut" maxlength="80" placeholder="@username TikTok" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email"></div>
         <button class="utama" id="bTaut">Hubungkan</button><p class="galat" id="galatMasuk"></p>`;
-      const un = id => $(id).value.trim().replace(/^@/, '').toLowerCase();
+      const un = id => $(id).value.toLowerCase().replace(/\s+/g, '').replace(/^(https?:\/\/)?(www\.|m\.|vt\.)?(instagram\.com|tiktok\.com)\//, '').replace(/[?#].*$/, '').replace(/\/.*$/, '').replace(/^@+/, '');
       $('bTaut').onclick = () => {
         if (!$('namaTaut').value.trim()) { $('galatMasuk').textContent = 'Tulis namamu dulu.'; return; }
         masukGoogle(credential, {nama: $('namaTaut').value.trim(), ig: un('igTaut'), tiktok: un('ttTaut')});

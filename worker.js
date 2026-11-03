@@ -200,7 +200,7 @@ export class Warga extends DurableObject {
     // ---- Game mabar: login Google, ditautkan ke kavling lama (tidak membuat kavling dobel) ----
     if (aksi === "google") {
       // Dipakai halaman daftar warga & game. Satu akun Google = satu kavling; kavling lama (daftar tanpa Google) ditautkan, tidak dobel.
-      const { sub, email, nama, kunci, ig, tiktok, namaWarga, kerja } = await request.json();
+      const { sub, email, nama, kunci, ig, tiktok, namaWarga, kerja, cari } = await request.json();
       const isi = { ig, tiktok, namaWarga, kerja };
       const keluar = (r, baru) => {
         if (!r.kunci) { r.kunci = crypto.randomUUID(); this.sql.exec("UPDATE warga SET kunci = ? WHERE no = ?", r.kunci, r.no); }
@@ -218,6 +218,14 @@ export class Warga extends DurableObject {
       if (kunci) {
         r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", kunci).toArray()[0];
         if (r && tanpaGoogle(r)) return tautkan(r);
+      }
+      // Warga lama masuk dari HP lain: username IG/TikTok yang dulu dipakai daftar + akun Google ini.
+      if (cari) {
+        r = KOREKSI_IG[cari] ? this.sql.exec("SELECT * FROM warga WHERE ig = ?", KOREKSI_IG[cari]).toArray()[0] : null;
+        r = r || this.sql.exec("SELECT * FROM warga WHERE ig = ? OR tiktok = ? ORDER BY no LIMIT 1", cari, cari).toArray()[0];
+        if (!r) return Response.json({ galat: "@" + cari + " belum terdaftar. Daftar dulu di tab Daftar warga baru." }, { status: 404 });
+        if (!tanpaGoogle(r)) return Response.json({ galat: "@" + cari + " sudah tersambung ke akun Google lain. Masuk pakai akun Google itu, atau DM @duniakotak.id." }, { status: 409 });
+        return tautkan(r);
       }
       if (!ig && !tiktok && !namaWarga) return Response.json({ perlu: "ig" });
       for (const [kol, v] of [["ig", ig], ["tiktok", tiktok]]) {
@@ -398,12 +406,17 @@ async function cekGoogle(env, credential) {
   return { sub: t.sub, email: t.email || "", nama: (t.given_name || t.name || "").slice(0, 60) };
 }
 
+// Rapikan username yang diketik/ditempel: buang @, spasi, huruf besar, dan link profil (instagram.com/x, tiktok.com/@x).
+function bersihUn(v) {
+  return String(v || "").toLowerCase().replace(/\s+/g, "")
+    .replace(/^(https?:\/\/)?(www\.|m\.|vt\.)?(instagram\.com|tiktok\.com)\//, "")
+    .replace(/[?#].*$/, "").replace(/\/.*$/, "").replace(/^@+/, "");
+}
 // Baca isian daftar: username IG / TikTok (boleh salah satu) dan nama warga (opsional, disaring kata kasar).
 function bacaAkun(body) {
-  const un = (v) => String(v || "").trim().replace(/^@/, "").toLowerCase();
-  let ig = un(body.ig), tiktok = un(body.tiktok);
-  if (ig && !/^[a-z0-9._]{1,30}$/.test(ig)) return { galat: "Username Instagram hanya huruf, angka, titik, garis bawah (maks 30)." };
-  if (tiktok && !/^[a-z0-9._]{2,24}$/.test(tiktok)) return { galat: "Username TikTok hanya huruf, angka, titik, garis bawah (2-24 karakter)." };
+  let ig = bersihUn(body.ig), tiktok = bersihUn(body.tiktok);
+  if (ig && !/^[a-z0-9._]{1,30}$/.test(ig)) return { galat: "@" + ig.slice(0, 40) + " bukan username Instagram yang benar. Hanya huruf, angka, titik, garis bawah (maks 30)." };
+  if (tiktok && !/^[a-z0-9._]{2,24}$/.test(tiktok)) return { galat: "@" + tiktok.slice(0, 40) + " bukan username TikTok yang benar. Hanya huruf, angka, titik, garis bawah (2-24 karakter)." };
   ig = KOREKSI_IG[ig] || ig;
   const namaWarga = String(body.nama || "").replace(/[\u0000-\u001f<>@]/g, " ").replace(/\s+/g, " ").trim().slice(0, 24);
   if (namaWarga && saringChat(namaWarga).m !== namaWarga) return { galat: "Nama itu tidak bisa dipakai. Pakai nama yang sopan ya." };
@@ -477,14 +490,16 @@ async function apiWarga(request, env, url) {
   if (aksi === "google") {
     const d = bacaAkun(body);
     if (d.galat) return json({ galat: d.galat }, 400);
-    const r = await stub.fetch("https://do/google", { method: "POST", body: JSON.stringify({ ...g, ...d, kunci: String(body.kunci || "").slice(0, 64) }) });
+    const cari = bersihUn(body.cari);
+    if (cari && !/^[a-z0-9._]{1,30}$/.test(cari)) return json({ galat: "Username hanya huruf, angka, titik, garis bawah (maks 30)." }, 400);
+    const r = await stub.fetch("https://do/google", { method: "POST", body: JSON.stringify({ ...g, ...d, cari, kunci: String(body.kunci || "").slice(0, 64) }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "daftar") {
     return new Response((await stub.fetch("https://do/daftar", { method: "POST", body: JSON.stringify(g) })).body, { headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "ig") {
-    const ig = String(body.ig || "").trim().replace(/^@/, "").toLowerCase();
+    const ig = bersihUn(body.ig);
     if (!/^[a-z0-9._]{1,30}$/.test(ig)) return json({ galat: "Username IG hanya huruf, angka, titik, garis bawah (maks 30)." }, 400);
     const r = await stub.fetch("https://do/ig", { method: "POST", body: JSON.stringify({ sub: g.sub, ig }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
