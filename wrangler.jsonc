@@ -27,7 +27,7 @@
   ],
   // Client ID Google (publik, bukan rahasia) untuk tombol "Lanjut dengan Google" di /duniakotak/.
   // Kosong = tombol belum aktif. Isi dengan Client ID dari Google Cloud Console.
-  "vars": { "GOOGLE_CLIENT_ID": "" },
+  "vars": { "GOOGLE_CLIENT_ID": "1082997408742-9515voc2uflmub1q0bfr9o0htuvof5dn.apps.googleusercontent.com" },
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
