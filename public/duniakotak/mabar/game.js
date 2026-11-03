@@ -55,8 +55,11 @@ async function layarMasuk() {
   const lama = bacaJ('dk_warga');
   if (lama && lama.kunci) {
     try { const s = await api('sesi', {kunci: lama.kunci}); return selesaiMasuk(s); }
-    catch (e) { /* kunci tidak berlaku: lanjut ke pilihan login */ }
+    catch (e) { /* kunci tidak berlaku: lanjut ke pintu masuk */ }
   }
+  // Satu pintu: masuk/daftar lewat willoapparel.com/duniakotak. Game hanya terbuka langsung untuk tamu (?tamu=1).
+  if (new URLSearchParams(location.search).has('tamu')) { S.tamu = true; return selesaiMasuk(null); }
+  location.replace('/duniakotak/?masuk=1'); return;
   let clientId = '';
   try { clientId = (await (await fetch('/duniakotak/api/config')).json()).clientId || ''; } catch (e) {}
   const dalamApp = /Instagram|FBAN|FBAV|FB_IAB|Line\/|TikTok|musical_ly|BytedanceWebview/i.test(navigator.userAgent || '');
@@ -468,7 +471,7 @@ async function jepret() {
   // ajakan (CTA) di atas zona aman story (teks maks y≈1620)
   const cy = 1430, cw = 900, ch = 190; x.fillStyle = 'rgba(19,20,31,.88)'; x.beginPath(); x.roundRect(540 - cw / 2, cy, cw, ch, 40); x.fill();
   x.fillStyle = '#fff'; x.font = '900 50px Montserrat, sans-serif'; x.fillText('Mau punya rumah di sini?', 540, cy + 78);
-  x.fillStyle = '#5cb8ff'; x.font = '800 40px Montserrat, sans-serif'; x.fillText('Daftar gratis: willoapparel.com/warga', 540, cy + 140);
+  x.fillStyle = '#5cb8ff'; x.font = '800 40px Montserrat, sans-serif'; x.fillText('Daftar gratis: willoapparel.com/duniakotak', 540, cy + 140);
   fotoBlob = await new Promise(r => cv.toBlob(r, 'image/jpeg', .9));
   $('foto').src = URL.createObjectURL(fotoBlob);
 }
@@ -521,7 +524,7 @@ function aturHUD() {
   $('bRumah').onclick = () => pergiKe(S.tamu ? 1 : S.saya.no);
   $('bKamera').onclick = () => bukaKamera();
   $('profil').style.cursor = 'pointer';
-  $('profil').onclick = () => { if (S.tamu) return toast('Daftar di willoapparel.com/warga supaya dapat kavling.', 4000); toast(`Kode wargamu: ${S.saya.kode} · pakai untuk masuk dari HP lain. Jangan dibagikan.`, 6000); };
+  $('profil').onclick = () => { if (S.tamu) return toast('Daftar di willoapparel.com/duniakotak supaya dapat kavling.', 4000); toast(`Kode wargamu: ${S.saya.kode} · pakai untuk masuk dari HP lain. Jangan dibagikan.`, 6000); };
   $('bAvatar').onclick = () => bukaPembuatAvatar(JSON.parse(JSON.stringify(S.av)), false);
   $('bPanduan').onclick = () => panduan();
   $('putKiri').onclick = () => putar(1); $('putKanan').onclick = () => putar(-1);
@@ -533,7 +536,7 @@ function panduan() {
   const nama = S.tamu ? 'tamu' : '@' + S.saya.ig;
   const L = [
     `Halo ${nama}! Aku Raka, ini Oyen. Selamat datang di Dusun Kotak Wetan!`,
-    S.tamu ? 'Kamu sedang lihat-lihat sebagai tamu. Daftar jadi warga di willoapparel.com/warga supaya dapat kavling dan bisa ngobrol.' : `Rumahmu di ${alamat(S.saya.no)}. Batu di depan rumah sudah terukir namamu.`,
+    S.tamu ? 'Kamu sedang lihat-lihat sebagai tamu. Daftar jadi warga di willoapparel.com/duniakotak supaya dapat kavling dan bisa ngobrol.' : `Rumahmu di ${alamat(S.saya.no)}. Batu di depan rumah sudah terukir namamu.`,
     'Jalan pakai joystick di kiri bawah, atau ketuk tanah tujuanmu. Di laptop pakai tombol panah atau WASD.',
     'Chat Sekitar terlihat warga di dekatmu, Chat Dusun untuk semua warga dusun. Ketuk nama warga untuk lihat rumahnya, bisukan, atau laporkan.',
     'Kebun, koin, dan Pasar Desa segera dibuka. Sekarang ayo jalan-jalan dan sapa tetangga. Meong! kata Oyen.',
