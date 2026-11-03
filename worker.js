@@ -248,7 +248,7 @@ export class Warga extends DurableObject {
       return keluar(this.tambah({ sub, email, nama: namaWarga || nama, ig, tiktok, kerja }), true);
     }
     // ---- Game mabar: sesi pakai kunci (HP pendaftar) atau kode warga 6 huruf (HP lain) ----
-    if (aksi === "sesi" || aksi === "kode" || aksi === "avatar" || aksi === "profil" || aksi === "kucing" || aksi === "misi" || aksi === "bagikan") {
+    if (aksi === "sesi" || aksi === "kode" || aksi === "avatar" || aksi === "profil" || aksi === "kucing" || aksi === "misi" || aksi === "gol" || aksi === "bagikan") {
       const q = await request.json();
       let r;
       if (aksi === "kode") {
@@ -290,6 +290,16 @@ export class Warga extends DurableObject {
           r.koin = (r.koin || 0) + dapat;
         }
       }
+      // Gol di stadion: +5 koin per gol, maks 5 gol berkoin per hari (WIB), jeda 20 detik antar gol
+      if (aksi === "gol") {
+        const kini2 = Date.now();
+        ms.g = ms.g || 0;
+        if (ms.g < 5 && kini2 - (ms.gt || 0) > 20000) {
+          ms.g += 1; ms.gt = kini2; dapat = 5;
+          this.sql.exec("UPDATE warga SET koin = COALESCE(koin, 0) + ?, misi = ? WHERE no = ?", dapat, JSON.stringify(ms), r.no);
+          r.koin = (r.koin || 0) + dapat;
+        }
+      }
       // Syarat main: bagikan Kartu Warga ke story sekali (tidak bisa diverifikasi ke IG, dicatat saat tombol dipakai).
       if (aksi === "bagikan" && !r.bagi) { this.sql.exec("UPDATE warga SET bagi = 1 WHERE no = ?", r.no); r.bagi = 1; }
       // Kucing peliharaan warga (maks 2) + warna kandang.
@@ -301,7 +311,7 @@ export class Warga extends DurableObject {
       }
       let av = null; try { av = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
       let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
-      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, kucing: kc, koin: r.koin || 0, misi: ms.s, dapat, bagi: r.bagi ? 1 : 0, nama: r.nama || "", kerja: r.kerja || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat });
+      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, kucing: kc, koin: r.koin || 0, misi: ms.s, gol: ms.g || 0, dapat, bagi: r.bagi ? 1 : 0, nama: r.nama || "", kerja: r.kerja || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat });
     }
     if (aksi === "usulan-kunci") {
       const { kunci, usulan } = await request.json();
@@ -566,6 +576,10 @@ async function apiWarga(request, env, url) {
   }
   if (aksi === "bagikan") {
     const r = await stub.fetch("https://do/bagikan", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64) }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "gol") {
+    const r = await stub.fetch("https://do/gol", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64) }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "misi") {
