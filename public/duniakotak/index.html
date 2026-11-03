@@ -69,7 +69,7 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
   </header>
 
   <h1>Jadi Warga Resmi Dunia Kotak</h1>
-  <p class="sub">Follow @duniakotak.id, isi nama dan username Instagram atau TikTok-mu, masuk dengan Google, langsung dapat satu kavling: rumah, pekarangan, dan namamu diukir di batu.</p>
+  <p class="sub">Isi nama dan username Instagram atau TikTok-mu, masuk dengan Google, langsung dapat satu kavling: rumah, pekarangan, dan namamu diukir di batu.</p>
 
   <section class="kartu" id="ajak">
     <div class="hitung"><b id="jumlah">…</b> warga sudah terdaftar</div>
@@ -80,10 +80,7 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
       <li><i>🗳️</i>Usulkan bangunan desa: usulan terbanyak dibangun duluan</li>
       <li><i>🎮</i>Kavlingmu ikut pindah saat game Dunia Kotak rilis</li>
     </ul>
-    <div class="langkah"><span class="nl">1</span><div><b>Follow @duniakotak.id dulu</b><br><small>Syarat jadi warga resmi.</small></div></div>
-    <a class="tombol ig" id="followIg" href="https://www.instagram.com/duniakotak.id/" target="_blank" rel="noopener">Follow @duniakotak.id di Instagram</a>
-    <label class="cek"><input type="checkbox" id="sudahFollow"> Saya sudah follow @duniakotak.id</label>
-    <div class="langkah"><span class="nl">2</span><div><b>Isi data wargamu</b><br><small>Username cukup salah satu: Instagram atau TikTok (boleh dua-duanya).</small></div></div>
+    <div class="langkah"><span class="nl">1</span><div><b>Isi data wargamu</b><br><small>Username cukup salah satu: Instagram atau TikTok (boleh dua-duanya).</small></div></div>
     <div class="isi">
       <label for="namaDaftar">Nama kamu</label>
       <input id="namaDaftar" placeholder="mis. Raka" autocomplete="given-name" maxlength="24">
@@ -92,7 +89,7 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
       <label for="ttDaftar">Username TikTok</label>
       <div class="at"><input id="ttDaftar" placeholder="namakamu" autocomplete="off" autocapitalize="none" maxlength="25"></div>
     </div>
-    <div class="langkah"><span class="nl">3</span><div><b>Masuk dengan Google</b><br><small>Supaya kavlingmu aman dan bisa dipakai main game mabar.</small></div></div>
+    <div class="langkah"><span class="nl">2</span><div><b>Masuk dengan Google</b><br><small>Supaya kavlingmu aman dan bisa dipakai main game mabar.</small></div></div>
     <div id="gbtn"></div>
     <div id="dalamApp" style="display:none">
       <p class="kecil" style="text-align:left">Masuk Google tidak bisa di dalam aplikasi Instagram/TikTok. Buka halaman ini di Chrome, atau daftar tanpa Google.</p>
@@ -180,7 +177,6 @@ function isian(){
   const un=v=>v.trim().replace(/^@/,'').toLowerCase();
   const d={nama:$('namaDaftar').value.trim(),ig:un($('igDaftar').value),tiktok:un($('ttDaftar').value)};
   const p=$('pesanDaftar');p.textContent='';
-  if(!$('sudahFollow').checked){p.textContent='Follow @duniakotak.id dulu, lalu centang "Saya sudah follow".';return null}
   if(!d.nama){p.textContent='Tulis namamu dulu.';$('namaDaftar').focus();return null}
   if(!d.ig&&!d.tiktok){p.textContent='Isi username Instagram atau TikTok (salah satu cukup).';$('igDaftar').focus();return null}
   return d;
@@ -203,7 +199,6 @@ $('daftarTanpa').onclick=async()=>{
   try{$('daftarTanpa').disabled=true;const o=await kirim('daftar-ig',d);await tampilkan(o);muatDaftar()}
   catch(e){$('pesanDaftar').textContent=e.message}finally{$('daftarTanpa').disabled=false}
 };
-$('followIg').addEventListener('click',()=>{setTimeout(()=>{$('sudahFollow').checked=true},800)});
 
 $('kirimUsul').onclick=async()=>{
   $('pesanUsul').textContent='';
