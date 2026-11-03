@@ -59,15 +59,17 @@ const DATA = [
     sapa: ['Tong, tong, tong!', 'Malam, Nak', 'Sudah malam, istirahat ya']},
 ];
 
-export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan}) {
-  const xs = I.vroads.map(([a, b]) => ((a + b) / 2 + I.ox) * VS), zs = I.hroads.map(([a, b]) => ((a + b) / 2 + I.oz) * VS);
-  const node = (i, j) => new THREE.Vector3(xs[i], 0, zs[j]);
+export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan, tinggi = () => 0}) {
+  const J = I.jalur;
+  const xs = J ? J.xs : I.vroads.map(([a, b]) => ((a + b) / 2 + I.ox) * VS), zs = J ? J.zs : I.hroads.map(([a, b]) => ((a + b) / 2 + I.oz) * VS);
+  const bolehNaik = J ? J.bolehNaik : () => true;
+  const node = (i, j) => new THREE.Vector3(xs[i], tinggi(xs[i], zs[j]), zs[j]);
   let biji = 17; const acak = () => { biji = (biji * 16807) % 2147483647; return (biji - 1) / 2147483646; };
   const fas = I.fas || [];
   // fas[2] = Warung Desa, fas[0] = lahan fasum kosong dekat rumah Raka (menunggu voting)
   const fasA = fas[2] || node(1, 1), fasB = fas[0] || node(2, 2), fasC = fas[0] || fasA;
-  const sungai = I.sungai, jb = sungai.jembatan[Math.min(2, sungai.jembatan.length - 1)] || [zs[2], zs[2]];
-  const tempat = {
+  const sungai = I.sungai || {x0: 0, x1: 0, jembatan: []}, jb = sungai.jembatan[Math.min(2, sungai.jembatan.length - 1)] || [zs[2], zs[2]];
+  const tempat = I.tempatNPC || {
     warung: new THREE.Vector3(fasA.x + 4 * VS, 0, fasA.z + 7.5 * VS),
     balai: new THREE.Vector3(fasC.x - 6 * VS, 0, fasC.z + 5 * VS),
     sungai: new THREE.Vector3(sungai.x0 - .8 * VS, 0, jb[1] + 3 * VS),
@@ -89,7 +91,7 @@ export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan}) {
   });
   const di = (n, j) => { const [a, b] = n.jam; return (j >= a && j < b) || (j + 24 >= a && j + 24 < b); };
   function pilihTuju(n) {
-    const opsi = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([a, b]) => [n.i + a, n.j + b]).filter(([i, j]) => i >= 0 && j >= 0 && i < xs.length && j < zs.length && !(i === n.pi && j === n.pj));
+    const opsi = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([a, b]) => [n.i + a, n.j + b]).filter(([i, j]) => i >= 0 && j >= 0 && i < xs.length && j < zs.length && !(i === n.pi && j === n.pj) && (j === n.j || bolehNaik(n.i)));
     const [i, j] = opsi[Math.floor(acak() * opsi.length)] || [n.pi, n.pj];
     n.pi = n.i; n.pj = n.j; n.i = i; n.j = j; n.tuju = node(i, j);
   }
@@ -107,12 +109,12 @@ export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan}) {
         if (!n.tuju) pilihTuju(n);
         const dx = n.tuju.x - o.position.x, dz = n.tuju.z - o.position.z, l = Math.hypot(dx, dz), s = kec * .45 * (n.cepat || 1) * dt;
         if (l <= s) { o.position.copy(n.tuju); n.tuju = null; if (acak() < .3) n.tunggu = 1 + acak() * 3; }
-        else { o.position.x += dx / l * s; o.position.z += dz / l * s; hadapi(o, n.tuju.x, n.tuju.z, Math.min(1, dt * 8)); }
+        else { o.position.x += dx / l * s; o.position.z += dz / l * s; o.position.y = tinggi(o.position.x, o.position.z); hadapi(o, n.tuju.x, n.tuju.z, Math.min(1, dt * 8)); }
         if (o.visible) { const a = Math.sin(n.ph * 9 * (n.cepat || 1)) * .7; pose(o, {legL: a, legR: -a, armL: -a * .8, armR: a * .8}); }
       } else if (n.kerja === 'main') {
         // kejar-kejaran melingkar di lahan fasum
         const r = 4 * VS, t = n.ph * .55 + (n.id === 'sari' ? Math.PI * .7 : 0);
-        o.position.set(n.pusat.x - (n.id === 'sari' ? 3 * VS : 0) + Math.cos(t) * r, Math.abs(Math.sin(n.ph * 10)) * .3, n.pusat.z + Math.sin(t) * r);
+        o.position.set(n.pusat.x - (n.id === 'sari' ? 3 * VS : 0) + Math.cos(t) * r, n.pusat.y + Math.abs(Math.sin(n.ph * 10)) * .3, n.pusat.z + Math.sin(t) * r);
         o.rotation.y = Math.atan2(-Math.sin(t), Math.cos(t));
         if (o.visible) { const a = Math.sin(n.ph * 14) * 1; pose(o, {legL: a, legR: -a, armL: -a, armR: a}); }
       } else if (o.visible) {
