@@ -442,6 +442,12 @@ export class Ruang extends DurableObject {
     }
     if (q.t === "e" && q.e === "lompat") { if (now - (a.lompat || 0) > 500) { ws.serializeAttachment({ ...a, lompat: now }); this.siar({ t: "e", no: a.no, e: "lompat" }, ws); } return; }
     if (q.t === "e") { const e = ["sapa", "hati", "tawa", "main"].includes(q.e) ? q.e : null; if (e && now - (a.emote || 0) > 1500) { ws.serializeAttachment({ ...a, emote: now }); this.siar({ t: "e", no: a.no, e }); } return; }
+    if (q.t === "bola") {   // bola stadion: tendangan warga diteruskan ke warga lain di dusun yang sama
+      const b = { t: "bola", x: +q.x, z: +q.z, vx: +q.vx, vz: +q.vz };
+      if (![b.x, b.z, b.vx, b.vz].every(Number.isFinite) || Math.abs(b.vx) > 80 || Math.abs(b.vz) > 80) return;
+      if (now - (a.bola || 0) > 250) { ws.serializeAttachment({ ...a, bola: now }); this.siar(b, ws); }
+      return;
+    }
     if (q.t === "av") { const av = q.av && typeof q.av === "object" ? q.av : null; ws.serializeAttachment({ ...a, av }); this.siar({ t: "av", no: a.no, av }, ws); return; }
     if (q.t === "lapor") {
       const t = Math.floor(+q.no); if (!t || t === a.no) return;

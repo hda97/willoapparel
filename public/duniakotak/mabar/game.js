@@ -771,6 +771,61 @@ function keStadion() {
   me.position.set(f.x, 0, f.z); me.position.y = tanah(me.position.x, me.position.z, 0); me.rotation.y = Math.PI;
   bunyi('masuk'); toast('🚌 Naik angkot desa… sampai di Stadion Dunia Kotak!', 3500);
 }
+// ---------- Bola di Stadion: bisa ditendang warga & pemain NPC, memantul di dalam lapangan, GOL bila masuk gawang ----------
+const BOLA = {m: null, x: 0, z: 0, y: 0, vx: 0, vz: 0, vy: 0, kirimT: 0, tendangT: 0, golT: 0};
+const BOLA_R = 1.5;
+function bolaLapangan() { const f = I && DI === 'wetan' && I.fas && I.fas[12]; return f ? {cx: f.x, cz: f.z, hx: 6.8 * VS - BOLA_R, hz: 4.3 * VS - BOLA_R, gawang: 1.15 * VS, lantai: .48 * VS} : null; }
+function bolaBuat(L) {
+  const g = new THREE.Group();
+  const bola = new THREE.Mesh(new THREE.IcosahedronGeometry(BOLA_R, 1), new THREE.MeshStandardMaterial({color: 0xffffff, roughness: .5, flatShading: true}));
+  g.add(bola);
+  const hitam = new THREE.MeshStandardMaterial({color: 0x1b1c21, roughness: .6});
+  for (const [a, b, c] of [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]) { const k = new THREE.Mesh(new THREE.BoxGeometry(.8, .8, .8), hitam); k.position.set(a * 1.2, b * 1.2, c * 1.2); g.add(k); }
+  g.traverse(o => { if (o.isMesh) o.castShadow = !hemat; });
+  sc.add(g); BOLA.m = g; BOLA.x = L.cx; BOLA.z = L.cz; BOLA.y = L.lantai + BOLA_R;
+}
+function bolaTendang(dx, dz, kuat, kirim) {
+  const l = Math.hypot(dx, dz) || 1; BOLA.vx = dx / l * kuat; BOLA.vz = dz / l * kuat; BOLA.vy = kuat * .35;
+  if (kirim && S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify({t: 'bola', x: +BOLA.x.toFixed(2), z: +BOLA.z.toFixed(2), vx: +BOLA.vx.toFixed(2), vz: +BOLA.vz.toFixed(2)}));
+}
+function bolaTerima(q) {
+  const L = bolaLapangan(); if (!L) return; if (!BOLA.m) bolaBuat(L);
+  BOLA.x = q.x; BOLA.z = q.z; BOLA.vx = q.vx; BOLA.vz = q.vz; BOLA.vy = Math.hypot(q.vx, q.vz) * .35;
+}
+function bolaUpdate(dt, me) {
+  const L = bolaLapangan(); if (!L || !me) return;
+  if (!BOLA.m) bolaBuat(L);
+  const jauh = Math.hypot(me.position.x - L.cx, me.position.z - L.cz) > 60 * VS; BOLA.m.visible = !jauh; if (jauh) return;
+  dt = Math.min(dt, .05); const now = performance.now();
+  // tendangan warga (aku): kaki menyentuh bola
+  const dxm = BOLA.x - me.position.x, dzm = BOLA.z - me.position.z;
+  if (Math.hypot(dxm, dzm) < BOLA_R + 1.3 && BOLA.y < me.position.y + 3 && now - BOLA.tendangT > 350) {
+    BOLA.tendangT = now; bolaTendang(dxm, dzm, gerak.lari ? 46 : 30, true); bunyi('langkah');
+  }
+  // tendangan pemain NPC: oper ke arah gawang lawan dengan sedikit acak
+  if (npc && now - BOLA.tendangT > 600) for (const n of npc.daftar) {
+    if (n.kerja !== 'bola' || !n.obj.visible) continue;
+    const o = n.obj.position; if (Math.hypot(BOLA.x - o.x, BOLA.z - o.z) < BOLA_R + 1.4) {
+      BOLA.tendangT = now; const arah = n.fase < 2.5 ? 1 : -1;
+      bolaTendang(L.cx + arah * 7 * VS - BOLA.x, (Math.random() - .5) * 6 * VS + L.cz - BOLA.z, 24 + Math.random() * 14, false); break;
+    }
+  }
+  // gerak + gesekan rumput + pantulan dinding lapangan
+  BOLA.x += BOLA.vx * dt; BOLA.z += BOLA.vz * dt; const gs = Math.exp(-.9 * dt); BOLA.vx *= gs; BOLA.vz *= gs;
+  BOLA.vy -= 95 * dt; BOLA.y += BOLA.vy * dt; const y0 = L.lantai + BOLA_R; if (BOLA.y < y0) { BOLA.y = y0; BOLA.vy = Math.abs(BOLA.vy) > 4 ? -BOLA.vy * .45 : 0; }
+  const rx = BOLA.x - L.cx, rz = BOLA.z - L.cz;
+  if (Math.abs(rx) > L.hx) {
+    if (Math.abs(rz) < L.gawang && now - BOLA.golT > 3000) {   // GOL!
+      BOLA.golT = now; toast(`⚽ GOOOL! Masuk gawang ${rx > 0 ? 'timur' : 'barat'}!`, 3000); bunyi('masuk');
+      BOLA.x = L.cx; BOLA.z = L.cz; BOLA.vx = BOLA.vz = 0; BOLA.vy = 20;
+    } else { BOLA.x = L.cx + Math.sign(rx) * L.hx; BOLA.vx = -BOLA.vx * .75; }
+  }
+  if (Math.abs(rz) > L.hz) { BOLA.z = L.cz + Math.sign(rz) * L.hz; BOLA.vz = -BOLA.vz * .75; }
+  if (!Number.isFinite(BOLA.x + BOLA.z + BOLA.y)) { BOLA.x = L.cx; BOLA.z = L.cz; BOLA.y = y0; BOLA.vx = BOLA.vz = BOLA.vy = 0; }
+  // bola menggelinding
+  const v = Math.hypot(BOLA.vx, BOLA.vz); BOLA.m.position.set(BOLA.x, BOLA.y, BOLA.z);
+  if (v > .05) { BOLA.m.rotation.z -= BOLA.vx * dt / BOLA_R; BOLA.m.rotation.x += BOLA.vz * dt / BOLA_R; }
+}
 function kenaHUD(a, b, c, d) {
   const now = performance.now(); if (now - hudT > 500) { hudT = now; tataHUD(); }
   return kotakHUD.some(r => a < r.right && c > r.left && b < r.bottom && d > r.top);
@@ -840,6 +895,7 @@ function tambahWarga(w) {
   S.others.set(w.no, {obj, ig: w.ig, av: w.av, tx: w.x, tz: w.z, tr: w.r || 0, a: 0, ph: 0});
 }
 function terima(q) {
+  if (q.t === 'bola') { bolaTerima(q); return; }
   if (q.t === 'halo') { q.warga.forEach(tambahWarga); S.chat.dusun = []; q.chat.forEach(c => tambahChat('dusun', '@' + c.ig, c.m)); hitungOnline(); }
   else if (q.t === 'masuk') { tambahWarga(q.w); hitungOnline(); tambahChat('sekitar', '', '@' + q.w.ig + ' masuk ke desa', 'sistem'); bunyi('masuk'); }
   else if (q.t === 'keluar') { const o = S.others.get(q.no); if (o) { sc.remove(o.obj); S.others.delete(q.no); } hitungOnline(); }
@@ -1202,6 +1258,7 @@ function loop(t) {
   for (const c of kucingHidup) { const u = c.userData; u.ph += dt; c.position.y = Math.max(0, Math.sin(u.ph * 1.3)) * .12; c.rotation.y = u.ry + Math.sin(u.ph * .4) * .5; }
   animSkill(dt, me);
   if (npc) { npc.update(dt, me, jamWIB(), KEC); sapaNPC(t, me); }
+  bolaUpdate(dt, me);
   tokoh.oyen.userData.ph += dt; tokoh.oyen.position.y = Math.abs(Math.sin(tokoh.oyen.userData.ph * 1.3)) * .15;
   // kamera ikut pemain (dikunci di dalam hutan pembatas)
   const tx = me.position.x, tz = me.position.z, ty = me.position.y; camY += (ty - camY) * Math.min(1, dt * 5);
@@ -1331,4 +1388,4 @@ var tegakSesi = false; try { localStorage.removeItem('dk_tegak'); } catch (e) {}
 $('tetapTegak').onclick = () => { tegakSesi = true; $('miring').hidden = true; };
 onResize();
 layarMasuk();
-window.__dk = {S, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
+window.__dk = {S, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
