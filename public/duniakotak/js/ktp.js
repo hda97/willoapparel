@@ -87,7 +87,7 @@ export async function gambarKTP(cv, o) {
     ['Kavling', 'No. ' + o.no],
     ['Pekerjaan', o.kerja || 'Petani / Pedagang'],
     ['Status', 'Warga Resmi'],
-    ['Berlaku', 'SEUMUR HIDUP'],
+    ['Bergabung', `${dd} ${['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][t.getMonth()]} ${t.getFullYear()}`],
   ];
   let y = 214;
   for (const [k, v] of baris) {
