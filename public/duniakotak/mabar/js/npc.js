@@ -151,7 +151,7 @@ export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan, tinggi = () =
     }
     obj.visible = false; sc.add(obj); return n;
   });
-  const di = (n, j) => { const [a, b] = n.jam; return (j >= a && j < b) || (j + 24 >= a && j + 24 < b); };
+  const di = (n, j) => { const [a, b] = n.jam; return (j >= a && j < b) || (j + 24 >= a && j + 24 < b) || ((n.kerja === 'bola' || n.kerja === 'stadion') && j >= 20 && j < 20.5); };   // Jam Kumpul Warga 20.00-20.30: pertandingan malam di stadion
   function pilihTuju(n) {
     const opsi = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([a, b]) => [n.i + a, n.j + b]).filter(([i, j]) => i >= 0 && j >= 0 && i < xs.length && j < zs.length && !(i === n.pi && j === n.pj) && (j === n.j || bolehNaik(n.i)));
     const [i, j] = opsi[Math.floor(acak() * opsi.length)] || [n.pi, n.pj];
