@@ -396,7 +396,7 @@ const MISI = [
   {id: 'raka', ikon: '⭐', judul: 'Temui Raka dan Oyen', target: 1, koin: 5},
   {id: 'tetangga', ikon: '🏡', judul: 'Mampir ke depan rumah tetangga', target: 3, satuan: 'rumah', koin: 10},
   {id: 'foto', ikon: '📸', judul: 'Foto pakai Kamera HP, lalu simpan atau bagikan', target: 1, koin: 10},
-  {id: 'kucing', ikon: '🐱', judul: 'Rawat kucing: pilih kucing atau tengok kandangmu', target: 1, koin: 5},
+  {id: 'kucing', ikon: '🐱', judul: 'Rawat kucing: beri makan kucing (tombol 🐟)', target: 1, koin: 5},
 ];
 const BONUS_MISI = 20;
 const hariIni = () => new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
@@ -442,6 +442,8 @@ function tulisMisi() {
     return `<div class="misi ${ok ? 'ok' : ''}"><span class="mi">${ok ? '✅' : m.ikon}</span><div><b>${esc(m.judul)}</b>
       <div class="bar"><i style="width:${Math.round(100 * (ok ? 1 : p / m.target))}%"></i></div><small>${ok ? 'Selesai' : m.target > 1 ? `${p}/${m.target} ${m.satuan || ''}` : 'Belum'}</small></div><span class="koin">+${m.koin} 🪙</span></div>`;
   }).join('') + `<div class="misi bonus ${MS.selesai.has('bonus') ? 'ok' : ''}"><span class="mi">🎁</span><div><b>Bonus: selesaikan semua misi</b><small>${MS.selesai.has('bonus') ? 'Sudah diambil' : 'Otomatis masuk setelah 6 misi selesai'}</small></div><span class="koin">+${BONUS_MISI} 🪙</span></div>`;
+  const isiTas = Object.entries(tas).map(([n, v]) => `${v.ikon} ${n} ×${v.n}`).join(' · ');
+  $('isiMisi').innerHTML += `<div class="misi"><span class="mi">🎒</span><div><b>Tasmu</b><small>${isiTas ? esc(isiTas) : 'Masih kosong. Ambil barang di jalan atau mancing di sungai.'}</small></div><span></span></div>`;
   $('ringkasMisi').textContent = `Koinmu: 🪙 ${S.saya?.koin || 0} · Hari ini bisa dapat ${total} koin. Misi baru tiap pukul 00.00 WIB.`;
 }
 function bukaMisi() {
@@ -459,6 +461,74 @@ function cekMisiDekat(me) {
     if (dg < 2.6 * VS && n !== 1 && n !== S.saya.no && NM[n]) misiMaju('tetangga', 1, n);
     if (n === S.saya.no && rt.kc && Math.hypot(me.position.x - (L.c.x + L.dir * -3.9 * VS), me.position.z - (L.c.z + L.dir * 3.4 * VS)) < 2.4 * VS) misiMaju('kucing');
   }
+}
+
+// ---------- skill warga: ambil item, mancing di sungai, beri makan kucing ----------
+const ITEM = [{id: 'apel', ikon: '🍎', nama: 'Apel', w: 0xe0403a}, {id: 'bunga', ikon: '🌼', nama: 'Bunga', w: 0xffd23a}, {id: 'kayu', ikon: '🪵', nama: 'Kayu', w: 0x9a6a3e},
+  {id: 'jamur', ikon: '🍄', nama: 'Jamur', w: 0xd84a4a}, {id: 'batu', ikon: '🪨', nama: 'Batu kotak', w: 0x9aa0a8}, {id: 'daun', ikon: '🍃', nama: 'Daun', w: 0x5cc85c}];
+const IKAN = [[35, '🐟', 'Ikan mas'], [28, '🐠', 'Ikan nila'], [18, '🐡', 'Ikan buntal kotak'], [11, '🦐', 'Udang'], [5, '👟', 'Sepatu bekas'], [3, '🦀', 'Kepiting langka']];
+const tas = bacaJ('dk_tas') || {};
+function masukTas(ikon, nama) { tas[nama] = tas[nama] || {ikon, n: 0}; tas[nama].n++; simpan('dk_tas', tas); }
+let itemDunia = [], itemT = 0;
+const geomItem = new THREE.BoxGeometry(1.4, 1.4, 1.4);
+function isiItem(me) {
+  // jaga ±10 item di sekitar pemain, di tempat yang bisa diinjak
+  itemDunia = itemDunia.filter(it => { if (it.position.distanceTo(me.position) > 260) { sc.remove(it); return false; } return true; });
+  for (let c = 0; c < 30 && itemDunia.length < 10; c++) {
+    const a = Math.random() * Math.PI * 2, r = 40 + Math.random() * 150, x = me.position.x + Math.cos(a) * r, z = me.position.z + Math.sin(a) * r;
+    if (!bebas(x, z)) continue;
+    const j = ITEM[Math.floor(Math.random() * ITEM.length)];
+    const m = new THREE.Mesh(geomItem, new THREE.MeshStandardMaterial({color: j.w, emissive: j.w, emissiveIntensity: .35, roughness: .5}));
+    m.position.set(x, 1.4, z); m.castShadow = true; m.userData = {jenis: j, ph: Math.random() * 6}; sc.add(m); itemDunia.push(m);
+  }
+}
+const dekatItem = me => itemDunia.find(it => Math.hypot(it.position.x - me.position.x, it.position.z - me.position.z) < 2.6 * VS);
+const dekatKucing = me => [tokoh.oyen, ...kucingHidup].filter(Boolean).find(c => Math.hypot(c.position.x - me.position.x, c.position.z - me.position.z) < 3.2 * VS);
+function dekatAir(me) {
+  const s = I && I.sungai; if (!s) return false; const x = me.position.x, z = me.position.z;
+  if (x > s.x0 - 3 * VS && x < s.x1 + 3 * VS && !(x > s.x0 && x < s.x1 && !s.jembatan.some(([a, c]) => z > a && z < c))) return true;
+  return false;
+}
+function hadap(me, p) { me.rotation.y = Math.atan2(p.x - me.position.x, p.z - me.position.z); }
+function skillAmbil() {
+  const me = tokoh.saya; if (!me) return; const it = dekatItem(me);
+  if (!it) { toast('Tidak ada barang di dekatmu. Cari kotak bercahaya di jalan, lalu dekati.', 3000); return; }
+  hadap(me, it.position); sc.remove(it); itemDunia = itemDunia.filter(x => x !== it);
+  const j = it.userData.jenis; masukTas(j.ikon, j.nama); bunyi('emosi');
+  toast(`${j.ikon} ${j.nama} masuk tas (${tas[j.nama].n})`, 2200);
+}
+const mancing = {on: false, teks: '', t: 0, joran: null, batal() { if (this.joran) { tokoh.saya.remove(this.joran); this.joran = null; } }};
+function skillMancing() {
+  const me = tokoh.saya; if (!me || mancing.on) return;
+  if (!dekatAir(me)) { toast('Mancing harus di pinggir sungai. Sungai ada di sisi timur dusun, dekat sawah.', 3500); return; }
+  const s = I.sungai; hadap(me, new THREE.Vector3(me.position.x < s.x0 ? s.x0 + 9 : s.x1 - 9, 0, me.position.z));
+  gerak.tujuan = null; mancing.on = true; mancing.teks = '🎣 …'; mancing.t = performance.now();
+  const j = new THREE.Mesh(new THREE.BoxGeometry(.18, .18, 6), new THREE.MeshStandardMaterial({color: 0x6b3e22})); j.position.set(.9, 2.6, 2.6); j.rotation.x = -.5; me.add(j); mancing.joran = j;
+  bunyi('buka');
+  const tunggu = 1800 + Math.random() * 2200;
+  setTimeout(() => { if (!mancing.on) return; mancing.teks = '❗ Strike!'; bunyi('pesan');
+    setTimeout(() => { if (!mancing.on) return; mancing.on = false; mancing.batal();
+      let r = Math.random() * 100, hasil = IKAN[0]; for (const x of IKAN) { if ((r -= x[0]) < 0) { hasil = x; break; } }
+      masukTas(hasil[1], hasil[2]); bunyi('masuk'); toast(`${hasil[1]} Dapat ${hasil[2]}! (punya ${tas[hasil[2]].n})`, 3000);
+    }, 700);
+  }, tunggu);
+}
+let makanT = 0;
+function skillMakan() {
+  const me = tokoh.saya; if (!me) return; const c = dekatKucing(me);
+  if (!c) { toast('Dekati kucing dulu: Oyen di rumah Raka, atau kucing di depan rumah warga.', 3500); return; }
+  if (performance.now() - makanT < 2500) return; makanT = performance.now();
+  hadap(me, c.position); c.userData.senang = performance.now() + 2600; bunyi('emosi'); misiMaju('kucing');
+  toast(c === tokoh.oyen ? '🐟 Oyen makan dengan lahap. Meong!' : `🐟 ${c.userData.nama || 'Kucing'} senang diberi makan!`, 2500);
+}
+function animSkill(dt, me) {
+  const now = performance.now();
+  if (now - itemT > 1500) { itemT = now; isiItem(me); }
+  for (const it of itemDunia) { const u = it.userData; u.ph += dt; it.position.y = 1.4 + Math.sin(u.ph * 2) * .4; it.rotation.y += dt * 1.2; }
+  for (const c of [tokoh.oyen, ...kucingHidup]) if (c && c.userData.senang > now) c.position.y = Math.abs(Math.sin(now / 90)) * .6;
+  // tombol skill menyala bila bisa dipakai
+  const t = now | 0; if (t % 4 === 0 || !animSkill.t || now - animSkill.t > 300) { animSkill.t = now;
+    $('sAmbil').classList.toggle('siap', !!dekatItem(me)); $('sMancing').classList.toggle('siap', dekatAir(me)); $('sMakan').classList.toggle('siap', !!dekatKucing(me)); }
 }
 
 // =====================================================================
@@ -565,18 +635,29 @@ function kirimPos(paksa) {
 // 8. KONTROL
 // =====================================================================
 const gerak = {kunci: {}, stik: null, tujuan: null, jalan: false};
-addEventListener('keydown', e => { if (document.activeElement && document.activeElement.tagName === 'INPUT') return; gerak.kunci[e.key.toLowerCase()] = true; if (e.key === 'q' || e.key === 'Q') putar(1); if (e.key === 'e' || e.key === 'E') putar(-1); if (e.key === 'Enter') { $('ketik').focus(); e.preventDefault(); } });
+addEventListener('keydown', e => { if (document.activeElement && document.activeElement.tagName === 'INPUT') return; gerak.kunci[e.key.toLowerCase()] = true; if (e.key === 'q' || e.key === 'Q') putar(1); if (e.key === 'e' || e.key === 'E') putar(-1); const kk = e.key.toLowerCase(); if (kk === 'f') skillAmbil(); if (kk === 'r') skillMancing(); if (kk === 'g') skillMakan(); if (e.key === 'Enter') { $('ketik').focus(); e.preventDefault(); } });
 addEventListener('keyup', e => { gerak.kunci[e.key.toLowerCase()] = false; });
 addEventListener('blur', () => { gerak.kunci = {}; });
 const stik = $('stik'), kenop = $('kenop');
 stik.addEventListener('pointerdown', e => { stik.setPointerCapture(e.pointerId); gerak.stik = {id: e.pointerId, x: 0, y: 0}; gerak.tujuan = null; geserStik(e); });
 stik.addEventListener('pointermove', e => { if (gerak.stik && gerak.stik.id === e.pointerId) geserStik(e); });
-const lepasStik = e => { if (gerak.stik && gerak.stik.id === e.pointerId) { gerak.stik = null; kenop.style.transform = ''; } };
+const lepasStik = e => { if (gerak.stik && gerak.stik.id === e.pointerId) { gerak.stik = null; kenop.style.transform = ''; stik.classList.remove('lari'); } };
 stik.addEventListener('pointerup', lepasStik); stik.addEventListener('pointercancel', lepasStik);
-function geserStik(e) { const r = stik.getBoundingClientRect(); let x = e.clientX - (r.left + r.width / 2), y = e.clientY - (r.top + r.height / 2); const m = r.width / 2 - 20, l = Math.hypot(x, y); if (l > m) { x *= m / l; y *= m / l; } kenop.style.transform = `translate(${x}px,${y}px)`; gerak.stik.x = x / m; gerak.stik.y = y / m; }
+function geserStik(e) { const r = stik.getBoundingClientRect(); let x = e.clientX - (r.left + r.width / 2), y = e.clientY - (r.top + r.height / 2); const m = r.width / 2 - 20, l = Math.hypot(x, y); if (l > m) { x *= m / l; y *= m / l; } kenop.style.transform = `translate(${x}px,${y}px)`; gerak.stik.x = x / m; gerak.stik.y = y / m; gerak.stik.lari = Math.hypot(x, y) / m > .82; stik.classList.toggle('lari', gerak.stik.lari); }
 // ketuk tanah = jalan ke titik itu; ketuk tokoh warga = menu
 const ray = new THREE.Raycaster(), lantai = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+// geser 1 jari = putar kamera, cubit 2 jari = zoom, ketuk = jalan ke titik itu; roda mouse = zoom
+const jari = new Map(); let cubit0 = 0, zoom0 = 1, geserJauh = 0;
+$('layar').addEventListener('pointerdown', e => { $('layar').setPointerCapture(e.pointerId); jari.set(e.pointerId, {x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY}); geserJauh = jari.size > 1 ? 99 : 0;
+  if (jari.size === 2) { const [a, b] = [...jari.values()]; cubit0 = Math.hypot(a.x - b.x, a.y - b.y) || 1; zoom0 = zoom; } });
+$('layar').addEventListener('pointermove', e => { const j = jari.get(e.pointerId); if (!j) return; const dx = e.clientX - j.x; j.x = e.clientX; j.y = e.clientY;
+  if (jari.size === 1) { geserJauh = Math.max(geserJauh, Math.hypot(e.clientX - j.x0, e.clientY - j.y0)); if (geserJauh > 8) { yaw -= dx * .0085; yawNow = yaw; } }
+  else if (jari.size === 2) { const [a, b] = [...jari.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y); zoom = Math.max(.55, Math.min(1.9, zoom0 * cubit0 / Math.max(20, d))); } });
+const lepasJari = e => { jari.delete(e.pointerId); };
+$('layar').addEventListener('pointercancel', lepasJari);
+$('layar').addEventListener('wheel', e => { e.preventDefault(); zoom = Math.max(.55, Math.min(1.9, zoom * (e.deltaY > 0 ? 1.08 : .93))); }, {passive: false});
 $('layar').addEventListener('pointerup', e => {
+  const sisa = jari.size; lepasJari(e); if (geserJauh > 8 || sisa > 1) return;
   $('menuWarga').hidden = true;
   if (e.pointerType === 'mouse' && e.button !== 0) return;
   const m = new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
@@ -740,9 +821,7 @@ function aturHUD() {
   muatMisi();
   $('bPanduan').onclick = () => panduan();
   musikSiap();
-  $('putKiri').onclick = () => putar(1); $('putKanan').onclick = () => putar(-1);
-  $('zIn').onclick = () => { zoom = Math.max(.6, zoom - .15); };
-  $('zOut').onclick = () => { zoom = Math.min(1.8, zoom + .15); };
+  $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan();
   if (innerHeight < 500) { $('chat').hidden = true; $('bBukaChat').hidden = false; zoom = .85; }
   if (portrait() && innerWidth <= 700) { $('chat').hidden = true; $('bBukaChat').hidden = false; }
 }
@@ -751,9 +830,10 @@ function panduan() {
   const L = [
     `Halo ${nama}! Aku Raka, ini Oyen. Selamat datang di Dusun Kotak Wetan!`,
     S.tamu ? 'Kamu sedang lihat-lihat sebagai tamu. Daftar jadi warga di willoapparel.com/duniakotak supaya dapat kavling dan bisa ngobrol.' : `Rumahmu di ${alamat(S.saya.no)}. Batu di depan rumah sudah terukir namamu.`,
-    'Jalan pakai joystick di kiri bawah, atau ketuk tanah tujuanmu. Di laptop pakai tombol panah atau WASD.',
+    'Jalan pakai joystick di kiri bawah, dorong penuh untuk lari. Geser layar untuk memutar kamera, cubit untuk zoom. Di laptop: WASD, Shift lari, roda mouse zoom.',
+    'Tombol kanan bawah itu skill-mu: ✋ ambil barang di jalan, 🎣 mancing di pinggir sungai, 🐟 beri makan kucing. Tombolnya menyala kalau bisa dipakai.',
     'Chat Sekitar terlihat warga di dekatmu, Chat Dusun untuk semua warga dusun. Ketuk nama warga untuk lihat rumahnya, bisukan, atau laporkan.',
-    'Kebun, koin, dan Pasar Desa segera dibuka. Sekarang ayo jalan-jalan dan sapa tetangga. Meong! kata Oyen.',
+    'Cek 📋 Misi tiap hari untuk dapat koin. Sekarang ayo jalan-jalan dan sapa tetangga. Meong! kata Oyen.',
   ];
   let i = 0; const d = $('dialog');
   const tampil = () => { $('dialogTeks').textContent = L[i]; $('dLanjut').textContent = i === L.length - 1 ? 'Selesai' : 'Lanjut'; gelembung('raka', '👋', true); };
@@ -785,13 +865,14 @@ function loop(t) {
   else if (gerak.tujuan) { const dx = gerak.tujuan.x - me.position.x, dz = gerak.tujuan.z - me.position.z, l = Math.hypot(dx, dz); if (l < 1.5) gerak.tujuan = null; else { vx = dx / l; vz = dz / l; } }
   const l = Math.hypot(vx, vz); gerak.jalan = l > .15;
   if (gerak.jalan) {
-    const s = Math.min(1, l) * KEC * dt / l; const nx = me.position.x + vx * s, nz = me.position.z + vz * s;
+    const lari = (gerak.stik && gerak.stik.lari) || k['shift']; gerak.lari = lari;
+    const s = Math.min(1, l) * KEC * (lari ? 1.75 : 1) * dt / l; if (mancing.on) { mancing.on = false; mancing.batal(); } const nx = me.position.x + vx * s, nz = me.position.z + vz * s;
     let maju = false;
     if (bebas(nx, me.position.z)) { me.position.x = nx; maju = true; }
     if (bebas(me.position.x, nz)) { me.position.z = nz; maju = true; }
     if (!maju) gerak.tujuan = null;
     const tr = Math.atan2(vx, vz); let dr = tr - me.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); me.rotation.y += dr * Math.min(1, dt * 12);
-    const lk = Math.floor(ph / Math.PI); ph += dt * 11; if (Math.floor(ph / Math.PI) !== lk) { bunyi('langkah'); misiMaju('jalan'); } jalanAnim(me, ph, .7);
+    const lk = Math.floor(ph / Math.PI); ph += dt * (lari ? 17 : 11); if (Math.floor(ph / Math.PI) !== lk) { bunyi('langkah'); misiMaju('jalan'); } jalanAnim(me, ph, lari ? 1.05 : .7);
   } else jalanAnim(me, 0, 0);
   cekMisiDekat(me);
   // warga lain: interpolasi
@@ -806,6 +887,7 @@ function loop(t) {
   if (dR < 25 && !tokoh.raka.userData.sapa) { tokoh.raka.userData.sapa = 1; gelembung('raka', S.tamu ? 'Halo! Yuk daftar jadi warga 😄' : 'Halo @' + S.saya.ig + '! Mampir ke warungku ya.'); }
   if (dR > 60) tokoh.raka.userData.sapa = 0;
   for (const c of kucingHidup) { const u = c.userData; u.ph += dt; c.position.y = Math.max(0, Math.sin(u.ph * 1.3)) * .12; c.rotation.y = u.ry + Math.sin(u.ph * .4) * .5; }
+  animSkill(dt, me);
   tokoh.oyen.userData.ph += dt; tokoh.oyen.position.y = Math.abs(Math.sin(tokoh.oyen.userData.ph * 1.3)) * .15;
   // kamera ikut pemain (dikunci di dalam hutan pembatas)
   const tx = me.position.x, tz = me.position.z;
@@ -824,6 +906,9 @@ function loop(t) {
   const lbl = (o, h, teks, cls, no) => { const el = tempel(o, h, teks, cls); if (el) el.dataset.no = no || ''; };
   lbl(me, 5.2, S.tamu ? 'Kamu (tamu)' : '@' + S.saya.ig, 'nm saya');
   lbl(tokoh.raka, 5.2, '★ Raka', 'nm raka'); lbl(tokoh.oyen, 2.6, 'Oyen', 'nm raka kucing');
+  for (const c of [tokoh.oyen, ...kucingHidup]) if (c.userData.senang > performance.now()) tempel(c, 4.2, '❤️ nyam!', 'gel emo', -4);
+  for (const it of itemDunia) if (it.position.distanceTo(me.position) < 45) tempel(it, 3.4, it.userData.jenis.ikon, 'nm item');
+  if (mancing.on) tempel(me, 6.6, mancing.teks, 'gel emo', -4);
   for (const c of kucingHidup) if (c.userData.nama && c.position.distanceTo(me.position) < 60) lbl(c, 2.6, c.userData.nama, 'nm kucing');
   for (const [no, o] of S.others) if (o.obj.position.distanceTo(me.position) < 220) lbl(o.obj, 5.2, (S.bisu.has(no) ? '🔇 ' : '') + '@' + o.ig, 'nm', no);
   const now = performance.now();
