@@ -251,6 +251,8 @@ async function bangunDunia() {
   // tepi dunia untuk gerak + sungai (dilarang menyeberang selain di jembatan)
   const ox = I.ox, oz = I.oz;
   I.batas = {x0: (ox - 4) * VS, x1: (ox + I.TW + 6 + 14 + 3 + 40 + 2) * VS, z0: (oz - 6) * VS, z1: (oz + I.TD + 6) * VS};
+  // dek jembatan (lebih tinggi dari jalan): avatar naik ke atasnya, tidak tenggelam
+  I.dek = {x0: (ox + I.TW + 6 - 2) * VS, x1: (ox + I.TW + 6 + 14 + 2) * VS, y: .65 * VS, z: I.hroads.filter(([a, b]) => b - a >= 3.9).map(([a, b]) => [(a + oz - .5) * VS, (b + oz + .5) * VS])};
   I.sungai = {x0: (ox + I.TW + 6 - 1.5) * VS, x1: (ox + I.TW + 6 + 14 + 1.5) * VS, jembatan: I.hroads.filter(([a, b]) => b - a >= 3.9).map(([a, b]) => [(a + oz) * VS + 2, (b + oz) * VS - 2])};
 }
 
@@ -733,6 +735,7 @@ function terima(q) {
     if (dekat || q.ch === 'sekitar') gelembung(q.no, q.m);
     if (saya) bunyi('kirim'); else if (dekat || q.ch === 'dusun') bunyi('pesan');
   }
+  else if (q.t === 'e' && q.e === 'lompat') { const o = S.others.get(q.no); if (o) o.lompat = {vy: 34, y: 0}; }
   else if (q.t === 'e') { if (!S.bisu.has(q.no)) { gelembung(q.no, EMO[q.e] || '👋', true); bunyi('emosi'); } }
   else if (q.t === 'tolak' || q.t === 'info') toast(q.m, 3500);
 }
@@ -751,7 +754,7 @@ function kirimPos(paksa) {
 // 8. KONTROL
 // =====================================================================
 const gerak = {kunci: {}, stik: null, tujuan: null, jalan: false};
-addEventListener('keydown', e => { if (document.activeElement && document.activeElement.tagName === 'INPUT') return; gerak.kunci[e.key.toLowerCase()] = true; if (e.key === 'q' || e.key === 'Q') putar(1); if (e.key === 'e' || e.key === 'E') putar(-1); const kk = e.key.toLowerCase(); if (kk === 'f') skillAmbil(); if (kk === 'r') skillMancing(); if (kk === 'g') skillMakan(); if (kk === 't') $('sNgobrol').click(); if (kk === 'm' && peta.img) { if ($('panelPeta').hidden) bukaPeta(); else $('panelPeta').hidden = true; } if (e.key === 'Enter') { $('ketik').focus(); e.preventDefault(); } });
+addEventListener('keydown', e => { if (document.activeElement && document.activeElement.tagName === 'INPUT') return; gerak.kunci[e.key.toLowerCase()] = true; if (e.key === 'q' || e.key === 'Q') putar(1); if (e.key === 'e' || e.key === 'E') putar(-1); const kk = e.key.toLowerCase(); if (kk === 'f') skillAmbil(); if (kk === 'r') skillMancing(); if (kk === 'g') skillMakan(); if (kk === 't') $('sNgobrol').click(); if (e.key === ' ') { mulaiLompat(); e.preventDefault(); } if (kk === 'm' && peta.img) { if ($('panelPeta').hidden) bukaPeta(); else $('panelPeta').hidden = true; } if (e.key === 'Enter') { $('ketik').focus(); e.preventDefault(); } });
 addEventListener('keyup', e => { gerak.kunci[e.key.toLowerCase()] = false; });
 addEventListener('blur', () => { gerak.kunci = {}; });
 const stik = $('stik'), kenop = $('kenop');
@@ -940,7 +943,7 @@ function aturHUD() {
   muatMisi();
   $('bPanduan').onclick = () => panduan();
   musikSiap();
-  $('sNgobrol').onclick = () => { const n = npc && npc.terdekat(tokoh.saya, 7 * VS); if (n) ngobrol(n); }; $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan();
+  $('sLompat').onclick = () => mulaiLompat(); $('sNgobrol').onclick = () => { const n = npc && npc.terdekat(tokoh.saya, 7 * VS); if (n) ngobrol(n); }; $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan();
   if (innerHeight < 500) { $('chat').hidden = true; $('bBukaChat').hidden = false; zoom = .85; }
   if (portrait() && innerWidth <= 700) { $('chat').hidden = true; $('bBukaChat').hidden = false; }
 }
@@ -964,7 +967,11 @@ function panduan() {
 // =====================================================================
 // 10. LOOP
 // =====================================================================
-const KEC = 15;   // satuan dunia per detik (avatar setinggi pintu ≈ 4,1)
+const KEC = 15;
+// tinggi pijakan: dek jembatan lebih tinggi dari jalan
+const tanah = (x, z) => { const d = I.dek; return d && x > d.x0 && x < d.x1 && d.z.some(([a, c]) => z > a && z < c) ? d.y : 0; };
+const lompat = {vy: 0, diTanah: true};
+function mulaiLompat() { if (!lompat.diTanah || !tokoh.saya) return; lompat.vy = 34; lompat.diTanah = false; bunyi('langkah'); if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify({t: 'e', e: 'lompat'})); }   // satuan dunia per detik (avatar setinggi pintu ≈ 4,1)
 let tAkhir = performance.now(), tKav = 0, ph = 0;
 const bebas = (x, z) => {
   const b = I.batas; if (x < b.x0 || x > b.x1 || z < b.z0 || z > b.z1) return false;
@@ -1011,10 +1018,16 @@ function loop(t) {
     const tr = Math.atan2(vx, vz); let dr = tr - me.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); me.rotation.y += dr * Math.min(1, dt * 12);
     const lk = Math.floor(ph / Math.PI); ph += dt * (lari ? 17 : 11); if (Math.floor(ph / Math.PI) !== lk) { bunyi('langkah'); misiMaju('jalan'); if (lari) misiMaju('lari'); } jalanAnim(me, ph, lari ? 1.05 : .7);
   } else jalanAnim(me, 0, 0);
+  { const g = tanah(me.position.x, me.position.z);
+    if (lompat.diTanah) { me.position.y += (g - me.position.y) * Math.min(1, dt * 18); }
+    else { lompat.vy -= 95 * dt; me.position.y += lompat.vy * dt; if (me.position.y <= g) { me.position.y = g; lompat.vy = 0; lompat.diTanah = true; } }
+    if (!lompat.diTanah) { const a = Math.min(1, me.position.y / 6); wpose(me, {legL: -.5 * a, legR: .4 * a, armL: -2.4 * a, armR: -2.4 * a}); } }
   cekMisiDekat(me);
   // warga lain: interpolasi
   for (const o of S.others.values()) {
     const p = o.obj.position; const a = Math.min(1, dt * 8); p.x += (o.tx - p.x) * a; p.z += (o.tz - p.z) * a;
+    if (o.lompat) { o.lompat.vy -= 95 * dt; o.lompat.y += o.lompat.vy * dt; if (o.lompat.y <= 0) o.lompat = null; }
+    p.y += (tanah(p.x, p.z) + (o.lompat ? o.lompat.y : 0) - p.y) * (o.lompat ? 1 : a);
     let dr = o.tr - o.obj.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); o.obj.rotation.y += dr * a;
     const jalan = o.a && performance.now() - (o.akhir || 0) < 600; if (jalan) { o.ph += dt * 11; jalanAnim(o.obj, o.ph, .7); } else jalanAnim(o.obj, 0, 0);
   }
