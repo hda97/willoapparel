@@ -531,6 +531,7 @@ function aturHUD() {
   $('zIn').onclick = () => { zoom = Math.max(.6, zoom - .15); };
   $('zOut').onclick = () => { zoom = Math.min(1.8, zoom + .15); };
   if (innerHeight < 500) { $('chat').hidden = true; $('bBukaChat').hidden = false; zoom = .85; }
+  if (portrait() && innerWidth <= 700) { $('chat').hidden = true; $('bBukaChat').hidden = false; }
 }
 function panduan() {
   const nama = S.tamu ? 'tamu' : '@' + S.saya.ig;
