@@ -1,7 +1,29 @@
 // Kartu Warga Dunia Kotak: kartu identitas warga versi desa kotak, digambar di kanvas (bisa disimpan/dibagikan ke story).
 // Foto = avatar warga (aset avatar.js yang sama dengan game). Tanpa lambang negara: ini kartu desa fiksi.
 import * as THREE from 'three';
-import {warga, pose} from '../mabar/js/aset/avatar.js';
+import {warga, pose, KULIT, WARNA_RAMBUT, GAYA_RAMBUT} from '../mabar/js/aset/avatar.js';
+export {KULIT, WARNA_RAMBUT, GAYA_RAMBUT};
+
+// Pilihan avatar = sama persis dengan pembuat avatar di game mabar.
+export const ATASAN = ['kaos','kaos-willo','kemeja','jaket','batik','seragam'];
+export const BAWAHAN = {L: ['celana','pendek','sarung'], P: ['celana','rok','rok-panjang']};
+export const WARNA_BAJU = ['#1d1d22','#f4f4f4','#3a7bd5','#d0442f','#2a9a5a','#f2c14e','#8a5ad8','#e06a9a'];
+export const WARNA_BAWAH = ['#2f3a52','#1d1d22','#6a5a48','#3a5a3a','#7a2a2a','#c8b89a'];
+const hexOk = v => typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v);
+export function bersihAv(a) {
+  a = a && typeof a === 'object' ? a : {};
+  const jenis = a.jenis === 'P' ? 'P' : 'L';
+  const gaya = GAYA_RAMBUT[jenis].includes(a.rambut && a.rambut.gaya) ? a.rambut.gaya : GAYA_RAMBUT[jenis][0];
+  return {
+    jenis, kulit: KULIT.includes(a.kulit) ? a.kulit : KULIT[1],
+    rambut: {gaya, warna: hexOk(a.rambut && a.rambut.warna) ? a.rambut.warna : WARNA_RAMBUT[0]},
+    atasan: {jenis: ATASAN.includes(a.atasan && a.atasan.jenis) ? a.atasan.jenis : 'kaos', warna: hexOk(a.atasan && a.atasan.warna) ? a.atasan.warna : '#3a7bd5'},
+    bawahan: {jenis: BAWAHAN[jenis].includes(a.bawahan && a.bawahan.jenis) ? a.bawahan.jenis : 'celana', warna: hexOk(a.bawahan && a.bawahan.warna) ? a.bawahan.warna : '#2f3a52'},
+  };
+}
+// Avatar bawaan sebelum warga memilih (sama dengan game).
+export const avAcak = no => { const r = n => (no * 7919 + n * 104729) % 997; const jenis = r(1) % 2 ? 'P' : 'L';
+  return bersihAv({jenis, kulit: KULIT[r(2) % 6], rambut: {gaya: GAYA_RAMBUT[jenis][r(3) % GAYA_RAMBUT[jenis].length], warna: WARNA_RAMBUT[r(4) % 6]}, atasan: {jenis: ATASAN[r(5) % 5], warna: WARNA_BAJU[r(6) % 8]}, bawahan: {jenis: BAWAHAN[jenis][0], warna: WARNA_BAWAH[r(7) % 6]}}); };
 
 const JALAN = ['Melati','Mawar','Kenanga','Anggrek','Mangga','Rambutan','Durian','Salak','Jambu','Manggis'];
 export const alamat = n => { const rt = Math.ceil(n / 20); return {jalan: `Jl. ${JALAN[(rt - 1) % 10]} No. ${((n - 1) % 20) + 1}`, rtrw: `${String(rt).padStart(3, '0')}/${rt <= 5 ? '001' : '002'}`}; };
@@ -24,7 +46,7 @@ function foto(av) {
   cam.position.set(0, top - 1.05, 7.2); cam.lookAt(0, top - 1.25, 0);
   r.render(sc, cam);
   const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(r.domElement, 0, 0);
-  r.dispose(); return c;
+  r.dispose(); try { r.forceContextLoss(); } catch (e) {} return c;
 }
 
 function muatGambar(src) { return new Promise(ok => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; }); }
@@ -77,17 +99,22 @@ export async function gambarKTP(cv, o) {
     y += 46;
   }
   // foto
-  const fx = 700, fy = 136, fw = 262, fh = 332;
-  try { const f = foto(o.avatar); x.drawImage(f, fx, fy, fw, fh); }
-  catch (e) { x.fillStyle = '#d8372f'; x.fillRect(fx, fy, fw, fh); }
+  // foto warga = avatar pilihan warga (tanpa unggah foto asli)
+  const fx = 722, fy = 132, fw = 222, fh = 278;
+  try { x.drawImage(foto(bersihAv(o.avatar || avAcak(o.no))), fx, fy, fw, fh); } catch (e) { x.fillStyle = '#d8372f'; x.fillRect(fx, fy, fw, fh); }
   x.lineWidth = 4; x.strokeStyle = '#fff'; x.strokeRect(fx, fy, fw, fh);
+  // nama warga di bawah foto
+  x.textAlign = 'center'; x.fillStyle = '#111';
+  let nm = (o.nama || '').toUpperCase(), fs = 24;
+  do { x.font = `900 ${fs}px Montserrat, sans-serif`; fs--; } while (x.measureText(nm).width > fw + 30 && fs > 14);
+  x.fillText(nm, fx + fw / 2, 442);
   // tanggal & tanda tangan kepala desa
-  x.textAlign = 'center'; x.fillStyle = '#16301a';
-  x.font = '700 18px Montserrat, sans-serif'; x.fillText(`Dunia Kotak, ${dd}-${mm}-${t.getFullYear()}`, fx + fw / 2, 500);
-  x.font = '700 16px Montserrat, sans-serif'; x.fillText('Kepala Desa', fx + fw / 2, 524);
-  x.font = 'italic 900 34px Montserrat, sans-serif'; x.fillStyle = '#1d3d8a'; x.fillText('Raka', fx + fw / 2, 570);
-  x.strokeStyle = '#1d3d8a'; x.lineWidth = 3; x.beginPath(); x.moveTo(fx + 70, 578); x.quadraticCurveTo(fx + fw / 2, 592, fx + fw - 60, 572); x.stroke();
-  x.font = '700 15px Montserrat, sans-serif'; x.fillStyle = '#2b4a33'; x.fillText('RAKA', fx + fw / 2, 606);
+  x.fillStyle = '#16301a';
+  x.font = '700 17px Montserrat, sans-serif'; x.fillText(`Dunia Kotak, ${dd}-${mm}-${t.getFullYear()}`, fx + fw / 2, 486);
+  x.font = '700 15px Montserrat, sans-serif'; x.fillText('Kepala Desa', fx + fw / 2, 508);
+  x.font = 'italic 900 32px Montserrat, sans-serif'; x.fillStyle = '#1d3d8a'; x.fillText('Raka', fx + fw / 2, 552);
+  x.strokeStyle = '#1d3d8a'; x.lineWidth = 3; x.beginPath(); x.moveTo(fx + 50, 560); x.quadraticCurveTo(fx + fw / 2, 574, fx + fw - 40, 554); x.stroke();
+  x.font = '700 15px Montserrat, sans-serif'; x.fillStyle = '#2b4a33'; x.fillText('RAKA', fx + fw / 2, 592);
   // kaki kartu
   x.textAlign = 'left'; x.font = '800 18px Montserrat, sans-serif'; x.fillStyle = '#2f6b28';
   x.fillText('willoapparel.com/duniakotak  ·  @duniakotak.id', 40, 606);
