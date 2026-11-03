@@ -331,8 +331,18 @@ export class Warga extends DurableObject {
 // ---- Ruang dusun untuk game mabar (willoapparel.com/duniakotak/mabar) ----
 // Satu Durable Object per dusun. WebSocket: posisi warga + chat (Sekitar & Dusun) dengan 5 pengaman anak:
 // saringan kata kasar, tolak nomor HP/link/@akun, batas kirim, laporkan (3 pelapor = bisu 1 jam), riwayat 7 hari.
-const KATA_KASAR = ["anjing","anjir","anjrit","anying","bangsat","bajingan","babi","monyet","kampret","kontol","memek","ngentot","entot","jancok","jancuk","cuk","dancok","asu","bacot","tolol","goblok","goblog","bego","idiot","tai","taik","setan","sialan","brengsek","keparat","pantek","pepek","itil","lonte","pelacur","jablay","perek","bencong","banci","bodoh","dongo","kimak","pukimak","ngewe","coli","sange","bokep","porno","telanjang","jembut","silit","matamu","raimu","gathel","jamput","pecun","kafir","sundel","bajigur","budeg","cebong","kampang","tempik","turuk","tetek","toket","fuck","shit","bitch","dick","pussy","sex","seks"];
+const KATA_KASAR = ["anjing","anjir","anjrit","anjrot","anjim","anjay","anjeng","anying","anjg","ajg","njing","njir","bangsat","bangsad","bangset","bangsatt","bgst","bngst","bgsd","bajingan","bajingn","bjingan","bjgn","bajing","babi","monyet","kampret","kontol","kntl","kontl","memek","mmk","ngentot","ngntt","entot","ngewe","jancok","jancuk","jancik","jnck","janc","diancok","jiancok","dancok","dancuk","dancik","cok","cuk","jamput","asu","asw","asuw","bacot","tolol","tll","goblok","goblog","gblk","gblg","bego","idiot","tai","taik","tahi","setan","sialan","brengsek","bangke","bangkai","keparat","celeng","kirik","pantek","pepek","itil","lonte","pelacur","jablay","perek","bencong","banci","bodoh","dongo","kimak","pukimak","pukimai","cukimai","ngehe","coli","sange","bokep","porno","telanjang","jembut","jembud","silit","matamu","raimu","ndasmu","cangkem","cangkemmu","gathel","pecun","kafir","sundel","budeg","picek","cebong","kampang","tempik","turuk","tetek","toket","geblek","fuck","fck","shit","bitch","dick","pussy","sex","seks","wtf"];
+const KASAR = new Set(KATA_KASAR.map((k) => k.replace(/(.)\1+/g, "$1")));
+const AKHIRAN = ["mu","ne","e","lah","nya","an","i","k"];
 const LEET = { "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "@": "a", "$": "s", "!": "i" };
+function rapatKata(w) { return w.toLowerCase().replace(/[0134578@$!]/g, (c) => LEET[c] || c).replace(/[^a-z]/g, "").replace(/(.)\1+/g, "$1"); }
+function kataKasar(n) {
+  if (!n) return false;
+  if (KASAR.has(n)) return true;
+  for (const a of AKHIRAN) if (n.length > a.length + 2 && n.endsWith(a) && KASAR.has(n.slice(0, -a.length))) return true;
+  for (const k of KASAR) if (k.length >= 5 && n.includes(k)) return true;
+  return false;
+}
 function saringChat(teks) {
   let m = String(teks || "").replace(/[\u0000-\u001f<>]/g, " ").replace(/\s+/g, " ").trim().slice(0, 120);
   if (!m) return { galat: "Pesan kosong." };
@@ -340,11 +350,23 @@ function saringChat(teks) {
   if (/\d{8,}/.test(rapat) || /(\+62|\b08)\d{6,}/.test(rapat)) return { galat: "Demi keamanan, nomor dan link tidak boleh dikirim." };
   if (/(https?:|www\.|\.com|\.id\b|\.net|\.org|\.ly|wa\.me|t\.me|bit\.ly|s\.id|lynk|linktr)/i.test(m)) return { galat: "Demi keamanan, nomor dan link tidak boleh dikirim." };
   if (/@[a-z0-9._]{2,}/i.test(m)) return { galat: "Demi keamanan, nomor dan link tidak boleh dikirim." };
-  m = m.split(/(\s+)/).map((w) => {
-    if (/^\s+$/.test(w)) return w;
-    const n = w.toLowerCase().replace(/[0134578@$!]/g, (c) => LEET[c] || c).replace(/[^a-z]/g, "").replace(/(.)\1+/g, "$1");
-    return n && KATA_KASAR.some((k) => n === k.replace(/(.)\1+/g, "$1") || (k.length >= 5 && n.includes(k.replace(/(.)\1+/g, "$1")))) ? "★★★" : w;
-  }).join("");
+  // Kata dipecah huruf per huruf ("b a n g s a t", "c.o.k") digabung dulu supaya tetap tersaring.
+  const tok = m.split(/(\s+)/);
+  const kotor = new Array(tok.length).fill(false);
+  for (let i = 0; i < tok.length; i++) {
+    if (/^\s+$/.test(tok[i])) continue;
+    if (kataKasar(rapatKata(tok[i]))) { kotor[i] = true; continue; }
+    // gabungan potongan pendek berurutan (1-2 huruf atau dipisah titik)
+    let j = i, gab = "", idx = [];
+    while (j < tok.length) {
+      if (/^\s+$/.test(tok[j])) { j++; continue; }
+      const r = rapatKata(tok[j]);
+      if (r.length > 2 && !/[.\-_*]/.test(tok[j])) break;
+      gab += r; idx.push(j); j++;
+      if (idx.length >= 2 && kataKasar(gab.replace(/(.)\1+/g, "$1"))) { for (const x of idx) kotor[x] = true; break; }
+    }
+  }
+  m = tok.map((w, i) => (kotor[i] ? "★★★" : w)).join("").replace(/★★★(\s*★★★)+/g, "★★★");
   return { m };
 }
 export class Ruang extends DurableObject {
@@ -373,7 +395,7 @@ export class Ruang extends DurableObject {
     const p0 = { x: w.x || 0, z: w.z || 0, r: 0, a: 0 };
     s.serializeAttachment({ no: w.no, ig: w.ig, av: w.avatar || null, ...p0, kirim: 0 });
     const lain = this.semua().filter((x) => x.ws !== s && x.a.no).map(({ a }) => ({ no: a.no, ig: a.ig, av: a.av, ...(this.pos.get(a.no) || { x: a.x, z: a.z, r: a.r || 0, a: 0 }) }));
-    const riwayat = this.sql.exec("SELECT t, no, ig, ch, m FROM chat WHERE ch = 'dusun' ORDER BY id DESC LIMIT 50").toArray().reverse();
+    const riwayat = this.sql.exec("SELECT t, no, ig, ch, m FROM chat WHERE ch = 'dusun' ORDER BY id DESC LIMIT 50").toArray().reverse().map((r) => ({ ...r, m: saringChat(r.m).m || "★★★" }));
     s.send(JSON.stringify({ t: "halo", saya: w.no, warga: lain, chat: riwayat }));
     this.siar({ t: "masuk", w: { no: w.no, ig: w.ig, av: w.avatar || null, ...p0 } }, s);
     return new Response(null, { status: 101, webSocket: c });
