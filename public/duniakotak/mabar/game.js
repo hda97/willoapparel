@@ -447,23 +447,37 @@ async function simpanKucing(kc) {
 }
 
 // ---------- misi harian (koin dicatat server, sekali per misi per hari WIB) ----------
-const MISI = [
-  {id: 'jalan', ikon: '👣', judul: 'Jalan-jalan keliling dusun', target: 300, satuan: 'langkah', koin: 10},
-  {id: 'sapa', ikon: '👋', judul: 'Sapa warga: kirim pesan atau emote', target: 3, satuan: 'kali', koin: 10},
-  {id: 'raka', ikon: '⭐', judul: 'Temui Raka dan Oyen', target: 1, koin: 5, info: 'Mereka ada di depan rumah No. 1 (Warung Raka), ujung Jl. Melati.', antar: 1},
-  {id: 'tetangga', ikon: '🏡', judul: 'Mampir ke depan rumah tetangga', target: 3, satuan: 'rumah', koin: 10},
-  {id: 'foto', ikon: '📸', judul: 'Foto pakai Kamera HP, lalu simpan atau bagikan', target: 1, koin: 10},
-  {id: 'ambil', ikon: '✋', judul: 'Kumpulkan barang: kotak bercahaya di jalan', target: 5, satuan: 'barang', koin: 10},
-  {id: 'mancing', ikon: '🎣', judul: 'Mancing di sungai sampai dapat ikan', target: 2, satuan: 'ikan', koin: 10, info: 'Sungai ada di sisi timur dusun, dekat sawah.'},
-  {id: 'sungai', ikon: '🌊', judul: 'Jalan-jalan ke pinggir sungai', target: 1, koin: 5},
-  {id: 'lari', ikon: '🏃', judul: 'Olahraga: lari (dorong joystick penuh)', target: 150, satuan: 'langkah', koin: 5},
-  {id: 'kucing', ikon: '🐱', judul: 'Rawat kucing: beri makan kucing (tombol 🐟)', target: 1, koin: 5, info: 'Oyen ada di rumah Raka (No. 1), atau kucing di depan rumah warga.', antar: 1},
+// Kolam misi: tiap hari (WIB) diundi 6 misi + target berbeda. Urutan id & cara undi HARUS sama dengan MISI_KOLAM di worker.js.
+const KOLAM_MISI = [
+  {id: 'jalan', ikon: '👣', judul: 'Jalan-jalan keliling dusun', t: [200, 300, 500], satuan: 'langkah', koin: 10},
+  {id: 'sapa', ikon: '👋', judul: 'Sapa warga: kirim pesan atau emote', t: [2, 3, 5], satuan: 'kali', koin: 10},
+  {id: 'raka', ikon: '⭐', judul: 'Temui Raka dan Oyen', t: [1], koin: 5, info: 'Mereka ada di depan rumah No. 1 (Warung Raka), ujung Jl. Melati.', antar: 1},
+  {id: 'tetangga', ikon: '🏡', judul: 'Mampir ke depan rumah tetangga', t: [2, 3, 5], satuan: 'rumah', koin: 10},
+  {id: 'foto', ikon: '📸', judul: 'Foto pakai Kamera HP, lalu simpan atau bagikan', t: [1, 2], satuan: 'foto', koin: 10},
+  {id: 'ambil', ikon: '✋', judul: 'Kumpulkan barang: kotak bercahaya di jalan', t: [3, 5, 8], satuan: 'barang', koin: 10},
+  {id: 'mancing', ikon: '🎣', judul: 'Mancing di sungai sampai dapat ikan', t: [1, 2, 3], satuan: 'ikan', koin: 10, info: 'Sungai ada di sisi timur dusun, dekat sawah.'},
+  {id: 'sungai', ikon: '🌊', judul: 'Jalan-jalan ke pinggir sungai', t: [1], koin: 5},
+  {id: 'lari', ikon: '🏃', judul: 'Olahraga: lari (dorong joystick penuh)', t: [100, 150, 250], satuan: 'langkah', koin: 5},
+  {id: 'kucing', ikon: '🐱', judul: 'Rawat kucing: beri makan kucing (tombol 🐟)', t: [1], koin: 5, info: 'Oyen ada di rumah Raka (No. 1), atau kucing di depan rumah warga.', antar: 1},
+  {id: 'lompat', ikon: '🦘', judul: 'Lompat-lompat (tombol lompat)', t: [10, 20, 30], satuan: 'kali', koin: 5},
+  {id: 'fasum', ikon: '🏛️', judul: 'Kunjungi fasilitas umum yang berbeda', t: [2, 3, 4], satuan: 'tempat', koin: 10, info: 'Fasilitas umum ada di baris paling selatan dusun.'},
+  {id: 'stadion', ikon: '🏟️', judul: 'Nonton bola di Stadion Dunia Kotak', t: [1], koin: 5, info: 'Stadion ada di baris fasilitas umum, selatan dusun.'},
+  {id: 'npc', ikon: '💬', judul: 'Ngobrol dengan warga NPC yang berbeda', t: [2, 3, 4], satuan: 'NPC', koin: 10},
+  {id: 'supermarket', ikon: '🛒', judul: 'Belanja ke Supermarket Dunia Kotak', t: [1], koin: 5, info: 'Supermarket ada di baris fasilitas umum, selatan dusun.'},
+  {id: 'rs', ikon: '🏥', judul: 'Jenguk teman di Rumah Sakit', t: [1], koin: 5, info: 'Rumah Sakit ada di baris fasilitas umum, selatan dusun.'},
 ];
+function undiMisi(hari) {
+  let h = 2166136261; for (const c of 'dk' + hari) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
+  const r = () => { h = (h + 0x6D2B79F5) >>> 0; let t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const a = KOLAM_MISI.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a.slice(0, 6).map(m => ({...m, target: m.t[Math.floor(r() * m.t.length)]}));
+}
+let MISI = [];
 const BONUS_MISI = 20;
 const hariIni = () => new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
 const MS = {p: {}, selesai: new Set(), kirim: new Set(), t: ''};
 function muatMisi() {
-  MS.t = hariIni();
+  MS.t = hariIni(); MISI = undiMisi(MS.t);
   const l = bacaJ('dk_misi') || {}; MS.p = l.t === MS.t && l.no === S.saya?.no ? l.p || {} : {};
   MS.selesai = new Set(S.saya?.misi || []);
   tandaKoin();
@@ -477,7 +491,7 @@ function tandaKoin() {
 let simpanMisiT = 0;
 function misiMaju(id, n = 1, kunciUnik) {
   if (S.tamu || !S.saya) return;
-  if (MS.t !== hariIni()) { MS.t = hariIni(); MS.p = {}; MS.selesai = new Set(); }
+  if (MS.t !== hariIni()) { MS.t = hariIni(); MISI = undiMisi(MS.t); MS.p = {}; MS.selesai = new Set(); }
   const m = MISI.find(x => x.id === id); if (!m || MS.selesai.has(id)) return;
   if (kunciUnik != null) { const a = MS.p[id] = Array.isArray(MS.p[id]) ? MS.p[id] : []; if (a.includes(kunciUnik)) return; a.push(kunciUnik); }
   else MS.p[id] = (+MS.p[id] || 0) + n;
@@ -505,7 +519,7 @@ function tulisMisi() {
   }).join('') + `<div class="misi bonus ${MS.selesai.has('bonus') ? 'ok' : ''}"><span class="mi">🎁</span><div><b>Bonus: selesaikan semua misi</b><small>${MS.selesai.has('bonus') ? 'Sudah diambil' : `Otomatis masuk setelah ${MISI.length} misi selesai`}</small></div><span class="koin">+${BONUS_MISI} 🪙</span></div>`;
   const isiTas = Object.entries(tas).map(([n, v]) => `${v.ikon} ${n} ×${v.n}`).join(' · ');
   $('isiMisi').innerHTML += `<div class="misi"><span class="mi">🎒</span><div><b>Tasmu</b><small>${isiTas ? esc(isiTas) : 'Masih kosong. Ambil barang di jalan atau mancing di sungai.'}</small></div><span></span></div>`;
-  $('ringkasMisi').textContent = `Koinmu: 🪙 ${S.saya?.koin || 0} · Hari ini bisa dapat ${total} koin. Misi baru tiap pukul 00.00 WIB.`;
+  $('ringkasMisi').textContent = `Koinmu: 🪙 ${S.saya?.koin || 0} · Hari ini bisa dapat ${total} koin. Misi diundi ulang tiap pukul 00.00 WIB, besok beda lagi!`;
 }
 document.addEventListener('click', e => { const b = e.target.closest?.('[data-antar]'); if (!b) return; $('panelMisi').hidden = true; pergiKe(+b.dataset.antar); toast('Jalan otomatis ke rumah Raka… geser joystick untuk berhenti.', 3500); });
 function bukaMisi() {
@@ -522,6 +536,13 @@ function cekMisiDekat(me) {
     const dg = Math.hypot(me.position.x - L.gate.x, me.position.z - L.gate.z);
     if (dg < 2.6 * VS && n !== 1 && n !== S.saya.no && NM[n]) misiMaju('tetangga', 1, n);
     if (n === S.saya.no && rt.kc && Math.hypot(me.position.x - (L.c.x + L.dir * -3.9 * VS), me.position.z - (L.c.z + L.dir * 3.4 * VS)) < 2.4 * VS) misiMaju('kucing');
+  }
+  for (const f of fasumBangun) {
+    const x = me.position.x, z = me.position.z, k = f.rect, d = 3 * VS;
+    const dekat = k ? x > k[0] - d && x < k[1] + d && z > k[2] - d && z < k[3] + d : Math.hypot(x - f.position.x, z - f.position.z) < 6 * VS;
+    if (!dekat) continue;
+    misiMaju('fasum', 1, f.nama);
+    if (/Stadion/.test(f.nama)) misiMaju('stadion'); else if (/Supermarket/.test(f.nama)) misiMaju('supermarket'); else if (/Rumah Sakit/.test(f.nama)) misiMaju('rs');
   }
 }
 
@@ -1010,7 +1031,7 @@ const KEC = 15;
 // tinggi pijakan: dek jembatan lebih tinggi dari jalan
 const tanah = (x, z) => { if (I.tanah) return I.tanah(x, z); const d = I.dek; return d && x > d.x0 && x < d.x1 && d.z.some(([a, c]) => z > a && z < c) ? d.y : 0; };
 const lompat = {vy: 0, diTanah: true};
-function mulaiLompat() { if (!lompat.diTanah || !tokoh.saya) return; lompat.vy = gerak.lari && gerak.jalan ? 38 : 34; lompat.diTanah = false; bunyi('langkah'); if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify({t: 'e', e: 'lompat'})); }   // satuan dunia per detik (avatar setinggi pintu ≈ 4,1)
+function mulaiLompat() { if (!lompat.diTanah || !tokoh.saya) return; lompat.vy = gerak.lari && gerak.jalan ? 38 : 34; lompat.diTanah = false; bunyi('langkah'); misiMaju('lompat'); if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify({t: 'e', e: 'lompat'})); }   // satuan dunia per detik (avatar setinggi pintu ≈ 4,1)
 let tAkhir = performance.now(), tKav = 0, ph = 0, camY = 0;
 const bebas = (x, z) => {
   const b = I.batas; if (x < b.x0 || x > b.x1 || z < b.z0 || z > b.z1) return false;
@@ -1141,7 +1162,7 @@ let lawan = null;
 function ngobrol(n) {
   if (lawan && lawan !== n) lawan.ngobrol = false;
   lawan = n; n.ngobrol = true; gerak.tujuan = null;
-  if (!pernahSapa.has(n.id)) { pernahSapa.add(n.id); misiMaju('sapa'); }
+  if (!pernahSapa.has(n.id)) { pernahSapa.add(n.id); misiMaju('sapa'); } misiMaju('npc', 1, n.id);
   const j = jamWIB(), salam = j < 11 ? 'Selamat pagi' : j < 15 ? 'Selamat siang' : j < 18.5 ? 'Selamat sore' : 'Selamat malam';
   const nama = S.tamu ? 'Nak' : '@' + S.saya.ig;
   tampilNgobrol(n, `${salam}, ${nama}! Aku ${n.nama}, ${n.peran.toLowerCase()} di sini.`);
