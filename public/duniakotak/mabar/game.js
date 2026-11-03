@@ -20,8 +20,8 @@ const toast = (m, ms = 2600) => { const t = $('toast'); t.textContent = m; t.cla
 const api = async (p, data) => { const r = await fetch('/duniakotak/api/' + p, {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(data)}); const j = await r.json().catch(() => ({galat: 'Server tidak menjawab'})); if (!r.ok) throw new Error(j.galat || 'Gagal'); return j; };
 
 // ---------- alamat (rumus Kotak Wetan) ----------
-const JALAN = ['Melati','Mawar','Kenanga','Anggrek','Mangga','Rambutan','Durian','Salak','Jambu','Manggis'];
-const alamat = n => { const rt = Math.ceil(n / 20); return `Jl. ${JALAN[(rt - 1) % 10]} No. ${((n - 1) % 20) + 1} · RT ${String(rt).padStart(2, '0')}/RW ${rt <= 5 ? '01' : '02'}`; };
+const JALAN = ['Melati','Mawar','Kenanga','Anggrek','Mangga','Rambutan','Durian','Salak','Jambu','Manggis','Sawo','Nangka','Belimbing','Kelengkeng','Sirsak'];
+const alamat = n => { const rt = Math.ceil(n / 20); return `Jl. ${JALAN[(rt - 1) % JALAN.length]} No. ${((n - 1) % 20) + 1} · RT ${String(rt).padStart(2, '0')}/RW ${String(Math.ceil(rt / 5)).padStart(2, '0')}`; };
 
 // ---------- avatar: hanya pilihan yang ada di aset ----------
 const ATASAN = ['kaos','kaos-willo','kemeja','jaket','batik','seragam'];
@@ -196,13 +196,16 @@ let I = null, NM = {}, KC = {};   // KC: no → kucing warga {k:[{w,n}], d, a}
 const lotRuntime = new Map();   // no → {g, extra, rects}
 const dekor = new Map();        // rects statis tambahan
 
+// Kotak Wetan: 12 baris = kavling 1-200 (denah baku). Baris 13-15 = perluasan selatan untuk warga 201-260 (3 Nov 2026).
+// Kavling lama tidak bergeser relatif satu sama lain; angka ini harus sama untuk semua pemain (posisi online).
+const BARIS = 15;
 async function bangunDunia() {
   try { const w = await (await fetch('/duniakotak/api/warga')).json(); w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; }); } catch (e) {}
   if (S.saya && S.saya.kucing) KC[S.saya.no] = S.saya.kucing;
   if (S.saya && S.saya.ig) NM[S.saya.no] = '@' + S.saya.ig;
   await document.fonts.load('900 40px Montserrat').catch(() => {});
   reseed(301);
-  I = D.village(sc, {cols: 5, rows: 12, fasumB: [[2,4],[2,5],[1,6],[2,6],[3,6],[1,7],[2,7],[3,7]], fasumH: [[2,11,1]], sungai: {gap: 6, w: 14, sawah: 40}, hutan: 1, tipis: .02,
+  I = D.village(sc, {cols: 5, rows: BARIS, fasumB: [[2,4],[2,5],[1,6],[2,6],[3,6],[1,7],[2,7],[3,7]], fasumH: [[2,11,1]], sungai: {gap: 6, w: 14, sawah: 40}, hutan: 1, tipis: .02,
     raka: 'done', filled: 999, isFilled: n => !!NM[n], names: NM, lazy: true, sm: hemat ? 1024 : 2048, shadowR: 70});
   I.light.castShadow = !hemat;
   // kubus kembar yang banyak (jalan, hutan, sawah): dipecah per petak supaya yang di luar layar tidak digambar,
@@ -591,13 +594,13 @@ function buatPeta() {
   cvB.onpointermove = e => { const p = jr.get(e.pointerId); if (!p) return; const r = cvB.getBoundingClientRect(), s = cvB.width / r.width;
     if (jr.size === 1) { const dx = e.clientX - p.x, dy = e.clientY - p.y; geser += Math.abs(dx) + Math.abs(dy); peta.u -= dx * s / peta.z; peta.v -= dy * s / peta.z; }
     p.x = e.clientX; p.y = e.clientY;
-    if (jr.size === 2) { const [a, b2] = [...jr.values()]; peta.z = Math.max(.6, Math.min(6, z0 * Math.hypot(a.x - b2.x, a.y - b2.y) / (jarak0 || 1))); geser = 99; }
+    if (jr.size === 2) { const [a, b2] = [...jr.values()]; peta.z = Math.max(.25, Math.min(6, z0 * Math.hypot(a.x - b2.x, a.y - b2.y) / (jarak0 || 1))); geser = 99; }
     gambarPetaBesar(); };
   cvB.onpointerup = cvB.onpointercancel = e => { jr.delete(e.pointerId); if (e.type === 'pointerup' && geser < 8 && !jr.size) {
     const [u, v] = keGambar(e.clientX, e.clientY); let best = null, bd = 1e9;
     for (const [n, L] of Object.entries(I.lots)) { const [a, c2] = keP(L.c.x, L.c.z), d = Math.hypot(a - u, c2 - v); if (d < bd) { bd = d; best = +n; } } if (best && bd < 30) pilihRumah(best); } };
-  cvB.onwheel = e => { e.preventDefault(); peta.z = Math.max(.6, Math.min(6, peta.z * (e.deltaY < 0 ? 1.15 : .87))); gambarPetaBesar(); };
-  $('petaZoom').onclick = e => { const d = e.target.dataset.z; if (!d) return; if (d === 'aku') { [peta.u, peta.v] = keP(tokoh.saya.position.x, tokoh.saya.position.z); peta.z = 2.2; } else peta.z = Math.max(.6, Math.min(6, peta.z * (d === '+' ? 1.4 : .7))); gambarPetaBesar(); };
+  cvB.onwheel = e => { e.preventDefault(); peta.z = Math.max(.25, Math.min(6, peta.z * (e.deltaY < 0 ? 1.15 : .87))); gambarPetaBesar(); };
+  $('petaZoom').onclick = e => { const d = e.target.dataset.z; if (!d) return; if (d === 'aku') { [peta.u, peta.v] = keP(tokoh.saya.position.x, tokoh.saya.position.z); peta.z = 2.2; } else peta.z = Math.max(.25, Math.min(6, peta.z * (d === '+' ? 1.4 : .7))); gambarPetaBesar(); };
   $('cariPeta').onsubmit = e => { e.preventDefault(); const q = $('cariIsi').value.trim().toLowerCase().replace(/^@/, '').replace(/^no\.?\s*/, '');
     if (!q) return; let n = /^\d+$/.test(q) && I.lots[+q] ? +q : 0;
     if (!n) { const hit = Object.entries(NM).find(([, nm]) => nm.toLowerCase().replace(/^@/, '') === q) || Object.entries(NM).find(([, nm]) => nm.toLowerCase().includes(q)); if (hit) n = +hit[0]; }
