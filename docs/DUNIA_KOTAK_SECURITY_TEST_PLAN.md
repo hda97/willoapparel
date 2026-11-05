@@ -67,13 +67,41 @@ Do not merge until:
 
 Do not deploy this branch to production as a test. Production release is a separate, explicitly approved action.
 
-## Release blocker — unverified social-username registration
+## Identity architecture decision — native DUNIA KOTAK accounts
 
-The public `POST /duniakotak/api/daftar-ig` route currently creates a citizen account using a caller-supplied Instagram or TikTok username without proving control of that social account. Existing username collisions are rejected, so this is not a direct takeover of an already registered citizen; however, an attacker can reserve an unclaimed username belonging to another person and block its legitimate owner from registering under that identity.
+DUNIA KOTAK accounts are native game accounts. Google sign-in is not required and must not be introduced as the default or mandatory identity provider.
 
-Do not describe social usernames as verified identities. Do not merge this patch as a complete identity-security solution until one of these product-safe remediations is implemented and tested:
+- A citizen registers and signs in using a DUNIA KOTAK account identity and game-issued credentials.
+- The account's public in-game username is independent of Instagram, TikTok, and YouTube usernames.
+- Social handles are optional metadata only. They must never authenticate, reserve an account, prove ownership, or block another person from registering.
+- Social handles may be collected later with explicit consent for optional community/market analytics, and must be clearly separated from authentication data.
+- Existing citizens must retain their citizen number, plot, coins, inventory, avatar, missions, and progress. Existing legacy Google/social-linked accounts must continue to have a safe recovery path during any migration.
 
-1. Replace unauthenticated social-only registration with verified Google sign-in, then allow the user to add a social username to that authenticated account; or
-2. Implement a real ownership challenge for Instagram/TikTok and verify the challenge server-side before activating the username.
+### Required implementation before merge
 
-The current registration page calls this endpoint directly. Do not simply disable it without updating the registration UX and testing the full onboarding flow. Until remediation is complete, treat social-only registration as a known release blocker. Preserve existing citizen records and do not alter live game data while implementing the change.
+1. Design a native account identifier and authentication flow. Do not use a caller-supplied social handle as the account's unique key.
+2. Decide the native credential model (for example, generated citizen login code plus one-time recovery code, or a separately designed password/passkey flow). Never treat a public username as a secret.
+3. Add registration abuse controls (rate limits, duplicate prevention, and safe error responses).
+4. Keep optional social handles in separate fields and only attach them after explicit user action; do not claim they are verified unless a real ownership challenge is implemented.
+5. Update registration, login, account recovery, game client, and multiplayer session flows together.
+6. Design and test a backward-compatible migration for existing records. Do not bulk rewrite live records or change production schema as part of staging work.
+7. Run staging integration tests with synthetic citizens and prove that old citizens can still recover and enter their original plots.
+
+### Identity acceptance tests
+
+| Area | Test | Expected result |
+|---|---|---|
+| Registration | Register with a native game identity and no Google/social account | Citizen account is created |
+| Registration | Omit all social handles | Registration succeeds |
+| Registration | Supply another person's social username as optional text | It does not authenticate or reserve that social identity |
+| Registration | Reuse an existing in-game username | Safe duplicate error; no existing account is modified |
+| Login | Correct native credential | Only the matching citizen session is returned |
+| Login | Username alone or social handle alone | No session is issued |
+| Social metadata | Leave Instagram/TikTok/YouTube fields empty | Account remains fully playable |
+| Social metadata | Add/remove optional handle | Authentication identity and game progress remain unchanged |
+| Recovery | Use valid citizen recovery credential | Same citizen number and game progress are restored |
+| Migration | Existing legacy citizen signs in/recover | Same citizen number, plot, coins, inventory, avatar, missions, and progress remain intact |
+
+The existing public POST /duniakotak/api/daftar-ig flow does not satisfy this architecture: it creates accounts using unverified social handles as identity. The existing Google flow is also not the desired replacement. Do not simply switch off either path until a native registration/login flow and a backward-compatible legacy recovery path are implemented and tested.
+
+Until that work is complete, keep this PR Draft and do not merge or deploy it.
