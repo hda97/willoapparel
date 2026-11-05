@@ -1,0 +1,42 @@
+name: DUNIA KOTAK security checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "worker.js"
+      - "wrangler.jsonc"
+      - "public/duniakotak/index.html"
+      - "public/duniakotak/mabar/game.js"
+      - "tests/**"
+      - ".gitignore"
+      - ".github/workflows/security-check.yml"
+      - "docs/CLOUDFLARE_STAGING_SETUP.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  syntax-and-regression:
+    name: Syntax and source regression tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate isolated staging Wrangler config (dry run only)
+        run: npx --yes wrangler@4 deploy --dry-run --env staging
+      - name: Check Worker syntax
+        run: node --check worker.js
+      - name: Check multiplayer client syntax
+        run: node --check public/duniakotak/mabar/game.js
+      - name: Run security regression tests
+        run: node --test tests/security-patch.test.mjs
