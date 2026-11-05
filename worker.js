@@ -183,7 +183,7 @@ export class Warga extends DurableObject {
     const ip = request.headers.get("CF-Connecting-IP") || "";
     const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("dk-recovery-rate-v1:" + ip));
     const rateKey = [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join("");
-    const code = String(body.code || "").toUpperCase().replace(/[-\\s]/g, "").slice(0, 32);
+    const code = String(body.code || "").toUpperCase().replace(/[-\s]/g, "").slice(0, 32);
     const r = await stub.fetch("https://do/redeem-recovery", { method: "POST", body: JSON.stringify({ code, rateKey }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
@@ -215,7 +215,7 @@ export class Warga extends DurableObject {
     }
     if (aksi === "redeem-recovery") {
       const { code, rateKey } = await request.json();
-      const raw = String(code || "").toUpperCase().replace(/[-\\s]/g, "");
+      const raw = String(code || "").toUpperCase().replace(/[-\s]/g, "");
       const ipKey = String(rateKey || "").slice(0, 64) + ":recovery";
       const now = Date.now();
       const rate = this.sql.exec("SELECT window, attempts, blocked_until FROM login_rate WHERE k = ?", ipKey).toArray()[0];
