@@ -12,11 +12,24 @@ test("native registration creates a DUNIA KOTAK account without Google or social
   const end = worker.indexOf('if (aksi === "daftar-ig")', start);
   const handler = worker.slice(start, end);
   assert.ok(start >= 0 && end > start);
-  assert.match(handler, /rateId = "register:" \\+/);
-  assert.match(handler, /dk-register-rate-v1/);
+  assert.ok(handler.includes('const rateId = "register:" + String(rateKey || "");'));
+  assert.match(handler, /attempts >= 10/);
+  assert.match(handler, /60 \* 60 \* 1000/);
   assert.match(handler, /sub = "dk:" \+ crypto\.randomUUID\(\)/);
   assert.match(handler, /this\.tambah\(\{ sub, nama, kerja \}\)/);
   assert.doesNotMatch(handler, /ig:|tiktok:/);
+});
+
+test("native registration API hashes the client IP before forwarding to the Durable Object", () => {
+  const apiStart = worker.indexOf('async function apiWarga');
+  const start = worker.indexOf('if (aksi === "daftar-native")', apiStart);
+  const end = worker.indexOf('if (aksi === "daftar-ig")', start);
+  const route = worker.slice(start, end);
+  assert.ok(start > apiStart && end > start);
+  assert.match(route, /CF-Connecting-IP/);
+  assert.match(route, /dk-register-rate-v1/);
+  assert.match(route, /crypto\.subtle\.digest\("SHA-256"/);
+  assert.match(route, /daftar-native/);
 });
 
 test("native registration UI asks only for a game display name and optional occupation", () => {
