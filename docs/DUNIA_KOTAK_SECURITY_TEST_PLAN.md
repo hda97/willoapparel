@@ -28,8 +28,8 @@ Use synthetic accounts only. Record the HTTP status, response shape, and whether
 | Login | 10 failed attempts in the same IP + code buckets | 429; further attempts blocked for 15 minutes |
 | Login | Successful login after earlier failures | Does not clear the IP failure bucket |
 | Google | Existing Google subject | Existing citizen account is returned |
-| Google | Link legacy social account using its authenticated session key | Account is linked without creating a duplicate citizen |
-| Google | Attempt to claim an existing IG/TikTok username without the old session key | 409; existing account remains unchanged |
+| Legacy linking | Existing legacy account with a valid authenticated session key | Existing citizen remains accessible; no duplicate is created |
+| Social metadata | Supplying an unverified social handle cannot authenticate or reserve an account | Existing account remains unchanged |
 | Self recovery | Generate recovery code from an authenticated session | 16-character code displayed once; only hash is stored |
 | Self recovery | Redeem valid recovery code | New session key returned; previous key no longer authenticates |
 | Self recovery | Redeem the same code a second time | 401; no second session issued |
@@ -50,9 +50,9 @@ Use synthetic accounts only. Record the HTTP status, response shape, and whether
 
 ## Stage 3 — Browser/device checks
 
-- Desktop Chrome: Google sign-in, citizen-code login, recovery UI, generate/copy code.
-- Android Chrome: same flows, keyboard behavior, clipboard fallback.
-- iOS Safari: same flows, clipboard permission/fallback, return from Google sign-in.
+- Desktop Chrome: native registration without Google/social accounts, citizen-code login, recovery UI, generate/copy code; legacy Google login only for previously linked accounts.
+- Android Chrome: same native/legacy flows, keyboard behavior, clipboard fallback.
+- iOS Safari: same native/legacy flows, clipboard permission/fallback.
 - Multiplayer: connect, move, disconnect, reconnect, and verify presence updates.
 - Verify error messages do not expose session keys, recovery hashes, secrets, or stack traces.
 
@@ -86,6 +86,19 @@ DUNIA KOTAK accounts are native game accounts. Google sign-in is not required an
 5. Update registration, login, account recovery, game client, and multiplayer session flows together.
 6. Design and test a backward-compatible migration for existing records. Do not bulk rewrite live records or change production schema as part of staging work.
 7. Run staging integration tests with synthetic citizens and prove that old citizens can still recover and enter their original plots.
+
+### Native registration implementation checks
+
+| Area | Test | Expected result |
+|---|---|---|
+| Native registration | Submit a display name and optional occupation without Google or social handles | New native citizen account is created |
+| Native registration | Register from a mobile in-app browser | Registration succeeds without opening Google or a social platform |
+| Native registration | Submit a name shorter than 2 characters | 400; no citizen account is created |
+| Native registration | Exceed 10 registration attempts from one IP in one hour | Further attempts are rate-limited |
+| Native login | Use the six-character citizen code on another device | The same citizen session is returned |
+| Native recovery | Generate and redeem one-time recovery code | Same citizen number and progress restored; previous session invalidated |
+| Legacy compatibility | Existing Google-linked citizen signs in with its previously linked Google identity | Same citizen and plot returned; no new account is created |
+| Legacy compatibility | Existing social-only citizen uses its citizen code/recovery path | Same citizen and plot returned |
 
 ### Identity acceptance tests
 
