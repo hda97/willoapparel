@@ -66,3 +66,14 @@ Do not merge until:
 - a human reviewer approves the security changes.
 
 Do not deploy this branch to production as a test. Production release is a separate, explicitly approved action.
+
+## Release blocker — unverified social-username registration
+
+The public `POST /duniakotak/api/daftar-ig` route currently creates a citizen account using a caller-supplied Instagram or TikTok username without proving control of that social account. Existing username collisions are rejected, so this is not a direct takeover of an already registered citizen; however, an attacker can reserve an unclaimed username belonging to another person and block its legitimate owner from registering under that identity.
+
+Do not describe social usernames as verified identities. Do not merge this patch as a complete identity-security solution until one of these product-safe remediations is implemented and tested:
+
+1. Replace unauthenticated social-only registration with verified Google sign-in, then allow the user to add a social username to that authenticated account; or
+2. Implement a real ownership challenge for Instagram/TikTok and verify the challenge server-side before activating the username.
+
+The current registration page calls this endpoint directly. Do not simply disable it without updating the registration UX and testing the full onboarding flow. Until remediation is complete, treat social-only registration as a known release blocker. Preserve existing citizen records and do not alter live game data while implementing the change.
