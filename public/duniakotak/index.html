@@ -100,8 +100,7 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
       <button data-pintu="masuk" role="tab">Sudah warga? Masuk</button>
     </div>
     <div id="pMasuk" hidden>
-      <p class="kecil" style="text-align:left">Di Chrome/Safari: tulis username IG/TikTok (kalau dulu daftar pakai itu), lalu masuk dengan Google. Kavlingmu jadi terkunci aman di akun Google itu.</p>
-      <div class="isi"><div class="at" style="margin-top:8px"><input id="unMasuk" placeholder="username (kosongkan kalau daftar via Google)" maxlength="80" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email" enterkeyhint="done"></div></div>
+      <p class="kecil" style="text-align:left">Masuk dengan akun Google yang sudah terhubung. Jika akun lama belum terhubung, gunakan kode warga dari Kartu Warga atau hubungi @duniakotak.id untuk pemulihan manual.</p>
       <div id="gbtnMasuk" style="margin-top:10px;min-height:44px;display:flex;justify-content:center"></div>
       <p class="kecil" id="masukDalamApp" style="text-align:left;display:none">Masuk Google tidak bisa di dalam aplikasi Instagram/TikTok. <a id="bukaChrome2" href="https://willoapparel.com/duniakotak/?masuk=1" target="_blank" rel="noopener">Buka di Chrome</a>, atau pakai kode warga.</p>
       <p class="kecil" style="text-align:left"><b>Di dalam Instagram/TikTok?</b> Masuk dengan kode warga 6 karakter dari Kartu Warga. Username publik tidak bisa dipakai untuk mengambil alih akun.</p>
@@ -330,8 +329,8 @@ async function daftarGoogle(){
 }
 async function masuk(resp){cred=resp.credential;
   if(pintu==='masuk'){
-    const cari=un($('unMasuk').value);$('pesanLama').textContent=cari?'Mencari @'+cari+'…':'';
-    try{const o=await kirim('google',{credential:cred,kunci:kunci||'',cari});
+    $('pesanLama').textContent='';
+    try{const o=await kirim('google',{credential:cred,kunci:kunci||''});
       if(!o.perlu){$('pesanLama').textContent='';await tampilkan(o);return}
       bukaPintu('daftar');document.querySelector('[data-cara="google"]').click();$('daftarLagi').style.display='block';
       $('pesanDaftar').textContent='Akun Google ini belum jadi warga. Isi nama (dan pekerjaan), lalu tekan Daftar.';$('namaDaftar').focus()}
