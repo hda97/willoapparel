@@ -106,6 +106,9 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
       <p class="kecil" style="text-align:left"><b>Di dalam Instagram/TikTok?</b> Masuk dengan kode warga 6 karakter dari Kartu Warga. Username publik tidak bisa dipakai untuk mengambil alih akun.</p>
       <div class="baris" style="margin-top:8px"><input id="kodeLama" placeholder="kode warga 6 karakter" maxlength="6" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="go"><button id="ambilKode">Masuk</button></div>
       <div id="pesanLama" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
+      <div class="baris" style="margin-top:8px"><input id="kodePulih" placeholder="Kode pemulihan sekali pakai" maxlength="20" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false"><button id="pulihkanAkun">Pulihkan</button></div>
+      <div id="pesanPulih" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
+      <p class="kecil" style="text-align:left">Tidak punya kode? Ajukan pemulihan manual melalui DM <a href="https://www.instagram.com/duniakotak.id/" target="_blank" rel="noopener">@duniakotak.id</a>. Siapkan nomor warga dan bukti kepemilikan akun yang terhubung. Jangan pernah kirim password atau kode OTP Google.</p>
       <p class="kecil" style="text-align:left;margin-top:0">Akun yang sudah dikunci Google hanya bisa masuk pakai Google atau kode warga. Ada masalah? DM Instagram <a href="https://www.instagram.com/duniakotak.id/" target="_blank" rel="noopener">@duniakotak.id</a> dengan nomor kavlingmu.</p>
     </div>
     <div id="pDaftar">
@@ -168,6 +171,17 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
       <div id="pesanData" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
     </details>
     <canvas id="kanvas" width="600" height="600" aria-label="Rumah dan pekarangan kavlingmu"></canvas>
+    <div class="lama" style="margin-top:14px">
+      <b>Cadangan akses akun</b>
+      <p class="kecil" style="text-align:left">Buat kode pemulihan sekali pakai untuk masuk jika HP lama hilang. Kode lama akan diganti setiap kali kamu membuat kode baru. Simpan sendiri; server hanya menyimpan hash-nya.</p>
+      <button class="tombol kedua" id="buatKodePulih" style="width:100%">Buat kode pemulihan</button>
+      <div id="hasilKodePulih" style="display:none;margin-top:10px;text-align:center">
+        <b>Kode pemulihan — tampil sekali</b>
+        <div id="nilaiKodePulih" style="font:900 20px monospace;letter-spacing:2px;overflow-wrap:anywhere;padding:10px"></div>
+        <button class="tombol kedua" id="salinKodePulih" style="width:100%">Salin kode</button>
+        <p class="kecil">Pastikan kode sudah disimpan sebelum menutup halaman. Jangan bagikan kepada siapa pun.</p>
+      </div>
+    </div>
     <div id="kodeKotak" style="display:none;text-align:center;margin-top:12px">
       <small style="font-weight:700">Kode warga (untuk masuk game di HP lain)</small><br><span id="kodeWarga">––––––</span>
     </div>
@@ -289,6 +303,33 @@ $('ambilKode').onclick=async()=>{const kode=$('kodeLama').value.trim();$('pesanL
     await tampilkan({no:s.no,ig:s.akunIg,tiktok:s.tiktok,nama:s.nama,kunci:s.kunci})}
   catch(e){$('pesanLama').textContent=e.message}finally{$('ambilKode').disabled=false}};
 
+// Pulihkan akun memakai kode pemulihan sekali pakai.
+$('pulihkanAkun').onclick=async()=>{
+  const p=$('pesanPulih');p.textContent='';
+  try{
+    $('pulihkanAkun').disabled=true;
+    const r=await kirim('recovery-login',{code:$('kodePulih').value});
+    const s=await kirim('sesi',{kunci:r.kunci});
+    kunci=s.kunci;simpanLokal({no:s.no,ig:s.akunIg||s.ig,kunci:s.kunci});
+    $('kodePulih').value='';await tampilkan({...s,kunci:s.kunci});
+    p.textContent='Akun berhasil dipulihkan. Buat kode pemulihan baru dan simpan dengan aman.';
+  }catch(e){p.textContent=e.message}
+  finally{$('pulihkanAkun').disabled=false}
+};
+$('kodePulih').addEventListener('keydown',e=>{if(e.key==='Enter')$('pulihkanAkun').click()});
+// Buat atau ganti kode pemulihan hanya dari sesi yang sudah aktif.
+$('buatKodePulih').onclick=async()=>{
+  if(!kunci)return;
+  if(!confirm('Membuat kode baru akan menonaktifkan kode pemulihan sebelumnya. Lanjutkan?'))return;
+  const b=$('buatKodePulih'),out=$('hasilKodePulih');b.disabled=true;
+  try{
+    const r=await kirim('recovery-code',{kunci});
+    $('nilaiKodePulih').textContent=r.code;out.style.display='block';
+    $('salinKodePulih').onclick=async()=>{try{await navigator.clipboard.writeText(r.code);$('salinKodePulih').textContent='Tersalin';}catch(e){$('salinKodePulih').textContent='Salin manual kode di atas';}};
+    b.textContent='Buat kode baru';
+  }catch(e){alert(e.message)}
+  finally{b.disabled=false}
+};
 let pintu='daftar';
 function bukaPintu(p){pintu=p;document.querySelectorAll('.pintu button').forEach(x=>x.classList.toggle('aktif',x.dataset.pintu===p));
   $('pMasuk').hidden=p!=='masuk';$('pDaftar').hidden=p!=='daftar'}
