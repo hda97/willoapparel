@@ -549,13 +549,11 @@ async function apiWarga(request, env, url) {
     let beda = 0;
     for (let i = 0; i < a.length; i++) beda |= a[i] ^ b[i];
     if (beda !== 0) return json({ galat: "Tidak diizinkan" }, 401);
-    const wib = new Date(Date.now() + 7 * 3600e3);
-    const awalHari = Date.UTC(wib.getUTCFullYear(), wib.getUTCMonth(), wib.getUTCDate()) - 7 * 3600e3;
-    const row = stub; // Reuse the existing desa Durable Object; stats handler below is read-only.
-    const r = await row.fetch("https://do/statistik-founder", { method: "GET" });
+    if (!env.WARGA) return json({ galat: "Database warga belum aktif" }, 503);
+    const statsStub = env.WARGA.get(env.WARGA.idFromName("desa"));
+    const r = await statsStub.fetch("https://do/statistik-founder", { method: "GET" });
     if (!r.ok) return json({ galat: "Statistik belum tersedia" }, 503);
-    const data = await r.json();
-    return json({ ...data, hariWib: wib.toISOString().slice(0, 10), awalHariWib: awalHari });
+    return json(await r.json());
   }
   if (!env.WARGA) return json({ galat: "Database warga belum aktif" }, 503);
   const stub = env.WARGA.get(env.WARGA.idFromName("desa"));
