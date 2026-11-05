@@ -536,7 +536,7 @@ async function apiWarga(request, env, url) {
   if (aksi === "founder/stats") {
     if (request.method !== "GET") return json({ galat: "Metode salah" }, 405);
     const configured = typeof env.FOUNDER_STATS_TOKEN === "string" ? env.FOUNDER_STATS_TOKEN : "";
-    const supplied = (request.headers.get("authorization") || "").replace(/^Bearer\\s+/i, "");
+    const supplied = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
     if (configured.length < 32 || supplied.length < 32 || supplied.length > 512) {
       return json({ galat: "Tidak diizinkan" }, 401);
     }
