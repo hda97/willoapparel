@@ -7,6 +7,31 @@ const wargaPage = readFileSync(new URL("../public/duniakotak/index.html", import
 const multiplayer = readFileSync(new URL("../public/duniakotak/mabar/game.js", import.meta.url), "utf8");
 const gitignore = readFileSync(new URL("../.gitignore", import.meta.url), "utf8");
 
+test("native registration creates a DUNIA KOTAK account without Google or social identity", () => {
+  const start = worker.indexOf('if (aksi === "daftar-native")');
+  const end = worker.indexOf('if (aksi === "daftar-ig")', start);
+  const handler = worker.slice(start, end);
+  assert.ok(start >= 0 && end > start);
+  assert.match(handler, /register:\/\+/);
+  assert.match(handler, /dk-register-rate-v1/);
+  assert.match(handler, /sub = "dk:" \+ crypto\.randomUUID\(\)/);
+  assert.match(handler, /this\.tambah\(\{ sub, nama, kerja \}\)/);
+  assert.doesNotMatch(handler, /ig:|tiktok:/);
+});
+
+test("native registration UI asks only for a game display name and optional occupation", () => {
+  const start = wargaPage.indexOf('<div id="pDaftar">');
+  const end = wargaPage.indexOf('<div id="pesanDaftar"', start);
+  const form = wargaPage.slice(start, end);
+  assert.match(form, /Buat akun DUNIA KOTAK/);
+  assert.match(form, /Tidak perlu Google, Instagram, atau TikTok/);
+  assert.match(form, /id="namaDaftar"/);
+  assert.match(form, /id="kerjaDaftar"/);
+  assert.doesNotMatch(form, /id="igDaftar"|id="ttDaftar"|data-cara=/);
+  assert.match(wargaPage, /kirim\('daftar-native'/);
+  assert.doesNotMatch(wargaPage, /kirim\('daftar-ig'/);
+});
+
 test("founder recovery route requires configured secret and bearer authorization", () => {
   const route = worker.slice(worker.indexOf('if (aksi === "founder-recovery")'), worker.indexOf('if (aksi === "ws-ticket")', worker.indexOf('if (aksi === "founder-recovery")')));
   assert.ok(route.length > 0, "founder route must exist before ws-ticket route");
