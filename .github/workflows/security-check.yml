@@ -6,6 +6,7 @@ on:
       - "worker.js"
       - "public/duniakotak/mabar/game.js"
       - "public/duniakotak/index.html"
+      - "tests/**"
       - ".github/workflows/security-check.yml"
 
 permissions:
