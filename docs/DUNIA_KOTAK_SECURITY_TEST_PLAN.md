@@ -79,9 +79,9 @@ DUNIA KOTAK accounts are native game accounts. Google sign-in is not required an
 
 ### Required implementation before merge
 
-1. Design a native account identifier and authentication flow. Do not use a caller-supplied social handle as the account's unique key.
-2. Decide the native credential model (for example, generated citizen login code plus one-time recovery code, or a separately designed password/passkey flow). Never treat a public username as a secret.
-3. Add registration abuse controls (rate limits, duplicate prevention, and safe error responses).
+1. Native account creation now uses a random internal DUNIA KOTAK subject; no social handle or Google subject is used for new citizens.
+2. Native login uses the server-issued six-character citizen code; session keys remain device credentials and one-time recovery codes support account recovery. Never treat the public display name as a secret.
+3. Native registration now has an IP-hash-based rate limit and safe validation errors. Further staging work must verify abuse controls and duplicate citizen handling.
 4. Keep optional social handles in separate fields and only attach them after explicit user action; do not claim they are verified unless a real ownership challenge is implemented.
 5. Update registration, login, account recovery, game client, and multiplayer session flows together.
 6. Design and test a backward-compatible migration for existing records. Do not bulk rewrite live records or change production schema as part of staging work.
@@ -115,6 +115,6 @@ DUNIA KOTAK accounts are native game accounts. Google sign-in is not required an
 | Recovery | Use valid citizen recovery credential | Same citizen number and game progress are restored |
 | Migration | Existing legacy citizen signs in/recover | Same citizen number, plot, coins, inventory, avatar, missions, and progress remain intact |
 
-The existing public POST /duniakotak/api/daftar-ig flow does not satisfy this architecture: it creates accounts using unverified social handles as identity. The existing Google flow is also not the desired replacement. Do not simply switch off either path until a native registration/login flow and a backward-compatible legacy recovery path are implemented and tested.
+The public POST /duniakotak/api/daftar-ig route now returns 410 and cannot create accounts. Google authentication is restricted to previously linked legacy citizens (or an old social-linked citizen explicitly linked using an already-authenticated session key); it cannot create a new citizen. The new native registration route creates a DUNIA KOTAK account with a random internal subject, a server-issued session key, and the existing six-character citizen login code. Registration is rate-limited by a hashed client IP. These source changes still require CI, staging integration, browser/device testing, and a legacy-account compatibility review before merge.
 
 Until that work is complete, keep this PR Draft and do not merge or deploy it.
