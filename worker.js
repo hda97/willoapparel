@@ -124,6 +124,7 @@ export class Warga extends DurableObject {
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN bagi INTEGER DEFAULT 0"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN aktif INTEGER"); } catch (e) { /* kolom sudah ada */ }
     this.sql.exec("CREATE TABLE IF NOT EXISTS login_rate (k TEXT PRIMARY KEY, window INTEGER NOT NULL, attempts INTEGER NOT NULL, blocked_until INTEGER NOT NULL DEFAULT 0)");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS ws_ticket (hash TEXT PRIMARY KEY, no INTEGER NOT NULL, expires INTEGER NOT NULL)");
     // Koreksi salah ketik username: pindahkan ke username & kavling yang benar (sekali jalan, aman diulang).
     for (const [salah, benar] of Object.entries(KOREKSI_IG)) {
       const r = this.sql.exec("SELECT no FROM warga WHERE ig = ?", salah).toArray()[0];
@@ -172,6 +173,32 @@ export class Warga extends DurableObject {
   async fetch(request) {
     const u = new URL(request.url);
     const aksi = u.pathname.slice(1);
+    if (aksi === "ws-ticket") {
+      const { kunci } = await request.json();
+      const r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", String(kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Sesi warga tidak valid. Masuk kembali." }, { status: 401 });
+      const bytes = crypto.getRandomValues(new Uint8Array(32));
+      const ticket = btoa(String.fromCharCode(...bytes)).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/g, "");
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(ticket));
+      const hash = [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join("");
+      const now = Date.now();
+      this.sql.exec("DELETE FROM ws_ticket WHERE expires <= ?", now);
+      this.sql.exec("INSERT INTO ws_ticket (hash, no, expires) VALUES (?, ?, ?)", hash, r.no, now + 60000);
+      return Response.json({ ticket, expires: now + 60000 });
+    }
+    if (aksi === "consume-ws-ticket") {
+      const { ticket } = await request.json();
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(ticket || "")));
+      const hash = [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join("");
+      const row = this.sql.exec("SELECT no, expires FROM ws_ticket WHERE hash = ?", hash).toArray()[0];
+      if (!row) return Response.json({ galat: "Tiket koneksi tidak valid." }, { status: 401 });
+      this.sql.exec("DELETE FROM ws_ticket WHERE hash = ?", hash);
+      if (row.expires <= Date.now()) return Response.json({ galat: "Tiket koneksi kedaluwarsa." }, { status: 401 });
+      const r = this.sql.exec("SELECT * FROM warga WHERE no = ?", row.no).toArray()[0];
+      if (!r) return Response.json({ galat: "Akun warga tidak ditemukan." }, { status: 401 });
+      let avatar = null; try { avatar = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
+      return Response.json({ no: r.no, ig: this.nm(r), avatar });
+    }
     if (aksi === "daftar") {
       const { sub, email, nama } = await request.json();
       let r = this.sql.exec("SELECT * FROM warga WHERE sub = ?", sub).toArray()[0];
@@ -518,12 +545,13 @@ async function apiWarga(request, env, url) {
     return new Response((await stub.fetch("https://do/daftar-publik")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=30", "access-control-allow-origin": "*" } });
   }
   if (aksi === "ruang") {
-    // WebSocket game: ?dusun=wetan&kunci=...
+    // WebSocket game: URL hanya membawa tiket acak sekali pakai, bukan kunci akun.
     if (request.headers.get("Upgrade") !== "websocket") return json({ galat: "Butuh WebSocket" }, 426);
     if (!env.RUANG) return json({ galat: "Ruang belum aktif" }, 503);
-    const kunci = String(url.searchParams.get("kunci") || "").slice(0, 64);
-    const r = await stub.fetch("https://do/sesi", { method: "POST", body: JSON.stringify({ kunci }) });
-    if (!r.ok) return json({ galat: "Masuk dulu sebagai warga." }, 401);
+    const ticket = String(url.searchParams.get("ticket") || "").slice(0, 100);
+    if (!ticket) return json({ galat: "Tiket koneksi tidak ada." }, 401);
+    const r = await stub.fetch("https://do/consume-ws-ticket", { method: "POST", body: JSON.stringify({ ticket }) });
+    if (!r.ok) return json({ galat: "Tiket koneksi tidak valid atau kedaluwarsa." }, 401);
     const w = await r.json();
     const dusun = ["wetan", "kulon"].includes(url.searchParams.get("dusun")) ? url.searchParams.get("dusun") : "wetan";
     const h = new Headers(request.headers);
