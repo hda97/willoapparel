@@ -258,9 +258,9 @@ function bangunKulon() {
   bangunProksi();
 }
 async function bangunDunia() {
-  try { const w = await (await fetch('/duniakotak/api/warga')).json(); w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; }); } catch (e) {}
+  try { const w = await (await fetch('/duniakotak/api/warga')).json(); w.warga.forEach(x => { const namaPublik = x.ig || x.tiktok ? '@' + (x.ig || x.tiktok) : (x.label || ''); if (namaPublik) NM[x.no] = namaPublik; if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; }); } catch (e) {}
   if (S.saya && S.saya.kucing) KC[S.saya.no] = S.saya.kucing;
-  if (S.saya && S.saya.ig) NM[S.saya.no] = '@' + S.saya.ig;
+  if (S.saya) { const akunSosial = S.saya.akunIg || S.saya.tiktok; const namaPublik = akunSosial ? '@' + akunSosial : (S.saya.nama || S.saya.ig || ''); if (namaPublik) NM[S.saya.no] = namaPublik; }
   await document.fonts.load('900 40px Montserrat').catch(() => {});
   const minta = new URLSearchParams(location.search).get('dusun');
   DI = minta === 'kulon' || minta === 'wetan' ? minta : (S.saya ? dusunDari(S.saya.no) : 'wetan');
