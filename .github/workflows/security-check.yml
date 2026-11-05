@@ -25,3 +25,5 @@ jobs:
         run: node --check worker.js
       - name: Check multiplayer client syntax
         run: node --check public/duniakotak/mabar/game.js
+      - name: Run security regression tests
+        run: node --test tests/security-patch.test.mjs
