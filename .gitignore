@@ -1,0 +1,6 @@
+# Local development and Wrangler state (may contain local databases, sessions, and secrets)
+.wrangler/
+.dev.vars
+.env
+.env.*
+!.env.example
