@@ -311,37 +311,23 @@ export class Warga extends DurableObject {
     }
     // ---- Game mabar: login Google, ditautkan ke kavling lama (tidak membuat kavling dobel) ----
     if (aksi === "google") {
-      // Dipakai halaman daftar warga & game. Satu akun Google = satu kavling; kavling lama (daftar tanpa Google) ditautkan, tidak dobel.
-      const { sub, email, nama, kunci, ig, tiktok, namaWarga, kerja, cari } = await request.json();
-      const isi = { ig, tiktok, namaWarga, kerja };
-      const keluar = (r, baru) => {
+      // Legacy-only: Google may reopen an already-linked citizen, or link an old social account
+      // only when the caller proves possession of that citizen's existing session key.
+      const { sub, email, kunci } = await request.json();
+      const keluar = (r) => {
         if (!r.kunci) { r.kunci = crypto.randomUUID(); this.sql.exec("UPDATE warga SET kunci = ? WHERE no = ?", r.kunci, r.no); }
-        return Response.json({ ...this.publik(r), nm: this.nm(r), nama: r.nama || "", kunci: r.kunci, baru: !!baru });
-      };
-      const tanpaGoogle = (r) => /^(ig|tt):/.test(String(r.sub));
-      const tautkan = (r) => {
-        this.sql.exec("UPDATE warga SET sub = ?, email = ? WHERE no = ?", sub, email, r.no);
-        if (!namaWarga && !r.nama && nama) { this.sql.exec("UPDATE warga SET nama = ? WHERE no = ?", nama, r.no); r.nama = nama; }
-        this.lengkapi(r, isi);
-        return keluar(r);
+        return Response.json({ ...this.publik(r), nm: this.nm(r), nama: r.nama || "", kunci: r.kunci, baru: false });
       };
       let r = this.sql.exec("SELECT * FROM warga WHERE sub = ?", sub).toArray()[0];
-      if (r) { this.lengkapi(r, isi); return keluar(r); }
+      if (r) return keluar(r);
       if (kunci) {
         r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", kunci).toArray()[0];
-        if (r && tanpaGoogle(r)) return tautkan(r);
+        if (r && /^(ig|tt):/.test(String(r.sub))) {
+          this.sql.exec("UPDATE warga SET sub = ?, email = ? WHERE no = ?", sub, email, r.no);
+          return keluar(r);
+        }
       }
-      // Username sosial tidak boleh dipakai untuk mengambil alih/menautkan akun lama.
-      // Penautan akun lama hanya diizinkan lewat sesi kunci yang sudah terautentikasi di atas.
-      if (!ig && !tiktok && !namaWarga) return Response.json({ perlu: "ig" });
-      for (const [kol, v] of [["ig", ig], ["tiktok", tiktok]]) {
-        if (!v) continue;
-        r = this.sql.exec("SELECT * FROM warga WHERE " + kol + " = ?", v).toArray()[0];
-        if (r) return Response.json({ galat: "Username @" + v + " sudah digunakan akun warga lain. Masuk dari perangkat yang masih memiliki sesi akun lama, gunakan kode warga, atau ajukan pemulihan manual ke @duniakotak.id." }, { status: 409 });
-      }
-      const salah = this.bentrok(ig, tiktok, 0);
-      if (salah) return Response.json({ galat: salah }, { status: 409 });
-      return keluar(this.tambah({ sub, email, nama: namaWarga || nama, ig, tiktok, kerja }), true);
+      return Response.json({ galat: "Google hanya tersedia untuk akun warga lama yang sudah pernah ditautkan. Gunakan kode warga untuk akun DUNIA KOTAK." }, { status: 409 });
     }
     // ---- Game mabar: sesi pakai kunci (HP pendaftar) atau kode warga 6 huruf (HP lain) ----
     if (aksi === "sesi" || aksi === "kode" || aksi === "avatar" || aksi === "profil" || aksi === "kucing" || aksi === "misi" || aksi === "gol" || aksi === "bagikan") {
@@ -709,13 +695,7 @@ async function apiWarga(request, env, url) {
     const r = await stub.fetch("https://do/daftar-native", { method: "POST", body: JSON.stringify({ namaWarga: d.namaWarga, kerja: d.kerja, rateKey }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
-  if (aksi === "daftar-ig") {
-    const d = bacaAkun(body);
-    if (d.galat) return json({ galat: d.galat }, 400);
-    if (!d.ig && !d.tiktok) return json({ galat: "Isi username Instagram atau TikTok (salah satu cukup)." }, 400);
-    const r = await stub.fetch("https://do/daftar-ig", { method: "POST", body: JSON.stringify(d) });
-    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
-  }
+  if (aksi === "daftar-ig") return json({ galat: "Pendaftaran baru sekarang memakai akun native DUNIA KOTAK. Username media sosial tidak digunakan untuk membuat akun." }, 410);
   if (aksi === "profil") {
     const bersih = (v, n) => String(v || "").replace(/[\u0000-\u001f<>@]/g, " ").replace(/\s+/g, " ").trim().slice(0, n);
     const q = { kunci: String(body.kunci || "").slice(0, 64), nama: bersih(body.nama, 24), kerja: bersih(body.kerja, 22) };
@@ -772,21 +752,11 @@ async function apiWarga(request, env, url) {
   const g = await cekGoogle(env, body.credential);
   if (!g) return json({ galat: "Login Google tidak valid. Coba masuk lagi." }, 401);
   if (aksi === "google") {
-    const d = bacaAkun(body);
-    if (d.galat) return json({ galat: d.galat }, 400);
-    const cari = bersihUn(body.cari);
-    if (cari && !/^[a-z0-9._]{1,30}$/.test(cari)) return json({ galat: "Username hanya huruf, angka, titik, garis bawah (maks 30)." }, 400);
-    const r = await stub.fetch("https://do/google", { method: "POST", body: JSON.stringify({ ...g, ...d, cari, kunci: String(body.kunci || "").slice(0, 64) }) });
+    const r = await stub.fetch("https://do/google", { method: "POST", body: JSON.stringify({ ...g, kunci: String(body.kunci || "").slice(0, 64) }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
-  if (aksi === "daftar") {
-    return new Response((await stub.fetch("https://do/daftar", { method: "POST", body: JSON.stringify(g) })).body, { headers: { "content-type": "application/json", "cache-control": "no-store" } });
-  }
-  if (aksi === "ig") {
-    const ig = bersihUn(body.ig);
-    if (!/^[a-z0-9._]{1,30}$/.test(ig)) return json({ galat: "Username IG hanya huruf, angka, titik, garis bawah (maks 30)." }, 400);
-    const r = await stub.fetch("https://do/ig", { method: "POST", body: JSON.stringify({ sub: g.sub, ig }) });
-    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  if (aksi === "daftar" || aksi === "ig") {
+    return json({ galat: "Pendaftaran dan pengaitan username sosial tidak tersedia. Gunakan akun native DUNIA KOTAK." }, 410);
   }
   if (aksi === "usulan") {
     const usulan = String(body.usulan || "").replace(/[\u0000-\u001f<>]/g, " ").trim().slice(0, 140);
