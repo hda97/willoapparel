@@ -283,6 +283,24 @@ export class Warga extends DurableObject {
       const r = this.sql.exec("SELECT * FROM warga WHERE sub = ?", sub).toArray()[0];
       return Response.json({ ...this.publik(r), nama: r.nama || "" });
     }
+    if (aksi === "daftar-native") {
+      const { namaWarga, kerja, rateKey } = await request.json();
+      const nama = String(namaWarga || "").trim().slice(0, 24);
+      const rateId = "register:" + String(rateKey || "");
+      if (!/^[a-f0-9]{64}$/.test(String(rateKey || ""))) return Response.json({ galat: "Permintaan pendaftaran tidak valid." }, { status: 400 });
+      const now = Date.now();
+      const rate = this.sql.exec("SELECT window, attempts, blocked_until FROM login_rate WHERE k = ?", rateId).toArray()[0];
+      if (rate && rate.blocked_until > now) return Response.json({ galat: "Terlalu banyak pendaftaran dari jaringan ini. Coba lagi nanti." }, { status: 429 });
+      const reset = !rate || now - rate.window >= 60 * 60 * 1000;
+      const attempts = reset ? 1 : rate.attempts + 1;
+      const blocked = attempts >= 10 ? now + 60 * 60 * 1000 : 0;
+      this.sql.exec("INSERT INTO login_rate (k, window, attempts, blocked_until) VALUES (?, ?, ?, ?) ON CONFLICT(k) DO UPDATE SET window=excluded.window, attempts=excluded.attempts, blocked_until=excluded.blocked_until", rateId, reset ? now : rate.window, attempts, blocked);
+      if (blocked) return Response.json({ galat: "Batas pendaftaran tercapai. Coba lagi satu jam." }, { status: 429 });
+      if (nama.length < 2) return Response.json({ galat: "Nama warga minimal 2 karakter." }, { status: 400 });
+      const sub = "dk:" + crypto.randomUUID();
+      const r = this.tambah({ sub, nama, kerja });
+      return Response.json({ ...this.publik(r), nm: this.nm(r), nama: r.nama || "", kunci: r.kunci, baru: true }, { headers: { "cache-control": "no-store" } });
+    }
     if (aksi === "daftar-ig") {
       // Daftar tanpa Google (dipakai di dalam aplikasi IG/TikTok): cukup username IG atau TikTok.
       const { ig, tiktok, namaWarga, kerja } = await request.json();
@@ -679,6 +697,16 @@ async function apiWarga(request, env, url) {
   if (aksi === "ws-ticket") {
     const kunci = String(body.kunci || "").slice(0, 64);
     const r = await stub.fetch("https://do/ws-ticket", { method: "POST", body: JSON.stringify({ kunci }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "daftar-native") {
+    const d = bacaAkun({ nama: body.nama, kerja: body.kerja });
+    if (d.galat) return json({ galat: d.galat }, 400);
+    if (!d.namaWarga || d.namaWarga.length < 2) return json({ galat: "Tulis nama warga minimal 2 karakter." }, 400);
+    const ip = request.headers.get("CF-Connecting-IP") || "";
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("dk-register-rate-v1:" + ip));
+    const rateKey = [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join("");
+    const r = await stub.fetch("https://do/daftar-native", { method: "POST", body: JSON.stringify({ namaWarga: d.namaWarga, kerja: d.kerja, rateKey }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "daftar-ig") {
