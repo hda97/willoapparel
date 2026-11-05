@@ -570,6 +570,11 @@ async function apiWarga(request, env, url) {
   let body;
   try { body = await request.json(); } catch (e) { return json({ galat: "Data tidak terbaca" }, 400); }
   const bersihUsulan = (v) => String(v || "").replace(/[\u0000-\u001f<>]/g, " ").trim().slice(0, 140);
+  if (aksi === "ws-ticket") {
+    const kunci = String(body.kunci || "").slice(0, 64);
+    const r = await stub.fetch("https://do/ws-ticket", { method: "POST", body: JSON.stringify({ kunci }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
   if (aksi === "daftar-ig") {
     const d = bacaAkun(body);
     if (d.galat) return json({ galat: d.galat }, 400);
