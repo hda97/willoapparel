@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "worker.js"
+      - ".gitignore"
+      - ".wrangler/**"
       - "public/duniakotak/mabar/game.js"
       - "public/duniakotak/index.html"
       - "tests/**"
