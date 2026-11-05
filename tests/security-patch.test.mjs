@@ -32,6 +32,23 @@ test("native registration API hashes the client IP before forwarding to the Dura
   assert.match(route, /daftar-native/);
 });
 
+test("legacy social and Google signup routes cannot create new citizens", () => {
+  const apiStart = worker.indexOf("async function apiWarga");
+  const socialStart = worker.indexOf('if (aksi === "daftar-ig")', apiStart);
+  const socialEnd = worker.indexOf('if (aksi === "profil")', socialStart);
+  assert.match(worker.slice(socialStart, socialEnd), /410/);
+  const googleStart = worker.indexOf('if (aksi === "google")');
+  const googleEnd = worker.indexOf('// ---- Game mabar: sesi pakai kunci', googleStart);
+  const googleHandler = worker.slice(googleStart, googleEnd);
+  assert.match(googleHandler, /SELECT \* FROM warga WHERE sub = \?/);
+  assert.match(googleHandler, /SELECT \* FROM warga WHERE kunci = \?/);
+  assert.match(googleHandler, /Google hanya tersedia untuk akun warga lama/);
+  assert.doesNotMatch(googleHandler, /this\.tambah\(/);
+  const legacyStart = worker.indexOf('if (aksi === "daftar" || aksi === "ig")', apiStart);
+  assert.ok(legacyStart > apiStart);
+  assert.match(worker.slice(legacyStart, legacyStart + 250), /410/);
+});
+
 test("native registration UI asks only for a game display name and optional occupation", () => {
   const start = wargaPage.indexOf('<div id="pDaftar">');
   const end = wargaPage.indexOf('<div id="pesanDaftar"', start);
