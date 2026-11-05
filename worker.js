@@ -125,6 +125,7 @@ export class Warga extends DurableObject {
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN aktif INTEGER"); } catch (e) { /* kolom sudah ada */ }
     this.sql.exec("CREATE TABLE IF NOT EXISTS login_rate (k TEXT PRIMARY KEY, window INTEGER NOT NULL, attempts INTEGER NOT NULL, blocked_until INTEGER NOT NULL DEFAULT 0)");
     this.sql.exec("CREATE TABLE IF NOT EXISTS ws_ticket (hash TEXT PRIMARY KEY, no INTEGER NOT NULL, expires INTEGER NOT NULL)");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS recovery_code (hash TEXT PRIMARY KEY, no INTEGER NOT NULL, created INTEGER NOT NULL)");
     // Koreksi salah ketik username: pindahkan ke username & kavling yang benar (sekali jalan, aman diulang).
     for (const [salah, benar] of Object.entries(KOREKSI_IG)) {
       const r = this.sql.exec("SELECT no FROM warga WHERE ig = ?", salah).toArray()[0];
@@ -173,7 +174,20 @@ export class Warga extends DurableObject {
   async fetch(request) {
     const u = new URL(request.url);
     const aksi = u.pathname.slice(1);
-    if (aksi === "ws-ticket") {
+    if (aksi === "recovery-code") {
+    const kunci = String(body.kunci || "").slice(0, 64);
+    const r = await stub.fetch("https://do/issue-recovery", { method: "POST", body: JSON.stringify({ kunci }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "recovery-login") {
+    const ip = request.headers.get("CF-Connecting-IP") || "";
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("dk-recovery-rate-v1:" + ip));
+    const rateKey = [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join("");
+    const code = String(body.code || "").toUpperCase().replace(/[-\\s]/g, "").slice(0, 32);
+    const r = await stub.fetch("https://do/redeem-recovery", { method: "POST", body: JSON.stringify({ code, rateKey }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "ws-ticket") {
       const { kunci } = await request.json();
       const r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", String(kunci || "")).toArray()[0];
       if (!r) return Response.json({ galat: "Sesi warga tidak valid. Masuk kembali." }, { status: 401 });
@@ -185,6 +199,42 @@ export class Warga extends DurableObject {
       this.sql.exec("DELETE FROM ws_ticket WHERE expires <= ?", now);
       this.sql.exec("INSERT INTO ws_ticket (hash, no, expires) VALUES (?, ?, ?)", hash, r.no, now + 60000);
       return Response.json({ ticket, expires: now + 60000 });
+    }
+    if (aksi === "issue-recovery") {
+      const { kunci } = await request.json();
+      const r = this.sql.exec("SELECT no FROM warga WHERE kunci = ?", String(kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Sesi warga tidak valid. Masuk kembali." }, { status: 401 });
+      const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      const bytes = crypto.getRandomValues(new Uint8Array(16));
+      const code = [...bytes].map(x => alphabet[x & 31]).join("");
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("dk-recovery-v1:" + code));
+      const hash = [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join("");
+      this.sql.exec("DELETE FROM recovery_code WHERE no = ?", r.no);
+      this.sql.exec("INSERT INTO recovery_code (hash, no, created) VALUES (?, ?, ?)", hash, r.no, Date.now());
+      return Response.json({ code, no: r.no, message: "Simpan kode ini di tempat aman. Kode hanya ditampilkan sekali." }, { headers: { "cache-control": "no-store" } });
+    }
+    if (aksi === "redeem-recovery") {
+      const { code, rateKey } = await request.json();
+      const raw = String(code || "").toUpperCase().replace(/[-\\s]/g, "");
+      const ipKey = String(rateKey || "").slice(0, 64) + ":recovery";
+      const now = Date.now();
+      const rate = this.sql.exec("SELECT window, attempts, blocked_until FROM login_rate WHERE k = ?", ipKey).toArray()[0];
+      if (rate && rate.blocked_until > now) return Response.json({ galat: "Terlalu banyak percobaan. Coba lagi 15 menit." }, { status: 429 });
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("dk-recovery-v1:" + raw));
+      const hash = [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join("");
+      const row = /^[A-HJ-NP-Z2-9]{16}$/.test(raw) ? this.sql.exec("SELECT no FROM recovery_code WHERE hash = ?", hash).toArray()[0] : null;
+      if (!row) {
+        const reset = !rate || now - rate.window >= 15 * 60 * 1000;
+        const attempts = reset ? 1 : rate.attempts + 1;
+        const blocked = attempts >= 5 ? now + 15 * 60 * 1000 : 0;
+        this.sql.exec("INSERT INTO login_rate (k, window, attempts, blocked_until) VALUES (?, ?, ?, ?) ON CONFLICT(k) DO UPDATE SET window=excluded.window, attempts=excluded.attempts, blocked_until=excluded.blocked_until", ipKey, reset ? now : rate.window, attempts, blocked);
+        return Response.json({ galat: blocked ? "Terlalu banyak percobaan. Coba lagi 15 menit." : "Kode pemulihan tidak valid atau sudah digunakan." }, { status: blocked ? 429 : 401 });
+      }
+      this.sql.exec("DELETE FROM recovery_code WHERE hash = ?", hash);
+      const nextKey = crypto.randomUUID();
+      this.sql.exec("UPDATE warga SET kunci = ? WHERE no = ?", nextKey, row.no);
+      this.sql.exec("DELETE FROM ws_ticket WHERE no = ?", row.no);
+      return Response.json({ no: row.no, kunci: nextKey }, { headers: { "cache-control": "no-store" } });
     }
     if (aksi === "consume-ws-ticket") {
       const { ticket } = await request.json();
