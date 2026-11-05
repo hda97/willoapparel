@@ -123,6 +123,7 @@ export class Warga extends DurableObject {
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN kerja TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN bagi INTEGER DEFAULT 0"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN aktif INTEGER"); } catch (e) { /* kolom sudah ada */ }
+    this.sql.exec("CREATE TABLE IF NOT EXISTS login_rate (k TEXT PRIMARY KEY, window INTEGER NOT NULL, attempts INTEGER NOT NULL, blocked_until INTEGER NOT NULL DEFAULT 0)");
     // Koreksi salah ketik username: pindahkan ke username & kavling yang benar (sekali jalan, aman diulang).
     for (const [salah, benar] of Object.entries(KOREKSI_IG)) {
       const r = this.sql.exec("SELECT no FROM warga WHERE ig = ?", salah).toArray()[0];
@@ -225,23 +226,13 @@ export class Warga extends DurableObject {
         r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", kunci).toArray()[0];
         if (r && tanpaGoogle(r)) return tautkan(r);
       }
-      // Warga lama masuk dari HP lain: username IG/TikTok yang dulu dipakai daftar + akun Google ini.
-      if (cari) {
-        r = KOREKSI_IG[cari] ? this.sql.exec("SELECT * FROM warga WHERE ig = ?", KOREKSI_IG[cari]).toArray()[0] : null;
-        r = r || this.sql.exec("SELECT * FROM warga WHERE ig = ? OR tiktok = ? ORDER BY no LIMIT 1", cari, cari).toArray()[0];
-        if (!r) return Response.json({ galat: "@" + cari + " belum terdaftar. Daftar dulu di tab Daftar warga baru." }, { status: 404 });
-        if (!tanpaGoogle(r)) return Response.json({ galat: "@" + cari + " sudah tersambung ke akun Google lain. Masuk pakai akun Google itu, atau DM @duniakotak.id." }, { status: 409 });
-        return tautkan(r);
-      }
+      // Username sosial tidak boleh dipakai untuk mengambil alih/menautkan akun lama.
+      // Penautan akun lama hanya diizinkan lewat sesi kunci yang sudah terautentikasi di atas.
       if (!ig && !tiktok && !namaWarga) return Response.json({ perlu: "ig" });
       for (const [kol, v] of [["ig", ig], ["tiktok", tiktok]]) {
         if (!v) continue;
-        r = this.sql.exec(`SELECT * FROM warga WHERE ${kol} = ?`, v).toArray()[0];
-        if (!r) continue;
-        if (!tanpaGoogle(r)) return Response.json({ galat: "@" + v + " sudah ditautkan ke akun Google lain. DM @duniakotak.id kalau ini akunmu." }, { status: 409 });
-        const lain = this.bentrok(ig, tiktok, r.no);
-        if (lain) return Response.json({ galat: lain }, { status: 409 });
-        return tautkan(r);
+        r = this.sql.exec("SELECT * FROM warga WHERE " + kol + " = ?", v).toArray()[0];
+        if (r) return Response.json({ galat: "Username @" + v + " sudah digunakan akun warga lain. Masuk dari perangkat yang masih memiliki sesi akun lama, gunakan kode warga, atau ajukan pemulihan manual ke @duniakotak.id." }, { status: 409 });
       }
       const salah = this.bentrok(ig, tiktok, 0);
       if (salah) return Response.json({ galat: salah }, { status: 409 });
@@ -252,15 +243,19 @@ export class Warga extends DurableObject {
       const q = await request.json();
       let r;
       if (aksi === "kode") {
-        if (String(q.kode || "").length === 6) r = this.sql.exec("SELECT * FROM warga WHERE kode = ?", String(q.kode)).toArray()[0];
-        // Satu kolom: kode warga ATAU username IG/TikTok. Username hanya bisa dipakai untuk kavling yang belum dikunci Google.
-        if (!r && q.un) {
-          const un = q.un, r2 = (KOREKSI_IG[un] && this.sql.exec("SELECT * FROM warga WHERE ig = ?", KOREKSI_IG[un]).toArray()[0])
-            || this.sql.exec("SELECT * FROM warga WHERE ig = ? OR tiktok = ? ORDER BY no LIMIT 1", un, un).toArray()[0];
-          if (r2 && !/^(ig|tt):/.test(String(r2.sub))) return Response.json({ galat: "@" + un + " sudah dikunci dengan akun Google. Masuk pakai tombol Google (buka di Chrome), atau pakai kode warga." }, { status: 401 });
-          r = r2;
-          if (r && !r.kunci) { r.kunci = crypto.randomUUID(); this.sql.exec("UPDATE warga SET kunci = ? WHERE no = ?", r.kunci, r.no); }
+        // Kode warga saja; username sosial adalah identitas publik, bukan bukti kepemilikan akun.
+        const rateKey = String(q.rateKey || "").slice(0, 64);
+        if (rateKey) {
+          const now = Date.now();
+          const row = this.sql.exec("SELECT window, attempts, blocked_until FROM login_rate WHERE k = ?", rateKey).toArray()[0];
+          if (row && row.blocked_until > now) return Response.json({ galat: "Terlalu banyak percobaan. Coba lagi 15 menit." }, { status: 429 });
+          const windowStart = !row || now - row.window >= 15 * 60 * 1000 ? now : row.window;
+          const attempts = windowStart === now ? 1 : row.attempts + 1;
+          const blocked = attempts > 10 ? now + 15 * 60 * 1000 : 0;
+          this.sql.exec("INSERT INTO login_rate (k, window, attempts, blocked_until) VALUES (?, ?, ?, ?) ON CONFLICT(k) DO UPDATE SET window=excluded.window, attempts=excluded.attempts, blocked_until=excluded.blocked_until", rateKey, windowStart, attempts, blocked);
+          if (blocked) return Response.json({ galat: "Terlalu banyak percobaan. Coba lagi 15 menit." }, { status: 429 });
         }
+        if (/^[A-Z0-9]{6}$/.test(String(q.kode || ""))) r = this.sql.exec("SELECT * FROM warga WHERE kode = ?", String(q.kode)).toArray()[0];
       }
       else r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
       if (!r) return Response.json({ galat: aksi === "kode" ? (q.un ? "@" + q.un + " belum terdaftar, dan bukan kode warga. Cek lagi tulisannya, atau daftar dulu." : "Kode warga tidak ditemukan.") : "Data warga tidak ditemukan di HP ini." }, { status: 401 });
@@ -591,8 +586,11 @@ async function apiWarga(request, env, url) {
   if (aksi === "sesi" || aksi === "kode" || aksi === "avatar") {
     let q;
     if (aksi === "kode") {
-      const raw = String(body.kode || "").slice(0, 120), un = bersihUn(raw);
-      q = { kode: raw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6), un: /^[a-z0-9._]{1,30}$/.test(un) ? un : "" };
+      const raw = String(body.kode || "").trim().toUpperCase();
+      const ip = request.headers.get("CF-Connecting-IP") || "";
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("dk-rate-v1:" + ip));
+      const rateKey = [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join("");
+      q = { kode: /^[A-Z0-9]{6}$/.test(raw) ? raw : "", rateKey };
     } else q = { kunci: String(body.kunci || "").slice(0, 64) };
     if (aksi === "avatar") { try { q.avatar = JSON.stringify(body.avatar || {}).slice(0, 600); } catch (e) { return json({ galat: "Avatar tidak terbaca" }, 400); } }
     const r = await stub.fetch("https://do/" + aksi, { method: "POST", body: JSON.stringify(q) });
