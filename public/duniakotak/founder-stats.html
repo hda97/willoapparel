@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Dashboard Founder — DUNIA KOTAK</title>
+  <style>
+    :root{color-scheme:dark;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#101713;color:#f2f6f1}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#233a2c,#101713 55%);padding:28px 16px}
+    main{max-width:760px;margin:auto}.eyebrow{color:#9dc9a8;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+    h1{font-size:clamp(27px,6vw,42px);margin:8px 0}.muted{color:#b3c1b6;line-height:1.55}
+    .panel,.metric{background:#19251d;border:1px solid #344b39;border-radius:18px;padding:20px}
+    .panel{margin-top:24px}.row{display:flex;gap:10px;flex-wrap:wrap}
+    input{min-width:0;flex:1;background:#0e1711;color:white;border:1px solid #506653;border-radius:10px;padding:14px;font-size:16px}
+    button{background:#b6df9c;color:#142017;border:0;border-radius:10px;padding:13px 18px;font-weight:700;font-size:15px}
+    button:disabled{opacity:.6}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:18px}
+    .metric small{color:#afc0b2}.value{font-size:36px;font-weight:750;margin-top:8px;letter-spacing:-.04em}
+    .status{margin-top:16px;color:#b3c1b6;font-size:14px}.warn{color:#ffd18b}.foot{font-size:12px;color:#93a498;margin-top:24px}
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">DUNIA KOTAK · AREA FOUNDER</div>
+  <h1>Statistik warga</h1>
+  <p class="muted">Panel privat untuk melihat jumlah akun yang benar-benar terdaftar. Masukkan token founder. Token hanya digunakan selama halaman ini terbuka dan tidak disimpan.</p>
+  <section class="panel">
+    <label for="token">Founder access token</label>
+    <div class="row" style="margin-top:10px">
+      <input id="token" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Tempel token rahasia di sini">
+      <button id="load" type="button">Lihat statistik</button>
+    </div>
+    <div id="status" class="status" role="status">Menunggu autentikasi founder.</div>
+  </section>
+  <section class="grid" aria-live="polite">
+    <article class="metric"><small>Total akun terdaftar</small><div class="value" id="total">—</div></article>
+    <article class="metric"><small>Pendaftar hari ini (WIB)</small><div class="value" id="today">—</div></article>
+    <article class="metric"><small>Menunggu persetujuan</small><div class="value" id="pending">Belum tersedia</div></article>
+  </section>
+  <p class="foot">Dashboard ini tidak menampilkan nama, username, email, kode login, koin, atau data rumah warga. Statistik hanya-baca. Status persetujuan belum dihitung karena sistem persetujuan belum diterapkan.</p>
+</main>
+<script>
+(() => {
+  const token = document.getElementById("token");
+  const button = document.getElementById("load");
+  const status = document.getElementById("status");
+  const total = document.getElementById("total");
+  const today = document.getElementById("today");
+  const pending = document.getElementById("pending");
+  const fmt = n => new Intl.NumberFormat("id-ID").format(Number(n || 0));
+  async function load() {
+    const secret = token.value.trim();
+    if (secret.length < 32) { status.textContent = "Token tidak valid atau terlalu pendek."; return; }
+    button.disabled = true; status.textContent = "Mengambil statistik…";
+    try {
+      const response = await fetch("/duniakotak/api/founder/stats", {
+        method: "GET", headers: { "Authorization": "Bearer " + secret }, cache: "no-store"
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.galat || "Akses ditolak.");
+      total.textContent = fmt(data.totalPendaftar);
+      today.textContent = fmt(data.pendaftarHariIni);
+      pending.textContent = data.persetujuan && data.persetujuan.tersedia ? fmt(data.persetujuan.menunggu) : "Belum tersedia";
+      status.textContent = "Data diperbarui: " + new Date(data.diperbarui).toLocaleString("id-ID", {timeZone:"Asia/Jakarta"});
+    } catch (error) {
+      status.textContent = error.message || "Gagal memuat statistik.";
+    } finally { button.disabled = false; }
+  }
+  button.addEventListener("click", load);
+  token.addEventListener("keydown", event => { if (event.key === "Enter") load(); });
+})();
+</script>
+</body>
+</html>
