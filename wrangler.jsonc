@@ -28,6 +28,31 @@
   // Client ID Google (publik, bukan rahasia) untuk tombol "Lanjut dengan Google" di /duniakotak/.
   // Kosong = tombol belum aktif. Isi dengan Client ID dari Google Cloud Console.
   "vars": { "GOOGLE_CLIENT_ID": "1082997408742-9515voc2uflmub1q0bfr9o0htuvof5dn.apps.googleusercontent.com" },
+  "env": {
+    "staging": {
+      "name": "willoapparel-staging",
+      "workers_dev": true,
+      "routes": [],
+      "vars": {
+        "GOOGLE_CLIENT_ID": "1082997408742-9515voc2uflmub1q0bfr9o0htuvof5dn.apps.googleusercontent.com",
+        "ENVIRONMENT": "staging"
+      },
+      "durable_objects": {
+        "bindings": [
+          { "name": "PENGUNJUNG", "class_name": "Pengunjung" },
+          { "name": "WARGA", "class_name": "Warga" },
+          { "name": "RUANG", "class_name": "Ruang" }
+        ]
+      },
+      "assets": {
+        "directory": "./public",
+        "binding": "ASSETS",
+        "html_handling": "none",
+        "not_found_handling": "404-page",
+        "run_worker_first": true
+      }
+    }
+  },
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
