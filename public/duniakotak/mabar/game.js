@@ -258,9 +258,21 @@ function bangunKulon() {
   bangunProksi();
 }
 async function bangunDunia() {
-  try { const w = await (await fetch('/duniakotak/api/warga')).json(); w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; }); } catch (e) {}
+  try {
+    const w = await (await fetch('/duniakotak/api/warga', {cache: 'no-store'})).json();
+    (Array.isArray(w.warga) ? w.warga : []).forEach(x => {
+      // Setiap akun terdaftar mendapat rumah, termasuk akun native tanpa username sosial.
+      const nama = x.ig || x.tiktok;
+      NM[x.no] = nama ? '@' + nama : (x.label || `Warga No. ${x.no}`);
+      if (x.kc) KC[x.no] = x.kc;
+      if (x.ak) AK[x.no] = x.ak;
+    });
+  } catch (e) { console.warn('Daftar rumah warga belum termuat:', e); }
   if (S.saya && S.saya.kucing) KC[S.saya.no] = S.saya.kucing;
-  if (S.saya && S.saya.ig) NM[S.saya.no] = '@' + S.saya.ig;
+  if (S.saya && !NM[S.saya.no]) {
+    const namaSosial = S.saya.akunIg || S.saya.tiktok;
+    NM[S.saya.no] = namaSosial ? '@' + namaSosial : (S.saya.nama || `Warga No. ${S.saya.no}`);
+  }
   await document.fonts.load('900 40px Montserrat').catch(() => {});
   const minta = new URLSearchParams(location.search).get('dusun');
   DI = minta === 'kulon' || minta === 'wetan' ? minta : (S.saya ? dusunDari(S.saya.no) : 'wetan');
