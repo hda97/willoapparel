@@ -321,24 +321,24 @@ export class Warga extends DurableObject {
       let r;
       if (aksi === "kode") {
         // Kode warga saja; username sosial adalah identitas publik, bukan bukti kepemilikan akun.
-        const rateKey = String(q.rateKey || "").slice(0, 64);
-        let rateRow = null;
-        if (rateKey) {
-          rateRow = this.sql.exec("SELECT window, attempts, blocked_until FROM login_rate WHERE k = ?", rateKey).toArray()[0];
-          if (rateRow && rateRow.blocked_until > Date.now()) return Response.json({ galat: "Terlalu banyak percobaan gagal. Coba lagi 15 menit." }, { status: 429 });
-        }
-        if (/^[A-Z0-9]{6}$/.test(String(q.kode || ""))) r = this.sql.exec("SELECT * FROM warga WHERE kode = ?", String(q.kode)).toArray()[0];
-        // Hanya kegagalan yang dihitung. Login berhasil tidak menghabiskan kuota warga satu jaringan.
-        if (rateKey) {
+        const ipRateKey = String(q.rateKey || "").slice(0, 64);
+        const kodeRaw = String(q.kode || "");
+        const kodeDigest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("dk-code-rate-v1:" + kodeRaw));
+        const kodeRateKey = "kode:" + [...new Uint8Array(kodeDigest)].map(x => x.toString(16).padStart(2, "0")).join("");
+        const rateKeys = [ipRateKey ? "ip:" + ipRateKey : "", kodeRateKey].filter(Boolean);
+        const rateRows = rateKeys.map(k => this.sql.exec("SELECT window, attempts, blocked_until FROM login_rate WHERE k = ?", k).toArray()[0] || null);
+        if (rateRows.some(x => x && x.blocked_until > Date.now())) return Response.json({ galat: "Terlalu banyak percobaan gagal. Coba lagi 15 menit." }, { status: 429 });
+        if (/^[A-Z0-9]{6}$/.test(kodeRaw)) r = this.sql.exec("SELECT * FROM warga WHERE kode = ?", kodeRaw).toArray()[0];
+        // Kegagalan dihitung pada dua lapis: alamat jaringan dan kode yang dicoba.
+        // Login berhasil tidak menghapus riwayat IP, agar tidak bisa dipakai untuk mereset batas percobaan.
+        if (!r) {
           const now = Date.now();
-          if (r) {
-            this.sql.exec("DELETE FROM login_rate WHERE k = ?", rateKey);
-          } else {
-            const resetWindow = !rateRow || now - rateRow.window >= 15 * 60 * 1000;
-            const windowStart = resetWindow ? now : rateRow.window;
-            const attempts = resetWindow ? 1 : rateRow.attempts + 1;
+          for (let i = 0; i < rateKeys.length; i++) {
+            const old = rateRows[i], reset = !old || now - old.window >= 15 * 60 * 1000;
+            const windowStart = reset ? now : old.window;
+            const attempts = reset ? 1 : old.attempts + 1;
             const blocked = attempts >= 10 ? now + 15 * 60 * 1000 : 0;
-            this.sql.exec("INSERT INTO login_rate (k, window, attempts, blocked_until) VALUES (?, ?, ?, ?) ON CONFLICT(k) DO UPDATE SET window=excluded.window, attempts=excluded.attempts, blocked_until=excluded.blocked_until", rateKey, windowStart, attempts, blocked);
+            this.sql.exec("INSERT INTO login_rate (k, window, attempts, blocked_until) VALUES (?, ?, ?, ?) ON CONFLICT(k) DO UPDATE SET window=excluded.window, attempts=excluded.attempts, blocked_until=excluded.blocked_until", rateKeys[i], windowStart, attempts, blocked);
             if (blocked) return Response.json({ galat: "Terlalu banyak percobaan gagal. Coba lagi 15 menit." }, { status: 429 });
           }
         }
