@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 const worker = readFileSync(new URL("../worker.js", import.meta.url), "utf8");
 const wargaPage = readFileSync(new URL("../public/duniakotak/index.html", import.meta.url), "utf8");
 const multiplayer = readFileSync(new URL("../public/duniakotak/mabar/game.js", import.meta.url), "utf8");
+const gitignore = readFileSync(new URL("../.gitignore", import.meta.url), "utf8");
 
 test("founder recovery route requires configured secret and bearer authorization", () => {
   const route = worker.slice(worker.indexOf('if (aksi === "founder-recovery")'), worker.indexOf('if (aksi === "ws-ticket")'));
@@ -74,4 +75,11 @@ test("recovery schema includes expiry, source and a founder audit trail", () => 
   assert.match(worker, /ALTER TABLE recovery_code ADD COLUMN source/);
   assert.match(worker, /CREATE TABLE IF NOT EXISTS founder_recovery_audit/);
   assert.match(worker, /ALTER TABLE founder_recovery_audit ADD COLUMN redeemed/);
+});
+
+
+test("local Wrangler state and environment secrets are excluded from Git", () => {
+  assert.match(gitignore, /^\\.wrangler\\//m);
+  assert.match(gitignore, /^\\.dev\\.vars$/m);
+  assert.match(gitignore, /^\\.env\\.\\*$/m);
 });
