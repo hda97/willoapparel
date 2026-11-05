@@ -1,24 +1,32 @@
-name: Security patch syntax checks
+name: DUNIA KOTAK security checks
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
     paths:
       - "worker.js"
-      - ".gitignore"
-      - ".wrangler/**"
-      - "public/duniakotak/mabar/game.js"
-      - "public/duniakotak/index.html"
-      - "tests/**"
       - "wrangler.jsonc"
-      - "docs/CLOUDFLARE_STAGING_SETUP.md"
+      - "public/duniakotak/index.html"
+      - "public/duniakotak/mabar/game.js"
+      - "tests/**"
+      - ".gitignore"
       - ".github/workflows/security-check.yml"
+      - "docs/CLOUDFLARE_STAGING_SETUP.md"
+      - "docs/DUNIA_KOTAK_SECURITY_TEST_PLAN.md"
+      - "docs/DUNIA_KOTAK_FOUNDER_ACCOUNT_RECOVERY.md"
 
 permissions:
   contents: read
 
+concurrency:
+  group: security-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
-  syntax:
+  syntax-and-regression:
+    name: Syntax and source regression tests
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
