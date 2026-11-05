@@ -108,7 +108,7 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
       <div id="pesanLama" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
       <div class="baris" style="margin-top:8px"><input id="kodePulih" placeholder="Kode pemulihan sekali pakai" maxlength="32" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false"><button id="pulihkanAkun">Pulihkan</button></div>
       <div id="pesanPulih" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
-      <p class="kecil" style="text-align:left">Tidak punya kode? Ajukan pemulihan manual melalui DM <a href="https://www.instagram.com/duniakotak.id/" target="_blank" rel="noopener">@duniakotak.id</a>. Siapkan nomor warga dan bukti kepemilikan akun yang terhubung. Jangan pernah kirim password atau kode OTP Google.</p>
+      <p class="kecil" style="text-align:left">Tidak punya kode? Ajukan pemulihan manual melalui DM <a href="https://www.instagram.com/duniakotak.id/" target="_blank" rel="noopener">@duniakotak.id</a>. Siapkan nomor warga dan informasi yang membantu memverifikasi akunmu. Jangan pernah kirim kode login atau kode pemulihan kepada siapa pun.</p>
       <p class="kecil" style="text-align:left;margin-top:0">Akun lama yang pernah ditautkan ke Google tetap bisa masuk dengan Google. Warga lain gunakan kode warga atau pemulihan akun. Ada masalah? Hubungi <a href="https://www.instagram.com/duniakotak.id/" target="_blank" rel="noopener">@duniakotak.id</a> dengan nomor kavlingmu.</p>
     </div>
     <div id="pDaftar">
@@ -132,7 +132,7 @@ label.cek input{width:22px;height:22px;accent-color:#4f9a3a}
     <div id="pesanDaftar" style="font-weight:700;font-size:14px;margin-top:10px;min-height:20px"></div>
     </div>
     <a class="tombol kedua" href="/duniakotak/mabar/?tamu=1">Lihat-lihat desa dulu (tamu)</a>
-    <p class="kecil">Gratis. Satu akun = satu kavling. Pakai username milikmu sendiri ya.<br>
+    <p class="kecil">Gratis. Satu akun warga = satu kavling. Nama warga dipakai di dalam game; media sosial tidak diperlukan.<br>
       Dengan mendaftar kamu setuju dengan <a href="/duniakotak/privasi.html">kebijakan privasi</a>.</p>
   </section>
 
@@ -359,7 +359,7 @@ $('kirimUsul').onclick=async()=>{
   $('pesanUsul').textContent='';
   if(kunci){try{$('kirimUsul').disabled=true;const o=await kirim('usulan',{kunci,usulan:$('usul').value});saya=o;$('pesanUsul').textContent='✓ Usulanmu tercatat. Pantau video berikutnya!'}
     catch(e){$('pesanUsul').textContent=e.message}finally{$('kirimUsul').disabled=false}return}
-  if(!cred){$('pesanUsul').textContent='Masuk dengan Google dulu (tombol di atas).';$('ajak').scrollIntoView({behavior:'smooth'});return}
+  if(!cred){$('pesanUsul').textContent='Masuk dengan kode warga atau akun lama yang sudah terhubung.';$('ajak').scrollIntoView({behavior:'smooth'});return}
   try{$('kirimUsul').disabled=true;const o=await kirim('usulan',{credential:cred,usulan:$('usul').value});saya=o;$('pesanUsul').textContent='✓ Usulanmu tercatat. Pantau video berikutnya!'}
   catch(e){$('pesanUsul').textContent=e.message}finally{$('kirimUsul').disabled=false}
 };
