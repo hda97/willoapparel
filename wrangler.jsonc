@@ -1,22 +1,17 @@
 {
-  // Situs statis willoapparel.com. Semua file situs ada di folder public/.
+  // Situs utama produksi. Jangan deploy top-level config untuk pengujian staging.
   "name": "willoapparel",
   "compatibility_date": "2026-09-01",
   "main": "worker.js",
-  // Domain utama & www lewat Worker ini (DNS A @ dan www 192.0.2.1, proxied).
-  // Ditulis di sini supaya setiap deploy otomatis memasang ulang route-nya.
   "routes": [
     { "pattern": "willoapparel.com/*", "zone_name": "willoapparel.com" },
     { "pattern": "*.willoapparel.com/*", "zone_name": "willoapparel.com" }
   ],
   "workers_dev": true,
-  // Penghitung pengunjung asli untuk pop up halaman produk (lihat class Pengunjung di worker.js).
   "durable_objects": {
     "bindings": [
       { "name": "PENGUNJUNG", "class_name": "Pengunjung" },
-      // Daftar warga Dunia Kotak (lihat class Warga di worker.js).
       { "name": "WARGA", "class_name": "Warga" },
-      // Ruang online game mabar per dusun (lihat class Ruang di worker.js).
       { "name": "RUANG", "class_name": "Ruang" }
     ]
   },
@@ -25,17 +20,44 @@
     { "tag": "v2", "new_sqlite_classes": ["Warga"] },
     { "tag": "v3", "new_sqlite_classes": ["Ruang"] }
   ],
-  // Client ID Google (publik, bukan rahasia) untuk tombol "Lanjut dengan Google" di /duniakotak/.
-  // Kosong = tombol belum aktif. Isi dengan Client ID dari Google Cloud Console.
-  "vars": { "GOOGLE_CLIENT_ID": "1082997408742-9515voc2uflmub1q0bfr9o0htuvof5dn.apps.googleusercontent.com" },
+  "vars": {
+    "GOOGLE_CLIENT_ID": "1082997408742-9515voc2uflmub1q0bfr9o0htuvof5dn.apps.googleusercontent.com",
+    "ENVIRONMENT": "production"
+  },
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
-    // Sajikan /halaman.html apa adanya (tanpa redirect), sesuai URL di sitemap.
     "html_handling": "none",
-    // Alamat yang tidak ada → public/404.html (bukan layar putih kosong).
     "not_found_handling": "404-page",
-    // Jalankan worker.js dulu supaya www bisa dialihkan.
     "run_worker_first": true
+  },
+  "env": {
+    "staging": {
+      // Wrangler akan membuat Worker terpisah: willoapparel-staging.
+      // Tidak ada custom route/domain produksi di environment ini.
+      "name": "willoapparel-staging",
+      "workers_dev": true,
+      "routes": [],
+      "vars": {
+        "GOOGLE_CLIENT_ID": "1082997408742-9515voc2uflmub1q0bfr9o0htuvof5dn.apps.googleusercontent.com",
+        "ENVIRONMENT": "staging"
+      },
+      // Binding DO didefinisikan ulang agar storage staging terisolasi
+      // dari Worker produksi. Jangan tambahkan script_name produksi.
+      "durable_objects": {
+        "bindings": [
+          { "name": "PENGUNJUNG", "class_name": "Pengunjung" },
+          { "name": "WARGA", "class_name": "Warga" },
+          { "name": "RUANG", "class_name": "Ruang" }
+        ]
+      },
+      "assets": {
+        "directory": "./public",
+        "binding": "ASSETS",
+        "html_handling": "none",
+        "not_found_handling": "404-page",
+        "run_worker_first": true
+      }
+    }
   }
 }

@@ -123,6 +123,13 @@ export class Warga extends DurableObject {
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN kerja TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN bagi INTEGER DEFAULT 0"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN aktif INTEGER"); } catch (e) { /* kolom sudah ada */ }
+    this.sql.exec("CREATE TABLE IF NOT EXISTS login_rate (k TEXT PRIMARY KEY, window INTEGER NOT NULL, attempts INTEGER NOT NULL, blocked_until INTEGER NOT NULL DEFAULT 0)");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS ws_ticket (hash TEXT PRIMARY KEY, no INTEGER NOT NULL, expires INTEGER NOT NULL)");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS recovery_code (hash TEXT PRIMARY KEY, no INTEGER NOT NULL, created INTEGER NOT NULL)");
+    try { this.sql.exec("ALTER TABLE recovery_code ADD COLUMN expires INTEGER"); } catch (e) { /* kolom sudah ada */ }
+    try { this.sql.exec("ALTER TABLE recovery_code ADD COLUMN source TEXT NOT NULL DEFAULT 'self'"); } catch (e) { /* kolom sudah ada */ }
+    this.sql.exec("CREATE TABLE IF NOT EXISTS founder_recovery_audit (id INTEGER PRIMARY KEY AUTOINCREMENT, no INTEGER NOT NULL, action TEXT NOT NULL, created INTEGER NOT NULL, expires INTEGER, redeemed INTEGER, note TEXT NOT NULL, ip_hash TEXT)");
+    try { this.sql.exec("ALTER TABLE founder_recovery_audit ADD COLUMN redeemed INTEGER"); } catch (e) { /* kolom sudah ada */ }
     // Koreksi salah ketik username: pindahkan ke username & kavling yang benar (sekali jalan, aman diulang).
     for (const [salah, benar] of Object.entries(KOREKSI_IG)) {
       const r = this.sql.exec("SELECT no FROM warga WHERE ig = ?", salah).toArray()[0];
@@ -171,6 +178,87 @@ export class Warga extends DurableObject {
   async fetch(request) {
     const u = new URL(request.url);
     const aksi = u.pathname.slice(1);
+  if (aksi === "ws-ticket") {
+      const { kunci } = await request.json();
+      const r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", String(kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Sesi warga tidak valid. Masuk kembali." }, { status: 401 });
+      const bytes = crypto.getRandomValues(new Uint8Array(32));
+      const ticket = btoa(String.fromCharCode(...bytes)).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/g, "");
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(ticket));
+      const hash = [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join("");
+      const now = Date.now();
+      this.sql.exec("DELETE FROM ws_ticket WHERE expires <= ?", now);
+      this.sql.exec("INSERT INTO ws_ticket (hash, no, expires) VALUES (?, ?, ?)", hash, r.no, now + 60000);
+      return Response.json({ ticket, expires: now + 60000 });
+    }
+    if (aksi === "issue-recovery") {
+      const { kunci } = await request.json();
+      const r = this.sql.exec("SELECT no FROM warga WHERE kunci = ?", String(kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Sesi warga tidak valid. Masuk kembali." }, { status: 401 });
+      const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      const bytes = crypto.getRandomValues(new Uint8Array(16));
+      const code = [...bytes].map(x => alphabet[x & 31]).join("");
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("dk-recovery-v1:" + code));
+      const hash = [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join("");
+      this.sql.exec("DELETE FROM recovery_code WHERE no = ?", r.no);
+      this.sql.exec("INSERT INTO recovery_code (hash, no, created, expires, source) VALUES (?, ?, ?, NULL, 'self')", hash, r.no, Date.now());
+      return Response.json({ code, no: r.no, message: "Simpan kode ini di tempat aman. Kode hanya ditampilkan sekali." }, { headers: { "cache-control": "no-store" } });
+    }
+    if (aksi === "issue-founder-recovery") {
+      const { no, verification, ipHash } = await request.json();
+      const target = Number(no);
+      if (!Number.isSafeInteger(target) || target < 1) return Response.json({ galat: "Nomor warga tidak valid." }, { status: 400 });
+      const warga = this.sql.exec("SELECT no FROM warga WHERE no = ?", target).toArray()[0];
+      if (!warga) return Response.json({ galat: "Akun warga tidak ditemukan." }, { status: 404 });
+      const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      const bytes = crypto.getRandomValues(new Uint8Array(24));
+      const code = [...bytes].map(x => alphabet[x & 31]).join("");
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("dk-recovery-v1:" + code));
+      const hash = [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join("");
+      const now = Date.now(), expires = now + 10 * 60 * 1000;
+      this.sql.exec("DELETE FROM recovery_code WHERE no = ?", target);
+      this.sql.exec("INSERT INTO recovery_code (hash, no, created, expires, source) VALUES (?, ?, ?, ?, 'founder')", hash, target, now, expires);
+      this.sql.exec("INSERT INTO founder_recovery_audit (no, action, created, expires, note, ip_hash) VALUES (?, 'issued', ?, ?, ?, ?)", target, now, expires, String(verification || "").slice(0, 500), String(ipHash || "").slice(0, 64));
+      return Response.json({ no: target, code, expires, message: "Kode founder hanya berlaku 10 menit dan hanya dapat digunakan sekali." }, { headers: { "cache-control": "no-store" } });
+    }
+    if (aksi === "redeem-recovery") {
+      const { code, rateKey } = await request.json();
+      const raw = String(code || "").toUpperCase().replace(/[-\s]/g, "");
+      const ipKey = String(rateKey || "").slice(0, 64) + ":recovery";
+      const now = Date.now();
+      const rate = this.sql.exec("SELECT window, attempts, blocked_until FROM login_rate WHERE k = ?", ipKey).toArray()[0];
+      if (rate && rate.blocked_until > now) return Response.json({ galat: "Terlalu banyak percobaan. Coba lagi 15 menit." }, { status: 429 });
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("dk-recovery-v1:" + raw));
+      const hash = [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join("");
+      const row = /^[A-HJ-NP-Z2-9]{16}(?:[A-HJ-NP-Z2-9]{8})?$/.test(raw) ? this.sql.exec("SELECT no, expires, source FROM recovery_code WHERE hash = ?", hash).toArray()[0] : null;
+      if (!row || (row.expires !== null && row.expires !== undefined && row.expires <= now)) {
+        if (row) this.sql.exec("DELETE FROM recovery_code WHERE hash = ?", hash);
+        const reset = !rate || now - rate.window >= 15 * 60 * 1000;
+        const attempts = reset ? 1 : rate.attempts + 1;
+        const blocked = attempts >= 5 ? now + 15 * 60 * 1000 : 0;
+        this.sql.exec("INSERT INTO login_rate (k, window, attempts, blocked_until) VALUES (?, ?, ?, ?) ON CONFLICT(k) DO UPDATE SET window=excluded.window, attempts=excluded.attempts, blocked_until=excluded.blocked_until", ipKey, reset ? now : rate.window, attempts, blocked);
+        return Response.json({ galat: blocked ? "Terlalu banyak percobaan. Coba lagi 15 menit." : "Kode pemulihan tidak valid atau sudah digunakan." }, { status: blocked ? 429 : 401 });
+      }
+      this.sql.exec("DELETE FROM recovery_code WHERE hash = ?", hash);
+      if (row.source === "founder") this.sql.exec("UPDATE founder_recovery_audit SET redeemed = ? WHERE id = (SELECT id FROM founder_recovery_audit WHERE no = ? AND action = 'issued' AND redeemed IS NULL ORDER BY id DESC LIMIT 1)", now, row.no);
+      const nextKey = crypto.randomUUID();
+      this.sql.exec("UPDATE warga SET kunci = ? WHERE no = ?", nextKey, row.no);
+      this.sql.exec("DELETE FROM ws_ticket WHERE no = ?", row.no);
+      return Response.json({ no: row.no, kunci: nextKey }, { headers: { "cache-control": "no-store" } });
+    }
+    if (aksi === "consume-ws-ticket") {
+      const { ticket } = await request.json();
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(ticket || "")));
+      const hash = [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join("");
+      const row = this.sql.exec("SELECT no, expires FROM ws_ticket WHERE hash = ?", hash).toArray()[0];
+      if (!row) return Response.json({ galat: "Tiket koneksi tidak valid." }, { status: 401 });
+      this.sql.exec("DELETE FROM ws_ticket WHERE hash = ?", hash);
+      if (row.expires <= Date.now()) return Response.json({ galat: "Tiket koneksi kedaluwarsa." }, { status: 401 });
+      const r = this.sql.exec("SELECT * FROM warga WHERE no = ?", row.no).toArray()[0];
+      if (!r) return Response.json({ galat: "Akun warga tidak ditemukan." }, { status: 401 });
+      let avatar = null; try { avatar = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
+      return Response.json({ no: r.no, ig: this.nm(r), avatar });
+    }
     if (aksi === "daftar") {
       const { sub, email, nama } = await request.json();
       let r = this.sql.exec("SELECT * FROM warga WHERE sub = ?", sub).toArray()[0];
@@ -225,23 +313,13 @@ export class Warga extends DurableObject {
         r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", kunci).toArray()[0];
         if (r && tanpaGoogle(r)) return tautkan(r);
       }
-      // Warga lama masuk dari HP lain: username IG/TikTok yang dulu dipakai daftar + akun Google ini.
-      if (cari) {
-        r = KOREKSI_IG[cari] ? this.sql.exec("SELECT * FROM warga WHERE ig = ?", KOREKSI_IG[cari]).toArray()[0] : null;
-        r = r || this.sql.exec("SELECT * FROM warga WHERE ig = ? OR tiktok = ? ORDER BY no LIMIT 1", cari, cari).toArray()[0];
-        if (!r) return Response.json({ galat: "@" + cari + " belum terdaftar. Daftar dulu di tab Daftar warga baru." }, { status: 404 });
-        if (!tanpaGoogle(r)) return Response.json({ galat: "@" + cari + " sudah tersambung ke akun Google lain. Masuk pakai akun Google itu, atau DM @duniakotak.id." }, { status: 409 });
-        return tautkan(r);
-      }
+      // Username sosial tidak boleh dipakai untuk mengambil alih/menautkan akun lama.
+      // Penautan akun lama hanya diizinkan lewat sesi kunci yang sudah terautentikasi di atas.
       if (!ig && !tiktok && !namaWarga) return Response.json({ perlu: "ig" });
       for (const [kol, v] of [["ig", ig], ["tiktok", tiktok]]) {
         if (!v) continue;
-        r = this.sql.exec(`SELECT * FROM warga WHERE ${kol} = ?`, v).toArray()[0];
-        if (!r) continue;
-        if (!tanpaGoogle(r)) return Response.json({ galat: "@" + v + " sudah ditautkan ke akun Google lain. DM @duniakotak.id kalau ini akunmu." }, { status: 409 });
-        const lain = this.bentrok(ig, tiktok, r.no);
-        if (lain) return Response.json({ galat: lain }, { status: 409 });
-        return tautkan(r);
+        r = this.sql.exec("SELECT * FROM warga WHERE " + kol + " = ?", v).toArray()[0];
+        if (r) return Response.json({ galat: "Username @" + v + " sudah digunakan akun warga lain. Masuk dari perangkat yang masih memiliki sesi akun lama, gunakan kode warga, atau ajukan pemulihan manual ke @duniakotak.id." }, { status: 409 });
       }
       const salah = this.bentrok(ig, tiktok, 0);
       if (salah) return Response.json({ galat: salah }, { status: 409 });
@@ -252,18 +330,31 @@ export class Warga extends DurableObject {
       const q = await request.json();
       let r;
       if (aksi === "kode") {
-        if (String(q.kode || "").length === 6) r = this.sql.exec("SELECT * FROM warga WHERE kode = ?", String(q.kode)).toArray()[0];
-        // Satu kolom: kode warga ATAU username IG/TikTok. Username hanya bisa dipakai untuk kavling yang belum dikunci Google.
-        if (!r && q.un) {
-          const un = q.un, r2 = (KOREKSI_IG[un] && this.sql.exec("SELECT * FROM warga WHERE ig = ?", KOREKSI_IG[un]).toArray()[0])
-            || this.sql.exec("SELECT * FROM warga WHERE ig = ? OR tiktok = ? ORDER BY no LIMIT 1", un, un).toArray()[0];
-          if (r2 && !/^(ig|tt):/.test(String(r2.sub))) return Response.json({ galat: "@" + un + " sudah dikunci dengan akun Google. Masuk pakai tombol Google (buka di Chrome), atau pakai kode warga." }, { status: 401 });
-          r = r2;
-          if (r && !r.kunci) { r.kunci = crypto.randomUUID(); this.sql.exec("UPDATE warga SET kunci = ? WHERE no = ?", r.kunci, r.no); }
+        // Kode warga saja; username sosial adalah identitas publik, bukan bukti kepemilikan akun.
+        const ipRateKey = String(q.rateKey || "").slice(0, 64);
+        const kodeRaw = String(q.kode || "");
+        const kodeDigest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("dk-code-rate-v1:" + kodeRaw));
+        const kodeRateKey = "kode:" + [...new Uint8Array(kodeDigest)].map(x => x.toString(16).padStart(2, "0")).join("");
+        const rateKeys = [ipRateKey ? "ip:" + ipRateKey : "", kodeRateKey].filter(Boolean);
+        const rateRows = rateKeys.map(k => this.sql.exec("SELECT window, attempts, blocked_until FROM login_rate WHERE k = ?", k).toArray()[0] || null);
+        if (rateRows.some(x => x && x.blocked_until > Date.now())) return Response.json({ galat: "Terlalu banyak percobaan gagal. Coba lagi 15 menit." }, { status: 429 });
+        if (/^[A-Z0-9]{6}$/.test(kodeRaw)) r = this.sql.exec("SELECT * FROM warga WHERE kode = ?", kodeRaw).toArray()[0];
+        // Kegagalan dihitung pada dua lapis: alamat jaringan dan kode yang dicoba.
+        // Login berhasil tidak menghapus riwayat IP, agar tidak bisa dipakai untuk mereset batas percobaan.
+        if (!r) {
+          const now = Date.now();
+          for (let i = 0; i < rateKeys.length; i++) {
+            const old = rateRows[i], reset = !old || now - old.window >= 15 * 60 * 1000;
+            const windowStart = reset ? now : old.window;
+            const attempts = reset ? 1 : old.attempts + 1;
+            const blocked = attempts >= 10 ? now + 15 * 60 * 1000 : 0;
+            this.sql.exec("INSERT INTO login_rate (k, window, attempts, blocked_until) VALUES (?, ?, ?, ?) ON CONFLICT(k) DO UPDATE SET window=excluded.window, attempts=excluded.attempts, blocked_until=excluded.blocked_until", rateKeys[i], windowStart, attempts, blocked);
+            if (blocked) return Response.json({ galat: "Terlalu banyak percobaan gagal. Coba lagi 15 menit." }, { status: 429 });
+          }
         }
       }
       else r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
-      if (!r) return Response.json({ galat: aksi === "kode" ? (q.un ? "@" + q.un + " belum terdaftar, dan bukan kode warga. Cek lagi tulisannya, atau daftar dulu." : "Kode warga tidak ditemukan.") : "Data warga tidak ditemukan di HP ini." }, { status: 401 });
+      if (!r) return Response.json({ galat: aksi === "kode" ? "Kode warga tidak ditemukan." : "Data warga tidak ditemukan di HP ini." }, { status: 401 });
       if (!r.kode) {
         const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
         for (let i = 0; i < 20; i++) {
@@ -523,12 +614,13 @@ async function apiWarga(request, env, url) {
     return new Response((await stub.fetch("https://do/daftar-publik")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=30", "access-control-allow-origin": "*" } });
   }
   if (aksi === "ruang") {
-    // WebSocket game: ?dusun=wetan&kunci=...
+    // WebSocket game: URL hanya membawa tiket acak sekali pakai, bukan kunci akun.
     if (request.headers.get("Upgrade") !== "websocket") return json({ galat: "Butuh WebSocket" }, 426);
     if (!env.RUANG) return json({ galat: "Ruang belum aktif" }, 503);
-    const kunci = String(url.searchParams.get("kunci") || "").slice(0, 64);
-    const r = await stub.fetch("https://do/sesi", { method: "POST", body: JSON.stringify({ kunci }) });
-    if (!r.ok) return json({ galat: "Masuk dulu sebagai warga." }, 401);
+    const ticket = String(url.searchParams.get("ticket") || "").slice(0, 100);
+    if (!ticket) return json({ galat: "Tiket koneksi tidak ada." }, 401);
+    const r = await stub.fetch("https://do/consume-ws-ticket", { method: "POST", body: JSON.stringify({ ticket }) });
+    if (!r.ok) return json({ galat: "Tiket koneksi tidak valid atau kedaluwarsa." }, 401);
     const w = await r.json();
     const dusun = ["wetan", "kulon"].includes(url.searchParams.get("dusun")) ? url.searchParams.get("dusun") : "wetan";
     const h = new Headers(request.headers);
@@ -547,6 +639,48 @@ async function apiWarga(request, env, url) {
   let body;
   try { body = await request.json(); } catch (e) { return json({ galat: "Data tidak terbaca" }, 400); }
   const bersihUsulan = (v) => String(v || "").replace(/[\u0000-\u001f<>]/g, " ").trim().slice(0, 140);
+  if (aksi === "recovery-code") {
+    const kunci = String(body.kunci || "").slice(0, 64);
+    if (!kunci) return json({ galat: "Sesi warga tidak valid." }, 401);
+    const r = await stub.fetch("https://do/issue-recovery", { method: "POST", body: JSON.stringify({ kunci }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "recovery-login") {
+    const ip = request.headers.get("CF-Connecting-IP") || "";
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("dk-recovery-rate-v1:" + ip));
+    const rateKey = [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join("");
+    const code = String(body.code || "").toUpperCase().replace(/[-\s]/g, "").slice(0, 32);
+    const r = await stub.fetch("https://do/redeem-recovery", { method: "POST", body: JSON.stringify({ code, rateKey }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "founder-recovery") {
+    const configured = String(env.FOUNDER_RECOVERY_SECRET || "");
+    const supplied = String(request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+    if (configured.length < 32) return json({ galat: "Founder recovery belum dikonfigurasi di Cloudflare." }, 503);
+    const enc = new TextEncoder();
+    const [expected, actual] = await Promise.all([
+      crypto.subtle.digest("SHA-256", enc.encode(configured)),
+      crypto.subtle.digest("SHA-256", enc.encode(supplied))
+    ]);
+    const ea = new Uint8Array(expected), aa = new Uint8Array(actual);
+    let mismatch = 0;
+    for (let i = 0; i < ea.length; i++) mismatch |= ea[i] ^ aa[i];
+    if (mismatch !== 0 || !supplied) return json({ galat: "Akses founder tidak sah." }, 401);
+    const no = Number(body.no);
+    const verification = String(body.verification || "").replace(/[\u0000-\u001f<>]/g, " ").trim().slice(0, 500);
+    if (!Number.isSafeInteger(no) || no < 1) return json({ galat: "Nomor warga tidak valid." }, 400);
+    if (verification.length < 30) return json({ galat: "Catatan verifikasi minimal 30 karakter wajib diisi." }, 400);
+    const ip = request.headers.get("CF-Connecting-IP") || "";
+    const ipDigest = await crypto.subtle.digest("SHA-256", enc.encode("dk-founder-audit-v1:" + ip));
+    const ipHash = [...new Uint8Array(ipDigest)].map(x => x.toString(16).padStart(2, "0")).join("");
+    const r = await stub.fetch("https://do/issue-founder-recovery", { method: "POST", body: JSON.stringify({ no, verification, ipHash }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "ws-ticket") {
+    const kunci = String(body.kunci || "").slice(0, 64);
+    const r = await stub.fetch("https://do/ws-ticket", { method: "POST", body: JSON.stringify({ kunci }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
   if (aksi === "daftar-ig") {
     const d = bacaAkun(body);
     if (d.galat) return json({ galat: d.galat }, 400);
@@ -591,8 +725,11 @@ async function apiWarga(request, env, url) {
   if (aksi === "sesi" || aksi === "kode" || aksi === "avatar") {
     let q;
     if (aksi === "kode") {
-      const raw = String(body.kode || "").slice(0, 120), un = bersihUn(raw);
-      q = { kode: raw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6), un: /^[a-z0-9._]{1,30}$/.test(un) ? un : "" };
+      const raw = String(body.kode || "").trim().toUpperCase();
+      const ip = request.headers.get("CF-Connecting-IP") || "";
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("dk-rate-v1:" + ip));
+      const rateKey = [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join("");
+      q = { kode: /^[A-Z0-9]{6}$/.test(raw) ? raw : "", rateKey };
     } else q = { kunci: String(body.kunci || "").slice(0, 64) };
     if (aksi === "avatar") { try { q.avatar = JSON.stringify(body.avatar || {}).slice(0, 600); } catch (e) { return json({ galat: "Avatar tidak terbaca" }, 400); } }
     const r = await stub.fetch("https://do/" + aksi, { method: "POST", body: JSON.stringify(q) });
