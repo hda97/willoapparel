@@ -8,7 +8,7 @@ const multiplayer = readFileSync(new URL("../public/duniakotak/mabar/game.js", i
 const gitignore = readFileSync(new URL("../.gitignore", import.meta.url), "utf8");
 
 test("founder recovery route requires configured secret and bearer authorization", () => {
-  const route = worker.slice(worker.indexOf('if (aksi === "founder-recovery")'), worker.indexOf('if (aksi === "ws-ticket")'));
+  const route = worker.slice(worker.indexOf('if (aksi === "founder-recovery")'), worker.indexOf('if (aksi === "ws-ticket")', worker.indexOf('if (aksi === "founder-recovery")')));
   assert.ok(route.length > 0, "founder route must exist before ws-ticket route");
   assert.match(route, /env\.FOUNDER_RECOVERY_SECRET/);
   assert.match(route, /configured\.length < 32/);
@@ -79,7 +79,7 @@ test("recovery schema includes expiry, source and a founder audit trail", () => 
 
 
 test("local Wrangler state and environment secrets are excluded from Git", () => {
-  assert.match(gitignore, /^\\.wrangler\\//m);
-  assert.match(gitignore, /^\\.dev\\.vars$/m);
-  assert.match(gitignore, /^\\.env\\.\\*$/m);
+  assert.match(gitignore, /^\.wrangler\//m);
+  assert.match(gitignore, /^\.dev\.vars$/m);
+  assert.match(gitignore, /^\.env\.\*$/m);
 });
