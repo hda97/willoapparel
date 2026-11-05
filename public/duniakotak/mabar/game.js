@@ -83,9 +83,9 @@ async function layarMasuk() {
     h += `<div id="gbtn" style="display:flex;justify-content:center;min-height:44px"></div>`;
   }
   h += `<p class="galat" id="galatMasuk"></p>
-    <details ${clientId && !dalamApp ? '' : 'open'}><summary class="kecil" style="cursor:pointer">Masuk dengan username atau kode warga</summary>
-    <div class="isian" style="margin-top:8px"><input id="kode" maxlength="80" placeholder="username IG/TikTok atau kode warga" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go"><button class="utama" id="bKode">Masuk</button></div>
-    <p class="kecil" style="margin-top:6px">Tulis username IG/TikTok yang dipakai saat daftar, atau kode warga dari Kartu Warga.</p></details>
+    <details ${clientId && !dalamApp ? '' : 'open'}><summary class="kecil" style="cursor:pointer">Masuk dengan kode warga</summary>
+    <div class="isian" style="margin-top:8px"><input id="kode" maxlength="6" placeholder="6 karakter kode warga" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="go"><button class="utama" id="bKode">Masuk</button></div>
+    <p class="kecil" style="margin-top:6px">Gunakan kode dari Kartu Warga. Username IG/TikTok tidak dapat digunakan untuk mengambil alih akun.</p></details>
     <a class="tipis" style="text-decoration:none" href="/duniakotak/">Belum jadi warga? Daftar dulu</a>
     <button class="tipis" id="bTamu">Lihat-lihat dulu (tanpa chat)</button>`;
   isi.innerHTML = h;
@@ -113,7 +113,7 @@ async function masukGoogle(credential, isi) {
     const lama = bacaJ('dk_warga') || {};
     const r = await api('google', {credential, kunci: lama.kunci || '', ...(isi || {})});
     if (r.perlu === 'ig') {
-      $('masukIsi').innerHTML = `<p class="sub">Akun Google ini belum terhubung ke kavling. Tulis namamu. Kalau dulu daftar pakai Instagram atau TikTok, isi juga username-nya supaya kavling lamamu tersambung.</p>
+      $('masukIsi').innerHTML = `<p class="sub">Akun Google ini belum terhubung ke kavling. Tulis namamu dan username sosial yang belum digunakan. Untuk menghubungkan akun lama, masuk dari perangkat yang masih memiliki sesi akun tersebut atau gunakan kode warga. Username saja tidak cukup untuk membuktikan kepemilikan.</p>
         <div class="isian"><input id="namaTaut" maxlength="24" placeholder="Nama kamu"></div>
         <div class="isian" style="margin-top:8px"><input id="igTaut" maxlength="80" placeholder="@username Instagram" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email"></div>
         <div class="isian" style="margin:8px 0"><input id="ttTaut" maxlength="80" placeholder="@username TikTok" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email"></div>
@@ -258,9 +258,9 @@ function bangunKulon() {
   bangunProksi();
 }
 async function bangunDunia() {
-  try { const w = await (await fetch('/duniakotak/api/warga')).json(); w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; }); } catch (e) {}
+  try { const w = await (await fetch('/duniakotak/api/warga')).json(); w.warga.forEach(x => { const namaPublik = x.ig || x.tiktok ? '@' + (x.ig || x.tiktok) : (x.label || ''); if (namaPublik) NM[x.no] = namaPublik; if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; }); } catch (e) {}
   if (S.saya && S.saya.kucing) KC[S.saya.no] = S.saya.kucing;
-  if (S.saya && S.saya.ig) NM[S.saya.no] = '@' + S.saya.ig;
+  if (S.saya) { const akunSosial = S.saya.akunIg || S.saya.tiktok; const namaPublik = akunSosial ? '@' + akunSosial : (S.saya.nama || S.saya.ig || ''); if (namaPublik) NM[S.saya.no] = namaPublik; }
   await document.fonts.load('900 40px Montserrat').catch(() => {});
   const minta = new URLSearchParams(location.search).get('dusun');
   DI = minta === 'kulon' || minta === 'wetan' ? minta : (S.saya ? dusunDari(S.saya.no) : 'wetan');
@@ -901,10 +901,13 @@ function kirimChat(m) {
 // 7. JARINGAN
 // =====================================================================
 let coba = 0;
-function sambung() {
+async function sambung() {
   if (S.tamu) return;
   const p = tokoh.saya.position;
-  const u = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/duniakotak/api/ruang?dusun=' + DI + '&kunci=' + encodeURIComponent(S.kunci) + '&x=' + p.x.toFixed(1) + '&z=' + p.z.toFixed(1);
+  let tiket;
+  try { tiket = await api('ws-ticket', {kunci: S.kunci}); }
+  catch (e) { toast('Gagal membuat koneksi. Mencoba lagi…'); setTimeout(sambung, Math.min(15000, 1000 * 2 ** coba++)); return; }
+  const u = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/duniakotak/api/ruang?dusun=' + DI + '&ticket=' + encodeURIComponent(tiket.ticket) + '&x=' + p.x.toFixed(1) + '&z=' + p.z.toFixed(1);
   const ws = new WebSocket(u); S.ws = ws;
   ws.onopen = () => { coba = 0; ws.send(JSON.stringify({t: 'av', av: S.av})); kirimPos(true); };
   ws.onmessage = e => { let q; try { q = JSON.parse(e.data); } catch (er) { return; } terima(q); };
