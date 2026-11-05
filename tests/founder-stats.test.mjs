@@ -9,6 +9,7 @@ const wrangler = await readFile(new URL("../wrangler.jsonc", import.meta.url), "
 test("founder statistics endpoint is read-only and protected by a secret", () => {
   assert.match(worker, /aksi === "founder\/stats"/);
   assert.match(worker, /env\.FOUNDER_STATS_TOKEN/);
+  assert.match(worker, /const statsStub = env\.WARGA\.get/);
   assert.match(worker, /authorization/);
   assert.match(worker, /aksi === "statistik-founder"/);
   assert.match(worker, /SELECT COUNT\(\*\) AS total/);
