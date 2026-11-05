@@ -138,3 +138,9 @@ test("local Wrangler state and environment secrets are excluded from Git", () =>
   assert.match(gitignore, /^\.dev\.vars$/m);
   assert.match(gitignore, /^\.env\.\*$/m);
 });
+
+test("native citizen display names populate their houses in the multiplayer world", () => {
+  assert.match(multiplayer, /const namaPublik = x\.ig \|\| x\.tiktok \? '@' \+ \(x\.ig \|\| x\.tiktok\) : \(x\.label \|\| ''\)/);
+  assert.match(multiplayer, /S\.saya\.akunIg \|\| S\.saya\.tiktok/);
+  assert.match(multiplayer, /S\.saya\.nama \|\| S\.saya\.ig/);
+});
