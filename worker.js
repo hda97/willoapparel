@@ -333,6 +333,21 @@ export class Warga extends DurableObject {
       const rows = this.sql.exec("SELECT no, ig, tiktok, usulan FROM warga WHERE usulan IS NOT NULL AND usulan != '' ORDER BY no").toArray();
       return Response.json({ jumlah: rows.length, usulan: rows });
     }
+    if (aksi === "statistik-founder") {
+      if (request.method !== "GET") return Response.json({ galat: "Metode salah" }, { status: 405 });
+      const wib = new Date(Date.now() + 7 * 3600e3);
+      const awalHari = Date.UTC(wib.getUTCFullYear(), wib.getUTCMonth(), wib.getUTCDate()) - 7 * 3600e3;
+      const row = this.sql.exec(
+        "SELECT COUNT(*) AS total, COALESCE(SUM(CASE WHEN dibuat >= ? THEN 1 ELSE 0 END), 0) AS hari_ini FROM warga",
+        awalHari
+      ).toArray()[0] || { total: 0, hari_ini: 0 };
+      return Response.json({
+        totalPendaftar: Number(row.total || 0),
+        pendaftarHariIni: Number(row.hari_ini || 0),
+        persetujuan: { tersedia: false, status: "belum_diterapkan", menunggu: null },
+        diperbarui: new Date().toISOString()
+      });
+    }
     if (aksi === "daftar-publik") {
       // Gabungkan warga terdaftar dengan 63 pengikut awal yang kavlingnya sudah disiapkan (sudah warga sejak video).
       const rows = this.sql.exec("SELECT no, sub, nama, ig, tiktok, usulan, dibuat, kucing, aktif FROM warga ORDER BY no").toArray();
@@ -517,6 +532,29 @@ async function apiWarga(request, env, url) {
   const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   const aksi = url.pathname.replace("/duniakotak/api/", "");
   if (aksi === "config") return json({ clientId: env.GOOGLE_CLIENT_ID || "" });
+  // Founder-only read-only statistics. Never return citizen rows or personal identifiers.
+  if (aksi === "founder/stats") {
+    if (request.method !== "GET") return json({ galat: "Metode salah" }, 405);
+    const configured = typeof env.FOUNDER_STATS_TOKEN === "string" ? env.FOUNDER_STATS_TOKEN : "";
+    const supplied = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+    if (configured.length < 32 || supplied.length < 32 || supplied.length > 512) {
+      return json({ galat: "Tidak diizinkan" }, 401);
+    }
+    const enc = new TextEncoder();
+    const [expectedHash, suppliedHash] = await Promise.all([
+      crypto.subtle.digest("SHA-256", enc.encode(configured)),
+      crypto.subtle.digest("SHA-256", enc.encode(supplied))
+    ]);
+    const a = new Uint8Array(expectedHash), b = new Uint8Array(suppliedHash);
+    let beda = 0;
+    for (let i = 0; i < a.length; i++) beda |= a[i] ^ b[i];
+    if (beda !== 0) return json({ galat: "Tidak diizinkan" }, 401);
+    if (!env.WARGA) return json({ galat: "Database warga belum aktif" }, 503);
+    const statsStub = env.WARGA.get(env.WARGA.idFromName("desa"));
+    const r = await statsStub.fetch("https://do/statistik-founder", { method: "GET" });
+    if (!r.ok) return json({ galat: "Statistik belum tersedia" }, 503);
+    return json(await r.json());
+  }
   if (!env.WARGA) return json({ galat: "Database warga belum aktif" }, 503);
   const stub = env.WARGA.get(env.WARGA.idFromName("desa"));
   if (aksi === "warga" && request.method === "GET") {
