@@ -128,7 +128,8 @@ export class Warga extends DurableObject {
     this.sql.exec("CREATE TABLE IF NOT EXISTS recovery_code (hash TEXT PRIMARY KEY, no INTEGER NOT NULL, created INTEGER NOT NULL)");
     try { this.sql.exec("ALTER TABLE recovery_code ADD COLUMN expires INTEGER"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE recovery_code ADD COLUMN source TEXT NOT NULL DEFAULT 'self'"); } catch (e) { /* kolom sudah ada */ }
-    this.sql.exec("CREATE TABLE IF NOT EXISTS founder_recovery_audit (id INTEGER PRIMARY KEY AUTOINCREMENT, no INTEGER NOT NULL, action TEXT NOT NULL, created INTEGER NOT NULL, expires INTEGER, note TEXT NOT NULL, ip_hash TEXT)");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS founder_recovery_audit (id INTEGER PRIMARY KEY AUTOINCREMENT, no INTEGER NOT NULL, action TEXT NOT NULL, created INTEGER NOT NULL, expires INTEGER, redeemed INTEGER, note TEXT NOT NULL, ip_hash TEXT)");
+    try { this.sql.exec("ALTER TABLE founder_recovery_audit ADD COLUMN redeemed INTEGER"); } catch (e) { /* kolom sudah ada */ }
     // Koreksi salah ketik username: pindahkan ke username & kavling yang benar (sekali jalan, aman diulang).
     for (const [salah, benar] of Object.entries(KOREKSI_IG)) {
       const r = this.sql.exec("SELECT no FROM warga WHERE ig = ?", salah).toArray()[0];
@@ -229,7 +230,7 @@ export class Warga extends DurableObject {
       if (rate && rate.blocked_until > now) return Response.json({ galat: "Terlalu banyak percobaan. Coba lagi 15 menit." }, { status: 429 });
       const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("dk-recovery-v1:" + raw));
       const hash = [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join("");
-      const row = /^[A-HJ-NP-Z2-9]{16}$/.test(raw) ? this.sql.exec("SELECT no, expires, source FROM recovery_code WHERE hash = ?", hash).toArray()[0] : null;
+      const row = /^[A-HJ-NP-Z2-9]{16}(?:[A-HJ-NP-Z2-9]{8})?$/.test(raw) ? this.sql.exec("SELECT no, expires, source FROM recovery_code WHERE hash = ?", hash).toArray()[0] : null;
       if (!row || (row.expires !== null && row.expires !== undefined && row.expires <= now)) {
         if (row) this.sql.exec("DELETE FROM recovery_code WHERE hash = ?", hash);
         const reset = !rate || now - rate.window >= 15 * 60 * 1000;
@@ -239,6 +240,7 @@ export class Warga extends DurableObject {
         return Response.json({ galat: blocked ? "Terlalu banyak percobaan. Coba lagi 15 menit." : "Kode pemulihan tidak valid atau sudah digunakan." }, { status: blocked ? 429 : 401 });
       }
       this.sql.exec("DELETE FROM recovery_code WHERE hash = ?", hash);
+      if (row.source === "founder") this.sql.exec("UPDATE founder_recovery_audit SET redeemed = ? WHERE id = (SELECT id FROM founder_recovery_audit WHERE no = ? AND action = 'issued' AND redeemed IS NULL ORDER BY id DESC LIMIT 1)", now, row.no);
       const nextKey = crypto.randomUUID();
       this.sql.exec("UPDATE warga SET kunci = ? WHERE no = ?", nextKey, row.no);
       this.sql.exec("DELETE FROM ws_ticket WHERE no = ?", row.no);
