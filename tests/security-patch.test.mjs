@@ -12,7 +12,7 @@ test("native registration creates a DUNIA KOTAK account without Google or social
   const end = worker.indexOf('if (aksi === "daftar-ig")', start);
   const handler = worker.slice(start, end);
   assert.ok(start >= 0 && end > start);
-  assert.match(handler, /register:\/\+/);
+  assert.match(handler, /rateId = "register:" \\+/);
   assert.match(handler, /dk-register-rate-v1/);
   assert.match(handler, /sub = "dk:" \+ crypto\.randomUUID\(\)/);
   assert.match(handler, /this\.tambah\(\{ sub, nama, kerja \}\)/);
