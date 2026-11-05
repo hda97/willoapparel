@@ -901,10 +901,13 @@ function kirimChat(m) {
 // 7. JARINGAN
 // =====================================================================
 let coba = 0;
-function sambung() {
+async function sambung() {
   if (S.tamu) return;
   const p = tokoh.saya.position;
-  const u = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/duniakotak/api/ruang?dusun=' + DI + '&kunci=' + encodeURIComponent(S.kunci) + '&x=' + p.x.toFixed(1) + '&z=' + p.z.toFixed(1);
+  let tiket;
+  try { tiket = await api('ws-ticket', {kunci: S.kunci}); }
+  catch (e) { toast('Gagal membuat koneksi. Mencoba lagi…'); setTimeout(sambung, Math.min(15000, 1000 * 2 ** coba++)); return; }
+  const u = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/duniakotak/api/ruang?dusun=' + DI + '&ticket=' + encodeURIComponent(tiket.ticket) + '&x=' + p.x.toFixed(1) + '&z=' + p.z.toFixed(1);
   const ws = new WebSocket(u); S.ws = ws;
   ws.onopen = () => { coba = 0; ws.send(JSON.stringify({t: 'av', av: S.av})); kirimPos(true); };
   ws.onmessage = e => { let q; try { q = JSON.parse(e.data); } catch (er) { return; } terima(q); };
