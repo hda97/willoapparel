@@ -276,8 +276,9 @@ export class Warga extends DurableObject {
           const now = Date.now();
           const row = this.sql.exec("SELECT window, attempts, blocked_until FROM login_rate WHERE k = ?", rateKey).toArray()[0];
           if (row && row.blocked_until > now) return Response.json({ galat: "Terlalu banyak percobaan. Coba lagi 15 menit." }, { status: 429 });
-          const windowStart = !row || now - row.window >= 15 * 60 * 1000 ? now : row.window;
-          const attempts = windowStart === now ? 1 : row.attempts + 1;
+          const resetWindow = !row || now - row.window >= 15 * 60 * 1000;
+          const windowStart = resetWindow ? now : row.window;
+          const attempts = resetWindow ? 1 : row.attempts + 1;
           const blocked = attempts > 10 ? now + 15 * 60 * 1000 : 0;
           this.sql.exec("INSERT INTO login_rate (k, window, attempts, blocked_until) VALUES (?, ?, ?, ?) ON CONFLICT(k) DO UPDATE SET window=excluded.window, attempts=excluded.attempts, blocked_until=excluded.blocked_until", rateKey, windowStart, attempts, blocked);
           if (blocked) return Response.json({ galat: "Terlalu banyak percobaan. Coba lagi 15 menit." }, { status: 429 });
@@ -285,7 +286,7 @@ export class Warga extends DurableObject {
         if (/^[A-Z0-9]{6}$/.test(String(q.kode || ""))) r = this.sql.exec("SELECT * FROM warga WHERE kode = ?", String(q.kode)).toArray()[0];
       }
       else r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
-      if (!r) return Response.json({ galat: aksi === "kode" ? (q.un ? "@" + q.un + " belum terdaftar, dan bukan kode warga. Cek lagi tulisannya, atau daftar dulu." : "Kode warga tidak ditemukan.") : "Data warga tidak ditemukan di HP ini." }, { status: 401 });
+      if (!r) return Response.json({ galat: aksi === "kode" ? "Kode warga tidak ditemukan." : "Data warga tidak ditemukan di HP ini." }, { status: 401 });
       if (!r.kode) {
         const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
         for (let i = 0; i < 20; i++) {
