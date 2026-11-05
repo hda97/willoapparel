@@ -28,8 +28,8 @@ export class Pengunjung extends DurableObject {
 }
 
 // Warga Dunia Kotak (@duniakotak.id). Satu Durable Object "desa" berisi tabel warga (SQLite).
-// Login Google: browser kirim ID token, worker memeriksanya ke Google lalu memberi nomor kavling berurutan.
-// Email hanya disimpan di sini (untuk 1 akun = 1 kavling), TIDAK pernah ditampilkan ke publik.
+// Pendaftaran baru memakai akun native DUNIA KOTAK dengan subject internal acak dan kode warga 6 karakter.
+// Google hanya dipertahankan untuk membuka akun legacy yang sebelumnya sudah tertaut; email legacy tidak ditampilkan ke publik.
 // Warga sementara = 63 pengikut @duniakotak.id per 2 Nov 2026 (urutan follow). Kavling 1 = Raka.
 // Salah ketik yang sudah dipastikan (username salah → username benar).
 const KOREKSI_IG = { fakhri_udah_itu_aja: "fakhri_udah_itu_aja_89" };
@@ -146,11 +146,11 @@ export class Warga extends DurableObject {
     }
   }
   publik(r) {
-    // Daftar lewat Google tanpa username: nama yang ditulis warga jadi ukiran batu (label).
+    // Nama warga menjadi label publik bila akun tidak memiliki handle sosial legacy.
     let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
     return { no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
   }
-  // Nama tampil di game & batu: username IG kalau ada, kalau tidak username TikTok.
+  // Nama publik akun legacy dapat memakai handle lama; akun native memakai nama warga.
   nm(r) { return r.ig || r.tiktok || r.nama || ""; }
   // Cek username IG/TikTok belum dipakai warga lain (selain baris "kecuali").
   bentrok(ig, tiktok, kecuali) {
