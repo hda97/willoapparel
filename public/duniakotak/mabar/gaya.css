@@ -181,3 +181,8 @@ body.chatPenuh .chat{background:rgba(19,20,31,.92)}
 .petaBawah{display:flex;align-items:center;gap:10px;min-height:44px}
 .petaBawah #petaInfo{flex:1;margin:0;text-align:left;line-height:1.35}
 .petaBawah .petaTombol{margin:0;flex:none}.petaBawah .petaTombol .utama{padding:11px 18px;white-space:nowrap}
+/* dukung Dunia Kotak (Saweria, sukarela) */
+a.barisAtur{text-decoration:none}.barisAtur.dukung span{display:flex;flex-direction:column;gap:2px}.barisAtur.dukung small{font:600 11px Montserrat,sans-serif;opacity:.65}
+@media (max-height:460px){#panelAtur{padding:8px 12px}#panelAtur .panel{gap:8px}#panelAtur h2{margin:0;font-size:18px}#panelAtur .daftarAtur{gap:6px}#panelAtur .barisAtur{padding:8px 14px}#panelAtur .utama{padding:10px 18px}}
+:where(html.putar.mq-pendek) #panelAtur{padding:8px 12px}:where(html.putar.mq-pendek) #panelAtur .panel{gap:8px}:where(html.putar.mq-pendek) #panelAtur .daftarAtur{gap:6px}:where(html.putar.mq-pendek) #panelAtur .barisAtur{padding:8px 14px}
+.dukungKecil{display:inline-block;justify-self:center;margin-top:2px;padding:6px 12px;border-radius:999px;background:rgba(255,210,58,.12);color:#ffe39a;font:700 12px Montserrat,sans-serif;text-decoration:none}.dukungKecil b{font-weight:900;color:#ffd23a}
