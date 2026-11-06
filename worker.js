@@ -59,6 +59,9 @@ const BARANG = { Apel: "🍎", Bunga: "🌼", Kayu: "🪵", Jamur: "🍄", "Batu
 const IKAN = [[35, "🐟", "Ikan mas"], [28, "🐠", "Ikan nila"], [18, "🐡", "Ikan buntal kotak"], [11, "🦐", "Udang"], [5, "👟", "Sepatu bekas"], [3, "🦀", "Kepiting langka"]];
 const BATAS_AMBIL = 60, BATAS_MANCING = 40;   // per hari WIB
 const KOIN_PER_PERMATA = 10;
+// Iklan berhadiah Google H5 Games Ads (Huda 6 Nov 2026): warga MEMILIH sendiri menonton iklan → +5 permata, maks 3x/hari WIB.
+// Hanya permata (bukan koin). Menyala bila variabel IKLAN_H5 = "1" (setelah Google menyetujui H5 Games Ads).
+const IKLAN_PERMATA = 5, IKLAN_BATAS = 3, IKLAN_MIN = 8000;
 // Panen kebun sendiri (Huda 6 Nov 2026): permata juga didapat dari panen, tiap 6 jam sekali, +5 permata.
 const PANEN_JEDA = 6 * 3600e3, PANEN_PERMATA = 2;
 // Bibit & jual hasil panen (audit ekonomi, Huda 6 Nov 2026): bibit dibeli koin tiap tanam, panen = 5 hasil + 2 permata,
@@ -182,6 +185,7 @@ export class Warga extends DurableObject {
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN tas TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN kebun TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN profesi TEXT"); } catch (e) { /* kolom sudah ada */ }
+    try { this.sql.exec("ALTER TABLE warga ADD COLUMN iklan TEXT"); } catch (e) { /* kolom sudah ada */ }
     this.sql.exec("CREATE TABLE IF NOT EXISTS iuran (put TEXT, no INTEGER, koin INTEGER DEFAULT 0, permata INTEGER DEFAULT 0, mg TEXT, mgn INTEGER DEFAULT 0, PRIMARY KEY (put, no))");
     // suara = bintang yang sudah ditaruh warga ke calon fasum; donasi = catatan webhook Saweria (id unik, tidak dobel)
     this.sql.exec("CREATE TABLE IF NOT EXISTS suara (put TEXT, calon TEXT, no INTEGER, n INTEGER, PRIMARY KEY (put, calon, no))");
@@ -452,6 +456,28 @@ export class Warga extends DurableObject {
       }
       const w = this.sql.exec("SELECT koin, permata FROM warga WHERE no = ?", r.no).toArray()[0];
       return Response.json({ koin: w.koin || 0, permata: w.permata || 0, saya: { koin: saya.koin, permata: saya.permata, sisaPermata: IURAN_PERMATA_MINGGU - saya.mgn }, dana: this.danaIuran() });
+    }
+    if (aksi === "iklan") {
+      // op "mulai" saat iklan mulai tampil, "selesai" saat Google melapor iklan ditonton (adViewed) → hadiah.
+      const q = await request.json();
+      const r = this.sql.exec("SELECT no, permata, iklan FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Masuk dulu sebagai warga." }, { status: 401 });
+      const kini = Date.now(), hari = new Date(kini + 7 * 3600e3).toISOString().slice(0, 10);
+      let k = {}; try { k = JSON.parse(r.iklan || "{}") || {}; } catch (e) {}
+      if (k.h !== hari) k = { h: hari, n: 0 };
+      const info = () => ({ permata: r.permata || 0, sisa: Math.max(0, IKLAN_BATAS - k.n), hadiah: IKLAN_PERMATA });
+      if (q.op === "mulai" || q.op === "selesai") {
+        if (!q.aktif) return Response.json({ galat: "Iklan berhadiah belum dibuka.", ...info() }, { status: 400 });
+        if (k.n >= IKLAN_BATAS) return Response.json({ galat: "Jatah iklan hari ini habis. Besok lagi ya!", ...info() }, { status: 400 });
+        if (q.op === "mulai") k.m = kini;
+        else {
+          if (!k.m || kini - k.m < IKLAN_MIN) return Response.json({ galat: "Iklan belum selesai ditonton.", ...info() }, { status: 400 });
+          k.n++; delete k.m; r.permata = (r.permata || 0) + IKLAN_PERMATA;
+          this.sql.exec("UPDATE warga SET permata = ? WHERE no = ?", r.permata, r.no);
+        }
+        this.sql.exec("UPDATE warga SET iklan = ? WHERE no = ?", JSON.stringify(k), r.no);
+      }
+      return Response.json(info());
     }
     if (aksi === "profesi") {
       const q = await request.json();
@@ -805,7 +831,7 @@ function bacaAkun(body) {
 async function apiWarga(request, env, url) {
   const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   const aksi = url.pathname.replace("/duniakotak/api/", "");
-  if (aksi === "config") return json({ clientId: env.GOOGLE_CLIENT_ID || "" });
+  if (aksi === "config") return json({ clientId: env.GOOGLE_CLIENT_ID || "", iklan: env.IKLAN_H5 === "1" ? 1 : 0 });
   if (!env.WARGA) return json({ galat: "Database warga belum aktif" }, 503);
   const stub = env.WARGA.get(env.WARGA.idFromName("desa"));
   if (aksi === "warga" && request.method === "GET") {
@@ -890,6 +916,10 @@ async function apiWarga(request, env, url) {
   }
   if (aksi === "iuran") {
     const r = await stub.fetch("https://do/" + aksi, { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), koin: +body.koin || 0, permata: +body.permata || 0 }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "iklan") {
+    const r = await stub.fetch("https://do/iklan", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), aktif: env.IKLAN_H5 === "1" }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "profesi") {
