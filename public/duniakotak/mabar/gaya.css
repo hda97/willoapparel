@@ -44,7 +44,7 @@ button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:2
 .gel{position:absolute;transform:translate(-50%,-100%);max-width:220px;padding:7px 11px;border-radius:14px;background:#fff;color:#1a1c2e;font:700 12px Montserrat,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.18);white-space:normal;text-align:center}
 .gel:after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-bottom:0;border-top-color:#fff}
 .gel.emo{font-size:26px;padding:2px 8px;background:transparent;box-shadow:none}.gel.emo:after{display:none}
-#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:#1a1c2e;color:#fff;border-radius:12px;padding:9px 16px;font-weight:800;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;max-width:calc(90*var(--vw,1vw));text-align:center;z-index:30}
+#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:#1a1c2e;color:#fff;border-radius:12px;padding:9px 16px;font-weight:800;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;max-width:calc(90*var(--vw,1vw));text-align:center;z-index:45}
 #toast.on{opacity:1}
 #menuWarga{z-index:25;padding:10px;display:flex;flex-direction:column;gap:6px;min-width:180px}
 #menuWarga b{font-size:13px;padding:2px 4px}
@@ -182,7 +182,24 @@ body.chatPenuh .chat{background:rgba(19,20,31,.92)}
 .petaBawah #petaInfo{flex:1;margin:0;text-align:left;line-height:1.35}
 .petaBawah .petaTombol{margin:0;flex:none}.petaBawah .petaTombol .utama{padding:11px 18px;white-space:nowrap}
 /* dukung Dunia Kotak (Saweria, sukarela) */
-a.barisAtur{text-decoration:none}.barisAtur.dukung span{display:flex;flex-direction:column;gap:2px}.barisAtur.dukung small{font:600 11px Montserrat,sans-serif;opacity:.65}
+a.barisAtur{text-decoration:none}.barisAtur span{display:flex;flex-direction:column;gap:2px}.barisAtur small{font:600 11px Montserrat,sans-serif;opacity:.65}
 @media (max-height:460px){#panelAtur{padding:8px 12px}#panelAtur .panel{gap:8px}#panelAtur h2{margin:0;font-size:18px}#panelAtur .daftarAtur{gap:6px}#panelAtur .barisAtur{padding:8px 14px}#panelAtur .utama{padding:10px 18px}}
 :where(html.putar.mq-pendek) #panelAtur{padding:8px 12px}:where(html.putar.mq-pendek) #panelAtur .panel{gap:8px}:where(html.putar.mq-pendek) #panelAtur .daftarAtur{gap:6px}:where(html.putar.mq-pendek) #panelAtur .barisAtur{padding:8px 14px}
 .dukungKecil{display:inline-block;justify-self:center;margin-top:2px;padding:6px 12px;border-radius:999px;background:rgba(255,210,58,.12);color:#ffe39a;font:700 12px Montserrat,sans-serif;text-decoration:none}.dukungKecil b{font-weight:900;color:#ffd23a}
+/* voting fasum berbintang */
+.vtSaldo{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;margin-bottom:8px;border-radius:12px;background:rgba(255,210,58,.12);color:#ffe39a;font:800 14px Montserrat,sans-serif}
+.vtSaldo b{font-size:18px;color:#ffd23a}
+.vtDaftar{max-height:min(46vh,330px);overflow:auto;border:1px solid var(--garis);border-radius:12px}
+.vtBaris{position:relative;display:flex;align-items:center;gap:10px;padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.07);color:#fff;font:700 13px Montserrat,sans-serif;text-align:left;overflow:hidden}
+.vtBaris:last-child{border-bottom:0}
+.vtBar{position:absolute;inset:0 auto 0 0;background:rgba(255,210,58,.13);pointer-events:none}
+.vtBaris>:not(.vtBar){position:relative}.vtIkon{font-size:20px;width:26px;text-align:center}.vtNama{flex:1;min-width:0}.vtNama small{display:block;color:#aab;font-weight:600;font-size:11px}
+.vtJml{color:#ffd23a;font-weight:900;white-space:nowrap}
+.vtBaris button{flex:none;padding:6px 10px;border-radius:10px;border:0;background:#ffd23a;color:#3a2a00;font:900 12px Montserrat,sans-serif;cursor:pointer}
+.vtBaris button:disabled{opacity:.35;cursor:default}
+.vtDonasi{margin:8px 0 2px;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.06);color:#dde;font:600 12px/1.45 Montserrat,sans-serif;text-align:left}
+.vtDonasi b{color:#ffd23a}.vtDonasi a{color:#ffe39a;font-weight:800}
+.vtKode{display:inline-block;padding:1px 8px;border-radius:8px;background:#ffd23a;color:#3a2a00;font-weight:900;cursor:pointer}
+@media (max-height:460px){#panelVoting{padding:6px 12px}#panelVoting .panel{gap:6px}#panelVoting h2{margin:0;font-size:17px}#panelVoting .vtDaftar{max-height:34vh}#panelVoting .vtSaldo{padding:4px 12px;margin-bottom:6px}#panelVoting .vtDonasi{margin:4px 0 0;padding:6px 10px;font-size:11px;line-height:1.35}#panelVoting .utama{padding:9px 18px}#ringkasVoting{margin:0}
+#panelAtur .barisAtur span{flex-direction:row;align-items:baseline;gap:8px;flex-wrap:wrap}#panelAtur #jamAtur{margin:0}}
+:where(html.putar.mq-pendek) #panelVoting .vtDaftar{max-height:34vh}:where(html.putar.mq-pendek) #panelVoting .vtDonasi{font-size:11px;padding:6px 10px}:where(html.putar.mq-pendek) #panelAtur .barisAtur span{flex-direction:row;align-items:baseline;gap:8px}

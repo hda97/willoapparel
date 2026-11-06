@@ -564,6 +564,39 @@ async function bukaPeringkat() {
   $('isiPeringkat').innerHTML = h;
   $('ringkasPeringkat').textContent = `${d.jml} warga sudah punya koin. Geser daftar untuk melihat peringkat 11 dan seterusnya.`;
 }
+// ---------- voting fasum berbintang (Huda 6 Nov 2026) ----------
+// 1 bintang gratis per hari; bintang donasi masuk otomatis dari webhook Saweria bila pesan donasi memuat kode DK<no>.
+const CALON = {kafe: ['☕', 'Kafe'], taman: ['🌳', 'Taman Kota'], hiburan: ['🎡', 'Taman Hiburan'], polisi: ['👮', 'Kantor Polisi'], damkar: ['🚒', 'Pemadam Kebakaran'], perpus: ['📚', 'Perpustakaan'], renang: ['🏊', 'Kolam Renang'], bioskop: ['🎬', 'Bioskop']};
+let VT = null, vtSibuk = false;
+function tulisVoting() {
+  const d = VT; if (!d) return;
+  const urut = [...d.calon].sort((a, b) => (d.hasil[b] || 0) - (d.hasil[a] || 0)), maks = Math.max(1, ...urut.map(c => d.hasil[c] || 0)), saldo = d.saldo || 0;
+  let h = S.tamu ? '<p class="kecil">Daftar jadi warga dulu supaya bisa ikut voting.</p>' : `<div class="vtSaldo"><span>Bintangmu</span><b>⭐ ${saldo}</b></div>`;
+  h += '<div class="vtDaftar">' + urut.map(c => { const [ik, nm] = CALON[c] || ['🏗️', c], n = d.hasil[c] || 0, sy = d.saya?.[c] || 0;
+    return `<div class="vtBaris"><span class="vtBar" style="width:${(n / maks * 100).toFixed(1)}%"></span><span class="vtIkon">${ik}</span><span class="vtNama">${esc(nm)}${sy ? `<small>Bintangmu di sini: ${sy}</small>` : ''}</span><span class="vtJml">⭐ ${n}</span>`
+      + (S.tamu ? '' : `<button data-vt="${c}" data-n="1" ${saldo < 1 ? 'disabled' : ''}>+1</button>${saldo >= 5 ? `<button data-vt="${c}" data-n="${saldo}">+${saldo}</button>` : ''}`) + '</div>'; }).join('') + '</div>';
+  $('isiVoting').innerHTML = h;
+  $('ringkasVoting').textContent = `Pilih fasum yang dibangun berikutnya. ${d.pemilih} warga sudah memilih. ` + (S.tamu ? '' : 'Tiap hari dapat 1 bintang gratis.');
+  if (!S.tamu && d.no) {
+    $('vtDonasi').hidden = false;
+    $('vtDonasi').innerHTML = `Mau bintang lebih? Donasi sukarela di <a href="https://saweria.co/Duniakotak" target="_blank" rel="noopener">Saweria</a> dan tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan donasi. Rp1.000 = 1 bintang (5K = 5, 10K = 10, 25K = 25, 100K = 100), masuk otomatis.` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
+  } else $('vtDonasi').hidden = true;
+}
+async function bukaVoting() {
+  $('panelVoting').hidden = false; $('isiVoting').innerHTML = '<p class="kecil">Memuat…</p>'; $('vtDonasi').hidden = true;
+  try {
+    VT = S.tamu || !S.kunci ? await (await fetch('/duniakotak/api/voting')).json() : await api('voting', {kunci: S.kunci});
+    if (VT.gratis) toast('⭐ Bintang gratis hari ini masuk!', 3000);
+    tulisVoting();
+  } catch (e) { $('isiVoting').innerHTML = '<p class="kecil">Voting belum bisa dimuat. Coba lagi sebentar.</p>'; }
+}
+document.addEventListener('click', async e => {
+  const k = e.target.closest?.('#vtKode'); if (k) { try { await navigator.clipboard.writeText(k.textContent); toast('Kode ' + k.textContent + ' disalin. Tempel di pesan donasi Saweria.', 3500); } catch (er) {} return; }
+  const b = e.target.closest?.('[data-vt]'); if (!b || vtSibuk) return;
+  vtSibuk = true; const c = b.dataset.vt, n = +b.dataset.n;
+  try { VT = await api('voting', {kunci: S.kunci, calon: c, n}); tulisVoting(); toast(`⭐ ${n} bintang untuk ${CALON[c]?.[1] || c}!`, 2500); }
+  catch (er) { toast(er.message, 3500); } finally { vtSibuk = false; }
+});
 function bukaMisi() {
   if (S.tamu) { toast('Daftar jadi warga dulu supaya bisa ikut misi dan dapat koin.', 4000); return; }
   if (MS.t !== hariIni()) muatMisi();
@@ -1337,6 +1370,7 @@ function aturHUD() {
   muatMisi();
   $('bPanduan').onclick = () => { $('panelAtur').hidden = true; panduan(); };
   $('bAtur').onclick = () => { $('jamAtur').textContent = $('jam').textContent.replace(/\s+/g, ' ').trim(); $('panelAtur').hidden = false; }; $('tutupAtur').onclick = () => { $('panelAtur').hidden = true; };
+  $('bVoting').onclick = () => { $('panelAtur').hidden = true; bukaVoting(); }; $('tutupVoting').onclick = () => { $('panelVoting').hidden = true; };
   $('panelAtur').addEventListener('click', e => { if (e.target === $('panelAtur')) $('panelAtur').hidden = true; });
   $('bDusun').onclick = pilihDusun;
   musikSiap();
