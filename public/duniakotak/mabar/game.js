@@ -385,11 +385,28 @@ function bangunKavling(n) {
     }
   }
   extra.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
-  catKavling(g, n);
+  lantaiDua(g, n); catKavling(g, n);
   bakeGroup(g); bakeGroup(extra);
   lotRuntime.set(n, {g, extra, rects});
   if (isi && n !== 1) pasangKucing(n);
   if (L.proxyIdx != null) setProxy(L, false);
+}
+// Upgrade rumah 2 lantai (Huda 6 Nov 2026): lantai 2 disisipkan di antara dinding dan atap rumah aset video (fullHouse),
+// jendela lantai 1 disalin ke atas; warna dinding sama (krem 0xf1dcb4) supaya ikut cat Toko Hias.
+const TINGGI_L2 = 2.4;
+function lantaiDua(g, n) {
+  const l = S.saya && n === S.saya.no && S.hias ? (S.hias.rumah === 'dua' ? 2 : 1) : (HS[n] && HS[n].l) || 1; if (l < 2) return;
+  let H = null; g.traverse(o => { if (!H && o.userData && o.userData.rumah) H = o; }); if (!H) return;
+  const W = 5, D = 4, y1 = .35 + 2.8, kotak = (w, h, d, c) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({color: c, roughness: .85})); m.castShadow = m.receiveShadow = true; return m; };
+  const naik = [], jendela = [];
+  for (const c of H.children) { const p = c.position; if (Math.abs(p.x) < 3 && Math.abs(p.z) < 2.4) { if (p.y >= y1 - .05) naik.push(c); else if (c.isGroup && Math.abs(p.y - (.35 + 1.6)) < .05) jendela.push(c); } }
+  naik.forEach(c => { c.position.y += TINGGI_L2; });
+  const wl = kotak(W, TINGGI_L2, D, 0xf1dcb4); wl.position.y = y1 + TINGGI_L2 / 2; H.add(wl);
+  const band = kotak(W + .3, .22, D + .3, 0xffffff); band.position.y = y1 + .02; H.add(band);
+  [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => { const c = kotak(.3, TINGGI_L2, .3, 0xffffff); c.position.set(a * W / 2, y1 + TINGGI_L2 / 2, b * D / 2); H.add(c); });
+  jendela.forEach(j => { const k = j.clone(); k.position.y += TINGGI_L2 + .1; H.add(k); });
+  // jendela tengah depan di atas pintu (lantai 1 bagian tengah = pintu)
+  const dj = jendela.find(j => j.position.z > 1 && j.position.x < 0); if (dj) { const k = dj.clone(); k.position.set(0, dj.position.y + TINGGI_L2 + .1, dj.position.z); H.add(k); }
 }
 // cat dinding rumah (warna asli krem 0xf1dcb4) + pagar kavling (InstancedMesh putih) sesuai barang Toko Hias yang dipakai
 function catKavling(g, n) {
@@ -621,18 +638,20 @@ document.addEventListener('click', async e => {
   catch (er) { toast(er.message, 3500); } finally { vtSibuk = false; }
 });
 // ---------- Toko Hias: barang dibeli permata 💎 (dari donasi) atau koin (x10); barang pertama tiap jenis gratis ----------
-const NAMA_TOKO = {cat: ['🏠', 'Cat rumah'], pagar: ['🪵', 'Warna pagar'], topi: ['🧢', 'Topi avatar']};
+const NAMA_TOKO = {cat: ['🏠', 'Cat rumah'], pagar: ['🪵', 'Warna pagar'], topi: ['🧢', 'Topi avatar'], rumah: ['🏡', 'Rumah']};
+const NAMA_BRG = {satu: '1 lantai', dua: '2 lantai'}, IKON_BRG = {satu: '🏠', dua: '🏡'};
+const tandaBrg = (j, id, warna) => IKON_BRG[id] && j === 'rumah' ? `<span class="tkIkon">${IKON_BRG[id]}</span>` : `<span class="tkWarna${id === 'tanpa' ? ' kosong' : ''}" style="background:${warna[j][id]}"></span>`;
 let TK = null, tkBayar = 'permata', tkSibuk = false;
 function tulisToko() {
   const d = TK; if (!d) return;
-  const warna = {cat: WARNA_CAT, pagar: WARNA_PAGAR, topi: {tanpa: 'transparent', ...WARNA_TOPI}};
+  const warna = {cat: WARNA_CAT, pagar: WARNA_PAGAR, topi: {tanpa: 'transparent', ...WARNA_TOPI}, rumah: {}};
   let h = `<div class="vtSaldo"><span>Saldo</span><b>💎 ${d.permata} <small>· 🪙 ${d.koin}</small></b></div>
     <div class="tkBayar">Bayar pakai: <button data-tkbayar="permata" class="${tkBayar === 'permata' ? 'on' : ''}">💎 Permata</button><button data-tkbayar="koin" class="${tkBayar === 'koin' ? 'on' : ''}">🪙 Koin (×${d.kali})</button></div>`;
   for (const [j, daftar] of Object.entries(d.toko)) {
     h += `<div class="tkJenis"><b>${NAMA_TOKO[j][0]} ${NAMA_TOKO[j][1]}</b><div class="tkDaftar">` + Object.entries(daftar).map(([id, harga]) => {
       const punya = !harga || d.hias.punya[j].includes(id), pakai = (d.hias[j] || Object.keys(daftar)[0]) === id;
       const label = pakai ? 'Dipakai' : punya ? 'Pakai' : tkBayar === 'koin' ? `🪙 ${harga * d.kali}` : `💎 ${harga}`;
-      return `<button class="tkBrg${pakai ? ' on' : ''}" data-tkj="${j}" data-tkid="${id}" ${pakai ? 'disabled' : ''}><span class="tkWarna${id === 'tanpa' ? ' kosong' : ''}" style="background:${warna[j][id]}"></span>${id}<small>${label}</small></button>`; }).join('') + '</div></div>';
+      return `<button class="tkBrg${pakai ? ' on' : ''}" data-tkj="${j}" data-tkid="${id}" ${pakai ? 'disabled' : ''}>${tandaBrg(j, id, warna)}${NAMA_BRG[id] || id}<small>${label}</small></button>`; }).join('') + '</div></div>';
   }
   h += `<p class="kecil tkInfo">💎 Permata didapat dari <b>panen kebun di rumahmu</b> (tombol 🧺 Panen, +5 tiap 6 jam) dan donasi sukarela di Saweria (Rp1.000 = 1 bintang voting + 10 permata, tulis kode DK${S.saya?.no || ''}). Permata tidak masuk peringkat.</p>`;
   $('isiToko').innerHTML = h;
@@ -651,7 +670,7 @@ document.addEventListener('click', async e => {
     S.hias = TK.hias; S.saya.koin = TK.koin; S.saya.permata = TK.permata; hitungOnline(); tulisToko();
     if (j === 'topi') { S.av = bersihAv({...S.av, topi: WARNA_TOPI[id]}); gantiAvatarSaya(); }
     else bangunUlangKavling(S.saya.no);
-    toast('✨ ' + NAMA_TOKO[j][1] + ' ' + id + ' dipakai!', 2500);
+    toast(j === 'rumah' ? (id === 'dua' ? '🏡 Rumahmu sekarang 2 lantai!' : '🏠 Rumahmu kembali 1 lantai.') : '✨ ' + NAMA_TOKO[j][1] + ' ' + id + ' dipakai!', 2500);
   } catch (er) { toast(er.message, 3500); } finally { tkSibuk = false; }
 });
 function bukaMisi() {
@@ -1239,13 +1258,13 @@ function tulisProfil() {
   const sisa = (s.panenSiap || 0) - Date.now();
   $('pfPanen').textContent = sisa <= 0 ? '🧺 Kebunmu siap dipanen (+5 💎). Pulang ke rumah lalu tekan Panen.' : `🧺 Panen berikutnya ${sisa > 3600e3 ? Math.ceil(sisa / 3600e3) + ' jam' : Math.ceil(sisa / 60e3) + ' menit'} lagi.`;
   const brg = Object.entries(tas).map(([n, v]) => `<div class="pfBrg"><i>${v.ikon}</i><b>${esc(n)}</b><small>×${v.n}</small></div>`);
-  const h = S.hias || {}, punya = h.punya || {}, warna = {cat: WARNA_CAT, pagar: WARNA_PAGAR, topi: WARNA_TOPI};
-  const awal = {cat: 'krem', pagar: 'putih', topi: 'tanpa'};
-  for (const j of ['cat', 'pagar', 'topi']) {
+  const h = S.hias || {}, punya = h.punya || {}, warna = {cat: WARNA_CAT, pagar: WARNA_PAGAR, topi: WARNA_TOPI, rumah: {}};
+  const awal = {cat: 'krem', pagar: 'putih', topi: 'tanpa', rumah: 'satu'};
+  for (const j of ['rumah', 'cat', 'pagar', 'topi']) {
     const pakai = h[j] || awal[j];
     for (const id of new Set([awal[j], ...(punya[j] || [])])) {
-      if (id === 'tanpa') continue;
-      brg.push(`<div class="pfBrg${id === pakai ? ' on' : ''}"><i><span class="tkWarna" style="background:${warna[j][id]}"></span></i><b>${NAMA_TOKO[j][1]} ${esc(id)}</b><small>${id === pakai ? 'Dipakai' : 'Dimiliki'}</small></div>`);
+      if (id === 'tanpa' || id === 'satu') continue;
+      brg.push(`<div class="pfBrg${id === pakai ? ' on' : ''}"><i>${tandaBrg(j, id, warna)}</i><b>${NAMA_TOKO[j][1]} ${esc(NAMA_BRG[id] || id)}</b><small>${id === pakai ? 'Dipakai' : 'Dimiliki'}</small></div>`);
     }
   }
   $('pfInv').innerHTML = brg.length ? brg.join('') : '<p class="kecil">Inventori masih kosong.</p>';
