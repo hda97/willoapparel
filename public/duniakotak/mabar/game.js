@@ -973,7 +973,26 @@ function terima(q) {
   else if (q.t === 'e') { if (!S.bisu.has(q.no)) { gelembung(q.no, EMO[q.e] || '👋', true); bunyi('emosi'); } }
   else if (q.t === 'tolak' || q.t === 'info') toast(q.m, 3500);
 }
-function hitungOnline() { $('profOnline').textContent = S.tamu ? 'Mode tamu · daftar untuk ngobrol' : `● ${S.others.size + 1} online · 🪙 ${S.saya?.koin || 0} koin`; }
+// warga online SEMUA dusun digabung (6 Nov 2026); angka dusun ini dari ruang sendiri, sisanya dari /api/online tiap 20 detik
+const ON = {data: null, t: 0};
+async function muatOnline() { try { ON.data = await (await fetch('/duniakotak/api/online')).json(); ON.t = Date.now(); } catch (e) {} hitungOnline(); if (!$('panelOnline').hidden) tulisOnline(); }
+function jumlahOnline() {
+  const d = ON.data; if (!d || !d.warga) return S.others.size + (S.tamu ? 0 : 1);
+  const lain = d.warga.filter(x => x.d !== DI).length;   // dusun lain dari server; dusun ini langsung dari ruang (lebih baru)
+  return lain + S.others.size + (S.tamu ? 0 : 1);
+}
+function hitungOnline() { $('profOnline').textContent = S.tamu ? `Mode tamu · ● ${jumlahOnline()} warga online` : `● ${jumlahOnline()} online semua dusun · 🪙 ${S.saya?.koin || 0} koin`; }
+function tulisOnline() {
+  const ini = [...S.others].map(([no, o]) => ({no, ig: o.ig, d: DI}));
+  if (!S.tamu && S.saya) ini.unshift({no: S.saya.no, ig: S.saya.ig, d: DI, aku: true});
+  const semua = [...ini, ...((ON.data && ON.data.warga) || []).filter(x => x.d !== DI)];
+  $('ringkasOnline').textContent = `${semua.length} warga sedang main di semua dusun. Ketuk nama untuk mampir ke rumahnya.`;
+  $('isiOnline').innerHTML = Object.keys(NAMA_DUSUN).map(d => {
+    const w = semua.filter(x => x.d === d);
+    return `<div class="misi"><span class="mi">${{wetan: '🌾', kulon: '🍃', curug: '💦'}[d]}</span><div><b>Dusun ${NAMA_DUSUN[d]} · ${w.length} online</b><small>${w.length ? w.map(x => `<button class="chipOn" data-on="${x.no}">${x.aku ? '⭐ ' : ''}@${esc(x.ig || 'warga' + x.no)}</button>`).join(' ') : 'Sepi. Ajak temanmu main ke sini!'}</small></div><span></span></div>`;
+  }).join('');
+}
+function bukaOnline() { $('panelOnline').hidden = false; tulisOnline(); muatOnline(); }
 let kirimT = 0, posLama = '';
 function kirimPos(paksa) {
   if (!S.ws || S.ws.readyState !== 1) return;
@@ -1179,6 +1198,11 @@ function aturHUD() {
   $('bBukaChat').onclick = () => { $('chat').hidden = false; $('bBukaChat').hidden = true; tataHUD(); };
   $('bRumah').onclick = () => pergiKe(S.tamu ? 1 : S.saya.no);
   $('bKamera').onclick = () => bukaKamera();
+  $('profOnline').style.cursor = 'pointer'; $('profOnline').title = 'Lihat warga online';
+  $('profOnline').addEventListener('click', e => { e.stopPropagation(); bukaOnline(); });
+  $('tutupOnline').onclick = () => { $('panelOnline').hidden = true; };
+  $('isiOnline').addEventListener('click', e => { const b = e.target.closest('[data-on]'); if (!b) return; $('panelOnline').hidden = true; pergiKe(+b.dataset.on); });
+  muatOnline(); setInterval(muatOnline, 20000);
   $('profil').style.cursor = 'pointer';
   $('profil').onclick = () => { if (S.tamu) return toast('Daftar di willoapparel.com/duniakotak supaya dapat kavling.', 4000); toast(`Kode wargamu: ${S.saya.kode} · pakai untuk masuk dari HP lain. Jangan dibagikan.`, 6000); };
   $('bAvatar').onclick = () => { $('panelAtur').hidden = true; bukaPembuatAvatar(JSON.parse(JSON.stringify(S.av)), false); };

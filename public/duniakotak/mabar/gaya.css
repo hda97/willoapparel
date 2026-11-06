@@ -159,3 +159,5 @@ body.chatPenuh .chat{background:rgba(19,20,31,.92)}
 .daftarAtur{display:flex;flex-direction:column;gap:10px;margin:6px 0 14px}
 .barisAtur{display:flex;align-items:center;gap:12px;width:100%;padding:13px 16px;border-radius:14px;border:1px solid var(--garis);background:rgba(255,255,255,.06);color:#fff;font:800 15px Montserrat,sans-serif;text-align:left;cursor:pointer}
 .barisAtur i{font-style:normal;font-size:22px;line-height:1}
+.chipOn{display:inline-block;margin:3px 4px 0 0;padding:4px 9px;border-radius:999px;border:1px solid var(--garis);background:rgba(255,255,255,.08);color:#fff;font:700 12px Montserrat,sans-serif;cursor:pointer}
+#profOnline{text-decoration:underline dotted}
