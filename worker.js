@@ -1154,6 +1154,15 @@ export default {
     let pendek = url.pathname.toLowerCase();
     try { pendek = decodeURIComponent(pendek); } catch (e) {}
     pendek = pendek.replace(/[^a-z0-9]+$/, "").replace(/[^a-z0-9/]/g, "");
+    // Huda 7 Nov 2026: URL iklan Meta tidak bisa diubah → pengunjung beranda dari FB/IG
+    // (fbclid atau utm_source meta/fb/ig) dibawa ke halaman iklan kaos kelas. Hapus blok ini kalau iklan ganti tema.
+    if (url.pathname === "/" || url.pathname === "/index.html") {
+      const src = (url.searchParams.get("utm_source") || "").toLowerCase();
+      if (url.searchParams.has("fbclid") || ["meta", "facebook", "instagram", "fb", "ig"].includes(src)) {
+        url.pathname = "/kelas/";
+        return Response.redirect(url.toString(), 302);
+      }
+    }
     // Halaman iklan kaos kelas: /kelas, /KELAS, /kelas. → /kelas/ (parameter iklan ikut).
     if (pendek === "/kelas" && url.pathname !== "/kelas/") {
       url.pathname = "/kelas/";
