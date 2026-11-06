@@ -154,3 +154,8 @@ body.chatPenuh .chat{background:rgba(19,20,31,.92)}
 .chipKumpul b{font-weight:900}
 .chipKumpul.mulai{animation:kedip 1.2s ease-in-out infinite}
 @keyframes kedip{50%{transform:scale(1.06);box-shadow:0 0 0 6px rgba(255,210,58,.35)}}
+
+/* Pengaturan (6 Nov 2026): Suara, Avatar, Panduan dikumpulkan di satu tombol supaya deret atas tidak ramai */
+.daftarAtur{display:flex;flex-direction:column;gap:10px;margin:6px 0 14px}
+.barisAtur{display:flex;align-items:center;gap:12px;width:100%;padding:13px 16px;border-radius:14px;border:1px solid var(--garis);background:rgba(255,255,255,.06);color:#fff;font:800 15px Montserrat,sans-serif;text-align:left;cursor:pointer}
+.barisAtur i{font-style:normal;font-size:22px;line-height:1}
