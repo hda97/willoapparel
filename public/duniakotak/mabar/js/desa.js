@@ -1,5 +1,6 @@
 import {THREE,box,grad,raka,pose,run,face,rnd,reseed,dust} from './lib.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
+import {tanamanSel, VX} from './aset/tanaman.js';
 const L=(a,b,t)=>a+(b-a)*t, E=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2, C01=x=>Math.max(0,Math.min(1,x));
 function base(bg,fogC,fogD){const sc=new THREE.Scene();sc.background=bg;if(fogC!=null)sc.fog=new THREE.Fog(fogC,fogD[0],fogD[1]);const cam=new THREE.PerspectiveCamera(50,1080/1920,.1,400);return {sc,cam}}
 const pastel=()=>grad([[0,'#ffd6f0'],[.5,'#e6d8ff'],[1,'#b9c6ff']]);
@@ -210,7 +211,17 @@ function cropField(G,x0,z0,nx,nz,kind){const l=[],c=[];for(let i=0;i<nx;i++)for(
   else if(kind==='wortel'){c.push({p:V3(x,.42,z),s:.32,c:hsl(.33,.7,.38)});c.push({p:V3(x,.26,z),s:.26,c:hsl(.07,.9,.55)})}
   else if(kind==='jagung'){c.push({p:V3(x,.7,z),s:.25,c:hsl(.3,.6,.35)});c.push({p:V3(x,1.15,z),s:.28,c:hsl(.3,.6,.4)});c.push({p:V3(x+.18,.95,z),s:.2,c:hsl(.14,.9,.55)})}
   else {c.push({p:V3(x,.4,z),s:.42,c:hsl(.32,.6,.35+rnd()*.06)});if(rnd()<.6)c.push({p:V3(x+.12,.55,z+.1),s:.17,c:hsl(0,.8,.5)})}}
- const a=cubes(l);G.add(a);const b=cubes(c);G.add(b);if(TIPIS){a.scale.y=.1;b.position.y=-.26}}
+ const a=cubes(l);G.add(a);if(TIPIS){a.scale.y=.1;G.add(tanamanBedeng(l,kind));return}const b=cubes(c);G.add(b)}
+// Game (6 Nov 2026, Huda): tanaman kebun samping rumah pakai ASET TANAMAN kotak kecil (aset/tanaman.js), bukan kubus besar.
+// Satu tanaman per petak bedeng, tinggi ±0,55 (di bawah lutut-pinggang avatar); kubus polos (12 segitiga) supaya ringan di HP.
+const GEO_TANAMAN=new THREE.BoxGeometry(1,1,1),SEL_TANAMAN={};
+const PETA_TANAMAN={tomat:['tomat',3],jagung:['jagung',3],gandum:['matahari',3],wortel:['tomat',2]};
+function tanamanBedeng(l,kind){const [nm,th]=PETA_TANAMAN[kind]||['tomat',3];const k=nm+th;
+ const sel=SEL_TANAMAN[k]||(SEL_TANAMAN[k]=tanamanSel(nm,th));const H=Math.max(...sel.map(v=>v[1]))+1,sk=.55/(H*VX),u=VX*sk;
+ const im=new THREE.InstancedMesh(GEO_TANAMAN,new THREE.MeshStandardMaterial({roughness:.85}),sel.length*l.length);im.castShadow=true;im.receiveShadow=true;
+ const M=new THREE.Matrix4(),P=new THREE.Vector3(),Q=new THREE.Quaternion(),S=new THREE.Vector3(u*.98,u*.98,u*.98);let i=0;
+ for(const b of l){const ry=(b.p.x*7+b.p.z*13)%6;Q.setFromAxisAngle(new THREE.Vector3(0,1,0),ry);for(const [x,y,z,col] of sel){P.set(x*u,(y+.5)*u,z*u).applyQuaternion(Q);P.x+=b.p.x;P.z+=b.p.z;P.y+=.02;M.compose(P,Q,S);im.setMatrixAt(i,M);im.setColorAt(i++,col)}}
+ im.instanceMatrix.needsUpdate=true;return im}
 function lumbung(G,x,z){const g=new THREE.Group();const w=box(5,3.4,4,0xa8432f,.05);w.position.y=1.7;g.add(w);const gb=prism(5,1.8,4,0xa8432f);gb.position.y=3.4;g.add(gb);const rf=roofPlanes(5,1.8,4,0x5a4a3a);rf.position.y=3.4;g.add(rf);
  const dr=box(2.2,2.4,.1,0xf0e6d6,.03);dr.position.set(0,1.2,2.03);g.add(dr);[[0,1.2,.02,2.2,.14],[0,1.2,.02,.14,2.4]].forEach(([a,b,c,w2,h2])=>{const s=box(w2,h2,.06,0xa8432f,.01);s.position.set(a,b,2.1);g.add(s)});
  const hay=box(1.4,.9,.9,0xe8c860,.08);hay.position.set(2.9,.45,1.8);g.add(hay);const hay2=hay.clone();hay2.position.set(3.1,1.3,1.8);g.add(hay2);g.position.set(x,0,z);G.add(g)}
