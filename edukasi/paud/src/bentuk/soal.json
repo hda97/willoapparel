@@ -1,0 +1,17 @@
+{
+ "judul": "Pelangi Bentuk",
+ "urutan": "berurutan",
+ "pilihan": 3,
+ "soal": [
+  {"jenis": "warna", "target": "merah"},
+  {"jenis": "bentuk", "target": "lingkaran"},
+  {"jenis": "sortir-warna", "target": "biru"},
+  {"jenis": "warna", "target": "kuning"},
+  {"jenis": "bentuk", "target": "segitiga"},
+  {"jenis": "sortir-bentuk", "target": "persegi"},
+  {"jenis": "warna", "target": "hijau"},
+  {"jenis": "bentuk", "target": "bintang"},
+  {"jenis": "sortir-warna", "target": "ungu"},
+  {"jenis": "bentuk", "target": "hati"}
+ ]
+}

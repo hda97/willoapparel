@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Game Edukasi PAUD Voxel 3D · Willo</title>
+<meta name="description" content="Empat game edukasi PAUD bergaya voxel 3D: huruf, angka, warna dan bentuk, serta hewan. Ada suara pembaca soal, tombol besar, dan soal bisa diubah guru.">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff8ec;--teks:#2b2b2b;--kartu:#ffffff}
+@media (prefers-color-scheme:dark){:root{--bg:#1d1b18;--teks:#f3efe6;--kartu:#2a2723}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--teks);font-family:'Baloo 2',system-ui,sans-serif;padding:24px 16px 40px}
+h1{text-align:center;margin:8px 0 2px;font-size:clamp(28px,7vw,44px)}p.sub{text-align:center;margin:0 0 22px;font-size:18px;opacity:.8}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;max-width:1000px;margin:0 auto}
+a.k{display:block;background:var(--kartu);border-radius:26px;padding:22px 20px;text-decoration:none;color:inherit;box-shadow:0 7px 0 rgba(0,0,0,.12);border-top:10px solid var(--w)}
+a.k:active{transform:translateY(3px)}.ik{font-size:54px;line-height:1}.k h2{margin:6px 0 2px;color:var(--w);font-size:26px}.k p{margin:0;font-size:17px}
+.cat{max-width:760px;margin:26px auto 0;font-size:16px;opacity:.85;text-align:center}
+</style></head><body>
+<h1>Game Edukasi PAUD</h1><p class="sub">Dunia voxel 3D, suara pembaca soal, boleh coba lagi sampai bisa.</p>
+<div class="grid"><a class="k" style="--w:#2f9e44" href="huruf/"><div class="ik">🔤</div><h2>Petualang Huruf</h2><p>Mengenal huruf A sampai Z dan bunyi awal kata.</p></a><a class="k" style="--w:#e8590c" href="angka/"><div class="ik">🍎</div><h2>Petualang Angka</h2><p>Berhitung 1 sampai 20, banyak dan sedikit.</p></a><a class="k" style="--w:#7048e8" href="bentuk/"><div class="ik">🔺</div><h2>Pelangi Bentuk</h2><p>Mengenal warna dan bentuk dasar.</p></a><a class="k" style="--w:#c27c0e" href="binatang/"><div class="ik">🐮</div><h2>Kebun Binatang Suara</h2><p>Mengenal hewan, suara, dan makanannya.</p></a></div>
+<p class="cat">Untuk guru: setiap game punya tombol <b>Guru</b> untuk mengubah soal, menempel soal dari Excel, lalu mengunduh file HTML berisi soal Anda.</p>
+</body></html>
