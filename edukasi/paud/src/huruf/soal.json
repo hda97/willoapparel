@@ -1,0 +1,30 @@
+{
+ "judul": "Petualang Huruf",
+ "putaran": 10,
+ "pilihan": 3,
+ "jenis": "campur",
+ "soal": [
+  {"huruf": "A", "kata": "Apel", "gambar": "🍎"},
+  {"huruf": "B", "kata": "Bola", "gambar": "⚽"},
+  {"huruf": "C", "kata": "Cabai", "gambar": "🌶️"},
+  {"huruf": "D", "kata": "Domba", "gambar": "🐑"},
+  {"huruf": "E", "kata": "Elang", "gambar": "🦅"},
+  {"huruf": "G", "kata": "Gajah", "gambar": "🐘"},
+  {"huruf": "H", "kata": "Harimau", "gambar": "🐯"},
+  {"huruf": "I", "kata": "Ikan", "gambar": "🐟"},
+  {"huruf": "J", "kata": "Jeruk", "gambar": "🍊"},
+  {"huruf": "K", "kata": "Kucing", "gambar": "🐱"},
+  {"huruf": "L", "kata": "Lampu", "gambar": "💡"},
+  {"huruf": "M", "kata": "Mobil", "gambar": "🚗"},
+  {"huruf": "N", "kata": "Nanas", "gambar": "🍍"},
+  {"huruf": "O", "kata": "Obat", "gambar": "💊"},
+  {"huruf": "P", "kata": "Pisang", "gambar": "🍌"},
+  {"huruf": "R", "kata": "Rumah", "gambar": "🏠"},
+  {"huruf": "S", "kata": "Sapi", "gambar": "🐄"},
+  {"huruf": "T", "kata": "Topi", "gambar": "🎩"},
+  {"huruf": "U", "kata": "Ular", "gambar": "🐍"},
+  {"huruf": "W", "kata": "Wortel", "gambar": "🥕"},
+  {"huruf": "Y", "kata": "Yoyo", "gambar": "🪀"},
+  {"huruf": "Z", "kata": "Zebra", "gambar": "🦓"}
+ ]
+}

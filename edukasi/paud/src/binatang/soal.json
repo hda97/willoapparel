@@ -1,0 +1,29 @@
+{
+ "judul": "Kebun Binatang Suara",
+ "urutan": "berurutan",
+ "pilihan": 3,
+ "soal": [
+  {"jenis": "suara", "hewan": "kucing"},
+  {"jenis": "nama", "hewan": "gajah"},
+  {"jenis": "makanan", "hewan": "kelinci"},
+  {"jenis": "suara", "hewan": "sapi"},
+  {"jenis": "suara", "hewan": "ayam"},
+  {"jenis": "makanan", "hewan": "monyet"},
+  {"jenis": "nama", "hewan": "singa"},
+  {"jenis": "suara", "hewan": "bebek"},
+  {"jenis": "makanan", "hewan": "kucing"},
+  {"jenis": "suara", "hewan": "kambing"}
+ ],
+ "hewan": [
+  {"hewan": "kucing", "suara": "meong, meong", "makanan": "ikan"},
+  {"hewan": "anjing", "suara": "guk, guk", "makanan": "tulang"},
+  {"hewan": "sapi", "suara": "mooo, mooo", "makanan": "rumput"},
+  {"hewan": "kambing", "suara": "mbeeek, mbeeek", "makanan": "rumput"},
+  {"hewan": "ayam", "suara": "kukuruyuk", "makanan": "jagung"},
+  {"hewan": "bebek", "suara": "kwek, kwek, kwek", "makanan": "jagung"},
+  {"hewan": "kelinci", "suara": "", "makanan": "wortel"},
+  {"hewan": "monyet", "suara": "uu, aa, aa", "makanan": "pisang"},
+  {"hewan": "gajah", "suara": "nguuuung", "makanan": "tebu"},
+  {"hewan": "singa", "suara": "aummm", "makanan": "daging"}
+ ]
+}

@@ -1,0 +1,16 @@
+{
+ "judul": "Petualang Angka",
+ "urutan": "berurutan",
+ "soal": [
+  {"jenis": "masukkan", "angka": 2, "angka2": "", "buah": "apel"},
+  {"jenis": "berapa", "angka": 3, "angka2": "", "buah": "jeruk"},
+  {"jenis": "banding", "angka": 2, "angka2": 5, "buah": "stroberi"},
+  {"jenis": "masukkan", "angka": 4, "angka2": "", "buah": "jeruk"},
+  {"jenis": "berapa", "angka": 5, "angka2": "", "buah": "apel"},
+  {"jenis": "banding", "angka": 6, "angka2": 3, "buah": "pisang"},
+  {"jenis": "masukkan", "angka": 6, "angka2": "", "buah": "stroberi"},
+  {"jenis": "berapa", "angka": 8, "angka2": "", "buah": "pisang"},
+  {"jenis": "sedikit", "angka": 7, "angka2": 4, "buah": "apel"},
+  {"jenis": "berapa", "angka": 12, "angka2": "", "buah": "jeruk"}
+ ]
+}
