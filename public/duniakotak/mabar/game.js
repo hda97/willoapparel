@@ -834,7 +834,7 @@ function animSkill(dt, me) {
   // tombol skill menyala bila bisa dipakai
   const t = now | 0; if (t % 4 === 0 || !animSkill.t || now - animSkill.t > 300) { animSkill.t = now;
     // tombol hanya muncul saat skill bisa dipakai; joran sedang dipakai = tombol Mancing hilang
-    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me)};
+    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me)};
     for (const id in bisa) { const b = $(id); if (b.classList.contains('siap') !== bisa[id] || b.hidden === bisa[id]) { b.classList.toggle('siap', bisa[id]); b.hidden = !bisa[id]; } }
     if (air) misiMaju('sungai'); }
 }
@@ -847,8 +847,8 @@ function buatAvatarObj(av) { const o = warga(av); o.traverse(m => { if (m.isMesh
 function jalanAnim(o, ph, amp, isRaka) { const p = {legL: Math.sin(ph) * amp, legR: -Math.sin(ph) * amp, armL: -Math.sin(ph) * amp * .8, armR: Math.sin(ph) * amp * .8}; (isRaka ? rpose : wpose)(o, p); }
 function gantiAvatarSaya() {
   const p = tokoh.saya.position.clone(), r = tokoh.saya.rotation.y; sc.remove(tokoh.saya);
-  tokoh.saya = buatAvatarObj(S.av); tokoh.saya.position.copy(p); tokoh.saya.rotation.y = r; sc.add(tokoh.saya);
-  if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify({t: 'av', av: S.av}));
+  tokoh.saya = buatAvatarObj(avKerja(S.av)); tokoh.saya.position.copy(p); tokoh.saya.rotation.y = r; sc.add(tokoh.saya);
+  if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify({t: 'av', av: avKerja(S.av)}));
   fotoProfil();
 }
 
@@ -1151,6 +1151,118 @@ document.addEventListener('click', async e => {
   try { const r = await api('tanam', {kunci: S.kunci, bibit: b.dataset.tanam}); hasilKebun(r); $('panelTanam').hidden = true; bunyi('emosi'); toast(`🌱 Bibit ${S.saya.bibit[b.dataset.tanam].nama} ditanam. Panen 6 jam lagi.`, 3500); }
   catch (er) { toast(er.message, 3500); } finally { panenSibuk = false; }
 });
+// ---------- Profesi (audit ekonomi, Huda 6 Nov 2026) ----------
+// Dibuka dengan menukar permata di Kantor Desa (⚙ Atur / Profil). Gaji sama semua profesi: 1 shift = 5 tugas (±6 menit) di
+// fasum tempat kerjanya, maks 2 shift per hari. Seragam dipakai otomatis selama shift. Petani & pedagang = kebun & warung rumah.
+const TEMPAT_KERJA = {guru: /SD |Sekolah|Kampus/i, perawat: /Rumah Sakit/i, dokter: /Rumah Sakit/i, kasir: /Supermarket|Warung Desa/i, wasit: /Stadion/i, polisi: /Polisi/i, barista: /Kafe/i};
+const TEMPAT_TEKS = {petani: 'kebun rumahmu', pedagang: 'warung depan rumahmu', guru: 'SD atau Kampus', perawat: 'Rumah Sakit', dokter: 'Rumah Sakit (IGD)', kasir: 'Supermarket atau Warung Desa', wasit: 'Stadion', polisi: 'Kantor Polisi', barista: 'Kafe'};
+const TUGAS_TEKS = {petani: 'Tanam, panen, lalu jual hasilnya', pedagang: 'Jual hasil panen di warungmu', guru: 'Jawab pertanyaan murid', perawat: 'Antar kebutuhan pasien', dokter: 'Pilih obat yang cocok', kasir: 'Hitung belanjaan pembeli', wasit: 'Ambil keputusan di lapangan', polisi: 'Atur lalu lintas', barista: 'Racik pesanan minuman'};
+const SERAGAM = {guru: {jenis: 'kemeja', warna: '#b89a6a'}, perawat: {jenis: 'seragam', warna: '#f4f4f4'}, dokter: {jenis: 'kemeja', warna: '#f4f4f4'}, kasir: {jenis: 'kaos', warna: '#d0442f'}, wasit: {jenis: 'kaos', warna: '#1d1d22'}, polisi: {jenis: 'kemeja', warna: '#6a5a48'}, barista: {jenis: 'kemeja', warna: '#2a9a5a'}};
+const TUGAS_N = 5, TUGAS_JEDA = 90e3;
+let SH = null;   // shift berjalan: {p, t0, n, next}
+const avKerja = av => SH && SERAGAM[SH.p] ? {...av, atasan: SERAGAM[SH.p]} : av;
+const PF = () => S.saya?.profesi || {a: 'petani', punya: ['petani', 'pedagang'], shift: 0, batas: 2, gaji: 50};
+const DPF = () => S.saya?.daftarProfesi || {};
+function simpanShift() { if (SH) simpan('dk_shift', SH); else { try { localStorage.removeItem('dk_shift'); } catch (e) {} } }
+function pulihShift() {
+  const sh = !S.tamu && PF().sh; if (!sh) { SH = null; return; }
+  const lama = bacaJ('dk_shift'); SH = lama && lama.t0 === sh.t0 ? lama : {p: sh.p, t0: sh.t0, n: 0, next: 0};
+}
+const acak = a => a[Math.random() * a.length | 0];
+const kocok = a => a.map(x => [Math.random(), x]).sort((p, q) => p[0] - q[0]).map(x => x[1]);
+function pilihan(benar, salah) { const o = kocok([benar, ...kocok(salah.filter(x => x !== benar)).slice(0, 2)]); return {o, b: o.indexOf(benar)}; }
+const angkaDekat = n => [n + 1, n - 1, n + 2, n - 2, n + 10].filter(x => x > 0);
+const SOAL = {
+  guru() { const k = Math.random() < .5, a = 2 + Math.random() * 8 | 0, b = 2 + Math.random() * 8 | 0, j = k ? a * b : a + b; return {s: `🧒 Murid bertanya: <b>${a} ${k ? '×' : '+'} ${b} = ?</b>`, ...pilihan(j, angkaDekat(j))}; },
+  kasir() { const BR = [['🍅', 4], ['🥛', 6], ['🍞', 5], ['🍌', 3], ['🧃', 7], ['🍚', 9], ['🥚', 2]]; const b = kocok(BR).slice(0, 3), j = b.reduce((t, x) => t + x[1], 0);
+    return {s: `🧺 Pembeli membawa: ${b.map(x => `${x[0]} ${x[1]} 🪙`).join(' + ')}<br><b>Totalnya berapa?</b>`, ...pilihan(j, angkaDekat(j))}; },
+  perawat() { const D = [['Pasien kamar 2 haus', '💧 Air minum'], ['Suhu pasien perlu dicek', '🌡️ Termometer'], ['Lutut pasien lecet', '🩹 Plester'], ['Pasien kedinginan', '🧣 Selimut'], ['Waktunya minum obat', '💊 Obat'], ['Pasien mau duduk di taman', '🦽 Kursi roda']]; const d = acak(D);
+    return {s: `🛏️ ${d[0]}. <b>Bawakan apa?</b>`, ...pilihan(d[1], D.map(x => x[1]))}; },
+  dokter() { const D = [['Demam tinggi', '💊 Obat penurun panas'], ['Batuk berdahak', '🍯 Sirup batuk'], ['Luka di tangan', '🩹 Perban'], ['Sakit perut', '🍵 Obat maag'], ['Mata merah dan gatal', '💧 Obat tetes mata'], ['Kaki terkilir', '🧊 Kompres es']]; const d = acak(D);
+    return {s: `🤒 Keluhan pasien: <b>${d[0]}</b>. Obat yang cocok?`, ...pilihan(d[1], D.map(x => x[1]))}; },
+  wasit() { const D = [['Pemain menjegal lawan dengan keras', '🟨 Kartu kuning'], ['Bola masuk gawang', '⚽ Sahkan gol'], ['Bola keluar garis samping', '🙌 Lemparan ke dalam'], ['Waktu pertandingan habis', '📣 Peluit panjang'], ['Pemain terjatuh kesakitan', '⏸️ Hentikan permainan'], ['Bola keluar lewat belakang gawang', '🥅 Tendangan gawang']]; const d = acak(D);
+    return {s: `🏟️ ${d[0]}. <b>Keputusanmu?</b>`, ...pilihan(d[1], D.map(x => x[1]))}; },
+  polisi() { const D = [['Lampu merah menyala', '✋ Berhenti'], ['Lampu hijau menyala', '👉 Silakan jalan'], ['Ada anak mau menyeberang', '🚸 Hentikan kendaraan']]; const d = acak(D); return {s: `🚦 ${d[0]}. <b>Aba-abamu?</b>`, ...pilihan(d[1], D.map(x => x[1]))}; },
+  barista() { const D = [['Kopi susu dingin', '🧊 Kopi + susu + es'], ['Teh manis hangat', '🍵 Teh + gula + air panas'], ['Cokelat panas', '🍫 Cokelat + susu panas']]; const d = acak(D); return {s: `☕ Pesanan: <b>${d[0]}</b>. Racikannya?`, ...pilihan(d[1], D.map(x => x[1]))}; },
+};
+function diTempatKerja(me, p) {
+  const rx = TEMPAT_KERJA[p]; if (!rx || !me) return false;
+  if (S.saya && dusunDari(S.saya.no) !== DI) return false;   // shift hanya di dusun sendiri
+  if (fasumDalam && rx.test(fasumDalam.nama || '')) return true;
+  return fasumBangun.some(f => f.nama && rx.test(f.nama) && Math.hypot(f.position.x - me.position.x, f.position.z - me.position.z) < 7 * VS);
+}
+function bisaKerja(me) {
+  if (S.tamu || !S.saya) return false; const pf = PF(), p = SH ? SH.p : pf.a;
+  return !!TEMPAT_KERJA[p] && (SH || pf.shift < pf.batas) && diTempatKerja(me, p);
+}
+const mmss = ms => { const d = Math.max(0, Math.ceil(ms / 1000)); return `${d / 60 | 0}:${String(d % 60).padStart(2, '0')}`; };
+function labelKerja() {
+  const b = $('sKerja'); if (!b) return; let t = 'Kerja';
+  if (SH) t = Date.now() < SH.next ? mmss(SH.next - Date.now()) : `Tugas ${SH.n + 1}/${TUGAS_N}`;
+  const l = b.lastChild; if (l && l.nodeType === 3 && l.textContent !== t) l.textContent = t;
+  b.classList.toggle('tunggu', !!SH && Date.now() < SH.next);
+}
+let kerjaSibuk = false, soalKini = null;
+function hasilProfesi(r) { if (r.koin != null) S.saya.koin = r.koin; if (r.permata != null) S.saya.permata = r.permata; if (r.profesi) S.saya.profesi = r.profesi; hitungOnline(); }
+async function skillKerja() {
+  if (kerjaSibuk || !bisaKerja(tokoh.saya)) return;
+  if (!SH) {
+    kerjaSibuk = true;
+    try { const r = await api('profesi', {kunci: S.kunci, op: 'mulai'}); hasilProfesi(r); const sh = r.profesi.sh; SH = {p: sh.p, t0: sh.t0, n: 0, next: 0}; simpanShift(); gantiAvatarSaya();
+      const d = DPF()[SH.p] || {}; toast(`${d.ikon || '💼'} Shift ${d.nama || ''} dimulai! Seragam terpasang. Selesaikan ${TUGAS_N} tugas untuk gaji ${PF().gaji} 🪙.`, 4000); bunyi('masuk'); }
+    catch (e) { toast(e.message, 3500); kerjaSibuk = false; return; }
+    kerjaSibuk = false;
+  }
+  if (Date.now() < SH.next) { toast(`⏳ Tugas berikutnya ${mmss(SH.next - Date.now())} lagi. Tetap di tempat kerja ya.`, 2500); return; }
+  bukaSoal();
+}
+function bukaSoal() {
+  const d = DPF()[SH.p] || {}; soalKini = (SOAL[SH.p] || SOAL.guru)();
+  $('judulKerja').textContent = `${d.ikon || '💼'} Shift ${d.nama || ''} · tugas ${SH.n + 1}/${TUGAS_N}`;
+  $('isiKerja').innerHTML = `<p class="soal">${soalKini.s}</p><div class="jawab">${soalKini.o.map((o, i) => `<button data-jawab="${i}">${esc(String(o))}</button>`).join('')}</div>`;
+  $('panelKerja').hidden = false;
+}
+document.addEventListener('click', async e => {
+  const b = e.target.closest?.('[data-jawab]'); if (!b || !SH || !soalKini) return;
+  if (+b.dataset.jawab !== soalKini.b) { b.classList.add('salah'); b.disabled = true; bunyi('langkah'); return; }
+  b.classList.add('benar'); bunyi('emosi'); SH.n++; soalKini = null; SH.next = Date.now() + TUGAS_JEDA; simpanShift();
+  setTimeout(() => { $('panelKerja').hidden = true; }, 450);
+  if (SH.n < TUGAS_N) { toast(`✅ Tugas ${SH.n}/${TUGAS_N} beres! Tugas berikutnya ${TUGAS_JEDA / 60e3 * 60 | 0} detik lagi.`, 2500); return; }
+  selesaiShift();
+});
+async function selesaiShift() {
+  if (kerjaSibuk) return; kerjaSibuk = true;
+  try { const r = await api('profesi', {kunci: S.kunci, op: 'selesai'}); hasilProfesi(r); SH = null; simpanShift(); gantiAvatarSaya(); bunyi('masuk');
+    toast(`💼 Shift selesai! Gaji +${r.gaji} 🪙. Shift hari ini ${PF().shift}/${PF().batas}.`, 4000); }
+  catch (er) { if (/belum selesai/.test(er.message)) { SH.next = Date.now() + 20e3; simpanShift(); toast('⏳ Sebentar lagi shift selesai, tunggu sebentar di tempat kerja.', 3000); } else { toast(er.message, 3500); SH = null; simpanShift(); gantiAvatarSaya(); } }
+  finally { kerjaSibuk = false; }
+}
+// shift yang tugasnya sudah lengkap selesai otomatis begitu waktunya cukup
+setInterval(() => { labelKerja(); if (SH && SH.n >= TUGAS_N && Date.now() >= SH.next && !kerjaSibuk) selesaiShift(); }, 1000);
+function bukaProfesi() {
+  if (S.tamu) { toast('Daftar jadi warga dulu untuk punya profesi.', 3000); return; }
+  const pf = PF(), D = DPF(), pm = S.saya.permata || 0;
+  $('infoProfesi').innerHTML = `Gaji semua profesi sama: <b>${pf.gaji} 🪙 per shift</b> (${TUGAS_N} tugas, ±6 menit) di tempat kerjanya, maks ${pf.batas} shift per hari. Shift hari ini: <b>${pf.shift}/${pf.batas}</b>. Ganti profesi 1 kali per hari.`;
+  $('isiProfesi').innerHTML = Object.entries(D).map(([id, d]) => {
+    const punya = pf.punya.includes(id), aktif = pf.a === id;
+    const tb = aktif ? `<button disabled class="aktif">✓ Aktif</button>` : d.siap === false ? `<button disabled>Tunggu voting</button>`
+      : punya ? `<button data-pf="pakai" data-id="${id}" ${pf.gantiHariIni || SH ? 'disabled' : ''}>Pakai</button>` : `<button data-pf="buka" data-id="${id}" ${pm < d.harga || SH ? 'disabled' : ''}>💎 ${d.harga}</button>`;
+    return `<div class="rkBaris${aktif ? ' pfAktif' : ''}"><i>${d.ikon}</i><div><b>${esc(d.nama)}${d.harga ? '' : ' <span class="lencana">gratis</span>'}</b><small>${TUGAS_TEKS[id] || ''} · di ${TEMPAT_TEKS[id] || '-'}${d.siap === false ? ' (fasum belum menang voting)' : ''}</small></div>${tb}</div>`;
+  }).join('');
+  $('panelProfesi').hidden = false;
+}
+document.addEventListener('click', async e => {
+  const b = e.target.closest?.('[data-pf]'); if (!b || kerjaSibuk) return; kerjaSibuk = true;
+  const id = b.dataset.id, d = DPF()[id] || {};
+  try { const r = await api('profesi', {kunci: S.kunci, op: b.dataset.pf, id}); hasilProfesi(r); bunyi('emosi');
+    toast(b.dataset.pf === 'buka' ? `🎉 Profesi ${d.nama} terbuka! Pergi ke ${TEMPAT_TEKS[id]} lalu tekan 💼 Kerja.` : `${d.ikon} Sekarang kamu ${d.nama}.`, 4000); kerjaSibuk = false; bukaProfesi(); }
+  catch (er) { toast(er.message, 3500); kerjaSibuk = false; }
+});
+function teksProfesi() {
+  if (S.tamu || !S.saya) return ''; const pf = PF(), D = DPF(), a = D[pf.a] || {};
+  const lencana = pf.punya.filter(id => D[id]).map(id => `<span class="lencana" title="${esc(D[id].nama)}">${D[id].ikon} ${esc(D[id].nama)}</span>`).join(' ');
+  return `${a.ikon || '🧑‍🌾'} Profesi: <b>${esc(a.nama || 'Petani')}</b>${SH ? ` · sedang shift (${SH.n}/${TUGAS_N})` : ''}<br>${lencana}`;
+}
 function dekatBola(me) { const L = bolaLapangan(); return !!(L && BOLA.m && BOLA.m.visible && Math.hypot(BOLA.x - me.position.x, BOLA.z - me.position.z) < 2.2 * VS && BOLA.y < me.position.y + 4); }
 function skillTendang() {
   const me = tokoh.saya; if (!me || !dekatBola(me)) return;
@@ -1272,7 +1384,7 @@ function sambung() {
   const p = tokoh.saya.position;
   const u = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/duniakotak/api/ruang?dusun=' + DI + '&kunci=' + encodeURIComponent(S.kunci) + '&x=' + p.x.toFixed(1) + '&z=' + p.z.toFixed(1);
   const ws = new WebSocket(u); S.ws = ws;
-  ws.onopen = () => { coba = 0; ws.send(JSON.stringify({t: 'av', av: S.av})); kirimPos(true); };
+  ws.onopen = () => { coba = 0; ws.send(JSON.stringify({t: 'av', av: avKerja(S.av)})); kirimPos(true); };
   ws.onmessage = e => { let q; try { q = JSON.parse(e.data); } catch (er) { return; } terima(q); };
   ws.onclose = e => {
     S.others.forEach(o => sc.remove(o.obj)); S.others.clear(); hitungOnline();
@@ -1341,6 +1453,7 @@ function tulisProfil() {
   $('pfKoin').textContent = s.koin || 0; $('pfPermata').textContent = s.permata || 0;
   const k = s.kebun || {}, sisa = (k.siap || 0) - Date.now(), bb = k.b && s.bibit ? s.bibit[k.b] : null;
   $('pfPanen').textContent = !k.b ? '🌱 Kebunmu kosong. Pulang ke rumah lalu tekan Tanam.' : sisa <= 0 ? `🧺 ${bb ? bb.nama : 'Tanaman'} siap dipanen. Pulang ke rumah lalu tekan Panen.` : `🌱 ${bb ? bb.nama : 'Tanaman'} siap panen ${sisa > 3600e3 ? Math.ceil(sisa / 3600e3) + ' jam' : Math.ceil(sisa / 60e3) + ' menit'} lagi.`;
+  $('pfProfesi').innerHTML = teksProfesi();
   const brg = Object.entries(tas).map(([n, v]) => `<div class="pfBrg"><i>${v.ikon}</i><b>${esc(n)}</b><small>×${v.n}</small></div>`);
   const h = S.hias || {}, punya = h.punya || {}, warna = {cat: WARNA_CAT, pagar: WARNA_PAGAR, topi: WARNA_TOPI, rumah: {}};
   const awal = {cat: 'krem', pagar: 'putih', topi: 'tanpa', rumah: 'satu'};
@@ -1543,7 +1656,7 @@ async function mulai() {
   $('masuk').hidden = false; $('masukIsi').innerHTML = '<p class="muat">Membangun desa…</p>';
   await bangunDunia();
   const no = S.tamu ? 1 : S.saya.no; const L = I.lots[no] || I.lots[1] || {gate: I.spawn, dir: 1, c: I.spawn};
-  tokoh.saya = buatAvatarObj(S.av); tokoh.saya.position.set(L.gate.x + (S.tamu ? 3 * VS : 0), 0, L.gate.z + L.dir * 1.3 * VS); tokoh.saya.position.y = tanah(tokoh.saya.position.x, tokoh.saya.position.z); tokoh.saya.rotation.y = L.dir === 1 ? 0 : Math.PI; sc.add(tokoh.saya);
+  pulihShift(); tokoh.saya = buatAvatarObj(avKerja(S.av)); tokoh.saya.position.set(L.gate.x + (S.tamu ? 3 * VS : 0), 0, L.gate.z + L.dir * 1.3 * VS); tokoh.saya.position.y = tanah(tokoh.saya.position.x, tokoh.saya.position.z); tokoh.saya.rotation.y = L.dir === 1 ? 0 : Math.PI; sc.add(tokoh.saya);
   yaw = yawNow = L.dir === 1 ? 0 : Math.PI;   // kamera menghadap depan rumah sendiri
   const L1 = I.lots[1] || {gate: I.spawn.clone().add(new THREE.Vector3(-5 * VS, 0, -2.2 * VS)), dir: 1};
   tokoh.raka = raka('senang'); tokoh.raka.traverse(m => { if (m.isMesh) m.castShadow = true; }); tokoh.raka.position.set(L1.gate.x + 1.6 * VS, 0, L1.gate.z + L1.dir * 1.1 * VS); tokoh.raka.rotation.y = L1.dir === 1 ? .3 : Math.PI + .3; sc.add(tokoh.raka);
@@ -1599,12 +1712,13 @@ function aturHUD() {
   $('bPanduan').onclick = () => { $('panelAtur').hidden = true; panduan(); };
   $('bAtur').onclick = () => { $('jamAtur').textContent = $('jam').textContent.replace(/\s+/g, ' ').trim(); $('panelAtur').hidden = false; }; $('tutupAtur').onclick = () => { $('panelAtur').hidden = true; };
   $('bVoting').onclick = () => { $('panelAtur').hidden = true; bukaVoting(); };
+  $('bProfesi').onclick = () => { $('panelAtur').hidden = true; bukaProfesi(); }; $('pfProfesiB').onclick = () => { $('panelProfil').hidden = true; bukaProfesi(); }; $('tutupProfesi').onclick = () => { $('panelProfesi').hidden = true; };
   $('bToko').onclick = () => { $('panelAtur').hidden = true; bukaToko(); }; $('tutupToko').onclick = () => { $('panelToko').hidden = true; }; $('tutupVoting').onclick = () => { $('panelVoting').hidden = true; };
   $('panelAtur').addEventListener('click', e => { if (e.target === $('panelAtur')) $('panelAtur').hidden = true; });
   $('bDusun').onclick = pilihDusun;
   musikSiap();
   // pointerdown (bukan click): click tidak terpicu di HP saat jari lain masih menahan joystick -> bisa lompat sambil lari
-  $('sLompat').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); mulaiLompat(); }); $('sTendang').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); skillTendang(); }); $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan(); $('sPanen').onclick = () => skillPanen(); $('sTanam').onclick = () => bukaTanam(); $('sJual').onclick = () => skillJual(); $('tutupTanam').onclick = () => { $('panelTanam').hidden = true; };
+  $('sLompat').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); mulaiLompat(); }); $('sTendang').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); skillTendang(); }); $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan(); $('sPanen').onclick = () => skillPanen(); $('sTanam').onclick = () => bukaTanam(); $('sJual').onclick = () => skillJual(); $('sKerja').onclick = () => skillKerja(); $('tutupKerja').onclick = () => { $('panelKerja').hidden = true; }; $('tutupTanam').onclick = () => { $('panelTanam').hidden = true; };
   // semua tombol skill bereaksi saat disentuh (pointerdown), jadi tetap jalan walau jari lain menahan joystick
   for (const b of document.querySelectorAll('.zoom.skill button')) { const f = b.onclick; if (!f) continue; b.onclick = null; b.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); f.call(b, e); }); }
   if (innerHeight < 500) { $('chat').hidden = true; $('bBukaChat').hidden = false; zoom = .85; }
@@ -1879,4 +1993,4 @@ var tegakSesi = false; try { localStorage.removeItem('dk_tegak'); } catch (e) {}
 $('tetapTegak').onclick = () => { tegakSesi = true; $('miring').hidden = true; };
 onResize();
 layarMasuk();
-window.__dk = {S, HS, profil: bukaProfil, tanam: () => bukaTanam(), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
+window.__dk = {S, HS, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
