@@ -342,6 +342,7 @@ async function bangunDunia() {
     raka: 'done', filled: 999, isFilled: n => !!NM[n], names: NM, lazy: true, sm: hemat ? 1024 : 2048, shadowR: 70});
   I.light.castShadow = !hemat;
   pasangFasum();
+  pasangPapanDana();
   // kubus kembar yang banyak (jalan, hutan, sawah): dipecah per petak supaya yang di luar layar tidak digambar,
   // bentuk kubus versi ringan, dan tidak ikut bayangan (hemat untuk HP)
   kumpulPijakan(I.G);
@@ -463,10 +464,15 @@ const DEKOR = [
       const l = new THREE.Mesh(new THREE.BoxGeometry(.11, .13, .11), new THREE.MeshBasicMaterial({color: 0xffe08a})); l.position.y = .65; G.add(l); }},
   {id: 'keranjang', ikon: '🧺', nama: 'Keranjang buah', resep: {Apel: 3, Kayu: 1, Daun: 1}, pos: [2.55, 2.15], rot: 0, rect: [.22, .16],
     buat: G => { G.add(kotakD(.4, .16, .28, 0xb8844a, 0, .08, 0)); [[-.1, -.05], [.08, .04], [.0, -.02], [-.04, .07], [.12, -.06]].forEach(([x, z], i) => G.add(kotakD(.1, .1, .1, i === 3 ? 0x5cc85c : 0xe0403a, x, .2, z))); }},
+  {id: 'kolam', ikon: '🐟', nama: 'Kolam ikan', resep: null, pos: [-3.3, 3.0], rot: 0, rect: [.42, .32],
+    buat: G => { G.add(kotakD(.9, .1, .7, 0x9aa0a8, 0, .05, 0)); const air = new THREE.Mesh(new THREE.BoxGeometry(.76, .04, .56), new THREE.MeshStandardMaterial({color: 0x3aa0d8, roughness: .2})); air.position.y = .1; G.add(air);
+      [[-.18, -.1, 0xff8a2a], [.15, .08, 0xf4f4f4], [.02, -.15, 0xff8a2a]].forEach(([x, z, c]) => G.add(kotakD(.12, .04, .05, c, x, .13, z))); G.add(kotakD(.08, .14, .08, 0x3f9a3a, .3, .17, .2), kotakD(.12, .1, .12, 0x7a7a80, -.33, .15, .22)); }},
   {id: 'jamur', ikon: '🍄', nama: 'Taman jamur', resep: {Jamur: 3, Daun: 1}, pos: [-4.2, -.5], rot: 0, rect: [.25, .25],
     buat: G => { G.add(kotakD(.5, .04, .5, 0x6a4a2a, 0, .02, 0)); [[-.13, -.1, 1], [.12, -.05, .8], [0, .13, 1.2]].forEach(([x, z, k]) => { G.add(kotakD(.06 * k, .14 * k, .06 * k, 0xf4ecd8, x, .07 * k, z)); G.add(kotakD(.2 * k, .08 * k, .2 * k, 0xd84a4a, x, .16 * k, z)); }); }},
 ];
 const DK_SKALA = 1.5;
+// Hiasan pekarangan juga bisa dibeli pakai koin (audit ekonomi #2, harga sama dengan DEKOR_KOIN di server).
+const HARGA_DEKOR = {bangku: 100, pot: 100, lampu: 150, keranjang: 120, jamur: 100, kolam: 800};
 function dekorKavling(n) { return (S.saya && n === S.saya.no && S.hias ? S.hias.dekor : HS[n] && HS[n].d) || []; }
 function pasangDekor(n, L, extra, rects) {
   for (const id of dekorKavling(n)) {
@@ -480,9 +486,11 @@ let dkSibuk = false;
 function tulisRakit() {
   const h = S.hias || {}, punya = (h.punya && h.punya.dekor) || [], pasang = h.dekor || [];
   $('isiRakit').innerHTML = DEKOR.map(d => {
-    const ada = punya.includes(d.id), dipasang = pasang.includes(d.id), cukup = Object.entries(d.resep).every(([b, k]) => (tas[b]?.n || 0) >= k);
-    const bahan = Object.entries(d.resep).map(([b, k]) => `<span class="${(tas[b]?.n || 0) >= k ? 'ok' : 'kurang'}">${ITEM.find(x => x.nama === b)?.ikon || ''} ${tas[b]?.n || 0}/${k}</span>`).join('');
-    const tombol = ada ? `<button data-dk="${d.id}" data-dkm="${dipasang ? 'lepas' : 'pasang'}">${dipasang ? 'Lepas' : 'Pasang'}</button>` : `<button data-dk="${d.id}" data-dkm="rakit" ${cukup ? '' : 'disabled'}>🔨 Rakit</button>`;
+    const ada = punya.includes(d.id), dipasang = pasang.includes(d.id), cukup = d.resep && Object.entries(d.resep).every(([b, k]) => (tas[b]?.n || 0) >= k);
+    const harga = HARGA_DEKOR[d.id], koin = S.saya?.koin || 0;
+    const bahan = (d.resep ? Object.entries(d.resep).map(([b, k]) => `<span class="${(tas[b]?.n || 0) >= k ? 'ok' : 'kurang'}">${ITEM.find(x => x.nama === b)?.ikon || ''} ${tas[b]?.n || 0}/${k}</span>`).join('') + ' atau ' : 'Hanya bisa dibeli · ') + `🪙 ${harga}`;
+    const tombol = ada ? `<button data-dk="${d.id}" data-dkm="${dipasang ? 'lepas' : 'pasang'}">${dipasang ? 'Lepas' : 'Pasang'}</button>`
+      : (d.resep ? `<button data-dk="${d.id}" data-dkm="rakit" ${cukup ? '' : 'disabled'}>🔨 Rakit</button>` : '') + `<button data-dk="${d.id}" data-dkm="beli" ${koin >= harga ? '' : 'disabled'}>🪙 ${harga}</button>`;
     return `<div class="rkBaris${dipasang ? ' on' : ''}"><i>${d.ikon}</i><div><b>${d.nama}</b><small>${ada ? (dipasang ? 'Terpasang di pekaranganmu' : 'Sudah dirakit') : bahan}</small></div>${tombol}</div>`;
   }).join('');
 }
@@ -490,13 +498,14 @@ function bukaRakit() { if (S.tamu) return toast('Daftar jadi warga dulu supaya p
 document.addEventListener('click', async e => {
   const b = e.target.closest?.('[data-dk]'); if (!b || dkSibuk) return;
   const d = DEKOR.find(x => x.id === b.dataset.dk), mode = b.dataset.dkm; if (!d) return;
-  if (mode === 'rakit' && !Object.entries(d.resep).every(([n, k]) => (tas[n]?.n || 0) >= k)) return toast('Bahannya belum cukup. Pungut barang bercahaya di jalan.', 3000);
+  if (mode === 'rakit' && !(d.resep && Object.entries(d.resep).every(([n, k]) => (tas[n]?.n || 0) >= k))) return toast('Bahannya belum cukup. Pungut barang bercahaya di jalan.', 3000);
+  if (mode === 'beli' && !confirm(`Beli ${d.nama} seharga ${HARGA_DEKOR[d.id]} koin?`)) return;
   dkSibuk = true;
   try {
     const r = await api('dekor', {kunci: S.kunci, id: d.id, mode});
-    if (r.tas) aturTas(r.tas);
+    if (r.tas) aturTas(r.tas); if (r.koin != null) { S.saya.koin = r.koin; try { hitungOnline(); } catch (e) {} }
     S.hias = r.hias; bangunUlangKavling(S.saya.no); tulisRakit();
-    toast(mode === 'rakit' ? `🔨 ${d.nama} jadi! Sudah dipasang di pekaranganmu.` : mode === 'pasang' ? `${d.ikon} ${d.nama} dipasang.` : `${d.ikon} ${d.nama} dilepas.`, 3000);
+    toast(mode === 'rakit' ? `🔨 ${d.nama} jadi! Sudah dipasang di pekaranganmu.` : mode === 'beli' ? `🪙 ${d.nama} dibeli dan dipasang di pekaranganmu!` : mode === 'pasang' ? `${d.ikon} ${d.nama} dipasang.` : `${d.ikon} ${d.nama} dilepas.`, 3000);
   } catch (er) { toast(er.message, 3500); } finally { dkSibuk = false; }
 });
 // Upgrade rumah 2 lantai (Huda 6 Nov 2026): lantai 2 disisipkan di antara dinding dan atap rumah aset video (fullHouse),
@@ -762,7 +771,9 @@ function tulisToko() {
       return `<button class="tkBrg${pakai ? ' on' : ''}" data-tkj="${j}" data-tkid="${id}" ${pakai ? 'disabled' : ''}>${tandaBrg(j, id, warna)}${NAMA_BRG[id] || id}<small>${label}</small></button>`; }).join('') + '</div></div>';
   }
   h += `<p class="kecil tkInfo">💎 Permata didapat dari <b>panen kebun di rumahmu</b> (tanam bibit, lalu 🧺 Panen tiap 6 jam: +2 💎 + hasil yang bisa dijual) dan donasi sukarela di Saweria (Rp1.000 = 1 bintang voting + 10 permata, tulis kode DK${S.saya?.no || ''}). Permata tidak masuk peringkat.</p>`;
+  h += `<button class="barisAtur" id="tkDekor"><i>🪑</i><span>Hiasan pekarangan<small>Bangku, pot, lampu taman, kolam ikan · beli pakai 🪙 koin atau rakit</small></span></button>`;
   $('isiToko').innerHTML = h;
+  $('tkDekor').onclick = () => { $('panelToko').hidden = true; bukaRakit(); };
 }
 async function bukaToko() {
   if (S.tamu) { toast('Daftar jadi warga dulu supaya bisa menghias rumah.', 4000); return; }
@@ -1187,7 +1198,10 @@ function dekatRumah(me) {
 const NAMA_HASIL = () => Object.values(S.saya?.bibit || {}).map(b => b.nama);
 function bisaTanam(me) { return dekatRumah(me) && !(S.saya.kebun && S.saya.kebun.b); }
 function bisaPanen(me) { const k = S.saya?.kebun; return dekatRumah(me) && !!(k && k.b) && Date.now() >= k.siap; }
-function bisaJual(me) { return dekatRumah(me) && NAMA_HASIL().some(n => tas[n]?.n > 0); }
+// Audit ekonomi #2: ikan juga bisa dijual di warung (harga sama dengan server JUAL_IKAN); 2 ikan disisakan untuk kucing.
+const JUAL_IKAN = {'Ikan mas': 2, 'Ikan nila': 3, 'Ikan buntal kotak': 5, 'Udang': 6, 'Kepiting langka': 15};
+const ikanJual = () => Object.keys(JUAL_IKAN).reduce((a, n) => a + (tas[n]?.n || 0), 0) - 2;
+function bisaJual(me) { return dekatRumah(me) && (NAMA_HASIL().some(n => tas[n]?.n > 0) || ikanJual() > 0); }
 // Tampilan kebun ikut isi kebun warga (Huda 6 Nov 2026): kosong = tanah saja, lalu bibit → tunas → besar → berbuah (siap panen).
 // Ukuran tanaman dewasa sama dengan tanaman bedeng lama (tinggi 0,55 satuan kavling).
 let kebunTahap = null;
@@ -1215,7 +1229,7 @@ async function skillPanen() {
 }
 async function skillJual() {
   if (panenSibuk || !bisaJual(tokoh.saya)) return; panenSibuk = true;
-  try { const r = await api('jual', {kunci: S.kunci}); hasilKebun(r); bunyi('masuk'); toast(`💰 ${r.terjual} hasil panen laku di warungmu: +${r.dapatKoin} 🪙`, 3500); }
+  try { const r = await api('jual', {kunci: S.kunci}); hasilKebun(r); bunyi('masuk'); toast(`💰 ${r.terjual} hasil panen & ikan laku di warungmu: +${r.dapatKoin} 🪙`, 3500); }
   catch (e) { toast(e.message, 3500); } finally { panenSibuk = false; }
 }
 function bukaTanam() {
@@ -1281,7 +1295,7 @@ function labelKerja() {
 }
 let kerjaSibuk = false, soalKini = null;
 // ---------- iklan berhadiah (Google H5 Games Ads / Ad Placement API) ----------
-// Warga memilih sendiri menonton iklan → +5 💎 (maks 3x/hari, dicek server). Tidak ada iklan yang muncul sendiri saat main.
+// Warga memilih sendiri menonton iklan → +3 💎 (maks 3x/hari, dicek server). Tidak ada iklan yang muncul sendiri saat main.
 // Tombol tampil bila server menyalakan IKLAN_H5; ?ujiiklan=1 = mode uji Google (iklan contoh, tanpa hadiah).
 const IKLAN_PUB = 'ca-pub-1933161577421164';
 const IK = {aktif: false, uji: new URLSearchParams(location.search).has('ujiiklan'), sibuk: false};
@@ -1389,7 +1403,49 @@ function teksProfesi() {
 // ---------- Iuran pembangunan (Huda 6 Nov 2026: bar progres) ----------
 // Pemenang voting dibangun 7 hari setelah voting ditutup; tiap 1.000 koin iuran mempercepat 1 hari. Iuran tidak menentukan pemenang.
 let iuranSibuk = false, IU = null;
+// Papan "Dana pembangunan" di lahan fasum voting berikutnya (audit ekonomi #2): calon unggul + bar iuran, diperbarui tiap 5 menit.
+const PAPAN = {mesh: null, kanvas: null, tex: null, data: null};
+function pasangPapanDana() {
+  const f = I.fas && I.fas[13]; if (!f) return;
+  const g = new THREE.Group(), kayu = new THREE.MeshStandardMaterial({color: 0x6a4a2a, roughness: .9});
+  for (const x of [-9, 9]) { const t = new THREE.Mesh(new THREE.BoxGeometry(.9, 16, .9), kayu); t.position.set(x, 8, 0); g.add(t); }
+  const c = document.createElement('canvas'); c.width = 640; c.height = 400;
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+  const papan = new THREE.Mesh(new THREE.BoxGeometry(20, 12.5, .5), [kayu, kayu, kayu, kayu, new THREE.MeshBasicMaterial({map: tex}), kayu]);
+  papan.position.y = 13; g.add(papan);
+  g.position.set(f.x, 0, f.z + 14); sc.add(g);
+  Object.assign(PAPAN, {mesh: g, kanvas: c, tex});
+  gambarPapan(); segarPapan(); setInterval(segarPapan, 5 * 60e3);
+}
+async function segarPapan() { try { PAPAN.data = await (await fetch('/duniakotak/api/voting')).json(); gambarPapan(); } catch (e) {} }
+function gambarPapan() {
+  const c = PAPAN.kanvas; if (!c) return; const x = c.getContext('2d'), d = PAPAN.data || {};
+  x.fillStyle = '#f6ecd6'; x.fillRect(0, 0, 640, 400); x.strokeStyle = '#6a4a2a'; x.lineWidth = 14; x.strokeRect(7, 7, 626, 386);
+  x.fillStyle = '#3a2a1a'; x.textAlign = 'center'; x.font = '900 40px Montserrat, sans-serif'; x.fillText('LAHAN FASUM BERIKUTNYA', 320, 70);
+  const hasil = Object.entries(d.hasil || {}).sort((a, b) => b[1] - a[1]), un = hasil[0];
+  x.font = '800 34px Montserrat, sans-serif'; x.fillStyle = '#b4532a';
+  x.fillText(un && un[1] ? `Unggul: ${(CALON[un[0]] || ['', un[0]])[1]} (${un[1]} bintang)` : 'Voting fasum sedang berjalan', 320, 135);
+  const dn = d.dana || {total: 0, target: 7000, hari: 7}, pr = Math.min(1, dn.total / dn.target);
+  x.fillStyle = '#3a2a1a'; x.font = '700 28px Montserrat, sans-serif'; x.fillText('Dana pembangunan', 320, 200);
+  x.fillStyle = '#d9cdb2'; x.fillRect(60, 220, 520, 48); x.fillStyle = '#2a9a5a'; x.fillRect(60, 220, 520 * pr, 48);
+  x.fillStyle = '#1d1d22'; x.font = '800 28px Montserrat, sans-serif'; x.fillText(`${dn.total.toLocaleString('id-ID')} / ${dn.target.toLocaleString('id-ID')} koin`, 320, 254);
+  x.font = '700 24px Montserrat, sans-serif'; x.fillText(`Dibangun ${dn.hari} hari setelah voting ditutup`, 320, 312);
+  x.fillStyle = '#6a5a48'; x.fillText('Iuran: Atur > Voting Fasum', 320, 352);
+  PAPAN.tex.needsUpdate = true;
+}
+// Pengingat koin sekali sehari (audit ekonomi #2): kasih tahu koinnya cukup untuk apa, supaya koin tidak cuma menumpuk.
+function ingatKoin() {
+  if (S.tamu || !S.saya || baca('dk_ingat') === hariIni()) return;
+  const k = S.saya.koin || 0, h = S.hias || {}, p = h.punya || {}, dk = p.dekor || [];
+  const pilih = [[1500, 'upgrade rumah 2 lantai', !(p.rumah || []).includes('dua')], [800, 'kolam ikan di pekarangan', !dk.includes('kolam')],
+    [300, 'cat rumah warna baru', (p.cat || []).length < 6], [200, 'pagar atau topi baru', (p.pagar || []).length < 4], [100, 'bangku atau pot taman', !dk.includes('bangku') || !dk.includes('pot')]]
+    .find(([hg, , ok]) => ok && k >= hg);
+  if (!pilih) return;
+  simpan('dk_ingat', hariIni());
+  toast(`🪙 Koinmu ${k}, cukup untuk ${pilih[1]} di ⚙ Atur → Toko Hias. Bisa juga iuran bangun fasum di Voting.`, 6500);
+}
 function tulisDana() {
+  if (VT && VT.dana && PAPAN.kanvas) { PAPAN.data = {...(PAPAN.data || {}), dana: VT.dana, hasil: VT.hasil || PAPAN.data?.hasil}; gambarPapan(); }
   const d = VT?.dana; if (!d) { $('vtDana').innerHTML = ''; return; }
   const pr = Math.min(100, d.total / d.target * 100), penuh = d.total >= d.target, k = S.saya?.koin || 0, pm = S.saya?.permata || 0;
   let h = `<b>🏗️ Dana pembangunan</b><div class="danaBar"><span style="width:${pr.toFixed(1)}%"></span><em>${d.total.toLocaleString('id-ID')} / ${d.target.toLocaleString('id-ID')} 🪙</em></div>`
@@ -1819,6 +1875,7 @@ async function mulai() {
   if (!baca('dk_panduan')) panduan();
   // Voting Fasum muncul sebagai pop up saat masuk game, sekali per hari (Huda 6 Nov 2026), sekalian ambil bintang gratis harian.
   else if (!S.tamu && baca('dk_vt') !== hariIni()) { simpan('dk_vt', hariIni()); setTimeout(bukaVoting, 1200); }
+  if (!S.tamu && baca('dk_ingat') !== hariIni()) setTimeout(ingatKoin, 45e3);
   onResize(); requestAnimationFrame(loop);
   { const ke = new URLSearchParams(location.search).get('ke'); if (ke) setTimeout(() => keTempat(ke), 1500); }
   $('chipKumpul').onclick = keKumpul;

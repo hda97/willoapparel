@@ -52,7 +52,7 @@ const TOKO_HIAS = {
 };
 // Rakit Hiasan (Huda 6 Nov 2026): barang pungutan (apel, bunga, kayu, daun, batu, jamur) dirakit jadi hiasan pekarangan.
 // Bahan dihitung di tas warga (HP); server menyimpan hiasan yang dimiliki & dipasang supaya terlihat warga lain.
-const DEKOR = ["bangku", "pot", "lampu", "keranjang", "jamur"];
+const DEKOR = ["bangku", "pot", "lampu", "keranjang", "jamur", "kolam"];
 const RESEP_DEKOR = { bangku: { Kayu: 3, "Batu kotak": 1 }, pot: { Bunga: 2, Daun: 1, "Batu kotak": 1 }, lampu: { Kayu: 2, "Batu kotak": 2 }, keranjang: { Apel: 3, Kayu: 1, Daun: 1 }, jamur: { Jamur: 3, Daun: 1 } };
 // Tas warga disimpan di SERVER (audit ekonomi 6 Nov 2026): barang pungutan & hasil mancing tidak bisa diakali lewat HP.
 const BARANG = { Apel: "🍎", Bunga: "🌼", Kayu: "🪵", Jamur: "🍄", "Batu kotak": "🪨", Daun: "🍃" };
@@ -61,13 +61,19 @@ const BATAS_AMBIL = 60, BATAS_MANCING = 40;   // per hari WIB
 const KOIN_PER_PERMATA = 10;
 // Iklan berhadiah Google H5 Games Ads (Huda 6 Nov 2026): warga MEMILIH sendiri menonton iklan → +5 permata, maks 3x/hari WIB.
 // Hanya permata (bukan koin). Menyala bila variabel IKLAN_H5 = "1" (setelah Google menyetujui H5 Games Ads).
-const IKLAN_PERMATA = 5, IKLAN_BATAS = 3, IKLAN_MIN = 8000;
+const IKLAN_PERMATA = 3, IKLAN_BATAS = 3, IKLAN_MIN = 8000;
 // Panen kebun sendiri (Huda 6 Nov 2026): permata juga didapat dari panen, tiap 6 jam sekali, +5 permata.
 const PANEN_JEDA = 6 * 3600e3, PANEN_PERMATA = 2;
 // Bibit & jual hasil panen (audit ekonomi, Huda 6 Nov 2026): bibit dibeli koin tiap tanam, panen = 5 hasil + 2 permata,
 // hasil dijual di warung depan rumah (batas 60 hasil/hari). Untung terbaik +20 koin per panen (cabai).
-const BIBIT = { tomat: { nama: "Tomat", ikon: "🍅", harga: 10, hasil: 5, jual: 4 }, jagung: { nama: "Jagung", ikon: "🌽", harga: 20, hasil: 5, jual: 7 }, cabai: { nama: "Cabai", ikon: "🌶️", harga: 30, hasil: 5, jual: 10 } };
+const BIBIT = { tomat: { nama: "Tomat", ikon: "🍅", harga: 10, hasil: 5, jual: 6 }, jagung: { nama: "Jagung", ikon: "🌽", harga: 20, hasil: 5, jual: 9 }, cabai: { nama: "Cabai", ikon: "🌶️", harga: 30, hasil: 5, jual: 14 } };
 const BATAS_JUAL = 60;
+// Audit ekonomi #2 (Huda 6 Nov 2026): harga jual kebun naik (tomat 6, jagung 9, cabai 14) dan IKAN bisa dijual di warung
+// (ikut batas 60/hari). 2 ikan termurah selalu disisakan untuk makan kucing.
+const JUAL_IKAN = { "Ikan mas": 2, "Ikan nila": 3, "Ikan buntal kotak": 5, "Udang": 6, "Kepiting langka": 15 };
+const SISA_IKAN = 2;
+// Hiasan pekarangan bisa dibeli pakai KOIN (penyerap koin), selain dirakit dari bahan. Kolam ikan hanya bisa dibeli.
+const DEKOR_KOIN = { bangku: 100, pot: 100, lampu: 150, keranjang: 120, jamur: 100, kolam: 800 };
 // Profesi (audit ekonomi, Huda 6 Nov 2026): dibuka dengan menukar permata di Kantor Desa; gaji SAMA untuk semua profesi
 // (permata hanya membeli pilihan profesi + seragam, bukan gaji lebih besar). Petani & pedagang gratis (penghasilan dari kebun/warung).
 // siap:false = fasum tempat kerjanya belum berdiri (tunggu menang voting).
@@ -484,7 +490,13 @@ export class Warga extends DurableObject {
         for (const bb of Object.values(BIBIT)) { const x = t.isi[bb.nama]; if (!x) continue;
           const k = Math.min(x.n, BATAS_JUAL - kb.jn - n); if (k <= 0) continue;
           x.n -= k; if (x.n <= 0) delete t.isi[bb.nama]; n += k; dapat += k * bb.jual; }
-        if (!n) return Response.json({ galat: kb.jn >= BATAS_JUAL ? "Warungmu sudah laku " + BATAS_JUAL + " hasil hari ini. Jual lagi besok." : "Belum ada hasil panen untuk dijual." }, { status: 400 });
+        // ikan: yang mahal dijual dulu, 2 ikan termurah disisakan untuk kucing
+        const ikan = Object.keys(JUAL_IKAN).filter((nm) => t.isi[nm] && t.isi[nm].n > 0);
+        let bisa = ikan.reduce((a, nm) => a + t.isi[nm].n, 0) - SISA_IKAN;
+        for (const nm of ikan.sort((a, b) => JUAL_IKAN[b] - JUAL_IKAN[a])) { if (bisa <= 0) break; const x = t.isi[nm];
+          const k = Math.min(x.n, bisa, BATAS_JUAL - kb.jn - n); if (k <= 0) continue;
+          x.n -= k; if (x.n <= 0) delete t.isi[nm]; n += k; bisa -= k; dapat += k * JUAL_IKAN[nm]; }
+        if (!n) return Response.json({ galat: kb.jn >= BATAS_JUAL ? "Warungmu sudah laku " + BATAS_JUAL + " hasil hari ini. Jual lagi besok." : "Belum ada hasil panen atau ikan untuk dijual (2 ikan disisakan untuk kucing)." }, { status: 400 });
         kb.jn += n; koin += dapat; info = { terjual: n, dapatKoin: dapat };
         this.sql.exec("UPDATE warga SET koin = ?, koinTotal = COALESCE(koinTotal, 0) + ?, kebun = ?, tas = ? WHERE no = ?", koin, dapat, JSON.stringify(kb), JSON.stringify(t), r.no);
       }
@@ -583,6 +595,13 @@ export class Warga extends DurableObject {
       if (!r) return Response.json({ galat: "Masuk dulu sebagai warga." }, { status: 401 });
       if (!DEKOR.includes(q.id) || !q.mode) return Response.json({ galat: "Hiasan tidak ada." }, { status: 400 });
       const h = this.bacaHias(r); h.punya.dekor = h.punya.dekor || []; h.dekor = (h.dekor || []).filter(x => DEKOR.includes(x));
+      if (q.mode === "beli" && !h.punya.dekor.includes(q.id)) {
+        const harga = DEKOR_KOIN[q.id]; if (!harga) return Response.json({ galat: "Hiasan tidak dijual." }, { status: 400 });
+        if ((r.koin || 0) < harga) return Response.json({ galat: "Koinmu kurang (" + harga + " koin)." }, { status: 400 });
+        r.koin = (r.koin || 0) - harga; this.sql.exec("UPDATE warga SET koin = ? WHERE no = ?", r.koin, r.no);
+        h.punya.dekor.push(q.id);
+      }
+      if (q.mode === "rakit" && !RESEP_DEKOR[q.id]) return Response.json({ galat: "Hiasan ini hanya bisa dibeli pakai koin." }, { status: 400 });
       if (q.mode === "rakit" && !h.punya.dekor.includes(q.id)) {
         const t = this.bacaTas(r), resep = RESEP_DEKOR[q.id];
         if (!Object.entries(resep).every(([n, k]) => (t.isi[n] && t.isi[n].n || 0) >= k)) return Response.json({ galat: "Bahannya belum cukup. Pungut barang bercahaya di jalan." }, { status: 400 });
@@ -593,7 +612,7 @@ export class Warga extends DurableObject {
       if (q.mode !== "lepas" && !h.punya.dekor.includes(q.id)) return Response.json({ galat: "Rakit dulu hiasannya." }, { status: 400 });
       h.dekor = h.dekor.filter(x => x !== q.id); if (q.mode !== "lepas") h.dekor.push(q.id);
       this.sql.exec("UPDATE warga SET hias = ? WHERE no = ?", JSON.stringify(h), r.no);
-      return Response.json({ hias: h, tas: this.bacaTas(r).isi });
+      return Response.json({ hias: h, tas: this.bacaTas(r).isi, koin: r.koin || 0 });
     }
     if (aksi === "toko") {
       const q = await request.json();
@@ -990,7 +1009,7 @@ async function apiWarga(request, env, url) {
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "dekor") {
-    const q = { kunci: String(body.kunci || "").slice(0, 64), id: String(body.id || "").slice(0, 12), mode: ["rakit", "pasang", "lepas"].includes(body.mode) ? body.mode : "" };
+    const q = { kunci: String(body.kunci || "").slice(0, 64), id: String(body.id || "").slice(0, 12), mode: ["rakit", "beli", "pasang", "lepas"].includes(body.mode) ? body.mode : "" };
     const r = await stub.fetch("https://do/dekor", { method: "POST", body: JSON.stringify(q) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
