@@ -635,7 +635,7 @@ function tulisToko() {
       const label = pakai ? 'Dipakai' : punya ? 'Pakai' : tkBayar === 'koin' ? `🪙 ${harga * d.kali}` : `💎 ${harga}`;
       return `<button class="tkBrg${pakai ? ' on' : ''}" data-tkj="${j}" data-tkid="${id}" ${pakai ? 'disabled' : ''}><span class="tkWarna${id === 'tanpa' ? ' kosong' : ''}" style="background:${warna[j][id]}"></span>${id}<small>${label}</small></button>`; }).join('') + '</div></div>';
   }
-  h += `<p class="kecil tkInfo">💎 Permata didapat dari donasi sukarela di Saweria: Rp1.000 = 1 bintang voting + ${10} permata (tulis kode DK${S.saya?.no || ''}). Permata tidak masuk peringkat.</p>`;
+  h += `<p class="kecil tkInfo">💎 Permata didapat dari <b>panen kebun di rumahmu</b> (tombol 🧺 Panen, +5 tiap 6 jam) dan donasi sukarela di Saweria (Rp1.000 = 1 bintang voting + 10 permata, tulis kode DK${S.saya?.no || ''}). Permata tidak masuk peringkat.</p>`;
   $('isiToko').innerHTML = h;
 }
 async function bukaToko() {
@@ -747,7 +747,7 @@ function animSkill(dt, me) {
   // tombol skill menyala bila bisa dipakai
   const t = now | 0; if (t % 4 === 0 || !animSkill.t || now - animSkill.t > 300) { animSkill.t = now;
     // tombol hanya muncul saat skill bisa dipakai; joran sedang dipakai = tombol Mancing hilang
-    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me)};
+    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me)};
     for (const id in bisa) { const b = $(id); if (b.classList.contains('siap') !== bisa[id] || b.hidden === bisa[id]) { b.classList.toggle('siap', bisa[id]); b.hidden = !bisa[id]; } }
     if (air) misiMaju('sungai'); }
 }
@@ -1033,6 +1033,17 @@ function bolaBuat(L) {
   sc.add(g); BOLA.m = g; BOLA.x = L.cx; BOLA.z = L.cz; BOLA.y = L.lantai + BOLA_R;
 }
 // skill Tendang (Huda 6 Nov: ganti skill Ngobrol): tombol muncul bila bola dekat; tendangan keras melambung ke arah hadap avatar
+// panen kebun sendiri tiap 6 jam: +5 permata (dicek server)
+function bisaPanen(me) {
+  if (S.tamu || !S.saya || !I || Date.now() < (S.saya.panenSiap || 0) || !lotRuntime.has(S.saya.no)) return false;
+  const L = I.lots[S.saya.no]; return !!L && Math.hypot(L.c.x - me.position.x, L.c.z - me.position.z) < 4.5 * VS;
+}
+let panenSibuk = false;
+async function skillPanen() {
+  if (panenSibuk || !bisaPanen(tokoh.saya)) return; panenSibuk = true;
+  try { const r = await api('panen', {kunci: S.kunci}); S.saya.permata = r.permata; S.saya.panenSiap = r.panenSiap; hitungOnline(); toast(`🧺 Panen kebun! +${r.dapat} 💎 permata. Panen lagi 6 jam lagi.`, 3500); }
+  catch (e) { toast(e.message, 3000); S.saya.panenSiap = Date.now() + 60000; } finally { panenSibuk = false; }
+}
 function dekatBola(me) { const L = bolaLapangan(); return !!(L && BOLA.m && BOLA.m.visible && Math.hypot(BOLA.x - me.position.x, BOLA.z - me.position.z) < 2.2 * VS && BOLA.y < me.position.y + 4); }
 function skillTendang() {
   const me = tokoh.saya; if (!me || !dekatBola(me)) return;
@@ -1436,7 +1447,7 @@ function aturHUD() {
   $('bDusun').onclick = pilihDusun;
   musikSiap();
   // pointerdown (bukan click): click tidak terpicu di HP saat jari lain masih menahan joystick -> bisa lompat sambil lari
-  $('sLompat').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); mulaiLompat(); }); $('sTendang').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); skillTendang(); }); $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan();
+  $('sLompat').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); mulaiLompat(); }); $('sTendang').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); skillTendang(); }); $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan(); $('sPanen').onclick = () => skillPanen();
   // semua tombol skill bereaksi saat disentuh (pointerdown), jadi tetap jalan walau jari lain menahan joystick
   for (const b of document.querySelectorAll('.zoom.skill button')) { const f = b.onclick; if (!f) continue; b.onclick = null; b.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); f.call(b, e); }); }
   if (innerHeight < 500) { $('chat').hidden = true; $('bBukaChat').hidden = false; zoom = .85; }
