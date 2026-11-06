@@ -57,6 +57,30 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--latar);font-fami
 .kotak h1{margin:0 0 4px;font-size:clamp(30px,8vw,42px);color:var(--aksen);line-height:1.05}
 .kotak p{margin:4px 0 16px;font-size:20px;font-weight:600}
 .besar{border:0;border-radius:26px;background:var(--aksen);color:#fff;font-family:inherit;font-size:30px;font-weight:800;padding:14px 40px;box-shadow:0 7px 0 rgba(0,0,0,.22);cursor:pointer}
+.dukung{display:block;margin-top:16px;font-size:14px;font-weight:600;color:#777;text-decoration:none;letter-spacing:.2px}.dukung b{color:#e8590c}
+/* menu awal ceria untuk anak: tokoh 3D tetap terlihat di tengah */
+#layarMulai{flex-direction:column;justify-content:space-between;background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,0) 34%,rgba(255,255,255,0) 66%,rgba(255,255,255,.75));padding:calc(64px + env(safe-area-inset-top)) 16px calc(26px + env(safe-area-inset-bottom));overflow:hidden}
+body:has(#layarMulai:not([hidden])) .bawah,body:has(#layarMulai:not([hidden])) #bintang{visibility:hidden}
+.mAtas{text-align:center;position:relative;z-index:1;animation:jatuh .8s cubic-bezier(.3,1.7,.5,1) both}
+.mAtas .ikonBesar{font-size:clamp(52px,13vw,76px);display:inline-block;animation:ayun 2.4s ease-in-out infinite;filter:drop-shadow(0 5px 0 rgba(0,0,0,.15))}
+#mulaiJudul{margin:2px 0 8px;font-size:clamp(40px,11.5vw,78px);line-height:1;font-weight:800;letter-spacing:1px}
+#mulaiJudul .kata{white-space:nowrap;font-weight:inherit}#mulaiJudul span{display:inline-block;animation:loncat 1.8s ease-in-out infinite;text-shadow:0 3px 0 #fff,0 -3px 0 #fff,3px 0 0 #fff,-3px 0 0 #fff,0 8px 0 rgba(0,0,0,.18)}
+#mulaiAjak{display:inline-block;margin:0;background:#fff;border-radius:99px;padding:7px 20px;font-size:clamp(17px,4.6vw,22px);font-weight:700;box-shadow:0 5px 0 rgba(0,0,0,.12)}
+.mBawah{background:none!important;box-shadow:none!important;padding:0!important;position:relative;z-index:1}
+#bMulai{font-size:clamp(34px,9vw,44px);padding:16px 62px;border:6px solid #fff;animation:denyut 1.3s ease-in-out infinite;box-shadow:0 8px 0 rgba(0,0,0,.22),0 0 0 0 var(--aksen)}
+.hias{position:absolute;inset:0;pointer-events:none}
+.hias i{position:absolute;bottom:-60px;font-style:normal;font-size:30px;opacity:.85;animation:naik 9s linear infinite;text-shadow:0 3px 0 rgba(0,0,0,.12)}
+.hias i:nth-child(6n+1){color:#ff6b6b}.hias i:nth-child(6n+2){color:#ffd43b}.hias i:nth-child(6n+3){color:#51cf66}.hias i:nth-child(6n+4){color:#4dabf7}.hias i:nth-child(6n+5){color:#b197fc}.hias i:nth-child(6n){color:#ff922b}
+.hias i:nth-child(1){left:4%;animation-delay:0s}.hias i:nth-child(2){left:14%;animation-delay:-3s;font-size:22px}.hias i:nth-child(3){left:24%;animation-delay:-6s}.hias i:nth-child(4){left:34%;animation-delay:-1.5s;font-size:24px}
+.hias i:nth-child(5){left:46%;animation-delay:-7.5s;font-size:20px}.hias i:nth-child(6){left:56%;animation-delay:-4.5s}.hias i:nth-child(7){left:66%;animation-delay:-2s;font-size:26px}.hias i:nth-child(8){left:76%;animation-delay:-5.5s}
+.hias i:nth-child(9){left:86%;animation-delay:-.8s;font-size:22px}.hias i:nth-child(10){left:94%;animation-delay:-8.2s}.hias i:nth-child(11){left:9%;animation-delay:-4s;font-size:18px}.hias i:nth-child(12){left:90%;animation-delay:-6.6s;font-size:20px}
+@keyframes jatuh{from{transform:translateY(-60px) scale(.7);opacity:0}to{transform:none;opacity:1}}
+@keyframes loncat{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-10px) rotate(-4deg)}}
+@keyframes ayun{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg) scale(1.06)}}
+@keyframes denyut{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes naik{from{transform:translateY(0) rotate(0)}to{transform:translateY(-115vh) rotate(360deg)}}
+@media (orientation:landscape) and (max-height:820px){#mulaiJudul{font-size:clamp(34px,8.5vh,64px)}.mAtas .ikonBesar{font-size:clamp(40px,8vh,60px)}#layarMulai{padding-top:54px}}
+@media (prefers-reduced-motion:reduce){#layarMulai *{animation:none!important}}
 .besar:active{transform:translateY(4px);box-shadow:0 3px 0 rgba(0,0,0,.22)}
 #selesaiBintang{font-size:60px;color:#ffc107;text-shadow:0 3px 0 #b07d00;letter-spacing:6px}
 .ikonBesar{font-size:64px;line-height:1}
@@ -114,13 +138,15 @@ HTML = r"""<!doctype html>
   <div id="pilihan" hidden></div>
   <div id="gelembung">Memuat…</div>
 </div>
-<div class="layar" id="layarMulai"><div class="kotak">
-  <div class="ikonBesar">{ikon}</div><h1 id="mulaiJudul">{judul}</h1><p id="mulaiAjak">{ajak}</p>
-  <button class="besar" id="bMulai">▶ Main</button>
-</div></div>
+<div class="layar" id="layarMulai"><div class="hias" aria-hidden="true"><i>★</i><i>●</i><i>▲</i><i>♥</i><i>★</i><i>■</i><i>●</i><i>♥</i><i>▲</i><i>★</i><i>●</i><i>■</i></div>
+  <div class="mAtas"><div class="ikonBesar">{ikon}</div><h1 id="mulaiJudul">{judul}</h1><p id="mulaiAjak">{ajak}</p></div>
+  <div class="kotak mBawah"><button class="besar" id="bMulai">▶ Main</button>
+  <a class="dukung" href="https://www.willoapparel.com" target="_blank" rel="noopener">Support by <b>www.willoapparel.com</b></a></div>
+</div>
 <div class="layar" id="layarSelesai" hidden><div class="kotak">
   <div id="selesaiBintang">★★★</div><h1>Hebat sekali!</h1><p>Kamu sudah menyelesaikan semua soal.</p>
   <button class="besar" id="bUlang">↻ Main lagi</button>
+  <a class="dukung" href="https://www.willoapparel.com" target="_blank" rel="noopener">Support by <b>www.willoapparel.com</b></a>
 </div></div>
 <div class="layar" id="guruGerbang" hidden><div class="kotak">
   <h2 style="margin:0 0 6px">Mode Guru</h2><div id="gTanya"></div>
@@ -203,6 +229,7 @@ a.k:active{transform:translateY(3px)}.ik{font-size:54px;line-height:1}.k h2{marg
 <h1>Game Edukasi PAUD</h1><p class="sub">Dunia voxel 3D, suara pembaca soal, boleh coba lagi sampai bisa.</p>
 <div class="grid">{kartu}</div>
 <p class="cat">Untuk guru: setiap game punya tombol <b>Guru</b> untuk mengubah soal, menempel soal dari Excel, lalu mengunduh file HTML berisi soal Anda.</p>
+<p class="cat"><a href="https://www.willoapparel.com" style="color:#e8590c;font-weight:800;text-decoration:none">Support by www.willoapparel.com</a></p>
 </body></html>
 """
 

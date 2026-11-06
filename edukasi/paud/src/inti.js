@@ -197,8 +197,9 @@ function siapPanggung({langit = '#bfe6ff', tanahWarna = '#7cc96b', kabut = null,
 // ---------- Kamera drone: soal & panel tidak menutupi karakter ----------
 const _v3 = new THREE.Vector3(), _bx = new THREE.Box3();
 function batasUI() {
-  const atas = Math.max(0, ...['bintang', 'bSuara'].map(id => { const e = $(id); return e ? e.getBoundingClientRect().bottom : 0; })) + 8;
+  let atas = Math.max(0, ...['bintang', 'bSuara'].map(id => { const e = $(id); return e ? e.getBoundingClientRect().bottom : 0; })) + 8;
   let bawah = innerHeight; ['gelembung', 'kartu', 'pilihan'].forEach(id => { const e = $(id); if (!e || e.hidden) return; const r = e.getBoundingClientRect(); if (r.height && !(innerWidth > 700 && r.right < innerWidth * .3)) bawah = Math.min(bawah, r.top); });
+  const lm = $('layarMulai'); if (lm && !lm.hidden) { const a = lm.querySelector('.mAtas'), z = lm.querySelector('.mBawah'); if (a) atas = Math.max(atas, a.getBoundingClientRect().bottom + 8); if (z) bawah = Math.min(bawah, z.getBoundingClientRect().top); }
   return {atas, bawah: bawah - 10, kiri: innerWidth > 700 && $('kartu') && !$('kartu').hidden ? $('kartu').getBoundingClientRect().right + 10 : 8};
 }
 function bingkaiDrone(dt) {
@@ -431,13 +432,24 @@ function pilihanUI(daftar, fn) {
   if (!daftar) return;
   daftar.forEach(d => { const b = document.createElement('button'); b.className = 'pil'; b.innerHTML = d.html; b.onclick = () => { if (!kunci) { efek.ketuk(); fn(d, b); } }; w.appendChild(b); });
 }
+// tanda "Support by www.willoapparel.com": dipasang ulang otomatis bila dihapus dari HTML
+function pastikanDukung() {
+  ['layarMulai', 'layarSelesai'].forEach(id => { const k = $(id) && $(id).querySelector('.kotak'); if (!k) return;
+    let a = k.querySelector('.dukung'); if (!a) { a = document.createElement('a'); a.className = 'dukung'; k.appendChild(a); }
+    a.href = 'https://www.willoapparel.com'; a.target = '_blank'; a.rel = 'noopener'; a.innerHTML = 'Support by <b>www.willoapparel.com</b>';
+    a.style.cssText = 'display:table!important;visibility:visible!important;opacity:1!important;margin:16px auto 0;padding:4px 14px;border-radius:99px;background:rgba(255,255,255,.92);font-size:14px;font-weight:700;color:#666;text-decoration:none'; a.firstElementChild.style.color = '#e8590c'; });
+}
 async function layarMulai(judul, ajakan, fnMulai) {
-  $('mulaiJudul').textContent = judul; $('mulaiAjak').textContent = ajakan;
+  pastikanDukung();
+  // judul warna-warni, tiap huruf meloncat bergantian
+  const WJ = ['#ff6b6b', '#ff922b', '#fcc419', '#51cf66', '#339af0', '#845ef7', '#f06595'];
+  $('mulaiJudul').innerHTML = ''; let n = 0; judul.split(' ').forEach((kata, j) => { const kk = document.createElement('b'); kk.className = 'kata'; [...kata].forEach(c => { const sp = document.createElement('span'); sp.textContent = c; sp.style.color = WJ[n % WJ.length]; sp.style.animationDelay = (n++ * .09) + 's'; kk.appendChild(sp); }); if (j) $('mulaiJudul').append(' '); $('mulaiJudul').appendChild(kk); });
+  $('mulaiAjak').textContent = ajakan;
   $('bMulai').onclick = async () => { siapSuara(); mulaiMusik(); efek.ketuk(); $('layarMulai').hidden = true; fnMulai(); };
 }
 function layarSelesai(bintang, total, fnUlang) {
   $('selesaiBintang').innerHTML = '★'.repeat(3);
-  $('layarSelesai').hidden = false; efek.menang();
+  pastikanDukung(); $('layarSelesai').hidden = false; efek.menang();
   $('bUlang').onclick = () => { $('layarSelesai').hidden = true; fnUlang(); };
 }
 $('bDengar') && ($('bDengar').onclick = () => { if (teksTerakhir) ucap(teksTerakhir); if (window.__ulangSuara) window.__ulangSuara(); });
