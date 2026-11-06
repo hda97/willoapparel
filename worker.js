@@ -701,6 +701,24 @@ export class Ruang extends DurableObject {
     this.pos = new Map();
     this.kirimTerakhir = 0;
   }
+  // Sekali saja (Huda 6 Nov 2026): riwayat Chat Dusun lama dari semua dusun digabung jadi satu riwayat Chat Desa, tidak dihapus.
+  async gabungRiwayat(nama) {
+    this.sql.exec("CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT)");
+    if (this.sql.exec("SELECT v FROM meta WHERE k = 'gabung'").toArray()[0]) return;
+    this.sql.exec("UPDATE chat SET d = ? WHERE ch = 'dusun' AND (d IS NULL OR d = '')", nama);
+    if (!this.env.RUANG) return;
+    let ok = true;
+    for (const lain of DUSUN_RUANG.filter((x) => x !== nama)) {
+      try {
+        const rows = await (await this.env.RUANG.get(this.env.RUANG.idFromName(lain)).fetch("https://ruang/lama?nama=" + lain)).json();
+        for (const c of rows) {
+          if (this.sql.exec("SELECT 1 FROM chat WHERE ch = 'dusun' AND t = ? AND no = ?", c.t, c.no).toArray()[0]) continue;
+          this.sql.exec("INSERT INTO chat (t, no, ig, ch, m, d) VALUES (?, ?, ?, 'dusun', ?, ?)", c.t, c.no, c.ig, c.m, lain);
+        }
+      } catch (e) { ok = false; }
+    }
+    if (ok) this.sql.exec("INSERT OR REPLACE INTO meta (k, v) VALUES ('gabung', '1')");
+  }
   semua() { return this.ctx.getWebSockets().map((ws) => ({ ws, a: ws.deserializeAttachment() || {} })); }
   siar(o, kecuali) { const s = JSON.stringify(o); for (const { ws } of this.semua()) { if (ws !== kecuali) try { ws.send(s); } catch (e) {} } }
   async fetch(request) {
@@ -714,6 +732,11 @@ export class Ruang extends DurableObject {
         this.siar({ t: "c", no: c.no, ig: c.ig, ch: "dusun", m: c.m, w: c.w, d: c.d || "" });
         return new Response("{}");
       }
+      // Riwayat chat dusun milik ruang ini (pesan asli dusun ini, termasuk yang lama sebelum Chat Desa digabung).
+      if (u.pathname === "/lama") {
+        const nama = u.searchParams.get("nama") || "";
+        return Response.json(this.sql.exec("SELECT t, no, ig, m FROM chat WHERE ch = 'dusun' AND (d IS NULL OR d = '' OR d = ?) ORDER BY id DESC LIMIT 200", nama).toArray());
+      }
       if (u.pathname === "/online") { const w = this.semua().filter((x) => x.a.no).map((x) => ({ no: x.a.no, ig: x.a.ig || "" })); return Response.json({ online: w.length, warga: w }); }
       return new Response("{}", { status: 404 });
     }
@@ -725,7 +748,8 @@ export class Ruang extends DurableObject {
     const p0 = { x: w.x || 0, z: w.z || 0, r: 0, a: 0 };
     s.serializeAttachment({ no: w.no, ig: w.ig, av: w.avatar || null, d: w.d || "", ...p0, kirim: 0 });
     const lain = this.semua().filter((x) => x.ws !== s && x.a.no).map(({ a }) => ({ no: a.no, ig: a.ig, av: a.av, ...(this.pos.get(a.no) || { x: a.x, z: a.z, r: a.r || 0, a: 0 }) }));
-    const riwayat = this.sql.exec("SELECT t, no, ig, ch, m, d FROM chat WHERE ch = 'dusun' ORDER BY id DESC LIMIT 50").toArray().reverse().map((r) => ({ ...r, m: saringChat(r.m).m || "★★★" }));
+    if (w.d) await this.gabungRiwayat(w.d);
+    const riwayat = this.sql.exec("SELECT t, no, ig, ch, m, d FROM chat WHERE ch = 'dusun' ORDER BY t DESC LIMIT 60").toArray().reverse().map((r) => ({ ...r, m: saringChat(r.m).m || "★★★" }));
     s.send(JSON.stringify({ t: "halo", saya: w.no, warga: lain, chat: riwayat }));
     this.siar({ t: "masuk", w: { no: w.no, ig: w.ig, av: w.avatar || null, ...p0 } }, s);
     return new Response(null, { status: 101, webSocket: c });
