@@ -32,6 +32,9 @@ export function buatWargaNPC({sc, I, VS, warga, pose, siapAv, tinggi, bayangan})
   let proyek = null;   // {x, z} pusat lahan pembangunan, atau null
   let biji = 7; const acak = () => { biji = (biji * 16807) % 2147483647; return (biji - 1) / 2147483646; };
   const MAKS_TAMPIL = 12, MAKS_GOTONG = 16;
+  // Berdiri DI ATAS lantai fasum/fondasi, bukan tenggelam (Huda 6 Nov 2026, aturan sama seperti NPC fasum PR #91):
+  // naik bertahap dari tanah ke permukaan pijakan tertinggi yang terjangkau langkah.
+  const pijak = (x, z) => { let y = tinggi(x, z); for (let i = 0; i < 4; i++) { const y2 = tinggi(x, z, y); if (y2 <= y) break; y = y2; } return y; };
 
   function isi(list) {
     for (const w of list) {
@@ -42,7 +45,7 @@ export function buatWargaNPC({sc, I, VS, warga, pose, siapAv, tinggi, bayangan})
       // titik depan rumah (jalan di depan gerbang); mondar-mandir di sekitar sini
       const rumah = new THREE.Vector3(L.gate.x, 0, L.gate.z + L.dir * 1.2 * VS);
       const n = {no: w.no, u: w.u, obj, rumah, dir: L.dir, ph: acak() * 6, tunggu: acak() * 3, tuju: null, jauh: 1e9, gotong: -1};
-      obj.position.copy(rumah); obj.position.y = tinggi(rumah.x, rumah.z);
+      obj.position.copy(rumah); obj.position.y = pijak(rumah.x, rumah.z);
       obj.rotation.y = L.dir === 1 ? 0 : Math.PI;
       daftar.push(n);
     }
@@ -66,11 +69,11 @@ export function buatWargaNPC({sc, I, VS, warga, pose, siapAv, tinggi, bayangan})
           n.hadap = peran === 'gergaji' ? L(x + 1, z) : L(0, -2.4);
           if (peran === 'gergaji' && !n.kuda) {   // kuda-kuda + papan yang sedang digergaji
             const kd = new THREE.Group(); kd.add(kotak(.25, 1.6, .25, 0x7a5a3a, -1, .8, 0), kotak(.25, 1.6, .25, 0x7a5a3a, 1, .8, 0), kotak(3.4, .22, .7, 0xc89060, 0, 1.7, 0));
-            kd.scale.setScalar(.85); kd.position.copy(L(x + .75, z)); kd.position.y = tinggi(kd.position.x, kd.position.z); kd.rotation.y = Math.PI / 2; sc.add(kd); n.kuda = kd;
+            kd.scale.setScalar(.85); kd.position.copy(L(x + .75, z)); kd.position.y = pijak(kd.position.x, kd.position.z); kd.rotation.y = Math.PI / 2; sc.add(kd); n.kuda = kd;
           }
         }
-        n.obj.position.copy(n.titik); n.obj.position.y = tinggi(n.titik.x, n.titik.z);
-      } else if (n.gotong >= 0 || n.obj.userData.tukang) { n.gotong = -1; lepasTukang(n.obj); if (n.kuda) { sc.remove(n.kuda); n.kuda = null; } n.obj.position.copy(n.rumah); n.obj.position.y = tinggi(n.rumah.x, n.rumah.z); n.tuju = null; }
+        n.obj.position.copy(n.titik); n.obj.position.y = pijak(n.titik.x, n.titik.z);
+      } else if (n.gotong >= 0 || n.obj.userData.tukang) { n.gotong = -1; lepasTukang(n.obj); if (n.kuda) { sc.remove(n.kuda); n.kuda = null; } n.obj.position.copy(n.rumah); n.obj.position.y = pijak(n.rumah.x, n.rumah.z); n.tuju = null; }
     }
   }
   function setProyek(p) {
@@ -98,7 +101,7 @@ export function buatWargaNPC({sc, I, VS, warga, pose, siapAv, tinggi, bayangan})
           if (n.tunggu > 0) { n.tunggu -= dt; pose(o, {armR: -.5, armRz: -.2, armL: -.5}); continue; }
           const t = n.rute[n.ri], dx = t.x - o.position.x, dz = t.z - o.position.z, l = Math.hypot(dx, dz), sp = kec * .32 * dt;
           if (l <= sp) { n.ri = 1 - n.ri; n.tunggu = 1.5 + acak() * 2; } else { o.position.x += dx / l * sp; o.position.z += dz / l * sp; hadapi(o, t.x, t.z, Math.min(1, dt * 8)); }
-          o.position.y = tinggi(o.position.x, o.position.z, o.position.y);
+          o.position.y = pijak(o.position.x, o.position.z);
           const a = Math.sin(n.ph * 8) * .55; pose(o, {legL: a, legR: -a, armR: -.5, armRz: -.2, armL: -.5});   // kedua tangan menahan kayu di depan
           continue;
         }
@@ -115,7 +118,7 @@ export function buatWargaNPC({sc, I, VS, warga, pose, siapAv, tinggi, bayangan})
       const dx = n.tuju.x - o.position.x, dz = n.tuju.z - o.position.z, l = Math.hypot(dx, dz), s = kec * .3 * dt;
       if (l <= s) { o.position.x = n.tuju.x; o.position.z = n.tuju.z; n.tuju = null; n.tunggu = 2 + acak() * 5; if (acak() < .5) o.rotation.y = n.dir === 1 ? Math.PI : 0; }
       else { o.position.x += dx / l * s; o.position.z += dz / l * s; hadapi(o, n.tuju.x, n.tuju.z, Math.min(1, dt * 8)); }
-      o.position.y = tinggi(o.position.x, o.position.z, o.position.y);
+      o.position.y = pijak(o.position.x, o.position.z);
       const a = Math.sin(n.ph * 8) * .6; pose(o, {legL: a, legR: -a, armL: -a * .7, armR: a * .7});
     }
   }
