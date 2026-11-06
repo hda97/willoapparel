@@ -233,6 +233,6 @@ export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan, tinggi = () =
       }
     }
   }
-  const terdekat = (me, maks) => { let b = null; for (const n of daftar) if (n.obj.visible && n.jauh < maks && (!b || n.jauh < b.jauh)) b = n; return b; };
+  const terdekat = (me, maks) => { let b = null; for (const n of daftar) if (n.obj.visible && n.kerja !== 'bola' && n.kerja !== 'main' && !n.wasit && n.jauh < maks && (!b || n.jauh < b.jauh)) b = n; return b; };
   return {daftar, update, terdekat, acak};
 }

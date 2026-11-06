@@ -973,13 +973,12 @@ function bolaUpdate(dt, me) {
     const gx = L.cx + n.tim * (L.hx + BOLA_R), keGawang = Math.abs(gx - o.x);
     const kawan = npc.daftar.filter(k => k !== n && k.tim === n.tim && k.obj.visible && !k.kiper);
     const depan = kawan.find(k => (k.obj.position.x - o.x) * n.tim > 1.5 * VS);
-    let tx, tz, kuat, ucap = '';
-    if (keGawang < 4 * VS && !n.kiper) { tx = gx; tz = L.cz + (Math.random() - .5) * 1.7 * L.gawang; kuat = 40 + Math.random() * 12; ucap = 'Tendang!'; }
+    let tx, tz, kuat;
+    if (keGawang < 4 * VS && !n.kiper) { tx = gx; tz = L.cz + (Math.random() - .5) * 1.7 * L.gawang; kuat = 40 + Math.random() * 12; }
     else if ((n.kiper || (depan && Math.random() < .65)) && (depan || kawan[0])) { const k = depan || kawan[0], kp = k.obj.position, d = Math.hypot(kp.x - o.x, kp.z - o.z);
-      tx = kp.x + n.tim * 1.2 * VS; tz = kp.z; kuat = Math.max(16, Math.min(46, d * 1.05 + 6)); ucap = 'Oper!'; }
+      tx = kp.x + n.tim * 1.2 * VS; tz = kp.z; kuat = Math.max(16, Math.min(46, d * 1.05 + 6)); }
     else { tx = o.x + n.tim * 3 * VS; tz = o.z + (L.cz - o.z) * .25 + (Math.random() - .5) * 2.5 * VS; kuat = 12 + Math.random() * 5; }
     bolaTendang(tx - BOLA.x, tz - BOLA.z, kuat, false); if (kuat < 20) BOLA.vy = 3;
-    if (ucap && n.jauh < 45 * VS && Math.random() < .5) n.obj.userData.gel = {m: ucap, sampai: now + 1600};
     break;
   }
   // gerak + gesekan rumput + pantulan dinding lapangan
@@ -1485,7 +1484,7 @@ function loop(t) {
   if (mancing.on) tempel(me, 6.6, mancing.teks, 'gel emo', -4);
   for (const c of kucingHidup) if (c.userData.nama && c.position.distanceTo(me.position) < 60) lbl(c, 2.6, c.userData.nama, 'nm kucing');
   for (const [no, o] of S.others) if (o.obj.position.distanceTo(me.position) < 220) lbl(o.obj, 5.2, (S.bisu.has(no) ? '🔇 ' : '') + '@' + o.ig, 'nm', no);
-  if (npc) for (const n of npc.daftar) if (n.obj.visible && n.jauh < 130) lbl(n.obj, n.tinggi, n.nama + ' · ' + n.peran, 'nm npc', '', n.id);
+  if (npc) for (const n of npc.daftar) if (n.obj.visible && n.jauh < 130) { const lap = n.kerja === 'bola' || n.kerja === 'main' || n.wasit; lbl(n.obj, n.tinggi, n.nama + ' · ' + n.peran, lap ? 'nm' : 'nm npc', '', lap ? '' : n.id); }   // pemain & wasit sedang bertanding: tidak bisa diajak ngobrol
   for (const f of fasumBangun) { const d = Math.hypot(f.position.x - me.position.x, f.position.z - me.position.z); if (d < 170) lbl(f, f.tinggi, f.nama, 'nm fasum'); }
   jejakWarga(me);
   const now = performance.now();
@@ -1497,7 +1496,7 @@ const jamWIB = () => { const d = new Date(Date.now() + 7 * 3600e3); return d.get
 let sapaT = 0;
 function sapaNPC(t, me) {
   if (t - sapaT < 7000) return; sapaT = t;
-  const dekat = npc.daftar.filter(n => n.obj.visible && n.jauh < 70 && !n.ngobrol);
+  const dekat = npc.daftar.filter(n => n.obj.visible && n.jauh < 70 && !n.ngobrol && n.kerja !== 'bola' && n.kerja !== 'main' && !n.wasit);   // pemain & wasit di lapangan tanpa gelembung obrolan (Huda 6 Nov)
   if (!dekat.length) return;
   const n = dekat[Math.floor(npc.acak() * dekat.length)];
   n.obj.userData.gel = {m: n.sapa[Math.floor(npc.acak() * n.sapa.length)], sampai: performance.now() + 4000};
