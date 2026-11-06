@@ -6,6 +6,27 @@
 // Tidak ada obrolan/gelembung dari NPC ini (tidak boleh berbicara atas nama warga asli).
 import * as THREE from 'three';
 
+// ---- perlengkapan TUKANG saat gotong royong (Huda 6 Nov 2026): helm proyek + alat di tangan kanan ----
+const mat = c => new THREE.MeshStandardMaterial({color: c, roughness: .7});
+const kotak = (w, h, d, c, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c)); m.position.set(x, y, z); m.castShadow = true; return m; };
+function alat(jenis) {
+  const g = new THREE.Group(); g.position.set(0, -1.25, .05);   // di genggaman (ujung lengan)
+  if (jenis === 'palu') { g.add(kotak(.12, .12, 1.1, 0x8a5a2a, 0, 0, .45), kotak(.5, .28, .28, 0x55585e, 0, 0, .95)); }
+  else if (jenis === 'gergaji') { g.add(kotak(.2, .35, .3, 0xd04a2a, 0, 0, .15), kotak(.05, .42, 1.5, 0xc8ccd2, 0, -.05, 1.0)); }
+  else if (jenis === 'cangkul') { g.add(kotak(.12, .12, 1.9, 0x8a5a2a, 0, 0, .7), kotak(.6, .5, .08, 0x6a6e74, 0, -.25, 1.6)); }
+  else if (jenis === 'kayu') { g.position.set(0, -1.15, .1); g.add(kotak(.35, .25, 3.2, 0xc89060, 0, .1, .2)); }
+  g.userData.alat = 1; return g;
+}
+function pakaiTukang(obj, jenis) {
+  const u = obj.userData; if (u.tukang === jenis) return; lepasTukang(obj);
+  const helm = new THREE.Group(); helm.add(kotak(1.16, .34, 1.16, 0xf2c230, 0, 1.16, 0), kotak(1.0, .07, .45, 0xf2c230, 0, 1.0, .72)); helm.userData.alat = 1;
+  u.head.add(helm); const a = alat(jenis); u.armR.add(a);
+  const rompi = kotak(1.18, .95, .76, 0xff7a1a, 0, .62, 0); rompi.userData.alat = 1; u.body.add(rompi);   // rompi proyek oranye
+  u.tukang = jenis; u.perl = [helm, a, rompi];
+}
+function lepasTukang(obj) { const u = obj.userData; (u.perl || []).forEach(m => m.parent?.remove(m)); u.perl = null; u.tukang = null; }
+const PERAN = ['palu', 'gergaji', 'kayu', 'palu', 'cangkul', 'kayu', 'gergaji', 'palu'];
+
 export function buatWargaNPC({sc, I, VS, warga, pose, siapAv, tinggi, bayangan}) {
   const daftar = [];   // {no, u, obj, mode, ...}
   let proyek = null;   // {x, z} pusat lahan pembangunan, atau null
@@ -32,11 +53,24 @@ export function buatWargaNPC({sc, I, VS, warga, pose, siapAv, tinggi, bayangan})
     let k = 0;
     for (const n of daftar) {
       if (proyek && k < MAKS_GOTONG) {
-        const sudut = (k / Math.min(MAKS_GOTONG, daftar.length)) * Math.PI * 2, r = (4.2 + (k % 2) * 1.6) * VS;
-        n.gotong = k++; n.titik = new THREE.Vector3(proyek.x + Math.cos(sudut) * r, 0, proyek.z + Math.sin(sudut) * r);
+        const peran = PERAN[k % PERAN.length], i = k++;
+        n.gotong = i; n.peran = peran; pakaiTukang(n.obj, peran);
+        // titik kerja di lahan proyek (satuan aset fasum × VS, pusat lahan = proyek): tepi fondasi & perancah
+        const L = (x, z) => new THREE.Vector3(proyek.x + x * VS, 0, proyek.z + z * VS);
+        if (peran === 'kayu') {
+          // pengangkut: mondar-mandir dari tumpukan kayu/bata ke perancah
+          n.rute = [L(-3.6 + (i % 3) * .8, 4.6), L(-4 + (i * 2.3) % 8, 1.2)]; n.ri = i % 2; n.titik = n.rute[n.ri].clone();
+        } else {
+          const tepi = [[-5.8, -6.8], [-2.5, 1.3], [2.5, 1.3], [5.8, -6.8], [-6, -1], [6, -1], [0, -7], [-3.5, -7], [3.5, -7], [4.6, 3.6], [-6.5, 3.4]];
+          const [x, z] = tepi[i % tepi.length]; n.titik = L(x, z); n.rute = null;
+          n.hadap = peran === 'gergaji' ? L(x + 1, z) : L(0, -2.4);
+          if (peran === 'gergaji' && !n.kuda) {   // kuda-kuda + papan yang sedang digergaji
+            const kd = new THREE.Group(); kd.add(kotak(.25, 1.6, .25, 0x7a5a3a, -1, .8, 0), kotak(.25, 1.6, .25, 0x7a5a3a, 1, .8, 0), kotak(3.4, .22, .7, 0xc89060, 0, 1.7, 0));
+            kd.scale.setScalar(.85); kd.position.copy(L(x + .75, z)); kd.position.y = tinggi(kd.position.x, kd.position.z); kd.rotation.y = Math.PI / 2; sc.add(kd); n.kuda = kd;
+          }
+        }
         n.obj.position.copy(n.titik); n.obj.position.y = tinggi(n.titik.x, n.titik.z);
-        n.obj.rotation.y = Math.atan2(proyek.x - n.titik.x, proyek.z - n.titik.z);
-      } else if (n.gotong >= 0) { n.gotong = -1; n.obj.position.copy(n.rumah); n.obj.position.y = tinggi(n.rumah.x, n.rumah.z); n.tuju = null; }
+      } else if (n.gotong >= 0 || n.obj.userData.tukang) { n.gotong = -1; lepasTukang(n.obj); if (n.kuda) { sc.remove(n.kuda); n.kuda = null; } n.obj.position.copy(n.rumah); n.obj.position.y = tinggi(n.rumah.x, n.rumah.z); n.tuju = null; }
     }
   }
   function setProyek(p) {
@@ -53,18 +87,26 @@ export function buatWargaNPC({sc, I, VS, warga, pose, siapAv, tinggi, bayangan})
       tUrut = .8;
       for (const n of daftar) n.jauh = Math.hypot(n.obj.position.x - me.position.x, n.obj.position.z - me.position.z);
       const calon = daftar.filter(n => !online.has(n.no) && n.no !== sayaNo && n.jauh < 140).sort((a, b) => a.jauh - b.jauh).slice(0, MAKS_TAMPIL);
-      const tampil = new Set(calon); for (const n of daftar) n.obj.visible = tampil.has(n);
+      const tampil = new Set(calon); for (const n of daftar) { n.obj.visible = tampil.has(n); if (n.kuda) n.kuda.visible = n.jauh < 140; }
     }
     for (const n of daftar) {
       const o = n.obj; if (!o.visible) continue;
       n.ph += dt;
       if (n.gotong >= 0) {
-        // gotong royong: menghadap lahan proyek, mengayun palu/cangkul bergantian
-        hadapi(o, proyek.x, proyek.z, Math.min(1, dt * 6));
-        const a = Math.sin(n.ph * 5 + n.gotong);
-        if (n.gotong % 3 === 0) pose(o, {armL: -1.8 + a * .8, armR: -1.8 + a * .8, head: .25});         // mencangkul
-        else if (n.gotong % 3 === 1) pose(o, {armR: -2.4 + Math.max(0, a) * 1.6, armL: -.6, head: .15}); // memalu
-        else pose(o, {armL: -1.2, armR: -1.2, head: Math.sin(n.ph * .7) * .2});                           // mengangkat bahan
+        if (n.rute) {
+          // tukang angkut kayu: jalan bolak-balik, berhenti sebentar di tiap ujung
+          if (n.tunggu > 0) { n.tunggu -= dt; pose(o, {armR: -.5, armRz: -.2, armL: -.5}); continue; }
+          const t = n.rute[n.ri], dx = t.x - o.position.x, dz = t.z - o.position.z, l = Math.hypot(dx, dz), sp = kec * .32 * dt;
+          if (l <= sp) { n.ri = 1 - n.ri; n.tunggu = 1.5 + acak() * 2; } else { o.position.x += dx / l * sp; o.position.z += dz / l * sp; hadapi(o, t.x, t.z, Math.min(1, dt * 8)); }
+          o.position.y = tinggi(o.position.x, o.position.z, o.position.y);
+          const a = Math.sin(n.ph * 8) * .55; pose(o, {legL: a, legR: -a, armR: -.5, armRz: -.2, armL: -.5});   // kedua tangan menahan kayu di depan
+          continue;
+        }
+        hadapi(o, n.hadap.x, n.hadap.z, Math.min(1, dt * 6));
+        const a = Math.sin(n.ph * 6 + n.gotong);
+        if (n.peran === 'palu') pose(o, {armR: -1.6 - Math.max(0, a) * 1.2, armL: -.9, head: .3});              // ketok-ketok palu
+        else if (n.peran === 'gergaji') pose(o, {armR: -1.25 + a * .35, armL: -1.1, head: .35});                 // menggergaji maju-mundur
+        else pose(o, {armL: -1.9 + a * .9, armR: -1.9 + a * .9, head: .25});                                     // mencangkul
         continue;
       }
       // mondar-mandir di depan rumah sendiri
