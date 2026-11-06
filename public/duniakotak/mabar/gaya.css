@@ -173,3 +173,11 @@ body.chatPenuh .chat{background:rgba(19,20,31,.92)}
 .chipRute{position:fixed;left:50%;transform:translateX(-50%);bottom:max(14px,env(safe-area-inset-bottom));z-index:6;display:flex;align-items:center;gap:8px;max-width:min(62vw,420px);background:#1a73e8;color:#fff;border:2px solid #fff;border-radius:999px;padding:7px 8px 7px 14px;font:800 13px Montserrat,sans-serif;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.35);cursor:pointer}
 .chipRute[hidden]{display:none}.chipRute .t{overflow:hidden;text-overflow:ellipsis}.chipRute b{font-weight:900}
 .chipRute .x{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.22);font-size:13px}
+/* peta muat 1 layar HP mendatar: tombol rute selalu terlihat (Huda 6 Nov) */
+#panelPeta{padding:10px 12px;place-items:start center}
+.panel.peta{gap:8px}.panel.peta h2{font-size:17px}
+#panelPeta #cariPeta{margin:0}#panelPeta #cariPeta input{padding:8px 12px}
+#panelPeta #petaBesar{height:clamp(140px,calc(100 * var(--vh,1vh) - 190px),560px)}
+.petaBawah{display:flex;align-items:center;gap:10px;min-height:44px}
+.petaBawah #petaInfo{flex:1;margin:0;text-align:left;line-height:1.35}
+.petaBawah .petaTombol{margin:0;flex:none}.petaBawah .petaTombol .utama{padding:11px 18px;white-space:nowrap}
