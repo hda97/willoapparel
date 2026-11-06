@@ -389,6 +389,7 @@ function bangunKavling(n) {
   lantaiDua(g, n); catKavling(g, n);
   bakeGroup(g); bakeGroup(extra);
   lotRuntime.set(n, {g, extra, rects});
+  if (S.saya && n === S.saya.no) { kebunTahap = null; segarKebun(); }
   if (isi && n !== 1) pasangKucing(n);
   if (L.proxyIdx != null) setProxy(L, false);
 }
@@ -1129,8 +1130,26 @@ const NAMA_HASIL = () => Object.values(S.saya?.bibit || {}).map(b => b.nama);
 function bisaTanam(me) { return dekatRumah(me) && !(S.saya.kebun && S.saya.kebun.b); }
 function bisaPanen(me) { const k = S.saya?.kebun; return dekatRumah(me) && !!(k && k.b) && Date.now() >= k.siap; }
 function bisaJual(me) { return dekatRumah(me) && NAMA_HASIL().some(n => tas[n]?.n > 0); }
+// Tampilan kebun ikut isi kebun warga (Huda 6 Nov 2026): kosong = tanah saja, lalu bibit → tunas → besar → berbuah (siap panen).
+// Ukuran tanaman dewasa sama dengan tanaman bedeng lama (tinggi 0,55 satuan kavling).
+let kebunTahap = null;
+function tahapKebun(k) {
+  if (!k || !k.b) return -1;
+  const f = 1 - (k.siap - Date.now()) / (6 * 3600e3);
+  return f >= 1 ? 3 : f >= .55 ? 2 : f >= .2 ? 1 : 0;
+}
+function segarKebun() {
+  if (S.tamu || !S.saya) return; const rt = lotRuntime.get(S.saya.no); if (!rt) return;
+  const k = S.saya.kebun, th = tahapKebun(k), kunci = (k && k.b || '') + th; if (kunci === kebunTahap) return;
+  let lama = rt.bedeng; if (!lama) rt.g.traverse(o => { if (!lama && o.isInstancedMesh && o.userData.bedeng) lama = o; }); if (!lama || !lama.parent) return;
+  const baru = D.tanamanBedeng(lama.userData.bedeng.l, k && k.b || 'tomat', th);
+  baru.position.copy(lama.position); baru.rotation.copy(lama.rotation); baru.scale.copy(lama.scale);
+  lama.parent.add(baru); lama.parent.remove(lama); lama.material.dispose(); lama.dispose?.();
+  rt.bedeng = baru; kebunTahap = kunci;
+}
+setInterval(segarKebun, 30000);
 let panenSibuk = false;
-function hasilKebun(r) { if (r.koin != null) S.saya.koin = r.koin; if (r.permata != null) S.saya.permata = r.permata; if (r.kebun) S.saya.kebun = r.kebun; if (r.tas) aturTas(r.tas); hitungOnline(); }
+function hasilKebun(r) { if (r.koin != null) S.saya.koin = r.koin; if (r.permata != null) S.saya.permata = r.permata; if (r.kebun) S.saya.kebun = r.kebun; if (r.tas) aturTas(r.tas); hitungOnline(); segarKebun(); }
 async function skillPanen() {
   if (panenSibuk || !bisaPanen(tokoh.saya)) return; panenSibuk = true;
   try { const r = await api('panen', {kunci: S.kunci}); hasilKebun(r); bunyi('masuk'); toast(`🧺 Panen! +${r.hasil.n} ${r.hasil.ikon} ${r.hasil.nama} dan +${r.dapat} 💎. Jual hasilnya di warung depan rumah (💰 Jual).`, 4500); }
@@ -1993,4 +2012,4 @@ var tegakSesi = false; try { localStorage.removeItem('dk_tegak'); } catch (e) {}
 $('tetapTegak').onclick = () => { tegakSesi = true; $('miring').hidden = true; };
 onResize();
 layarMasuk();
-window.__dk = {S, HS, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
+window.__dk = {S, HS, segarKebun, kebunSiap: () => { kebunTahap = null; segarKebun(); }, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};

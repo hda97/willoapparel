@@ -215,10 +215,13 @@ function cropField(G,x0,z0,nx,nz,kind){const l=[],c=[];for(let i=0;i<nx;i++)for(
 // Game (6 Nov 2026, Huda): tanaman kebun samping rumah pakai ASET TANAMAN kotak kecil (aset/tanaman.js), bukan kubus besar.
 // Satu tanaman per petak bedeng, tinggi ±0,55 (di bawah lutut-pinggang avatar); kubus polos (12 segitiga) supaya ringan di HP.
 const GEO_TANAMAN=new THREE.BoxGeometry(1,1,1),SEL_TANAMAN={};
-const PETA_TANAMAN={tomat:['tomat',3],jagung:['jagung',3],gandum:['matahari',3],wortel:['tomat',2]};
-function tanamanBedeng(l,kind){const [nm,th]=PETA_TANAMAN[kind]||['tomat',3];const k=nm+th;
- const sel=SEL_TANAMAN[k]||(SEL_TANAMAN[k]=tanamanSel(nm,th));const H=Math.max(...sel.map(v=>v[1]))+1,sk=.55/(H*VX),u=VX*sk;
- const im=new THREE.InstancedMesh(GEO_TANAMAN,new THREE.MeshStandardMaterial({roughness:.85}),sel.length*l.length);im.castShadow=true;im.receiveShadow=true;
+const PETA_TANAMAN={tomat:['tomat',3],jagung:['jagung',3],gandum:['matahari',3],wortel:['tomat',2],cabai:['cabai',3]};const RESEP_ADA=['tomat','jagung','matahari','cabai'];
+export function tanamanBedeng(l,kind,tahap){const [nm0,th0]=PETA_TANAMAN[kind]||[kind,3];const nm=RESEP_ADA.includes(nm0)?nm0:'tomat',th=tahap==null?th0:tahap;
+ // tahap -1 = kosong (tanah saja), 0 = bibit, 1..3 = tumbuh -> berbuah. Skala ikut tanaman dewasa (tinggi 0,55) supaya ukuran sama dengan tanaman lama.
+ const k=nm+th;const sel=th<0?[]:SEL_TANAMAN[k]||(SEL_TANAMAN[k]=th===0?tanamanSel('bibit'):tanamanSel(nm,th));const kd=nm+'3';const dewasa=SEL_TANAMAN[kd]||(SEL_TANAMAN[kd]=tanamanSel(nm,3));
+ const H=Math.max(...dewasa.map(v=>v[1]))+1,sk=.55/(H*VX),u=th===0?.04:VX*sk;
+ const im=new THREE.InstancedMesh(GEO_TANAMAN,new THREE.MeshStandardMaterial({roughness:.85}),Math.max(1,sel.length*l.length));im.castShadow=true;im.receiveShadow=true;im.count=sel.length*l.length;
+ im.userData.bedeng={l,kind};
  const M=new THREE.Matrix4(),P=new THREE.Vector3(),Q=new THREE.Quaternion(),S=new THREE.Vector3(u*.98,u*.98,u*.98);let i=0;
  for(const b of l){const ry=(b.p.x*7+b.p.z*13)%6;Q.setFromAxisAngle(new THREE.Vector3(0,1,0),ry);for(const [x,y,z,col] of sel){P.set(x*u,(y+.5)*u,z*u).applyQuaternion(Q);P.x+=b.p.x;P.z+=b.p.z;P.y+=.02;M.compose(P,Q,S);im.setMatrixAt(i,M);im.setColorAt(i++,col)}}
  im.instanceMatrix.needsUpdate=true;return im}
