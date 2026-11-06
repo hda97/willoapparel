@@ -568,6 +568,8 @@ async function bukaPeringkat() {
 // 1 bintang gratis per hari; bintang donasi masuk otomatis dari webhook Saweria bila pesan donasi memuat kode DK<no>.
 const CALON = {kafe: ['☕', 'Kafe'], taman: ['🌳', 'Taman Kota'], hiburan: ['🎡', 'Taman Hiburan'], polisi: ['👮', 'Kantor Polisi'], damkar: ['🚒', 'Pemadam Kebakaran'], perpus: ['📚', 'Perpustakaan'], renang: ['🏊', 'Kolam Renang'], bioskop: ['🎬', 'Bioskop']};
 let VT = null, vtSibuk = false;
+// gambar bintang (SVG, sama di semua HP; emoji ⭐ kadang tampil beda)
+const GBR_BINTANG = '<svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gbB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3a6"/><stop offset=".5" stop-color="#ffd23a"/><stop offset="1" stop-color="#f29a0c"/></linearGradient></defs><path d="M12 1.8l3.1 6.5 7.1.9-5.2 4.9 1.3 7-6.3-3.4-6.3 3.4 1.3-7L1.8 9.2l7.1-.9z" fill="url(#gbB)" stroke="#a85f00" stroke-width="1.1" stroke-linejoin="round"/></svg>';
 function tulisVoting() {
   const d = VT; if (!d) return;
   const urut = [...d.calon].sort((a, b) => (d.hasil[b] || 0) - (d.hasil[a] || 0)), maks = Math.max(1, ...urut.map(c => d.hasil[c] || 0)), saldo = d.saldo || 0;
@@ -580,7 +582,7 @@ function tulisVoting() {
   if (!S.tamu && d.no) {
     $('vtDonasi').hidden = false;
     // Paket bintang (Huda 6 Nov): tombol membuka Saweria + menyalin kode warga; nominal dipilih di Saweria.
-    $('vtDonasi').innerHTML = `<b>Tambah bintang lewat donasi sukarela</b><div class="vtPaket">${[5, 10, 25, 100].map(n => `<a href="https://saweria.co/Duniakotak" target="_blank" rel="noopener" data-paket="${n}">⭐ ${n}<small>Rp${(n * 1000).toLocaleString('id-ID')}</small></a>`).join('')}</div>Tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan donasi Saweria, bintang masuk otomatis.` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
+    $('vtDonasi').innerHTML = `<b>Tambah bintang lewat donasi sukarela</b><div class="vtPaket">${[[5, 1], [10, 2], [25, 3], [100, 5]].map(([n, k]) => `<a href="https://saweria.co/Duniakotak" target="_blank" rel="noopener" data-paket="${n}"><span class="vtBintang b${k}">${GBR_BINTANG.repeat(k)}</span><b>${n} bintang</b><small>Rp${(n * 1000).toLocaleString('id-ID')}</small></a>`).join('')}</div>Tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan donasi Saweria, bintang masuk otomatis.` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
   } else $('vtDonasi').hidden = true;
 }
 async function bukaVoting() {
