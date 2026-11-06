@@ -329,6 +329,17 @@ export class Warga extends DurableObject {
       const r = this.sql.exec("SELECT * FROM warga WHERE sub = ?", sub).toArray()[0];
       return Response.json({ ...this.publik(r), nama: r.nama || "" });
     }
+    if (aksi === "peringkat") {
+      // Papan peringkat warga (6 Nov 2026): koin terbanyak. Hanya username publik (IG/TikTok), nama asli tidak ditampilkan.
+      const top = this.sql.exec("SELECT no, ig, tiktok, koin FROM warga WHERE COALESCE(koin, 0) > 0 ORDER BY koin DESC, no ASC LIMIT 20").toArray()
+        .map((r, i) => ({ r: i + 1, no: r.no, u: r.ig || r.tiktok || "", koin: r.koin }));
+      const jml = this.sql.exec("SELECT COUNT(*) AS n FROM warga WHERE COALESCE(koin, 0) > 0").toArray()[0].n;
+      const no = +u.searchParams.get("no") || 0;
+      let saya = null;
+      if (no) { const m = this.sql.exec("SELECT koin FROM warga WHERE no = ?", no).toArray()[0];
+        if (m) { const k = m.koin || 0; saya = { no, koin: k, r: k > 0 ? this.sql.exec("SELECT COUNT(*) AS n FROM warga WHERE COALESCE(koin, 0) > ? OR (COALESCE(koin, 0) = ? AND no < ?)", k, k, no).toArray()[0].n + 1 : null }; } }
+      return Response.json({ top, jml, saya });
+    }
     if (aksi === "usulan-publik") {
       const rows = this.sql.exec("SELECT no, ig, tiktok, usulan FROM warga WHERE usulan IS NOT NULL AND usulan != '' ORDER BY no").toArray();
       return Response.json({ jumlah: rows.length, usulan: rows });
@@ -539,6 +550,10 @@ async function apiWarga(request, env, url) {
     if (!env.RUANG) return json({ online: 0 });
     const r = await env.RUANG.get(env.RUANG.idFromName("wetan")).fetch("https://do/online");
     return new Response(r.body, { headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "peringkat" && request.method === "GET") {
+    const no = Math.max(0, Math.min(99999, parseInt(url.searchParams.get("no") || "0", 10) || 0));
+    return new Response((await stub.fetch("https://do/peringkat" + (no ? "?no=" + no : ""))).body, { headers: { "content-type": "application/json", "cache-control": no ? "no-store" : "public, max-age=30" } });
   }
   if (aksi === "usulan" && request.method === "GET") {
     return new Response((await stub.fetch("https://do/usulan-publik")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=30", "access-control-allow-origin": "*" } });

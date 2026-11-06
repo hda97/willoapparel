@@ -545,6 +545,18 @@ function tulisMisi() {
     : `🔒 Misi hanya bisa dikerjakan saat Jam Kumpul Warga (${daftarSesi()} WIB), bareng warga lain, koin 2x. Berikutnya: ${sesiBerikut().ikon} ${sesiBerikut().nama} ${jamTeks(sesiBerikut().j[0])}. Koinmu: 🪙 ${S.saya?.koin || 0}.`;
 }
 document.addEventListener('click', e => { const b = e.target.closest?.('[data-antar]'); if (!b) return; $('panelMisi').hidden = true; pergiKe(+b.dataset.antar); toast('Jalan otomatis ke rumah Raka… geser joystick untuk berhenti.', 3500); });
+// ---------- papan peringkat warga (koin terbanyak) ----------
+async function bukaPeringkat() {
+  $('panelPeringkat').hidden = false; $('isiPeringkat').innerHTML = '<p class="kecil">Memuat…</p>';
+  let d = null; try { d = await (await fetch('/duniakotak/api/peringkat' + (S.saya ? '?no=' + S.saya.no : ''))).json(); } catch (e) {}
+  if (!d || !d.top) { $('isiPeringkat').innerHTML = '<p class="kecil">Papan peringkat belum bisa dimuat. Coba lagi sebentar.</p>'; return; }
+  const medali = r => r === 1 ? '🥇' : r === 2 ? '🥈' : r === 3 ? '🥉' : '<small style="font:800 15px Montserrat,sans-serif">#' + r + '</small>';
+  const baris = (x, aku) => `<div class="misi ${aku ? 'ok' : ''}"><span class="mi">${medali(x.r)}</span><div><b>${x.u ? '@' + esc(x.u) : 'Warga No. ' + x.no}${aku ? ' (kamu)' : ''}</b><small>${esc(alamat(x.no).split(' · ')[0])}, ${NAMA_DUSUN[dusunDari(x.no)]}</small></div><span><b>🪙 ${x.koin}</b></span></div>`;
+  let h = d.top.length ? d.top.map(x => baris(x, S.saya && x.no === S.saya.no)).join('') : '<p class="kecil">Belum ada warga yang punya koin. Jadilah yang pertama!</p>';
+  if (S.saya && d.saya && !d.top.some(x => x.no === S.saya.no)) h += `<div class="misi ok"><span class="mi"><small style="font:800 15px Montserrat,sans-serif">${d.saya.r ? '#' + d.saya.r : '–'}</small></span><div><b>@${esc(S.saya.ig || '')} (kamu)</b><small>${d.saya.r ? 'Peringkatmu dari ' + d.jml + ' warga berkoin' : 'Belum punya koin. Ikut misi saat Jam Kumpul Warga!'}</small></div><span><b>🪙 ${d.saya.koin}</b></span></div>`;
+  $('isiPeringkat').innerHTML = h;
+  $('ringkasPeringkat').textContent = `${d.jml} warga sudah punya koin. Kumpulkan koin dari misi saat Jam Kumpul Warga (koin 2x) dan gol di stadion.`;
+}
 function bukaMisi() {
   if (S.tamu) { toast('Daftar jadi warga dulu supaya bisa ikut misi dan dapat koin.', 4000); return; }
   if (MS.t !== hariIni()) muatMisi();
@@ -1168,6 +1180,7 @@ function aturHUD() {
   $('profil').onclick = () => { if (S.tamu) return toast('Daftar di willoapparel.com/duniakotak supaya dapat kavling.', 4000); toast(`Kode wargamu: ${S.saya.kode} · pakai untuk masuk dari HP lain. Jangan dibagikan.`, 6000); };
   $('bAvatar').onclick = () => bukaPembuatAvatar(JSON.parse(JSON.stringify(S.av)), false);
   $('bKucing').onclick = () => bukaKucing();
+  $('bPeringkat').onclick = () => bukaPeringkat(); $('tutupPeringkat').onclick = () => { $('panelPeringkat').hidden = true; };
   $('bMisi').onclick = () => bukaMisi(); $('tutupMisi').onclick = () => { $('panelMisi').hidden = true; };
   muatMisi();
   $('bPanduan').onclick = () => panduan();
