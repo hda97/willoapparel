@@ -1234,6 +1234,7 @@ function jumlahOnline() {
 function hitungOnline() {
   // kartu profil dipersimpel (Huda 6 Nov 2026): avatar + nama, koin & permata di sampingnya; detail lain di panel Profil
   $('dompet').hidden = S.tamu || !S.saya;
+  document.querySelector('#profil .pfNm').hidden = !S.tamu && !!S.saya;   // Huda: pojok cukup foto avatar + koin + permata
   if (!S.tamu && S.saya) { $('dKoin').textContent = '🪙 ' + (S.saya.koin || 0); $('dPermata').textContent = '💎 ' + (S.saya.permata || 0); }
   $('profOnline').textContent = `🟢 ${jumlahOnline()} online`;
   if (!$('panelProfil').hidden) tulisProfil();
