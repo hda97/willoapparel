@@ -210,3 +210,18 @@ a.barisAtur{text-decoration:none}.barisAtur span{display:flex;flex-direction:col
 .vtBintang svg+svg{margin-left:-9px}.vtBintang.b1 svg{width:28px;height:28px}.vtBintang.b5 svg{width:17px;height:17px}.vtBintang.b5 svg+svg{margin-left:-7px}
 .vtBintang.b5 svg:nth-child(3){width:26px;height:26px}.vtBintang.b3 svg:nth-child(2){width:28px;height:28px}
 .vtPaket a small{font:700 10px Montserrat,sans-serif;opacity:.75}
+/* Toko Hias */
+.vtSaldo small{font-size:13px;color:#ffe39a}
+.tkBayar{display:flex;align-items:center;gap:6px;margin:0 0 8px;font:700 12px Montserrat,sans-serif;color:#cdd}
+.tkBayar button{padding:5px 10px;border-radius:999px;border:1px solid var(--garis);background:rgba(255,255,255,.06);color:#fff;font:800 12px Montserrat,sans-serif;cursor:pointer}
+.tkBayar button.on{background:#ffd23a;color:#3a2a00;border-color:#ffd23a}
+.tkJenis{margin:0 0 8px;text-align:left}.tkJenis>b{display:block;font:800 13px Montserrat,sans-serif;color:#fff;margin:0 0 5px}
+.tkDaftar{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.tkBrg{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;width:66px;padding:6px 4px;border-radius:12px;border:1px solid var(--garis);background:rgba(255,255,255,.06);color:#fff;font:700 11px Montserrat,sans-serif;text-transform:capitalize;cursor:pointer}
+.tkBrg small{font:800 10px Montserrat,sans-serif;color:#ffd23a;text-transform:none}
+.tkBrg.on{border-color:#7be39b;background:rgba(90,190,120,.18)}.tkBrg.on small{color:#7be39b}
+.tkWarna{width:26px;height:26px;border-radius:8px;border:2px solid rgba(255,255,255,.6)}.tkWarna.kosong{background:repeating-linear-gradient(45deg,#666 0 3px,transparent 3px 7px)!important}
+.tkInfo{margin:6px 0 0;text-align:left}
+#panelToko .panel{max-height:calc(100*var(--vh,1vh) - 24px);overflow:auto}
+@media (max-height:460px){#panelToko{padding:6px 12px}#panelToko h2{margin:0;font-size:17px}.tkJenis{margin-bottom:5px}.tkBrg{width:60px;padding:4px}}
+#isiToko{min-width:0;max-width:100%;width:100%}.tkJenis,.tkDaftar{min-width:0;max-width:100%}
