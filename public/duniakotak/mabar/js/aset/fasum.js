@@ -142,12 +142,19 @@ export function rumahSakit(){const g=G();const W=0xf7f7f4,H=0x2fa58a,M=0xe0303a;
  [[-8.3,-1],[-8.3,6.8],[1.6,6.8]].forEach(([x,z])=>{g.ad(box(.6,2.4,.6,0x6a4426,.04),x,1.55,z);g.ad(box(2.4,2.2,2.4,0x3a8a5a,.3),x,3.6,z)});
  pagar(g,19,17,0xffffff,3);return fin(g)}
 // Stadion mini Dunia Kotak (hasil voting warga 3 Nov 2026). Tribun rendah (<2,4) supaya lapangan bisa dimasuki.
+// gawang: tiang + jaring (6 Nov 2026, Huda: bukan kubus). Tiang depan di x=±6.9, jaring menjorok ke belakang sampai ±7.6.
+function jaring(g,s){const L=0xffffff,N=0xe6e6e6,x0=s*6.9,x1=s*7.6,y0=.42,y1=1.9,zA=-1.2,zB=1.2,t=.025;
+ [zA,zB].forEach(z=>{g.ad(box(.08,y1-y0,.08,L,.01),x1,(y0+y1)/2,z);g.ad(box(.7,.08,.08,L,.01),(x0+x1)/2,y1,z);g.ad(box(.7,.06,.06,L,.01),(x0+x1)/2,y0+.03,z)});
+ g.ad(box(.08,.08,2.4,L,.01),x1,y1,0);
+ for(let z=zA+.2;z<zB-.01;z+=.2){g.ad(box(t,y1-y0,t,N,.004),x1,(y0+y1)/2,z);g.ad(box(.7,t,t,N,.004),(x0+x1)/2,y1,z)}
+ for(let y=y0+.2;y<y1-.01;y+=.2){g.ad(box(t,t,2.4,N,.004),x1,y,0);[zA,zB].forEach(z=>g.ad(box(.7,t,t,N,.004),(x0+x1)/2,y,z))}
+ for(let k=1;k<4;k++){const x=x0+(x1-x0)*k/3.5;[zA,zB].forEach(z=>g.ad(box(t,y1-y0,t,N,.004),x,(y0+y1)/2,z));g.ad(box(t,t,2.4,N,.004),x,y1,0)}}
 export function stadion(){const g=G();const R=0x3aa04a,R2=0x2f8a3e,T=[0xe0303a,0x3a8ad8,0xf2c14a];lantai(g,19,17,0xb8b2a6);
  for(let i=0;i<8;i++)g.ad(box(1.7,.12,8.6,i%2?R:R2,.01),-5.95+i*1.7,.42,0);
  const L=0xffffff;g.ad(box(13.6,.05,.14,L,.01),0,.5,-4.25);g.ad(box(13.6,.05,.14,L,.01),0,.5,4.25);g.ad(box(.14,.05,8.6,L,.01),-6.8,.5,0);g.ad(box(.14,.05,8.6,L,.01),6.8,.5,0);g.ad(box(.14,.05,8.6,L,.01),0,.5,0);
  const ci=new THREE.Mesh(new THREE.TorusGeometry(1.4,.07,4,32),new THREE.MeshStandardMaterial({color:L}));ci.rotation.x=Math.PI/2;g.ad(ci,0,.49,0);
  [-1,1].forEach(s=>{g.ad(box(.14,.05,4,L,.01),s*5.4,.5,0);g.ad(box(1.4,.05,.14,L,.01),s*6.1,.5,-2);g.ad(box(1.4,.05,.14,L,.01),s*6.1,.5,2);
-  g.ad(box(.15,1.5,.15,L,.02),s*6.9,1.15,-1.2);g.ad(box(.15,1.5,.15,L,.02),s*6.9,1.15,1.2);g.ad(box(.15,.15,2.55,L,.02),s*6.9,1.9,0);g.ad(box(.6,1.4,2.4,0xe8e8e8,.02),s*7.25,1.1,0)});
+  g.ad(box(.15,1.5,.15,L,.02),s*6.9,1.15,-1.2);g.ad(box(.15,1.5,.15,L,.02),s*6.9,1.15,1.2);g.ad(box(.15,.15,2.55,L,.02),s*6.9,1.9,0);jaring(g,s)});
  // tribun bertingkat kiri-kanan lapangan (depan & belakang)
  [-1,1].forEach(s=>{for(let k=0;k<3;k++){g.ad(box(14,.6,1,0xcfcac0,.03),0,.55+k*.6,s*(5.2+k*1));for(let x=-6;x<=6;x+=1.5)g.ad(box(1.1,.25,.6,T[(k+Math.round((x+6)/1.5))%3],.05),x,1+k*.6,s*(5.2+k*1))}});
  // lampu sorot 4 sudut + papan skor

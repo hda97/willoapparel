@@ -2,7 +2,7 @@
 // hanya ditambah: kavling dibangun bertahap, bangunan fasum di puncak bukit, dan fungsi tinggi pijakan (teras + tanjakan).
 // Kavling lokal 1–200 = warga No. 261–460 (RT 01 Jl. Teh di kaki bukit … RT 10 Jl. Kunyit di atas).
 import {THREE, rnd, reseed} from './lib.js';
-import {lot2, LOT_W, LOT_D, VS, V3, fasum2, vTree, box, hutan, hutanPts, nameTex} from './desa.js';
+import {aturTipis, lot2, LOT_W, LOT_D, VS, V3, fasum2, vTree, box, hutan, hutanPts, nameTex} from './desa.js';
 import * as F from './aset/fasum.js';
 
 export const JALAN_KULON = ['Teh','Kopi','Cengkeh','Kayu Manis','Pala','Lada','Vanili','Kakao','Jahe','Kunyit'];
@@ -11,6 +11,7 @@ const N = 20, SP = 11, L = N * SP, STEP = 2.6, DEP = 17;
 const yt = 10 * STEP, zt = -10 * DEP - 26;
 
 export function kulon(sc, o = {}) {
+  aturTipis(.02);   // bedeng kebun & tanah kavling tipis seperti Kotak Wetan
   reseed(506);
   sc.add(new THREE.HemisphereLight(0xffffff, 0x9ab890, 1.25));
   const d = new THREE.DirectionalLight(0xfff2d8, 2.4); d.castShadow = true; d.shadow.mapSize.set(o.sm || 2048, o.sm || 2048);

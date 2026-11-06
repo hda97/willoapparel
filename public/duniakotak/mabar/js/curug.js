@@ -2,7 +2,7 @@
 // hanya ditambah: kavling dibangun bertahap, bangunan fasum di pusat dusun (kaki gunung), dan fungsi tinggi pijakan (teras + tikungan tanjakan).
 // Kavling lokal 1–200 = warga No. 461–660. Teras j (0 = kaki gunung): kavling 40j+1 … 40j+40, RT 2j+1 & 2j+2. Dibuka 6 Nov 2026 saat Kulon penuh.
 import {THREE, rnd, reseed} from './lib.js';
-import {lot2, LOT_W, LOT_D, VS, V3, fasum2, box, hutan, hutanPts, nameTex} from './desa.js';
+import {aturTipis, lot2, LOT_W, LOT_D, VS, V3, fasum2, box, hutan, hutanPts, nameTex} from './desa.js';
 import * as F from './aset/fasum.js';
 
 export const JALAN_CURUG = ['Pinus','Cemara','Jati','Mahoni','Damar','Rasamala','Puspa','Pakis','Edelweis','Akasia'];
@@ -11,6 +11,7 @@ const N = 20, SP = 11, L = N * SP, STEP = 6, DEP = 32;
 const yb = 5 * STEP, zb = -5 * DEP - 20;
 
 export function curug(sc, o = {}) {
+  aturTipis(.02);   // bedeng kebun & tanah kavling tipis seperti Kotak Wetan
   reseed(500 + 'ardi'.length);
   sc.add(new THREE.HemisphereLight(0xffffff, 0x9ab890, 1.25));
   const d = new THREE.DirectionalLight(0xfff2d8, 2.4); d.castShadow = true; d.shadow.mapSize.set(o.sm || 2048, o.sm || 2048);

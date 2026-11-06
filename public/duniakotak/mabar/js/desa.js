@@ -346,6 +346,8 @@ function qTex2(){const c=document.createElement('canvas');c.width=c.height=256;c
 export const VS=5;
 function vTree(G,x,z,s=1){const t=new THREE.Group();const k=box(.5,2,.5,0x7a4a2a,.04);k.position.y=1;t.add(k);[[0,2.6,0,2.2],[.7,2.3,.4,1.4],[-.7,2.4,-.3,1.5],[0,3.4,0,1.3]].forEach(([a,b,c,q])=>{const m=box(q,q,q,0x4fae3c,.12);m.position.set(a,b,c);t.add(m)});t.position.set(x,0,z);t.scale.setScalar(s);G.add(t)}
 let TIPIS=0;
+// dusun lain (Kulon, Curug) tidak memanggil village(): pakai ini supaya tanah kavling & bedeng kebun tetap tipis
+export function aturTipis(v){TIPIS=v||0}
 export function village(sc,o={}){const stage=o.raka||'done';TIPIS=o.tipis||0;
  sc.add(new THREE.HemisphereLight(0xffffff,0x9ab890,1.25));const d=new THREE.DirectionalLight(o.warm||0xfff2d8,2.4);const f=o.focus||V3(0,0,0);d.position.set(f.x+60,100,f.z+72);d.target.position.copy(f);sc.add(d.target);d.castShadow=true;d.shadow.mapSize.set(o.sm||4096,o.sm||4096);const R0=o.shadowR||70;Object.assign(d.shadow.camera,{left:-R0,right:R0,top:R0,bottom:-R0,far:400});d.shadow.bias=-.0004;sc.add(d);
  const G=new THREE.Group();G.scale.setScalar(VS);sc.add(G);
