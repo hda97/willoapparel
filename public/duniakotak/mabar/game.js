@@ -774,6 +774,9 @@ function tataHUD() {
       } else document.body.classList.remove('chatPenuh');
     }
   }
+  const jm = el('jam');
+  if (jm) { jm.style.visibility = ''; if (tampak(jm)) { const rj = jm.getBoundingClientRect(), tabrak = e => { if (!e) return false; const r = e.getBoundingClientRect(); return r.width && rj.left < r.right && rj.right > r.left && rj.top < r.bottom && rj.bottom > r.top; };
+    if (tabrak(atas) || tabrak(prof) || tabrak(peta)) jm.style.visibility = 'hidden'; } }
   if (peta && chip) { const r = peta.getBoundingClientRect(); chip.style.top = (r.bottom + 6) + 'px'; chip.style.right = (innerWidth - r.right) + 'px'; chip.style.maxWidth = Math.max(r.width, 210) + 'px'; }
   infoKumpul();
   const ck = el('chipKumpul');
@@ -1078,7 +1081,7 @@ let zoom = 1, yaw = 0, yawNow = 0;
 // ---------- suara: musik latar (orisinal, loop) + efek suara (dibuat langsung, tanpa file) ----------
 // Mulai setelah sentuhan pertama (aturan browser). Tombol Suara: Semua -> Efek saja -> Senyap; diingat di HP.
 const M = {ctx: null, gain: null, fx: null, buf: null, src: null, mode: baca('dk_suara') || (baca('dk_musik') === '0' ? 'efek' : 'semua')};
-const MODE = {semua: '<i>🔊</i>Suara', efek: '<i>🔉</i>Efek', senyap: '<i>🔇</i>Senyap'};
+const MODE = {semua: '<i>🔊</i>Suara: musik + efek', efek: '<i>🔉</i>Suara: efek saja', senyap: '<i>🔇</i>Suara: senyap'};
 function tandaMusik() { $('bMusik').innerHTML = MODE[M.mode] || MODE.semua; }
 function siapAudio() {
   if (!M.ctx) {
@@ -1178,12 +1181,14 @@ function aturHUD() {
   $('bKamera').onclick = () => bukaKamera();
   $('profil').style.cursor = 'pointer';
   $('profil').onclick = () => { if (S.tamu) return toast('Daftar di willoapparel.com/duniakotak supaya dapat kavling.', 4000); toast(`Kode wargamu: ${S.saya.kode} · pakai untuk masuk dari HP lain. Jangan dibagikan.`, 6000); };
-  $('bAvatar').onclick = () => bukaPembuatAvatar(JSON.parse(JSON.stringify(S.av)), false);
+  $('bAvatar').onclick = () => { $('panelAtur').hidden = true; bukaPembuatAvatar(JSON.parse(JSON.stringify(S.av)), false); };
   $('bKucing').onclick = () => bukaKucing();
   $('bPeringkat').onclick = () => bukaPeringkat(); $('tutupPeringkat').onclick = () => { $('panelPeringkat').hidden = true; };
   $('bMisi').onclick = () => bukaMisi(); $('tutupMisi').onclick = () => { $('panelMisi').hidden = true; };
   muatMisi();
-  $('bPanduan').onclick = () => panduan();
+  $('bPanduan').onclick = () => { $('panelAtur').hidden = true; panduan(); };
+  $('bAtur').onclick = () => { $('jamAtur').textContent = $('jam').textContent.replace(/\s+/g, ' ').trim(); $('panelAtur').hidden = false; }; $('tutupAtur').onclick = () => { $('panelAtur').hidden = true; };
+  $('panelAtur').addEventListener('click', e => { if (e.target === $('panelAtur')) $('panelAtur').hidden = true; });
   $('bDusun').onclick = pilihDusun;
   musikSiap();
   // pointerdown (bukan click): click tidak terpicu di HP saat jari lain masih menahan joystick -> bisa lompat sambil lari
