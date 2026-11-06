@@ -78,23 +78,23 @@ const DATA = [
     a: {jenis: 'L', kulit: '#c98c5e', rambut: {gaya: 'belah', warna: '#3a2416'}, atasan: {jenis: 'kemeja', warna: '#f4f4f4'}, bawahan: {jenis: 'celana', warna: '#2f3a52'}},
     kegiatan: ['Lap ambulans biar kinclong. Siaga 24 jam!', 'Cek bensin ambulans. Penuh!', 'Nunggu panggilan. Semoga sepi terus.'],
     sapa: ['Nguing nguing!', 'Siaga!', 'Minggir dikit ya, he he']},
-  {id: 'rizky', nama: 'Rizky', peran: 'Pemain bola', kerja: 'bola', fase: 0, jam: [15, 18.5],
+  {id: 'rizky', nama: 'Rizky', peran: 'Pemain bola', kerja: 'bola', tim: 1, fase: 0, jam: [15, 18.5],
     a: {jenis: 'L', kulit: '#e0aa7e', rambut: {gaya: 'acak', warna: '#0b0b0e'}, atasan: {jenis: 'kaos', warna: '#e0303a'}, bawahan: {jenis: 'pendek', warna: '#f4f4f4'}},
     kegiatan: ['Latihan sore di stadion baru! Lapangannya mantap.', 'Kejar bola! Oper sini!', 'Tim merah pasti menang!'],
     sapa: ['Oper!', 'Gol!', 'Ayo main bola!']},
-  {id: 'fajar', nama: 'Fajar', peran: 'Pemain bola', kerja: 'bola', fase: 1.6, jam: [15, 18.5],
+  {id: 'fajar', nama: 'Fajar', peran: 'Pemain bola', kerja: 'bola', tim: -1, fase: 1.6, jam: [15, 18.5],
     a: {jenis: 'L', kulit: '#a86e44', rambut: {gaya: 'cepak', warna: '#0b0b0e'}, atasan: {jenis: 'kaos', warna: '#3a8ad8'}, bawahan: {jenis: 'pendek', warna: '#1d1d22'}},
     kegiatan: ['Main bola sama Rizky. Skornya 2-1, kami kalah dulu.', 'Pemanasan dulu biar tidak keseleo.', 'Kiper kami jago, tapi tadi kebobolan.'],
     sapa: ['Tahan bolanya!', 'Ayo, tim biru!', 'Hampir!']},
-  {id: 'andi', nama: 'Andi', peran: 'Pemain bola', kerja: 'bola', fase: 3.2, jam: [15, 18.5],
+  {id: 'andi', nama: 'Andi', peran: 'Pemain bola', kerja: 'bola', tim: 1, fase: 3.2, jam: [15, 18.5],
     a: {jenis: 'L', kulit: '#f2c7a0', rambut: {gaya: 'keriting', warna: '#3a2416'}, atasan: {jenis: 'kaos', warna: '#e0303a'}, bawahan: {jenis: 'pendek', warna: '#f4f4f4'}},
     kegiatan: ['Aku striker! Tadi cetak satu gol.', 'Minum dulu, haus banget.', 'Besok ada pertandingan antar-RT, nonton ya!'],
     sapa: ['Gol!', 'Lihat tendanganku!', 'Hore!']},
-  {id: 'bima', nama: 'Bima', peran: 'Pemain bola', kerja: 'bola', fase: 4.8, jam: [15, 18.5],
+  {id: 'bima', nama: 'Bima', peran: 'Pemain bola', kerja: 'bola', tim: -1, kiper: true, fase: 4.8, jam: [15, 18.5],
     a: {jenis: 'L', kulit: '#c98c5e', rambut: {gaya: 'belah', warna: '#0b0b0e'}, atasan: {jenis: 'kaos', warna: '#3a8ad8'}, bawahan: {jenis: 'pendek', warna: '#1d1d22'}},
     kegiatan: ['Jaga gawang. Bolanya jangan masuk!', 'Latihan tangkap bola.', 'Stadionnya keren, ada lampu sorot buat main malam.'],
     sapa: ['Tangkap!', 'Awas!', 'Main yuk!']},
-  {id: 'darno', nama: 'Pak Darno', peran: 'Wasit', kerja: 'stadion', dz: -2.5, jam: [15, 18.5],
+  {id: 'darno', nama: 'Pak Darno', peran: 'Wasit', kerja: 'stadion', wasit: true, dz: -2.5, jam: [15, 18.5],
     a: {jenis: 'L', kulit: '#a86e44', rambut: {gaya: 'cepak', warna: '#8a8a90'}, atasan: {jenis: 'kaos', warna: '#1d1d22'}, bawahan: {jenis: 'pendek', warna: '#1d1d22'}},
     kegiatan: ['Jadi wasit latihan sore. Priit!', 'Awas pelanggaran! Main yang sportif.', 'Skornya masih 2-1.'],
     sapa: ['Priit!', 'Sportif ya!', 'Pelanggaran!']},
@@ -158,7 +158,45 @@ export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan, tinggi = () =
     n.pi = n.i; n.pj = n.j; n.i = i; n.j = j; n.tuju = node(i, j);
   }
   const hadapi = (o, x, z, a) => { let dr = Math.atan2(x - o.position.x, z - o.position.z) - o.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); o.rotation.y += dr * a; };
-  function update(dt, me, jam, kec) {
+  // ---- sepak bola NPC (Huda 6 Nov 2026): berebut bola, oper, kiper jaga gawang, wasit mengikuti bola ----
+  // tim 1 (merah: Rizky, Andi) menyerang ke timur (+x); tim -1 (biru: Fajar, Bima kiper) ke barat. Tendangan diatur game.js.
+  const jepit = (v, a, b) => Math.max(a, Math.min(b, v));
+  function langkah(n, o, tx, tz, s, dt, bx, bz) {
+    const dx = tx - o.position.x, dz = tz - o.position.z, l = Math.hypot(dx, dz);
+    if (l > .4) { const m = Math.min(l, s); o.position.x += dx / l * m; o.position.z += dz / l * m; }
+    o.position.y = tinggi(o.position.x, o.position.z, n.pusat.y);
+    hadapi(o, l > 2 ? tx : bx, l > 2 ? tz : bz, Math.min(1, dt * 10));
+    return l > .4;
+  }
+  function mainBola(n, o, b, dt, kec) {
+    const L = b.L, maju = n.tim, kanan = L.cx + L.hx, kiri = L.cx - L.hx;
+    // perkiraan bola sebentar lagi (dikejar ke depan arah gulirnya)
+    const px = jepit(b.x + b.vx * .35, kiri, kanan), pz = jepit(b.z + b.vz * .35, L.cz - L.hz, L.cz + L.hz);
+    let tx, tz, cepat;
+    if (n.kiper) {
+      const gx = L.cx - maju * (L.hx - .7 * VS), dekat = Math.abs(b.x - gx) < 3.2 * VS;
+      if (dekat) { tx = px - maju * 1.1; tz = pz; cepat = .95; }   // bola masuk kotak penalti: kiper maju merebut
+      else { tx = gx; tz = L.cz + jepit(b.z - L.cz, -L.gawang * 1.1, L.gawang * 1.1); cepat = .6; }
+    } else {
+      // pemain lapangan terdekat dari tiap tim mengejar bola → dua tim berebut; kawannya membuka ruang di depan
+      let kejar = n, kd = 1e9; for (const k of daftar) { if (k.kerja !== 'bola' || k.kiper || k.tim !== n.tim || !k.obj.visible) continue; const d = Math.hypot(k.obj.position.x - px, k.obj.position.z - pz); if (d < kd) { kd = d; kejar = k; } }
+      if (kejar === n) { tx = px - maju * 1.1; tz = pz; cepat = 1; }   // datang dari belakang bola supaya tendangannya ke depan
+      else { tx = jepit(b.x + maju * 3.6 * VS, kiri + VS, kanan - VS); tz = L.cz + (b.z > L.cz ? -1 : 1) * 2.2 * VS; cepat = .7; }
+    }
+    // jangan saling tumpuk
+    for (const k of daftar) { if (k === n || k.kerja !== 'bola' || !k.obj.visible) continue; const dx = o.position.x - k.obj.position.x, dz = o.position.z - k.obj.position.z, d = Math.hypot(dx, dz); if (d > 0 && d < 2.2) { tx += dx / d * 1.5; tz += dz / d * 1.5; } }
+    tx = jepit(tx, kiri - VS, kanan + VS); tz = jepit(tz, L.cz - L.hz - VS, L.cz + L.hz + VS);
+    const lari = langkah(n, o, tx, tz, kec * cepat * dt, dt, b.x, b.z);
+    if (o.visible) { if (lari) { const a = Math.sin(n.ph * 13 * Math.max(.7, cepat)) * (cepat > .8 ? 1 : .7); pose(o, {legL: a, legR: -a, armL: -a, armR: a}); } else pose(o, n.kiper ? {armL: -.5, armR: -.5} : {}); }
+  }
+  function wasit(n, o, b, dt, kec) {
+    const L = b.L, sisi = b.z > L.cz ? -1 : 1;
+    const tx = jepit(b.x - Math.sign(b.x - L.cx || 1) * 1.5 * VS, L.cx - L.hx + VS, L.cx + L.hx - VS), tz = jepit(b.z + sisi * 3 * VS, L.cz - L.hz - .5 * VS, L.cz + L.hz + .5 * VS);
+    const d = Math.hypot(tx - o.position.x, tz - o.position.z), lari = d > 1.2 && langkah(n, o, tx, tz, kec * (d > 4 * VS ? .8 : .5) * dt, dt, b.x, b.z);
+    if (!lari) hadapi(o, b.x, b.z, Math.min(1, dt * 6));
+    if (o.visible) { const tiup = performance.now() - (b.golT || 0) < 2500; if (lari) { const a = Math.sin(n.ph * 11) * .7; pose(o, {legL: a, legR: -a, armL: -a * .7, armR: tiup ? -2.9 : a * .7}); } else pose(o, {armR: tiup ? -2.9 : -.2, armL: -.2}); }
+  }
+  function update(dt, me, jam, kec, bola) {
     for (const n of daftar) {
       const o = n.obj, ada = di(n, jam);
       const jauh = Math.hypot(o.position.x - me.position.x, o.position.z - me.position.z);
@@ -173,8 +211,10 @@ export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan, tinggi = () =
         if (l <= s) { o.position.copy(n.tuju); n.tuju = null; if (acak() < .3) n.tunggu = 1 + acak() * 3; }
         else { o.position.x += dx / l * s; o.position.z += dz / l * s; o.position.y = tinggi(o.position.x, o.position.z, o.position.y); hadapi(o, n.tuju.x, n.tuju.z, Math.min(1, dt * 8)); }
         if (o.visible) { const a = Math.sin(n.ph * 9 * (n.cepat || 1)) * .7; pose(o, {legL: a, legR: -a, armL: -a * .8, armR: a * .8}); }
+      } else if (n.kerja === 'bola' && bola && n.tim) { mainBola(n, o, bola, dt, kec);
+      } else if (n.wasit && bola) { wasit(n, o, bola, dt, kec);
       } else if (n.kerja === 'bola') {
-        // main bola: berlari elips di lapangan stadion
+        // main bola (tanpa bola: berlari elips): berlari elips di lapangan stadion
         const t = n.ph * .7 + n.fase;
         o.position.set(n.pusat.x + Math.cos(t) * 4.5 * VS, 0, n.pusat.z + Math.sin(t * 1.3) * 2.6 * VS); o.position.y = tinggi(o.position.x, o.position.z, n.pusat.y);   // berdiri di lantai fasum, tidak tenggelam
         o.rotation.y = Math.atan2(-Math.sin(t) * 4.5, Math.cos(t * 1.3) * 3.4);

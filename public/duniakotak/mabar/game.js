@@ -930,10 +930,15 @@ const BOLA_R = 1.5;
 function bolaLapangan() { const f = I && DI === 'wetan' && I.fas && I.fas[12]; return f ? {cx: f.x, cz: f.z, hx: 6.8 * VS - BOLA_R, hz: 4.3 * VS - BOLA_R, gawang: 1.15 * VS, lantai: .48 * VS} : null; }
 function bolaBuat(L) {
   const g = new THREE.Group();
-  const bola = new THREE.Mesh(new THREE.IcosahedronGeometry(BOLA_R, 1), new THREE.MeshStandardMaterial({color: 0xffffff, roughness: .5, flatShading: true}));
+  // bola klasik: putih dengan 12 segi lima abu tua RATA di permukaan (Huda 6 Nov: motif hitam jangan menonjol)
+  const geo = new THREE.IcosahedronGeometry(BOLA_R, 2), pos = geo.attributes.position, warna = new Float32Array(pos.count * 3);
+  const pusat = new THREE.IcosahedronGeometry(1, 0).attributes.position, titik = []; for (let i = 0; i < pusat.count; i++) { const v = new THREE.Vector3().fromBufferAttribute(pusat, i).normalize(); if (!titik.some(t => t.distanceTo(v) < 1e-3)) titik.push(v); }
+  const a = new THREE.Vector3(), c = new THREE.Color();
+  for (let f = 0; f < pos.count; f += 3) { a.set(0, 0, 0); for (let k = 0; k < 3; k++) a.add(new THREE.Vector3().fromBufferAttribute(pos, f + k)); a.normalize();
+    const gelap = titik.some(t => t.dot(a) > .93); c.set(gelap ? 0x5a5f6a : 0xf7f7f4); for (let k = 0; k < 3; k++) warna.set([c.r, c.g, c.b], (f + k) * 3); }
+  geo.setAttribute('color', new THREE.BufferAttribute(warna, 3));
+  const bola = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({vertexColors: true, roughness: .55, flatShading: true}));
   g.add(bola);
-  const hitam = new THREE.MeshStandardMaterial({color: 0x1b1c21, roughness: .6});
-  for (const [a, b, c] of [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]) { const k = new THREE.Mesh(new THREE.BoxGeometry(.8, .8, .8), hitam); k.position.set(a * 1.2, b * 1.2, c * 1.2); g.add(k); }
   g.traverse(o => { if (o.isMesh) o.castShadow = !hemat; });
   sc.add(g); BOLA.m = g; BOLA.x = L.cx; BOLA.z = L.cz; BOLA.y = L.lantai + BOLA_R;
 }
@@ -961,13 +966,22 @@ function bolaUpdate(dt, me) {
   if (Math.hypot(dxm, dzm) < BOLA_R + 1.3 && BOLA.y < me.position.y + 3 && now - BOLA.tendangT > 350) {
     BOLA.tendangT = now; BOLA.aku = true; bolaTendang(dxm, dzm, gerak.lari ? 46 : 30, true); bunyi('langkah');
   }
-  // tendangan pemain NPC: oper ke arah gawang lawan dengan sedikit acak
-  if (npc && now - BOLA.tendangT > 600) for (const n of npc.daftar) {
-    if (n.kerja !== 'bola' || !n.obj.visible) continue;
-    const o = n.obj.position; if (Math.hypot(BOLA.x - o.x, BOLA.z - o.z) < BOLA_R + 1.4) {
-      BOLA.tendangT = now; BOLA.aku = false; const arah = n.fase < 2.5 ? 1 : -1;
-      bolaTendang(L.cx + arah * 7 * VS - BOLA.x, (Math.random() - .5) * 6 * VS + L.cz - BOLA.z, 24 + Math.random() * 14, false); break;
-    }
+  // pemain NPC menyentuh bola: giring, OPER ke kawan yang lebih depan, atau tembak ke gawang (kiper membuang ke depan)
+  if (npc && now - BOLA.tendangT > 380 && BOLA.y < L.lantai + BOLA_R + 2.5) for (const n of npc.daftar) {
+    if (n.kerja !== 'bola' || !n.tim || !n.obj.visible || now - (n.tendT || 0) < 650) continue;
+    const o = n.obj.position; if (Math.hypot(BOLA.x - o.x, BOLA.z - o.z) >= BOLA_R + 1.6) continue;
+    BOLA.tendangT = n.tendT = now; BOLA.aku = false;
+    const gx = L.cx + n.tim * (L.hx + BOLA_R), keGawang = Math.abs(gx - o.x);
+    const kawan = npc.daftar.filter(k => k !== n && k.tim === n.tim && k.obj.visible && !k.kiper);
+    const depan = kawan.find(k => (k.obj.position.x - o.x) * n.tim > 1.5 * VS);
+    let tx, tz, kuat, ucap = '';
+    if (keGawang < 4 * VS && !n.kiper) { tx = gx; tz = L.cz + (Math.random() - .5) * 1.7 * L.gawang; kuat = 40 + Math.random() * 12; ucap = 'Tendang!'; }
+    else if ((n.kiper || (depan && Math.random() < .65)) && (depan || kawan[0])) { const k = depan || kawan[0], kp = k.obj.position, d = Math.hypot(kp.x - o.x, kp.z - o.z);
+      tx = kp.x + n.tim * 1.2 * VS; tz = kp.z; kuat = Math.max(16, Math.min(46, d * 1.05 + 6)); ucap = 'Oper!'; }
+    else { tx = o.x + n.tim * 3 * VS; tz = o.z + (L.cz - o.z) * .25 + (Math.random() - .5) * 2.5 * VS; kuat = 12 + Math.random() * 5; }
+    bolaTendang(tx - BOLA.x, tz - BOLA.z, kuat, false); if (kuat < 20) BOLA.vy = 3;
+    if (ucap && n.jauh < 45 * VS && Math.random() < .5) n.obj.userData.gel = {m: ucap, sampai: now + 1600};
+    break;
   }
   // gerak + gesekan rumput + pantulan dinding lapangan
   BOLA.x += BOLA.vx * dt; BOLA.z += BOLA.vz * dt; const gs = Math.exp(-.9 * dt); BOLA.vx *= gs; BOLA.vz *= gs;
@@ -1446,7 +1460,7 @@ function loop(t) {
   if (dR > 60) tokoh.raka.userData.sapa = 0;
   for (const c of kucingHidup) { const u = c.userData; u.ph += dt; c.position.y = Math.max(0, Math.sin(u.ph * 1.3)) * .12; c.rotation.y = u.ry + Math.sin(u.ph * .4) * .5; }
   animSkill(dt, me);
-  if (npc) { npc.update(dt, me, jamWIB(), KEC); sapaNPC(t, me); }
+  if (npc) { const L = BOLA.m && BOLA.m.visible ? bolaLapangan() : null; npc.update(dt, me, jamWIB(), KEC, L ? {L, x: BOLA.x, z: BOLA.z, vx: BOLA.vx, vz: BOLA.vz, golT: BOLA.golT} : null); sapaNPC(t, me); }
   bolaUpdate(dt, me);
   tokoh.oyen.userData.ph += dt; tokoh.oyen.position.y = Math.abs(Math.sin(tokoh.oyen.userData.ph * 1.3)) * .15;
   // kamera ikut pemain (dikunci di dalam hutan pembatas)
