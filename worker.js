@@ -1154,6 +1154,11 @@ export default {
     let pendek = url.pathname.toLowerCase();
     try { pendek = decodeURIComponent(pendek); } catch (e) {}
     pendek = pendek.replace(/[^a-z0-9]+$/, "").replace(/[^a-z0-9/]/g, "");
+    // Halaman iklan kaos kelas: /kelas, /KELAS, /kelas. → /kelas/ (parameter iklan ikut).
+    if (pendek === "/kelas" && url.pathname !== "/kelas/") {
+      url.pathname = "/kelas/";
+      return Response.redirect(url.toString(), 301);
+    }
     if (pendek === "/kantoragentai" || pendek === "/kantoragenai") {
       if (url.pathname !== "/kantor-agen-ai/") {
         url.pathname = "/kantor-agen-ai/";
