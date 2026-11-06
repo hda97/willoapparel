@@ -1495,9 +1495,11 @@ function tambahWarga(w) {
   const obj = buatAvatarObj(bersihAv(w.av || avAcak(w.no))); obj.position.set(w.x, 0, w.z); obj.rotation.y = w.r || 0; sc.add(obj);
   S.others.set(w.no, {obj, ig: w.ig, av: w.av, tx: w.x, tz: w.z, tr: w.r || 0, a: 0, ph: 0});
 }
+// Chat Desa tersambung semua dusun: pesan dari dusun lain diberi label asal dusunnya.
+function namaDesa(c) { return '@' + c.ig + (c.d && c.d !== DI && NAMA_DUSUN[c.d] ? ' (' + NAMA_DUSUN[c.d].replace('Kotak ', '') + ')' : ''); }
 function terima(q) {
   if (q.t === 'bola') { bolaTerima(q); return; }
-  if (q.t === 'halo') { q.warga.forEach(tambahWarga); S.chat.dusun = []; q.chat.forEach(c => tambahChat('dusun', '@' + c.ig, c.m)); hitungOnline(); }
+  if (q.t === 'halo') { q.warga.forEach(tambahWarga); S.chat.dusun = []; q.chat.forEach(c => tambahChat('dusun', namaDesa(c), c.m)); hitungOnline(); }
   else if (q.t === 'masuk') { tambahWarga(q.w); hitungOnline(); tambahChat('sekitar', '', '@' + q.w.ig + ' masuk ke desa', 'sistem'); bunyi('masuk'); }
   else if (q.t === 'keluar') { const o = S.others.get(q.no); if (o) { sc.remove(o.obj); S.others.delete(q.no); } hitungOnline(); }
   else if (q.t === 'p') { for (const [no, x, z, r, a] of q.d) { const o = S.others.get(no); if (o) { o.tx = x; o.tz = z; o.tr = r; o.a = a; o.akhir = performance.now(); } } }
@@ -1506,7 +1508,7 @@ function terima(q) {
     if (S.bisu.has(q.no)) return;
     const saya = q.no === S.saya.no; const o = S.others.get(q.no);
     const dekat = saya || (o && o.obj.position.distanceTo(tokoh.saya.position) < 120);
-    if (q.ch === 'dusun') tambahChat('dusun', '@' + q.ig, q.m);
+    if (q.ch === 'dusun') tambahChat('dusun', namaDesa(q), q.m);
     else if (dekat) tambahChat('sekitar', '@' + q.ig, q.m);
     if (dekat || q.ch === 'sekitar') gelembung(q.no, q.m);
     if (saya) bunyi('kirim'); else if (dekat || q.ch === 'dusun') bunyi('pesan');
@@ -1828,7 +1830,7 @@ function panduan() {
     S.tamu ? 'Kamu sedang lihat-lihat sebagai tamu. Daftar jadi warga di willoapparel.com/duniakotak supaya dapat kavling dan bisa ngobrol.' : `Rumahmu di ${alamat(S.saya.no)}. Batu di depan rumah sudah terukir namamu.`,
     'Jalan pakai joystick di kiri bawah, dorong penuh untuk lari. Geser layar untuk memutar kamera, cubit untuk zoom. Di laptop: WASD, Shift lari, roda mouse zoom.',
     'Tombol kanan bawah itu skill-mu: ✋ ambil barang di jalan, 🎣 mancing di pinggir sungai, 🐟 beri makan kucing pakai ikan hasil mancing. Tombolnya menyala kalau bisa dipakai.',
-    'Chat Sekitar terlihat warga di dekatmu, Chat Dusun untuk semua warga dusun. Ketuk nama warga untuk lihat rumahnya, bisukan, atau laporkan.',
+    'Chat Sekitar terlihat warga di dekatmu, Chat Desa untuk semua warga di semua dusun. Ketuk nama warga untuk lihat rumahnya, bisukan, atau laporkan.',
     'Cek 📋 Misi tiap hari untuk dapat koin. Sekarang ayo jalan-jalan dan sapa tetangga. Meong! kata Oyen.',
   ];
   let i = 0; const d = $('dialog');

@@ -663,11 +663,13 @@ function saringChat(teks) {
   m = tok.map((w, i) => (kotor[i] ? "★★★" : w)).join("").replace(/★★★(\s*★★★)+/g, "★★★");
   return { m };
 }
+const DUSUN_RUANG = ["wetan", "kulon", "curug"];
 export class Ruang extends DurableObject {
   constructor(ctx, env) {
     super(ctx, env);
     this.sql = ctx.storage.sql;
     this.sql.exec(`CREATE TABLE IF NOT EXISTS chat (id INTEGER PRIMARY KEY AUTOINCREMENT, t INTEGER, no INTEGER, ig TEXT, ch TEXT, m TEXT)`);
+    try { this.sql.exec("ALTER TABLE chat ADD COLUMN d TEXT"); } catch (e) {}   // asal dusun pesan (chat Desa lintas dusun)
     this.sql.exec(`CREATE TABLE IF NOT EXISTS lapor (pelapor INTEGER, terlapor INTEGER, t INTEGER, PRIMARY KEY (pelapor, terlapor))`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS bisu (no INTEGER PRIMARY KEY, sampai INTEGER)`);
     this.pos = new Map();
@@ -678,6 +680,14 @@ export class Ruang extends DurableObject {
   async fetch(request) {
     if (request.headers.get("Upgrade") !== "websocket") {
       const u = new URL(request.url);
+      // Chat Desa: pesan dari dusun lain (sudah disaring di dusun asal) → simpan + siarkan di dusun ini.
+      if (u.pathname === "/desa" && request.method === "POST") {
+        const c = await request.json();
+        if (!c || !c.no || typeof c.m !== "string") return new Response("{}", { status: 400 });
+        this.sql.exec("INSERT INTO chat (t, no, ig, ch, m, d) VALUES (?, ?, ?, 'dusun', ?, ?)", c.w, c.no, c.ig, c.m, c.d || "");
+        this.siar({ t: "c", no: c.no, ig: c.ig, ch: "dusun", m: c.m, w: c.w, d: c.d || "" });
+        return new Response("{}");
+      }
       if (u.pathname === "/online") { const w = this.semua().filter((x) => x.a.no).map((x) => ({ no: x.a.no, ig: x.a.ig || "" })); return Response.json({ online: w.length, warga: w }); }
       return new Response("{}", { status: 404 });
     }
@@ -687,9 +697,9 @@ export class Ruang extends DurableObject {
     for (const { ws, a } of this.semua()) if (a.no === w.no) { try { ws.close(4000, "Masuk dari tempat lain"); } catch (e) {} }
     this.ctx.acceptWebSocket(s);
     const p0 = { x: w.x || 0, z: w.z || 0, r: 0, a: 0 };
-    s.serializeAttachment({ no: w.no, ig: w.ig, av: w.avatar || null, ...p0, kirim: 0 });
+    s.serializeAttachment({ no: w.no, ig: w.ig, av: w.avatar || null, d: w.d || "", ...p0, kirim: 0 });
     const lain = this.semua().filter((x) => x.ws !== s && x.a.no).map(({ a }) => ({ no: a.no, ig: a.ig, av: a.av, ...(this.pos.get(a.no) || { x: a.x, z: a.z, r: a.r || 0, a: 0 }) }));
-    const riwayat = this.sql.exec("SELECT t, no, ig, ch, m FROM chat WHERE ch = 'dusun' ORDER BY id DESC LIMIT 50").toArray().reverse().map((r) => ({ ...r, m: saringChat(r.m).m || "★★★" }));
+    const riwayat = this.sql.exec("SELECT t, no, ig, ch, m, d FROM chat WHERE ch = 'dusun' ORDER BY id DESC LIMIT 50").toArray().reverse().map((r) => ({ ...r, m: saringChat(r.m).m || "★★★" }));
     s.send(JSON.stringify({ t: "halo", saya: w.no, warga: lain, chat: riwayat }));
     this.siar({ t: "masuk", w: { no: w.no, ig: w.ig, av: w.avatar || null, ...p0 } }, s);
     return new Response(null, { status: 101, webSocket: c });
@@ -720,9 +730,15 @@ export class Ruang extends DurableObject {
       const h = saringChat(q.m);
       if (h.galat) { ws.send(JSON.stringify({ t: "tolak", m: h.galat })); return; }
       ws.serializeAttachment({ ...a, kirim: now });
-      this.sql.exec("INSERT INTO chat (t, no, ig, ch, m) VALUES (?, ?, ?, ?, ?)", now, a.no, a.ig, ch, h.m);
+      this.sql.exec("INSERT INTO chat (t, no, ig, ch, m, d) VALUES (?, ?, ?, ?, ?, ?)", now, a.no, a.ig, ch, h.m, a.d || "");
       if (Math.random() < 0.05) { this.sql.exec("DELETE FROM chat WHERE t < ?", now - 7 * 864e5); this.sql.exec("DELETE FROM lapor WHERE t < ?", now - 864e5); }
-      this.siar({ t: "c", no: a.no, ig: a.ig, ch, m: h.m, w: now });
+      this.siar({ t: "c", no: a.no, ig: a.ig, ch, m: h.m, w: now, d: a.d || "" });
+      // Chat Desa tersambung semua dusun (Huda 6 Nov 2026): teruskan ke ruang dusun lain.
+      if (ch === "dusun" && this.env.RUANG) {
+        const isi = JSON.stringify({ no: a.no, ig: a.ig, m: h.m, w: now, d: a.d || "" });
+        this.ctx.waitUntil(Promise.all(DUSUN_RUANG.filter((d) => d !== a.d).map((d) =>
+          this.env.RUANG.get(this.env.RUANG.idFromName(d)).fetch("https://ruang/desa", { method: "POST", body: isi }).catch(() => {}))));
+      }
       return;
     }
     if (q.t === "e" && q.e === "lompat") { if (now - (a.lompat || 0) > 500) { ws.serializeAttachment({ ...a, lompat: now }); this.siar({ t: "e", no: a.no, e: "lompat" }, ws); } return; }
@@ -803,9 +819,9 @@ async function apiWarga(request, env, url) {
     const r = await stub.fetch("https://do/sesi", { method: "POST", body: JSON.stringify({ kunci }) });
     if (!r.ok) return json({ galat: "Masuk dulu sebagai warga." }, 401);
     const w = await r.json();
-    const dusun = ["wetan", "kulon", "curug"].includes(url.searchParams.get("dusun")) ? url.searchParams.get("dusun") : "wetan";
+    const dusun = DUSUN_RUANG.includes(url.searchParams.get("dusun")) ? url.searchParams.get("dusun") : "wetan";
     const h = new Headers(request.headers);
-    h.set("x-warga", JSON.stringify({ no: w.no, ig: w.ig, avatar: w.avatar, x: +url.searchParams.get("x") || 0, z: +url.searchParams.get("z") || 0 }));
+    h.set("x-warga", JSON.stringify({ no: w.no, ig: w.ig, avatar: w.avatar, d: dusun, x: +url.searchParams.get("x") || 0, z: +url.searchParams.get("z") || 0 }));
     return env.RUANG.get(env.RUANG.idFromName(dusun)).fetch(new Request("https://do/ws", { headers: h }));
   }
   if (aksi === "online" && request.method === "GET") {
