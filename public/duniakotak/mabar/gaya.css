@@ -167,3 +167,9 @@ body.chatPenuh .chat{background:rgba(19,20,31,.92)}
 .pkBaris:last-child{border-bottom:0}.pkBaris.juara{background:rgba(255,210,58,.08)}.pkBaris.aku{background:rgba(90,190,120,.18)}
 .pkNo{width:28px;text-align:center;font-weight:900;font-size:14px;flex:none}.pkNama{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pkNama small{margin-left:8px;color:#aab;font-weight:600;font-size:11px}.pkBaris b{flex:none}.pkSaya{border:1px solid var(--garis);border-radius:12px;margin-bottom:10px}
+/* navigasi ala Gmaps (6 Nov 2026) */
+.petaTombol{display:flex;gap:8px;margin-top:8px}.petaTombol[hidden]{display:none}
+.petaTombol .utama{flex:1.2}.petaTombol .kedua{flex:1;border:0;border-radius:999px;padding:13px 14px;background:rgba(255,255,255,.14);color:#fff;font-weight:800;font-size:14px}
+.chipRute{position:fixed;left:50%;transform:translateX(-50%);bottom:max(14px,env(safe-area-inset-bottom));z-index:6;display:flex;align-items:center;gap:8px;max-width:min(62vw,420px);background:#1a73e8;color:#fff;border:2px solid #fff;border-radius:999px;padding:7px 8px 7px 14px;font:800 13px Montserrat,sans-serif;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.35);cursor:pointer}
+.chipRute[hidden]{display:none}.chipRute .t{overflow:hidden;text-overflow:ellipsis}.chipRute b{font-weight:900}
+.chipRute .x{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.22);font-size:13px}
