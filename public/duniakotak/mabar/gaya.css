@@ -299,3 +299,15 @@ a.barisAtur{text-decoration:none}.barisAtur span{display:flex;flex-direction:col
 .chipOnline{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;font-size:11px;line-height:18px;border-color:rgba(123,227,155,.35);background:rgba(30,90,50,.3);box-shadow:none}
 .chipOnline .titikOn{width:7px;height:7px;border-radius:50%;background:#3fdc72;box-shadow:0 0 0 2px rgba(63,220,114,.25);flex:none}
 .profil{overflow:hidden}
+/* Dana pembangunan (iuran) di panel Voting & loket sewa (6 Nov 2026) */
+.vtDana{display:grid;gap:6px;margin:10px 0;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--garis);text-align:left}
+.vtDana small{font-size:11px;opacity:.88;line-height:1.45}
+.danaBar{position:relative;height:22px;border-radius:999px;background:rgba(0,0,0,.35);overflow:hidden}
+.danaBar span{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#f2a83a,#ffd23a);border-radius:999px}
+.danaBar em{position:relative;display:block;text-align:center;font:900 11.5px/22px Montserrat,sans-serif;font-style:normal;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.danaTombol{display:flex;flex-wrap:wrap;gap:6px}
+.danaTombol button{flex:1;min-width:60px;padding:7px 8px;border-radius:10px;border:0;background:#ffd23a;color:#3a2a00;font:900 12px Montserrat,sans-serif;cursor:pointer}
+.danaTombol button:disabled{background:rgba(255,255,255,.12);color:rgba(255,255,255,.5);cursor:default}
+.danaTop{color:#ffe7a0}
+#isiSewa{display:grid;gap:6px;margin:8px 0}
+.rkBaris button s{opacity:.6;font-weight:700}

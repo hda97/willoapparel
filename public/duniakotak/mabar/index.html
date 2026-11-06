@@ -9,7 +9,7 @@
 <link rel="icon" href="/duniakotak/logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap">
-<link rel="stylesheet" href="gaya.css?v=20261106t">
+<link rel="stylesheet" href="gaya.css?v=20261106u">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
 <body>
@@ -39,7 +39,7 @@
  <button id="chipKumpul" class="chipKumpul" hidden title="Antar ke Stadion"></button>
  <button id="chipRute" class="chipRute" hidden title="Buka peta"></button>
  <div id="stik"><div id="kenop"></div></div>
- <div class="zoom skill" id="skill"><button id="sLompat" class="siap" title="Lompat (Spasi)"><i><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2.5l7.5 8.5h-4.7v6.2H9.2V11H4.5z" fill="#fff"/><rect x="5" y="19.6" width="14" height="2.4" rx="1.2" fill="#fff" opacity=".65"/></svg></i>Lompat</button><button id="sTendang" title="Tendang bola (T)" hidden><i>⚽</i>Tendang</button><button id="sAmbil" title="Ambil item (F)"><i>✋</i>Ambil</button><button id="sMancing" title="Mancing di sungai (R)"><i>🎣</i>Mancing</button><button id="sMakan" title="Beri makan kucing (G)"><i>🐟</i>Beri makan</button><button id="sTanam" title="Tanam bibit di kebunmu" hidden><i>🌱</i>Tanam</button><button id="sPanen" title="Panen kebun (+2 permata + hasil)" hidden><i>🧺</i>Panen</button><button id="sJual" title="Jual hasil panen di warungmu" hidden><i>💰</i>Jual</button><button id="sKerja" title="Kerja shift profesimu" hidden><i>💼</i>Kerja</button></div>
+ <div class="zoom skill" id="skill"><button id="sLompat" class="siap" title="Lompat (Spasi)"><i><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2.5l7.5 8.5h-4.7v6.2H9.2V11H4.5z" fill="#fff"/><rect x="5" y="19.6" width="14" height="2.4" rx="1.2" fill="#fff" opacity=".65"/></svg></i>Lompat</button><button id="sTendang" title="Tendang bola (T)" hidden><i>⚽</i>Tendang</button><button id="sAmbil" title="Ambil item (F)"><i>✋</i>Ambil</button><button id="sMancing" title="Mancing di sungai (R)"><i>🎣</i>Mancing</button><button id="sMakan" title="Beri makan kucing (G)"><i>🐟</i>Beri makan</button><button id="sTanam" title="Tanam bibit di kebunmu" hidden><i>🌱</i>Tanam</button><button id="sPanen" title="Panen kebun (+2 permata + hasil)" hidden><i>🧺</i>Panen</button><button id="sJual" title="Jual hasil panen di warungmu" hidden><i>💰</i>Jual</button><button id="sKerja" title="Kerja shift profesimu" hidden><i>💼</i>Kerja</button><button id="sLoket" title="Loket sewa alat istimewa" hidden><i>🛠️</i>Sewa</button></div>
 </div>
 
 <div id="panelPeta" class="layarPenuh" hidden>
@@ -101,6 +101,14 @@
   <button class="utama" id="tutupProfesi">Lanjut main</button>
  </div>
 </div>
+<div id="panelSewa" class="layarPenuh popup" hidden>
+ <div class="panel"><button class="popTutup" data-tutup="panelSewa" aria-label="Tutup">✕</button>
+  <h2>🛠️ Loket Sewa Alat</h2>
+  <p class="kecil">Alat biasa di fasum gratis. Alat istimewa disewa 30 menit, kembali otomatis. Warga dusun sendiri diskon 50%. Satu alat per warga.</p>
+  <div id="isiSewa"></div>
+  <button class="utama" id="tutupSewa">Lanjut main</button>
+ </div>
+</div>
 <div id="panelKerja" class="layarPenuh popup" hidden>
  <div class="panel"><button class="popTutup" data-tutup="panelKerja" aria-label="Tutup">✕</button>
   <h2 id="judulKerja">💼 Shift</h2>
@@ -137,6 +145,7 @@
   <h2>⭐ Voting Fasum</h2>
   <p class="kecil" id="ringkasVoting">Pilih fasum yang dibangun berikutnya. Taruh bintangmu di calon pilihanmu.</p>
   <div id="isiVoting"></div>
+  <div class="vtDana" id="vtDana"></div>
   <div class="vtDonasi" id="vtDonasi" hidden></div>
   <button class="utama" id="tutupVoting">Lanjut main</button>
  </div>
@@ -196,6 +205,6 @@
 
 <div id="miring" class="layarPenuh" hidden><div class="panel"><div style="font-size:54px">📱↻</div><h2>Miringkan HP-mu</h2><p class="sub">Dunia Kotak dimainkan dengan layar mendatar.</p><button class="tipis" id="tetapTegak">Tetap main tegak</button></div></div>
 
-<script type="module" src="game.js?v=20261106t"></script>
+<script type="module" src="game.js?v=20261106u"></script>
 </body>
 </html>
