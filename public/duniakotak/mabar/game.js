@@ -1450,7 +1450,7 @@ function hitungOnline() {
   $('dompet').hidden = S.tamu || !S.saya;
   document.querySelector('#profil .pfNm').hidden = !S.tamu && !!S.saya;   // Huda: pojok cukup foto avatar + koin + permata
   if (!S.tamu && S.saya) { $('dKoin').textContent = '🪙 ' + (S.saya.koin || 0); $('dPermata').textContent = '💎 ' + (S.saya.permata || 0); }
-  $('profOnline').textContent = `🟢 ${jumlahOnline()} online`; $('dOnline').textContent = `🟢 ${jumlahOnline()} online`;
+  $('profOnline').textContent = `🟢 ${jumlahOnline()} online`; $('dOnline').innerHTML = `<i class="titikOn"></i>${jumlahOnline()}`; $('dOnline').title = jumlahOnline() + ' warga online · ketuk untuk lihat per dusun';
   if (!$('panelProfil').hidden) tulisProfil();
 }
 // ---------- panel Profil: avatar, saldo, inventori ----------

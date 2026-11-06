@@ -295,3 +295,7 @@ a.barisAtur{text-decoration:none}.barisAtur span{display:flex;flex-direction:col
 #isiKerja .jawab button.benar{background:#2a9a5a;border-color:#7be39b}
 #isiKerja .jawab button.salah{background:#7a2a2a;border-color:#ff9a8a;opacity:.7}
 #sKerja.tunggu{opacity:.7}
+/* chip online dikecilkan (Huda 6 Nov 2026: bayangan hijau terlalu besar sampai keluar kartu): titik hijau + angka saja */
+.chipOnline{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;font-size:11px;line-height:18px;border-color:rgba(123,227,155,.35);background:rgba(30,90,50,.3);box-shadow:none}
+.chipOnline .titikOn{width:7px;height:7px;border-radius:50%;background:#3fdc72;box-shadow:0 0 0 2px rgba(63,220,114,.25);flex:none}
+.profil{overflow:hidden}
