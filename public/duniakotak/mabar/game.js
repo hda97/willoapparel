@@ -384,6 +384,7 @@ function bangunKavling(n) {
       const k = rumahKucingMesh({warna: 'krem', atap: 'merah', nama: 'OYEN'}); k.scale.setScalar(1 / .55); k.position.set(L.c.x + L.dir * -3.9 * VS, 0, L.c.z + L.dir * 3.4 * VS); k.rotation.y = L.dir === 1 ? 0 : Math.PI; extra.add(k);
     }
   }
+  if (isi) pasangDekor(n, L, extra, rects);
   extra.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
   lantaiDua(g, n); catKavling(g, n);
   bakeGroup(g); bakeGroup(extra);
@@ -391,6 +392,55 @@ function bangunKavling(n) {
   if (isi && n !== 1) pasangKucing(n);
   if (L.proxyIdx != null) setProxy(L, false);
 }
+// ---------- Rakit Hiasan (Huda 6 Nov 2026): barang pungutan dirakit jadi hiasan pekarangan ----------
+// posisi & ukuran dalam satuan kavling (pintu rumah ±0,76), lalu dikali VS
+const kotakD = (w, h, d, c, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({color: c, roughness: .85})); m.position.set(x, y, z); return m; };
+const DEKOR = [
+  {id: 'bangku', ikon: '🪑', nama: 'Bangku taman', resep: {Kayu: 3, 'Batu kotak': 1}, pos: [-4.15, 1.7], rot: Math.PI / 2, rect: [.25, .45],
+    buat: G => { G.add(kotakD(.8, .06, .26, 0xa0703c, 0, .2, 0), kotakD(.8, .22, .05, 0xa0703c, 0, .36, -.12)); [-.33, .33].forEach(x => G.add(kotakD(.06, .2, .22, 0x5a3a20, x, .1, 0))); }},
+  {id: 'pot', ikon: '🌷', nama: 'Pot bunga', resep: {Bunga: 2, Daun: 1, 'Batu kotak': 1}, pos: [-.55, 1.35], rot: 0, rect: [.16, .16],
+    buat: G => { G.add(kotakD(.26, .2, .26, 0xc8653a, 0, .1, 0), kotakD(.2, .05, .2, 0x5a3a20, 0, .21, 0), kotakD(.04, .16, .04, 0x3f9a3a, 0, .3, 0)); [[0xff5a7a, -.06, .04], [0xffd23a, .06, -.03], [0xb07aff, 0, .07]].forEach(([c, x, z]) => G.add(kotakD(.09, .09, .09, c, x, .4, z))); }},
+  {id: 'lampu', ikon: '🏮', nama: 'Lampu taman', resep: {Kayu: 2, 'Batu kotak': 2}, pos: [-1.05, 3.1], rot: 0, rect: [.08, .08],
+    buat: G => { G.add(kotakD(.16, .06, .16, 0x9aa0a8, 0, .03, 0), kotakD(.05, .62, .05, 0x2a2a2a, 0, .34, 0), kotakD(.14, .04, .14, 0x2a2a2a, 0, .73, 0));
+      const l = new THREE.Mesh(new THREE.BoxGeometry(.11, .13, .11), new THREE.MeshBasicMaterial({color: 0xffe08a})); l.position.y = .65; G.add(l); }},
+  {id: 'keranjang', ikon: '🧺', nama: 'Keranjang buah', resep: {Apel: 3, Kayu: 1, Daun: 1}, pos: [2.55, 2.15], rot: 0, rect: [.22, .16],
+    buat: G => { G.add(kotakD(.4, .16, .28, 0xb8844a, 0, .08, 0)); [[-.1, -.05], [.08, .04], [.0, -.02], [-.04, .07], [.12, -.06]].forEach(([x, z], i) => G.add(kotakD(.1, .1, .1, i === 3 ? 0x5cc85c : 0xe0403a, x, .2, z))); }},
+  {id: 'jamur', ikon: '🍄', nama: 'Taman jamur', resep: {Jamur: 3, Daun: 1}, pos: [-4.2, -.5], rot: 0, rect: [.25, .25],
+    buat: G => { G.add(kotakD(.5, .04, .5, 0x6a4a2a, 0, .02, 0)); [[-.13, -.1, 1], [.12, -.05, .8], [0, .13, 1.2]].forEach(([x, z, k]) => { G.add(kotakD(.06 * k, .14 * k, .06 * k, 0xf4ecd8, x, .07 * k, z)); G.add(kotakD(.2 * k, .08 * k, .2 * k, 0xd84a4a, x, .16 * k, z)); }); }},
+];
+const DK_SKALA = 1.5;
+function dekorKavling(n) { return (S.saya && n === S.saya.no && S.hias ? S.hias.dekor : HS[n] && HS[n].d) || []; }
+function pasangDekor(n, L, extra, rects) {
+  for (const id of dekorKavling(n)) {
+    const d = DEKOR.find(x => x.id === id); if (!d) continue;
+    const G = new THREE.Group(); d.buat(G); G.scale.setScalar(VS * DK_SKALA);
+    G.position.set(L.c.x + L.dir * d.pos[0] * VS, 0, L.c.z + L.dir * d.pos[1] * VS); G.rotation.y = (L.dir === 1 ? 0 : Math.PI) + d.rot; extra.add(G);
+    const [rx, rz] = (d.rot ? [d.rect[1], d.rect[0]] : d.rect).map(v => v * DK_SKALA); rects.push(rectLot(L, d.pos[0] - rx, d.pos[0] + rx, d.pos[1] - rz, d.pos[1] + rz));
+  }
+}
+let dkSibuk = false;
+function tulisRakit() {
+  const h = S.hias || {}, punya = (h.punya && h.punya.dekor) || [], pasang = h.dekor || [];
+  $('isiRakit').innerHTML = DEKOR.map(d => {
+    const ada = punya.includes(d.id), dipasang = pasang.includes(d.id), cukup = Object.entries(d.resep).every(([b, k]) => (tas[b]?.n || 0) >= k);
+    const bahan = Object.entries(d.resep).map(([b, k]) => `<span class="${(tas[b]?.n || 0) >= k ? 'ok' : 'kurang'}">${ITEM.find(x => x.nama === b)?.ikon || ''} ${tas[b]?.n || 0}/${k}</span>`).join('');
+    const tombol = ada ? `<button data-dk="${d.id}" data-dkm="${dipasang ? 'lepas' : 'pasang'}">${dipasang ? 'Lepas' : 'Pasang'}</button>` : `<button data-dk="${d.id}" data-dkm="rakit" ${cukup ? '' : 'disabled'}>🔨 Rakit</button>`;
+    return `<div class="rkBaris${dipasang ? ' on' : ''}"><i>${d.ikon}</i><div><b>${d.nama}</b><small>${ada ? (dipasang ? 'Terpasang di pekaranganmu' : 'Sudah dirakit') : bahan}</small></div>${tombol}</div>`;
+  }).join('');
+}
+function bukaRakit() { if (S.tamu) return toast('Daftar jadi warga dulu supaya punya pekarangan.', 4000); $('panelProfil').hidden = true; tulisRakit(); $('panelRakit').hidden = false; }
+document.addEventListener('click', async e => {
+  const b = e.target.closest?.('[data-dk]'); if (!b || dkSibuk) return;
+  const d = DEKOR.find(x => x.id === b.dataset.dk), mode = b.dataset.dkm; if (!d) return;
+  if (mode === 'rakit' && !Object.entries(d.resep).every(([n, k]) => (tas[n]?.n || 0) >= k)) return toast('Bahannya belum cukup. Pungut barang bercahaya di jalan.', 3000);
+  dkSibuk = true;
+  try {
+    const r = await api('dekor', {kunci: S.kunci, id: d.id, mode});
+    if (mode === 'rakit') { for (const [n, k] of Object.entries(d.resep)) { tas[n].n -= k; if (tas[n].n <= 0) delete tas[n]; } simpan('dk_tas', tas); }
+    S.hias = r.hias; bangunUlangKavling(S.saya.no); tulisRakit();
+    toast(mode === 'rakit' ? `🔨 ${d.nama} jadi! Sudah dipasang di pekaranganmu.` : mode === 'pasang' ? `${d.ikon} ${d.nama} dipasang.` : `${d.ikon} ${d.nama} dilepas.`, 3000);
+  } catch (er) { toast(er.message, 3500); } finally { dkSibuk = false; }
+});
 // Upgrade rumah 2 lantai (Huda 6 Nov 2026): lantai 2 disisipkan di antara dinding dan atap rumah aset video (fullHouse),
 // jendela lantai 1 disalin ke atas; warna dinding sama (krem 0xf1dcb4) supaya ikut cat Toko Hias.
 const TINGGI_L2 = 2.4;
@@ -1498,6 +1548,8 @@ function aturHUD() {
   $('dOnline').onclick = e => { e.stopPropagation(); bukaOnline(); };
   $('pfAvatar').onclick = () => { $('panelProfil').hidden = true; bukaPembuatAvatar(JSON.parse(JSON.stringify(S.av)), false); };
   $('pfToko').onclick = () => { $('panelProfil').hidden = true; bukaToko(); };
+ $('pfRakit').onclick = bukaRakit; $('tutupRakit').onclick = () => { $('panelRakit').hidden = true; };
+  $('panelRakit').addEventListener('click', e => { if (e.target === $('panelRakit')) $('panelRakit').hidden = true; });
   $('pfKode').onclick = () => toast(`Kode wargamu: ${S.saya.kode} · pakai untuk masuk dari HP lain. Jangan dibagikan.`, 6000);
   $('tutupProfil').onclick = () => { $('panelProfil').hidden = true; };
   $('panelProfil').addEventListener('click', e => { if (e.target === $('panelProfil')) $('panelProfil').hidden = true; });
