@@ -1340,6 +1340,8 @@ async function mulai() {
   buatPeta();
   hitungOnline(); kabarWarga(); tulisChat(); aturHUD(); sambung();
   if (!baca('dk_panduan')) panduan();
+  // Voting Fasum muncul sebagai pop up saat masuk game, sekali per hari (Huda 6 Nov 2026), sekalian ambil bintang gratis harian.
+  else if (!S.tamu && baca('dk_vt') !== hariIni()) { simpan('dk_vt', hariIni()); setTimeout(bukaVoting, 1200); }
   onResize(); requestAnimationFrame(loop);
   { const ke = new URLSearchParams(location.search).get('ke'); if (ke) setTimeout(() => keTempat(ke), 1500); }
   $('chipKumpul').onclick = keKumpul;
