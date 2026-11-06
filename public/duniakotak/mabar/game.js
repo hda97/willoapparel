@@ -579,7 +579,8 @@ function tulisVoting() {
   $('ringkasVoting').textContent = `Pilih fasum yang dibangun berikutnya. ${d.pemilih} warga sudah memilih. ` + (S.tamu ? '' : 'Tiap hari dapat 1 bintang gratis.');
   if (!S.tamu && d.no) {
     $('vtDonasi').hidden = false;
-    $('vtDonasi').innerHTML = `Mau bintang lebih? Donasi sukarela di <a href="https://saweria.co/Duniakotak" target="_blank" rel="noopener">Saweria</a> dan tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan donasi. Rp1.000 = 1 bintang (5K = 5, 10K = 10, 25K = 25, 100K = 100), masuk otomatis.` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
+    // Paket bintang (Huda 6 Nov): tombol membuka Saweria + menyalin kode warga; nominal dipilih di Saweria.
+    $('vtDonasi').innerHTML = `<b>Tambah bintang lewat donasi sukarela</b><div class="vtPaket">${[5, 10, 25, 100].map(n => `<a href="https://saweria.co/Duniakotak" target="_blank" rel="noopener" data-paket="${n}">⭐ ${n}<small>Rp${(n * 1000).toLocaleString('id-ID')}</small></a>`).join('')}</div>Tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan donasi Saweria, bintang masuk otomatis.` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
   } else $('vtDonasi').hidden = true;
 }
 async function bukaVoting() {
@@ -592,6 +593,7 @@ async function bukaVoting() {
 }
 document.addEventListener('click', async e => {
   const k = e.target.closest?.('#vtKode'); if (k) { try { await navigator.clipboard.writeText(k.textContent); toast('Kode ' + k.textContent + ' disalin. Tempel di pesan donasi Saweria.', 3500); } catch (er) {} return; }
+  const pk = e.target.closest?.('[data-paket]'); if (pk) { const n = +pk.dataset.paket, kd = 'DK' + (VT?.no || ''); try { navigator.clipboard.writeText(kd); } catch (er) {} toast(`Pilih Rp${(n * 1000).toLocaleString('id-ID')} di Saweria dan tempel kode ${kd} di pesan (sudah disalin).`, 6000); return; }
   const b = e.target.closest?.('[data-vt]'); if (!b || vtSibuk) return;
   vtSibuk = true; const c = b.dataset.vt, n = +b.dataset.n;
   try { VT = await api('voting', {kunci: S.kunci, calon: c, n}); tulisVoting(); toast(`⭐ ${n} bintang untuk ${CALON[c]?.[1] || c}!`, 2500); }
