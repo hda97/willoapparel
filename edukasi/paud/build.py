@@ -8,7 +8,7 @@ Hasil : public/edukasi/paud/<game>/index.html. Three.js ikut dibundel ke dalam f
         (esbuild), jadi game bisa dibuka & diedit TANPA internet.
 Persiapan sekali: cd edukasi/paud && npm install
 """
-import json, pathlib, subprocess
+import json, os, pathlib, subprocess
 
 AKAR = pathlib.Path(__file__).resolve().parent
 KELUAR = AKAR.parent.parent / 'public' / 'edukasi' / 'paud'
@@ -17,7 +17,7 @@ GAME = {
     'huruf': dict(judul='Petualang Huruf', aksen='#2f9e44', aksen2='#d3f9d8', ikon='🔤',
                   ajak='Bantu Bima mencari huruf di taman!', desk='Mengenal huruf A sampai Z dan bunyi awal kata.'),
     'angka': dict(judul='Petualang Angka', aksen='#e8590c', aksen2='#fff0e0', ikon='🍎',
-                  ajak='Bantu Tupi si tupai memetik buah!', desk='Berhitung 1 sampai 20, banyak dan sedikit.'),
+                  ajak='Bantu Kiko si kucing memetik buah!', desk='Berhitung 1 sampai 20, banyak dan sedikit.'),
     'bentuk': dict(judul='Pelangi Bentuk', aksen='#7048e8', aksen2='#ede7ff', ikon='🔺',
                    ajak='Main warna dan bentuk bersama Lala!', desk='Mengenal warna dan bentuk dasar.'),
     'binatang': dict(judul='Kebun Binatang Suara', aksen='#c27c0e', aksen2='#fff3bf', ikon='🐮',
@@ -159,7 +159,8 @@ def bundel(kode, gid):
     masuk.write_text(kode.replace("from 'three/addons/", "from 'three/examples/jsm/"))
     try:
         hasil = subprocess.run([str(AKAR / 'node_modules' / '.bin' / 'esbuild'), str(masuk), '--bundle', '--minify', '--format=esm',
-                                '--target=es2020', '--legal-comments=none'], cwd=AKAR, check=True, capture_output=True, text=True).stdout
+                                '--target=es2020', '--legal-comments=none'], cwd=AKAR, check=True, capture_output=True, text=True,
+                                env={**os.environ, 'NODE_PATH': str(AKAR / 'node_modules')}).stdout
     finally:
         masuk.unlink()
     return hasil.replace('</script', '<\\/script')

@@ -12,52 +12,76 @@ GURU.pengaturan = [
 ];
 GURU.terapkan = () => mulaiMain();
 pasangGuru();
+aturMusik({bpm: 108, nada: 62, alat: 'xilofon', progresi: [0, 3, 0, 4], benih: 42});
 const infoHewan = h => (DATA.hewan || []).find(x => x.hewan === h) || {hewan: h, suara: '', makanan: ''};
 
 siapPanggung({langit: '#d6f0ff', tanahWarna: '#b5d98a', lebarArea: 11.6, dalamArea: 10, lebarTegak: 6.8, dalamTegak: 9.4});
 P.sc.add(tanahVoxel(36, 28, ['#a9d67b', '#a3d175']));
-{ const v = new Vox(.5); for (let x = -16; x < 16; x++) for (let z = 0; z < 3; z++) v.set(x, 0, z, variasi('#ecd9a8', .03)); const m = v.mesh({bulat: false}); m.position.y = -.48; m.castShadow = false; P.sc.add(m); }
+{ const m = lempeng(32, 1.6, '#ecd9a8', .03, .1); m.position.z = .8; P.sc.add(m); }
 [[-8, -6], [8, -6.5], [-9.5, 2], [9.5, 3], [-3, -8], [3.5, -8.2]].forEach(([x, z], i) => { const p = pohonVoxel(6, pilih(['#2f9e44', '#40c057', '#37b24d']), '#7a4b25'); p.position.set(x, 0, z); P.sc.add(p); });
 for (let i = 0; i < 26; i++) { const b = bungaVoxel(pilih(['#ffd43b', '#ffffff', '#ff8787'])); const x = acak(-12, 12), z = acak(-8, 7); if (Math.abs(x) < 5.5 && z > -4 && z < 4.5) continue; b.position.set(x, 0, z); P.sc.add(b); }
 // gapura kebun binatang
-{ const g = new THREE.Group(); const v = new Vox(.15); v.box(-14, 0, 0, 2, 16, 2, '#8b5a2b'); v.box(12, 0, 0, 2, 16, 2, '#8b5a2b'); v.box(-15, 16, -1, 30, 5, 3, '#f2c14e'); g.add(v.mesh()); const t = teksVoxel('ZOO', '#2f9e44', .11, 1); t.position.set(0, 2.5, .3); g.add(t); g.position.set(0, 0, -7.8); P.sc.add(g); }
+{ const g = new THREE.Group(); [-1.95, 1.95].forEach(x => tambah(g, .32, 2.4, .32, x, 1.2, 0, '#8b5a2b', .06)); tambah(g, 4.6, .78, .44, 0, 2.75, 0, '#f2c14e', .1); const t = teksVoxel('ZOO', '#2f9e44', .11, 1); t.position.set(0, 2.5, .3); g.add(t); g.position.set(0, 0, -7.8); P.sc.add(g); }
 
-// ---------- model hewan voxel ----------
-function quad(v, {bw, bh, bd, lh, hw, hh, hd, hy, c, c2, kaki}) {
-  v.box(-bw / 2, lh, -bd / 2, bw, bh, bd, () => variasi(c, .03));
-  const lk = kaki || c; [[-bw / 2, -bd / 2], [bw / 2 - 2, -bd / 2], [-bw / 2, bd / 2 - 2], [bw / 2 - 2, bd / 2 - 2]].forEach(([x, z]) => v.box(x, 0, z, 2, lh, 2, lk));
-  const fz = bd / 2 + hd - 1; v.box(-hw / 2, hy, bd / 2 - 1, hw, hh, hd, () => variasi(c, .03));
-  return {fz, top: hy + hh};
+// ---------- model hewan kotak besar (gaya Dunia Kotak) ----------
+// empat kaki: badan, 4 kaki, kepala (grup kp, depan wajah di z = hd/2)
+function q4({bw, bh, bd, lh, hw, hh, hd, c, kaki = c, lw = Math.min(bw, bd) * .28}) {
+  const g = new THREE.Group(); tambah(g, bw, bh, bd, 0, lh + bh / 2, 0, c, .08);
+  [-1, 1].forEach(sx => [-1, 1].forEach(sz => tambah(g, lw, lh + .06, lw, sx * (bw / 2 - lw / 2 - .02), (lh + .06) / 2, sz * (bd / 2 - lw / 2 - .03), kaki, .04)));
+  const kp = new THREE.Group(); kp.position.set(0, lh + bh * .75 + hh * .25, bd / 2 + hd * .3); g.add(kp); tambah(kp, hw, hh, hd, 0, 0, 0, c, .08);
+  return {g, kp};
 }
-function mata(v, x, y, z, warna = '#1b1b1b') { v.set(x, y, z, warna); v.set(x, y + 1, z, warna); v.set(-x - 1, y, z, warna); v.set(-x - 1, y + 1, z, warna); v.set(x, y + 1, z, '#ffffff'); v.set(-x - 1, y + 1, z, '#ffffff'); }
 const MODEL = {
-  kucing() { const v = new Vox(.1); const f = quad(v, {bw: 6, bh: 5, bd: 9, lh: 3, hw: 7, hh: 6, hd: 5, hy: 6, c: '#adb5bd'}); for (let z = -4; z < 4; z += 2) v.box(-3, 8, z, 6, 1, 1, '#6c757d'); v.box(-3, 12, f.fz - 2, 2, 2, 1, '#adb5bd'); v.box(1, 12, f.fz - 2, 2, 2, 1, '#adb5bd'); mata(v, 1, 9, f.fz); v.set(0, 8, f.fz, '#f783ac'); v.set(-1, 8, f.fz, '#f783ac'); v.box(-1, 8, -6, 2, 2, 2, '#adb5bd'); v.box(-1, 10, -7, 2, 4, 2, '#868e96'); return v; },
-  anjing() { const v = new Vox(.1); const f = quad(v, {bw: 7, bh: 6, bd: 10, lh: 4, hw: 7, hh: 7, hd: 6, hy: 8, c: '#b4703c', kaki: '#9c5f30'}); v.box(-5, 10, f.fz - 3, 1, 5, 3, '#6f3f1d'); v.box(4, 10, f.fz - 3, 1, 5, 3, '#6f3f1d'); v.box(-2, 8, f.fz + 1, 4, 3, 2, '#e9c39b'); v.box(-1, 10, f.fz + 3, 2, 1, 1, '#1b1b1b'); mata(v, 1, 12, f.fz); v.set(0, 8, f.fz + 3, '#f06595'); v.box(-1, 10, -7, 2, 2, 3, '#b4703c'); return v; },
-  sapi() { const v = new Vox(.1); const f = quad(v, {bw: 10, bh: 8, bd: 14, lh: 5, hw: 8, hh: 8, hd: 6, hy: 10, c: '#f8f9fa', kaki: '#f1f3f5'}); [[-5, 8, -3], [2, 10, 1], [-3, 11, 4], [4, 7, -5]].forEach(([x, y, z]) => v.box(x, y, z, 3, 3, 3, '#212529')); v.box(-3, 10, f.fz + 1, 6, 3, 1, '#ffc9c9'); v.set(-2, 11, f.fz + 2, '#c92a2a'); v.set(1, 11, f.fz + 2, '#c92a2a'); mata(v, 2, 14, f.fz); v.box(-5, 18, f.fz - 3, 1, 2, 1, '#e9ecef'); v.box(4, 18, f.fz - 3, 1, 2, 1, '#e9ecef'); v.box(-6, 15, f.fz - 3, 2, 1, 2, '#f8f9fa'); v.box(4, 15, f.fz - 3, 2, 1, 2, '#f8f9fa'); v.box(-1, 8, -8, 1, 6, 1, '#212529'); return v; },
-  kambing() { const v = new Vox(.1); const f = quad(v, {bw: 7, bh: 6, bd: 10, lh: 5, hw: 6, hh: 7, hd: 5, hy: 9, c: '#f1e3c8', kaki: '#d9c7a5'}); v.box(-1, 7, f.fz - 1, 2, 3, 1, '#e3d1ad'); mata(v, 1, 13, f.fz); v.box(-3, 16, f.fz - 3, 1, 3, 1, '#868e96'); v.box(2, 16, f.fz - 3, 1, 3, 1, '#868e96'); v.box(-3, 18, f.fz - 5, 1, 1, 2, '#868e96'); v.box(2, 18, f.fz - 5, 1, 1, 2, '#868e96'); v.set(-1, 10, f.fz + 1, '#212529'); v.set(0, 10, f.fz + 1, '#212529'); return v; },
-  ayam() { const v = new Vox(.1); v.box(-3, 3, -3, 6, 6, 7, () => variasi('#ffffff', .02)); v.box(-1, 0, 0, 1, 3, 1, '#f59f00'); v.box(1, 0, 0, 1, 3, 1, '#f59f00'); v.box(-2, 8, 2, 4, 5, 4, '#ffffff'); v.box(-1, 13, 2, 2, 2, 3, '#e03131'); v.box(-1, 10, 6, 2, 1, 2, '#fab005'); v.box(-1, 8, 5, 2, 2, 1, '#e03131'); mata(v, 1, 11, 5); v.box(-2, 7, -6, 4, 6, 3, '#495057'); v.box(-1, 10, -7, 2, 4, 1, '#2f9e44'); return v; },
-  bebek() { const v = new Vox(.1); v.box(-3, 2, -4, 6, 5, 8, () => variasi('#ffe066', .03)); v.box(-1, 0, 0, 1, 2, 1, '#f76707'); v.box(1, 0, 0, 1, 2, 1, '#f76707'); v.box(-2, 6, 2, 4, 5, 4, '#ffe066'); v.box(-2, 8, 6, 4, 1, 3, '#f76707'); mata(v, 1, 9, 5); v.box(-1, 5, -6, 2, 3, 2, '#fcc419'); return v; },
-  kelinci() { const v = new Vox(.1); v.box(-3, 0, -3, 6, 6, 6, () => variasi('#ffffff', .02)); v.box(-3, 5, 1, 6, 6, 5, '#ffffff'); v.box(-2, 11, 2, 1, 6, 2, '#ffffff'); v.box(1, 11, 2, 1, 6, 2, '#ffffff'); v.box(-2, 12, 4, 1, 4, 1, '#ffc9c9'); v.box(1, 12, 4, 1, 4, 1, '#ffc9c9'); mata(v, 1, 8, 5, '#c2255c'); v.set(0, 7, 6, '#f783ac'); v.set(-1, 7, 6, '#f783ac'); v.box(-1, 2, -5, 2, 2, 2, '#f1f3f5'); return v; },
-  monyet() { const v = new Vox(.1); v.box(-3, 3, -2, 6, 7, 5, () => variasi('#8d5524', .03)); v.box(-2, 4, 3, 4, 4, 1, '#e0ac69'); v.box(-3, 0, -1, 2, 3, 3, '#7a4a1f'); v.box(1, 0, -1, 2, 3, 3, '#7a4a1f'); v.box(-5, 4, -1, 2, 6, 2, '#7a4a1f'); v.box(3, 4, -1, 2, 6, 2, '#7a4a1f'); v.box(-4, 10, -2, 8, 7, 6, () => variasi('#8d5524', .03)); v.box(-3, 10, 4, 6, 5, 1, '#e0ac69'); v.box(-6, 13, 0, 2, 3, 2, '#e0ac69'); v.box(4, 13, 0, 2, 3, 2, '#e0ac69'); mata(v, 1, 13, 5); v.box(-1, 11, 5, 2, 1, 1, '#5c3317'); v.box(-1, 5, -4, 2, 2, 2, '#7a4a1f'); v.box(-1, 7, -6, 2, 6, 2, '#7a4a1f'); return v; },
-  gajah() { const v = new Vox(.1); const f = quad(v, {bw: 12, bh: 10, bd: 15, lh: 6, hw: 10, hh: 10, hd: 6, hy: 11, c: '#8f9aa5', kaki: '#7d8791'}); v.box(-9, 11, f.fz - 4, 3, 9, 6, '#a5b0ba'); v.box(6, 11, f.fz - 4, 3, 9, 6, '#a5b0ba'); v.box(-2, 6, f.fz + 1, 4, 7, 2, '#8f9aa5'); v.box(-1, 3, f.fz + 2, 3, 4, 2, '#8f9aa5'); v.box(-1, 3, f.fz + 4, 3, 2, 1, '#8f9aa5'); v.box(-4, 9, f.fz + 1, 1, 3, 1, '#ffffff'); v.box(3, 9, f.fz + 1, 1, 3, 1, '#ffffff'); mata(v, 3, 16, f.fz); v.box(-1, 9, -9, 1, 6, 1, '#6c757d'); return v; },
-  singa() { const v = new Vox(.1); const f = quad(v, {bw: 8, bh: 6, bd: 12, lh: 5, hw: 7, hh: 7, hd: 5, hy: 9, c: '#f2b84b', kaki: '#e0a33a'}); v.box(-6, 7, f.fz - 5, 12, 12, 4, () => variasi('#a0522d', .06)); v.box(-5, 18, f.fz - 4, 10, 2, 3, '#8b4513'); v.box(-3, 9, f.fz - 1, 6, 7, 2, '#f2b84b'); v.box(-2, 10, f.fz + 1, 4, 2, 1, '#f8d48a'); v.set(-1, 12, f.fz + 1, '#5c3317'); v.set(0, 12, f.fz + 1, '#5c3317'); mata(v, 1, 13, f.fz + 1); v.box(-1, 9, -8, 1, 1, 3, '#f2b84b'); v.box(-1, 9, -10, 1, 3, 1, '#8b4513'); return v; },
+  kucing() { const g = new THREE.Group(); const k = kucingMesh('abu', {skala: .42}); k.rotation.y = -Math.PI / 2; g.add(k); return g; },
+  anjing() { const {g, kp} = q4({bw: .7, bh: .6, bd: 1.0, lh: .4, hw: .7, hh: .66, hd: .6, c: '#b4703c', kaki: '#9c5f30'});
+    [-1, 1].forEach(s => tambah(kp, .14, .45, .3, s * .41, -.04, -.05, '#6f3f1d')); tambah(kp, .4, .28, .22, 0, -.16, .38, '#e9c39b'); tambah(kp, .16, .1, .06, 0, -.06, .5, '#1b1b1b', .02); mataK(kp, .16, .12, .31);
+    tambah(g, .12, .12, .36, 0, .98, -.62, '#b4703c').rotation.x = -.6; return g; },
+  sapi() { const {g, kp} = q4({bw: 1.0, bh: .8, bd: 1.4, lh: .5, hw: .8, hh: .8, hd: .6, c: '#f8f9fa', kaki: '#e9ecef'});
+    tambah(g, 1.02, .34, .36, 0, .95, -.32, '#212529', .06); tambah(g, 1.02, .3, .28, 0, 1.12, .32, '#212529', .06); tambah(g, .4, .82, .3, .2, .92, -.02, '#212529', .06).scale.set(1, 1, 1);
+    tambah(kp, .6, .28, .14, 0, -.22, .33, '#ffc9c9'); [-1, 1].forEach(s => { tambah(kp, .07, .07, .03, s * .13, -.2, .41, '#c92a2a', .01); tambah(kp, .08, .2, .08, s * .3, .48, -.1, '#e9ecef', .03); tambah(kp, .22, .1, .14, s * .5, .22, -.1, '#f8f9fa', .03); });
+    mataK(kp, .2, .12, .31); tambah(g, .06, .5, .06, 0, .95, -.73, '#212529', .02); return g; },
+  kambing() { const {g, kp} = q4({bw: .7, bh: .6, bd: 1.0, lh: .5, hw: .6, hh: .66, hd: .5, c: '#f1e3c8', kaki: '#d9c7a5'});
+    tambah(kp, .16, .26, .1, 0, -.42, .2, '#e3d1ad'); [-1, 1].forEach(s => { tambah(kp, .08, .32, .08, s * .17, .44, -.12, '#868e96', .03).rotation.x = -.5; tambah(kp, .22, .08, .12, s * .38, .12, 0, '#e3d1ad', .03); });
+    mataK(kp, .15, .1, .26); tambah(kp, .14, .06, .03, 0, -.14, .26, '#212529', .01); return g; },
+  ayam() { const g = new THREE.Group(); tambah(g, .6, .6, .7, 0, .62, 0, '#ffffff', .1); [-1, 1].forEach(s => { tambah(g, .08, .34, .08, s * .12, .17, .05, '#f59f00', .02); tambah(g, .06, .34, .44, s * .32, .64, 0, '#f1f3f5', .03); });
+    tambah(g, .4, .5, .4, 0, 1.06, .3, '#ffffff', .08); tambah(g, .12, .2, .3, 0, 1.38, .3, '#e03131', .04); tambah(g, .16, .1, .18, 0, 1.04, .56, '#fab005', .03); tambah(g, .1, .16, .06, 0, .88, .5, '#e03131', .03);
+    mataK(g, .1, 1.14, .505, .08); tambah(g, .3, .5, .22, 0, .98, -.42, '#495057', .06).rotation.x = -.3; return g; },
+  bebek() { const g = new THREE.Group(); tambah(g, .6, .5, .8, 0, .45, 0, '#ffe066', .1); [-1, 1].forEach(s => { tambah(g, .08, .22, .08, s * .13, .1, .08, '#f76707', .02); tambah(g, .06, .3, .5, s * .32, .48, -.02, '#fcc419', .03); });
+    tambah(g, .42, .46, .42, 0, .92, .3, '#ffe066', .08); tambah(g, .34, .08, .26, 0, .84, .6, '#f76707', .03); mataK(g, .1, 1.0, .515, .08); tambah(g, .22, .2, .2, 0, .64, -.46, '#fcc419', .05); return g; },
+  kelinci() { const g = new THREE.Group(); tambah(g, .6, .55, .6, 0, .3, 0, '#ffffff', .12); tambah(g, .58, .52, .5, 0, .74, .22, '#ffffff', .1);
+    [-1, 1].forEach(s => { tambah(g, .12, .6, .12, s * .14, 1.26, .16, '#ffffff', .05); tambah(g, .07, .45, .03, s * .14, 1.26, .225, '#ffc9c9', .01); tambah(g, .14, .1, .22, s * .15, .05, .3, '#f1f3f5', .03); });
+    mataK(g, .13, .8, .475, .09); tambah(g, .08, .06, .04, 0, .68, .48, '#f783ac', .01); tambah(g, .2, .2, .14, 0, .32, -.34, '#f1f3f5', .08); return g; },
+  monyet() { const g = new THREE.Group(); [-1, 1].forEach(s => { tambah(g, .2, .32, .25, s * .15, .16, 0, '#7a4a1f'); tambah(g, .18, .58, .2, s * .4, .68, 0, '#7a4a1f'); tambah(g, .18, .28, .18, s * .47, 1.32, 0, '#e0ac69'); });
+    tambah(g, .6, .65, .5, 0, .62, 0, '#8d5524', .1); tambah(g, .4, .4, .06, 0, .6, .26, '#e0ac69', .03); tambah(g, .8, .7, .6, 0, 1.28, 0, '#8d5524', .12); tambah(g, .6, .5, .06, 0, 1.24, .31, '#e0ac69', .04);
+    mataK(g, .13, 1.34, .345, .09); tambah(g, .2, .05, .03, 0, 1.1, .35, '#5c3317', .01); tambah(g, .14, .14, .5, 0, .5, -.4, '#7a4a1f'); tambah(g, .14, .5, .14, 0, .75, -.62, '#7a4a1f'); return g; },
+  gajah() { const {g, kp} = q4({bw: 1.2, bh: 1.0, bd: 1.5, lh: .6, hw: 1.0, hh: 1.0, hd: .6, c: '#8f9aa5', kaki: '#7d8791', lw: .36});
+    [-1, 1].forEach(s => { tambah(kp, .12, .9, .7, s * .56, 0, -.1, '#a5b0ba', .05).rotation.y = s * .35; tambah(kp, .08, .08, .32, s * .24, -.38, .42, '#ffffff', .03); });
+    tambah(kp, .3, .42, .3, 0, -.36, .38, '#8f9aa5', .06); tambah(kp, .26, .36, .26, 0, -.72, .44, '#8f9aa5', .06); tambah(kp, .24, .2, .3, 0, -.9, .54, '#8f9aa5', .06);
+    mataK(kp, .28, .15, .31, .11); tambah(g, .07, .6, .07, 0, 1.0, -.78, '#6c757d', .02); return g; },
+  singa() { const {g, kp} = q4({bw: .8, bh: .6, bd: 1.2, lh: .5, hw: .6, hh: .6, hd: .5, c: '#f2b84b', kaki: '#e0a33a'});
+    tambah(kp, 1.0, 1.0, .36, 0, .02, -.2, '#a0522d', .12); tambah(kp, .36, .2, .1, 0, -.15, .28, '#f8d48a', .04); tambah(kp, .14, .08, .05, 0, -.05, .33, '#5c3317', .02); mataK(kp, .14, .1, .26);
+    tambah(g, .08, .08, .6, 0, .92, -.8, '#f2b84b', .02).rotation.x = -.5; tambah(g, .18, .18, .18, 0, .78, -1.08, '#8b4513', .06); return g; },
 };
 const SKALA = {kucing: 1, anjing: 1, sapi: .95, kambing: 1, ayam: 1.1, bebek: 1.15, kelinci: 1.1, monyet: 1, gajah: .85, singa: 1};
-function buatHewan(h) { const g = new THREE.Group(); const m = (MODEL[h] || MODEL.kucing)().mesh(); g.add(m); g.scale.setScalar(SKALA[h] || 1); g.userData.h = h; g.userData.m = m; return g; }
-function siluet(g, on) { g.traverse(o => { if (!o.isInstancedMesh) return; const a = o.instanceColor.array; if (!o.userData.asli) o.userData.asli = a.slice(); if (on) a.fill(.05); else a.set(o.userData.asli); o.instanceColor.needsUpdate = true; }); }
+function buatHewan(h) { const g = new THREE.Group(); const m = (MODEL[h] || MODEL.kucing)(); g.add(m); g.scale.setScalar(SKALA[h] || 1); g.userData.h = h; g.userData.m = m; return g; }
+function siluet(g, on) { g.traverse(o => { if (!o.isMesh || !o.material) return; const m = o.material; if (!o.userData.asli) o.userData.asli = {c: m.color.clone(), map: m.map}; if (on) { m.color.set('#161616'); m.map = null; } else { m.color.copy(o.userData.asli.c); m.map = o.userData.asli.map; } m.needsUpdate = true; }); }
 // makanan voxel
 const MAKANAN = {
-  ikan: () => { const v = new Vox(.08); v.box(-4, 0, -1, 7, 4, 2, '#4dabf7'); v.box(-3, 4, -1, 5, 1, 2, '#339af0'); v.box(-3, -1, -1, 5, 1, 2, '#339af0'); v.box(3, 0, -1, 1, 4, 2, '#339af0'); v.box(4, -1, -1, 2, 6, 2, '#228be6'); v.set(-3, 2, 1, '#1b1b1b'); return v; },
-  tulang: () => { const v = new Vox(.08); v.box(-4, 1, -1, 8, 2, 2, '#f8f9fa'); [[-6, 0], [-6, 2], [4, 0], [4, 2]].forEach(([x, y]) => v.box(x, y, -1, 2, 2, 2, '#f1f3f5')); return v; },
-  rumput: () => { const v = new Vox(.08); for (let i = 0; i < 9; i++) { const x = acakInt(-4, 4), z = acakInt(-2, 2), h = acakInt(3, 7); v.box(x, 0, z, 1, h, 1, variasi('#51cf66', .1)); } return v; },
-  jagung: () => { const v = new Vox(.08); v.box(-1, 0, -1, 3, 8, 3, () => variasi('#ffd43b', .06)); v.box(-2, 0, -1, 1, 5, 2, '#69db7c'); v.box(2, 0, 0, 1, 5, 2, '#69db7c'); v.box(0, 8, 0, 1, 2, 1, '#c99a2e'); return v; },
-  wortel: () => { const v = new Vox(.08); for (let y = 0; y < 8; y++) { const r = y < 3 ? 0 : 1; v.box(-r, y, -r, 1 + 2 * r, 1, 1 + 2 * r, variasi('#fd7e14', .05)); } v.box(-1, 8, 0, 1, 3, 1, '#40c057'); v.box(1, 8, 0, 1, 2, 1, '#51cf66'); v.box(0, 8, 0, 1, 4, 1, '#2f9e44'); return v; },
-  pisang: () => { const v = new Vox(.08); for (let i = -4; i <= 4; i++) v.box(i, Math.round(i * i / 5) + 1, -1, 1, 2, 2, variasi('#ffd43b', .04)); v.set(-5, 5, 0, '#5c3d1e'); return v; },
-  tebu: () => { const v = new Vox(.08); v.box(-1, 0, -1, 2, 12, 2, (x, y) => y % 4 === 0 ? '#5c940d' : variasi('#94d82d', .05)); v.box(1, 10, 0, 2, 1, 1, '#40c057'); v.box(-3, 11, 0, 2, 1, 1, '#40c057'); return v; },
-  daging: () => { const v = new Vox(.08); v.box(-3, 0, -2, 6, 4, 4, () => variasi('#e8590c', .05)); v.box(-2, 1, -1, 4, 3, 3, '#c92a2a'); v.box(3, 1, -1, 4, 2, 2, '#f8f9fa'); v.box(6, 0, -1, 2, 4, 2, '#f8f9fa'); return v; },
+  ikan: () => { const g = new THREE.Group(); tambah(g, .5, .32, .16, 0, .2, 0, '#4dabf7', .08); tambah(g, .14, .3, .1, -.32, .2, 0, '#228be6', .03); tambah(g, .2, .08, .1, 0, .38, 0, '#339af0', .03); tambah(g, .06, .06, .03, .15, .24, .085, '#1b1b1b', .01); return g; },
+  tulang: () => { const g = new THREE.Group(); tambah(g, .5, .12, .12, 0, .12, 0, '#f8f9fa', .05); [-1, 1].forEach(sx => [-1, 1].forEach(sz => tambah(g, .14, .14, .14, sx * .28, .12, sz * .07, '#f1f3f5', .06))); return g; },
+  rumput: () => { const v = new Vox(.08); for (let i = 0; i < 9; i++) { const x = acakInt(-4, 4), z = acakInt(-2, 2), h = acakInt(3, 7); v.box(x, 0, z, 1, h, 1, variasi('#51cf66', .1)); } return v.mesh(); },
+  jagung: () => { const g = new THREE.Group(); tambah(g, .22, .6, .22, 0, .32, 0, '#ffd43b', .08); [-1, 1].forEach(s => tambah(g, .08, .4, .18, s * .14, .2, 0, '#69db7c', .03)); tambah(g, .06, .14, .06, 0, .68, 0, '#c99a2e', .02); return g; },
+  wortel: () => { const g = new THREE.Group(); [[.26, .2, .5], [.2, .2, .32], [.13, .18, .15], [.06, .1, .03]].forEach(([w, h, y]) => tambah(g, w, h, w, 0, y, 0, '#fd7e14', .04)); [-.06, 0, .06].forEach((x, i) => tambah(g, .05, .26 - i % 2 * .06, .05, x, .72, 0, '#40c057', .02)); return g; },
+  pisang: () => { const g = new THREE.Group(); for (let i = -2; i <= 2; i++) tambah(g, .14, .13, .15, i * .12, .1 + i * i * .028, 0, '#ffd43b', .05); tambah(g, .05, .05, .05, -.3, .25, 0, '#5c3d1e', .01); return g; },
+  tebu: () => { const g = new THREE.Group(); tambah(g, .16, .96, .16, 0, .48, 0, '#94d82d', .04); [.24, .48, .72].forEach(y => tambah(g, .18, .03, .18, 0, y, 0, '#5c940d', .01)); tambah(g, .2, .06, .06, .14, .86, 0, '#40c057', .02); tambah(g, .2, .06, .06, -.14, .9, 0, '#40c057', .02); return g; },
+  daging: () => { const g = new THREE.Group(); tambah(g, .45, .3, .32, 0, .17, 0, '#c92a2a', .1); tambah(g, .47, .07, .34, 0, .3, 0, '#e8590c', .03); tambah(g, .3, .1, .1, .34, .17, 0, '#f8f9fa', .04); tambah(g, .12, .18, .16, .52, .17, 0, '#f8f9fa', .05); return g; },
 };
-function buatMakanan(m) { const g = new THREE.Group(); g.add((MAKANAN[m] || MAKANAN.rumput)().mesh()); g.scale.setScalar(1.6); g.userData.mk = m; return g; }
-function kandang() { const v = new Vox(.12); const W = 18, D = 15; for (let x = 0; x < W; x++) for (let z = 0; z < D; z++) { v.set(x - W / 2, 0, z - D / 2, variasi('#e9d8a6', .04)); const tepi = x === 0 || x === W - 1 || z === 0 || z === D - 1; if (tepi && (x + z) % 3 === 0) v.box(x - W / 2, 1, z - D / 2, 1, 5, 1, '#9c6b3c'); if (tepi) v.set(x - W / 2, 4, z - D / 2, '#b8834a'); } const m = v.mesh(); m.position.y = -.1; return m; }
+function buatMakanan(m) { const g = new THREE.Group(); g.add((MAKANAN[m] || MAKANAN.rumput)()); g.scale.setScalar(1.6); g.userData.mk = m; return g; }
+function kandang() { const g = new THREE.Group(), W = 2.16, D = 1.8; g.add(lempeng(W, D, '#e9d8a6', .02, .06));
+  for (let x = -W / 2 + .05; x <= W / 2; x += .36) { tambah(g, .1, .56, .1, x, .28, -D / 2 + .05, '#9c6b3c', .03); tambah(g, .1, .3, .1, x, .15, D / 2 - .05, '#9c6b3c', .03); }
+  for (let z = -D / 2 + .41; z < D / 2 - .1; z += .36) [-1, 1].forEach(s => tambah(g, .1, .56, .1, s * (W / 2 - .05), .28, z, '#9c6b3c', .03));
+  tambah(g, W, .07, .07, 0, .5, -D / 2 + .05, '#b8834a', .02); [-1, 1].forEach(s => tambah(g, .07, .07, D, s * (W / 2 - .05), .5, 0, '#b8834a', .02)); tambah(g, W, .06, .06, 0, .27, D / 2 - .05, '#b8834a', .02);
+  return g; }
 
 // ---------- suara hewan sintetis ----------
 let _bising = null;
@@ -84,12 +108,12 @@ const SUARA_HEWAN = {
 };
 const bunyiHewan = h => { try { (SUARA_HEWAN[h] || (() => {}))(); } catch (e) {} };
 
-// Dodo: penjaga kebun binatang bertopi safari
+// Dodo: avatar warga Dunia Kotak, penjaga kebun binatang bertopi khaki
 const dodo = buatKarakter({
-  kulit: '#c68642', rambut: '#1b1b1b', baju: '#5c940d', celana: '#c9a66b', sepatu: '#5c3d1e',
-  topi: v => { v.box(-6, 10, -5, 12, 1, 11, () => variasi('#d8c08a', .03)); v.box(-4, 11, -3, 8, 2, 7, '#e3cc94'); v.box(-4, 11, -3, 8, 1, 7, '#8b6b3a'); },
-  aksen: v => { v.box(-3, 5, 2, 2, 2, 1, '#94d82d'); v.box(1, 5, 2, 2, 2, 1, '#94d82d'); v.set(0, 7, 2, '#ffd43b'); },
+  jenis: 'L', kulit: KULIT[3], rambut: {gaya: 'cepak', warna: WARNA_RAMBUT[0]},
+  atasan: {jenis: 'kemeja', warna: '#5c940d'}, bawahan: {jenis: 'pendek', warna: '#c9a66b'}, sepatu: '#5c3d1e', topi: '#d8c08a',
 });
+topiTerbalik(dodo); hadapDepan(dodo); P.tokoh = dodo;
 const posDodo = () => tegak() ? {x: 0, z: 3.3} : {x: 0, z: 3.7};
 dodo.position.set(posDodo().x, 0, posDodo().z); P.sc.add(dodo);
 pembaru.push(dt => { gerakKarakter(dodo, dt); animasiKarakter(dodo, dt); });
@@ -101,7 +125,7 @@ const nPil = () => Math.min(4, Math.max(2, +DATA.pilihan || 3));
 async function putaran() {
   bersihRonde(); kunci = true; window.__ulangSuara = null;
   if (idx >= N) { setMode(dodo, 'senang', 3); konfeti(new THREE.Vector3(0, 2, 0), undefined, 90); await ucap('Hore! Kamu sahabat semua hewan!'); layarSelesai(skor, N, mulaiMain); return; }
-  const p = posDodo(); await jalanKe(dodo, p.x, p.z); dodo.rotation.y = 0;
+  const p = posDodo(); await jalanKe(dodo, p.x, p.z);
   const q = urut[idx]; return q.jenis === 'makanan' ? rondeMakanan(q) : rondeHewan(q);
 }
 async function benar(teks, pos) { efek.benar(); setMode(dodo, 'senang', 1.8); konfeti(pos || new THREE.Vector3(0, 1.5, 0)); skor++; aturBintang(skor, N); await ucap(teks); idx++; putaran(); }
@@ -117,10 +141,10 @@ async function rondeHewan(q) {
   const tanya = async () => { if (modeSuara) { bunyiHewan(q.hewan); await tunggu(1300); await ucap(`Suara apa ini? ${info.suara}!`); } else await ucap(`Mana ${q.hewan}? Ketuk ${q.hewan}, ya!`); };
   window.__ulangSuara = modeSuara ? () => bunyiHewan(q.hewan) : null;
   const jawab = async o => {
-    kunci = true; efek.pop(); await jalanKe(dodo, o.position.x, o.position.z + 1.6); dodo.rotation.y = Math.PI; setMode(dodo, 'tunjuk', .6);
+    kunci = true; efek.pop(); await jalanKe(dodo, o.position.x, o.position.z + 1.6); setMode(dodo, 'tunjuk', .6);
     const a = o.userData.a;
     if (o.userData.h === q.hewan) { if (modeSuara) { siluet(a, false); o.remove(o.userData.tanya); } bunyiHewan(q.hewan); lompat(a, .5, .5); await benar(`${pilih(PUJIAN)} Itu ${q.hewan}${info.suara ? ', ' + info.suara : ''}!`, o.position.clone().setY(1.6)); }
-    else { efek.salah(); setMode(dodo, 'geleng', 1.2); goyang(a); if (modeSuara) { siluet(a, false); await ucap(`Ini ${o.userData.h}. Bukan ${o.userData.h}. Dengar lagi, ya!`); siluet(a, true); bunyiHewan(q.hewan); } else await ucap(`Itu ${o.userData.h}. ${pilih(SEMANGAT)} Cari ${q.hewan}.`); kunci = false; }
+    else { efek.salah(); setMode(dodo, 'geleng', 1.2); goyang(a); if (modeSuara) { siluet(a, false); await ucap(`Ini ${o.userData.h}. Bukan suara ${o.userData.h}. Dengar lagi, ya!`); siluet(a, true); bunyiHewan(q.hewan); } else await ucap(`Itu ${o.userData.h}. ${pilih(SEMANGAT)} Cari ${q.hewan}.`); kunci = false; }
   };
   await tanya(); kunci = false;
 }

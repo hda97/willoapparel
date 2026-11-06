@@ -12,18 +12,19 @@ GURU.pengaturan = [
 ];
 GURU.terapkan = () => mulaiMain();
 pasangGuru();
+aturMusik({bpm: 96, nada: 67, alat: 'kotakmusik', progresi: [0, 5, 3, 4], benih: 5, drum: false});
 
 siapPanggung({langit: '#efe6ff', tanahWarna: '#e9d5b5', lebarArea: 10, dalamArea: 10, lebarTegak: 6.6, dalamTegak: 9.2});
 // lantai papan kayu
-{ const v = new Vox(.5); for (let x = -18; x < 18; x++) for (let z = -14; z < 14; z++) v.set(x, 0, z, variasi(Math.floor((z + 100) / 1) % 2 ? '#e8c99b' : '#dfbd8c', .02)); const m = v.mesh({bulat: false}); m.position.y = -.5; m.castShadow = false; P.sc.add(m); }
+P.sc.add(tanahVoxel(36, 28, ['#e8c99b', '#dfbd8c']));
 // karpet pelangi
-{ const v = new Vox(.25); const pel = ['#ff8787', '#ffc078', '#ffe066', '#8ce99a', '#74c0fc', '#b197fc']; for (let x = -22; x < 22; x++) for (let z = -13; z < 13; z++) { const d = Math.hypot(x / 22, z / 13); if (d <= 1) v.set(x, 0, z, variasi(pel[Math.min(5, Math.floor(d * 6))], .02)); } const m = v.mesh({bulat: false}); m.position.set(0, -.2, .2); m.castShadow = false; P.sc.add(m); }
+{ const pel = ['#ff8787', '#ffc078', '#ffe066', '#8ce99a', '#74c0fc', '#b197fc']; pel.forEach((c, i) => { const r = 5.5 * (1 - i / 6); const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, .04, 48), new THREE.MeshStandardMaterial({color: c, roughness: .95})); m.scale.z = 13 / 22; m.position.set(0, .02 + i * .006, .2); m.receiveShadow = true; P.sc.add(m); }); }
 // dinding belakang + pelangi voxel
-{ const v = new Vox(.3); for (let x = -40; x < 40; x++) for (let y = 0; y < 26; y++) v.set(x, y, 0, variasi('#f8f0ff', .015)); const pel = ['#ff6b6b', '#ffa94d', '#ffd43b', '#69db7c', '#4dabf7', '#9775fa'];
-  for (let x = -22; x <= 22; x++) for (let y = 0; y <= 22; y++) { const r = Math.hypot(x, y); const i = Math.floor((22 - r) / 2); if (r <= 22 && i >= 0 && i < 6) v.set(x, y + 2, 1, pel[i]); }
-  const m = v.mesh({bulat: false}); m.position.set(0, -.2, -9); P.sc.add(m); }
+{ const g = new THREE.Group(); tambah(g, 24, 7.8, .3, 0, 3.7, 0, '#f8f0ff', .1); const pel = ['#ff6b6b', '#ffa94d', '#ffd43b', '#69db7c', '#4dabf7', '#9775fa'];
+  pel.forEach((c, i) => { const r = 6.6 - i * .6; const m = new THREE.Mesh(new THREE.RingGeometry(r - .6, r, 48, 1, 0, Math.PI), new THREE.MeshStandardMaterial({color: c, roughness: .9})); m.position.set(0, .4, .16 + i * .002); g.add(m); });
+  g.position.set(0, 0, -9); P.sc.add(g); }
 // mainan hiasan: balok susun & bola
-function balokMainan(w) { const v = new Vox(.25); v.box(0, 0, 0, 2, 2, 2, w); return v.mesh(); }
+function balokMainan(w) { const g = new THREE.Group(); tambah(g, .5, .5, .5, 0, .25, 0, w, .08); return g; }
 [[-7, -6, '#e03131'], [-6.4, -6, '#fcc419'], [-6.7, -6, '#1c7ed6', .5], [7, -5.5, '#37b24d'], [6.4, -6.2, '#7048e8'], [-8, 3, '#f76707'], [8.2, 3.5, '#f06595']].forEach(([x, z, c, y]) => { const b = balokMainan(c); b.position.set(x, y || 0, z); b.rotation.y = acak(-.4, .4); P.sc.add(b); });
 
 // ---------- bentuk voxel ----------
@@ -35,25 +36,36 @@ function diDalam(bentuk, u, v) {
   if (bentuk === 'bintang') { const a = Math.atan2(u, v), r = Math.hypot(u, v); const k = Math.PI / 5; const t = ((a % (2 * k)) + 2 * k) % (2 * k); const f = Math.abs(t - k) / k; return r <= .42 + .58 * Math.pow(f, 1.6); }
   return false;
 }
-function bentukVoxel(bentuk, warna, {n = 13, s = .12, tebal = 3} = {}) {
-  const v = new Vox(s);
-  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { const u = (i + .5) / n * 2 - 1, w = (j + .5) / n * 2 - 1; if (!diDalam(bentuk, u, w)) continue; for (let z = 0; z < tebal; z++) v.set(i - Math.floor(n / 2), j, z - 1, z === tebal - 1 ? variasi(warna, .03) : variasi(warna, .08)); }
-  return v.mesh();
+// garis luar tiap bentuk (lebar ±.78, tinggi 0..1.56) -> diekstrusi jadi balok mainan membulat
+function garisBentuk(bentuk, sk = .78) {
+  const s = new THREE.Shape(), cy = sk;
+  if (bentuk === 'lingkaran') s.absarc(0, cy, sk * .95, 0, Math.PI * 2, false);
+  else if (bentuk === 'persegi') { const a = sk * .8, r = .12; s.moveTo(-a + r, cy - a); s.lineTo(a - r, cy - a); s.quadraticCurveTo(a, cy - a, a, cy - a + r); s.lineTo(a, cy + a - r); s.quadraticCurveTo(a, cy + a, a - r, cy + a); s.lineTo(-a + r, cy + a); s.quadraticCurveTo(-a, cy + a, -a, cy + a - r); s.lineTo(-a, cy - a + r); s.quadraticCurveTo(-a, cy - a, -a + r, cy - a); }
+  else if (bentuk === 'segitiga') { s.moveTo(-sk * .95, cy - sk * .82); s.lineTo(sk * .95, cy - sk * .82); s.lineTo(0, cy + sk * .9); s.closePath(); }
+  else if (bentuk === 'bintang') { for (let i = 0; i < 10; i++) { const a = Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? sk * .42 : sk; const x = Math.cos(a) * r, y = cy + Math.sin(a) * r; i ? s.lineTo(x, y) : s.moveTo(x, y); } s.closePath(); }
+  else if (bentuk === 'hati') { const k = sk * .95, y0 = cy - k * .8; s.moveTo(0, y0); s.bezierCurveTo(k * .6, y0 + k * .5, k * 1.1, y0 + k * .9, k * .95, y0 + k * 1.3); s.bezierCurveTo(k * .8, y0 + k * 1.75, k * .2, y0 + k * 1.8, 0, y0 + k * 1.35); s.bezierCurveTo(-k * .2, y0 + k * 1.8, -k * .8, y0 + k * 1.75, -k * .95, y0 + k * 1.3); s.bezierCurveTo(-k * 1.1, y0 + k * .9, -k * .6, y0 + k * .5, 0, y0); }
+  return s;
+}
+function bentukVoxel(bentuk, warna, {tebal = .26} = {}) {
+  const geo = new THREE.ExtrudeGeometry(garisBentuk(bentuk), {depth: tebal, bevelEnabled: true, bevelThickness: .06, bevelSize: .06, bevelSegments: 3, curveSegments: 24}); geo.translate(0, 0, -tebal / 2);
+  const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({color: warna, roughness: .6})); m.castShadow = m.receiveShadow = true; return m;
 }
 function bendaBentuk(bentuk, warna) { const g = new THREE.Group(); const m = bentukVoxel(bentuk, warna); m.rotation.x = -.38; m.position.y = .25; g.add(m); g.add(alasBatu(5, '#ffffff', .13)); g.userData = {bentuk, warna, m}; return g; }
 function kotakMainan(warnaKotak, ikonBentuk) {
-  const v = new Vox(.12); const W = 14, H = 9, D = 10;
-  for (let x = 0; x < W; x++) for (let y = 0; y < H; y++) for (let z = 0; z < D; z++) { const tepi = x === 0 || x === W - 1 || z === 0 || z === D - 1 || y === 0; if (tepi) v.set(x - W / 2, y, z - D / 2, variasi(warnaKotak, .04)); }
-  if (ikonBentuk) for (let i = 0; i < 9; i++) for (let j = 0; j < 7; j++) { const u = (i + .5) / 9 * 2 - 1, w = (j + .5) / 7 * 2 - 1; if (diDalam(ikonBentuk, u, w)) v.set(i - 4, j + 1, D / 2, '#ffffff'); }
-  return v.mesh();
+  const g = new THREE.Group(), W = 1.68, H = 1.08, D = 1.2, t = .1;
+  tambah(g, W, t, D, 0, t / 2, 0, variasi(warnaKotak, .03), .04);
+  tambah(g, W, H, t, 0, H / 2, -D / 2 + t / 2, warnaKotak, .04); tambah(g, W, H * .75, t, 0, H * .375, D / 2 - t / 2, variasi(warnaKotak, .04), .04);
+  [-1, 1].forEach(sx => tambah(g, t, H, D, sx * (W / 2 - t / 2), H / 2, 0, variasi(warnaKotak, .04), .04));
+  if (ikonBentuk) { const m = new THREE.Mesh(new THREE.ShapeGeometry(garisBentuk(ikonBentuk, .26), 16), new THREE.MeshStandardMaterial({color: '#ffffff', roughness: .7})); m.position.set(0, .1, D / 2 + .005); g.add(m); }
+  return g;
 }
 
-// Lala: anak perempuan rambut panjang, baju ungu, baret pelukis
+// Lala: avatar warga Dunia Kotak, rambut kuncir, kaos ungu, rok pink
 const lala = buatKarakter({
-  kulit: '#e8b48a', rambut: '#2b1a12', baju: '#9c6cf0', celana: '#f06595', sepatu: '#ffffff', rambutPanjang: true,
-  topi: v => { v.box(-6, 10, -5, 12, 1, 11, () => variasi('#e03131', .04)); v.box(-4, 11, -3, 8, 1, 7, '#e03131'); v.set(0, 12, 0, '#c92a2a'); },
-  aksen: v => { [['#ff6b6b', 5], ['#ffd43b', 4], ['#69db7c', 3], ['#4dabf7', 2]].forEach(([c, y]) => v.box(-4, y, 2, 8, 1, 1, c)); },
+  jenis: 'P', kulit: KULIT[2], rambut: {gaya: 'kuncir', warna: WARNA_RAMBUT[1]},
+  atasan: {jenis: 'kaos', warna: '#9c6cf0'}, bawahan: {jenis: 'rok', warna: '#f06595'}, sepatu: '#ffffff',
 });
+hadapDepan(lala); P.tokoh = lala;
 const posLala = () => tegak() ? {x: 0, z: 3.1} : {x: 0, z: 3.7};
 lala.position.set(posLala().x, 0, posLala().z); P.sc.add(lala);
 pembaru.push(dt => { gerakKarakter(lala, dt); animasiKarakter(lala, dt); });
@@ -65,7 +77,7 @@ const nPil = () => Math.min(4, Math.max(2, +DATA.pilihan || 3));
 async function putaran() {
   bersihRonde(); kunci = true;
   if (idx >= N) { setMode(lala, 'senang', 3); konfeti(new THREE.Vector3(0, 2, 0), undefined, 90); await ucap('Hore! Kamu jago warna dan bentuk!'); layarSelesai(skor, N, mulaiMain); return; }
-  const p = posLala(); await jalanKe(lala, p.x, p.z); lala.rotation.y = 0;
+  const p = posLala(); await jalanKe(lala, p.x, p.z);
   const q = urut[idx]; return q.jenis.startsWith('sortir') ? rondeSortir(q) : rondeKetuk(q);
 }
 async function benar(teks, pos) { efek.benar(); setMode(lala, 'senang', 1.8); konfeti(pos || new THREE.Vector3(0, 1.5, 0)); skor++; aturBintang(skor, N); await ucap(teks); idx++; putaran(); }
@@ -85,7 +97,7 @@ async function rondeKetuk(q) {
   const pos = posisiPilihan(n, {jarak: 2.6, z: -1.4});
   kocok(benda).forEach((d, i) => { const g = bendaBentuk(d.bentuk, d.warna); g.position.set(pos[i].x, 0, pos[i].z); g.userData.tgt = d.tgt; tambahRonde(g); muncul(g); daftarKetuk(g, o => jawab(o)); });
   const jawab = async o => {
-    kunci = true; efek.pop(); await jalanKe(lala, o.position.x, o.position.z + 1.2); lala.rotation.y = Math.PI; setMode(lala, 'tunjuk', .6);
+    kunci = true; efek.pop(); await jalanKe(lala, o.position.x, o.position.z + 1.2); setMode(lala, 'tunjuk', .6);
     if (o.userData.tgt) { animasi(.7, (e, p) => { o.userData.m.rotation.y = p * Math.PI * 2; }, x => x); lompat(o, .5, .5); await benar(`${pilih(PUJIAN)} Ini ${modeWarna ? 'warna ' + q.target : q.target}!`, o.position.clone().setY(1.4)); }
     else { efek.salah(); setMode(lala, 'geleng', 1.2); goyang(o.userData.m); await ucap(`Itu ${modeWarna ? 'warna ' + Object.keys(WARNA).find(k => WARNA[k] === o.userData.warna) : o.userData.bentuk}. ${pilih(SEMANGAT)}`); kunci = false; }
   };
