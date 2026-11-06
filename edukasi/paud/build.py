@@ -4,10 +4,11 @@
   python3 edukasi/paud/build.py
 
 Sumber: edukasi/paud/src/inti.js (bersama) + src/<game>/game.js + src/<game>/soal.json
-Hasil : public/edukasi/paud/<game>/index.html (siap diunggah, bisa juga dibuka offline
-        selama ada internet untuk memuat Three.js dari CDN).
+Hasil : public/edukasi/paud/<game>/index.html. Three.js ikut dibundel ke dalam file
+        (esbuild), jadi game bisa dibuka & diedit TANPA internet.
+Persiapan sekali: cd edukasi/paud && npm install
 """
-import json, pathlib
+import json, pathlib, subprocess
 
 AKAR = pathlib.Path(__file__).resolve().parent
 KELUAR = AKAR.parent.parent / 'public' / 'edukasi' / 'paud'
@@ -93,7 +94,6 @@ HTML = r"""<!doctype html>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
 <style>:root{{--aksen:{aksen};--aksen2:{aksen2};--latar:{aksen2}}}{css}</style>
-<script type="importmap">{{"imports":{{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}}}</script>
 <!-- SOAL: guru boleh mengubah bagian ini langsung, atau lewat tombol "Guru" di dalam game. -->
 <script type="application/json" id="data-soal">
 {data}
@@ -153,6 +153,18 @@ HTML = r"""<!doctype html>
 """
 
 
+def bundel(kode, gid):
+    """Gabung kode game + Three.js jadi satu skrip (tanpa CDN) dengan esbuild."""
+    masuk = AKAR / f'_masuk_{gid}.js'
+    masuk.write_text(kode.replace("from 'three/addons/", "from 'three/examples/jsm/"))
+    try:
+        hasil = subprocess.run([str(AKAR / 'node_modules' / '.bin' / 'esbuild'), str(masuk), '--bundle', '--minify', '--format=esm',
+                                '--target=es2020', '--legal-comments=none'], cwd=AKAR, check=True, capture_output=True, text=True).stdout
+    finally:
+        masuk.unlink()
+    return hasil.replace('</script', '<\\/script')
+
+
 def main():
     inti = (AKAR / 'src' / 'inti.js').read_text()
     for gid, m in GAME.items():
@@ -162,7 +174,7 @@ def main():
         data = json.loads((src / 'soal.json').read_text())
         data.setdefault('id', gid)
         data.setdefault('judul', m['judul'])
-        kode = inti + '\n// ================= GAME: ' + gid + ' =================\n' + (src / 'game.js').read_text()
+        kode = bundel(inti + '\n// ================= GAME: ' + gid + ' =================\n' + (src / 'game.js').read_text(), gid)
         html = HTML.format(css=CSS, data=json.dumps(data, ensure_ascii=False, indent=1).replace('<', '\\u003c'), kode=kode, **m)
         out = KELUAR / gid / 'index.html'
         out.parent.mkdir(parents=True, exist_ok=True)
