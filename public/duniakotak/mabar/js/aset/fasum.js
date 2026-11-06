@@ -231,16 +231,24 @@ g.ad(box(.18,2.6,.18,0xe04a3a,.02),px-2.6,1.65,pz-1.6);g.ad(box(.18,2.6,.18,0xe0
  for(const [x,z,w,d] of [[0,-8.35,19,.4],[-9.35,0,.4,17],[9.35,0,.4,17],[-5.6,8.35,7.8,.4],[5.6,8.35,7.8,.4]])g.ad(box(w,.7,d,0x3f9a4a,.15),x,.7,z);
  g.userData.zona=[];return fin(g)}
 // ---- Lahan proyek pembangunan (selama 7 hari setelah voting ditutup): pagar seng, fondasi, perancah, bahan, molen, papan proyek ----
-export function proyek(judul='PEMBANGUNAN FASUM'){const g=G();lantai(g,19,17,0xb89c78);
+// tahap (Huda 6 Nov 2026): 0 fondasi, 1 pasang bata (seperempat), 2 setengah jadi. jadi = fungsi aset bangunan jadi (untuk tahap 1-2
+// bagian bawah bangunan aslinya ikut tampil, terpotong setinggi tahapnya, supaya bentuk akhirnya mulai kelihatan).
+export function proyek(judul='PEMBANGUNAN FASUM',tahap=0,jadi=null){const g=G();lantai(g,19,17,0xb89c78);
  // pagar seng keliling (pintu masuk depan terbuka)
  const SENG=[0x2f6fb8,0xd8d8d0];let k=0;
  for(let x=-9;x<=9.01;x+=2){if(Math.abs(x)>2)g.ad(box(1.9,2.2,.1,SENG[k++%2],.01),x,1.45,8.3);g.ad(box(1.9,2.2,.1,SENG[k++%2],.01),x,1.45,-8.3)}
  for(let z=-7.3;z<=7.31;z+=2){g.ad(box(.1,2.2,1.9,SENG[k++%2],.01),-9.3,1.45,z);g.ad(box(.1,2.2,1.9,SENG[k++%2],.01),9.3,1.45,z)}
- // fondasi + tiang beton setengah jadi
- g.ad(box(11,.5,8,0xa8a8a0,.03),0,.6,-2.4);for(const x of [-5,-1.7,1.7,5])for(const z of [-6,1.2])g.ad(box(.45,2.6,.45,0x9a9a92,.02),x,2.15,z-.2);
- // perancah bambu/besi + papan pijakan
- const T=0xc8a050;for(const x of [-5.6,-2,2,5.6])for(const z of [1.8,2.8])g.ad(box(.1,5,.1,T,.01),x,2.85,z);
- for(const y of [1.8,3.4,5])g.ad(box(11.4,.08,.08,T,.01),0,y,1.8),g.ad(box(11.4,.08,.08,T,.01),0,y,2.8),g.ad(box(11.2,.1,1,0x8a6a40,.02),0,y+.08,2.3);
+ // tahap 0: galian + fondasi + patok & benang ukur; tiang beton mulai berdiri
+ if(tahap===0){g.ad(box(11,.5,8,0xa8a8a0,.03),0,.6,-2.4);for(const x of [-5,-1.7,1.7,5])for(const z of [-6,1.2])g.ad(box(.45,1.2,.45,0x9a9a92,.02),x,1.45,z-.2);
+  for(const [x,z] of [[-8,-7.4],[8,-7.4],[-8,6.8],[8,6.8]])g.ad(box(.12,1,.12,0xc8a050,.01),x,.85,z);g.ad(box(16,.03,.03,0xffffff,0),0,1.25,-7.4);g.ad(box(16,.03,.03,0xffffff,0),0,1.25,6.8);g.ad(box(.03,.03,14.2,0xffffff,0),-8,1.25,-.3);g.ad(box(.03,.03,14.2,0xffffff,0),8,1.25,-.3);}
+ // tahap 1-2: bagian bawah bangunan asli (dipotong setinggi tahap) + dinding bata keliling yang sedang dipasang
+ if(tahap>=1&&jadi){const j=jadi(),batas=tahap===1?.9:1.6;j.updateMatrixWorld(true);const bb=new THREE.Box3(),hapus=[];
+  j.traverse(o=>{if(!o.isMesh)return;bb.setFromObject(o);if(bb.min.y>batas||(tahap===1&&bb.max.y>batas+.6))hapus.push(o)});hapus.forEach(o=>o.parent&&o.parent.remove(o));
+  j.traverse(o=>{if(o.isMesh&&tahap===1&&o.material&&o.material.color){o.material=o.material.clone();o.material.color.lerp(new THREE.Color(0xa89c88),.35)}});g.add(j);}
+ if(tahap===1){const BATA=0xb84a32;for(let x=-8;x<=8.01;x+=1.6)for(let l=0;l<2;l++)if(Math.abs(x)>1.5)g.ad(box(1.5,.32,.4,BATA,.02),x+(l%2)*.4,.55+l*.34,7.4);}
+ // perancah bambu/besi + papan pijakan (mulai tahap bata)
+ const T=0xc8a050;if(tahap>=1){for(const x of [-5.6,-2,2,5.6])for(const z of [1.8,2.8])g.ad(box(.1,5,.1,T,.01),x,2.85,z);
+ for(const y of [1.8,3.4,5])g.ad(box(11.4,.08,.08,T,.01),0,y,1.8),g.ad(box(11.4,.08,.08,T,.01),0,y,2.8),g.ad(box(11.2,.1,1,0x8a6a40,.02),0,y+.08,2.3);}
  // tumpukan bata, kayu, pasir, semen, molen, gerobak
  for(let i=0;i<3;i++)for(let j=0;j<3;j++)for(let l=0;l<2;l++)g.ad(box(.55,.3,.3,0xb84a32,.02),-7.4+i*.6,.55+l*.32,4.4+j*.34);
  for(let l=0;l<4;l++)g.ad(box(3,.2,.25,0xc89060,.02),-3.6,.45+l*.21,5.4-l*.02);

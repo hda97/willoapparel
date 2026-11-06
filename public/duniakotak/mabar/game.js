@@ -225,9 +225,11 @@ const BARIS_FASUM = [[0,15],[1,15],[2,15],[3,15],[4,15]];
 const PASANG_FASUM = [[0, 'supermarket', '🛒 Supermarket Dunia Kotak'], [10, 'kampus', '🎓 Kampus Dunia Kotak'], [11, 'rumahSakit', '🏥 Rumah Sakit'], [12, 'stadion', '🏟️ Stadion Dunia Kotak'], [1, 'sekolah', '🏫 SD Dunia Kotak'], [2, 'warung', '🛒 Warung Desa'], [3, 'masjid', '🕌 Masjid'], [4, 'gereja', '⛪ Gereja'], [5, 'katedral', '⛪ Gereja Katolik'], [6, 'pura', '🛕 Pura'], [7, 'vihara', '☸️ Vihara'], [8, 'klenteng', '🏮 Klenteng']];
 // Fasum pemenang voting yang sedang dibangun (Huda 6 Nov 2026: Taman Kota). Sebelum `sampai` lahannya jadi proyek
 // (pagar seng, perancah, warga offline gotong royong); sesudahnya bangunan jadi otomatis berdiri. Fasum berikutnya: tambah entri baru.
-const BANGUN_VOTING = [{fas: 13, aset: 'tamanKota', nama: '🌳 Taman Kota', judul: 'PEMBANGUNAN TAMAN KOTA', sampai: Date.parse('2026-11-14T00:00:00+07:00')}];
+const BANGUN_VOTING = [{fas: 13, aset: 'tamanKota', nama: '🌳 Taman Kota', judul: 'PEMBANGUNAN TAMAN KOTA', mulai: Date.parse('2026-11-07T00:00:00+07:00'), sampai: Date.parse('2026-11-14T00:00:00+07:00')}];
+// tahap visual (Huda 6 Nov): sepertiga awal fondasi, sepertiga kedua pasang bata, sepertiga akhir setengah jadi, lalu jadi
+const tahapBangun = b => { const uji = new URLSearchParams(location.search).get('uji_tahap'); if (uji != null) return +uji; const p = (Date.now() - b.mulai) / (b.sampai - b.mulai); return p < 1 / 3 ? 0 : p < 2 / 3 ? 1 : 2; };
 const bangunAktif = () => DI === 'wetan' ? BANGUN_VOTING.find(b => Date.now() < b.sampai) : null;
-const pasangVoting = () => DI !== 'wetan' ? [] : BANGUN_VOTING.map(b => Date.now() < b.sampai ? [b.fas, 'proyek', '🚧 ' + b.nama.replace(/^\S+ /, '') + ' (sedang dibangun)', b.judul] : [b.fas, b.aset, b.nama]);
+const pasangVoting = () => DI !== 'wetan' ? [] : BANGUN_VOTING.map(b => Date.now() < b.sampai ? [b.fas, 'proyek', '🚧 ' + b.nama.replace(/^\S+ /, '') + ' (' + ['fondasi', 'pasang bata', 'setengah jadi'][tahapBangun(b)] + ')', [b.judul, tahapBangun(b), F[b.aset]]] : [b.fas, b.aset, b.nama]);
 const fasumBangun = [];   // {pos, nama, rect}
 function pasangFasum() {
   const g = new THREE.Group(); sc.add(g);
@@ -236,7 +238,7 @@ function pasangFasum() {
     const f = I.fas && I.fas[i]; if (!f || !F[k]) continue;
     // kosongkan papan "LAHAN FASUM" + patok, sisakan tanahnya (seperti video)
     I.G.traverse(o => { if (o.isGroup && o.parent === I.G && Math.abs(o.position.x * VS - f.x) < 1 && Math.abs(o.position.z * VS - f.z) < 1) o.children.slice(1).forEach(c => o.remove(c)); });
-    const m = F[k](judul); m.scale.setScalar(VS); m.position.set(f.x, 0, f.z); g.add(m);
+    const m = Array.isArray(judul) ? F[k](...judul) : F[k](); m.scale.setScalar(VS); m.position.set(f.x, 0, f.z); g.add(m);
     // tabrakan per dinding (pintu terbuka & ruang dalam bisa dimasuki, 6 Nov 2026); bagian atas disembunyikan saat warga di dalam
     fasumBangun.push({position: new THREE.Vector3(f.x, 0, f.z), nama, ...F.pisahFasum(m)});
   }
