@@ -139,7 +139,7 @@ async function masukGoogle(credential, isi) {
   } catch (e) { const g2 = $('galatMasuk'); if (g2) g2.textContent = e.message; }
 }
 function selesaiMasuk(s) {
-  if (s) { S.saya = s; S.kunci = s.kunci; S.hias = s.hias || null; simpan('dk_warga', {no: s.no, ig: s.ig, kunci: s.kunci}); }
+  if (s) { S.saya = s; S.kunci = s.kunci; S.hias = s.hias || null; simpan('dk_warga', {no: s.no, ig: s.ig, kunci: s.kunci}); muatTasServer(s); }
   $('masuk').hidden = true;
   if (!S.tamu && !baca('dk_aturan')) { $('aturan').hidden = false; $('setujuAturan').onclick = () => { simpan('dk_aturan', '1'); $('aturan').hidden = true; lanjutAvatar(); }; }
   else lanjutAvatar();
@@ -436,7 +436,7 @@ document.addEventListener('click', async e => {
   dkSibuk = true;
   try {
     const r = await api('dekor', {kunci: S.kunci, id: d.id, mode});
-    if (mode === 'rakit') { for (const [n, k] of Object.entries(d.resep)) { tas[n].n -= k; if (tas[n].n <= 0) delete tas[n]; } simpan('dk_tas', tas); }
+    if (r.tas) aturTas(r.tas);
     S.hias = r.hias; bangunUlangKavling(S.saya.no); tulisRakit();
     toast(mode === 'rakit' ? `🔨 ${d.nama} jadi! Sudah dipasang di pekaranganmu.` : mode === 'pasang' ? `${d.ikon} ${d.nama} dipasang.` : `${d.ikon} ${d.nama} dilepas.`, 3000);
   } catch (er) { toast(er.message, 3500); } finally { dkSibuk = false; }
@@ -636,7 +636,7 @@ function tulisMisi() {
     : `🔒 Misi hanya bisa dikerjakan saat Jam Kumpul Warga (${daftarSesi()} WIB), bareng warga lain, koin 2x. Berikutnya: ${sesiBerikut().ikon} ${sesiBerikut().nama} ${jamTeks(sesiBerikut().j[0])}. Koinmu: 🪙 ${S.saya?.koin || 0}.`;
 }
 document.addEventListener('click', e => { const b = e.target.closest?.('[data-antar]'); if (!b) return; $('panelMisi').hidden = true; pergiKe(+b.dataset.antar); });
-// ---------- papan peringkat warga (koin terbanyak) ----------
+// ---------- papan peringkat warga (total koin yang pernah dikumpulkan; belanja tidak mengurangi) ----------
 async function bukaPeringkat() {
   $('panelPeringkat').hidden = false; $('isiPeringkat').innerHTML = '<p class="kecil">Memuat…</p>';
   let d = null; try { d = await (await fetch('/duniakotak/api/peringkat' + (S.saya ? '?no=' + S.saya.no : ''))).json(); } catch (e) {}
@@ -703,7 +703,7 @@ function tulisToko() {
       const label = pakai ? 'Dipakai' : punya ? 'Pakai' : tkBayar === 'koin' ? `🪙 ${harga * d.kali}` : `💎 ${harga}`;
       return `<button class="tkBrg${pakai ? ' on' : ''}" data-tkj="${j}" data-tkid="${id}" ${pakai ? 'disabled' : ''}>${tandaBrg(j, id, warna)}${NAMA_BRG[id] || id}<small>${label}</small></button>`; }).join('') + '</div></div>';
   }
-  h += `<p class="kecil tkInfo">💎 Permata didapat dari <b>panen kebun di rumahmu</b> (tombol 🧺 Panen, +5 tiap 6 jam) dan donasi sukarela di Saweria (Rp1.000 = 1 bintang voting + 10 permata, tulis kode DK${S.saya?.no || ''}). Permata tidak masuk peringkat.</p>`;
+  h += `<p class="kecil tkInfo">💎 Permata didapat dari <b>panen kebun di rumahmu</b> (tombol 🧺 Panen, +2 💎 dan +20 🪙 tiap 6 jam) dan donasi sukarela di Saweria (Rp1.000 = 1 bintang voting + 10 permata, tulis kode DK${S.saya?.no || ''}). Permata tidak masuk peringkat.</p>`;
   $('isiToko').innerHTML = h;
 }
 async function bukaToko() {
@@ -751,8 +751,16 @@ function cekMisiDekat(me) {
 const ITEM = [{id: 'apel', ikon: '🍎', nama: 'Apel', w: 0xe0403a}, {id: 'bunga', ikon: '🌼', nama: 'Bunga', w: 0xffd23a}, {id: 'kayu', ikon: '🪵', nama: 'Kayu', w: 0x9a6a3e},
   {id: 'jamur', ikon: '🍄', nama: 'Jamur', w: 0xd84a4a}, {id: 'batu', ikon: '🪨', nama: 'Batu kotak', w: 0x9aa0a8}, {id: 'daun', ikon: '🍃', nama: 'Daun', w: 0x5cc85c}];
 const IKAN = [[35, '🐟', 'Ikan mas'], [28, '🐠', 'Ikan nila'], [18, '🐡', 'Ikan buntal kotak'], [11, '🦐', 'Udang'], [5, '👟', 'Sepatu bekas'], [3, '🦀', 'Kepiting langka']];
+// Tas warga disimpan di server (audit ekonomi 6 Nov 2026); tamu tetap di HP.
 const tas = bacaJ('dk_tas') || {};
 function masukTas(ikon, nama) { tas[nama] = tas[nama] || {ikon, n: 0}; tas[nama].n++; simpan('dk_tas', tas); }
+function aturTas(isi) { for (const k of Object.keys(tas)) delete tas[k]; Object.assign(tas, isi || {}); if (!$('panelProfil').hidden) tulisProfil(); if (!$('panelRakit').hidden) tulisRakit(); }
+async function muatTasServer(s) {
+  aturTas(s.tas);
+  const lama = bacaJ('dk_tas');
+  if (!s.tasImpor && lama && Object.keys(lama).length) { try { const r = await api('tas', {kunci: S.kunci, op: 'impor', isi: lama}); aturTas(r.tas); } catch (e) {} }
+  try { localStorage.removeItem('dk_tas'); } catch (e) {}
+}
 let itemDunia = [], itemT = 0;
 const geomItem = new THREE.BoxGeometry(1.4, 1.4, 1.4);
 function isiItem(me) {
@@ -780,8 +788,9 @@ function skillAmbil() {
   const me = tokoh.saya; if (!me) return; const it = dekatItem(me);
   if (!it) { toast('Tidak ada barang di dekatmu. Cari kotak bercahaya di jalan, lalu dekati.', 3000); return; }
   hadap(me, it.position); sc.remove(it); itemDunia = itemDunia.filter(x => x !== it);
-  const j = it.userData.jenis; masukTas(j.ikon, j.nama); bunyi('emosi'); misiMaju('ambil');
-  toast(`${j.ikon} ${j.nama} masuk tas (${tas[j.nama].n})`, 2200);
+  const j = it.userData.jenis;
+  if (S.tamu) { masukTas(j.ikon, j.nama); bunyi('emosi'); misiMaju('ambil'); toast(`${j.ikon} ${j.nama} masuk tas (${tas[j.nama].n})`, 2200); return; }
+  api('tas', {kunci: S.kunci, op: 'ambil', nama: j.nama}).then(r => { aturTas(r.tas); bunyi('emosi'); misiMaju('ambil'); toast(`${j.ikon} ${j.nama} masuk tas (${tas[j.nama]?.n || 1})`, 2200); }).catch(e => toast(e.message, 3000));
 }
 const mancing = {on: false, teks: '', t: 0, joran: null, batal() { if (this.joran) { tokoh.saya.remove(this.joran); this.joran = null; } }};
 function skillMancing() {
@@ -794,8 +803,9 @@ function skillMancing() {
   const tunggu = 1800 + Math.random() * 2200;
   setTimeout(() => { if (!mancing.on) return; mancing.teks = '❗ Strike!'; bunyi('pesan');
     setTimeout(() => { if (!mancing.on) return; mancing.on = false; mancing.batal();
-      let r = Math.random() * 100, hasil = IKAN[0]; for (const x of IKAN) { if ((r -= x[0]) < 0) { hasil = x; break; } }
-      masukTas(hasil[1], hasil[2]); bunyi('masuk'); if (hasil[1] !== '👟') misiMaju('mancing'); toast(`${hasil[1]} Dapat ${hasil[2]}! (punya ${tas[hasil[2]].n})`, 3000);
+      const dapat = (ik, nm) => { bunyi('masuk'); if (ik !== '👟') misiMaju('mancing'); toast(`${ik} Dapat ${nm}! (punya ${tas[nm]?.n || 1})`, 3000); };
+      if (S.tamu) { let r = Math.random() * 100, hasil = IKAN[0]; for (const x of IKAN) { if ((r -= x[0]) < 0) { hasil = x; break; } } masukTas(hasil[1], hasil[2]); dapat(hasil[1], hasil[2]); }
+      else api('tas', {kunci: S.kunci, op: 'mancing'}).then(r => { aturTas(r.tas); dapat(r.hasil.ikon, r.hasil.nama); }).catch(e => toast(e.message, 3000));
     }, 700);
   }, tunggu);
 }
@@ -808,10 +818,13 @@ function skillMakan() {
   const ikan = Object.entries(tas).filter(([n, v]) => v.n > 0 && IKAN.some(x => x[2] === n && x[1] !== '👟')).sort((a, b) => b[1].n - a[1].n)[0];
   if (!ikan) { toast('🎣 Tidak ada ikan di inventori. Mancing dulu di sungai, baru bisa memberi makan kucing.', 4000); return; }
   makanT = performance.now();
-  ikan[1].n--; if (ikan[1].n <= 0) delete tas[ikan[0]]; simpan('dk_tas', tas); if (!$('panelProfil').hidden) tulisProfil();
+  if (S.tamu) { ikan[1].n--; if (ikan[1].n <= 0) delete tas[ikan[0]]; simpan('dk_tas', tas); beriMakan(me, c, ikan[0], ikan[1].ikon); }
+  else api('tas', {kunci: S.kunci, op: 'makan'}).then(r => { aturTas(r.tas); beriMakan(me, c, r.hasil.nama, r.hasil.ikon); }).catch(e => toast(e.message, 3500));
+}
+function beriMakan(me, c, nama, ikon) {
   hadap(me, c.position); c.userData.senang = performance.now() + 2600; bunyi('emosi'); misiMaju('kucing');
   const sisa = Object.entries(tas).filter(([n]) => IKAN.some(x => x[2] === n && x[1] !== '👟')).reduce((a, [, v]) => a + v.n, 0);
-  toast(`${ikan[1].ikon} ${c === tokoh.oyen ? 'Oyen makan ' + ikan[0].toLowerCase() + ' dengan lahap. Meong!' : (c.userData.nama || 'Kucing') + ' senang diberi ' + ikan[0].toLowerCase() + '!'} Sisa ikan: ${sisa}.`, 3000);
+  toast(`${ikon} ${c === tokoh.oyen ? 'Oyen makan ' + nama.toLowerCase() + ' dengan lahap. Meong!' : (c.userData.nama || 'Kucing') + ' senang diberi ' + nama.toLowerCase() + '!'} Sisa ikan: ${sisa}.`, 3000);
 }
 function animSkill(dt, me) {
   const now = performance.now();
@@ -1107,7 +1120,7 @@ function bolaBuat(L) {
   sc.add(g); BOLA.m = g; BOLA.x = L.cx; BOLA.z = L.cz; BOLA.y = L.lantai + BOLA_R;
 }
 // skill Tendang (Huda 6 Nov: ganti skill Ngobrol): tombol muncul bila bola dekat; tendangan keras melambung ke arah hadap avatar
-// panen kebun sendiri tiap 6 jam: +5 permata (dicek server)
+// panen kebun sendiri tiap 6 jam: +2 permata + 20 koin (dicek server)
 function bisaPanen(me) {
   if (S.tamu || !S.saya || !I || Date.now() < (S.saya.panenSiap || 0) || !lotRuntime.has(S.saya.no)) return false;
   const L = I.lots[S.saya.no]; return !!L && Math.hypot(L.c.x - me.position.x, L.c.z - me.position.z) < 4.5 * VS;
@@ -1115,7 +1128,7 @@ function bisaPanen(me) {
 let panenSibuk = false;
 async function skillPanen() {
   if (panenSibuk || !bisaPanen(tokoh.saya)) return; panenSibuk = true;
-  try { const r = await api('panen', {kunci: S.kunci}); S.saya.permata = r.permata; S.saya.panenSiap = r.panenSiap; hitungOnline(); toast(`🧺 Panen kebun! +${r.dapat} 💎 permata. Panen lagi 6 jam lagi.`, 3500); }
+  try { const r = await api('panen', {kunci: S.kunci}); S.saya.permata = r.permata; if (r.koin != null) S.saya.koin = r.koin; S.saya.panenSiap = r.panenSiap; hitungOnline(); toast(`🧺 Panen kebun! +${r.dapat} 💎 dan +${r.dapatKoin || 0} 🪙. Panen lagi 6 jam lagi.`, 3500); }
   catch (e) { toast(e.message, 3000); S.saya.panenSiap = Date.now() + 60000; } finally { panenSibuk = false; }
 }
 function dekatBola(me) { const L = bolaLapangan(); return !!(L && BOLA.m && BOLA.m.visible && Math.hypot(BOLA.x - me.position.x, BOLA.z - me.position.z) < 2.2 * VS && BOLA.y < me.position.y + 4); }
@@ -1307,7 +1320,7 @@ function tulisProfil() {
   $('pfNama').textContent = '@' + s.ig; $('pfAlamat').textContent = `No. ${s.no} · ${alamat(s.no)} · ${NAMA_DUSUN[dusunDari(s.no)]}`;
   $('pfKoin').textContent = s.koin || 0; $('pfPermata').textContent = s.permata || 0;
   const sisa = (s.panenSiap || 0) - Date.now();
-  $('pfPanen').textContent = sisa <= 0 ? '🧺 Kebunmu siap dipanen (+5 💎). Pulang ke rumah lalu tekan Panen.' : `🧺 Panen berikutnya ${sisa > 3600e3 ? Math.ceil(sisa / 3600e3) + ' jam' : Math.ceil(sisa / 60e3) + ' menit'} lagi.`;
+  $('pfPanen').textContent = sisa <= 0 ? '🧺 Kebunmu siap dipanen (+2 💎 + 20 🪙). Pulang ke rumah lalu tekan Panen.' : `🧺 Panen berikutnya ${sisa > 3600e3 ? Math.ceil(sisa / 3600e3) + ' jam' : Math.ceil(sisa / 60e3) + ' menit'} lagi.`;
   const brg = Object.entries(tas).map(([n, v]) => `<div class="pfBrg"><i>${v.ikon}</i><b>${esc(n)}</b><small>×${v.n}</small></div>`);
   const h = S.hias || {}, punya = h.punya || {}, warna = {cat: WARNA_CAT, pagar: WARNA_PAGAR, topi: WARNA_TOPI, rumah: {}};
   const awal = {cat: 'krem', pagar: 'putih', topi: 'tanpa', rumah: 'satu'};
