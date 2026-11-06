@@ -26,11 +26,12 @@ export const avAcak = no => { const r = n => (no * 7919 + n * 104729) % 997; con
   return bersihAv({jenis, kulit: KULIT[r(2) % 6], rambut: {gaya: GAYA_RAMBUT[jenis][r(3) % GAYA_RAMBUT[jenis].length], warna: WARNA_RAMBUT[r(4) % 6]}, atasan: {jenis: ATASAN[r(5) % 5], warna: WARNA_BAJU[r(6) % 8]}, bawahan: {jenis: BAWAHAN[jenis][0], warna: WARNA_BAWAH[r(7) % 6]}}); };
 
 const JALAN = ['Melati','Mawar','Kenanga','Anggrek','Mangga','Rambutan','Durian','Salak','Jambu','Manggis','Sawo','Nangka','Belimbing','Kelengkeng','Sirsak'];
-// Kotak Wetan = warga No. 1–260; Kotak Kulon (bukit teh) = No. 261+ (dibuka otomatis saat Wetan penuh)
-const AWAL_KULON = 260;
+// Kotak Wetan = warga No. 1–260; Kotak Kulon (bukit teh) = No. 261–460; Kotak Curug (lereng gunung) = No. 461+ (dibuka 6 Nov 2026)
+const AWAL_KULON = 260, AWAL_CURUG = 460;
 const JALAN_KULON = ['Teh','Kopi','Cengkeh','Kayu Manis','Pala','Lada','Vanili','Kakao','Jahe','Kunyit'];
-export const dusun = n => n > AWAL_KULON ? 'Kotak Kulon' : 'Kotak Wetan';
-export const alamat = n => { const kl = n > AWAL_KULON, k = kl ? n - AWAL_KULON : n, J = kl ? JALAN_KULON : JALAN, rt = Math.ceil(k / 20);
+const JALAN_CURUG = ['Pinus','Cemara','Jati','Mahoni','Damar','Rasamala','Puspa','Pakis','Edelweis','Akasia'];
+export const dusun = n => n > AWAL_CURUG ? 'Kotak Curug' : n > AWAL_KULON ? 'Kotak Kulon' : 'Kotak Wetan';
+export const alamat = n => { const cg = n > AWAL_CURUG, kl = !cg && n > AWAL_KULON, k = cg ? n - AWAL_CURUG : kl ? n - AWAL_KULON : n, J = cg ? JALAN_CURUG : kl ? JALAN_KULON : JALAN, rt = Math.ceil(k / 20);
   return {jalan: `Jl. ${J[(rt - 1) % J.length]} No. ${((k - 1) % 20) + 1}`, rtrw: `${String(rt).padStart(3, '0')}/${String(Math.ceil(rt / 5)).padStart(3, '0')}`, dusun: dusun(n)}; };
 
 const W = 1012, H = 638;

@@ -12,6 +12,7 @@ import {warungMesh, rumahKucingMesh, WARNA_DINDING, WARNA_ATAP} from './js/aset/
 import * as F from './js/aset/fasum.js';
 import {buatNPC} from './js/npc.js';
 import {kulon, JALAN_KULON, AWAL_KULON} from './js/kulon.js';
+import {curug, JALAN_CURUG, AWAL_CURUG} from './js/curug.js';
 
 const $ = id => document.getElementById(id);
 const VS = D.VS;
@@ -25,10 +26,11 @@ const api = async (p, data) => { const r = await fetch('/duniakotak/api/' + p, {
 
 // ---------- alamat (rumus Kotak Wetan) ----------
 const JALAN = ['Melati','Mawar','Kenanga','Anggrek','Mangga','Rambutan','Durian','Salak','Jambu','Manggis','Sawo','Nangka','Belimbing','Kelengkeng','Sirsak'];
-// Dusun: Kotak Wetan = warga No. 1–260, Kotak Kulon = No. 261+ (dibuka otomatis saat Wetan penuh, 3 Nov 2026)
-const dusunDari = n => n > AWAL_KULON ? 'kulon' : 'wetan';
-const NAMA_DUSUN = {wetan: 'Kotak Wetan', kulon: 'Kotak Kulon'};
-const alamat = n => { const kl = dusunDari(n) === 'kulon', k = kl ? n - AWAL_KULON : n, rt = Math.ceil(k / 20), J = kl ? JALAN_KULON : JALAN;
+// Dusun: Kotak Wetan = warga No. 1–260, Kotak Kulon = No. 261–460 (3 Nov 2026), Kotak Curug = No. 461+ (6 Nov 2026, saat Kulon penuh)
+const dusunDari = n => n > AWAL_CURUG ? 'curug' : n > AWAL_KULON ? 'kulon' : 'wetan';
+const NAMA_DUSUN = {wetan: 'Kotak Wetan', kulon: 'Kotak Kulon', curug: 'Kotak Curug'};
+const AWAL_DUSUN = {wetan: 0, kulon: AWAL_KULON, curug: AWAL_CURUG}, JALAN_DUSUN = {wetan: JALAN, kulon: JALAN_KULON, curug: JALAN_CURUG};
+const alamat = n => { const ds = dusunDari(n), k = n - AWAL_DUSUN[ds], rt = Math.ceil(k / 20), J = JALAN_DUSUN[ds];
   return `Jl. ${J[(rt - 1) % J.length]} No. ${((k - 1) % 20) + 1} · RT ${String(rt).padStart(2, '0')}/RW ${String(Math.ceil(rt / 5)).padStart(2, '0')}`; };
 let DI = 'wetan';   // dusun yang sedang dibuka
 
@@ -209,10 +211,10 @@ const dekor = new Map();        // rects statis tambahan
 // Kavling lama tidak bergeser relatif satu sama lain; angka ini harus sama untuk semua pemain (posisi online).
 const BARIS = 15;
 // Baris 16 (3 Nov 2026) = baris FASUM tambahan di tepi selatan (denah lama tidak bergeser, nomor kavling tidak berubah):
-// blok (1,15) Rumah Sakit, (2,15) Stadion, (0,15)/(3,15)/(4,15) lahan kosong untuk voting berikutnya.
+// blok (1,15) Rumah Sakit, (2,15) Stadion, (0,15) Kampus (voting 6 Nov 2026), (3,15)/(4,15) lahan kosong untuk voting berikutnya.
 const BARIS_FASUM = [[0,15],[1,15],[2,15],[3,15],[4,15]];
 // Bangunan fasum sama persis dengan video Hari 2 (aset fasum.js): fas[1..8]. fas[0] dekat rumah Raka = Supermarket (voting 3 Nov). fas[9] = terminal; fas[10..14] = baris fasum selatan.
-const PASANG_FASUM = [[0, 'supermarket', '🛒 Supermarket Dunia Kotak'], [11, 'rumahSakit', '🏥 Rumah Sakit'], [12, 'stadion', '🏟️ Stadion Dunia Kotak'], [1, 'sekolah', '🏫 SD Dunia Kotak'], [2, 'warung', '🛒 Warung Desa'], [3, 'masjid', '🕌 Masjid'], [4, 'gereja', '⛪ Gereja'], [5, 'katedral', '⛪ Gereja Katolik'], [6, 'pura', '🛕 Pura'], [7, 'vihara', '☸️ Vihara'], [8, 'klenteng', '🏮 Klenteng']];
+const PASANG_FASUM = [[0, 'supermarket', '🛒 Supermarket Dunia Kotak'], [10, 'kampus', '🎓 Kampus Dunia Kotak'], [11, 'rumahSakit', '🏥 Rumah Sakit'], [12, 'stadion', '🏟️ Stadion Dunia Kotak'], [1, 'sekolah', '🏫 SD Dunia Kotak'], [2, 'warung', '🛒 Warung Desa'], [3, 'masjid', '🕌 Masjid'], [4, 'gereja', '⛪ Gereja'], [5, 'katedral', '⛪ Gereja Katolik'], [6, 'pura', '🛕 Pura'], [7, 'vihara', '☸️ Vihara'], [8, 'klenteng', '🏮 Klenteng']];
 const fasumBangun = [];   // {pos, nama, rect}
 function pasangFasum() {
   const g = new THREE.Group(); sc.add(g);
@@ -221,14 +223,27 @@ function pasangFasum() {
     const f = I.fas && I.fas[i]; if (!f || !F[k]) continue;
     // kosongkan papan "LAHAN FASUM" + patok, sisakan tanahnya (seperti video)
     I.G.traverse(o => { if (o.isGroup && o.parent === I.G && Math.abs(o.position.x * VS - f.x) < 1 && Math.abs(o.position.z * VS - f.z) < 1) o.children.slice(1).forEach(c => o.remove(c)); });
-    const m = F[k](); m.scale.setScalar(VS); m.position.set(f.x, 0, f.z); g.add(m); m.updateMatrixWorld(true);
-    // tabrakan: dinding utama saja (lantai & pagar boleh diinjak)
-    const kotak = new THREE.Box3(), b = new THREE.Box3();
-    m.traverse(o => { if (!o.isMesh) return; b.setFromObject(o); const sz = b.getSize(new THREE.Vector3()); if (sz.y > 2.4 * VS && sz.x > 1.5 * VS && sz.z > 1.5 * VS) kotak.union(b); });
-    fasumBangun.push({position: new THREE.Vector3(f.x, 0, f.z), nama, tinggi: kotak.isEmpty() ? 8 * VS : kotak.max.y + 1, rect: kotak.isEmpty() ? null : [kotak.min.x, kotak.max.x, kotak.min.z, kotak.max.z]});
+    const m = F[k](); m.scale.setScalar(VS); m.position.set(f.x, 0, f.z); g.add(m);
+    // tabrakan per dinding (pintu terbuka & ruang dalam bisa dimasuki, 6 Nov 2026); bagian atas disembunyikan saat warga di dalam
+    fasumBangun.push({position: new THREE.Vector3(f.x, 0, f.z), nama, ...F.pisahFasum(m)});
   }
   kumpulPijakan(g);
   bakeGroup(g);
+  pasangAtasFasum(fasumBangun);
+}
+// bagian atas tiap fasum (atap, dinding atas, lantai 2) = grup sendiri supaya bisa disembunyikan saat warga ada di dalam
+function pasangAtasFasum(daftar) {
+  for (const f of daftar) if (f.atas && !f.atas.parent) { sc.add(f.atas); kumpulPijakan(f.atas); bakeGroup(f.atas); }
+}
+let fasumDalam = null;
+function cekDalamFasum(me) {
+  const x = me.position.x, z = me.position.z;
+  const di = fasumBangun.find(f => f.zona && f.zona.some(k => x > k[0] && x < k[1] && z > k[2] && z < k[3] && me.position.y < k[4] + 3 * VS)) || null;
+  if (di === fasumDalam) return;
+  if (fasumDalam && fasumDalam.atas) fasumDalam.atas.visible = true;
+  if (di && di.atas) di.atas.visible = false;
+  fasumDalam = di;
+  if (di) me.userData.gel = {m: '🚪 Masuk ' + di.nama, sampai: performance.now() + 2500};
 }
 function bangunProksi() {
   // proksi rumah jauh: 1 kotak dinding + 1 atap per kavling berpenghuni (2 draw call untuk semua)
@@ -248,13 +263,15 @@ function bangunProksi() {
   });
   imW.castShadow = imA.castShadow = false; sc.add(imW, imA); I.proxy = {imW, imA, isi};
 }
-// Dusun 2 Kotak Kulon (denah BAKU, bukit terasering)
-function bangunKulon() {
-  I = kulon(sc, {names: NM, isFilled: n => !!NM[n], sm: hemat ? 1024 : 2048, shadowR: 70, hemat});
+// Dusun 2 Kotak Kulon (denah BAKU, bukit terasering) / Dusun 3 Kotak Curug (denah BAKU, lereng gunung + air terjun)
+function bangunCurug() { return bangunKulon(curug); }
+function bangunKulon(buat = kulon) {
+  I = buat(sc, {names: NM, isFilled: n => !!NM[n], sm: hemat ? 1024 : 2048, shadowR: 70, hemat});
   I.light.castShadow = !hemat;
   kumpulPijakan(I.G); kumpulPijakan(I.grupFasum);
   pecahInstanced(I.G); bakeGroup(I.G); bakeGroup(I.grupFasum);
   fasumBangun.push(...I.bangunan);
+  pasangAtasFasum(fasumBangun);
   bangunProksi();
 }
 async function bangunDunia() {
@@ -263,8 +280,9 @@ async function bangunDunia() {
   if (S.saya && S.saya.ig) NM[S.saya.no] = '@' + S.saya.ig;
   await document.fonts.load('900 40px Montserrat').catch(() => {});
   const minta = new URLSearchParams(location.search).get('dusun');
-  DI = minta === 'kulon' || minta === 'wetan' ? minta : (S.saya ? dusunDari(S.saya.no) : 'wetan');
+  DI = NAMA_DUSUN[minta] ? minta : (S.saya ? dusunDari(S.saya.no) : 'wetan');
   if (DI === 'kulon') return bangunKulon();
+  if (DI === 'curug') return bangunCurug();
   reseed(301);
   I = D.village(sc, {cols: 5, rows: BARIS + 1, fasumB: [[2,4],[2,5],[1,6],[2,6],[3,6],[1,7],[2,7],[3,7], ...BARIS_FASUM], fasumH: [[2,11,1]], sungai: {gap: 6, w: 14, sawah: 40}, hutan: 1, tipis: .02,
     raka: 'done', filled: 999, isFilled: n => !!NM[n], names: NM, lazy: true, sm: hemat ? 1024 : 2048, shadowR: 70});
@@ -1153,7 +1171,7 @@ function aturHUD() {
   $('bMisi').onclick = () => bukaMisi(); $('tutupMisi').onclick = () => { $('panelMisi').hidden = true; };
   muatMisi();
   $('bPanduan').onclick = () => panduan();
-  $('bDusun').onclick = () => pindahDusun(DI === 'wetan' ? 'kulon' : 'wetan');
+  $('bDusun').onclick = pilihDusun;
   musikSiap();
   // pointerdown (bukan click): click tidak terpicu di HP saat jari lain masih menahan joystick -> bisa lompat sambil lari
   $('sLompat').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); mulaiLompat(); }); $('sNgobrol').onclick = () => { const n = npc && npc.terdekat(tokoh.saya, 7 * VS); if (n) ngobrol(n); }; $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan();
@@ -1222,7 +1240,8 @@ const bebas = (x, z) => {
   const s = I.sungai; if (s && x > s.x0 && x < s.x1 && !s.jembatan.some(([a, c]) => z > a && z < c)) return false;
   if (I.tanah && tokoh.saya && Math.abs(I.tanah(x, z) - tokoh.saya.position.y) > 3.2 && lompat.diTanah) return false;   // dinding teras: lewat tanjakan
   for (const {rects} of lotRuntime.values()) for (const [x0, x1, z0, z1] of rects) if (x > x0 - 1.2 && x < x1 + 1.2 && z > z0 - 1.2 && z < z1 + 1.2) return false;
-  for (const {rect} of fasumBangun) if (rect && x > rect[0] - 1.2 && x < rect[1] + 1.2 && z > rect[2] - 1.2 && z < rect[3] + 1.2) return false;
+  for (const f of fasumBangun) { const r = f.rect; if (!r || x < r[0] - 1.2 || x > r[1] + 1.2 || z < r[2] - 1.2 || z > r[3] + 1.2) continue;
+    for (const k of f.dinding || [r]) if (x > k[0] - 1.2 && x < k[1] + 1.2 && z > k[2] - 1.2 && z < k[3] + 1.2) return false; }
   return true;
 };
 // kualitas menyesuaikan HP: kalau rata-rata < 28 fps, turunkan resolusi lalu matikan bayangan
@@ -1267,7 +1286,7 @@ function loop(t) {
     if (lompat.diTanah) { me.position.y += (g - me.position.y) * Math.min(1, dt * 18); }
     else { lompat.vy -= 95 * dt; me.position.y += lompat.vy * dt; if (me.position.y <= g) { me.position.y = g; lompat.vy = 0; lompat.diTanah = true; } }
     if (!lompat.diTanah) { const a = Math.min(1, me.position.y / 6); wpose(me, {legL: -.5 * a, legR: .4 * a, armL: -2.4 * a, armR: -2.4 * a}); } }
-  cekMisiDekat(me);
+  cekMisiDekat(me); cekDalamFasum(me);
   // warga lain: interpolasi
   for (const o of S.others.values()) {
     const p = o.obj.position; const a = Math.min(1, dt * 8); p.x += (o.tx - p.x) * a; p.z += (o.tz - p.z) * a;
@@ -1331,9 +1350,9 @@ const lalu = ms => { const m = Math.max(1, Math.round((Date.now() - ms) / 60000)
 function kabarDesa() {
   const jml = Object.keys(NM).length;
   const ak = Object.entries(AK).filter(([no]) => +no !== S.saya?.no && NM[no]).sort((a, b) => b[1] - a[1]);
-  const L = [`Sekarang sudah ${jml} warga Dunia Kotak. Kotak Wetan penuh, jadi Dusun Kotak Kulon di bukit teh sudah dibuka!`];
+  const L = [`Sekarang sudah ${jml} warga Dunia Kotak. Kotak Wetan dan Kotak Kulon sudah penuh, jadi Dusun Kotak Curug di lereng gunung sudah dibuka! Ada air terjunnya.`];
   if (ak[0]) L.push(`Tadi ${NM[ak[0][0]]} main ke desa, ${lalu(ak[0][1])}. Rumahnya No. ${ak[0][0]}, mampir saja.`);
-  L.push('Sudah ada masjid, gereja, gereja Katolik, pura, vihara, klenteng, SD, dan Warung Desa. Hasil voting warga juga sudah berdiri: Supermarket dekat rumah Raka, lalu Rumah Sakit dan Stadion di ujung selatan desa.');
+  L.push('Sudah ada masjid, gereja, gereja Katolik, pura, vihara, klenteng, SD, dan Warung Desa. Hasil voting warga juga sudah berdiri: Supermarket dekat rumah Raka, lalu Rumah Sakit, Stadion, dan Kampus di ujung selatan desa. Pintunya terbuka, masuk saja!');
   L.push('Kata Pak RT, Kebun dan Pasar Desa segera dibuka. Siap-siap tanam tomat!');
   return L[Math.floor(npc.acak() * L.length)];
 }
@@ -1367,6 +1386,22 @@ document.addEventListener('click', e => {
   tampilNgobrol(n, teks); bunyi('klik');
 });
 // ---------- pindah dusun lewat terminal bus ----------
+// pilih dusun tujuan bus (3 dusun sejak 6 Nov 2026)
+function pilihDusun() {
+  let p = $('pilihDusun');
+  if (!p) {
+    p = document.createElement('div'); p.id = 'pilihDusun';
+    p.style.cssText = 'position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(10,12,20,.45)';
+    p.innerHTML = `<div style="background:#fffaf0;border-radius:18px;padding:16px 16px 12px;min-width:250px;max-width:86vw;font:600 15px Montserrat,sans-serif;color:#2a2a2a;box-shadow:0 10px 30px rgba(0,0,0,.3)">
+      <div style="font-weight:900;font-size:17px;margin-bottom:10px">🚌 Naik bus ke dusun mana?</div>
+      ${Object.entries(NAMA_DUSUN).map(([k, n]) => `<button data-d="${k}" style="display:block;width:100%;margin:6px 0;padding:11px 12px;border-radius:12px;border:2px solid #cbbd9e;background:#fff;font:700 15px Montserrat,sans-serif;text-align:left;cursor:pointer">${{wetan: '🌾', kulon: '🍃', curug: '💦'}[k]} Dusun ${n}<span class="ini" style="float:right;color:#2a9a5a;font-size:12px"></span></button>`).join('')}
+      <button data-d="" style="display:block;width:100%;margin-top:8px;padding:9px;border:0;background:none;font:700 14px Montserrat,sans-serif;color:#777;cursor:pointer">Batal</button></div>`;
+    p.onclick = e => { const b = e.target.closest('button'); if (e.target === p || (b && !b.dataset.d)) { p.hidden = true; return; } if (b && b.dataset.d && b.dataset.d !== DI) { const u = new URL(location.href); u.searchParams.set('dusun', b.dataset.d); u.searchParams.delete('ke'); location.href = u.toString(); } };
+    document.body.appendChild(p);
+  }
+  p.querySelectorAll('button[data-d]').forEach(b => { const s = b.querySelector('.ini'); if (s) s.textContent = b.dataset.d === DI ? 'kamu di sini' : ''; });
+  p.hidden = false;
+}
 function pindahDusun(ke, no) {
   if (ke === DI) return;
   if (!confirm(`Naik bus ke Dusun ${NAMA_DUSUN[ke]}?` + (no ? ` Rumah No. ${no} ada di sana.` : ''))) return;
@@ -1414,4 +1449,4 @@ var tegakSesi = false; try { localStorage.removeItem('dk_tegak'); } catch (e) {}
 $('tetapTegak').onclick = () => { tegakSesi = true; $('miring').hidden = true; };
 onResize();
 layarMasuk();
-window.__dk = {S, taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
+window.__dk = {S, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};

@@ -530,7 +530,7 @@ async function apiWarga(request, env, url) {
     const r = await stub.fetch("https://do/sesi", { method: "POST", body: JSON.stringify({ kunci }) });
     if (!r.ok) return json({ galat: "Masuk dulu sebagai warga." }, 401);
     const w = await r.json();
-    const dusun = ["wetan", "kulon"].includes(url.searchParams.get("dusun")) ? url.searchParams.get("dusun") : "wetan";
+    const dusun = ["wetan", "kulon", "curug"].includes(url.searchParams.get("dusun")) ? url.searchParams.get("dusun") : "wetan";
     const h = new Headers(request.headers);
     h.set("x-warga", JSON.stringify({ no: w.no, ig: w.ig, avatar: w.avatar, x: +url.searchParams.get("x") || 0, z: +url.searchParams.get("z") || 0 }));
     return env.RUANG.get(env.RUANG.idFromName(dusun)).fetch(new Request("https://do/ws", { headers: h }));
