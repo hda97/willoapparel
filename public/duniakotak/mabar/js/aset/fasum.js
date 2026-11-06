@@ -188,7 +188,71 @@ export function kampus(){const g=G();const W=0xf4efe2,B=0x8a2a2a,N=0x1f3a6a,E=0x
  [[-8.3,-1],[8.3,-1],[-8.3,6.8],[8.3,6.8],[6,6.8]].forEach(([x,z])=>{g.ad(box(.6,2.4,.6,0x6a4426,.04),x,1.55,z);g.ad(box(2.4,2.2,2.4,0x3a8a5a,.3),x,3.6,z)});
  [-4.5,4.5].forEach(x=>{g.ad(box(.2,3.6,.2,0x555555,.02),x,2.2,3.4);g.ad(box(.8,.3,.5,0xfff2c0,.05),x,4.1,3.4)});
  pagar(g,19,17,N,3);return fin(g)}
-export const SEMUA={masjid,gereja,katedral,pura,vihara,klenteng,sekolah,warung,supermarket,rumahSakit,stadion,kampus};
+// ---- Taman Kota (hasil voting warga, dibangun 6-14 Nov 2026; pilihan Huda: taman bagus dengan fasilitas taman) ----
+// Rumput + jalan salib berpaving, jalur jogging keliling, air mancur di tengah, gazebo, taman bermain (ayunan, perosotan, jungkat-jungkit),
+// kolam ikan + jembatan kecil, bedeng bunga, bangku, lampu taman, pohon rindang, gerbang "TAMAN KOTA". Semua bisa dilewati/dimasuki.
+function pohonT(g,x,z,s=1,c=0x3a8a5a){g.ad(box(.55*s,2.2*s,.55*s,0x6a4426,.04),x,.35+1.1*s,z);g.ad(box(2.6*s,2*s,2.6*s,c,.3),x,.35+3*s,z);g.ad(box(1.6*s,1.2*s,1.6*s,c,.25),x,.35+4.4*s,z)}
+function lampuT(g,x,z){g.ad(box(.16,2.6,.16,0x2a2a2a,.02),x,1.65,z);g.ad(box(.5,.4,.5,0xfff2c0,.06,{emissive:0xffe08a,emissiveIntensity:.7}),x,3.1,z);g.ad(box(.6,.08,.6,0x2a2a2a,.02),x,3.34,z)}
+function bunga(g,x,z,w,d){g.ad(box(w,.3,d,0x7a5a3a,.04),x,.5,z);const C=[0xff5a7a,0xffd23a,0xffffff,0xb06ae0,0xff8a3a];let k=0;for(let i=-w/2+.35;i<w/2-.1;i+=.55)for(let j=-d/2+.35;j<d/2-.1;j+=.55){g.ad(box(.12,.3,.12,0x3a8a3a,.02),x+i,.8,z+j);g.ad(box(.3,.25,.3,C[k++%C.length],.08),x+i,1.02,z+j)}}
+export function tamanKota(){const g=G();const RUMPUT=0x6fbf5a,PAV=0xe2d6b8,JOG=0xc8875a,BATU=0xbdb6a6;lantai(g,19,17,RUMPUT);
+ // jalan salib berpaving & jalur jogging keliling
+ g.ad(box(19,.06,2.2,PAV,.02),0,.38,0);g.ad(box(2.2,.06,17,PAV,.02),0,.38,0);
+ [[0,-7.2,17,1],[0,7.2,17,1]].forEach(([x,z,w,d])=>g.ad(box(w,.05,d,JOG,.02),x,.375,z));[[-8.4,0,1,15.4],[8.4,0,1,15.4]].forEach(([x,z,w,d])=>g.ad(box(w,.05,d,JOG,.02),x,.375,z));
+ // air mancur bertingkat di tengah
+ const cyl=(r,h,c,y,o={})=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,24),new THREE.MeshStandardMaterial({color:c,roughness:.6,...o}));m.castShadow=m.receiveShadow=true;g.ad(m,0,y,0);return m};
+ cyl(2.5,.6,BATU,.65);cyl(2.2,.08,0x4aa8e0,.96,{emissive:0x1a5a8a,emissiveIntensity:.25});cyl(.45,1.6,BATU,1.7);cyl(1.2,.25,BATU,2.5);cyl(1,.06,0x6ac0f0,2.64,{emissive:0x2a6a9a,emissiveIntensity:.3});cyl(.22,.9,0xa8dcf8,3.1,{transparent:true,opacity:.75});
+ // gazebo (kiri belakang)
+ const gx=-5,gz=-4;g.ad(box(4.2,.3,4.2,0xc8a878,.04),gx,.5,gz);[[-1.8,-1.8],[1.8,-1.8],[-1.8,1.8],[1.8,1.8]].forEach(([a,b])=>g.ad(box(.28,2.8,.28,0xf4f0e6,.03),gx+a,2.05,gz+b));
+ const atap=new THREE.Mesh(new THREE.ConeGeometry(3.4,1.8,4),new THREE.MeshStandardMaterial({color:0xb84a3a,roughness:.8}));atap.rotation.y=Math.PI/4;atap.castShadow=true;g.ad(atap,gx,4.35,gz);g.ad(box(4.4,.25,4.4,0xf4f0e6,.03),gx,3.5,gz);
+ bangku(g,gx,gz-1.2,2.6,kayu);bangku(g,gx,gz+1.4,2.6,kayu,Math.PI);
+ // taman bermain (kanan belakang): pasir, ayunan, perosotan, jungkat-jungkit
+ const px=5.2,pz=-4.2;g.ad(box(6.4,.06,5.4,0xe8d29a,.02),px,.38,pz);
+g.ad(box(.18,2.6,.18,0xe04a3a,.02),px-2.6,1.65,pz-1.6);g.ad(box(.18,2.6,.18,0xe04a3a,.02),px-.2,1.65,pz-1.6);g.ad(box(2.6,.18,.18,0xe04a3a,.02),px-1.4,2.95,pz-1.6);
+ [-2,-.8].forEach(dx=>{[-.25,.25].forEach(t=>g.ad(box(.04,1.9,.04,0x444444,.01),px+dx+t,1.95,pz-1.6));g.ad(box(.7,.08,.35,0x3a8ad8,.02),px+dx,1,pz-1.6)});
+ g.ad(box(1.2,2.2,1.2,0x3aa860,.04),px+1.9,1.45,pz-1.5);g.ad(box(1.3,.2,1.3,0xffd23a,.03),px+1.9,2.65,pz-1.5);
+ const pr=box(.9,.1,3.2,0xffd23a,.03);pr.rotation.x=-.55;g.ad(pr,px+1.9,1.55,pz+.6);[-1,1].forEach(s=>{const r2=box(.06,.25,3.2,0xe0a020,.02);r2.rotation.x=-.55;g.ad(r2,px+1.9+s*.45,1.7,pz+.6)});
+ g.ad(box(.3,.5,.3,0x9a5ad8,.03),px-1.2,.6,pz+1.4);const jj=box(3,.12,.4,0x9a5ad8,.03);jj.rotation.z=.12;g.ad(jj,px-1.2,.9,pz+1.4);
+ // kolam ikan + jembatan (kanan depan)
+ const kx=5.4,kz=4.3;g.ad(box(5.4,.3,3.6,BATU,.1),kx,.45,kz);g.ad(box(5,.06,3.2,0x3a8ac0,.05,{emissive:0x0a3a5a,emissiveIntensity:.2}),kx,.6,kz);
+ [[-1.6,-.6,0xff7a2a],[.4,.7,0xffffff],[1.5,-.4,0xff4a2a]].forEach(([a,b,c])=>g.ad(box(.45,.14,.22,c,.05),kx+a,.68,kz+b));[[-.6,.9],[1.9,.9],[-2,.3]].forEach(([a,b])=>g.ad(box(.6,.04,.6,0x4aa84a,.1),kx+a,.65,kz+b));
+ g.ad(box(1.2,.15,3.8,kayu,.03),kx,.85,kz);[-1,1].forEach(s=>g.ad(box(.08,.5,3.8,kayu,.02),kx+s*.6,1.15,kz));
+ // bedeng bunga di sekitar air mancur & sepanjang jalan
+ [[-3.2,-2.6],[3.2,-2.6],[-3.2,2.6],[3.2,2.6]].forEach(([x,z])=>bunga(g,x,z,2.6,1.4));bunga(g,-5.4,4.6,3.6,1.6);bunga(g,-2.5,7.95,3,.6);bunga(g,2.5,7.95,3,.6);
+ // bangku di tepi jalan
+ [[-6,1.6,0],[6,1.6,0],[-1.8,5.2,Math.PI/2],[1.8,-5.6,Math.PI/2]].forEach(([x,z,r])=>bangku(g,x,z,2,kayu,r));
+ // lampu taman
+ [[-1.6,-1.6],[1.6,-1.6],[-1.6,1.6],[1.6,1.6],[-8.4,-7.2],[8.4,-7.2],[-8.4,7.2],[8.4,7.2],[0,-7.2],[-8.4,0],[8.4,0]].forEach(([x,z])=>lampuT(g,x+(Math.abs(x)>8?0:0),z+(Math.abs(z)>7?(z>0?.75:-.75):0)));
+ // pohon rindang di sudut & tepi
+ [[-8.6,-7.8,1],[8.6,-7.8,1],[-8.6,4,.9],[-2.8,-6.6,.8],[2.8,-6.6,.8],[8.7,1.6,.8],[-8.7,-3.6,.85]].forEach(([x,z,s])=>pohonT(g,x,z,s,[0x3a8a5a,0x2f7a4a,0x4a9a5a][Math.round(Math.abs(x*z))%3]));
+ // gerbang depan "TAMAN KOTA"
+ [-1.6,1.6].forEach(x=>g.ad(box(.45,4.2,.45,0x2f7a4a,.04),x,2.45,8.3));g.ad(box(3.9,.35,.5,0x2f7a4a,.04),0,4.55,8.3);
+ const pn=papanTeks(3.4,.75,'TAMAN KOTA','#2f7a4a','#ffffff');pn.position.set(0,4.05,8.58);g.add(pn);
+ // pagar tanaman pendek keliling (gerbang terbuka di depan)
+ for(const [x,z,w,d] of [[0,-8.35,19,.4],[-9.35,0,.4,17],[9.35,0,.4,17],[-5.6,8.35,7.8,.4],[5.6,8.35,7.8,.4]])g.ad(box(w,.7,d,0x3f9a4a,.15),x,.7,z);
+ g.userData.zona=[];return fin(g)}
+// ---- Lahan proyek pembangunan (selama 7 hari setelah voting ditutup): pagar seng, fondasi, perancah, bahan, molen, papan proyek ----
+export function proyek(judul='PEMBANGUNAN FASUM'){const g=G();lantai(g,19,17,0xb89c78);
+ // pagar seng keliling (pintu masuk depan terbuka)
+ const SENG=[0x2f6fb8,0xd8d8d0];let k=0;
+ for(let x=-9;x<=9.01;x+=2){if(Math.abs(x)>2)g.ad(box(1.9,2.2,.1,SENG[k++%2],.01),x,1.45,8.3);g.ad(box(1.9,2.2,.1,SENG[k++%2],.01),x,1.45,-8.3)}
+ for(let z=-7.3;z<=7.31;z+=2){g.ad(box(.1,2.2,1.9,SENG[k++%2],.01),-9.3,1.45,z);g.ad(box(.1,2.2,1.9,SENG[k++%2],.01),9.3,1.45,z)}
+ // fondasi + tiang beton setengah jadi
+ g.ad(box(11,.5,8,0xa8a8a0,.03),0,.6,-2.4);for(const x of [-5,-1.7,1.7,5])for(const z of [-6,1.2])g.ad(box(.45,2.6,.45,0x9a9a92,.02),x,2.15,z-.2);
+ // perancah bambu/besi + papan pijakan
+ const T=0xc8a050;for(const x of [-5.6,-2,2,5.6])for(const z of [1.8,2.8])g.ad(box(.1,5,.1,T,.01),x,2.85,z);
+ for(const y of [1.8,3.4,5])g.ad(box(11.4,.08,.08,T,.01),0,y,1.8),g.ad(box(11.4,.08,.08,T,.01),0,y,2.8),g.ad(box(11.2,.1,1,0x8a6a40,.02),0,y+.08,2.3);
+ // tumpukan bata, kayu, pasir, semen, molen, gerobak
+ for(let i=0;i<3;i++)for(let j=0;j<3;j++)for(let l=0;l<2;l++)g.ad(box(.55,.3,.3,0xb84a32,.02),-7.4+i*.6,.55+l*.32,4.4+j*.34);
+ for(let l=0;l<4;l++)g.ad(box(3,.2,.25,0xc89060,.02),-3.6,.45+l*.21,5.4-l*.02);
+ const ps=new THREE.Mesh(new THREE.ConeGeometry(1.6,1.4,10),new THREE.MeshStandardMaterial({color:0xd8b880,roughness:1}));ps.castShadow=true;g.ad(ps,1.2,1.05,5);
+ for(let l=0;l<2;l++)for(let i=0;i<3;i++)g.ad(box(.6,.25,.4,0xe8e4d8,.04),4+i*.65,.48+l*.26,5.6);
+ const mo=new THREE.Mesh(new THREE.CylinderGeometry(.6,.9,1.3,12),new THREE.MeshStandardMaterial({color:0xf08a20,roughness:.6}));mo.rotation.z=.6;mo.castShadow=true;g.ad(mo,7,1.6,4.2);g.ad(box(1.4,.8,.9,0x555555,.03),7.2,.75,4.2);
+ g.ad(box(.9,.4,.6,0x3a6ab8,.04),-6.4,.75,1.6);g.ad(box(.08,.08,1,0x333333,.01),-6.4,.7,2.3);
+ // papan proyek di depan gerbang
+ [-2.4,2.4].forEach(x=>g.ad(box(.25,3.6,.25,0x6a4a2a,.02),x,2.15,9.1));
+ const pn=papanTeks(5,1.1,judul,'#ffd23a','#1d1d22');pn.position.set(0,3.2,9.25);g.add(pn);
+ g.userData.zona=[];return fin(g)}
+export const SEMUA={masjid,gereja,katedral,pura,vihara,klenteng,sekolah,warung,supermarket,rumahSakit,stadion,kampus,tamanKota};
 // Dipakai game: pisahkan bagian "atas" (dinding atas, atap, lantai 2) supaya bisa disembunyikan saat warga di dalam,
 // dan hitung kotak tabrakan per dinding (pintu & ruang dalam bisa dilewati). m sudah diskalakan & diposisikan.
 export function pisahFasum(m){

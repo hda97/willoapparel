@@ -223,15 +223,20 @@ const BARIS = 15;
 const BARIS_FASUM = [[0,15],[1,15],[2,15],[3,15],[4,15]];
 // Bangunan fasum sama persis dengan video Hari 2 (aset fasum.js): fas[1..8]. fas[0] dekat rumah Raka = Supermarket (voting 3 Nov). fas[9] = terminal; fas[10..14] = baris fasum selatan.
 const PASANG_FASUM = [[0, 'supermarket', '🛒 Supermarket Dunia Kotak'], [10, 'kampus', '🎓 Kampus Dunia Kotak'], [11, 'rumahSakit', '🏥 Rumah Sakit'], [12, 'stadion', '🏟️ Stadion Dunia Kotak'], [1, 'sekolah', '🏫 SD Dunia Kotak'], [2, 'warung', '🛒 Warung Desa'], [3, 'masjid', '🕌 Masjid'], [4, 'gereja', '⛪ Gereja'], [5, 'katedral', '⛪ Gereja Katolik'], [6, 'pura', '🛕 Pura'], [7, 'vihara', '☸️ Vihara'], [8, 'klenteng', '🏮 Klenteng']];
+// Fasum pemenang voting yang sedang dibangun (Huda 6 Nov 2026: Taman Kota). Sebelum `sampai` lahannya jadi proyek
+// (pagar seng, perancah, warga offline gotong royong); sesudahnya bangunan jadi otomatis berdiri. Fasum berikutnya: tambah entri baru.
+const BANGUN_VOTING = [{fas: 13, aset: 'tamanKota', nama: '🌳 Taman Kota', judul: 'PEMBANGUNAN TAMAN KOTA', sampai: Date.parse('2026-11-14T00:00:00+07:00')}];
+const bangunAktif = () => DI === 'wetan' ? BANGUN_VOTING.find(b => Date.now() < b.sampai) : null;
+const pasangVoting = () => DI !== 'wetan' ? [] : BANGUN_VOTING.map(b => Date.now() < b.sampai ? [b.fas, 'proyek', '🚧 ' + b.nama.replace(/^\S+ /, '') + ' (sedang dibangun)', b.judul] : [b.fas, b.aset, b.nama]);
 const fasumBangun = [];   // {pos, nama, rect}
 function pasangFasum() {
   const g = new THREE.Group(); sc.add(g);
   I.G.updateMatrixWorld(true);
-  for (const [i, k, nama] of PASANG_FASUM) {
+  for (const [i, k, nama, judul] of [...PASANG_FASUM, ...pasangVoting()]) {
     const f = I.fas && I.fas[i]; if (!f || !F[k]) continue;
     // kosongkan papan "LAHAN FASUM" + patok, sisakan tanahnya (seperti video)
     I.G.traverse(o => { if (o.isGroup && o.parent === I.G && Math.abs(o.position.x * VS - f.x) < 1 && Math.abs(o.position.z * VS - f.z) < 1) o.children.slice(1).forEach(c => o.remove(c)); });
-    const m = F[k](); m.scale.setScalar(VS); m.position.set(f.x, 0, f.z); g.add(m);
+    const m = F[k](judul); m.scale.setScalar(VS); m.position.set(f.x, 0, f.z); g.add(m);
     // tabrakan per dinding (pintu terbuka & ruang dalam bisa dimasuki, 6 Nov 2026); bagian atas disembunyikan saat warga di dalam
     fasumBangun.push({position: new THREE.Vector3(f.x, 0, f.z), nama, ...F.pisahFasum(m)});
   }
@@ -1418,7 +1423,7 @@ let iuranSibuk = false, IU = null;
 // Papan "Dana pembangunan" di lahan fasum voting berikutnya (audit ekonomi #2): calon unggul + bar iuran, diperbarui tiap 5 menit.
 const PAPAN = {mesh: null, kanvas: null, tex: null, data: null};
 function pasangPapanDana() {
-  const f = I.fas && I.fas[13]; if (!f) return;
+  const f = I.fas && I.fas[14]; if (!f) return;   // lahan voting berikutnya (fas[13] = Taman Kota)
   const g = new THREE.Group(), kayu = new THREE.MeshStandardMaterial({color: 0x6a4a2a, roughness: .9});
   for (const x of [-9, 9]) { const t = new THREE.Mesh(new THREE.BoxGeometry(.9, 16, .9), kayu); t.position.set(x, 8, 0); g.add(t); }
   const c = document.createElement('canvas'); c.width = 640; c.height = 400;
@@ -1437,7 +1442,7 @@ async function muatWargaNPC() {
 function aturProyek() {
   if (!wnpc) return;
   const uji = +new URLSearchParams(location.search).get('uji_bangun');   // pratinjau: ?uji_bangun=13
-  const b = PAPAN.data?.bangun, k = uji || (b && (b.dusun || 'wetan') === DI ? b.fas : null), f = k != null ? I.fas?.[k] : null;
+  const b = bangunAktif(), k = uji || (b ? b.fas : null), f = k != null ? I.fas?.[k] : null;
   wnpc.setProyek(f ? {x: f.x, z: f.z} : null);
 }
 function gambarPapan() {

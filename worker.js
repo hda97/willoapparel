@@ -35,14 +35,12 @@ export class Pengunjung extends DurableObject {
 // Voting fasum berbintang (Huda 6 Nov 2026): 1 bintang gratis per hari (WIB) + bintang donasi Saweria (Rp1.000 = 1 bintang).
 // Ganti PUTARAN untuk membuka putaran voting baru (suara putaran lama tetap tersimpan). Calon bisa ditambah/diubah di CALON_FASUM.
 const PUTARAN_VOTING = "2026-11";
-// Pembangunan fasum pemenang voting yang sedang berjalan (diisi saat Huda menutup voting), mis.
-// { dusun: "wetan", fas: 13, nama: "Taman Kota", sampai: "2026-11-20T00:00:00+07:00" }. Selama berjalan, warga offline (NPC) ikut gotong royong di lahannya.
-const BANGUN_FASUM = null;
 // Stream Key Saweria bisa disetel lewat halaman /duniakotak/atur-saweria.html (Huda tidak menemukan worker di Cloudflare).
 // Halaman itu butuh token setel; di sini hanya hash SHA-256-nya (token asli dikirim ke Huda lewat chat proyek).
 const HASH_TOKEN_SETEL = "3875bd9e3be8eb385420fc08c7acbb25d81b72d5581356c72a210d4b87df4510";
 // Huda 6 Nov 2026: cukup 4 calon (usulan terbanyak dari komentar); fasum lain untuk voting berikutnya.
-const CALON_FASUM = ["kafe", "hiburan", "taman", "polisi"];
+// 6 Nov 2026 Huda menutup voting → Taman Kota dibangun (game.js BANGUN_VOTING); taman keluar dari calon, bintangnya dikembalikan.
+const CALON_FASUM = ["kafe", "hiburan", "polisi"];
 // Toko Hias (Huda 6 Nov 2026): barang hias dibeli PERMATA (dari donasi Saweria: Rp1.000 = 1 bintang + 10 permata)
 // atau koin (lebih mahal). Barang pertama tiap jenis gratis. Permata tidak masuk peringkat & tidak bisa jadi koin.
 const PERMATA_PER_RIBU = 10;
@@ -243,7 +241,7 @@ export class Warga extends DurableObject {
     const hasil = {}; for (const c of CALON_FASUM) hasil[c] = 0;
     for (const x of this.sql.exec("SELECT calon, SUM(n) AS n, COUNT(*) AS w FROM suara WHERE put = ? GROUP BY calon", PUTARAN_VOTING).toArray()) if (x.calon in hasil) hasil[x.calon] = x.n;
     const pemilih = this.sql.exec("SELECT COUNT(DISTINCT no) AS w FROM suara WHERE put = ?", PUTARAN_VOTING).toArray()[0].w;
-    return { putaran: PUTARAN_VOTING, calon: CALON_FASUM, hasil, pemilih, dana: this.danaIuran(), ...(BANGUN_FASUM && Date.parse(BANGUN_FASUM.sampai) > Date.now() ? { bangun: BANGUN_FASUM } : {}) };
+    return { putaran: PUTARAN_VOTING, calon: CALON_FASUM, hasil, pemilih, dana: this.danaIuran() };
   }
   danaIuran() {
     const t = this.sql.exec("SELECT COALESCE(SUM(koin + permata * ?), 0) AS v, COUNT(*) AS w FROM iuran WHERE put = ?", KOIN_PER_PERMATA, PUTARAN_VOTING).toArray()[0];
