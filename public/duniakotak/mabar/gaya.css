@@ -203,3 +203,6 @@ a.barisAtur{text-decoration:none}.barisAtur span{display:flex;flex-direction:col
 @media (max-height:460px){#panelVoting{padding:6px 12px}#panelVoting .panel{gap:6px}#panelVoting h2{margin:0;font-size:17px}#panelVoting .vtDaftar{max-height:34vh}#panelVoting .vtSaldo{padding:4px 12px;margin-bottom:6px}#panelVoting .vtDonasi{margin:4px 0 0;padding:6px 10px;font-size:11px;line-height:1.35}#panelVoting .utama{padding:9px 18px}#ringkasVoting{margin:0}
 #panelAtur .barisAtur span{flex-direction:row;align-items:baseline;gap:8px;flex-wrap:wrap}#panelAtur #jamAtur{margin:0}}
 :where(html.putar.mq-pendek) #panelVoting .vtDaftar{max-height:34vh}:where(html.putar.mq-pendek) #panelVoting .vtDonasi{font-size:11px;padding:6px 10px}:where(html.putar.mq-pendek) #panelAtur .barisAtur span{flex-direction:row;align-items:baseline;gap:8px}
+.vtPaket{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0}
+.vtPaket a{display:flex;flex-direction:column;align-items:center;padding:6px 4px;border-radius:10px;background:#ffd23a;color:#3a2a00;font:900 13px Montserrat,sans-serif;text-decoration:none}
+.vtPaket a small{font:700 10px Montserrat,sans-serif;opacity:.75}
