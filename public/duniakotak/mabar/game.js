@@ -726,7 +726,6 @@ function buatPeta() {
     const f = fasumBangun.find(x => x.nama && x.nama.toLowerCase().includes(q)); if (f) return pilihFasum(f);
     $('petaInfo').textContent = `"${q}" tidak ketemu. Coba username, nomor rumah, atau nama fasum (mis. masjid).`; };
   $('petaRute').onclick = () => { if (!peta.tuju) return; $('panelPeta').hidden = true; mulaiRute(peta.tuju, false); };
-  $('petaAntar').onclick = () => { if (!peta.tuju) return; $('panelPeta').hidden = true; mulaiRute(peta.tuju, true); };
   $('chipRute').onclick = e => { if (e.target.closest('.x')) { hapusRute(); toast('Rute dibatalkan.', 2000); } else bukaPeta(); };
 }
 function keP(x, z) { const b = peta.b || I.batas, W = peta.w || 1, H = peta.h || 1; return [(x - b.x0) / (b.x1 - b.x0) * W, (z - b.z0) / (b.z1 - b.z0) * H]; }
