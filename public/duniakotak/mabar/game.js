@@ -1280,6 +1280,52 @@ function labelKerja() {
   b.classList.toggle('tunggu', !!SH && Date.now() < SH.next);
 }
 let kerjaSibuk = false, soalKini = null;
+// ---------- iklan berhadiah (Google H5 Games Ads / Ad Placement API) ----------
+// Warga memilih sendiri menonton iklan → +5 💎 (maks 3x/hari, dicek server). Tidak ada iklan yang muncul sendiri saat main.
+// Tombol tampil bila server menyalakan IKLAN_H5; ?ujiiklan=1 = mode uji Google (iklan contoh, tanpa hadiah).
+const IKLAN_PUB = 'ca-pub-1933161577421164';
+const IK = {aktif: false, uji: new URLSearchParams(location.search).has('ujiiklan'), sibuk: false};
+async function siapIklan() {
+  try { IK.aktif = !!(await (await fetch('/duniakotak/api/config')).json()).iklan; } catch (e) {}
+  if ((!IK.aktif && !IK.uji) || S.tamu) return;
+  const sc = document.createElement('script'); sc.async = true; sc.crossOrigin = 'anonymous';
+  sc.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + IKLAN_PUB;
+  sc.setAttribute('data-ad-client', IKLAN_PUB); sc.setAttribute('data-ad-frequency-hint', '60s');
+  if (IK.uji) sc.setAttribute('data-adbreak-test', 'on');
+  sc.setAttribute('data-tag-for-child-directed-treatment', '1');   // banyak pemain anak-anak: tanpa iklan personal
+  document.head.appendChild(sc);
+  window.adsbygoogle = window.adsbygoogle || []; window.adsbygoogle.requestNonPersonalizedAds = 1;
+  window.adBreak = window.adConfig = o => window.adsbygoogle.push(o);
+  window.adConfig({preloadAdBreaks: 'on', sound: 'on'});
+  $('bIklan').hidden = false; $('bIklan').onclick = tontonIklan;
+  if (IK.aktif) try { tulisIklan(await api('iklan', {kunci: S.kunci})); } catch (e) {}
+}
+function tulisIklan(r) {
+  if (r.sisa != null) $('iklanSisa').textContent = r.sisa ? `+${r.hadiah} 💎 per iklan · sisa ${r.sisa}x hari ini · tidak wajib` : 'Jatah hari ini habis · besok lagi ya';
+  if (r.permata != null) { S.saya.permata = r.permata; try { hitungOnline(); } catch (e) {} }
+}
+function tontonIklan() {
+  if (IK.sibuk) return; IK.sibuk = true;
+  let mulai = false, dapat = false;
+  const lepas = () => { IK.sibuk = false; try { M.ctx && M.ctx.resume(); } catch (e) {} };
+  // pemblokir iklan / jaringan lambat: Google tidak menjawab sama sekali → jangan menggantung
+  setTimeout(() => { if (IK.sibuk && !mulai) { toast('Iklan tidak bisa dimuat. Matikan pemblokir iklan atau coba lagi nanti.'); IK.sibuk = false; } }, 8000);
+  window.adBreak({type: 'reward', name: 'permata-harian',
+    beforeAd: () => { try { M.ctx && M.ctx.suspend(); } catch (e) {} },
+    afterAd: () => { try { M.ctx && M.ctx.resume(); } catch (e) {} },
+    beforeReward: async (tampilkan) => {
+      if (IK.aktif) { try { await api('iklan', {kunci: S.kunci, op: 'mulai'}); } catch (e) { toast(e.message); lepas(); return; } }
+      mulai = true; $('panelAtur').hidden = true; tampilkan();
+    },
+    adDismissed: () => toast('Iklan ditutup sebelum selesai, jadi belum dapat 💎.'),
+    adViewed: async () => {
+      dapat = true;
+      if (!IK.aktif) { toast('Mode uji: iklan selesai (tanpa hadiah).'); return; }
+      try { const r = await api('iklan', {kunci: S.kunci, op: 'selesai'}); tulisIklan(r); toast(`Terima kasih sudah menonton! +${r.hadiah} 💎`, 3500); bunyi('emosi'); } catch (e) { toast(e.message); }
+    },
+    adBreakDone: () => { if (!IK.sibuk) return; if (!mulai && !dapat) toast('Belum ada iklan yang siap. Coba lagi sebentar lagi ya.'); lepas(); }
+  });
+}
 function hasilProfesi(r) { if (r.koin != null) S.saya.koin = r.koin; if (r.permata != null) S.saya.permata = r.permata; if (r.profesi) S.saya.profesi = r.profesi; hitungOnline(); }
 async function skillKerja() {
   if (kerjaSibuk || !bisaKerja(tokoh.saya)) return;
@@ -1811,6 +1857,7 @@ function aturHUD() {
   $('bPanduan').onclick = () => { $('panelAtur').hidden = true; panduan(); };
   $('bAtur').onclick = () => { $('jamAtur').textContent = $('jam').textContent.replace(/\s+/g, ' ').trim(); $('panelAtur').hidden = false; }; $('tutupAtur').onclick = () => { $('panelAtur').hidden = true; };
   $('bVoting').onclick = () => { $('panelAtur').hidden = true; bukaVoting(); };
+  siapIklan();
   $('bProfesi').onclick = () => { $('panelAtur').hidden = true; bukaProfesi(); }; $('pfProfesiB').onclick = () => { $('panelProfil').hidden = true; bukaProfesi(); }; $('tutupProfesi').onclick = () => { $('panelProfesi').hidden = true; };
   $('bToko').onclick = () => { $('panelAtur').hidden = true; bukaToko(); }; $('tutupToko').onclick = () => { $('panelToko').hidden = true; }; $('tutupVoting').onclick = () => { $('panelVoting').hidden = true; };
   $('panelAtur').addEventListener('click', e => { if (e.target === $('panelAtur')) $('panelAtur').hidden = true; });
@@ -2092,4 +2139,4 @@ var tegakSesi = false; try { localStorage.removeItem('dk_tegak'); } catch (e) {}
 $('tetapTegak').onclick = () => { tegakSesi = true; $('miring').hidden = true; };
 onResize();
 layarMasuk();
-window.__dk = {S, HS, rectLot: (n, a, b, c, d) => rectLot(I.lots[n], a, b, c, d), mancing: () => skillMancing(), dekatAir: () => dekatAir(tokoh.saya), tulisDana, VT: v => { VT = v; tulisVoting(); $('panelVoting').hidden = false; }, segarKebun, kebunSiap: () => { kebunTahap = null; segarKebun(); }, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
+window.__dk = {S, HS, iklan: siapIklan, tonton: tontonIklan, rectLot: (n, a, b, c, d) => rectLot(I.lots[n], a, b, c, d), mancing: () => skillMancing(), dekatAir: () => dekatAir(tokoh.saya), tulisDana, VT: v => { VT = v; tulisVoting(); $('panelVoting').hidden = false; }, segarKebun, kebunSiap: () => { kebunTahap = null; segarKebun(); }, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
