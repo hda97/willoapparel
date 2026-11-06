@@ -64,7 +64,17 @@ const PANEN_JEDA = 6 * 3600e3, PANEN_PERMATA = 2;
 // Bibit & jual hasil panen (audit ekonomi, Huda 6 Nov 2026): bibit dibeli koin tiap tanam, panen = 5 hasil + 2 permata,
 // hasil dijual di warung depan rumah (batas 60 hasil/hari). Untung terbaik +20 koin per panen (cabai).
 const BIBIT = { tomat: { nama: "Tomat", ikon: "🍅", harga: 10, hasil: 5, jual: 4 }, jagung: { nama: "Jagung", ikon: "🌽", harga: 20, hasil: 5, jual: 7 }, cabai: { nama: "Cabai", ikon: "🌶️", harga: 30, hasil: 5, jual: 10 } };
-const BATAS_JUAL = 60;   // harga koin = harga permata x 10
+const BATAS_JUAL = 60;
+// Profesi (audit ekonomi, Huda 6 Nov 2026): dibuka dengan menukar permata di Kantor Desa; gaji SAMA untuk semua profesi
+// (permata hanya membeli pilihan profesi + seragam, bukan gaji lebih besar). Petani & pedagang gratis (penghasilan dari kebun/warung).
+// siap:false = fasum tempat kerjanya belum berdiri (tunggu menang voting).
+const PROFESI = {
+  petani: { nama: "Petani", ikon: "🧑‍🌾", harga: 0 }, pedagang: { nama: "Pedagang", ikon: "🧺", harga: 0 },
+  guru: { nama: "Guru", ikon: "🧑‍🏫", harga: 50 }, perawat: { nama: "Perawat", ikon: "💉", harga: 50 }, dokter: { nama: "Dokter", ikon: "🩺", harga: 80 },
+  kasir: { nama: "Kasir", ikon: "🛒", harga: 30 }, wasit: { nama: "Wasit", ikon: "🟨", harga: 30 },
+  polisi: { nama: "Polisi", ikon: "👮", harga: 50, siap: false }, barista: { nama: "Barista", ikon: "☕", harga: 30, siap: false },
+};
+const GAJI_SHIFT = 50, BATAS_SHIFT = 2, SHIFT_MIN = 5.5 * 60e3;   // harga koin = harga permata x 10
 const WARNA_TOPI = { merah: "#d8443a", biru: "#2f6fd8", hitam: "#24242a", kuning: "#f2c230" };
 const KOREKSI_IG = { fakhri_udah_itu_aja: "fakhri_udah_itu_aja_89" };
 
@@ -167,6 +177,7 @@ export class Warga extends DurableObject {
     this.sql.exec("UPDATE warga SET koinTotal = COALESCE(koin, 0) WHERE koinTotal IS NULL");
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN tas TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN kebun TEXT"); } catch (e) { /* kolom sudah ada */ }
+    try { this.sql.exec("ALTER TABLE warga ADD COLUMN profesi TEXT"); } catch (e) { /* kolom sudah ada */ }
     // suara = bintang yang sudah ditaruh warga ke calon fasum; donasi = catatan webhook Saweria (id unik, tidak dobel)
     this.sql.exec("CREATE TABLE IF NOT EXISTS suara (put TEXT, calon TEXT, no INTEGER, n INTEGER, PRIMARY KEY (put, calon, no))");
     // Bintang yang sudah ditaruh di calon yang dihapus dari putaran ini dikembalikan ke pemiliknya (aman diulang).
@@ -202,6 +213,9 @@ export class Warga extends DurableObject {
   bacaHias(r) { let h = {}; try { h = r.hias ? JSON.parse(r.hias) : {}; } catch (e) {} h.punya = h.punya || {}; for (const j of Object.keys(TOKO_HIAS)) h.punya[j] = h.punya[j] || []; return h; }
   bacaKebun(r) { let k = {}; try { k = r.kebun ? JSON.parse(r.kebun) : {}; } catch (e) {} return k; }
   infoKebun(k) { return k.b ? { b: k.b, siap: k.t + PANEN_JEDA } : { b: null }; }
+  bacaProfesi(r) { let p = {}; try { p = r.profesi ? JSON.parse(r.profesi) : {}; } catch (e) {} p.p = Array.isArray(p.p) ? p.p.filter(x => PROFESI[x]) : []; if (!PROFESI[p.a]) p.a = "petani"; return p; }
+  infoProfesi(p) { const hari = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+    return { a: p.a, punya: ["petani", "pedagang", ...p.p], sh: p.sh || null, shift: p.sd === hari ? p.sn || 0 : 0, gantiHariIni: p.g === hari ? 1 : 0, batas: BATAS_SHIFT, gaji: GAJI_SHIFT, min: SHIFT_MIN }; }
   bacaTas(r) { let t = {}; try { t = r.tas ? JSON.parse(r.tas) : {}; } catch (e) {} t.isi = t.isi && typeof t.isi === "object" ? t.isi : {}; return t; }
   hiasPakai(r) { const h = this.bacaHias(r); return { cat: h.cat || "krem", pagar: h.pagar || "putih", topi: h.topi || "tanpa", rumah: h.rumah || "satu", dekor: (h.dekor || []).filter(x => DEKOR.includes(x)) }; }
   pasangTopi(avatarJson, topi) { let a = {}; try { a = avatarJson ? JSON.parse(avatarJson) : {}; } catch (e) {} if (WARNA_TOPI[topi]) a.topi = WARNA_TOPI[topi]; else delete a.topi; return JSON.stringify(a).slice(0, 600); }
@@ -381,7 +395,7 @@ export class Warga extends DurableObject {
       }
       let av = null; try { av = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
       let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
-      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, kucing: kc, koin: r.koin || 0, misi: ms.s, gol: ms.g || 0, dapat, bagi: r.bagi ? 1 : 0, nama: r.nama || "", kerja: r.kerja || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat, permata: r.permata || 0, hias: this.bacaHias(r), kebun: this.infoKebun(this.bacaKebun(r)), bibit: BIBIT, tas: this.bacaTas(r).isi, tasImpor: this.bacaTas(r)._impor ? 1 : 0, koinTotal: r.koinTotal || r.koin || 0 });
+      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, kucing: kc, koin: r.koin || 0, misi: ms.s, gol: ms.g || 0, dapat, bagi: r.bagi ? 1 : 0, nama: r.nama || "", kerja: r.kerja || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat, permata: r.permata || 0, hias: this.bacaHias(r), kebun: this.infoKebun(this.bacaKebun(r)), bibit: BIBIT, tas: this.bacaTas(r).isi, tasImpor: this.bacaTas(r)._impor ? 1 : 0, koinTotal: r.koinTotal || r.koin || 0, profesi: this.infoProfesi(this.bacaProfesi(r)), daftarProfesi: PROFESI });
     }
     // ---- Voting fasum berbintang ----
     if (aksi === "voting") {
@@ -436,6 +450,40 @@ export class Warga extends DurableObject {
         this.sql.exec("UPDATE warga SET koin = ?, koinTotal = COALESCE(koinTotal, 0) + ?, kebun = ?, tas = ? WHERE no = ?", koin, dapat, JSON.stringify(kb), JSON.stringify(t), r.no);
       }
       return Response.json({ koin, permata, kebun: this.infoKebun(kb), tas: t.isi, ...info });
+    }
+    if (aksi === "profesi") {
+      const q = await request.json();
+      const r = this.sql.exec("SELECT no, permata, koin, profesi FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Masuk dulu sebagai warga." }, { status: 401 });
+      const kini = Date.now(), hari = new Date(kini + 7 * 3600e3).toISOString().slice(0, 10), p = this.bacaProfesi(r), pr = PROFESI[q.id];
+      let koin = r.koin || 0, permata = r.permata || 0, info = {}, tambahKoin = 0;
+      const punya = id => PROFESI[id] && (PROFESI[id].harga === 0 || p.p.includes(id));
+      const galat = m => Response.json({ galat: m, profesi: this.infoProfesi(p) }, { status: 400 });
+      if (p.sd !== hari) { p.sd = hari; p.sn = 0; }
+      if (q.op === "buka") {
+        if (!pr) return galat("Profesi tidak ada.");
+        if (pr.siap === false) return galat("Tempat kerja " + pr.nama + " belum berdiri. Menangkan dulu fasumnya di voting.");
+        if (punya(q.id)) return galat("Kamu sudah punya profesi " + pr.nama + ".");
+        if (p.sh) return galat("Selesaikan dulu shift kerjamu.");
+        if (permata < pr.harga) return galat("Permatamu kurang (" + pr.harga + " 💎). Kumpulkan dari panen kebun.");
+        permata -= pr.harga; p.p.push(q.id); p.a = q.id;
+      } else if (q.op === "pakai") {
+        if (!punya(q.id)) return galat("Buka dulu profesi ini di Kantor Desa.");
+        if (p.sh) return galat("Selesaikan dulu shift kerjamu.");
+        if (p.a !== q.id) { if (p.g === hari) return galat("Ganti profesi hanya bisa 1 kali per hari. Coba lagi besok."); p.a = q.id; p.g = hari; }
+      } else if (q.op === "mulai") {
+        if (!PROFESI[p.a].harga) return galat("Petani dan pedagang bekerja di kebun dan warung rumahnya sendiri.");
+        if ((p.sn || 0) >= BATAS_SHIFT) return galat("Kamu sudah kerja " + BATAS_SHIFT + " shift hari ini. Istirahat, lanjut besok!");
+        if (!p.sh || p.sh.p !== p.a || kini - p.sh.t0 > 3 * 3600e3) p.sh = { p: p.a, t0: kini };
+      } else if (q.op === "selesai") {
+        if (!p.sh) return galat("Belum mulai shift.");
+        if (kini - p.sh.t0 < SHIFT_MIN) return galat("Shift belum selesai. Selesaikan semua tugas dulu.");
+        if ((p.sn || 0) >= BATAS_SHIFT) { p.sh = null; return galat("Batas shift hari ini sudah habis."); }
+        p.sh = null; p.sn = (p.sn || 0) + 1; koin += GAJI_SHIFT; tambahKoin = GAJI_SHIFT; info = { gaji: GAJI_SHIFT };
+      } else if (q.op === "batal") { p.sh = null; }
+      else return galat("Perintah tidak dikenal.");
+      this.sql.exec("UPDATE warga SET koin = ?, koinTotal = COALESCE(koinTotal, 0) + ?, permata = ?, profesi = ? WHERE no = ?", koin, tambahKoin, permata, JSON.stringify(p), r.no);
+      return Response.json({ koin, permata, profesi: this.infoProfesi(p), ...info });
     }
     if (aksi === "tas") {
       const q = await request.json();
@@ -820,6 +868,10 @@ async function apiWarga(request, env, url) {
   }
   if (aksi === "panen" || aksi === "tanam" || aksi === "jual") {
     const r = await stub.fetch("https://do/" + aksi, { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), bibit: String(body.bibit || "").slice(0, 10) }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "profesi") {
+    const r = await stub.fetch("https://do/profesi", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), id: String(body.id || "").slice(0, 12) }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "tas") {

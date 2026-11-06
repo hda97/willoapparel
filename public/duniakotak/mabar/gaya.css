@@ -283,3 +283,15 @@ a.barisAtur{text-decoration:none}.barisAtur span{display:flex;flex-direction:col
 .rkBaris small .ok{color:#7be39b}.rkBaris small .kurang{color:#ff9a8a}
 .rkBaris button{flex:none;padding:7px 12px;border-radius:10px;border:0;background:#ffd23a;color:#3a2a00;font:900 12px Montserrat,sans-serif;cursor:pointer}
 .rkBaris button:disabled{background:rgba(255,255,255,.12);color:rgba(255,255,255,.5);cursor:default}
+/* Profesi & shift kerja (6 Nov 2026) */
+#isiProfesi{display:grid;gap:6px;margin:8px 0;max-height:52vh;overflow:auto}
+.rkBaris.pfAktif{border-color:#7be39b}
+.rkBaris button.aktif{background:#7be39b;color:#0f3a1c}
+.lencana{display:inline-block;font-size:10px;font-weight:800;padding:1px 6px;border-radius:8px;background:rgba(255,210,58,.18);color:#ffd23a;margin:2px 2px 0 0}
+.pfProfesi{display:block;margin-top:4px;line-height:1.5}
+#isiKerja .soal{font-size:15px;line-height:1.5;margin:6px 0 12px}
+#isiKerja .jawab{display:grid;gap:8px}
+#isiKerja .jawab button{padding:12px;border-radius:12px;border:1px solid var(--garis);background:rgba(255,255,255,.08);color:#fff;font:800 14px Montserrat,sans-serif;cursor:pointer}
+#isiKerja .jawab button.benar{background:#2a9a5a;border-color:#7be39b}
+#isiKerja .jawab button.salah{background:#7a2a2a;border-color:#ff9a8a;opacity:.7}
+#sKerja.tunggu{opacity:.7}
