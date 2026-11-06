@@ -1019,7 +1019,7 @@ function infoKumpul() {
   let html = '';
   if (ki) {
     html = `${ki.ikon} <b>${ki.nama}!</b> Misi dibuka · koin 2x · ${Math.ceil((ki.j[1] - j) * 60)} mnt`;
-    const kunci = hariIni() + ki.nama; if (kumpulDiumumkan !== kunci) { kumpulDiumumkan = kunci; toast(`${ki.ikon} ${ki.nama} dimulai! Misi harian dibuka sampai ${jamTeks(ki.j[1])} WIB, koin 2x. Kumpul di ${ki.label}, ketuk tanda kuning di kanan atas.`, 6000); bunyi('masuk'); }
+    const kunci = hariIni() + ki.nama; if (kumpulDiumumkan !== kunci) { kumpulDiumumkan = kunci; toast(`${ki.ikon} ${ki.nama} dimulai! Misi koin 2x sampai ${jamTeks(ki.j[1])} WIB.`, 4000); bunyi('masuk'); }
   } else if (be.j[0] - j > 0 && be.j[0] - j <= 1) html = `⏰ <b>${be.nama}</b> ${jamTeks(be.j[0])} · ${Math.ceil((be.j[0] - j) * 60)} mnt lagi`;
   ck.hidden = !html; ck.classList.toggle('mulai', !!ki);
   if (html && ck._h !== html) { ck._h = html; ck.innerHTML = html; }
@@ -1236,7 +1236,7 @@ function hitungOnline() {
   $('dompet').hidden = S.tamu || !S.saya;
   document.querySelector('#profil .pfNm').hidden = !S.tamu && !!S.saya;   // Huda: pojok cukup foto avatar + koin + permata
   if (!S.tamu && S.saya) { $('dKoin').textContent = '🪙 ' + (S.saya.koin || 0); $('dPermata').textContent = '💎 ' + (S.saya.permata || 0); }
-  $('profOnline').textContent = `🟢 ${jumlahOnline()} online`;
+  $('profOnline').textContent = `🟢 ${jumlahOnline()} online`; $('dOnline').textContent = `🟢 ${jumlahOnline()} online`;
   if (!$('panelProfil').hidden) tulisProfil();
 }
 // ---------- panel Profil: avatar, saldo, inventori ----------
@@ -1495,6 +1495,7 @@ function aturHUD() {
   $('bRumah').onclick = () => pergiKe(S.tamu ? 1 : S.saya.no);
   $('bKamera').onclick = () => bukaKamera();
   $('profOnline').onclick = () => { $('panelProfil').hidden = true; bukaOnline(); };
+  $('dOnline').onclick = e => { e.stopPropagation(); bukaOnline(); };
   $('pfAvatar').onclick = () => { $('panelProfil').hidden = true; bukaPembuatAvatar(JSON.parse(JSON.stringify(S.av)), false); };
   $('pfToko').onclick = () => { $('panelProfil').hidden = true; bukaToko(); };
   $('pfKode').onclick = () => toast(`Kode wargamu: ${S.saya.kode} · pakai untuk masuk dari HP lain. Jangan dibagikan.`, 6000);

@@ -260,3 +260,12 @@ a.barisAtur{text-decoration:none}.barisAtur span{display:flex;flex-direction:col
 .popTutup{position:sticky;top:0;justify-self:end;margin:-6px -8px -40px 0;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.35);color:#fff;font:900 15px Montserrat,sans-serif;cursor:pointer;z-index:2}
 .tkIkon{font-size:22px;line-height:26px;height:26px;display:block}
 .profil .pfNm[hidden]{display:none}.profil{padding-right:10px}
+/* chip online di pojok profil (Huda 6 Nov 2026): ketuk = daftar warga online per dusun */
+.chipOnline{flex:none;border:1px solid rgba(123,227,155,.5);background:rgba(30,90,50,.45);color:#bff5cf;border-radius:999px;padding:3px 9px;font:900 12px Montserrat,sans-serif;white-space:nowrap;cursor:pointer}
+/* pemberitahuan dikecilkan supaya tidak menutupi layar (Huda 6 Nov 2026) */
+#toast{top:auto;bottom:calc(14px + env(safe-area-inset-bottom));font-size:11.5px;padding:6px 12px;border-radius:10px;max-width:min(420px,calc(56*var(--vw,1vw)));background:rgba(26,28,46,.88);line-height:1.35}
+/* chip online di pojok profil (Huda 6 Nov 2026): ketuk = daftar warga online per dusun */
+.chipOnline{flex:none;border:1px solid rgba(123,227,155,.5);background:rgba(30,90,50,.45);color:#bff5cf;border-radius:999px;padding:3px 9px;font:900 12px Montserrat,sans-serif;white-space:nowrap;cursor:pointer}
+/* pemberitahuan dikecilkan supaya tidak menutupi layar (Huda 6 Nov 2026) */
+#toast{top:auto;bottom:calc(14px + env(safe-area-inset-bottom));font-size:11.5px;padding:6px 12px;border-radius:10px;max-width:min(420px,calc(56*var(--vw,1vw)));background:rgba(26,28,46,.88);line-height:1.35}
+.chipKumpul{padding:4px 10px;font-size:10.5px}
