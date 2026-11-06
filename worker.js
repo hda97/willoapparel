@@ -35,6 +35,9 @@ export class Pengunjung extends DurableObject {
 // Voting fasum berbintang (Huda 6 Nov 2026): 1 bintang gratis per hari (WIB) + bintang donasi Saweria (Rp1.000 = 1 bintang).
 // Ganti PUTARAN untuk membuka putaran voting baru (suara putaran lama tetap tersimpan). Calon bisa ditambah/diubah di CALON_FASUM.
 const PUTARAN_VOTING = "2026-11";
+// Pembangunan fasum pemenang voting yang sedang berjalan (diisi saat Huda menutup voting), mis.
+// { dusun: "wetan", fas: 13, nama: "Taman Kota", sampai: "2026-11-20T00:00:00+07:00" }. Selama berjalan, warga offline (NPC) ikut gotong royong di lahannya.
+const BANGUN_FASUM = null;
 // Stream Key Saweria bisa disetel lewat halaman /duniakotak/atur-saweria.html (Huda tidak menemukan worker di Cloudflare).
 // Halaman itu butuh token setel; di sini hanya hash SHA-256-nya (token asli dikirim ke Huda lewat chat proyek).
 const HASH_TOKEN_SETEL = "3875bd9e3be8eb385420fc08c7acbb25d81b72d5581356c72a210d4b87df4510";
@@ -238,7 +241,7 @@ export class Warga extends DurableObject {
     const hasil = {}; for (const c of CALON_FASUM) hasil[c] = 0;
     for (const x of this.sql.exec("SELECT calon, SUM(n) AS n, COUNT(*) AS w FROM suara WHERE put = ? GROUP BY calon", PUTARAN_VOTING).toArray()) if (x.calon in hasil) hasil[x.calon] = x.n;
     const pemilih = this.sql.exec("SELECT COUNT(DISTINCT no) AS w FROM suara WHERE put = ?", PUTARAN_VOTING).toArray()[0].w;
-    return { putaran: PUTARAN_VOTING, calon: CALON_FASUM, hasil, pemilih, dana: this.danaIuran() };
+    return { putaran: PUTARAN_VOTING, calon: CALON_FASUM, hasil, pemilih, dana: this.danaIuran(), ...(BANGUN_FASUM && Date.parse(BANGUN_FASUM.sampai) > Date.now() ? { bangun: BANGUN_FASUM } : {}) };
   }
   danaIuran() {
     const t = this.sql.exec("SELECT COALESCE(SUM(koin + permata * ?), 0) AS v, COUNT(*) AS w FROM iuran WHERE put = ?", KOIN_PER_PERMATA, PUTARAN_VOTING).toArray()[0];
@@ -684,6 +687,14 @@ export class Warga extends DurableObject {
       const rows = this.sql.exec("SELECT no, ig, tiktok, usulan FROM warga WHERE usulan IS NOT NULL AND usulan != '' ORDER BY no").toArray();
       return Response.json({ jumlah: rows.length, usulan: rows });
     }
+    if (aksi === "warga-npc") {
+      // Warga offline jadi NPC (Huda 6 Nov 2026): warga yang pernah main (paling baru dulu) di rentang nomor satu dusun,
+      // hanya avatar + username publik (sama dengan yang terlihat saat mereka online). Klien menyembunyikan yang sedang online.
+      const a = Math.max(0, +u.searchParams.get("a") || 0), b = Math.max(a, +u.searchParams.get("b") || 0);
+      const rows = this.sql.exec("SELECT no, ig, tiktok, avatar FROM warga WHERE no > ? AND no <= ? AND avatar IS NOT NULL AND aktif IS NOT NULL ORDER BY aktif DESC LIMIT 40", a, b).toArray();
+      const warga = []; for (const r of rows) { try { const av = JSON.parse(r.avatar); if (av && (r.ig || r.tiktok)) warga.push({ no: r.no, u: r.ig || r.tiktok, av }); } catch (e) {} }
+      return Response.json({ warga });
+    }
     if (aksi === "daftar-publik") {
       // Gabungkan warga terdaftar dengan 63 pengikut awal yang kavlingnya sudah disiapkan (sudah warga sejak video).
       const rows = this.sql.exec("SELECT no, sub, nama, ig, tiktok, usulan, dibuat, kucing, aktif, hias FROM warga ORDER BY no").toArray();
@@ -938,6 +949,10 @@ async function apiWarga(request, env, url) {
   if (aksi === "peringkat" && request.method === "GET") {
     const no = Math.max(0, Math.min(99999, parseInt(url.searchParams.get("no") || "0", 10) || 0));
     return new Response((await stub.fetch("https://do/peringkat" + (no ? "?no=" + no : ""))).body, { headers: { "content-type": "application/json", "cache-control": no ? "no-store" : "public, max-age=30" } });
+  }
+  if (aksi === "warga-npc" && request.method === "GET") {
+    const RENTANG = { wetan: [0, 260], kulon: [260, 460], curug: [460, 660] }, [a, b] = RENTANG[url.searchParams.get("dusun")] || RENTANG.wetan;
+    return new Response((await stub.fetch(`https://do/warga-npc?a=${a}&b=${b}`)).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=60" } });
   }
   if (aksi === "usulan" && request.method === "GET") {
     return new Response((await stub.fetch("https://do/usulan-publik")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=30", "access-control-allow-origin": "*" } });
