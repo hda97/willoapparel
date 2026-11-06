@@ -656,7 +656,7 @@ function animSkill(dt, me) {
   // tombol skill menyala bila bisa dipakai
   const t = now | 0; if (t % 4 === 0 || !animSkill.t || now - animSkill.t > 300) { animSkill.t = now;
     // tombol hanya muncul saat skill bisa dipakai; joran sedang dipakai = tombol Mancing hilang
-    const air = dekatAir(me), bisa = {sNgobrol: !!(npc && npc.terdekat(me, 7 * VS)), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me)};
+    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me)};
     for (const id in bisa) { const b = $(id); if (b.classList.contains('siap') !== bisa[id] || b.hidden === bisa[id]) { b.classList.toggle('siap', bisa[id]); b.hidden = !bisa[id]; } }
     if (air) misiMaju('sungai'); }
 }
@@ -941,6 +941,17 @@ function bolaBuat(L) {
   g.traverse(o => { if (o.isMesh) o.castShadow = !hemat; });
   sc.add(g); BOLA.m = g; BOLA.x = L.cx; BOLA.z = L.cz; BOLA.y = L.lantai + BOLA_R;
 }
+// skill Tendang (Huda 6 Nov: ganti skill Ngobrol): tombol muncul bila bola dekat; tendangan keras melambung ke arah hadap avatar
+function dekatBola(me) { const L = bolaLapangan(); return !!(L && BOLA.m && BOLA.m.visible && Math.hypot(BOLA.x - me.position.x, BOLA.z - me.position.z) < 2.2 * VS && BOLA.y < me.position.y + 4); }
+function skillTendang() {
+  const me = tokoh.saya; if (!me || !dekatBola(me)) return;
+  const now = performance.now(); if (now - BOLA.tendangT < 250) return;
+  let dx = Math.sin(me.rotation.y), dz = Math.cos(me.rotation.y);
+  const bx = BOLA.x - me.position.x, bz = BOLA.z - me.position.z, bl = Math.hypot(bx, bz) || 1;
+  if ((bx * dx + bz * dz) / bl < .3) { dx = bx / bl; dz = bz / bl; }   // bola di samping/belakang: tendang menjauh dari avatar
+  BOLA.tendangT = now; BOLA.aku = true; bolaTendang(dx, dz, 58, true); BOLA.vy = 26; bunyi('langkah');
+  wpose(me, {legR: -1.3, legL: .3, armL: -.8, armR: .6});
+}
 function bolaTendang(dx, dz, kuat, kirim) {
   const l = Math.hypot(dx, dz) || 1; BOLA.vx = dx / l * kuat; BOLA.vz = dz / l * kuat; BOLA.vy = kuat * .35;
   if (kirim && S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify({t: 'bola', x: +BOLA.x.toFixed(2), z: +BOLA.z.toFixed(2), vx: +BOLA.vx.toFixed(2), vz: +BOLA.vz.toFixed(2)}));
@@ -1120,7 +1131,7 @@ function kirimPos(paksa) {
 // 8. KONTROL
 // =====================================================================
 const gerak = {kunci: {}, stik: null, tujuan: null, jalan: false};
-addEventListener('keydown', e => { if (document.activeElement && document.activeElement.tagName === 'INPUT') return; gerak.kunci[e.key.toLowerCase()] = true; if (e.key === 'q' || e.key === 'Q') putar(1); if (e.key === 'e' || e.key === 'E') putar(-1); const kk = e.key.toLowerCase(); if (kk === 'f') skillAmbil(); if (kk === 'r') skillMancing(); if (kk === 'g') skillMakan(); if (kk === 't') $('sNgobrol').click(); if (e.key === ' ') { mulaiLompat(); e.preventDefault(); } if (kk === 'm' && peta.img) { if ($('panelPeta').hidden) bukaPeta(); else $('panelPeta').hidden = true; } if (e.key === 'Enter') { $('ketik').focus(); e.preventDefault(); } });
+addEventListener('keydown', e => { if (document.activeElement && document.activeElement.tagName === 'INPUT') return; gerak.kunci[e.key.toLowerCase()] = true; if (e.key === 'q' || e.key === 'Q') putar(1); if (e.key === 'e' || e.key === 'E') putar(-1); const kk = e.key.toLowerCase(); if (kk === 'f') skillAmbil(); if (kk === 'r') skillMancing(); if (kk === 'g') skillMakan(); if (kk === 't') skillTendang(); if (e.key === ' ') { mulaiLompat(); e.preventDefault(); } if (kk === 'm' && peta.img) { if ($('panelPeta').hidden) bukaPeta(); else $('panelPeta').hidden = true; } if (e.key === 'Enter') { $('ketik').focus(); e.preventDefault(); } });
 addEventListener('keyup', e => { gerak.kunci[e.key.toLowerCase()] = false; });
 addEventListener('blur', () => { gerak.kunci = {}; });
 const stik = $('stik'), kenop = $('kenop');
@@ -1330,7 +1341,7 @@ function aturHUD() {
   $('bDusun').onclick = pilihDusun;
   musikSiap();
   // pointerdown (bukan click): click tidak terpicu di HP saat jari lain masih menahan joystick -> bisa lompat sambil lari
-  $('sLompat').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); mulaiLompat(); }); $('sNgobrol').onclick = () => { const n = npc && npc.terdekat(tokoh.saya, 7 * VS); if (n) ngobrol(n); }; $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan();
+  $('sLompat').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); mulaiLompat(); }); $('sTendang').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); skillTendang(); }); $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan();
   // semua tombol skill bereaksi saat disentuh (pointerdown), jadi tetap jalan walau jari lain menahan joystick
   for (const b of document.querySelectorAll('.zoom.skill button')) { const f = b.onclick; if (!f) continue; b.onclick = null; b.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); f.call(b, e); }); }
   if (innerHeight < 500) { $('chat').hidden = true; $('bBukaChat').hidden = false; zoom = .85; }
