@@ -5,3 +5,6 @@
 .env.*
 !.env.example
 edukasi/paud/node_modules/
+
+# Graphify: cache lokal tidak perlu di-commit
+graphify-out/cache/
