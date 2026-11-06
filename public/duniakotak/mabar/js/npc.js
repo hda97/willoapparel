@@ -146,7 +146,7 @@ export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan, tinggi = () =
       n.i = 1 + Math.floor(acak() * (xs.length - 2)); n.j = 1 + Math.floor(acak() * (zs.length - 2));
       obj.position.copy(node(n.i, n.j)); n.tuju = null;
     } else {
-      const p = tempat[d.kerja].clone(); if (d.id === 'sari') p.x += 3 * VS; if (d.dx) p.x += d.dx * VS; if (d.dz) p.z += d.dz * VS; obj.position.copy(p); n.pusat = p.clone();
+      const p = tempat[d.kerja].clone(); if (d.id === 'sari') p.x += 3 * VS; if (d.dx) p.x += d.dx * VS; if (d.dz) p.z += d.dz * VS; p.y = tinggi(p.x, p.z, p.y); obj.position.copy(p); n.pusat = p.clone();
       obj.rotation.y = d.kerja === 'sungai' ? Math.PI / 2 : 0;
     }
     obj.visible = false; sc.add(obj); return n;
@@ -176,13 +176,13 @@ export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan, tinggi = () =
       } else if (n.kerja === 'bola') {
         // main bola: berlari elips di lapangan stadion
         const t = n.ph * .7 + n.fase;
-        o.position.set(n.pusat.x + Math.cos(t) * 4.5 * VS, n.pusat.y, n.pusat.z + Math.sin(t * 1.3) * 2.6 * VS);
+        o.position.set(n.pusat.x + Math.cos(t) * 4.5 * VS, 0, n.pusat.z + Math.sin(t * 1.3) * 2.6 * VS); o.position.y = tinggi(o.position.x, o.position.z, n.pusat.y);   // berdiri di lantai fasum, tidak tenggelam
         o.rotation.y = Math.atan2(-Math.sin(t) * 4.5, Math.cos(t * 1.3) * 3.4);
         if (o.visible) { const a = Math.sin(n.ph * 13) * 1; pose(o, {legL: a, legR: -a, armL: -a, armR: a}); }
       } else if (n.kerja === 'main') {
         // kejar-kejaran melingkar di lahan fasum
         const r = 4 * VS, t = n.ph * .55 + (n.id === 'sari' ? Math.PI * .7 : 0);
-        o.position.set(n.pusat.x - (n.id === 'sari' ? 3 * VS : 0) + Math.cos(t) * r, n.pusat.y + Math.abs(Math.sin(n.ph * 10)) * .3, n.pusat.z + Math.sin(t) * r);
+        o.position.set(n.pusat.x - (n.id === 'sari' ? 3 * VS : 0) + Math.cos(t) * r, 0, n.pusat.z + Math.sin(t) * r); o.position.y = tinggi(o.position.x, o.position.z, n.pusat.y) + Math.abs(Math.sin(n.ph * 10)) * .3;
         o.rotation.y = Math.atan2(-Math.sin(t), Math.cos(t));
         if (o.visible) { const a = Math.sin(n.ph * 14) * 1; pose(o, {legL: a, legR: -a, armL: -a, armR: a}); }
       } else if (o.visible) {
