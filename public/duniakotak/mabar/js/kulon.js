@@ -101,6 +101,7 @@ export function kulon(sc, o = {}) {
     return j * STEP * VS;
   };
   info.dekatAir = (x, z) => z > 27 * VS;   // tepi sungai di kaki bukit
+  info.arahAir = (x, z) => V3(x, 0, z + 10 * VS);   // mancing menghadap sungai (Huda 6 Nov: semua dusun bisa mancing)
   // jalur NPC: jalan teras (tanjakan hanya di ujung kiri/kanan)
   const xs = [-(L / 2 + 9), -L / 4, 0, L / 4, L / 2 + 9].map(v => v * VS), zs = []; for (let j = 0; j < 10; j++) zs.push((-j * DEP + .5) * VS);
   info.jalur = {xs, zs, bolehNaik: i => i === 0 || i === xs.length - 1};

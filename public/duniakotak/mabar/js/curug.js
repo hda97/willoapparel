@@ -95,6 +95,7 @@ export function curug(sc, o = {}) {
     return j * STEP * VS;
   };
   info.dekatAir = (x, z) => Math.abs(x / VS - (L / 2 + 40)) < 12;   // tepi sungai di sisi kanan
+  info.arahAir = (x, z) => V3((L / 2 + 40) * VS, 0, z);   // mancing menghadap sungai (Huda 6 Nov: semua dusun bisa mancing)
   const xs = [-(L / 2 + 7), -L / 4, 0, L / 4, L / 2 + 7].map(v => v * VS), zs = [13.25 * VS]; for (let j = 0; j < 5; j++) zs.push(-j * DEP * VS);
   info.jalur = {xs, zs, bolehNaik: () => false};
   const pX = i => (-75 + i * 50) * VS;
