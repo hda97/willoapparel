@@ -59,10 +59,9 @@ export function kulon(sc, o = {}) {
   for (const [i, k1, n1, k2, n2] of PASANG) {
     const f = atas[i]; f.children.slice(1).forEach(c => f.remove(c));
     [[k1, n1, -10.5], [k2, n2, 10.5]].forEach(([k, nama, dx]) => {
-      const m = F[k](); m.scale.setScalar(VS); m.position.set((-88 + i * 44 + dx) * VS, yt * VS, (zt + 4) * VS); gF.add(m); m.updateMatrixWorld(true);
-      const kotak = new THREE.Box3(), b = new THREE.Box3();
-      m.traverse(q => { if (!q.isMesh) return; b.setFromObject(q); const sz = b.getSize(new THREE.Vector3()); if (sz.y > 2.4 * VS && sz.x > 1.5 * VS && sz.z > 1.5 * VS) kotak.union(b); });
-      bangunan.push({position: new THREE.Vector3(m.position.x, m.position.y, m.position.z), nama, tinggi: kotak.isEmpty() ? 8 * VS : kotak.max.y - m.position.y + 1, rect: kotak.isEmpty() ? null : [kotak.min.x, kotak.max.x, kotak.min.z, kotak.max.z]});
+      const m = F[k](); m.scale.setScalar(VS); m.position.set((-88 + i * 44 + dx) * VS, yt * VS, (zt + 4) * VS); gF.add(m);
+      // pintu terbuka + ruang dalam (6 Nov 2026): tabrakan per dinding, bagian atas dipisah (game.js)
+      bangunan.push({position: new THREE.Vector3(m.position.x, m.position.y, m.position.z), nama, ...F.pisahFasum(m)});
     });
   }
   bangunan.push({position: V3((L / 2 + 6) * VS, yt * VS, zt * VS), nama: '🔭 Gardu Pandang', tinggi: 15 * VS, rect: null});
