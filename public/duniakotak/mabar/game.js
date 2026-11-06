@@ -13,6 +13,7 @@ import * as F from './js/aset/fasum.js';
 import {buatNPC} from './js/npc.js';
 import {kulon, JALAN_KULON, AWAL_KULON} from './js/kulon.js';
 import {curug, JALAN_CURUG, AWAL_CURUG} from './js/curug.js';
+import {buatNav, pecahRute} from './js/navigasi.js';
 
 const $ = id => document.getElementById(id);
 const VS = D.VS;
@@ -355,23 +356,27 @@ function rectLot(L, x0, x1, z0, z1) {
   const a = [L.c.x + L.dir * x0 * VS, L.c.x + L.dir * x1 * VS], b = [L.c.z + L.dir * z0 * VS, L.c.z + L.dir * z1 * VS];
   return [Math.min(...a), Math.max(...a), Math.min(...b), Math.max(...b)];
 }
+// persegi tabrakan satu kavling (rumah, sumur, tong, warung, batu nama, rumah Oyen) — juga dipakai peta navigasi
+function rectsKavling(n) {
+  const L = I.lots[n], isi = (n === 1 && DI === 'wetan') || !!NM[n], rects = []; if (!L || !isi) return rects;
+  rects.push(rectLot(L, -3.1, -.9, -1.5, .7), rectLot(L, 2.4, 3.6, -.7, .3), rectLot(L, 3.15, 3.65, 2.75, 3.25), rectLot(L, 1.1, 2.1, 3.45, 4.1));
+  if (n === 1 && DI === 'wetan') rects.push(rectLot(L, -4.35, -3.45, 3.0, 3.8));
+  rects.push(rectLot(L, -.5, .9, 3.75, 4.25));
+  return rects;
+}
 function bangunKavling(n) {
   const L = I.lots[n]; const isi = (n === 1 && DI === 'wetan') || !!NM[n];
   const g = I.buildLot(n); if (!g) return;
   const extra = new THREE.Group(); extra.position.y = L.c.y || 0; sc.add(extra);
-  const rects = [];
+  const rects = rectsKavling(n);
   if (isi) {
-    rects.push(rectLot(L, -3.1, -.9, -1.5, .7), rectLot(L, 2.4, 3.6, -.7, .3), rectLot(L, 3.15, 3.65, 2.75, 3.25));
     const w = warungMesh({nama: n === 1 ? 'WARUNG RAKA' : 'WARUNG PANEN', warna: ['#e0503a','#2f7fd8','#2a9a5a','#e0a020'][n % 4], isi: [0,1,2,3,4].map(k => ['tomat','jagung','wortel','terong','cabai','pisang','singkong','padi'][(n * 3 + k * 5) % 8])});
     w.scale.setScalar(1.8); w.position.set(L.c.x + L.dir * 1.6 * VS, 0, L.c.z + L.dir * 3.75 * VS); w.rotation.y = L.dir === 1 ? 0 : Math.PI; extra.add(w);
-    rects.push(rectLot(L, 1.1, 2.1, 3.45, 4.1));
     if (n === 1 && DI === 'wetan') {
       const st = new THREE.Mesh(new THREE.BoxGeometry(1.4 * VS, 1.15 * VS, .45 * VS), [0,1,2,3,4,5].map(k => new THREE.MeshStandardMaterial({color: k === 4 ? 0xffffff : 0x9a9a9a, roughness: .9, map: k === 4 ? D.nameTex('Raka', 1) : null})));
       st.position.set(L.c.x + L.dir * .2 * VS, .58 * VS, L.c.z + L.dir * 4 * VS); st.rotation.y = L.dir === 1 ? 0 : Math.PI; st.castShadow = true; extra.add(st);
       const k = rumahKucingMesh({warna: 'krem', atap: 'merah', nama: 'OYEN'}); k.scale.setScalar(1 / .55); k.position.set(L.c.x + L.dir * -3.9 * VS, 0, L.c.z + L.dir * 3.4 * VS); k.rotation.y = L.dir === 1 ? 0 : Math.PI; extra.add(k);
-      rects.push(rectLot(L, -4.35, -3.45, 3.0, 3.8));
     }
-    rects.push(rectLot(L, -.5, .9, 3.75, 4.25));
   }
   extra.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
   bakeGroup(g); bakeGroup(extra);
@@ -544,7 +549,7 @@ function tulisMisi() {
   $('ringkasMisi').textContent = buka ? `${sesiKini().ikon} ${sesiKini().nama}: misi DIBUKA sampai ${jamTeks(sesiKini().j[1])} WIB, koin 2x! Koinmu: 🪙 ${S.saya?.koin || 0} · Hari ini bisa dapat ${total * 2} koin.`
     : `🔒 Misi hanya bisa dikerjakan saat Jam Kumpul Warga (${daftarSesi()} WIB), bareng warga lain, koin 2x. Berikutnya: ${sesiBerikut().ikon} ${sesiBerikut().nama} ${jamTeks(sesiBerikut().j[0])}. Koinmu: 🪙 ${S.saya?.koin || 0}.`;
 }
-document.addEventListener('click', e => { const b = e.target.closest?.('[data-antar]'); if (!b) return; $('panelMisi').hidden = true; pergiKe(+b.dataset.antar); toast('Jalan otomatis ke rumah Raka… geser joystick untuk berhenti.', 3500); });
+document.addEventListener('click', e => { const b = e.target.closest?.('[data-antar]'); if (!b) return; $('panelMisi').hidden = true; pergiKe(+b.dataset.antar); });
 // ---------- papan peringkat warga (koin terbanyak) ----------
 async function bukaPeringkat() {
   $('panelPeringkat').hidden = false; $('isiPeringkat').innerHTML = '<p class="kecil">Memuat…</p>';
@@ -691,6 +696,9 @@ function buatPeta() {
     c.font = `900 ${Math.max(10, Math.round(11 * k / 1.4))}px Montserrat,sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle';
     for (const [n, L] of Object.entries(I.lots)) { const [u, v] = keP(L.c.x, L.c.z); c.fillStyle = 'rgba(0,0,0,.55)'; c.fillText(n, u + 1, v + 1); c.fillStyle = NM[n] ? '#fff' : 'rgba(255,255,255,.6)'; c.fillText(n, u, v); }
     if (I.sungai) { c.font = `900 ${Math.round(16 * k / 1.4)}px Montserrat,sans-serif`; c.fillStyle = '#e8f6ff'; c.save(); const [su, sv] = keP((I.sungai.x0 + I.sungai.x1) / 2, (b.z0 + b.z1) / 2); c.translate(su, sv); c.rotate(-Math.PI / 2); c.fillText('S U N G A I', 0, 0); c.restore(); }
+    // nama fasum di peta supaya warga tidak tersesat
+    c.font = `900 ${Math.round(15 * k / 1.4)}px Montserrat,sans-serif`; c.lineJoin = 'round';
+    for (const f of fasumBangun) { if (!f.nama) continue; const [u, v] = keP(f.position.x, f.position.z); c.lineWidth = 4; c.strokeStyle = 'rgba(0,0,0,.6)'; c.strokeText(f.nama, u, v); c.fillStyle = '#fff6c8'; c.fillText(f.nama, u, v); }
     peta.img = cv; peta.w = W; peta.h = H; peta.b = b;
   } catch (e) { console.error('peta', e); $('petaMini').hidden = true; }
   $('petaMini').onclick = bukaPeta;
@@ -706,26 +714,117 @@ function buatPeta() {
     gambarPetaBesar(); };
   cvB.onpointerup = cvB.onpointercancel = e => { jr.delete(e.pointerId); if (e.type === 'pointerup' && geser < 8 && !jr.size) {
     const [u, v] = keGambar(e.clientX, e.clientY); let best = null, bd = 1e9;
-    for (const [n, L] of Object.entries(I.lots)) { const [a, c2] = keP(L.c.x, L.c.z), d = Math.hypot(a - u, c2 - v); if (d < bd) { bd = d; best = +n; } } if (best && bd < 30) pilihRumah(best); } };
+    for (const [n, L] of Object.entries(I.lots)) { const [a, c2] = keP(L.c.x, L.c.z), d = Math.hypot(a - u, c2 - v); if (d < bd) { bd = d; best = +n; } }
+    let fb = null, fd = 1e9; for (const f of fasumBangun) { if (!f.nama) continue; const [a, c2] = keP(f.position.x, f.position.z), d = Math.hypot(a - u, c2 - v); if (d < fd) { fd = d; fb = f; } }
+    if (fb && fd < 40 && fd < bd) pilihFasum(fb); else if (best && bd < 30) pilihRumah(best); else pilihTitik(u, v); } };
   cvB.onwheel = e => { e.preventDefault(); peta.z = Math.max(.25, Math.min(6, peta.z * (e.deltaY < 0 ? 1.15 : .87))); gambarPetaBesar(); };
   $('petaZoom').onclick = e => { const d = e.target.dataset.z; if (!d) return; if (d === 'aku') { [peta.u, peta.v] = keP(tokoh.saya.position.x, tokoh.saya.position.z); peta.z = 2.2; } else peta.z = Math.max(.25, Math.min(6, peta.z * (d === '+' ? 1.4 : .7))); gambarPetaBesar(); };
   $('cariPeta').onsubmit = e => { e.preventDefault(); const q = $('cariIsi').value.trim().toLowerCase().replace(/^@/, '').replace(/^no\.?\s*/, '');
     if (!q) return; let n = /^\d+$/.test(q) && I.lots[+q] ? +q : 0;
     if (!n) { const hit = Object.entries(NM).find(([, nm]) => nm.toLowerCase().replace(/^@/, '') === q) || Object.entries(NM).find(([, nm]) => nm.toLowerCase().includes(q)); if (hit) n = +hit[0]; }
-    if (n) pilihRumah(n); else $('petaInfo').textContent = `"${q}" tidak ketemu. Coba username lain atau nomor rumah.`; };
-  $('petaAntar').onclick = () => { if (!peta.pilih) return; $('panelPeta').hidden = true; pergiKe(peta.pilih); toast('Jalan otomatis ke rumah No. ' + peta.pilih + '… geser joystick untuk berhenti.', 3500); };
+    if (n) return pilihRumah(n);
+    const f = fasumBangun.find(x => x.nama && x.nama.toLowerCase().includes(q)); if (f) return pilihFasum(f);
+    $('petaInfo').textContent = `"${q}" tidak ketemu. Coba username, nomor rumah, atau nama fasum (mis. masjid).`; };
+  $('petaRute').onclick = () => { if (!peta.tuju) return; $('panelPeta').hidden = true; mulaiRute(peta.tuju, false); };
+  $('petaAntar').onclick = () => { if (!peta.tuju) return; $('panelPeta').hidden = true; mulaiRute(peta.tuju, true); };
+  $('chipRute').onclick = e => { if (e.target.closest('.x')) { hapusRute(); toast('Rute dibatalkan.', 2000); } else bukaPeta(); };
 }
 function keP(x, z) { const b = peta.b || I.batas, W = peta.w || 1, H = peta.h || 1; return [(x - b.x0) / (b.x1 - b.x0) * W, (z - b.z0) / (b.z1 - b.z0) * H]; }
 function pilihRumah(n) {
-  peta.pilih = n; [peta.u, peta.v] = keP(I.lots[n].c.x, I.lots[n].c.z); peta.z = Math.max(peta.z, 2.2); const nm = n === 1 ? 'Raka & Oyen (Warung Raka)' : NM[n] || 'kavling kosong';
-  $('petaInfo').textContent = `📍 No. ${n} · ${nm} · ${alamat(n)}`; $('petaAntar').hidden = false; gambarPetaBesar();
+  const L = I.lots[n]; peta.pilih = n; [peta.u, peta.v] = keP(L.c.x, L.c.z); peta.z = Math.max(peta.z, 2.2); const nm = n === 1 ? 'Raka & Oyen (Warung Raka)' : NM[n] || 'kavling kosong';
+  peta.tuju = {x: L.gate.x, z: L.gate.z + L.dir * 1.2 * VS, nama: 'No. ' + n, kav: n};
+  tulisTuju(`📍 No. ${n} · ${nm} · ${alamat(n)}`);
 }
-function bukaPeta() { $('panelPeta').hidden = false; $('petaAntar').hidden = !peta.pilih; if (!peta.pilih) [peta.u, peta.v] = keP(tokoh.saya.position.x, tokoh.saya.position.z); gambarPetaBesar(); }
+function pilihFasum(f) {
+  peta.pilih = null; [peta.u, peta.v] = keP(f.position.x, f.position.z); peta.z = Math.max(peta.z, 1.6);
+  peta.tuju = {x: f.position.x, z: f.position.z, nama: f.nama.replace(/^\S+\s/, '')}; tulisTuju(`📍 ${f.nama}`);
+}
+function pilihTitik(u, v) {
+  const b = peta.b || I.batas, x = b.x0 + u / peta.w * (b.x1 - b.x0), z = b.z0 + v / peta.h * (b.z1 - b.z0);
+  if (x < b.x0 || x > b.x1 || z < b.z0 || z > b.z1) return; peta.pilih = null;
+  peta.tuju = {x, z, nama: 'titik pilihan'}; tulisTuju('📍 Titik pilihan di peta');
+}
+function tulisTuju(teks) {
+  const me = tokoh.saya, m = Math.round(Math.hypot(peta.tuju.x - me.position.x, peta.tuju.z - me.position.z) / VS);
+  $('petaInfo').textContent = `${teks} · ±${m} m dari kamu`; $('petaTombol').hidden = false; gambarPetaBesar();
+}
+function bukaPeta() { $('panelPeta').hidden = false; $('petaTombol').hidden = !peta.tuju; if (!peta.tuju) [peta.u, peta.v] = keP(tokoh.saya.position.x, tokoh.saya.position.z); gambarPetaBesar(); }
+
+// ---------- Navigasi ala Gmaps (Huda 6 Nov 2026): rute lewat jalan + garis biru di tanah & di peta ----------
+let NAV = null;
+const rute = {titik: null, kum: null, idx: 0, tujuan: null, antar: false, garis: [], pin: null, cekT: 0, ulangT: 0, diam: 0, px: 0, pz: 0};
+const KAVLING_LUAS = L => rectLot(L, -4.7, 4.7, -4.2, 4.2);
+function navSiap() {
+  if (NAV) return NAV;
+  const m = 1.2, lebar = r => [r[0] - m, r[1] + m, r[2] - m, r[3] + m], blok = [], mahal = [];
+  for (const [ns, L] of Object.entries(I.lots)) { for (const r of rectsKavling(+ns)) blok.push(lebar(r)); mahal.push(KAVLING_LUAS(L)); }
+  for (const f of fasumBangun) if (f.rect) for (const k of f.dinding || [f.rect]) blok.push(lebar(k));
+  const s = I.sungai, b = I.batas;
+  const dilarang = s ? (x, z) => x > s.x0 - 1 && x < s.x1 + 1 && !s.jembatan.some(([a, c]) => z > a + 1 && z < c - 1) : null;
+  // Wetan: jalan desa lebih murah supaya rute ikut jalan seperti Gmaps (Kulon/Curug sudah dibatasi teras)
+  const murah = []; if (I.vroads && I.hroads && I.ox != null) { const z0 = I.oz * VS, z1 = (I.oz + I.TD) * VS, x0 = I.ox * VS, x1 = (I.ox + I.TW) * VS;
+    for (const [a, c] of I.vroads) murah.push([(a + I.ox) * VS, (c + I.ox) * VS, z0, z1]); for (const [a, c] of I.hroads) murah.push([x0, b.x1, (a + I.oz) * VS, (c + I.oz) * VS]); }
+  NAV = buatNav({batas: {x0: b.x0 + 1.5, x1: b.x1 - 1.5, z0: b.z0 + 1.5, z1: b.z1 - 1.5}, blok, mahal, murah, dasar: murah.length ? 2 : 1, dilarang, tinggi: I.tanah ? (x, z) => I.tanah(x, z) : null});
+  return NAV;
+}
+function mulaiRute(tj, antar) {
+  const me = tokoh.saya; if (!me || !I) return;
+  let t = null; try { t = navSiap().cari(me.position.x, me.position.z, tj.x, tj.z, tj.kav && I.lots[tj.kav] ? [KAVLING_LUAS(I.lots[tj.kav])] : null); } catch (e) { console.error('rute', e); }
+  if (!t || t.length < 2) t = [[me.position.x, me.position.z], [tj.x, tj.z]];
+  hapusGaris();
+  rute.titik = pecahRute(t, 2); rute.kum = [0]; for (let i = 1; i < rute.titik.length; i++) rute.kum.push(rute.kum[i - 1] + Math.hypot(rute.titik[i][0] - rute.titik[i - 1][0], rute.titik[i][1] - rute.titik[i - 1][1]));
+  rute.idx = 0; rute.tujuan = tj; rute.antar = !!antar; rute.diam = 0; rute.px = me.position.x; rute.pz = me.position.z;
+  gambarGaris(); tulisChipRute(rute.kum[rute.kum.length - 1]);
+  if (!rute.ulang) toast(antar ? `🚶 Jalan otomatis ke ${tj.nama}… geser joystick untuk berhenti.` : `🧭 Ikuti garis biru ke ${tj.nama}.`, 3500);
+}
+function hapusGaris() { for (const g of rute.garis) buang(g); rute.garis = []; if (rute.pin) { buang(rute.pin); rute.pin = null; } }
+function hapusRute() { hapusGaris(); if (rute.antar) gerak.tujuan = null; rute.titik = null; rute.antar = false; $('chipRute').hidden = true; }
+function gambarGaris() {
+  const P = rute.titik; let y = tokoh.saya.position.y;
+  const ys = P.map(([x, z]) => (y = tanah(x, z, y)) + .14);
+  for (const [lb, warna, urut] of [[2.6, 0xffffff, 1], [1.5, 0x4285f4, 2]]) {
+    const pos = new Float32Array(P.length * 6), idx = [];
+    for (let i = 0; i < P.length; i++) { const a = P[Math.max(0, i - 1)], b = P[Math.min(P.length - 1, i + 1)]; let dx = b[0] - a[0], dz = b[1] - a[1]; const l = Math.hypot(dx, dz) || 1; dx /= l; dz /= l;
+      const nx = -dz * lb / 2, nz = dx * lb / 2, yy = ys[i] + (urut - 1) * .03; pos.set([P[i][0] + nx, yy, P[i][1] + nz, P[i][0] - nx, yy, P[i][1] - nz], i * 6);
+      if (i) { const k = (i - 1) * 2; idx.push(k, k + 1, k + 2, k + 1, k + 3, k + 2); } }
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setIndex(idx);
+    const mt = new THREE.MeshBasicMaterial({color: warna, transparent: true, opacity: urut === 2 ? .95 : .8, depthWrite: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2});
+    const mesh = new THREE.Mesh(geo, mt); mesh.renderOrder = urut; mesh.frustumCulled = false; mesh.userData.bukanPijakan = true; sc.add(mesh); rute.garis.push(mesh);
+  }
+  // pin merah di tujuan
+  const pin = new THREE.Group(), merah = new THREE.MeshBasicMaterial({color: 0xea4335});
+  const bola = new THREE.Mesh(new THREE.SphereGeometry(1.3, 16, 12), merah); bola.position.y = 5.2; pin.add(bola);
+  const ujung = new THREE.Mesh(new THREE.ConeGeometry(1.1, 2.6, 16), merah); ujung.rotation.x = Math.PI; ujung.position.y = 3.6; pin.add(ujung);
+  const titik = new THREE.Mesh(new THREE.SphereGeometry(.5, 10, 8), new THREE.MeshBasicMaterial({color: 0xffffff})); titik.position.set(0, 5.2, 1.05); pin.add(titik);
+  const [ex, ez] = P[P.length - 1]; pin.position.set(ex, ys[ys.length - 1], ez); pin.userData.y0 = pin.position.y; sc.add(pin); rute.pin = pin;
+}
+function tulisChipRute(sisa) {
+  const c = $('chipRute'), m = Math.max(1, Math.round(sisa / VS)), h = `<span class="t">${rute.antar ? '🚶' : '🧭'} Ke <b>${esc(rute.tujuan.nama)}</b> · ${m} m</span><span class="x" title="Batalkan rute">✕</span>`;
+  c.hidden = false; if (c._h !== h) { c._h = h; c.innerHTML = h; }
+}
+function jalanRute(t) {
+  if (!rute.titik) return; const me = tokoh.saya, P = rute.titik, x = me.position.x, z = me.position.z;
+  if (rute.pin) { rute.pin.position.y = rute.pin.userData.y0 + Math.sin(t / 260) * .7; rute.pin.rotation.y = t / 700; }
+  if (t - rute.cekT < 120) return; rute.cekT = t;
+  let bi = rute.idx, bd = 1e9; for (let i = rute.idx; i < Math.min(P.length, rute.idx + 45); i++) { const d = Math.hypot(P[i][0] - x, P[i][1] - z); if (d < bd) { bd = d; bi = i; } }
+  if (bi !== rute.idx) { rute.idx = bi; for (const g of rute.garis) g.geometry.setDrawRange(bi * 6, Infinity); }
+  const [ex, ez] = P[P.length - 1], sisa = rute.kum[rute.kum.length - 1] - rute.kum[bi] + bd;
+  if (Math.hypot(ex - x, ez - z) < 2.2 * VS || bi >= P.length - 2) { const nm = rute.tujuan.nama; hapusRute(); bunyi('masuk'); toast(`📍 Sampai di ${nm}!`, 3000); return; }
+  if (bd > 7 * VS && t - rute.ulangT > 1500) { rute.ulangT = t; rute.ulang = 1; mulaiRute(rute.tujuan, rute.antar); rute.ulang = 0; return; }   // keluar jalur → hitung ulang rute
+  if (rute.antar) {
+    const j = Math.min(P.length - 1, bi + 3); gerak.tujuan = new THREE.Vector3(P[j][0], 0, P[j][1]);
+    if (Math.hypot(x - rute.px, z - rute.pz) < .3) { if (++rute.diam > 15) { rute.antar = false; gerak.tujuan = null; toast('Jalan otomatis berhenti. Ikuti garis biru ya.', 3000); } } else rute.diam = 0;
+    rute.px = x; rute.pz = z;
+  }
+  tulisChipRute(sisa);
+}
 function titikPeta(c, k, me) {
   // warga online (hijau), Raka (bintang), saya (panah biru)
   for (const o of S.others.values()) { const [u, v] = keP(o.obj.position.x, o.obj.position.z); c.fillStyle = '#2ecc71'; c.strokeStyle = '#fff'; c.lineWidth = 2 * k; c.beginPath(); c.arc(u, v, 6 * k, 0, 7); c.fill(); c.stroke(); }
   if (tokoh.raka) { const [u, v] = keP(tokoh.raka.position.x, tokoh.raka.position.z); c.font = `${Math.round(18 * k)}px sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('⭐', u, v); }
-  if (peta.pilih && I.lots[peta.pilih]) { const L = I.lots[peta.pilih], [u, v] = keP(L.c.x, L.c.z); c.fillStyle = '#ea4335'; c.strokeStyle = '#fff'; c.lineWidth = 2.5 * k; c.beginPath(); c.arc(u, v - 16 * k, 10 * k, Math.PI * .85, Math.PI * 2.15); c.lineTo(u, v); c.closePath(); c.fill(); c.stroke(); c.fillStyle = '#fff'; c.beginPath(); c.arc(u, v - 16 * k, 4 * k, 0, 7); c.fill(); }
+  if (rute.titik) { c.lineJoin = c.lineCap = 'round'; for (const [w, col] of [[11, '#ffffff'], [7, '#4285f4']]) { c.strokeStyle = col; c.lineWidth = w * k; c.beginPath(); for (let i = rute.idx; i < rute.titik.length; i++) { const [u, v] = keP(rute.titik[i][0], rute.titik[i][1]); if (i === rute.idx) c.moveTo(u, v); else c.lineTo(u, v); } c.stroke(); } }
+  const tj = rute.titik ? rute.tujuan : peta.tuju;
+  if (tj) { const [u, v] = keP(tj.x, tj.z); c.fillStyle = '#ea4335'; c.strokeStyle = '#fff'; c.lineWidth = 2.5 * k; c.beginPath(); c.arc(u, v - 16 * k, 10 * k, Math.PI * .85, Math.PI * 2.15); c.lineTo(u, v); c.closePath(); c.fill(); c.stroke(); c.fillStyle = '#fff'; c.beginPath(); c.arc(u, v - 16 * k, 4 * k, 0, 7); c.fill(); }
   if (me) { const [u, v] = keP(me.position.x, me.position.z); c.save(); c.translate(u, v); c.rotate(Math.PI - me.rotation.y);
     c.fillStyle = 'rgba(66,133,244,.25)'; c.beginPath(); c.arc(0, 0, 16 * k, 0, 7); c.fill();
     c.fillStyle = '#4285f4'; c.strokeStyle = '#fff'; c.lineWidth = 2.5 * k; c.beginPath(); c.moveTo(0, -11 * k); c.lineTo(8 * k, 8 * k); c.lineTo(0, 4 * k); c.lineTo(-8 * k, 8 * k); c.closePath(); c.fill(); c.stroke(); c.restore(); }
@@ -1036,7 +1135,7 @@ $('layar').addEventListener('pointerup', e => {
   if (e.pointerType === 'mouse' && e.button !== 0) return;
   const m = new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
   ray.setFromCamera(m, cam);
-  const titik = new THREE.Vector3(); if (ray.ray.intersectPlane(lantai, titik)) { gerak.tujuan = titik; }
+  const titik = new THREE.Vector3(); if (ray.ray.intersectPlane(lantai, titik)) { gerak.tujuan = titik; rute.antar = false; }
 });
 lab.addEventListener('click', e => {
   const el = e.target.closest('.nm'); if (el && el.dataset.npc) { const n = npc && npc.daftar.find(x => x.id === el.dataset.npc); if (n) ngobrol(n); return; }
@@ -1093,7 +1192,8 @@ $('kBagi').onclick = async () => {
   else { $('kSimpan').click(); toast('Foto disimpan. Unggah ke story dari galeri, lalu tag @duniakotak.id.', 4500); }
 };
 function putar(arah) { yaw += arah * Math.PI / 2; }
-function pergiKe(no) { const L = I.lots[no]; if (!L && no === 1 && tokoh.raka) { gerak.tujuan = tokoh.raka.position.clone().add(new THREE.Vector3(0, 0, 1.5 * VS)); return; } if (!L) { if (dusunDari(no) !== DI) pindahDusun(dusunDari(no), no); return; } gerak.tujuan = new THREE.Vector3(L.gate.x, 0, L.gate.z + L.dir * 1.2 * VS); }
+// antar = rute lewat jalan + garis biru, jalan otomatis (sama dengan navigasi peta)
+function pergiKe(no) { const L = I.lots[no]; if (!L && no === 1 && tokoh.raka) { const p = tokoh.raka.position; mulaiRute({x: p.x, z: p.z + 1.5 * VS, nama: 'Raka & Oyen'}, true); return; } if (!L) { if (dusunDari(no) !== DI) pindahDusun(dusunDari(no), no); return; } mulaiRute({x: L.gate.x, z: L.gate.z + L.dir * 1.2 * VS, nama: 'No. ' + no, kav: no}, true); }
 
 // =====================================================================
 // 9. MULAI
@@ -1313,7 +1413,7 @@ function loop(t) {
   if (k['w'] || k['arrowup']) vz -= 1; if (k['s'] || k['arrowdown']) vz += 1; if (k['a'] || k['arrowleft']) vx -= 1; if (k['d'] || k['arrowright']) vx += 1;
   if (gerak.stik) { vx += gerak.stik.x; vz += gerak.stik.y; }
   if (vx || vz) { const sn = Math.sin(yawNow), cs = Math.cos(yawNow); const ax = vx * cs + vz * sn, az = -vx * sn + vz * cs; vx = ax; vz = az; }
-  if (vx || vz) gerak.tujuan = null;
+  if (vx || vz) { gerak.tujuan = null; rute.antar = false; }
   else if (gerak.tujuan) { const dx = gerak.tujuan.x - me.position.x, dz = gerak.tujuan.z - me.position.z, l = Math.hypot(dx, dz); if (l < 1.5) gerak.tujuan = null; else { vx = dx / l; vz = dz / l; } }
   const l = Math.hypot(vx, vz); gerak.jalan = l > .15;
   if (gerak.jalan) {
@@ -1330,7 +1430,7 @@ function loop(t) {
     if (lompat.diTanah) { me.position.y += (g - me.position.y) * Math.min(1, dt * 18); }
     else { lompat.vy -= 95 * dt; me.position.y += lompat.vy * dt; if (me.position.y <= g) { me.position.y = g; lompat.vy = 0; lompat.diTanah = true; } }
     if (!lompat.diTanah) { const a = Math.min(1, me.position.y / 6); wpose(me, {legL: -.5 * a, legR: .4 * a, armL: -2.4 * a, armR: -2.4 * a}); } }
-  cekMisiDekat(me); cekDalamFasum(me);
+  cekMisiDekat(me); cekDalamFasum(me); jalanRute(t);
   // warga lain: interpolasi
   for (const o of S.others.values()) {
     const p = o.obj.position; const a = Math.min(1, dt * 8); p.x += (o.tx - p.x) * a; p.z += (o.tz - p.z) * a;
@@ -1493,4 +1593,4 @@ var tegakSesi = false; try { localStorage.removeItem('dk_tegak'); } catch (e) {}
 $('tetapTegak').onclick = () => { tegakSesi = true; $('miring').hidden = true; };
 onResize();
 layarMasuk();
-window.__dk = {S, npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
+window.__dk = {S, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
