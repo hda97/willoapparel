@@ -35,6 +35,9 @@ export class Pengunjung extends DurableObject {
 // Voting fasum berbintang (Huda 6 Nov 2026): 1 bintang gratis per hari (WIB) + bintang donasi Saweria (Rp1.000 = 1 bintang).
 // Ganti PUTARAN untuk membuka putaran voting baru (suara putaran lama tetap tersimpan). Calon bisa ditambah/diubah di CALON_FASUM.
 const PUTARAN_VOTING = "2026-11";
+// Stream Key Saweria bisa disetel lewat halaman /duniakotak/atur-saweria.html (Huda tidak menemukan worker di Cloudflare).
+// Halaman itu butuh token setel; di sini hanya hash SHA-256-nya (token asli dikirim ke Huda lewat chat proyek).
+const HASH_TOKEN_SETEL = "3875bd9e3be8eb385420fc08c7acbb25d81b72d5581356c72a210d4b87df4510";
 const CALON_FASUM = ["kafe", "taman", "hiburan", "polisi", "damkar", "perpus", "renang", "bioskop"];
 const KOREKSI_IG = { fakhri_udah_itu_aja: "fakhri_udah_itu_aja_89" };
 
@@ -131,6 +134,7 @@ export class Warga extends DurableObject {
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN bhari TEXT"); } catch (e) { /* kolom sudah ada */ }
     // suara = bintang yang sudah ditaruh warga ke calon fasum; donasi = catatan webhook Saweria (id unik, tidak dobel)
     this.sql.exec("CREATE TABLE IF NOT EXISTS suara (put TEXT, calon TEXT, no INTEGER, n INTEGER, PRIMARY KEY (put, calon, no))");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS rahasia (k TEXT PRIMARY KEY, v TEXT, t INTEGER)");
     this.sql.exec("CREATE TABLE IF NOT EXISTS donasi (id TEXT PRIMARY KEY, t INTEGER, no INTEGER, rp INTEGER, bintang INTEGER, nama TEXT, pesan TEXT)");
     // Koreksi salah ketik username: pindahkan ke username & kavling yang benar (sekali jalan, aman diulang).
     for (const [salah, benar] of Object.entries(KOREKSI_IG)) {
@@ -351,6 +355,9 @@ export class Warga extends DurableObject {
       return Response.json({ no: r.no, saldo, gratis, saya, donasi: don, ...this.hasilVoting() });
     }
     if (aksi === "voting-publik") return Response.json(this.hasilVoting());
+    // Hanya dipanggil worker (tidak ada rute publik yang meneruskan ke sini tanpa token).
+    if (aksi === "rahasia-set") { const q = await request.json(); this.sql.exec("INSERT INTO rahasia (k, v, t) VALUES (?, ?, ?) ON CONFLICT (k) DO UPDATE SET v = excluded.v, t = excluded.t", q.k, q.v, Date.now()); return Response.json({ ok: 1 }); }
+    if (aksi === "rahasia-get") { const r = this.sql.exec("SELECT v, t FROM rahasia WHERE k = ?", u.searchParams.get("k")).toArray()[0]; return Response.json(r || {}); }
     if (aksi === "saweria") {
       // Dipanggil worker SETELAH tanda tangan webhook Saweria dicek. Kode warga di pesan: DK123 (nomor kavling).
       const q = await request.json();
@@ -663,14 +670,28 @@ async function apiWarga(request, env, url) {
     const r = await stub.fetch("https://do/voting", { method: "POST", body: JSON.stringify(q) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
+  if (aksi === "saweria-kunci") {
+    // Setel Stream Key Saweria dari halaman atur-saweria (butuh token setel). Key tidak pernah dikirim balik.
+    const tk = String(body.token || "").trim().toUpperCase(), key = String(body.key || "").trim();
+    const h = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(tk)))].map((b) => b.toString(16).padStart(2, "0")).join("");
+    if (h !== HASH_TOKEN_SETEL) return json({ galat: "Token setel salah." }, 403);
+    if (!/^[A-Za-z0-9_-]{8,200}$/.test(key)) return json({ galat: "Stream Key tidak terbaca. Tempel hanya kode setelah streamKey= (tanpa link)." }, 400);
+    await stub.fetch("https://do/rahasia-set", { method: "POST", body: JSON.stringify({ k: "saweria", v: key }) });
+    return json({ ok: 1, pesan: "Stream Key tersimpan. Donasi Saweria sekarang bisa menambah bintang." });
+  }
+  if (aksi === "saweria-status" ) {
+    const ada = !!(env.SAWERIA_KEY || (await (await stub.fetch("https://do/rahasia-get?k=saweria")).json()).v);
+    return json({ siap: ada });
+  }
   if (aksi === "saweria") {
     // Webhook Saweria: header Saweria-Callback-Signature = HMAC-SHA256 (hex) dengan Stream Key atas
     // version + id + amount_raw + donator_name + donator_email. Stream Key disimpan sebagai Secret SAWERIA_KEY (bukan di kode).
-    if (!env.SAWERIA_KEY) return json({ galat: "Webhook belum disiapkan" }, 503);
+    const kunciSw = env.SAWERIA_KEY || (await (await stub.fetch("https://do/rahasia-get?k=saweria")).json()).v;
+    if (!kunciSw) return json({ galat: "Webhook belum disiapkan" }, 503);
     const tt = String(request.headers.get("Saweria-Callback-Signature") || "").toLowerCase();
     if (!tt) return json({ galat: "Tanpa tanda tangan" }, 401);
     const data = ["version", "id", "amount_raw", "donator_name", "donator_email"].map((k) => body[k] ?? "").join("");
-    const kunciH = await crypto.subtle.importKey("raw", new TextEncoder().encode(env.SAWERIA_KEY), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    const kunciH = await crypto.subtle.importKey("raw", new TextEncoder().encode(kunciSw), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
     const hx = [...new Uint8Array(await crypto.subtle.sign("HMAC", kunciH, new TextEncoder().encode(data)))].map((b) => b.toString(16).padStart(2, "0")).join("");
     let beda = hx.length ^ tt.length; for (let i = 0; i < hx.length; i++) beda |= hx.charCodeAt(i) ^ (tt.charCodeAt(i) || 0);
     if (beda) return json({ galat: "Tanda tangan salah" }, 403);

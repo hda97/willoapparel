@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Atur Saweria · Dunia Kotak</title>
+<style>
+:root{color-scheme:dark}
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 50% 30%,#2c3150,#13141f);color:#fff;font:15px/1.5 system-ui,sans-serif;padding:16px;box-sizing:border-box}
+.kotak{width:100%;max-width:420px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:18px;padding:20px}
+h1{margin:0 0 6px;font-size:20px}p{margin:0 0 14px;color:#cdd}
+label{display:block;font-weight:700;margin:12px 0 6px}
+input{width:100%;box-sizing:border-box;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:#1b1d2c;color:#fff;font:15px monospace}
+button{margin-top:18px;width:100%;padding:13px;border:0;border-radius:14px;background:#ffd23a;color:#3a2a00;font-weight:900;font-size:16px;cursor:pointer}
+#hasil{margin-top:14px;font-weight:700}.ok{color:#7be39b}.gagal{color:#ff8a8a}
+</style>
+</head>
+<body>
+<div class="kotak">
+ <h1>⭐ Atur Saweria</h1>
+ <p>Halaman ini khusus admin Dunia Kotak. Tempel Stream Key dari link overlay Saweria, yaitu bagian setelah <b>streamKey=</b>. Key disimpan di server dan tidak akan ditampilkan lagi.</p>
+ <label for="token">Token setel</label>
+ <input id="token" autocomplete="off" placeholder="DK-XXXXXXXXXXXX">
+ <label for="key">Stream Key Saweria</label>
+ <input id="key" autocomplete="off" placeholder="tempel di sini">
+ <button id="simpan">Simpan</button>
+ <div id="hasil"></div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+$('key').addEventListener('input', () => { const v = $('key').value, m = /streamKey=([^&\s]+)/.exec(v); if (m) $('key').value = m[1]; });
+$('simpan').onclick = async () => {
+  $('hasil').className = ''; $('hasil').textContent = 'Menyimpan…';
+  try {
+    const r = await fetch('/duniakotak/api/saweria-kunci', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({token: $('token').value, key: $('key').value})});
+    const j = await r.json();
+    $('hasil').className = r.ok ? 'ok' : 'gagal'; $('hasil').textContent = r.ok ? '✅ ' + j.pesan : '❌ ' + (j.galat || 'Gagal');
+    if (r.ok) $('key').value = '';
+  } catch (e) { $('hasil').className = 'gagal'; $('hasil').textContent = '❌ Server tidak menjawab. Coba lagi.'; }
+};
+</script>
+</body>
+</html>
