@@ -1746,19 +1746,27 @@ async function jepret() {
   // Render langsung ke kanvas layar (bukan render target) supaya tone mapping + sRGB sama persis dengan tampilan game (sebelumnya foto jadi gelap).
   const W = 720, H = 1280, me = tokoh.saya.position, ry = tokoh.saya.rotation.y;
   const kotakAv = new THREE.Box3().setFromObject(tokoh.saya), tAv = Math.max(2, kotakAv.max.y - kotakAv.min.y), dasar = kotakAv.min.y;
-  const c2 = new THREE.PerspectiveCamera(46, W / H, 1, 600);
+  // Lensa lebar ala kamera 0,5x HP (Huda 6 Nov 2026): sudut pandang vertikal 82° untuk selfie & kamera belakang.
+  const FOV = 82, c2 = new THREE.PerspectiveCamera(FOV, W / H, .5, 600);
   if (kArah === 'selfie') {
-    // avatar di tengah frame (sedikit di bawah tengah, aman dari bingkai teks atas & CTA bawah), tingginya ±45% frame
-    const jarak = tAv / .4 / (2 * Math.tan(THREE.MathUtils.degToRad(23)));
+    // avatar di tengah frame (sedikit di bawah tengah, aman dari bingkai teks atas & CTA bawah), tingginya ±40% frame
+    const jarak = tAv / .4 / (2 * Math.tan(THREE.MathUtils.degToRad(FOV / 2)));
     c2.position.set(me.x + Math.sin(ry) * jarak, dasar + tAv * .75, me.z + Math.cos(ry) * jarak); c2.lookAt(me.x, dasar + tAv * .45, me.z);
-  } else { const sn = Math.sin(yawNow), cs = Math.cos(yawNow); c2.position.set(me.x - sn * 3, dasar + 9, me.z - cs * 3); c2.lookAt(me.x - sn * 60, dasar + 2, me.z - cs * 60); }   // pandangan mata avatar (avatar tidak terpotong di bawah)
+  } else {
+    // kamera belakang = pandangan mata avatar, sedikit menunduk (±6°) supaya tanah & bangunan mengisi frame, bukan langit
+    const sn = Math.sin(yawNow), cs = Math.cos(yawNow), mata = dasar + tAv * .9;
+    c2.position.set(me.x - sn * 1.2, mata, me.z - cs * 1.2); c2.lookAt(me.x - sn * 41.2, mata - 40 * Math.tan(THREE.MathUtils.degToRad(6)), me.z - cs * 41.2);
+  }
   const cv = document.createElement('canvas'); cv.width = 1080; cv.height = 1920; const x = cv.getContext('2d');
   const ukur = R.getSize(new THREE.Vector2()), pr = R.getPixelRatio();
+  // Foto selalu terang (Huda 6 Nov 2026: hasil foto gelap). Saat jepret, cahaya & exposure dinaikkan ke level siang
+  // seperti mode malam/flash HP, langit tetap ikut jam. Setelah jepret semua dikembalikan.
+  const exp0 = R.toneMappingExposure, cah0 = I.light.intensity;
+  R.toneMappingExposure = Math.max(exp0, 1.3); I.light.intensity = Math.max(cah0, 2.4);
   R.setPixelRatio(1); R.setSize(W, H, false); R.render(sc, c2);
-  x.drawImage(R.domElement, 0, 0, 1080, 1920);
+  x.filter = 'brightness(1.08) saturate(1.12)'; x.drawImage(R.domElement, 0, 0, 1080, 1920); x.filter = 'none';
+  R.toneMappingExposure = exp0; I.light.intensity = cah0;
   R.setPixelRatio(pr); R.setSize(ukur.x, ukur.y, false);
-  // malam hari: terangkan sedikit supaya foto tetap jelas
-  if (terangNow < .6) { x.globalCompositeOperation = 'screen'; x.fillStyle = `rgba(90,90,110,${(.6 - terangNow) * .6})`; x.fillRect(0, 0, 1080, 1920); x.globalCompositeOperation = 'source-over'; }
   // bingkai atas
   const g = x.createLinearGradient(0, 0, 0, 380); g.addColorStop(0, 'rgba(19,20,31,.82)'); g.addColorStop(1, 'rgba(19,20,31,0)'); x.fillStyle = g; x.fillRect(0, 0, 1080, 380);
   x.strokeStyle = '#ffffff'; x.lineWidth = 14; x.strokeRect(28, 28, 1024, 1864);
