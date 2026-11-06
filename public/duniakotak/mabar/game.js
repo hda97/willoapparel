@@ -1749,13 +1749,14 @@ async function jepret() {
   // Lensa lebar ala kamera 0,5x HP (Huda 6 Nov 2026): sudut pandang vertikal 82° untuk selfie & kamera belakang.
   const FOV = 82, c2 = new THREE.PerspectiveCamera(FOV, W / H, .5, 600);
   if (kArah === 'selfie') {
-    // avatar di tengah frame (sedikit di bawah tengah, aman dari bingkai teks atas & CTA bawah), tingginya ±40% frame
-    const jarak = tAv / .4 / (2 * Math.tan(THREE.MathUtils.degToRad(FOV / 2)));
+    // avatar di tengah frame (sedikit di bawah tengah, aman dari bingkai teks atas & CTA bawah), tingginya ±30% frame (lebih lega, terasa wide)
+    const jarak = tAv / .3 / (2 * Math.tan(THREE.MathUtils.degToRad(FOV / 2)));
     c2.position.set(me.x + Math.sin(ry) * jarak, dasar + tAv * .75, me.z + Math.cos(ry) * jarak); c2.lookAt(me.x, dasar + tAv * .45, me.z);
   } else {
-    // kamera belakang = pandangan mata avatar, sedikit menunduk (±6°) supaya tanah & bangunan mengisi frame, bukan langit
-    const sn = Math.sin(yawNow), cs = Math.cos(yawNow), mata = dasar + tAv * .9;
-    c2.position.set(me.x - sn * 1.2, mata, me.z - cs * 1.2); c2.lookAt(me.x - sn * 41.2, mata - 40 * Math.tan(THREE.MathUtils.degToRad(6)), me.z - cs * 41.2);
+    // kamera belakang = dari balik punggung avatar (Huda 6 Nov 2026): avatar terlihat dari belakang menghadap pemandangan,
+    // kamera agak rendah & lurus ke depan supaya pemandangan luas, bukan langit.
+    const sn = Math.sin(yawNow), cs = Math.cos(yawNow), mundur = tAv * 2.2, tinggi = dasar + tAv * 1.3;
+    c2.position.set(me.x + sn * mundur, tinggi, me.z + cs * mundur); c2.lookAt(me.x - sn * 40, tinggi - (40 + mundur) * Math.tan(THREE.MathUtils.degToRad(15)), me.z - cs * 40);
   }
   const cv = document.createElement('canvas'); cv.width = 1080; cv.height = 1920; const x = cv.getContext('2d');
   const ukur = R.getSize(new THREE.Vector2()), pr = R.getPixelRatio();
@@ -1763,7 +1764,10 @@ async function jepret() {
   // seperti mode malam/flash HP, langit tetap ikut jam. Setelah jepret semua dikembalikan.
   const exp0 = R.toneMappingExposure, cah0 = I.light.intensity;
   R.toneMappingExposure = Math.max(exp0, 1.3); I.light.intensity = Math.max(cah0, 2.4);
+  // kamera belakang: avatar sementara diputar menghadap pemandangan (punggung ke kamera), dikembalikan setelah jepret
+  const ry0 = tokoh.saya.rotation.y; if (kArah !== 'selfie') { tokoh.saya.rotation.y = yawNow + Math.PI; tokoh.saya.updateMatrixWorld(true); }
   R.setPixelRatio(1); R.setSize(W, H, false); R.render(sc, c2);
+  tokoh.saya.rotation.y = ry0;
   x.filter = 'brightness(1.08) saturate(1.12)'; x.drawImage(R.domElement, 0, 0, 1080, 1920); x.filter = 'none';
   R.toneMappingExposure = exp0; I.light.intensity = cah0;
   R.setPixelRatio(pr); R.setSize(ukur.x, ukur.y, false);
