@@ -185,6 +185,8 @@ export class Warga extends DurableObject {
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN aktif INTEGER"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN bintang INTEGER DEFAULT 0"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN bhari TEXT"); } catch (e) { /* kolom sudah ada */ }
+    // vhari: tanggal WIB terakhir warga menaruh bintang (hak pilih harian sudah dipakai → pop up voting wajib tidak muncul lagi hari itu)
+    try { this.sql.exec("ALTER TABLE warga ADD COLUMN vhari TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN permata INTEGER DEFAULT 0"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN hias TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN panen INTEGER"); } catch (e) { /* kolom sudah ada */ }
@@ -425,7 +427,7 @@ export class Warga extends DurableObject {
     // ---- Voting fasum berbintang ----
     if (aksi === "voting") {
       const q = await request.json();
-      const r = this.sql.exec("SELECT no, bintang, bhari FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      const r = this.sql.exec("SELECT no, bintang, bhari, vhari FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
       if (!r) return Response.json({ galat: "Masuk dulu sebagai warga." }, { status: 401 });
       let saldo = r.bintang || 0, gratis = 0;
       const hari = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
@@ -435,12 +437,12 @@ export class Warga extends DurableObject {
         if (!CALON_FASUM.includes(q.calon)) return Response.json({ galat: "Calon fasum tidak dikenal." }, { status: 400 });
         if (n < 1 || n > saldo) return Response.json({ galat: saldo ? "Bintangmu tinggal " + saldo + "." : "Bintangmu habis. Besok dapat 1 bintang gratis lagi." }, { status: 400 });
         saldo -= n;
-        this.sql.exec("UPDATE warga SET bintang = ? WHERE no = ?", saldo, r.no);
+        this.sql.exec("UPDATE warga SET bintang = ?, vhari = ? WHERE no = ?", saldo, hari, r.no); r.vhari = hari;
         this.sql.exec("INSERT INTO suara (put, calon, no, n) VALUES (?, ?, ?, ?) ON CONFLICT (put, calon, no) DO UPDATE SET n = n + excluded.n", PUTARAN_VOTING, q.calon, r.no, n);
       }
       const saya = {}; for (const x of this.sql.exec("SELECT calon, n FROM suara WHERE put = ? AND no = ?", PUTARAN_VOTING, r.no).toArray()) saya[x.calon] = x.n;
       const don = this.sql.exec("SELECT COALESCE(SUM(bintang), 0) AS b FROM donasi WHERE no = ?", r.no).toArray()[0].b;
-      return Response.json({ no: r.no, saldo, gratis, saya, donasi: don, ...this.hasilVoting() });
+      return Response.json({ no: r.no, saldo, gratis, sudahPilih: r.vhari === hari ? 1 : 0, saya, donasi: don, ...this.hasilVoting() });
     }
     if (aksi === "voting-publik") return Response.json(this.hasilVoting());
     if (aksi === "iuran") {

@@ -747,12 +747,13 @@ function tulisVoting() {
   } else $('vtDonasi').hidden = true;
 }
 async function bukaVoting(wajib) {
-  kunciVoting(false); $('panelVoting').hidden = false; $('isiVoting').innerHTML = '<p class="kecil">Memuat…</p>'; $('vtDonasi').hidden = true;
+  kunciVoting(false); $('panelVoting').hidden = !!wajib;   // pop up wajib baru tampil setelah tahu hak pilih hari ini belum dipakai $('isiVoting').innerHTML = '<p class="kecil">Memuat…</p>'; $('vtDonasi').hidden = true;
   try {
     VT = S.tamu || !S.kunci ? await (await fetch('/duniakotak/api/voting')).json() : await api('voting', {kunci: S.kunci});
     if (VT.gratis) toast('⭐ Bintang gratis hari ini masuk!', 3000);
     tulisVoting();
-    if (wajib) { if (!S.tamu && (VT.saldo || 0) >= 1) kunciVoting(true); else simpan('dk_vt', hariIni()); }
+    // wajib hanya bila hak pilih hari ini belum dipakai (dicek server, jadi berlaku di semua HP)
+    if (wajib) { if (!S.tamu && !VT.sudahPilih && (VT.saldo || 0) >= 1) { kunciVoting(true); $('panelVoting').hidden = false; } else simpan('dk_vt', hariIni()); }
   } catch (e) { $('isiVoting').innerHTML = '<p class="kecil">Voting belum bisa dimuat. Coba lagi sebentar.</p>'; }
 }
 document.addEventListener('click', async e => {
@@ -761,7 +762,8 @@ document.addEventListener('click', async e => {
   const b = e.target.closest?.('[data-vt]'); if (!b || vtSibuk) return;
   vtSibuk = true; const c = b.dataset.vt, n = +b.dataset.n;
   try { VT = await api('voting', {kunci: S.kunci, calon: c, n}); tulisVoting(); toast(`⭐ ${n} bintang untuk ${CALON[c]?.[1] || c}!`, 2500);
-    if (vtWajib) { kunciVoting(false); simpan('dk_vt', hariIni()); } }
+    // hak pilih harian sudah dipakai → pop up langsung hilang (Huda 6 Nov 2026)
+    if (vtWajib) { kunciVoting(false); simpan('dk_vt', hariIni()); setTimeout(() => { $('panelVoting').hidden = true; toast('Terima kasih sudah memilih! Besok dapat 1 bintang gratis lagi ⭐', 3500); }, 900); } }
   catch (er) { toast(er.message, 3500); } finally { vtSibuk = false; }
 });
 // ---------- Toko Hias: barang dibeli permata 💎 (dari donasi) atau koin (x10); barang pertama tiap jenis gratis ----------
