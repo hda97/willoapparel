@@ -721,6 +721,13 @@ async function bukaPeringkat() {
 // 1 bintang gratis per hari; bintang donasi masuk otomatis dari webhook Saweria bila pesan donasi memuat kode DK<no>.
 const CALON = {kafe: ['☕', 'Kafe'], taman: ['🌳', 'Taman Kota'], hiburan: ['🎡', 'Taman Hiburan'], polisi: ['👮', 'Kantor Polisi'], damkar: ['🚒', 'Pemadam Kebakaran'], perpus: ['📚', 'Perpustakaan'], renang: ['🏊', 'Kolam Renang'], bioskop: ['🎬', 'Bioskop']};
 let VT = null, vtSibuk = false;
+// Voting WAJIB (Huda 6 Nov 2026): pop up harian tidak bisa ditutup sebelum warga menaruh bintang. Hanya berlaku bila
+// warga masih punya bintang (bintang gratis harian selalu ada), jadi tidak pernah memaksa donasi.
+let vtWajib = false;
+function kunciVoting(on) {
+  vtWajib = on; const b = $('tutupVoting');
+  b.style.opacity = on ? '.6' : ''; b.textContent = on ? '⭐ Pilih fasum dulu untuk lanjut main' : 'Lanjut main';
+}
 // gambar bintang (SVG, sama di semua HP; emoji ⭐ kadang tampil beda)
 const GBR_BINTANG = '<svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gbB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3a6"/><stop offset=".5" stop-color="#ffd23a"/><stop offset="1" stop-color="#f29a0c"/></linearGradient></defs><path d="M12 1.8l3.1 6.5 7.1.9-5.2 4.9 1.3 7-6.3-3.4-6.3 3.4 1.3-7L1.8 9.2l7.1-.9z" fill="url(#gbB)" stroke="#a85f00" stroke-width="1.1" stroke-linejoin="round"/></svg>';
 function tulisVoting() {
@@ -738,12 +745,13 @@ function tulisVoting() {
     $('vtDonasi').innerHTML = `<b>Tambah bintang lewat donasi sukarela</b><div class="vtPaket">${[[5, 1], [10, 2], [25, 3], [100, 5]].map(([n, k]) => `<a href="https://saweria.co/Duniakotak" target="_blank" rel="noopener" data-paket="${n}"><span class="vtBintang b${k}">${GBR_BINTANG.repeat(k)}</span><b>${n} bintang</b><small>Rp${(n * 1000).toLocaleString('id-ID')}</small></a>`).join('')}</div>Tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan donasi Saweria. Bintang masuk otomatis, plus bonus 💎 10 permata per Rp1.000 untuk Toko Hias.` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
   } else $('vtDonasi').hidden = true;
 }
-async function bukaVoting() {
-  $('panelVoting').hidden = false; $('isiVoting').innerHTML = '<p class="kecil">Memuat…</p>'; $('vtDonasi').hidden = true;
+async function bukaVoting(wajib) {
+  kunciVoting(false); $('panelVoting').hidden = false; $('isiVoting').innerHTML = '<p class="kecil">Memuat…</p>'; $('vtDonasi').hidden = true;
   try {
     VT = S.tamu || !S.kunci ? await (await fetch('/duniakotak/api/voting')).json() : await api('voting', {kunci: S.kunci});
     if (VT.gratis) toast('⭐ Bintang gratis hari ini masuk!', 3000);
     tulisVoting();
+    if (wajib) { if (!S.tamu && (VT.saldo || 0) >= 1) kunciVoting(true); else simpan('dk_vt', hariIni()); }
   } catch (e) { $('isiVoting').innerHTML = '<p class="kecil">Voting belum bisa dimuat. Coba lagi sebentar.</p>'; }
 }
 document.addEventListener('click', async e => {
@@ -751,7 +759,8 @@ document.addEventListener('click', async e => {
   const pk = e.target.closest?.('[data-paket]'); if (pk) { const n = +pk.dataset.paket, kd = 'DK' + (VT?.no || ''); try { navigator.clipboard.writeText(kd); } catch (er) {} toast(`Pilih Rp${(n * 1000).toLocaleString('id-ID')} di Saweria dan tempel kode ${kd} di pesan (sudah disalin).`, 6000); return; }
   const b = e.target.closest?.('[data-vt]'); if (!b || vtSibuk) return;
   vtSibuk = true; const c = b.dataset.vt, n = +b.dataset.n;
-  try { VT = await api('voting', {kunci: S.kunci, calon: c, n}); tulisVoting(); toast(`⭐ ${n} bintang untuk ${CALON[c]?.[1] || c}!`, 2500); }
+  try { VT = await api('voting', {kunci: S.kunci, calon: c, n}); tulisVoting(); toast(`⭐ ${n} bintang untuk ${CALON[c]?.[1] || c}!`, 2500);
+    if (vtWajib) { kunciVoting(false); simpan('dk_vt', hariIni()); } }
   catch (er) { toast(er.message, 3500); } finally { vtSibuk = false; }
 });
 // ---------- Toko Hias: barang dibeli permata 💎 (dari donasi) atau koin (x10); barang pertama tiap jenis gratis ----------
@@ -1886,7 +1895,8 @@ async function mulai() {
   hitungOnline(); kabarWarga(); tulisChat(); aturHUD(); sambung();
   if (!baca('dk_panduan')) panduan();
   // Voting Fasum muncul sebagai pop up saat masuk game, sekali per hari (Huda 6 Nov 2026), sekalian ambil bintang gratis harian.
-  else if (!S.tamu && baca('dk_vt') !== hariIni()) { simpan('dk_vt', hariIni()); setTimeout(bukaVoting, 1200); }
+  // Wajib pilih (Huda 6 Nov): tanda dk_vt baru disimpan setelah menaruh bintang, jadi muat ulang tidak melewati voting.
+  else if (!S.tamu && baca('dk_vt') !== hariIni()) setTimeout(() => bukaVoting(true), 1200);
   if (!S.tamu && baca('dk_ingat') !== hariIni()) setTimeout(ingatKoin, 45e3);
   onResize(); requestAnimationFrame(loop);
   { const ke = new URLSearchParams(location.search).get('ke'); if (ke) setTimeout(() => keTempat(ke), 1500); }
@@ -1928,7 +1938,7 @@ function aturHUD() {
   $('bVoting').onclick = () => { $('panelAtur').hidden = true; bukaVoting(); };
   siapIklan();
   $('bProfesi').onclick = () => { $('panelAtur').hidden = true; bukaProfesi(); }; $('pfProfesiB').onclick = () => { $('panelProfil').hidden = true; bukaProfesi(); }; $('tutupProfesi').onclick = () => { $('panelProfesi').hidden = true; };
-  $('bToko').onclick = () => { $('panelAtur').hidden = true; bukaToko(); }; $('tutupToko').onclick = () => { $('panelToko').hidden = true; }; $('tutupVoting').onclick = () => { $('panelVoting').hidden = true; };
+  $('bToko').onclick = () => { $('panelAtur').hidden = true; bukaToko(); }; $('tutupToko').onclick = () => { $('panelToko').hidden = true; }; $('tutupVoting').onclick = () => { if (vtWajib) return toast('Taruh 1 bintang gratismu di fasum pilihanmu dulu ya ⭐', 3000); $('panelVoting').hidden = true; };
   $('panelAtur').addEventListener('click', e => { if (e.target === $('panelAtur')) $('panelAtur').hidden = true; });
   $('bDusun').onclick = pilihDusun;
   musikSiap();
@@ -2208,4 +2218,4 @@ var tegakSesi = false; try { localStorage.removeItem('dk_tegak'); } catch (e) {}
 $('tetapTegak').onclick = () => { tegakSesi = true; $('miring').hidden = true; };
 onResize();
 layarMasuk();
-window.__dk = {S, HS, iklan: siapIklan, tonton: tontonIklan, rectLot: (n, a, b, c, d) => rectLot(I.lots[n], a, b, c, d), mancing: () => skillMancing(), dekatAir: () => dekatAir(tokoh.saya), tulisDana, VT: v => { VT = v; tulisVoting(); $('panelVoting').hidden = false; }, segarKebun, kebunSiap: () => { kebunTahap = null; segarKebun(); }, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
+window.__dk = {S, HS, voting: w => bukaVoting(w), iklan: siapIklan, tonton: tontonIklan, rectLot: (n, a, b, c, d) => rectLot(I.lots[n], a, b, c, d), mancing: () => skillMancing(), dekatAir: () => dekatAir(tokoh.saya), tulisDana, VT: v => { VT = v; tulisVoting(); $('panelVoting').hidden = false; }, segarKebun, kebunSiap: () => { kebunTahap = null; segarKebun(); }, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
