@@ -261,7 +261,15 @@ function awanVoxel(s = 1) { const g = new THREE.Group(); [[0, 0, 2.2, .7], [-.7,
 // ---------- Ketuk objek 3D ----------
 const _ray = new THREE.Raycaster(), _p = new THREE.Vector2();
 const bisaKetuk = [];
-function daftarKetuk(obj, fn) { obj.userData.ketuk = fn; bisaKetuk.push(obj); }
+// kotak sentuh tak terlihat seukuran benda: ketukan di lubang huruf / sela kaki hewan tetap terbaca
+function kotakSentuh(obj) {
+  if (obj.userData.sentuh) return; const p = obj.position.clone(), r = obj.rotation.clone(), s = obj.scale.clone(), induk = obj.parent;
+  if (induk) induk.remove(obj); obj.position.set(0, 0, 0); obj.rotation.set(0, 0, 0); obj.scale.set(1, 1, 1); obj.updateMatrixWorld(true);
+  const b = new THREE.Box3().setFromObject(obj); obj.position.copy(p); obj.rotation.copy(r); obj.scale.copy(s); if (induk) induk.add(obj);
+  if (b.isEmpty()) return; const z = b.getSize(new THREE.Vector3()).addScalar(.12), c = b.getCenter(new THREE.Vector3());
+  const m = new THREE.Mesh(new THREE.BoxGeometry(z.x, z.y, z.z), new THREE.MeshBasicMaterial({visible: false})); m.position.copy(c); m.userData.sentuh = true; obj.add(m); obj.userData.sentuh = m;
+}
+function daftarKetuk(obj, fn) { obj.userData.ketuk = fn; kotakSentuh(obj); bisaKetuk.push(obj); }
 function hapusKetuk(obj) { const i = bisaKetuk.indexOf(obj); if (i >= 0) bisaKetuk.splice(i, 1); }
 function objekDi(e) {
   const r = P.R.domElement.getBoundingClientRect();
