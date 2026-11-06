@@ -359,7 +359,7 @@ function rectLot(L, x0, x1, z0, z1) {
 // persegi tabrakan satu kavling (rumah, sumur, tong, warung, batu nama, rumah Oyen) — juga dipakai peta navigasi
 function rectsKavling(n) {
   const L = I.lots[n], isi = (n === 1 && DI === 'wetan') || !!NM[n], rects = []; if (!L || !isi) return rects;
-  rects.push(rectLot(L, -3.1, -.9, -1.5, .7), rectLot(L, 2.4, 3.6, -.7, .3), rectLot(L, 3.15, 3.65, 2.75, 3.25), rectLot(L, 1.1, 2.1, 3.45, 4.1));
+  rects.push(rectLot(L, -3.1, -.9, -1.5, .7), rectLot(L, 3.15, 3.65, 2.75, 3.25), rectLot(L, 1.1, 2.1, 3.45, 4.1));
   if (n === 1 && DI === 'wetan') rects.push(rectLot(L, -4.35, -3.45, 3.0, 3.8));
   rects.push(rectLot(L, -.5, .9, 3.75, 4.25));
   return rects;
