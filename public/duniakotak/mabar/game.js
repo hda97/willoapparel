@@ -550,12 +550,14 @@ async function bukaPeringkat() {
   $('panelPeringkat').hidden = false; $('isiPeringkat').innerHTML = '<p class="kecil">Memuat…</p>';
   let d = null; try { d = await (await fetch('/duniakotak/api/peringkat' + (S.saya ? '?no=' + S.saya.no : ''))).json(); } catch (e) {}
   if (!d || !d.top) { $('isiPeringkat').innerHTML = '<p class="kecil">Papan peringkat belum bisa dimuat. Coba lagi sebentar.</p>'; return; }
-  const medali = r => r === 1 ? '🥇' : r === 2 ? '🥈' : r === 3 ? '🥉' : '<small style="font:800 15px Montserrat,sans-serif">#' + r + '</small>';
-  const baris = (x, aku) => `<div class="misi ${aku ? 'ok' : ''}"><span class="mi">${medali(x.r)}</span><div><b>${x.u ? '@' + esc(x.u) : 'Warga No. ' + x.no}${aku ? ' (kamu)' : ''}</b><small>${esc(alamat(x.no).split(' · ')[0])}, ${NAMA_DUSUN[dusunDari(x.no)]}</small></div><span><b>🪙 ${x.koin}</b></span></div>`;
-  let h = d.top.length ? d.top.map(x => baris(x, S.saya && x.no === S.saya.no)).join('') : '<p class="kecil">Belum ada warga yang punya koin. Jadilah yang pertama!</p>';
-  if (S.saya && d.saya && !d.top.some(x => x.no === S.saya.no)) h += `<div class="misi ok"><span class="mi"><small style="font:800 15px Montserrat,sans-serif">${d.saya.r ? '#' + d.saya.r : '–'}</small></span><div><b>@${esc(S.saya.ig || '')} (kamu)</b><small>${d.saya.r ? 'Peringkatmu dari ' + d.jml + ' warga berkoin' : 'Belum punya koin. Ikut misi saat Jam Kumpul Warga!'}</small></div><span><b>🪙 ${d.saya.koin}</b></span></div>`;
+  // ringkas (Huda 6 Nov): kotak setinggi 10 baris, peringkat 11 dst. digeser ke bawah
+  const medali = r => r === 1 ? '🥇' : r === 2 ? '🥈' : r === 3 ? '🥉' : r;
+  const baris = (x, aku) => `<div class="pkBaris${aku ? ' aku' : ''}${x.r <= 3 ? ' juara' : ''}"><span class="pkNo">${medali(x.r)}</span><span class="pkNama">${x.u ? '@' + esc(x.u) : 'Warga No. ' + x.no}${aku ? ' (kamu)' : ''}<small>${NAMA_DUSUN[dusunDari(x.no)]}</small></span><b>🪙 ${x.koin}</b></div>`;
+  const aku = S.saya && d.top.some(x => x.no === S.saya.no);
+  let h = d.top.length ? `<div class="pkDaftar" id="pkDaftar">${d.top.map(x => baris(x, S.saya && x.no === S.saya.no)).join('')}</div>` : '<p class="kecil">Belum ada warga yang punya koin. Jadilah yang pertama!</p>';
+  if (S.saya && d.saya && !aku) h += `<div class="pkBaris aku pkSaya"><span class="pkNo">${d.saya.r || '–'}</span><span class="pkNama">@${esc(S.saya.ig || '')} (kamu)<small>${d.saya.r ? 'dari ' + d.jml + ' warga berkoin' : 'Belum punya koin'}</small></span><b>🪙 ${d.saya.koin}</b></div>`;
   $('isiPeringkat').innerHTML = h;
-  $('ringkasPeringkat').textContent = `${d.jml} warga sudah punya koin. Kumpulkan koin dari misi saat Jam Kumpul Warga (koin 2x) dan gol di stadion.`;
+  $('ringkasPeringkat').textContent = `${d.jml} warga sudah punya koin. Geser daftar untuk melihat peringkat 11 dan seterusnya.`;
 }
 function bukaMisi() {
   if (S.tamu) { toast('Daftar jadi warga dulu supaya bisa ikut misi dan dapat koin.', 4000); return; }

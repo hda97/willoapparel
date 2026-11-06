@@ -331,7 +331,7 @@ export class Warga extends DurableObject {
     }
     if (aksi === "peringkat") {
       // Papan peringkat warga (6 Nov 2026): koin terbanyak. Hanya username publik (IG/TikTok), nama asli tidak ditampilkan.
-      const top = this.sql.exec("SELECT no, ig, tiktok, koin FROM warga WHERE COALESCE(koin, 0) > 0 ORDER BY koin DESC, no ASC LIMIT 20").toArray()
+      const top = this.sql.exec("SELECT no, ig, tiktok, koin FROM warga WHERE COALESCE(koin, 0) > 0 ORDER BY koin DESC, no ASC LIMIT 100").toArray()
         .map((r, i) => ({ r: i + 1, no: r.no, u: r.ig || r.tiktok || "", koin: r.koin }));
       const jml = this.sql.exec("SELECT COUNT(*) AS n FROM warga WHERE COALESCE(koin, 0) > 0").toArray()[0].n;
       const no = +u.searchParams.get("no") || 0;

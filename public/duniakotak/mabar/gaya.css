@@ -161,3 +161,9 @@ body.chatPenuh .chat{background:rgba(19,20,31,.92)}
 .barisAtur i{font-style:normal;font-size:22px;line-height:1}
 .chipOn{display:inline-block;margin:3px 4px 0 0;padding:4px 9px;border-radius:999px;border:1px solid var(--garis);background:rgba(255,255,255,.08);color:#fff;font:700 12px Montserrat,sans-serif;cursor:pointer}
 #profOnline{text-decoration:underline dotted}
+/* papan peringkat ringkas: 10 baris terlihat, sisanya digeser */
+.pkDaftar{max-height:min(382px,calc(62*var(--vh,1vh)));overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;border:1px solid var(--garis);border-radius:14px;margin-bottom:10px}
+.pkBaris{display:flex;align-items:center;gap:10px;height:38px;padding:0 12px;border-bottom:1px solid rgba(255,255,255,.07);font:700 13px Montserrat,sans-serif;color:#fff;text-align:left}
+.pkBaris:last-child{border-bottom:0}.pkBaris.juara{background:rgba(255,210,58,.08)}.pkBaris.aku{background:rgba(90,190,120,.18)}
+.pkNo{width:28px;text-align:center;font-weight:900;font-size:14px;flex:none}.pkNama{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pkNama small{margin-left:8px;color:#aab;font-weight:600;font-size:11px}.pkBaris b{flex:none}.pkSaya{border:1px solid var(--garis);border-radius:12px;margin-bottom:10px}
