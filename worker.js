@@ -416,7 +416,7 @@ export class Ruang extends DurableObject {
   async fetch(request) {
     if (request.headers.get("Upgrade") !== "websocket") {
       const u = new URL(request.url);
-      if (u.pathname === "/online") return Response.json({ online: this.semua().filter((x) => x.a.no).length });
+      if (u.pathname === "/online") { const w = this.semua().filter((x) => x.a.no).map((x) => ({ no: x.a.no, ig: x.a.ig || "" })); return Response.json({ online: w.length, warga: w }); }
       return new Response("{}", { status: 404 });
     }
     const w = JSON.parse(request.headers.get("x-warga") || "{}");
@@ -548,8 +548,12 @@ async function apiWarga(request, env, url) {
   }
   if (aksi === "online" && request.method === "GET") {
     if (!env.RUANG) return json({ online: 0 });
-    const r = await env.RUANG.get(env.RUANG.idFromName("wetan")).fetch("https://do/online");
-    return new Response(r.body, { headers: { "content-type": "application/json", "cache-control": "no-store" } });
+    // gabungan semua dusun (Huda 6 Nov 2026: status online terlihat semua, jadi satu)
+    const DUSUN = ["wetan", "kulon", "curug"], per = {}, warga = [], lihat = new Set();
+    await Promise.all(DUSUN.map(async (d) => { try { const j = await (await env.RUANG.get(env.RUANG.idFromName(d)).fetch("https://do/online")).json(); per[d] = 0;
+      for (const x of j.warga || []) if (!lihat.has(x.no)) { lihat.add(x.no); warga.push({ ...x, d }); per[d]++; } } catch (e) { per[d] = 0; } }));
+    warga.sort((a, b) => a.no - b.no);
+    return json({ online: warga.length, per, warga });
   }
   if (aksi === "peringkat" && request.method === "GET") {
     const no = Math.max(0, Math.min(99999, parseInt(url.searchParams.get("no") || "0", 10) || 0));
