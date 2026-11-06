@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+"""Rakit game edukasi SD menjadi SATU file HTML per game (jalan offline).
+
+  python3 edukasi/sd/build.py
+
+Memakai mesin & kerangka HTML game PAUD (edukasi/paud/src/inti.js + build.py),
+ditambah edukasi/sd/src/inti-sd.js (kamera isometrik, fase A/B/C, nyawa, papan angka).
+Sumber per game: edukasi/sd/src/<game>/game.js + soal.json
+Hasil: public/edukasi/sd/<game>/index.html
+Persiapan sekali: cd edukasi/paud && npm install
+"""
+import importlib.util, json, pathlib
+
+AKAR = pathlib.Path(__file__).resolve().parent
+PAUD = AKAR.parent / 'paud'
+KELUAR = AKAR.parent.parent / 'public' / 'edukasi' / 'sd'
+
+_spec = importlib.util.spec_from_file_location('paud_build', PAUD / 'build.py')
+pb = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(pb)
+
+GAME = {
+    'hitung': dict(judul='Petualang Hitung', aksen='#e8590c', aksen2='#fff1e0', ikon='🧮', mapel='Matematika',
+                   ajak='Jelajahi Pulau Angka bersama Dimas!',
+                   desk='Matematika SD fase A, B, C: operasi hitung, uang, pecahan, luas dan keliling.'),
+}
+
+CSS_SD = r"""
+#nyawa{background:#fff;border-radius:18px;padding:4px 12px;font-size:20px;box-shadow:0 4px 0 rgba(0,0,0,.12);letter-spacing:2px;color:#e03131}
+#nyawa .habis{color:#dee2e6}#nyawa.kedip{animation:gelengUI .45s}
+#kartu{font-size:clamp(30px,8.5vw,52px);font-weight:800;padding:8px 22px;white-space:nowrap}
+#kartu small{display:block;font-size:clamp(15px,4vw,19px);font-weight:700;color:#777;white-space:normal;max-width:80vw}
+#kartu .uang{display:block;font-size:clamp(18px,5vw,26px);color:#2f9e44}
+#gelembung{font-size:clamp(17px,4.6vw,24px)}
+.pil{font-size:40px;min-width:88px;min-height:80px}
+.pil.uang{font-size:20px;min-width:0;min-height:0;padding:10px 14px;border-radius:16px}
+#numpad{background:#fff;border-radius:24px;padding:10px;box-shadow:0 6px 0 rgba(0,0,0,.12);width:min(460px,94vw)}
+#npIsi{font-size:34px;font-weight:800;text-align:center;background:#f8f9fa;border-radius:14px;padding:2px 10px;margin-bottom:8px;min-height:52px}
+#npIsi i{color:#ced4da;font-style:normal}#npIsi small{font-size:18px;color:#868e96;margin:0 4px}
+#npTombol{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+#npTombol button{border:0;border-radius:14px;background:#f1f3f5;font-family:inherit;font-size:26px;font-weight:800;padding:6px 0;box-shadow:0 4px 0 rgba(0,0,0,.12);cursor:pointer}
+#npTombol button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.12)}
+#npTombol .ok{grid-column:1/-1;background:var(--aksen);color:#fff;font-size:24px}
+#layarFase .kotak{max-width:640px}
+#faseDaftar{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:12px 0 4px}
+.fase{border:0;border-radius:22px;background:#fff;border-top:10px solid var(--w);box-shadow:0 6px 0 rgba(0,0,0,.14),0 0 0 2px #f1f3f5 inset;font-family:inherit;padding:14px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.fase:active{transform:translateY(3px)}.fase:disabled{opacity:.4}
+.fase b{font-size:28px;color:var(--w)}.fase span{font-size:19px;font-weight:700}.fase em{font-style:normal;font-size:15px;color:#777}.fase i{font-style:normal;color:#ffc107;font-size:24px;text-shadow:0 2px 0 #b07d00;letter-spacing:2px}
+@media (min-aspect-ratio:1/1) and (min-width:700px){#kartu{max-width:30vw;font-size:clamp(22px,2.8vw,38px);white-space:normal}
+ #numpad{position:fixed;right:14px;top:78px;width:min(290px,30vw)}#npTombol{grid-template-columns:repeat(3,1fr)}#npTombol button{padding:3px 0;font-size:22px}#npIsi{min-height:44px;font-size:28px}
+ body:has(#numpad:not([hidden])) #gelembung{margin-right:min(300px,31vw);max-width:calc(100vw - min(300px,31vw) - 40px)}}
+@media (max-width:520px){#numpad{padding:8px}#npTombol button{font-size:22px;padding:4px 0}#npIsi{font-size:28px;min-height:44px}}
+"""
+
+UI_SD = r"""
+<div class="layar" id="layarFase" hidden><div class="kotak">
+  <h1>Pilih Fase</h1><p>Pilih sesuai kelasmu. Kumpulkan 3 bintang di tiap fase!</p>
+  <div id="faseDaftar"></div>
+  <a class="dukung" href="https://www.willoapparel.com" target="_blank" rel="noopener">Support by <b>www.willoapparel.com</b></a>
+</div></div>
+<div class="layar" id="layarKalah" hidden><div class="kotak">
+  <div class="ikonBesar">💔</div><h1>Nyawa habis</h1><p>Tidak apa-apa, ayo coba lagi!</p>
+  <button class="besar" id="bCobaLagi">↻ Coba lagi</button><br><button class="kecil" id="bKeFase" style="margin-top:12px">Pilih fase lain</button>
+</div></div>
+"""
+
+
+def html_sd(m, data, kode):
+    h = pb.HTML.replace('· Game Edukasi PAUD', '· Game Edukasi SD').replace('Game edukasi PAUD bergaya voxel 3D', 'Game edukasi SD Kurikulum Merdeka bergaya voxel 3D')
+    h = h.replace('<div id="bintang"></div>', '<div id="nyawa"></div>\n  <div id="bintang"></div>')
+    h = h.replace('<div id="gelembung">Memuat…</div>', '<div id="numpad" hidden><div id="npIsi"></div><div id="npTombol"></div></div>\n  <div id="gelembung">Memuat…</div>')
+    h = h.replace('<script type="module">', UI_SD + '<script type="module">')
+    h = h.replace('Untuk guru/orang tua', 'Untuk guru')
+    return h.format(css=pb.CSS + CSS_SD, data=json.dumps(data, ensure_ascii=False, indent=1).replace('<', '\\u003c'), kode=kode, **m)
+
+
+def main():
+    inti = (PAUD / 'src' / 'inti.js').read_text() + '\n' + (AKAR / 'src' / 'inti-sd.js').read_text()
+    for gid, m in GAME.items():
+        src = AKAR / 'src' / gid
+        data = json.loads((src / 'soal.json').read_text())
+        data.setdefault('id', 'sd-' + gid)
+        data.setdefault('judul', m['judul'])
+        kode = pb.bundel(inti + '\n// ================= GAME SD: ' + gid + ' =================\n' + (src / 'game.js').read_text(), 'sd_' + gid)
+        out = KELUAR / gid / 'index.html'
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(html_sd(m, data, kode))
+        print('✓', out.relative_to(AKAR.parent.parent), f'{out.stat().st_size // 1024} KB')
+    kartu = ''.join(f'<a class="k" style="--w:{m["aksen"]}" href="{gid}/"><div class="ik">{m["ikon"]}</div><small>{m["mapel"]}</small><h2>{m["judul"]}</h2><p>{m["desk"]}</p></a>' for gid, m in GAME.items())
+    (KELUAR / 'index.html').write_text(BERANDA.replace('{kartu}', kartu))
+
+
+BERANDA = r"""<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Game Edukasi SD Voxel 3D · Willo</title>
+<meta name="description" content="Game edukasi SD Kurikulum Merdeka bergaya voxel 3D untuk fase A, B, dan C. Soal bisa diubah guru dan ditempel dari Excel, jalan tanpa internet.">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff8ec;--teks:#2b2b2b;--kartu:#ffffff}
+@media (prefers-color-scheme:dark){:root{--bg:#1d1b18;--teks:#f3efe6;--kartu:#2a2723}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--teks);font-family:'Baloo 2',system-ui,sans-serif;padding:24px 16px 40px}
+h1{text-align:center;margin:8px 0 2px;font-size:clamp(28px,7vw,44px)}p.sub{text-align:center;margin:0 0 22px;font-size:18px;opacity:.8}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;max-width:1000px;margin:0 auto}
+a.k{display:block;background:var(--kartu);border-radius:26px;padding:22px 20px;text-decoration:none;color:inherit;box-shadow:0 7px 0 rgba(0,0,0,.12);border-top:10px solid var(--w)}
+a.k:active{transform:translateY(3px)}.ik{font-size:54px;line-height:1}.k small{font-weight:800;opacity:.6}.k h2{margin:2px 0 2px;color:var(--w);font-size:26px}.k p{margin:0;font-size:17px}
+.cat{max-width:760px;margin:26px auto 0;font-size:16px;opacity:.85;text-align:center}
+</style></head><body>
+<h1>Game Edukasi SD</h1><p class="sub">Dunia voxel 3D isometrik, tiga fase: A (kelas 1–2), B (kelas 3–4), C (kelas 5–6).</p>
+<div class="grid">{kartu}</div>
+<p class="cat">Untuk guru: tombol <b>Guru</b> di setiap game untuk mengubah soal per fase, menempel soal dari Excel, lalu mengunduh file HTML berisi soal Anda. <a href="../paud/" style="color:inherit">Game PAUD ada di sini.</a></p>
+<p class="cat"><a href="https://www.willoapparel.com" style="color:#e8590c;font-weight:800;text-decoration:none">Support by www.willoapparel.com</a></p>
+</body></html>
+"""
+
+
+if __name__ == '__main__':
+    main()
