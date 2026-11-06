@@ -295,7 +295,7 @@ async function rondeSawah(q) {
     tepi.forEach(([x, z]) => { const o = kotak(.1, .5, .1, '#a0703e', .02); o.position.set(x, .25, z); tambahRonde(o); });
     [[0, -D / 2, W, .05], [0, D / 2, W, .05], [-W / 2, 0, .05, D], [W / 2, 0, .05, D]].forEach(([x, z, w, d]) => { const o = kotak(w, .06, d, '#ffd43b', .02); o.position.set(c[0] + x, .4, c[1] + z); tambahRonde(o); });
   }
-  const lp = label3D(p + 'M', '#ffffff', .08); lp.position.copy(lokal('sawah', 0, l * s / 2 + .6)).setY(.2); tambahRonde(lp);
+  const lp = label3D(p + 'M', '#ffffff', .08); lp.position.copy(lokal('sawah', 0, -l * s / 2 - .6)).setY(.2); tambahRonde(lp);
   const ll = label3D(l + 'M', '#ffffff', .08); ll.position.copy(lokal('sawah', p * s / 2 + .7, 0)).setY(.2); tambahRonde(ll);
   await ucap(luas ? `Sawah Pak Tani panjangnya ${p} meter dan lebarnya ${l} meter. Berapa meter persegi luasnya?` : `Pak Tani mau memagari sawah. Panjang ${p} meter, lebar ${l} meter. Berapa meter kelilingnya?`); kunci = false;
   while (true) {
