@@ -261,7 +261,7 @@ function lot(G,cx,cz,o){const LW=10,LD=9;const g=new THREE.Group();g.position.se
  const pm=new THREE.InstancedMesh(new THREE.BoxGeometry(.12,.8,.12),new THREE.MeshStandardMaterial({color:o.filled?0xffffff:0xd8c8a8}),pk.length);pk.forEach((p,i)=>{M4.compose(p,new THREE.Quaternion(),new THREE.Vector3(1,1,1));pm.setMatrixAt(i,M4)});pm.castShadow=true;g.add(pm);
  if(o.filled){const h=fullHouse(new THREE.Group(),V3(0,0,0),{roof:o.roof});h.scale.setScalar(.42);h.position.set(-2,0,-1.6);
    // fullHouse menambah dirinya ke grup baru; pindahkan ke g
-   g.add(h);cropField(g,1.2,-3.6,3,3,o.crop||'gandum');fruitTree(g,3.6,2.6,o.fruit||0xff3a3a);if(o.coop){const k=new THREE.Group();kandang(k,0,0);k.scale.setScalar(.6);k.position.set(3,0,-1);g.add(k)}}
+   g.add(h);cropField(g,1.2,-3.6,3,3,o.crop||'gandum');fruitTree(g,3.6,2.6,o.fruit||0xff3a3a);if(o.coop&&!TIPIS){const k=new THREE.Group();kandang(k,0,0);k.scale.setScalar(.6);k.position.set(3,0,-1);g.add(k)}}
  else{const st=new THREE.Mesh(new THREE.BoxGeometry(1.2,1,1.2),[0,1,2,3,4,5].map(k=>new THREE.MeshStandardMaterial({color:0x9a9a9a,map:(k===2||k===4)?numTex(o.n):null})));st.position.set(0,.5,LD/2-1.4);st.castShadow=true;g.add(st)}
  return g}
 function fasumLot(G,cx,cz,w,d,label){const g=new THREE.Group();g.position.set(cx,0,cz);G.add(g);const ground=box(w,.1,d,0xd9c39a,.02);ground.position.y=.05;g.add(ground);
@@ -296,7 +296,7 @@ function lot2(G,cx,cz,rot,o){const g=new THREE.Group();g.position.set(cx,0,cz);g
  const pk=[];const gate=x=>x>-2.9&&x<-1.1;for(let x=-hw+.25;x<=hw-.25+.01;x+=.5){if(!gate(x))pk.push(V3(x,.4,hd-.15));pk.push(V3(x,.4,-hd+.15))}for(let z=-hd+.25;z<=hd-.25+.01;z+=.5){pk.push(V3(-hw+.15,.4,z));pk.push(V3(hw-.15,.4,z))}
  const fh=o.fh||.8;if(o.fh)pk.forEach(q=>q.y=fh/2);const pm=new THREE.InstancedMesh(new THREE.BoxGeometry(.12,fh,.12),new THREE.MeshStandardMaterial({color:o.filled?0xffffff:0xd8c8a8}),pk.length);pk.forEach((p,i)=>{M4.compose(p,new THREE.Quaternion(),new THREE.Vector3(1,1,1));pm.setMatrixAt(i,M4)});pm.castShadow=true;g.add(pm);
  if(o.filled){const h=fullHouse(new THREE.Group(),V3(0,0,0),{roof:o.roof});h.scale.setScalar(.4);h.position.set(-2,0,-.6);g.add(h);
-   cropField(g,1.5,-3.6,3,3,o.crop);const k=new THREE.Group();kandang(k,0,0);k.scale.setScalar(.45);k.position.set(3,0,-.2);g.add(k);fruitTree(g,3.4,3,o.fruit)}
+   cropField(g,1.5,-3.6,3,3,o.crop);if(!TIPIS){const k=new THREE.Group();kandang(k,0,0);k.scale.setScalar(.45);k.position.set(3,0,-.2);g.add(k)}fruitTree(g,3.4,3,o.fruit)}
  else{const st=new THREE.Mesh(new THREE.BoxGeometry(1.1,.9,1.1),[0,1,2,3,4,5].map(k=>new THREE.MeshStandardMaterial({color:0x9a9a9a,map:(k===2||k===4)?numTex(o.n):null})));st.position.set(-2,.45,hd-1.3);st.castShadow=true;g.add(st)}
  return g}
 function fasum2(G,cx,cz,w,d){const g=new THREE.Group();g.position.set(cx,0,cz);G.add(g);const FH=TIPIS||.1;const gr=box(w,FH,d,0xd9c39a,.02);gr.position.y=FH/2;g.add(gr);
