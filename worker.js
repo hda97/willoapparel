@@ -32,6 +32,10 @@ export class Pengunjung extends DurableObject {
 // Email hanya disimpan di sini (untuk 1 akun = 1 kavling), TIDAK pernah ditampilkan ke publik.
 // Warga sementara = 63 pengikut @duniakotak.id per 2 Nov 2026 (urutan follow). Kavling 1 = Raka.
 // Salah ketik yang sudah dipastikan (username salah → username benar).
+// Voting fasum berbintang (Huda 6 Nov 2026): 1 bintang gratis per hari (WIB) + bintang donasi Saweria (Rp1.000 = 1 bintang).
+// Ganti PUTARAN untuk membuka putaran voting baru (suara putaran lama tetap tersimpan). Calon bisa ditambah/diubah di CALON_FASUM.
+const PUTARAN_VOTING = "2026-11";
+const CALON_FASUM = ["kafe", "taman", "hiburan", "polisi", "damkar", "perpus", "renang", "bioskop"];
 const KOREKSI_IG = { fakhri_udah_itu_aja: "fakhri_udah_itu_aja_89" };
 
 // Username yang terpotong di screenshot: dicocokkan dari awalannya.
@@ -123,6 +127,11 @@ export class Warga extends DurableObject {
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN kerja TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN bagi INTEGER DEFAULT 0"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN aktif INTEGER"); } catch (e) { /* kolom sudah ada */ }
+    try { this.sql.exec("ALTER TABLE warga ADD COLUMN bintang INTEGER DEFAULT 0"); } catch (e) { /* kolom sudah ada */ }
+    try { this.sql.exec("ALTER TABLE warga ADD COLUMN bhari TEXT"); } catch (e) { /* kolom sudah ada */ }
+    // suara = bintang yang sudah ditaruh warga ke calon fasum; donasi = catatan webhook Saweria (id unik, tidak dobel)
+    this.sql.exec("CREATE TABLE IF NOT EXISTS suara (put TEXT, calon TEXT, no INTEGER, n INTEGER, PRIMARY KEY (put, calon, no))");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS donasi (id TEXT PRIMARY KEY, t INTEGER, no INTEGER, rp INTEGER, bintang INTEGER, nama TEXT, pesan TEXT)");
     // Koreksi salah ketik username: pindahkan ke username & kavling yang benar (sekali jalan, aman diulang).
     for (const [salah, benar] of Object.entries(KOREKSI_IG)) {
       const r = this.sql.exec("SELECT no FROM warga WHERE ig = ?", salah).toArray()[0];
@@ -142,6 +151,12 @@ export class Warga extends DurableObject {
     // Daftar lewat Google tanpa username: nama yang ditulis warga jadi ukiran batu (label).
     let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
     return { no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
+  }
+  hasilVoting() {
+    const hasil = {}; for (const c of CALON_FASUM) hasil[c] = 0;
+    for (const x of this.sql.exec("SELECT calon, SUM(n) AS n, COUNT(*) AS w FROM suara WHERE put = ? GROUP BY calon", PUTARAN_VOTING).toArray()) if (x.calon in hasil) hasil[x.calon] = x.n;
+    const pemilih = this.sql.exec("SELECT COUNT(DISTINCT no) AS w FROM suara WHERE put = ?", PUTARAN_VOTING).toArray()[0].w;
+    return { putaran: PUTARAN_VOTING, calon: CALON_FASUM, hasil, pemilih };
   }
   // Nama tampil di game & batu: username IG kalau ada, kalau tidak username TikTok.
   nm(r) { return r.ig || r.tiktok || r.nama || ""; }
@@ -314,6 +329,39 @@ export class Warga extends DurableObject {
       let av = null; try { av = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
       let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
       return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, kucing: kc, koin: r.koin || 0, misi: ms.s, gol: ms.g || 0, dapat, bagi: r.bagi ? 1 : 0, nama: r.nama || "", kerja: r.kerja || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat });
+    }
+    // ---- Voting fasum berbintang ----
+    if (aksi === "voting") {
+      const q = await request.json();
+      const r = this.sql.exec("SELECT no, bintang, bhari FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Masuk dulu sebagai warga." }, { status: 401 });
+      let saldo = r.bintang || 0, gratis = 0;
+      const hari = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+      if (r.bhari !== hari) { saldo += 1; gratis = 1; this.sql.exec("UPDATE warga SET bintang = ?, bhari = ? WHERE no = ?", saldo, hari, r.no); }
+      if (q.calon) {
+        const n = Math.floor(+q.n || 0);
+        if (!CALON_FASUM.includes(q.calon)) return Response.json({ galat: "Calon fasum tidak dikenal." }, { status: 400 });
+        if (n < 1 || n > saldo) return Response.json({ galat: saldo ? "Bintangmu tinggal " + saldo + "." : "Bintangmu habis. Besok dapat 1 bintang gratis lagi." }, { status: 400 });
+        saldo -= n;
+        this.sql.exec("UPDATE warga SET bintang = ? WHERE no = ?", saldo, r.no);
+        this.sql.exec("INSERT INTO suara (put, calon, no, n) VALUES (?, ?, ?, ?) ON CONFLICT (put, calon, no) DO UPDATE SET n = n + excluded.n", PUTARAN_VOTING, q.calon, r.no, n);
+      }
+      const saya = {}; for (const x of this.sql.exec("SELECT calon, n FROM suara WHERE put = ? AND no = ?", PUTARAN_VOTING, r.no).toArray()) saya[x.calon] = x.n;
+      const don = this.sql.exec("SELECT COALESCE(SUM(bintang), 0) AS b FROM donasi WHERE no = ?", r.no).toArray()[0].b;
+      return Response.json({ no: r.no, saldo, gratis, saya, donasi: don, ...this.hasilVoting() });
+    }
+    if (aksi === "voting-publik") return Response.json(this.hasilVoting());
+    if (aksi === "saweria") {
+      // Dipanggil worker SETELAH tanda tangan webhook Saweria dicek. Kode warga di pesan: DK123 (nomor kavling).
+      const q = await request.json();
+      if (this.sql.exec("SELECT 1 FROM donasi WHERE id = ?", q.id).toArray().length) return Response.json({ ok: 1, dobel: 1 });
+      const m = /\bDK\s*[-.#:]?\s*(\d{1,5})\b/i.exec(q.pesan + " " + q.nama);
+      let no = m ? +m[1] : 0;
+      if (no && !this.sql.exec("SELECT 1 FROM warga WHERE no = ?", no).toArray().length) no = 0;
+      const b = Math.max(0, Math.floor(q.rp / 1000));
+      this.sql.exec("INSERT INTO donasi (id, t, no, rp, bintang, nama, pesan) VALUES (?, ?, ?, ?, ?, ?, ?)", q.id, Date.now(), no || null, q.rp, no ? b : 0, q.nama, q.pesan);
+      if (no && b) this.sql.exec("UPDATE warga SET bintang = COALESCE(bintang, 0) + ? WHERE no = ?", b, no);
+      return Response.json({ ok: 1, no, bintang: no ? b : 0 });
     }
     if (aksi === "usulan-kunci") {
       const { kunci, usulan } = await request.json();
@@ -565,6 +613,9 @@ async function apiWarga(request, env, url) {
   if (aksi === "usulan" && request.method === "GET") {
     return new Response((await stub.fetch("https://do/usulan-publik")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=30", "access-control-allow-origin": "*" } });
   }
+  if (aksi === "voting" && request.method === "GET") {
+    return new Response((await stub.fetch("https://do/voting-publik")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=20" } });
+  }
   if (request.method !== "POST") return json({ galat: "Metode salah" }, 405);
   let body;
   try { body = await request.json(); } catch (e) { return json({ galat: "Data tidak terbaca" }, 400); }
@@ -604,6 +655,28 @@ async function apiWarga(request, env, url) {
   }
   if (aksi === "gol") {
     const r = await stub.fetch("https://do/gol", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64) }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "voting") {
+    const q = { kunci: String(body.kunci || "").slice(0, 64) };
+    if (body.calon) { q.calon = String(body.calon).slice(0, 20); q.n = Math.max(1, Math.min(100000, Math.floor(+body.n || 1))); }
+    const r = await stub.fetch("https://do/voting", { method: "POST", body: JSON.stringify(q) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "saweria") {
+    // Webhook Saweria: header Saweria-Callback-Signature = HMAC-SHA256 (hex) dengan Stream Key atas
+    // version + id + amount_raw + donator_name + donator_email. Stream Key disimpan sebagai Secret SAWERIA_KEY (bukan di kode).
+    if (!env.SAWERIA_KEY) return json({ galat: "Webhook belum disiapkan" }, 503);
+    const tt = String(request.headers.get("Saweria-Callback-Signature") || "").toLowerCase();
+    if (!tt) return json({ galat: "Tanpa tanda tangan" }, 401);
+    const data = ["version", "id", "amount_raw", "donator_name", "donator_email"].map((k) => body[k] ?? "").join("");
+    const kunciH = await crypto.subtle.importKey("raw", new TextEncoder().encode(env.SAWERIA_KEY), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    const hx = [...new Uint8Array(await crypto.subtle.sign("HMAC", kunciH, new TextEncoder().encode(data)))].map((b) => b.toString(16).padStart(2, "0")).join("");
+    let beda = hx.length ^ tt.length; for (let i = 0; i < hx.length; i++) beda |= hx.charCodeAt(i) ^ (tt.charCodeAt(i) || 0);
+    if (beda) return json({ galat: "Tanda tangan salah" }, 403);
+    const q = { id: String(body.id || "").slice(0, 80), rp: Math.max(0, Math.floor(+body.amount_raw || 0)), nama: String(body.donator_name || "").slice(0, 60), pesan: String(body.message || "").slice(0, 300) };
+    if (!q.id) return json({ galat: "Tanpa id" }, 400);
+    const r = await stub.fetch("https://do/saweria", { method: "POST", body: JSON.stringify(q) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "misi") {
