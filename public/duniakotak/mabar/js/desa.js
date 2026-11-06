@@ -389,13 +389,15 @@ export function village(sc,o={}){const stage=o.raka||'done';TIPIS=o.tipis||0;
   info0.river=V3(((rx0+rx1)/2+ox)*VS,0,(TD*.5+oz)*VS);info0.sawah=V3(((sx0+sx1)/2+ox)*VS,0,(TD*.5+oz)*VS)}
  vroads.forEach(([a,b],i)=>paint(a,0,b,TD,roadW(i)===MAIN_W?[.08,.35,.5]:[.08,.25,.62]));hroads.forEach(([a,b],j)=>paint(0,a,TW,b,roadD(j)===MAIN_W?[.08,.35,.5]:[.08,.25,.62]));const rm=cubes(rl);rm.scale.y=.12;G.add(rm);
  // urutan kavling: kavling Raka (blok kiri atas, baris depan kanan = pojok perempatan) = no. 1
- const L=[];for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const bx=xs[i],bz=zs[j];
-  if((i===1&&j===0)||(o.fasumB&&o.fasumB.some(([a2,b2])=>a2===i&&b2===j))){fasum2(G,bx+BW/2+ox,bz+BD/2+oz,BW,BD);(info0.fas=info0.fas||[]).push(V3((bx+BW/2+ox)*VS,0,(bz+BD/2+oz)*VS));continue}
+ const L=[],fasK=[];for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const bx=xs[i],bz=zs[j];
+  if((i===1&&j===0)||(o.fasumB&&o.fasumB.some(([a2,b2])=>a2===i&&b2===j))){fasum2(G,bx+BW/2+ox,bz+BD/2+oz,BW,BD);(info0.fas=info0.fas||[]).push(V3((bx+BW/2+ox)*VS,0,(bz+BD/2+oz)*VS));fasK.push(i+','+j);continue}
   for(let r=0;r<2;r++)for(let c=0;c<2;c++){const x0=bx+c*(LOT_W+LOT_GAP),z0=bz+r*(LOT_D+LOT_GAP);const cx=x0+LOT_W/2+ox,cz=z0+LOT_D/2+oz;
    if(i===1&&j===1&&r===0){fasum2(G,cx,cz,LOT_W,LOT_D);continue}
-   if(o.fasumH&&o.fasumH.some(([a2,b2,r2])=>a2===i&&b2===j&&r2===r)){fasum2(G,cx,cz,LOT_W,LOT_D);if(c===0)(info0.fas=info0.fas||[]).push(V3((bx+BW/2+ox)*VS,0,cz*VS));continue}
+   if(o.fasumH&&o.fasumH.some(([a2,b2,r2])=>a2===i&&b2===j&&r2===r)){fasum2(G,cx,cz,LOT_W,LOT_D);if(c===0){(info0.fas=info0.fas||[]).push(V3((bx+BW/2+ox)*VS,0,cz*VS));fasK.push(i+','+j+','+r)}continue}
    L.push({cx,cz,rot:r===0?Math.PI:0,raka:i===0&&j===0&&r===1&&c===1})}}
  let n=2;L.forEach(l=>{l.n=l.raka?1:n++});
+ // fasUrut (game, 6 Nov 2026): urutan indeks fas mengikuti daftar ini (bukan urutan baris), supaya fasum bisa disebar tanpa mengubah peran tiap indeks
+ if(o.fasUrut&&info0.fas)info0.fas=o.fasUrut.map(k=>info0.fas[fasK.indexOf(k.join(','))]);
  const roofs=[0xc8553d,0x3a7ad8,0x3aa860,0xe0a020,0x9a5ad8,0xd84a8a];const info={lots:{},TW,TD,ox,oz,xs,zs,light:d,fas:info0.fas,river:info0.river,sawah:info0.sawah};
  const bl=l=>{let g;
   if(l.raka&&stage!=='none'){g=lot2(G,l.cx,l.cz,l.rot,{lh:TIPIS||undefined,n:1,filled:true,fh:.32,roof:0xc8553d,crop:'wortel',fruit:0xff3a3a});
