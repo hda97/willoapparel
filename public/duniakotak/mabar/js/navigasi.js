@@ -36,7 +36,7 @@ export function buatNav({batas, sel = 2, blok = [], mahal = [], murah = [], dasa
     const heap = [[hr(s), s]], push = it => { heap.push(it); let i = heap.length - 1; while (i) { const p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; } },
       pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let m = i; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return top; };
     let ok = false, n = 0;
-    while (heap.length) { const [, k] = pop(); if (tutup[k]) continue; tutup[k] = 1; if (k === t) { ok = true; break; } if (++n > 400000) break;
+    while (heap.length) { const [, k] = pop(); if (tutup[k]) continue; tutup[k] = 1; if (k === t) { ok = true; break; } if (++n > N) break;
       const i = k % W, j = (k / W) | 0;
       for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) { if (!di && !dj) continue; const ni = i + di, nj = j + dj; if (ni < 0 || nj < 0 || ni >= W || nj >= H) continue;
         const nk = nj * W + ni; if (!jalan[nk] || tutup[nk] || !bisa(k, nk)) continue;

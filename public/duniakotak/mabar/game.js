@@ -220,8 +220,10 @@ const dekor = new Map();        // rects statis tambahan
 const BARIS = 15;
 // Baris 16 (3 Nov 2026) = baris FASUM tambahan di tepi selatan (denah lama tidak bergeser, nomor kavling tidak berubah):
 // blok (1,15) Rumah Sakit, (2,15) Stadion, (0,15) Kampus (voting 6 Nov 2026), (3,15)/(4,15) lahan kosong untuk voting berikutnya.
-const BARIS_FASUM = [[0,15],[1,15],[2,15],[3,15],[4,15]];
-// Bangunan fasum sama persis dengan video Hari 2 (aset fasum.js): fas[1..8]. fas[0] dekat rumah Raka = Supermarket (voting 3 Nov). fas[9] = terminal; fas[10..14] = baris fasum selatan.
+// DENAH FASUM TERSEBAR (Huda 6 Nov 2026): fasum disebar merata ke seluruh lahan dusun (tidak bergerombol di tengah/ujung).
+// Blok [kolom, baris] (5 kolom × 16 baris), urutan = indeks fas yang dipakai game (PASANG_FASUM, BANGUN_VOTING, npc.js). Nomor rumah tetap urut.
+const FASUM_WETAN = [[1,0], [0,2], [3,1], [1,5], [3,6], [0,7], [4,9], [0,12], [4,14], [2,11,1], [1,10], [4,4], [2,13], [2,8], [1,15]];
+// Bangunan fasum sama persis dengan video Hari 2 (aset fasum.js): fas[1..8]. fas[0] dekat rumah Raka = Supermarket (voting 3 Nov). fas[9] = terminal; fas[10..12] kampus, RS, stadion; fas[13] Taman Kota; fas[14] lahan voting berikutnya.
 const PASANG_FASUM = [[0, 'supermarket', '🛒 Supermarket Dunia Kotak'], [10, 'kampus', '🎓 Kampus Dunia Kotak'], [11, 'rumahSakit', '🏥 Rumah Sakit'], [12, 'stadion', '🏟️ Stadion Dunia Kotak'], [1, 'sekolah', '🏫 SD Dunia Kotak'], [2, 'warung', '🛒 Warung Desa'], [3, 'masjid', '🕌 Masjid'], [4, 'gereja', '⛪ Gereja'], [5, 'katedral', '⛪ Gereja Katolik'], [6, 'pura', '🛕 Pura'], [7, 'vihara', '☸️ Vihara'], [8, 'klenteng', '🏮 Klenteng']];
 // Fasum pemenang voting yang sedang dibangun (Huda 6 Nov 2026: Taman Kota). Sebelum `sampai` lahannya jadi proyek
 // (pagar seng, perancah, warga offline gotong royong); sesudahnya bangunan jadi otomatis berdiri. Fasum berikutnya: tambah entri baru.
@@ -346,7 +348,7 @@ async function bangunDunia() {
   if (DI === 'kulon') return bangunKulon();
   if (DI === 'curug') return bangunCurug();
   reseed(301);
-  I = D.village(sc, {cols: 5, rows: BARIS + 1, fasumB: [[2,4],[2,5],[1,6],[2,6],[3,6],[1,7],[2,7],[3,7], ...BARIS_FASUM], fasumH: [[2,11,1]], sungai: {gap: 6, w: 14, sawah: 40}, hutan: 1, tipis: .02,
+  I = D.village(sc, {cols: 5, rows: BARIS + 1, fasumB: FASUM_WETAN.filter(k => k.length === 2), fasumH: FASUM_WETAN.filter(k => k.length === 3), fasUrut: FASUM_WETAN, sungai: {gap: 6, w: 14, sawah: 40}, hutan: 1, tipis: .02,
     raka: 'done', filled: 999, isFilled: n => !!NM[n], names: NM, lazy: true, sm: hemat ? 1024 : 2048, shadowR: 70});
   I.light.castShadow = !hemat;
   pasangFasum();
@@ -2243,4 +2245,4 @@ var tegakSesi = false; try { localStorage.removeItem('dk_tegak'); } catch (e) {}
 $('tetapTegak').onclick = () => { tegakSesi = true; $('miring').hidden = true; };
 onResize();
 layarMasuk();
-window.__dk = {S, HS, voting: w => bukaVoting(w), wnpc: () => wnpc, avAcak: n => avAcak(n), proyek: aturProyek, iklan: siapIklan, tonton: tontonIklan, rectLot: (n, a, b, c, d) => rectLot(I.lots[n], a, b, c, d), mancing: () => skillMancing(), dekatAir: () => dekatAir(tokoh.saya), tulisDana, VT: v => { VT = v; tulisVoting(); $('panelVoting').hidden = false; }, segarKebun, kebunSiap: () => { kebunTahap = null; segarKebun(); }, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
+window.__dk = {S, HS, peta: () => peta, voting: w => bukaVoting(w), wnpc: () => wnpc, avAcak: n => avAcak(n), proyek: aturProyek, iklan: siapIklan, tonton: tontonIklan, rectLot: (n, a, b, c, d) => rectLot(I.lots[n], a, b, c, d), mancing: () => skillMancing(), dekatAir: () => dekatAir(tokoh.saya), tulisDana, VT: v => { VT = v; tulisVoting(); $('panelVoting').hidden = false; }, segarKebun, kebunSiap: () => { kebunTahap = null; segarKebun(); }, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
