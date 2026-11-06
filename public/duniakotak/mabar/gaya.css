@@ -225,3 +225,36 @@ a.barisAtur{text-decoration:none}.barisAtur span{display:flex;flex-direction:col
 #panelToko .panel{max-height:calc(100*var(--vh,1vh) - 24px);overflow:auto}
 @media (max-height:460px){#panelToko{padding:6px 12px}#panelToko h2{margin:0;font-size:17px}.tkJenis{margin-bottom:5px}.tkBrg{width:60px;padding:4px}}
 #isiToko{min-width:0;max-width:100%;width:100%}.tkJenis,.tkDaftar{min-width:0;max-width:100%}
+/* Profil dipersimpel (Huda 6 Nov 2026): wajah avatar + nama, koin & permata di samping; klik = panel Profil */
+.profil{cursor:pointer}
+.profil .ava{background-size:cover!important;background-position:center!important;overflow:hidden}
+.profil .pfNm{min-width:0;flex:0 1 auto}
+.dompet{display:flex;gap:5px;flex:none}
+.dompet[hidden]{display:none}
+.dompet span{background:rgba(0,0,0,.28);border:1px solid var(--garis);border-radius:999px;padding:3px 8px;font:900 12px Montserrat,sans-serif;white-space:nowrap}
+.pfPanel{width:min(560px,100%);gap:10px}
+.pfAtas{display:flex;gap:14px;align-items:center;text-align:left}
+#pfAva{width:96px;height:112px;object-fit:contain;flex:none;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid var(--garis)}
+.pfInfo{min-width:0;display:grid;gap:4px}
+.pfInfo h2{margin:0;font-size:20px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pfInfo small{font-size:12px;opacity:.75}
+.pfSaldo{display:flex;gap:8px;flex-wrap:wrap}
+.pfSaldo span{background:rgba(255,255,255,.08);border:1px solid var(--garis);border-radius:12px;padding:5px 10px;font-weight:700;font-size:13px}
+.pfTombol{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.pfTombol button{padding:9px 4px;border-radius:12px;border:1px solid var(--garis);background:rgba(255,255,255,.06);color:#fff;font:800 12px Montserrat,sans-serif;cursor:pointer}
+.pfJudul{margin:4px 0 0;font-size:15px;text-align:left}
+.pfInv{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
+.pfBrg{display:grid;justify-items:center;gap:2px;padding:8px 4px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid var(--garis)}
+.pfBrg.on{border-color:#ffd23a}
+.pfBrg i{font-style:normal;font-size:22px;line-height:1;height:24px;display:grid;place-items:center}
+.pfBrg b{font-size:11px;line-height:1.2}
+.pfBrg small{font-size:10px;opacity:.7}
+@media (max-width:420px){.pfTombol{grid-template-columns:repeat(2,1fr)}}
+.pfJudul small{font-size:11px;font-weight:600;opacity:.65;margin-left:6px}
+/* Pengaturan & Profil tampil sebagai POP UP di atas game (Huda 6 Nov 2026) */
+.layarPenuh.popup{background:rgba(8,10,20,.42);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+.layarPenuh.popup>.panel{background:linear-gradient(180deg,#2c3150,#1b1d2c);border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:16px 18px;box-shadow:0 18px 50px rgba(0,0,0,.5);max-height:calc(100% - 8px);overflow:auto;box-sizing:border-box;animation:popMuncul .16s ease-out}
+#panelAtur.popup>.panel{width:min(400px,100%)}
+@keyframes popMuncul{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
+.layarPenuh.popup>.panel{position:relative}
+.popTutup{position:sticky;top:0;justify-self:end;margin:-6px -8px -40px 0;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.35);color:#fff;font:900 15px Montserrat,sans-serif;cursor:pointer;z-index:2}

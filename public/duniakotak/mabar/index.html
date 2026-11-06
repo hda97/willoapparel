@@ -9,7 +9,7 @@
 <link rel="icon" href="/duniakotak/logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap">
-<link rel="stylesheet" href="gaya.css?v=20261106k">
+<link rel="stylesheet" href="gaya.css?v=20261106l">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
 <body>
@@ -18,7 +18,7 @@
 
 <!-- HUD -->
 <div id="hud" hidden>
- <div class="kartu profil" id="profil"><div class="ava" id="profAva">🙂</div><div><b id="profNama">@warga</b><small id="profAlamat"></small><small id="profOnline" class="hijau"></small></div></div>
+ <div class="kartu profil" id="profil" title="Buka profil"><div class="ava" id="profAva">🙂</div><div class="pfNm"><b id="profNama">@warga</b></div><span class="dompet" id="dompet"><span id="dKoin">🪙 0</span><span id="dPermata">💎 0</span></span></div>
  <div class="kartu jam" id="jam"></div>
  <div class="tombolAtas" id="tombolAtas">
   <button class="bulat" id="bRumah" title="Pulang ke rumah"><i>🏠</i>Rumah</button>
@@ -59,8 +59,8 @@
   <button class="utama" id="tutupMisi">Lanjut main</button>
  </div>
 </div>
-<div id="panelAtur" class="layarPenuh" hidden>
- <div class="panel">
+<div id="panelAtur" class="layarPenuh popup" hidden>
+ <div class="panel"><button class="popTutup" data-tutup="panelAtur" aria-label="Tutup">✕</button>
   <h2>⚙️ Pengaturan</h2>
   <p class="kecil" id="jamAtur"></p>
   <div class="daftarAtur">
@@ -72,6 +72,16 @@
    <a class="barisAtur dukung" href="https://saweria.co/Duniakotak" target="_blank" rel="noopener" title="Dukung Dunia Kotak lewat Saweria"><i>💛</i><span>Dukung Dunia Kotak<small>Sukarela lewat Saweria · Rp1.000 = 1 bintang voting</small></span></a>
   </div>
   <button class="utama" id="tutupAtur">Lanjut main</button>
+ </div>
+</div>
+<div id="panelProfil" class="layarPenuh popup" hidden>
+ <div class="panel pfPanel"><button class="popTutup" data-tutup="panelProfil" aria-label="Tutup">✕</button>
+  <div class="pfAtas"><img id="pfAva" alt="Avatarmu"><div class="pfInfo"><h2 id="pfNama">@warga</h2><small id="pfAlamat"></small>
+   <div class="pfSaldo"><span>🪙 <b id="pfKoin">0</b> koin</span><span>💎 <b id="pfPermata">0</b> permata</span></div><small id="pfPanen"></small></div></div>
+  <div class="pfTombol"><button id="pfAvatar">🪞 Ubah avatar</button><button id="pfToko">🎨 Toko Hias</button><button id="profOnline">🟢 Online</button><button id="pfKode">🔑 Kode warga</button></div>
+  <h3 class="pfJudul">🎒 Inventori <small>Ikan hasil mancing = makanan kucing</small></h3>
+  <div id="pfInv" class="pfInv"></div>
+  <button class="utama" id="tutupProfil">Lanjut main</button>
  </div>
 </div>
 <div id="panelOnline" class="layarPenuh" hidden>
@@ -154,6 +164,6 @@
 
 <div id="miring" class="layarPenuh" hidden><div class="panel"><div style="font-size:54px">📱↻</div><h2>Miringkan HP-mu</h2><p class="sub">Dunia Kotak dimainkan dengan layar mendatar.</p><button class="tipis" id="tetapTegak">Tetap main tegak</button></div></div>
 
-<script type="module" src="game.js?v=20261106k"></script>
+<script type="module" src="game.js?v=20261106l"></script>
 </body>
 </html>
