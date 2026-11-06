@@ -38,7 +38,8 @@ const PUTARAN_VOTING = "2026-11";
 // Stream Key Saweria bisa disetel lewat halaman /duniakotak/atur-saweria.html (Huda tidak menemukan worker di Cloudflare).
 // Halaman itu butuh token setel; di sini hanya hash SHA-256-nya (token asli dikirim ke Huda lewat chat proyek).
 const HASH_TOKEN_SETEL = "3875bd9e3be8eb385420fc08c7acbb25d81b72d5581356c72a210d4b87df4510";
-const CALON_FASUM = ["kafe", "taman", "hiburan", "polisi", "damkar", "perpus", "renang", "bioskop"];
+// Huda 6 Nov 2026: cukup 4 calon (usulan terbanyak dari komentar); fasum lain untuk voting berikutnya.
+const CALON_FASUM = ["kafe", "hiburan", "taman", "polisi"];
 const KOREKSI_IG = { fakhri_udah_itu_aja: "fakhri_udah_itu_aja_89" };
 
 // Username yang terpotong di screenshot: dicocokkan dari awalannya.
@@ -134,6 +135,12 @@ export class Warga extends DurableObject {
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN bhari TEXT"); } catch (e) { /* kolom sudah ada */ }
     // suara = bintang yang sudah ditaruh warga ke calon fasum; donasi = catatan webhook Saweria (id unik, tidak dobel)
     this.sql.exec("CREATE TABLE IF NOT EXISTS suara (put TEXT, calon TEXT, no INTEGER, n INTEGER, PRIMARY KEY (put, calon, no))");
+    // Bintang yang sudah ditaruh di calon yang dihapus dari putaran ini dikembalikan ke pemiliknya (aman diulang).
+    for (const x of this.sql.exec("SELECT calon, no, n FROM suara WHERE put = ?", PUTARAN_VOTING).toArray()) {
+      if (CALON_FASUM.includes(x.calon)) continue;
+      this.sql.exec("UPDATE warga SET bintang = COALESCE(bintang, 0) + ? WHERE no = ?", x.n, x.no);
+      this.sql.exec("DELETE FROM suara WHERE put = ? AND calon = ? AND no = ?", PUTARAN_VOTING, x.calon, x.no);
+    }
     this.sql.exec("CREATE TABLE IF NOT EXISTS rahasia (k TEXT PRIMARY KEY, v TEXT, t INTEGER)");
     this.sql.exec("CREATE TABLE IF NOT EXISTS donasi (id TEXT PRIMARY KEY, t INTEGER, no INTEGER, rp INTEGER, bintang INTEGER, nama TEXT, pesan TEXT)");
     // Koreksi salah ketik username: pindahkan ke username & kavling yang benar (sekali jalan, aman diulang).
