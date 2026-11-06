@@ -41,6 +41,11 @@ const BAWAHAN = {L: ['celana','pendek','sarung'], P: ['celana','rok','rok-panjan
 const WARNA_BAJU = ['#1d1d22','#f4f4f4','#3a7bd5','#d0442f','#2a9a5a','#f2c14e','#8a5ad8','#e06a9a'];
 const WARNA_BAWAH = ['#2f3a52','#1d1d22','#6a5a48','#3a5a3a','#7a2a2a','#c8b89a'];
 const hexOk = v => typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v);
+// ---------- Toko Hias (Permata 💎): warna sama dengan TOKO_HIAS di worker.js ----------
+const WARNA_CAT = {krem: '#f1dcb4', putih: '#f4f1ea', biru: '#9cc4e8', hijau: '#a8d5a0', pink: '#f2b8c6', kuning: '#f5d76e', ungu: '#c3b1e1'};
+const WARNA_PAGAR = {putih: '#ffffff', kayu: '#a0703c', hitam: '#3a3a40', biru: '#3a7bd5', merah: '#c8453a'};
+const WARNA_TOPI = {merah: '#d8443a', biru: '#2f6fd8', hitam: '#24242a', kuning: '#f2c230'};
+const HS = {};   // no → {c: cat, p: pagar} (warga lain, dari /api/warga)
 function bersihAv(a) {
   a = a && typeof a === 'object' ? a : {};
   const jenis = a.jenis === 'P' ? 'P' : 'L';
@@ -50,6 +55,7 @@ function bersihAv(a) {
     rambut: {gaya, warna: hexOk(a.rambut && a.rambut.warna) ? a.rambut.warna : WARNA_RAMBUT[0]},
     atasan: {jenis: ATASAN.includes(a.atasan && a.atasan.jenis) ? a.atasan.jenis : 'kaos', warna: hexOk(a.atasan && a.atasan.warna) ? a.atasan.warna : '#3a7bd5'},
     bawahan: {jenis: BAWAHAN[jenis].includes(a.bawahan && a.bawahan.jenis) ? a.bawahan.jenis : 'celana', warna: hexOk(a.bawahan && a.bawahan.warna) ? a.bawahan.warna : '#2f3a52'},
+    ...(Object.values(WARNA_TOPI).includes(a.topi) ? {topi: a.topi} : {}),
   };
 }
 const avAcak = no => { const r = n => (no * 7919 + n * 104729) % 997; const jenis = r(1) % 2 ? 'P' : 'L';
@@ -133,7 +139,7 @@ async function masukGoogle(credential, isi) {
   } catch (e) { const g2 = $('galatMasuk'); if (g2) g2.textContent = e.message; }
 }
 function selesaiMasuk(s) {
-  if (s) { S.saya = s; S.kunci = s.kunci; simpan('dk_warga', {no: s.no, ig: s.ig, kunci: s.kunci}); }
+  if (s) { S.saya = s; S.kunci = s.kunci; S.hias = s.hias || null; simpan('dk_warga', {no: s.no, ig: s.ig, kunci: s.kunci}); }
   $('masuk').hidden = true;
   if (!S.tamu && !baca('dk_aturan')) { $('aturan').hidden = false; $('setujuAturan').onclick = () => { simpan('dk_aturan', '1'); $('aturan').hidden = true; lanjutAvatar(); }; }
   else lanjutAvatar();
@@ -185,7 +191,7 @@ function bukaPembuatAvatar(av, pertama, cumaSiapkan) {
   $('simpanAvatar').textContent = pertama ? 'Simpan dan masuk desa' : 'Simpan';
   $('simpanAvatar').onclick = async () => {
     $('simpanAvatar').disabled = true;
-    try { if (!S.tamu) await api('avatar', {kunci: S.kunci, avatar: av}); S.av = bersihAv(av); $('buatAvatar').hidden = true; if (pertama) mulai(); else gantiAvatarSaya(); }
+    try { if (!S.tamu) await api('avatar', {kunci: S.kunci, avatar: av}); S.av = bersihAv({...av, topi: WARNA_TOPI[S.hias?.topi]}); $('buatAvatar').hidden = true; if (pertama) mulai(); else gantiAvatarSaya(); }
     catch (e) { toast(e.message); } finally { $('simpanAvatar').disabled = false; }
   };
 }
@@ -276,7 +282,7 @@ function bangunKulon(buat = kulon) {
   bangunProksi();
 }
 async function bangunDunia() {
-  try { const w = await (await fetch('/duniakotak/api/warga')).json(); w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; }); } catch (e) {}
+  try { const w = await (await fetch('/duniakotak/api/warga')).json(); w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; if (x.hs) HS[x.no] = x.hs; }); } catch (e) {}
   if (S.saya && S.saya.kucing) KC[S.saya.no] = S.saya.kucing;
   if (S.saya && S.saya.ig) NM[S.saya.no] = '@' + S.saya.ig;
   await document.fonts.load('900 40px Montserrat').catch(() => {});
@@ -379,10 +385,24 @@ function bangunKavling(n) {
     }
   }
   extra.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+  catKavling(g, n);
   bakeGroup(g); bakeGroup(extra);
   lotRuntime.set(n, {g, extra, rects});
   if (isi && n !== 1) pasangKucing(n);
   if (L.proxyIdx != null) setProxy(L, false);
+}
+// cat dinding rumah (warna asli krem 0xf1dcb4) + pagar kavling (InstancedMesh putih) sesuai barang Toko Hias yang dipakai
+function catKavling(g, n) {
+  const h = S.saya && n === S.saya.no && S.hias ? {c: S.hias.cat, p: S.hias.pagar} : HS[n]; if (!h) return;
+  const cw = WARNA_CAT[h.c], cp = WARNA_PAGAR[h.p];
+  g.traverse(m => { if (!m.isMesh || Array.isArray(m.material) || !m.material.color) return; const hx = m.material.color.getHex();
+    if (cw && h.c !== 'krem' && hx === 0xf1dcb4) { m.material = m.material.clone(); m.material.color.set(cw); }
+    else if (cp && h.p !== 'putih' && m.isInstancedMesh && !m.instanceColor && hx === 0xffffff) { m.material = m.material.clone(); m.material.color.set(cp); } });
+}
+function bangunUlangKavling(n) {
+  const ada = lotRuntime.get(n); if (!ada) return;
+  buang(ada.g); buang(ada.extra); if (ada.kc) { kucingHidup = kucingHidup.filter(c => c.parent !== ada.kc); buang(ada.kc); }
+  lotRuntime.delete(n); bangunKavling(n);
 }
 function setProxy(L, tampil) {
   const {imW, imA} = I.proxy; const M = new THREE.Matrix4();
@@ -582,7 +602,7 @@ function tulisVoting() {
   if (!S.tamu && d.no) {
     $('vtDonasi').hidden = false;
     // Paket bintang (Huda 6 Nov): tombol membuka Saweria + menyalin kode warga; nominal dipilih di Saweria.
-    $('vtDonasi').innerHTML = `<b>Tambah bintang lewat donasi sukarela</b><div class="vtPaket">${[[5, 1], [10, 2], [25, 3], [100, 5]].map(([n, k]) => `<a href="https://saweria.co/Duniakotak" target="_blank" rel="noopener" data-paket="${n}"><span class="vtBintang b${k}">${GBR_BINTANG.repeat(k)}</span><b>${n} bintang</b><small>Rp${(n * 1000).toLocaleString('id-ID')}</small></a>`).join('')}</div>Tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan donasi Saweria, bintang masuk otomatis.` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
+    $('vtDonasi').innerHTML = `<b>Tambah bintang lewat donasi sukarela</b><div class="vtPaket">${[[5, 1], [10, 2], [25, 3], [100, 5]].map(([n, k]) => `<a href="https://saweria.co/Duniakotak" target="_blank" rel="noopener" data-paket="${n}"><span class="vtBintang b${k}">${GBR_BINTANG.repeat(k)}</span><b>${n} bintang</b><small>Rp${(n * 1000).toLocaleString('id-ID')}</small></a>`).join('')}</div>Tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan donasi Saweria. Bintang masuk otomatis, plus bonus 💎 10 permata per Rp1.000 untuk Toko Hias.` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
   } else $('vtDonasi').hidden = true;
 }
 async function bukaVoting() {
@@ -600,6 +620,40 @@ document.addEventListener('click', async e => {
   vtSibuk = true; const c = b.dataset.vt, n = +b.dataset.n;
   try { VT = await api('voting', {kunci: S.kunci, calon: c, n}); tulisVoting(); toast(`⭐ ${n} bintang untuk ${CALON[c]?.[1] || c}!`, 2500); }
   catch (er) { toast(er.message, 3500); } finally { vtSibuk = false; }
+});
+// ---------- Toko Hias: barang dibeli permata 💎 (dari donasi) atau koin (x10); barang pertama tiap jenis gratis ----------
+const NAMA_TOKO = {cat: ['🏠', 'Cat rumah'], pagar: ['🪵', 'Warna pagar'], topi: ['🧢', 'Topi avatar']};
+let TK = null, tkBayar = 'permata', tkSibuk = false;
+function tulisToko() {
+  const d = TK; if (!d) return;
+  const warna = {cat: WARNA_CAT, pagar: WARNA_PAGAR, topi: {tanpa: 'transparent', ...WARNA_TOPI}};
+  let h = `<div class="vtSaldo"><span>Saldo</span><b>💎 ${d.permata} <small>· 🪙 ${d.koin}</small></b></div>
+    <div class="tkBayar">Bayar pakai: <button data-tkbayar="permata" class="${tkBayar === 'permata' ? 'on' : ''}">💎 Permata</button><button data-tkbayar="koin" class="${tkBayar === 'koin' ? 'on' : ''}">🪙 Koin (×${d.kali})</button></div>`;
+  for (const [j, daftar] of Object.entries(d.toko)) {
+    h += `<div class="tkJenis"><b>${NAMA_TOKO[j][0]} ${NAMA_TOKO[j][1]}</b><div class="tkDaftar">` + Object.entries(daftar).map(([id, harga]) => {
+      const punya = !harga || d.hias.punya[j].includes(id), pakai = (d.hias[j] || Object.keys(daftar)[0]) === id;
+      const label = pakai ? 'Dipakai' : punya ? 'Pakai' : tkBayar === 'koin' ? `🪙 ${harga * d.kali}` : `💎 ${harga}`;
+      return `<button class="tkBrg${pakai ? ' on' : ''}" data-tkj="${j}" data-tkid="${id}" ${pakai ? 'disabled' : ''}><span class="tkWarna${id === 'tanpa' ? ' kosong' : ''}" style="background:${warna[j][id]}"></span>${id}<small>${label}</small></button>`; }).join('') + '</div></div>';
+  }
+  h += `<p class="kecil tkInfo">💎 Permata didapat dari donasi sukarela di Saweria: Rp1.000 = 1 bintang voting + ${10} permata (tulis kode DK${S.saya?.no || ''}). Permata tidak masuk peringkat.</p>`;
+  $('isiToko').innerHTML = h;
+}
+async function bukaToko() {
+  if (S.tamu) { toast('Daftar jadi warga dulu supaya bisa menghias rumah.', 4000); return; }
+  $('panelToko').hidden = false; $('isiToko').innerHTML = '<p class="kecil">Memuat…</p>';
+  try { TK = await api('toko', {kunci: S.kunci}); tulisToko(); } catch (e) { $('isiToko').innerHTML = '<p class="kecil">Toko belum bisa dimuat. Coba lagi sebentar.</p>'; }
+}
+document.addEventListener('click', async e => {
+  const bb = e.target.closest?.('[data-tkbayar]'); if (bb) { tkBayar = bb.dataset.tkbayar; tulisToko(); return; }
+  const b = e.target.closest?.('[data-tkj]'); if (!b || tkSibuk) return;
+  tkSibuk = true; const j = b.dataset.tkj, id = b.dataset.tkid;
+  try {
+    TK = await api('toko', {kunci: S.kunci, jenis: j, id, bayar: tkBayar});
+    S.hias = TK.hias; S.saya.koin = TK.koin; S.saya.permata = TK.permata; hitungOnline(); tulisToko();
+    if (j === 'topi') { S.av = bersihAv({...S.av, topi: WARNA_TOPI[id]}); gantiAvatarSaya(); }
+    else bangunUlangKavling(S.saya.no);
+    toast('✨ ' + NAMA_TOKO[j][1] + ' ' + id + ' dipakai!', 2500);
+  } catch (er) { toast(er.message, 3500); } finally { tkSibuk = false; }
 });
 function bukaMisi() {
   if (S.tamu) { toast('Daftar jadi warga dulu supaya bisa ikut misi dan dapat koin.', 4000); return; }
@@ -1142,7 +1196,7 @@ function jumlahOnline() {
   const lain = d.warga.filter(x => x.d !== DI).length;   // dusun lain dari server; dusun ini langsung dari ruang (lebih baru)
   return lain + S.others.size + (S.tamu ? 0 : 1);
 }
-function hitungOnline() { $('profOnline').textContent = S.tamu ? `Mode tamu · ● ${jumlahOnline()} warga online` : `● ${jumlahOnline()} online semua dusun · 🪙 ${S.saya?.koin || 0} koin`; }
+function hitungOnline() { $('profOnline').textContent = S.tamu ? `Mode tamu · ● ${jumlahOnline()} warga online` : `● ${jumlahOnline()} online semua dusun · 🪙 ${S.saya?.koin || 0} · 💎 ${S.saya?.permata || 0}`; }
 function tulisOnline() {
   const ini = [...S.others].map(([no, o]) => ({no, ig: o.ig, d: DI}));
   if (!S.tamu && S.saya) ini.unshift({no: S.saya.no, ig: S.saya.ig, d: DI, aku: true});
@@ -1376,7 +1430,8 @@ function aturHUD() {
   muatMisi();
   $('bPanduan').onclick = () => { $('panelAtur').hidden = true; panduan(); };
   $('bAtur').onclick = () => { $('jamAtur').textContent = $('jam').textContent.replace(/\s+/g, ' ').trim(); $('panelAtur').hidden = false; }; $('tutupAtur').onclick = () => { $('panelAtur').hidden = true; };
-  $('bVoting').onclick = () => { $('panelAtur').hidden = true; bukaVoting(); }; $('tutupVoting').onclick = () => { $('panelVoting').hidden = true; };
+  $('bVoting').onclick = () => { $('panelAtur').hidden = true; bukaVoting(); };
+  $('bToko').onclick = () => { $('panelAtur').hidden = true; bukaToko(); }; $('tutupToko').onclick = () => { $('panelToko').hidden = true; }; $('tutupVoting').onclick = () => { $('panelVoting').hidden = true; };
   $('panelAtur').addEventListener('click', e => { if (e.target === $('panelAtur')) $('panelAtur').hidden = true; });
   $('bDusun').onclick = pilihDusun;
   musikSiap();
@@ -1656,4 +1711,4 @@ var tegakSesi = false; try { localStorage.removeItem('dk_tegak'); } catch (e) {}
 $('tetapTegak').onclick = () => { tegakSesi = true; $('miring').hidden = true; };
 onResize();
 layarMasuk();
-window.__dk = {S, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
+window.__dk = {S, HS, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }};
