@@ -47,6 +47,8 @@ const TOKO_HIAS = {
   cat: { krem: 0, putih: 30, biru: 30, hijau: 30, pink: 30, kuning: 30, ungu: 30 },
   pagar: { putih: 0, kayu: 20, hitam: 20, biru: 20, merah: 20 },
   topi: { tanpa: 0, merah: 20, biru: 20, hitam: 20, kuning: 20 },
+  // Huda 6 Nov 2026: rumah warga bisa di-upgrade sampai 2 lantai (rumah kucing tidak, hanya ganti warna di menu Kucing)
+  rumah: { satu: 0, dua: 150 },
 };
 const KOIN_PER_PERMATA = 10;
 // Panen kebun sendiri (Huda 6 Nov 2026): permata juga didapat dari panen, tiap 6 jam sekali, +5 permata.
@@ -177,11 +179,11 @@ export class Warga extends DurableObject {
     // Daftar lewat Google tanpa username: nama yang ditulis warga jadi ukiran batu (label).
     let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
     const hs = this.hiasPakai(r);
-    return { ...(hs.cat !== "krem" || hs.pagar !== "putih" ? { hs: { c: hs.cat, p: hs.pagar } } : {}), no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
+    return { ...(hs.cat !== "krem" || hs.pagar !== "putih" || hs.rumah === "dua" ? { hs: { c: hs.cat, p: hs.pagar, ...(hs.rumah === "dua" ? { l: 2 } : {}) } } : {}), no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
   }
   // Hias: {punya:{cat:[...],pagar:[...],topi:[...]}, cat, pagar, topi}
   bacaHias(r) { let h = {}; try { h = r.hias ? JSON.parse(r.hias) : {}; } catch (e) {} h.punya = h.punya || {}; for (const j of Object.keys(TOKO_HIAS)) h.punya[j] = h.punya[j] || []; return h; }
-  hiasPakai(r) { const h = this.bacaHias(r); return { cat: h.cat || "krem", pagar: h.pagar || "putih", topi: h.topi || "tanpa" }; }
+  hiasPakai(r) { const h = this.bacaHias(r); return { cat: h.cat || "krem", pagar: h.pagar || "putih", topi: h.topi || "tanpa", rumah: h.rumah || "satu" }; }
   pasangTopi(avatarJson, topi) { let a = {}; try { a = avatarJson ? JSON.parse(avatarJson) : {}; } catch (e) {} if (WARNA_TOPI[topi]) a.topi = WARNA_TOPI[topi]; else delete a.topi; return JSON.stringify(a).slice(0, 600); }
   hasilVoting() {
     const hasil = {}; for (const c of CALON_FASUM) hasil[c] = 0;

@@ -258,3 +258,5 @@ a.barisAtur{text-decoration:none}.barisAtur span{display:flex;flex-direction:col
 @keyframes popMuncul{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
 .layarPenuh.popup>.panel{position:relative}
 .popTutup{position:sticky;top:0;justify-self:end;margin:-6px -8px -40px 0;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.35);color:#fff;font:900 15px Montserrat,sans-serif;cursor:pointer;z-index:2}
+.tkIkon{font-size:22px;line-height:26px;height:26px;display:block}
+.profil .pfNm[hidden]{display:none}.profil{padding-right:10px}

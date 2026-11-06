@@ -198,7 +198,7 @@ export function fullHouse(sc,pos,o={}){const G=new THREE.Group();G.position.copy
  const tr=new THREE.Group();const tk=box(.5,2.6,.5,0x7a4a2a,.04);tk.position.y=1.3;tr.add(tk);[[0,3,0,2.2],[.7,2.7,.4,1.4],[-.7,2.8,-.3,1.5],[0,3.9,0,1.4]].forEach(([a,b,c,k])=>{const m=box(k,k,k,0x4fae3c,.12);m.position.set(a,b,c);tr.add(m)});tr.position.set(-4.6,0,-2.6);G.add(tr);
  const mb=new THREE.Group();const mp=box(.12,1.1,.12,0x6b4a2a,.02);mp.position.y=.55;mb.add(mp);const mx=box(.45,.35,.6,0x3a7ad8,.06);mx.position.y=1.2;mb.add(mx);const fl=box(.05,.25,.12,0xff3a3a,.01);fl.position.set(.25,1.35,.1);mb.add(fl);mb.position.set(1.6,0,fz+.4);G.add(mb);
  const lp=new THREE.Group();const lpp=box(.12,1.6,.12,0x2a2a2a,.02);lpp.position.y=.8;lp.add(lpp);const lb=new THREE.Mesh(new THREE.BoxGeometry(.3,.35,.3),new THREE.MeshBasicMaterial({color:0xffe08a}));lb.position.y=1.75;lp.add(lb);lp.position.set(-1.6,0,fz+.4);G.add(lp);
- return G}
+ G.userData.rumah=1;return G}
 export const HOUSE=n=>{reseed(51);const {sc,cam}=base(blue(),0xcfeaff,[60,200]);lights(sc,.9,0xfff2d8);
  const gr=[];for(let x=-30;x<=30;x+=2)for(let z=-30;z<=24;z+=2)gr.push({p:V3(x,-1,z),s:1.98,c:hsl(.29+rnd()*.04,.7,.36+rnd()*.06)});sc.add(cubes(gr));
  [[-20,40,-60],[18,46,-70],[0,52,-90]].forEach(([x,y,z])=>cloud(sc,x,y,z,7));fullHouse(sc,V3(0,0,0));
