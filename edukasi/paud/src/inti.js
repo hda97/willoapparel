@@ -546,7 +546,9 @@ function pasangGuru() {
   $('bGuru').onclick = bukaGerbangGuru;
   $('guruTambah').onclick = () => { _draf.soal.push(Object.fromEntries(GURU.kolom.map(c => [c.k, '']))); gambarGuru(); const t = $('guruTabel'); t.parentElement.scrollTop = t.scrollHeight; };
   $('guruTempel').onclick = () => {
-    const baris = $('guruExcel').value.split(/\r?\n/).map(r => r.split(/\t|;/).map(s => s.trim())).filter(r => r.some(Boolean));
+    // baris dari Excel dipisah tab; tanpa tab (CSV) dipisah ';'. Sel berlebih digabung ke kolom terakhir (mis. pilihan 'a;b').
+    const nK = GURU.kolom.length;
+    const baris = $('guruExcel').value.split(/\r?\n/).map(r => { let c = r.split(r.includes('\t') ? '\t' : ';').map(s => s.trim()); if (c.length > nK) c = [...c.slice(0, nK - 1), c.slice(nK - 1).filter(Boolean).join(';')]; return c; }).filter(r => r.some(Boolean));
     if (!baris.length) return;
     // lewati baris judul kolom bila ada
     if (baris[0][0] && GURU.kolom[0] && baris[0][0].toLowerCase() === GURU.kolom[0].label.toLowerCase()) baris.shift();
