@@ -80,6 +80,10 @@ UI_SD = r"""
 """
 
 
+PAKET_SD = 'https://lynk.id/creator.store/vwkejw00pj39'
+PAKET_RPG = 'https://lynk.id/creator.store/o6j4518p848o'
+
+
 def html_sd(m, data, kode):
     h = pb.HTML.replace('· Game Edukasi PAUD', '· Game Edukasi SD').replace('Game edukasi PAUD bergaya voxel 3D', 'Game edukasi SD Kurikulum Merdeka bergaya voxel 3D')
     h = h.replace('<div id="bintang"></div>', '<div id="nyawa"></div>\n  <div id="bintang"></div>')
@@ -95,6 +99,8 @@ def html_sd(m, data, kode):
 
 def html_rpg(m, data, kode):
     h = html_sd(m, data, kode).replace('· Game Edukasi SD', '· Adventure RPG Edukasi SD')
+    # pop up mode CONTOH: link beli produk RPG sendiri (Huda 7 Nov)
+    h = h.replace(PAKET_SD, PAKET_RPG)
     h = h.replace('</style>', CSS_RPG + '</style>', 1)
     h = h.replace('<script type="module">', UI_RPG + '<script type="module">', 1)
     return h
@@ -144,6 +150,7 @@ a.k{position:relative}.baru{position:absolute;top:-14px;right:14px;background:#f
 <h1>Game Edukasi SD</h1><p class="sub">Dunia voxel 3D isometrik, tiga fase: A (kelas 1–2), B (kelas 3–4), C (kelas 5–6).</p>
 <div class="grid">{kartu}</div>
 <div class="beli"><div><b>📦 Paket offline untuk guru</b><span>4 game 4 mapel (Matematika, Bahasa Indonesia, IPAS, Bahasa Inggris), bisa tanpa internet, + panduan bergambar untuk guru, dalam satu file zip</span></div><a href="https://lynk.id/creator.store/vwkejw00pj39" target="_blank" rel="noopener">Dapatkan paketnya</a></div>
+<div class="beli" style="background:#7048e8"><div><b>⚔️ Petualang Ilmu: Legenda Nusantara versi lengkap</b><span>Adventure RPG semua mapel, 7 misi sampai Raja Galat, Mode Guru untuk ganti soal, bisa tanpa internet, + panduan bergambar, dalam satu file zip</span></div><a href="https://lynk.id/creator.store/o6j4518p848o" target="_blank" rel="noopener">Dapatkan game RPG</a></div>
 <p class="cat">Untuk guru: tombol <b>Guru</b> di setiap game untuk mengubah soal per fase, menempel soal dari Excel, lalu mengunduh file HTML berisi soal Anda. <a href="../paud/" style="color:inherit">Game PAUD ada di sini.</a></p>
 <p class="cat"><a href="https://www.willoapparel.com" style="color:#e8590c;font-weight:800;text-decoration:none">Supported by www.willoapparel.com</a></p>
 </body></html>
