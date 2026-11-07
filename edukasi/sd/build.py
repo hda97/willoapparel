@@ -54,11 +54,12 @@ CSS_SD = r"""
 .fase{border:0;border-radius:22px;background:#fff;border-top:10px solid var(--w);box-shadow:0 6px 0 rgba(0,0,0,.14),0 0 0 2px #f1f3f5 inset;font-family:inherit;padding:14px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
 .fase:active{transform:translateY(3px)}.fase:disabled{opacity:.4}
 .fase b{font-size:28px;color:var(--w)}.fase span{font-size:19px;font-weight:700}.fase em{font-style:normal;font-size:15px;color:#777}.fase i{font-style:normal;color:#ffc107;font-size:24px;text-shadow:0 2px 0 #b07d00;letter-spacing:2px}
-@media (min-aspect-ratio:1/1) and (min-width:700px){#kartu{max-width:30vw;font-size:clamp(22px,2.8vw,38px);white-space:normal}
+@media (min-aspect-ratio:1/1) and (min-width:700px),(orientation:landscape) and (min-width:560px) and (max-height:500px){#kartu{max-width:30vw;font-size:clamp(22px,2.8vw,38px);white-space:normal}
  #numpad{position:fixed;right:14px;top:78px;width:min(290px,30vw)}#npTombol{grid-template-columns:repeat(3,1fr)}#npTombol button{padding:3px 0;font-size:22px}#npIsi{min-height:44px;font-size:28px}
  body:has(#numpad:not([hidden])) #gelembung{margin-right:min(300px,31vw);max-width:calc(100vw - min(300px,31vw) - 40px)}}
 #kartu.bacaan small{font-size:clamp(15px,3.9vw,20px)}
-@media (min-aspect-ratio:1/1) and (min-width:700px){#kartu.bacaan{max-width:36vw;max-height:62vh;overflow:auto}body:has(#kartu.bacaan:not([hidden])) #pilihan{padding-left:min(38vw,460px)}#kartu.bacaan small{font-size:clamp(14px,1.5vw,19px)}}
+@media (min-aspect-ratio:1/1) and (min-width:700px),(orientation:landscape) and (min-width:560px) and (max-height:500px){#kartu.bacaan{max-width:36vw;max-height:62vh;overflow:auto}body:has(#kartu.bacaan:not([hidden])) #pilihan{padding-left:min(38vw,460px)}#kartu.bacaan small{font-size:clamp(14px,1.5vw,19px)}}
+@media (orientation:landscape) and (min-width:560px) and (max-height:500px){#numpad{top:70px;padding:6px}#npTombol{grid-template-columns:repeat(4,1fr);gap:4px}#npTombol button{font-size:18px;padding:2px 0}#npIsi{min-height:34px;font-size:22px;margin-bottom:4px}}
 @media (max-width:520px){#numpad{padding:8px}#npTombol button{font-size:22px;padding:4px 0}#npIsi{font-size:28px;min-height:44px}}
 """
 
@@ -123,7 +124,7 @@ a.k:active{transform:translateY(3px)}.ik{font-size:54px;line-height:1}.k small{f
 </style></head><body>
 <h1>Game Edukasi SD</h1><p class="sub">Dunia voxel 3D isometrik, tiga fase: A (kelas 1–2), B (kelas 3–4), C (kelas 5–6).</p>
 <div class="grid">{kartu}</div>
-<div class="beli"><div><b>📦 Paket offline untuk guru</b><span>Petualang Hitung SD (bisa tanpa internet) + video tutorial guru, dalam satu file zip</span></div><a href="https://lynk.id/creator.store/vwkejw00pj39" target="_blank" rel="noopener">Dapatkan paketnya</a></div>
+<div class="beli"><div><b>📦 Paket offline untuk guru</b><span>4 game 4 mapel (Matematika, Bahasa Indonesia, IPAS, Bahasa Inggris), bisa tanpa internet, + panduan bergambar untuk guru, dalam satu file zip</span></div><a href="https://lynk.id/creator.store/vwkejw00pj39" target="_blank" rel="noopener">Dapatkan paketnya</a></div>
 <p class="cat">Untuk guru: tombol <b>Guru</b> di setiap game untuk mengubah soal per fase, menempel soal dari Excel, lalu mengunduh file HTML berisi soal Anda. <a href="../paud/" style="color:inherit">Game PAUD ada di sini.</a></p>
 <p class="cat"><a href="https://www.willoapparel.com" style="color:#e8590c;font-weight:800;text-decoration:none">Supported by www.willoapparel.com</a></p>
 </body></html>

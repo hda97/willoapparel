@@ -15,6 +15,8 @@ const acakInt = (a, b) => Math.floor(acak(a, b + 1));
 const pilih = arr => arr[Math.floor(Math.random() * arr.length)];
 const kocok = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const tegak = () => innerWidth / innerHeight < .85;
+// tata letak samping (kartu kiri, numpad kanan): layar lebar, atau HP rebah yang pendek (mis. 667x375)
+const layarLebar = () => innerWidth > 700 || (innerWidth >= 560 && innerWidth > innerHeight && innerHeight <= 500);
 const tunggu = ms => new Promise(r => setTimeout(r, ms));
 // salinan HTML asli (sebelum game berjalan) untuk tombol 'Unduh HTML' di Mode Guru
 const HTML_ASLI = '<!doctype html>\n' + document.documentElement.outerHTML;
@@ -170,14 +172,16 @@ function gradasi(warna) { const c = document.createElement('canvas'); c.width = 
 function siapPanggung({langit = '#bfe6ff', tanahWarna = '#7cc96b', kabut = null, lebarArea = 10, dalamArea = 8, lebarTegak = 6.2, dalamTegak = 8.4, sudut = 46, yaw = 0, fov = 38, dMin = 8, dMax = 40, batasX = 5, batasZ = [-6, 8]} = {}) {
   // yaw: putaran kamera (0 = dari depan seperti PAUD, PI/4 = isometrik untuk SD)
   const R = new THREE.WebGLRenderer({canvas: $('layar'), antialias: true, preserveDrawingBuffer: true});
-  R.setPixelRatio(Math.min(devicePixelRatio, 2)); R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap;
+  // HP (layar sentuh / prosesor kecil): resolusi & bayangan lebih ringan supaya tetap lancar di HP murah
+  const ringan = matchMedia('(pointer:coarse)').matches || (navigator.hardwareConcurrency || 8) <= 4;
+  R.setPixelRatio(Math.min(devicePixelRatio, ringan ? 1.5 : 2)); R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap;
   R.outputColorSpace = THREE.SRGBColorSpace; R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.2;
   const sc = new THREE.Scene(); sc.background = gradasi(langit);
   sc.fog = new THREE.Fog(kabut || langit, 34, 80);
   const cam = new THREE.PerspectiveCamera(fov, 1, .1, 200);
   sc.add(new THREE.HemisphereLight(0xffffff, 0xa8c8a0, 1.3));
   const mt = new THREE.DirectionalLight(0xfff4e8, 2.4); mt.position.set(8, 18, 11); mt.castShadow = true;
-  mt.shadow.mapSize.set(2048, 2048); const sh = mt.shadow.camera; sh.left = -12; sh.right = 12; sh.top = 12; sh.bottom = -12; sh.near = 1; sh.far = 40; mt.shadow.bias = -.0004; mt.shadow.radius = 4;
+  mt.shadow.mapSize.set(ringan ? 1024 : 2048, ringan ? 1024 : 2048); const sh = mt.shadow.camera; sh.left = -12; sh.right = 12; sh.top = 12; sh.bottom = -12; sh.near = 1; sh.far = 40; mt.shadow.bias = -.0004; mt.shadow.radius = 4;
   sc.add(mt);
   Object.assign(P, {R, sc, cam, mt, lebarArea, dalamArea, lebarTegak, dalamTegak, sudut, yaw, dMin, dMax, batasX, batasZ, fokus: new THREE.Vector3(0, 0, 0)});
   const ukur = () => {
@@ -200,9 +204,9 @@ const _v3 = new THREE.Vector3(), _bx = new THREE.Box3();
 function batasUI() {
   let atas = Math.max(0, ...['bintang', 'bSuara'].map(id => { const e = $(id); return e ? e.getBoundingClientRect().bottom : 0; })) + 8;
   let bawah = innerHeight, kanan = innerWidth - 8; ['gelembung', 'kartu', 'pilihan', 'numpad'].forEach(id => { const e = $(id); if (!e || e.hidden) return; const r = e.getBoundingClientRect(); if (!r.height) return;
-    if (innerWidth > 700 && r.left > innerWidth * .6) kanan = Math.min(kanan, r.left - 10); else if (!(innerWidth > 700 && r.right < innerWidth * .45 && r.left < 40)) bawah = Math.min(bawah, r.top); });
+    if (layarLebar() && r.left > innerWidth * .6) kanan = Math.min(kanan, r.left - 10); else if (!(layarLebar() && r.right < innerWidth * .45 && r.left < 40)) bawah = Math.min(bawah, r.top); });
   const lm = $('layarMulai'); if (lm && !lm.hidden) { const a = lm.querySelector('.mAtas'), z = lm.querySelector('.mBawah'); if (a) atas = Math.max(atas, a.getBoundingClientRect().bottom + 8); if (z) bawah = Math.min(bawah, z.getBoundingClientRect().top); }
-  return {atas, bawah: bawah - 10, kanan, kiri: innerWidth > 700 && $('kartu') && !$('kartu').hidden && $('kartu').getBoundingClientRect().left < 40 ? $('kartu').getBoundingClientRect().right + 10 : 8};
+  return {atas, bawah: bawah - 10, kanan, kiri: layarLebar() && $('kartu') && !$('kartu').hidden && $('kartu').getBoundingClientRect().left < 40 ? $('kartu').getBoundingClientRect().right + 10 : 8};
 }
 function bingkaiDrone(dt) {
   const objs = [P.tokoh, ...objRonde].filter(Boolean); if (!objs.length || !P.drone) return;
@@ -452,7 +456,7 @@ function ajakanBeli(alasan) {
   d.innerHTML = `<div style="background:#fffaf0;color:#1d2a1d;border-radius:24px;max-width:420px;width:100%;padding:24px 22px;text-align:center;box-shadow:0 8px 0 rgba(0,0,0,.2)">
     <div style="font-size:52px;line-height:1">${alasan === 'guru' ? '🔒' : '🎉'}</div>
     <h2 style="margin:8px 0 6px;font-size:26px">${alasan === 'guru' ? 'Mode Guru ada di paket' : 'Contoh selesai!'}</h2>
-    <p style="margin:0 0 14px;font-size:16px;line-height:1.45">${alasan === 'guru' ? 'Mengganti soal dan menyimpan file game hanya tersedia di paket offline untuk guru.' : 'Ini versi contoh ' + CONTOH_SOAL + ' soal. Versi lengkap untuk kelas: semua soal, jalan tanpa internet, Mode Guru untuk ganti soal, dan video tutorial.'}</p>
+    <p style="margin:0 0 14px;font-size:16px;line-height:1.45">${alasan === 'guru' ? 'Mengganti soal dan menyimpan file game hanya tersedia di paket offline untuk guru.' : 'Ini versi contoh ' + CONTOH_SOAL + ' soal. Versi lengkap untuk kelas: semua soal, jalan tanpa internet, Mode Guru untuk ganti soal, dan tutorial untuk guru.'}</p>
     <a href="${LINK_BELI}" target="_blank" rel="noopener" style="display:block;background:#ffd23a;color:#1d2a1d;font-weight:800;font-size:18px;padding:13px 16px;border-radius:16px;text-decoration:none;box-shadow:0 5px 0 #c9a21d">🛒 Dapatkan paket lengkap</a>
     <a href="https://www.willoapparel.com/duniakotak/belajar/" style="display:block;margin-top:12px;font-weight:700;font-size:15px;color:#1d2a1d">Lihat semua paket game</a>
     ${alasan === 'guru' ? '<button style="margin-top:12px;border:0;background:none;font:inherit;font-weight:700;color:#666;cursor:pointer">Tutup</button>' : ''}
