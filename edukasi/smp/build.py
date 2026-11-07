@@ -139,6 +139,22 @@ button{font-family:inherit;color:inherit}
 /* pembahasan */
 #pembahasan{position:fixed;left:50%;transform:translateX(-50%);bottom:max(14px,env(safe-area-inset-bottom));background:#fff;border-radius:22px;padding:12px 18px;box-shadow:0 8px 0 rgba(0,0,0,.15);z-index:5;width:min(760px,94vw);display:flex;gap:14px;align-items:center;animation:muncul .3s}
 #pIsi{flex:1;display:flex;flex-direction:column;gap:2px}.pJudul{font-size:clamp(18px,2vw,26px);font-weight:800;line-height:1.1}.pJelas{font-family:system-ui,sans-serif;font-size:clamp(14px,1.5vw,18px);line-height:1.35}.pStat{font-weight:800;color:#5a6b85}
+/* tata letak saat bermain: arena 3D dan panel soal terpisah, tidak saling menutupi */
+#sisi{display:contents}
+body.bermain #sisi{display:flex;flex-direction:column;gap:10px;position:fixed;z-index:4;overflow:auto;background:#eaf3fb;padding:12px;
+  right:0;top:0;bottom:0;width:var(--sisiW,400px);border-left:4px solid #d0e2f2}
+body.bermain #sisi>*{position:static;transform:none;left:auto;right:auto;top:auto;bottom:auto;margin:0;width:auto;min-width:0;max-width:none;box-shadow:0 4px 0 rgba(0,0,0,.1)}
+body.bermain #kTeks{font-size:clamp(20px,2vw,30px)}body.bermain #kTeks.panjang{font-size:clamp(17px,1.6vw,24px)}
+body.bermain .op{font-size:clamp(17px,1.6vw,24px);min-height:46px}
+body.bermain #jawabTim{display:grid;grid-template-columns:1fr 1fr;gap:8px}body.bermain #jawabTim[hidden]{display:none}
+body.bermain .jt{padding:5px 6px 7px;min-width:0}body.bermain .jt>div{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;width:100%}body.bermain .jt button{padding:3px;min-width:0}body.bermain .jt button i{width:100%;max-width:40px;height:32px;font-size:19px}
+body.bermain #pembahasan{flex-direction:column;align-items:stretch;animation:none}
+body.bermain #papan{flex:none}
+body.bermain #hud{right:auto;left:max(10px,env(safe-area-inset-left))}
+body.bermain #alamatKecil{left:max(12px,env(safe-area-inset-left))}
+body.bermain.tegak #sisi{left:0;right:0;top:auto;width:auto;height:var(--sisiH,52vh);border-left:0;border-top:4px solid #d0e2f2}
+body.bermain.tegak #kOpsi{grid-template-columns:1fr 1fr}
+body.bermain.tegak #alamatKecil{bottom:calc(var(--sisiH,52vh) + 10px)}
 /* akhir */
 #lAkhir{flex-direction:column;justify-content:center;align-items:flex-end;gap:8px;padding-right:max(24px,env(safe-area-inset-right))}
 #lAkhir .kotak{max-width:470px;padding:14px 18px;max-height:76vh;display:flex;flex-direction:column;overflow:hidden}
@@ -188,8 +204,8 @@ HTML = r"""<!doctype html>
 <body data-layar="lJudul">
 <canvas id="layar"></canvas>
 <div id="hud" hidden><button id="bSuara" title="Suara">🎵</button><button id="bLayarPenuh" title="Layar penuh">⛶</button><button id="bJeda" title="Jeda">❚❚</button><button id="bBantu" title="Bantuan">?</button></div>
-<div id="papan" hidden></div>
 <div id="alamatKecil" hidden></div>
+<div id="sisi">
 <div id="kartu" hidden>
   <div class="kAtas"><span id="kNo"></span><span id="kDetik">30</span></div>
   <div id="kTeks"></div><div id="kOpsi"></div>
@@ -198,6 +214,8 @@ HTML = r"""<!doctype html>
 </div>
 <div id="jawabTim" hidden></div>
 <div id="pembahasan" hidden><div id="pIsi"></div><button class="besar" id="pLanjut">Lanjut ▶</button></div>
+<div id="papan" hidden></div>
+</div>
 
 <div class="layar" id="lJudul">
   <div class="jAtas"><span class="jSeri">{ikon} Dunia Kotak SMP · {mapel} kelas 7, 8, 9</span><h1 id="jJudul">{judul}</h1><p id="jAjak"></p></div>

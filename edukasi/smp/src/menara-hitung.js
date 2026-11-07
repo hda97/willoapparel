@@ -38,7 +38,7 @@ function bangunMenara(n) {
       [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => g.add(di(kotak(.55, TH - .4, .55, '#c98a4b', .08), sx * (LEBAR / 2 + .05), y + TH / 2, sz * (LEBAR / 2 + .05))));
       // nomor lantai di dua sisi depan
       const nomor = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 1.3), new THREE.MeshBasicMaterial({map: teksKanvas(String(i + 1), '#1d4ed8', '#fff', {ukuran: i + 1 >= 10 ? 70 : 90})}));
-      nomor.position.set(LEBAR / 2 + .36, y + 1.2, LEBAR / 2 + .36); nomor.rotation.y = Math.PI / 4; g.add(nomor);
+      nomor.position.set(-LEBAR / 2 - .45, y + 1.4, LEBAR / 2 + .45); nomor.rotation.y = 0; g.add(nomor);
     } else {
       // puncak: atap bertingkat + bendera + podium
       const pod = new THREE.Group(); pod.position.y = y; g.add(pod);
@@ -119,14 +119,14 @@ function aturKamera(dt) {
   if (M.mode === 'main') {
     let lo = Infinity, hi = -Infinity; PEMAIN.forEach(p => { lo = Math.min(lo, p.lantai); hi = Math.max(hi, p.lantai); });
     if (!isFinite(lo)) { lo = 0; hi = 0; }
-    c.ty = (lo + hi) / 2 * TH + .8; c.td = Math.max(15, ((hi - lo) * TH + 2) / .32 + 5); c.th = .55 + Math.sin(performance.now() / 9000) * .35;
+    c.ty = (lo + hi) / 2 * TH + .8; c.td = Math.max(17, ((hi - lo) * TH + 3) / .3 + 6) * Math.max(1, 1.25 / P.cam.aspect); c.th = .12 + Math.sin(performance.now() / 9000) * .18;
   } else if (M.mode === 'lobi') { c.ty = 2.4; c.td = 24; c.th += (0.0 - c.th) * Math.min(1, dt) + dt * 0; }
   else if (M.mode === 'podium') { c.ty = M.tinggi * TH + 1.6; c.td = 12; c.th += (.25 - c.th) * Math.min(1, dt * 2); }
   else { c.ty = M.tinggi * TH * .45; c.td = M.tinggi * TH * 1.35 + 20; c.th += dt * .06; }
   c.y += (c.ty - c.y) * Math.min(1, dt * 2); c.d += (c.td - c.d) * Math.min(1, dt * 2);
   const tinggiCam = M.mode === 'lobi' ? 6 : M.mode === 'podium' ? 2.6 : M.mode === 'main' ? c.d * .45 : c.d * .42;
   M.camPos.set(Math.sin(c.th) * c.d, c.y + tinggiCam, Math.cos(c.th) * c.d);
-  const geser = M.mode === 'podium' ? 3.2 : 0; P.cam.position.copy(M.camPos); P.cam.position.x += geser; P.cam.lookAt(geser, c.y + (M.mode === 'main' ? c.d * .06 : 0), M.mode === 'lobi' ? 4 : 0); ikutCahaya(0, c.y, 0);
+  const geser = M.mode === 'podium' ? 3.2 : 0; P.cam.position.copy(M.camPos); P.cam.position.x += geser; P.cam.lookAt(geser, c.y, M.mode === 'lobi' ? 4 : 0); ikutCahaya(0, c.y, 0);
 }
 
 // ---------- kait dari inti ----------

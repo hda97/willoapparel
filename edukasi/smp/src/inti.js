@@ -140,7 +140,17 @@ function siapPanggung({langit = '#bfe6ff', bayangan = 30} = {}) {
   Object.assign(mt.shadow.camera, {left: -bayangan, right: bayangan, top: bayangan, bottom: -bayangan, near: 1, far: 120}); mt.shadow.bias = -.0004; sc.add(mt); sc.add(mt.target);
   const cam = new THREE.PerspectiveCamera(36, 1, .1, 400);
   Object.assign(P, {R, sc, cam, mt});
-  const ukur = () => { R.setSize(innerWidth, innerHeight, false); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); };
+  // saat bermain, arena 3D hanya di luar panel soal (kanan di laptop, bawah di HP/layar tegak)
+  const ukur = () => {
+    const main = document.body.classList.contains('bermain'), tegak = innerHeight > innerWidth * 1.05;
+    document.body.classList.toggle('tegak', tegak);
+    let w = innerWidth, h = innerHeight;
+    if (main && !tegak) { const sw = Math.round(Math.min(460, Math.max(330, innerWidth * .34))); document.body.style.setProperty('--sisiW', sw + 'px'); w = innerWidth - sw; }
+    if (main && tegak) { const sh = Math.round(innerHeight * .52); document.body.style.setProperty('--sisiH', sh + 'px'); h = innerHeight - sh; }
+    R.domElement.style.width = w + 'px'; R.domElement.style.height = h + 'px';
+    R.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix();
+  };
+  P.ukur = ukur;
   addEventListener('resize', ukur); ukur(); return P;
 }
 function ikutCahaya(x, y, z) { P.mt.position.set(x + 12, y + 26, z + 16); P.mt.target.position.set(x, y, z); }
@@ -414,7 +424,7 @@ function mulaiSesi(mode) {
   const n = CONTOH ? BATAS_CONTOH : ATUR.jumlah;
   SESI = {mode, soal: pilihSoal(n), no: -1, fase: 'mulai', sisa: 0, urutBenar: 0};
   PEMAIN.forEach(p => { p.lantai = 0; p.poin = 0; p.benar = 0; p.jawab = []; });
-  tampil(null); MAIN = true; tampilHUD(true); $('papan').hidden = false; $('alamatKecil').hidden = mode !== 'hp';
+  tampil(null); MAIN = true; aturBermain(true); tampilHUD(true); $('papan').hidden = false; $('alamatKecil').hidden = mode !== 'hp';
   if (mode === 'hp') $('alamatKecil').textContent = '📱 ' + alamatMurid().replace(/^http:\/\//, '');
   GAME.mulai(mode, SESI.soal.length);
   gambarPapan(); lanjutSoal();
@@ -499,7 +509,7 @@ function gambarPapan() {
   $('papan').innerHTML = `<div class="pbJudul">${st ? 'Rata-rata poin tim' : 'Peringkat'}</div>` + baris.join('');
 }
 async function akhirSesi() {
-  SESI.fase = 'akhir'; $('kartu').hidden = true; $('jawabTim').hidden = true; $('hitungJawab').hidden = true; $('papan').hidden = true;
+  SESI.fase = 'akhir'; aturBermain(false); $('kartu').hidden = true; $('jawabTim').hidden = true; $('hitungJawab').hidden = true; $('papan').hidden = true;
   const urut = urutPeringkat(PEMAIN.values()); const st = skorTim();
   efek.menang();
   if (SESI.mode === 'hp') siarKeadaan();
@@ -537,7 +547,8 @@ function tawarPaket(alasan) {
 }
 
 // ---------- HUD ----------
-function tampilHUD(on) { $('hud').hidden = !on; if (!on) { $('papan').hidden = true; $('alamatKecil').hidden = true; } }
+function aturBermain(on) { document.body.classList.toggle('bermain', on); P.ukur && P.ukur(); }
+function tampilHUD(on) { $('hud').hidden = !on; if (!on) { aturBermain(false); $('papan').hidden = true; $('alamatKecil').hidden = true; } }
 function aturJeda(on) { JEDA = on; $('lJeda').hidden = !on; volMusik(); }
 function tulisSuara() { $('bSuara').textContent = !SUARA_ON ? '🔇' : MUSIK_ON ? '🎵' : '🔈'; }
 function pasangHUD() {
