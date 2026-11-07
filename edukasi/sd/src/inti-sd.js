@@ -66,7 +66,7 @@ function tutupPapan() { $('numpad').hidden = true; _np = null; }
 addEventListener('keydown', e => { if (!_np || $('numpad').hidden || !$('panelGuru').hidden) return; if (/^[0-9]$/.test(e.key)) _np(e.key); else if (e.key === 'Backspace') _np('⌫'); else if (e.key === 'Enter') _np('ok'); else if (e.key === ',' || e.key === '.') _np(','); });
 
 // ---------- soal kartu (teks besar soal) ----------
-function kartuSoal(html) { const k = $('kartu'); k.innerHTML = html; k.hidden = false; }
+function kartuSoal(html) { const k = $('kartu'); k.classList.remove('bacaan'); k.innerHTML = html; k.hidden = false; }
 
 // ---------- pilih fase ----------
 const FASE = {A: {nama: 'Fase A', kelas: 'Kelas 1–2', warna: '#2f9e44'}, B: {nama: 'Fase B', kelas: 'Kelas 3–4', warna: '#1c7ed6'}, C: {nama: 'Fase C', kelas: 'Kelas 5–6', warna: '#ae3ec9'}};

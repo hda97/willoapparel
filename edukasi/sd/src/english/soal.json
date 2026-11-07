@@ -1,0 +1,216 @@
+{
+ "judul": "English Explorer",
+ "urutan": "berurutan",
+ "soal": [
+  {
+   "fase": "A",
+   "jenis": "pilih",
+   "soal": "🍎",
+   "jawaban": "apple",
+   "pilihan": "banana;orange"
+  },
+  {
+   "fase": "A",
+   "jenis": "pilih",
+   "soal": "🐶",
+   "jawaban": "dog",
+   "pilihan": "cat;bird"
+  },
+  {
+   "fase": "A",
+   "jenis": "susun",
+   "soal": "c-a-t",
+   "jawaban": "🐱 Hewan yang suka mengeong",
+   "pilihan": ""
+  },
+  {
+   "fase": "A",
+   "jenis": "kelompok",
+   "soal": "Red: 🍓 strawberry, 🍒 cherry, 🍅 tomato ; Yellow: 🍌 banana, 🌻 sunflower, 🍋 lemon",
+   "jawaban": "Kelompokkan sesuai warnanya",
+   "pilihan": ""
+  },
+  {
+   "fase": "A",
+   "jenis": "pilih",
+   "soal": "Angka 7 dalam bahasa Inggris adalah ...",
+   "jawaban": "seven",
+   "pilihan": "six;eight"
+  },
+  {
+   "fase": "A",
+   "jenis": "bacaan",
+   "soal": "Hello! My name is Tom. I am seven years old. | How old is Tom?",
+   "jawaban": "seven",
+   "pilihan": "six;eight"
+  },
+  {
+   "fase": "A",
+   "jenis": "susun",
+   "soal": "b-o-o-k",
+   "jawaban": "📖 Benda untuk dibaca",
+   "pilihan": ""
+  },
+  {
+   "fase": "A",
+   "jenis": "pilih",
+   "soal": "👋 Salam saat bertemu teman adalah ...",
+   "jawaban": "Hello",
+   "pilihan": "Goodbye;Thank you"
+  },
+  {
+   "fase": "A",
+   "jenis": "kelompok",
+   "soal": "Animals: cat, fish, cow ; Fruits: mango, grape, melon",
+   "jawaban": "Pisahkan hewan dan buah",
+   "pilihan": ""
+  },
+  {
+   "fase": "A",
+   "jenis": "pilih",
+   "soal": "🔵 This color is ...",
+   "jawaban": "blue",
+   "pilihan": "green;red"
+  },
+  {
+   "fase": "B",
+   "jenis": "pilih",
+   "soal": "Bahasa Inggris dari \"dapur\" adalah ...",
+   "jawaban": "kitchen",
+   "pilihan": "bedroom;garden"
+  },
+  {
+   "fase": "B",
+   "jenis": "susun",
+   "soal": "I | like | to | read | books",
+   "jawaban": "Susun kalimat yang benar",
+   "pilihan": ""
+  },
+  {
+   "fase": "B",
+   "jenis": "bacaan",
+   "soal": "Good morning, Rina! How are you? | Jawaban yang tepat adalah ...",
+   "jawaban": "I am fine, thank you.",
+   "pilihan": "Good night.;See you later."
+  },
+  {
+   "fase": "B",
+   "jenis": "kelompok",
+   "soal": "Days: Monday, Friday, Sunday ; Months: January, June, December",
+   "jawaban": "Pisahkan nama hari dan nama bulan",
+   "pilihan": ""
+  },
+  {
+   "fase": "B",
+   "jenis": "pilih",
+   "soal": "👨‍🏫 Orang yang mengajar di kelas disebut ...",
+   "jawaban": "teacher",
+   "pilihan": "doctor;farmer"
+  },
+  {
+   "fase": "B",
+   "jenis": "susun",
+   "soal": "s-c-h-o-o-l",
+   "jawaban": "🏫 Tempat kita belajar",
+   "pilihan": ""
+  },
+  {
+   "fase": "B",
+   "jenis": "pilih",
+   "soal": "\"What time is it?\" ⏰ 9:00. Jawabannya ...",
+   "jawaban": "It is nine o'clock.",
+   "pilihan": "It is Monday.;It is sunny."
+  },
+  {
+   "fase": "B",
+   "jenis": "bacaan",
+   "soal": "My father is a farmer. He works in the rice field every day. | Where does the father work?",
+   "jawaban": "in the rice field",
+   "pilihan": "in a hospital;in a school"
+  },
+  {
+   "fase": "B",
+   "jenis": "kelompok",
+   "soal": "Body parts: hand, eye, nose ; Clothes: shirt, hat, shoes",
+   "jawaban": "Pisahkan anggota tubuh dan pakaian",
+   "pilihan": ""
+  },
+  {
+   "fase": "B",
+   "jenis": "pilih",
+   "soal": "Lawan kata (opposite) dari \"big\" adalah ...",
+   "jawaban": "small",
+   "pilihan": "tall;long"
+  },
+  {
+   "fase": "C",
+   "jenis": "susun",
+   "soal": "She | goes | to | school | by | bike",
+   "jawaban": "Susun kalimat yang benar",
+   "pilihan": ""
+  },
+  {
+   "fase": "C",
+   "jenis": "pilih",
+   "soal": "I ... a student. Kata yang tepat adalah ...",
+   "jawaban": "am",
+   "pilihan": "is;are"
+  },
+  {
+   "fase": "C",
+   "jenis": "bacaan",
+   "soal": "Last Sunday, Andi went to the beach with his family. They swam and built a sandcastle. | What did Andi do at the beach?",
+   "jawaban": "He swam and built a sandcastle.",
+   "pilihan": "He went to school.;He played football at home."
+  },
+  {
+   "fase": "C",
+   "jenis": "kelompok",
+   "soal": "Past: went, ate, played ; Present: go, eat, play",
+   "jawaban": "Pisahkan kata kerja lampau dan sekarang",
+   "pilihan": ""
+  },
+  {
+   "fase": "C",
+   "jenis": "pilih",
+   "soal": "\"Can I borrow your pen?\" Jawaban yang sopan adalah ...",
+   "jawaban": "Sure, here you are.",
+   "pilihan": "No, go away.;I am hungry."
+  },
+  {
+   "fase": "C",
+   "jenis": "susun",
+   "soal": "e-n-v-i-r-o-n-m-e-n-t",
+   "jawaban": "🌳 Lingkungan",
+   "pilihan": ""
+  },
+  {
+   "fase": "C",
+   "jenis": "pilih",
+   "soal": "Kalimat ajakan yang benar adalah ...",
+   "jawaban": "Let's clean the classroom!",
+   "pilihan": "I cleaned the classroom.;Is the classroom clean?"
+  },
+  {
+   "fase": "C",
+   "jenis": "bacaan",
+   "soal": "Rani wants to be a doctor. She studies hard because she wants to help sick people. | Why does Rani study hard?",
+   "jawaban": "She wants to help sick people.",
+   "pilihan": "She wants to be a pilot.;She is sick."
+  },
+  {
+   "fase": "C",
+   "jenis": "kelompok",
+   "soal": "Countable: apple, chair, book ; Uncountable: water, sugar, rice",
+   "jawaban": "Pisahkan benda yang bisa dan tidak bisa dihitung",
+   "pilihan": ""
+  },
+  {
+   "fase": "C",
+   "jenis": "pilih",
+   "soal": "Bahasa Inggris dari \"Saya suka bermain sepak bola\" adalah ...",
+   "jawaban": "I like playing football.",
+   "pilihan": "I am playing football yesterday.;I likes play football."
+  }
+ ]
+}
