@@ -440,11 +440,11 @@ function pilihanUI(daftar, fn) {
   if (!daftar) return;
   daftar.forEach(d => { const b = document.createElement('button'); b.className = 'pil'; b.innerHTML = d.html; b.onclick = () => { if (!kunci) { efek.ketuk(); fn(d, b); } }; w.appendChild(b); });
 }
-// tanda "Support by www.willoapparel.com": dipasang ulang otomatis bila dihapus dari HTML
+// tanda "Supported by www.willoapparel.com": dipasang ulang otomatis bila dihapus dari HTML
 function pastikanDukung() {
   ['layarMulai', 'layarSelesai'].forEach(id => { const k = $(id) && $(id).querySelector('.kotak'); if (!k) return;
     let a = k.querySelector('.dukung'); if (!a) { a = document.createElement('a'); a.className = 'dukung'; k.appendChild(a); }
-    a.href = 'https://www.willoapparel.com'; a.target = '_blank'; a.rel = 'noopener'; a.innerHTML = 'Support by <b>www.willoapparel.com</b>';
+    a.href = 'https://www.willoapparel.com'; a.target = '_blank'; a.rel = 'noopener'; a.innerHTML = 'Supported by <b>www.willoapparel.com</b>';
     a.style.cssText = 'display:table!important;visibility:visible!important;opacity:1!important;margin:16px auto 0;padding:4px 14px;border-radius:99px;background:rgba(255,255,255,.92);font-size:14px;font-weight:700;color:#666;text-decoration:none'; a.firstElementChild.style.color = '#e8590c'; });
 }
 async function layarMulai(judul, ajakan, fnMulai) {

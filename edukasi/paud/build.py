@@ -141,12 +141,12 @@ HTML = r"""<!doctype html>
 <div class="layar" id="layarMulai"><div class="hias" aria-hidden="true"><i>★</i><i>●</i><i>▲</i><i>♥</i><i>★</i><i>■</i><i>●</i><i>♥</i><i>▲</i><i>★</i><i>●</i><i>■</i></div>
   <div class="mAtas"><div class="ikonBesar">{ikon}</div><h1 id="mulaiJudul">{judul}</h1><p id="mulaiAjak">{ajak}</p></div>
   <div class="kotak mBawah"><button class="besar" id="bMulai">▶ Main</button>
-  <a class="dukung" href="https://www.willoapparel.com" target="_blank" rel="noopener">Support by <b>www.willoapparel.com</b></a></div>
+  <a class="dukung" href="https://www.willoapparel.com" target="_blank" rel="noopener">Supported by <b>www.willoapparel.com</b></a></div>
 </div>
 <div class="layar" id="layarSelesai" hidden><div class="kotak">
   <div id="selesaiBintang">★★★</div><h1>Hebat sekali!</h1><p>Kamu sudah menyelesaikan semua soal.</p>
   <button class="besar" id="bUlang">↻ Main lagi</button>
-  <a class="dukung" href="https://www.willoapparel.com" target="_blank" rel="noopener">Support by <b>www.willoapparel.com</b></a>
+  <a class="dukung" href="https://www.willoapparel.com" target="_blank" rel="noopener">Supported by <b>www.willoapparel.com</b></a>
 </div></div>
 <div class="layar" id="guruGerbang" hidden><div class="kotak">
   <h2 style="margin:0 0 6px">Mode Guru</h2><div id="gTanya"></div>
@@ -229,7 +229,7 @@ a.k:active{transform:translateY(3px)}.ik{font-size:54px;line-height:1}.k h2{marg
 <h1>Game Edukasi PAUD</h1><p class="sub">Dunia voxel 3D, suara pembaca soal, boleh coba lagi sampai bisa.</p>
 <div class="grid">{kartu}</div>
 <p class="cat">Untuk guru: setiap game punya tombol <b>Guru</b> untuk mengubah soal, menempel soal dari Excel, lalu mengunduh file HTML berisi soal Anda.</p>
-<p class="cat"><a href="https://www.willoapparel.com" style="color:#e8590c;font-weight:800;text-decoration:none">Support by www.willoapparel.com</a></p>
+<p class="cat"><a href="https://www.willoapparel.com" style="color:#e8590c;font-weight:800;text-decoration:none">Supported by www.willoapparel.com</a></p>
 </body></html>
 """
 
