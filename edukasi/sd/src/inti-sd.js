@@ -4,7 +4,6 @@
 // nyawa ❤, papan angka (numpad), pilih fase, simpan bintang per fase.
 // ===================================================================
 const YAW_ISO = Math.PI / 4;
-TEKS_DUKUNG = 'Supported by';
 // glyph tambahan untuk teksVoxel (soal hitung)
 Object.assign(FONT, {
   '+': '.....|..#..|..#..|#####|..#..|..#..|.....', '-': '.....|.....|.....|#####|.....|.....|.....',

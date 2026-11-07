@@ -70,6 +70,9 @@ def html_sd(m, data, kode):
     h = h.replace('<div id="gelembung">Memuat…</div>', '<div id="numpad" hidden><div id="npIsi"></div><div id="npTombol"></div></div>\n  <div id="gelembung">Memuat…</div>')
     h = h.replace('<script type="module">', UI_SD + '<script type="module">')
     h = h.replace('Untuk guru/orang tua', 'Untuk guru').replace('>Support by <b>', '>Supported by <b>')
+    # banner kaos kelas Willo: tanpa harga (permintaan Huda), sumber kunjungan game-sd
+    h = h.replace('utm_source=game-paud', 'utm_source=game-sd').replace('Desain gratis · mulai Rp65rb/pcs', 'Desain gratis, bisa custom nama kelas')
+    assert 'Rp65' not in h
     return h.format(css=pb.CSS + CSS_SD, data=json.dumps(data, ensure_ascii=False, indent=1).replace('<', '\\u003c'), kode=kode, **m)
 
 

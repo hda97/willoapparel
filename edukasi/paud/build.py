@@ -57,6 +57,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--latar);font-fami
 .kotak h1{margin:0 0 4px;font-size:clamp(30px,8vw,42px);color:var(--aksen);line-height:1.05}
 .kotak p{margin:4px 0 16px;font-size:20px;font-weight:600}
 .besar{border:0;border-radius:26px;background:var(--aksen);color:#fff;font-family:inherit;font-size:30px;font-weight:800;padding:14px 40px;box-shadow:0 7px 0 rgba(0,0,0,.22);cursor:pointer}
+.iklanWillo{display:flex;align-items:center;gap:12px;margin:16px auto 0;max-width:420px;padding:10px 12px;border-radius:16px;background:linear-gradient(135deg,#1f2a5a,#2f5bff);color:#fff;text-decoration:none;text-align:left;box-shadow:0 4px 0 rgba(0,0,0,.15)}.iklanWillo svg{flex:none;width:52px;height:52px}.iklanWillo span{flex:1;display:flex;flex-direction:column;line-height:1.25}.iklanWillo b{font-size:16px;font-weight:800}.iklanWillo i{font-style:normal;font-size:13px;opacity:.9}.iklanWillo em{flex:none;font-style:normal;font-weight:800;font-size:14px;background:#ffd43b;color:#1f2a5a;padding:8px 12px;border-radius:12px}
 .dukung{display:block;margin-top:16px;font-size:14px;font-weight:600;color:#777;text-decoration:none;letter-spacing:.2px}.dukung b{color:#e8590c}
 /* menu awal ceria untuk anak: tokoh 3D tetap terlihat di tengah */
 #layarMulai{flex-direction:column;justify-content:space-between;background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,0) 34%,rgba(255,255,255,0) 66%,rgba(255,255,255,.75));padding:calc(64px + env(safe-area-inset-top)) 16px calc(26px + env(safe-area-inset-bottom));overflow:hidden}
@@ -141,12 +142,13 @@ HTML = r"""<!doctype html>
 <div class="layar" id="layarMulai"><div class="hias" aria-hidden="true"><i>★</i><i>●</i><i>▲</i><i>♥</i><i>★</i><i>■</i><i>●</i><i>♥</i><i>▲</i><i>★</i><i>●</i><i>■</i></div>
   <div class="mAtas"><div class="ikonBesar">{ikon}</div><h1 id="mulaiJudul">{judul}</h1><p id="mulaiAjak">{ajak}</p></div>
   <div class="kotak mBawah"><button class="besar" id="bMulai">▶ Main</button>
-  <a class="dukung" href="https://www.willoapparel.com" target="_blank" rel="noopener">Support by <b>www.willoapparel.com</b></a></div>
+  <a class="dukung" href="https://www.willoapparel.com" target="_blank" rel="noopener">Supported by <b>www.willoapparel.com</b></a></div>
 </div>
 <div class="layar" id="layarSelesai" hidden><div class="kotak">
   <div id="selesaiBintang">★★★</div><h1>Hebat sekali!</h1><p>Kamu sudah menyelesaikan semua soal.</p>
   <button class="besar" id="bUlang">↻ Main lagi</button>
-  <a class="dukung" href="https://www.willoapparel.com" target="_blank" rel="noopener">Support by <b>www.willoapparel.com</b></a>
+  <a class="iklanWillo" href="https://www.willoapparel.com/kaos-kelas.html?utm_source=game-paud" target="_blank" rel="noopener"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M22 8l-14 7-6 14 9 4 3-6v31h36V27l3 6 9-4-6-14-14-7c-1 5-5 8-10 8s-9-3-10-8z" fill="#ffd43b" stroke="#1f2a5a" stroke-width="2.5" stroke-linejoin="round"/><text x="32" y="44" text-anchor="middle" font-size="13" font-weight="900" fill="#1f2a5a" font-family="sans-serif">XI-A</text></svg><span><b>Kaos kelas custom untuk sekolah</b><i>Desain gratis · mulai Rp65rb/pcs</i></span><em>Lihat</em></a>
+  <a class="dukung" href="https://www.willoapparel.com" target="_blank" rel="noopener">Supported by <b>www.willoapparel.com</b></a>
 </div></div>
 <div class="layar" id="guruGerbang" hidden><div class="kotak">
   <h2 style="margin:0 0 6px">Mode Guru</h2><div id="gTanya"></div>
@@ -155,6 +157,7 @@ HTML = r"""<!doctype html>
 </div></div>
 <div class="layar" id="panelGuru" hidden><div class="kotak">
   <h2>Mode Guru: ubah soal</h2>
+  <a class="iklanWillo" style="margin:0 0 10px;max-width:none" href="https://www.willoapparel.com/kaos-kelas.html?utm_source=game-paud" target="_blank" rel="noopener"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M22 8l-14 7-6 14 9 4 3-6v31h36V27l3 6 9-4-6-14-14-7c-1 5-5 8-10 8s-9-3-10-8z" fill="#ffd43b" stroke="#1f2a5a" stroke-width="2.5" stroke-linejoin="round"/><text x="32" y="44" text-anchor="middle" font-size="13" font-weight="900" fill="#1f2a5a" font-family="sans-serif">XI-A</text></svg><span><b>Kaos kelas custom untuk sekolah</b><i>Desain gratis · mulai Rp65rb/pcs</i></span><em>Lihat</em></a>
   <div class="gBaris"><label>Judul game<input id="guruJudul"></label><div id="guruAtur"></div></div>
   <div class="gGulir"><table id="guruTabel"></table></div>
   <div class="gBaris"><button class="kecil" id="guruTambah">+ Tambah soal</button></div>
@@ -229,7 +232,7 @@ a.k:active{transform:translateY(3px)}.ik{font-size:54px;line-height:1}.k h2{marg
 <h1>Game Edukasi PAUD</h1><p class="sub">Dunia voxel 3D, suara pembaca soal, boleh coba lagi sampai bisa.</p>
 <div class="grid">{kartu}</div>
 <p class="cat">Untuk guru: setiap game punya tombol <b>Guru</b> untuk mengubah soal, menempel soal dari Excel, lalu mengunduh file HTML berisi soal Anda.</p>
-<p class="cat"><a href="https://www.willoapparel.com" style="color:#e8590c;font-weight:800;text-decoration:none">Support by www.willoapparel.com</a></p>
+<p class="cat"><a href="https://www.willoapparel.com" style="color:#e8590c;font-weight:800;text-decoration:none">Supported by www.willoapparel.com</a></p>
 </body></html>
 """
 
