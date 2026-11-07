@@ -37,7 +37,7 @@ SEGERA = []
 
 IKLAN = ('<a class="iklanWillo" href="https://www.willoapparel.com/kaos-kelas.html?utm_source=game-smp" target="_blank" rel="noopener">'
          '<span class="wK" aria-hidden="true"></span><span class="wT"><small>IKLAN · KAOS KELAS</small><b>Satu kelas, beda nama.</b>'
-         '<i>Desain gratis, mulai 1 pcs</i></span><em>Lihat →</em></a>')
+         '<i>Desain gratis, mulai 1 pcs</i></span><em>Lihat →</em></a>')
 
 CSS = r"""
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
