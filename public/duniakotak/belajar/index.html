@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Belajar di Dunia Kotak · Game Edukasi PAUD, SD, SMP, SMA</title>
+<meta name="description" content="Kumpulan game edukasi 3D bergaya kotak dari Dunia Kotak untuk PAUD, SD, SMP, dan SMA. Gratis dimainkan di HP atau laptop, soal bisa diubah guru, ada paket offline untuk kelas.">
+<link rel="canonical" href="https://willoapparel.com/duniakotak/belajar/">
+<meta property="og:title" content="Belajar di Dunia Kotak">
+<meta property="og:description" content="Game edukasi 3D untuk PAUD, SD, SMP, dan SMA. Soal bisa diubah guru, bisa dimainkan offline.">
+<meta property="og:url" content="https://willoapparel.com/duniakotak/belajar/">
+<meta property="og:image" content="https://willoapparel.com/duniakotak/logo.jpg">
+<link rel="icon" href="/duniakotak/logo.jpg">
+<link rel="apple-touch-icon" href="/duniakotak/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--tinta:#1d2a1d;--kartu:#fffaf0;--rumput:#4f9a3a;--rumput2:#7ccc52;--kuning:#ffd23a;--abu:#5b6b5b}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Montserrat,system-ui,sans-serif;color:var(--tinta);background:linear-gradient(#7cc8ff 0,#cfeaff 360px,#e9f6df 360px,#e9f6df 100%);min-height:100vh}
+.wrap{max-width:1040px;margin:0 auto;padding:20px 16px 48px}
+a{color:inherit}
+header{display:flex;align-items:center;gap:12px}
+header img{width:48px;height:48px;border-radius:50%;border:3px solid #fff;box-shadow:0 3px 0 rgba(0,0,0,.15)}
+header b{font-weight:900;font-size:19px;display:block}
+header span{font-size:13px;font-weight:600;opacity:.75}
+header a.ke{margin-left:auto;font-weight:800;font-size:13px;text-decoration:none;background:#fff;border-radius:12px;padding:9px 12px;box-shadow:0 3px 0 rgba(0,0,0,.12);white-space:nowrap}
+.hero{display:grid;grid-template-columns:1fr;gap:6px;align-items:end;margin-top:14px}
+h1{font-weight:900;font-size:clamp(32px,7vw,52px);line-height:1.05;margin:14px 0 10px;color:#fff;-webkit-text-stroke:1.5px var(--tinta);paint-order:stroke fill;text-shadow:0 4px 0 var(--tinta)}
+.sub{font-weight:600;font-size:16px;line-height:1.55;margin:0 0 16px;max-width:560px}
+.kubus{width:100%;max-width:420px;height:auto;justify-self:center;display:block}
+@media(min-width:820px){.hero{grid-template-columns:1.15fr .85fr}.kubus{margin-bottom:-6px}}
+nav.lompat{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px}
+nav.lompat a{text-decoration:none;font-weight:800;font-size:14px;background:#fff;border-radius:12px;padding:9px 14px;box-shadow:0 3px 0 rgba(0,0,0,.12);border-left:6px solid var(--w)}
+.jenjang{display:grid;grid-template-columns:1fr;gap:18px}
+@media(min-width:720px){.jenjang{grid-template-columns:1fr 1fr}}
+.kartu{background:var(--kartu);border-radius:20px;box-shadow:0 6px 0 rgba(29,42,29,.18);overflow:hidden;scroll-margin-top:12px;display:flex;flex-direction:column}
+.kepala{background:var(--w);color:#fff;padding:16px 18px 14px;position:relative}
+.kepala small{font-weight:800;font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.9}
+.kepala h2{margin:2px 0 2px;font-weight:900;font-size:26px}
+.kepala p{margin:0;font-weight:600;font-size:14px;opacity:.95}
+.kepala svg{position:absolute;right:12px;top:12px;width:54px;height:54px}
+ul.game{list-style:none;margin:0;padding:8px 12px;flex:1}
+ul.game li{display:flex;align-items:center;gap:12px;padding:10px 6px;border-bottom:2px dashed #ece3d0}
+ul.game li:last-child{border-bottom:0}
+.ik{flex:none;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:24px;background:color-mix(in srgb,var(--w) 16%,#fff)}
+.nm{flex:1;min-width:0}
+.nm b{display:block;font-weight:900;font-size:16px}
+.nm span{display:block;font-weight:600;font-size:13px;opacity:.75;line-height:1.35}
+.main,.segera{flex:none;font:900 14px Montserrat,sans-serif;border-radius:12px;padding:9px 13px;text-decoration:none;white-space:nowrap}
+.main{background:var(--rumput);color:#fff;box-shadow:0 4px 0 #2f6b28}
+.main:active{transform:translateY(2px);box-shadow:0 2px 0 #2f6b28}
+.segera{background:#eee6d6;color:var(--abu)}
+.paket{margin:0 12px 14px;padding:12px 14px;border-radius:14px;background:#eef6e6;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.paket div{flex:1;min-width:170px;font-weight:600;font-size:13px;line-height:1.4}
+.paket div b{display:block;font-weight:900;font-size:15px}
+.paket a{font:900 14px Montserrat,sans-serif;text-decoration:none;background:var(--kuning);color:var(--tinta);border-radius:12px;padding:9px 14px;box-shadow:0 4px 0 #c9a21d;white-space:nowrap}
+.paket .segera{box-shadow:none}
+.guru{background:#fff;border-radius:20px;padding:18px 20px;margin-top:18px;box-shadow:0 6px 0 rgba(29,42,29,.12)}
+.guru h3{margin:0 0 8px;font-weight:900;font-size:20px}
+.guru ol{margin:0;padding-left:20px;font-weight:600;font-size:14px;line-height:1.6}
+.willo{margin-top:18px;background:#1f2a5a;color:#fff;border-radius:20px;padding:18px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:14px 18px;box-shadow:0 6px 0 rgba(0,0,0,.2)}
+.willo svg{width:64px;height:64px;flex:none}
+.willo .t{flex:1;min-width:200px}
+.willo .t b{display:block;font-weight:900;font-size:20px}
+.willo .t span{font-weight:600;font-size:14px;opacity:.9}
+.willo .tb{display:flex;flex-wrap:wrap;gap:10px}
+.willo a{font:900 14px Montserrat,sans-serif;text-decoration:none;border-radius:12px;padding:11px 15px;white-space:nowrap}
+.willo a.wa{background:#25d366;color:#0b3d1f;box-shadow:0 4px 0 #168a43}
+.willo a.lihat{background:#fff;color:#1f2a5a;box-shadow:0 4px 0 #b9c2e6}
+.kecil{font-size:12.5px;font-weight:600;opacity:.75;line-height:1.5;margin:18px 0 0;text-align:center}
+.dukung{display:block;text-align:center;margin-top:14px;font-weight:900;font-size:14px;text-decoration:none;color:#1f2a5a}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="/duniakotak/logo.jpg" alt="Logo Dunia Kotak" width="48" height="48">
+    <div><b>Dunia Kotak</b><span>Belajar sambil main · @duniakotak.id</span></div>
+    <a class="ke" href="/duniakotak/">🏡 Desa Dunia Kotak</a>
+  </header>
+
+  <div class="hero">
+    <div>
+      <h1>Belajar di Dunia Kotak</h1>
+      <p class="sub">Game edukasi 3D bergaya kotak untuk PAUD, SD, SMP, dan SMA. Gratis dimainkan di HP atau laptop, soal bisa diubah guru, dan bisa dipakai tanpa internet.</p>
+      <nav class="lompat" aria-label="Pilih jenjang">
+        <a href="#paud" style="--w:#2f9e44">PAUD</a>
+        <a href="#sd" style="--w:#d6336c">SD</a>
+        <a href="#smp" style="--w:#1c7ed6">SMP</a>
+        <a href="#sma" style="--w:#5f3dc4">SMA</a>
+      </nav>
+    </div>
+    <svg class="kubus" viewBox="0 0 420 210" role="img" aria-label="Tumpukan kotak Dunia Kotak">
+      <defs>
+        <g id="k">
+          <path d="M0 -20 L34 -37 L68 -20 L34 -3 Z" fill="currentColor"/>
+          <path d="M0 -20 L34 -3 L34 37 L0 20 Z" fill="currentColor"/><path d="M0 -20 L34 -3 L34 37 L0 20 Z" fill="#000" opacity=".18"/>
+          <path d="M68 -20 L34 -3 L34 37 L68 20 Z" fill="currentColor"/><path d="M68 -20 L34 -3 L34 37 L68 20 Z" fill="#000" opacity=".32"/>
+          <path d="M0 -20 L34 -37 L68 -20 L34 -3 Z" fill="#fff" opacity=".14"/>
+        </g>
+        <g id="r">
+          <path d="M0 -20 L34 -37 L68 -20 L34 -3 Z" fill="#7ccc52"/>
+          <path d="M0 -20 L34 -3 L34 37 L0 20 Z" fill="#a9824f"/><path d="M0 -20 L34 -3 L34 -8 L0 -25 Z" fill="#5fae3d" transform="translate(0 5)"/>
+          <path d="M68 -20 L34 -3 L34 37 L68 20 Z" fill="#8a663a"/><path d="M68 -20 L34 -3 L34 2 L68 -15 Z" fill="#4f9a3a"/>
+        </g>
+      </defs>
+      <use href="#r" x="40" y="150"/><use href="#r" x="108" y="150"/><use href="#r" x="176" y="150"/><use href="#r" x="244" y="150"/><use href="#r" x="312" y="150"/>
+      <use href="#r" x="74" y="167"/><use href="#r" x="142" y="167"/><use href="#r" x="210" y="167"/><use href="#r" x="278" y="167"/>
+      <use href="#k" x="108" y="110" style="color:#2f9e44"/>
+      <use href="#k" x="176" y="110" style="color:#d6336c"/>
+      <use href="#k" x="244" y="110" style="color:#1c7ed6"/>
+      <use href="#k" x="142" y="70" style="color:#ffd23a"/>
+      <use href="#k" x="210" y="70" style="color:#5f3dc4"/>
+      <use href="#k" x="176" y="30" style="color:#2f9e44"/>
+      <text x="176" y="128" font-family="Montserrat,sans-serif" font-weight="900" font-size="20" fill="#fff" text-anchor="middle" transform="translate(34 0)">A</text>
+      <text x="244" y="128" font-family="Montserrat,sans-serif" font-weight="900" font-size="20" fill="#fff" text-anchor="middle" transform="translate(34 0)">π</text>
+      <text x="108" y="128" font-family="Montserrat,sans-serif" font-weight="900" font-size="20" fill="#fff" text-anchor="middle" transform="translate(34 0)">1</text>
+    </svg>
+  </div>
+
+  <div class="jenjang">
+    <section class="kartu" id="paud" style="--w:#2f9e44">
+      <div class="kepala"><small>Usia 4 sampai 6 tahun</small><h2>PAUD</h2><p>Suara pembaca soal, tombol besar, boleh coba lagi sampai bisa.</p></div>
+      <ul class="game">
+        <li><span class="ik">🔤</span><span class="nm"><b>Petualang Huruf</b><span>Huruf A sampai Z dan bunyi awal kata</span></span><a class="main" href="/edukasi/paud/huruf/">▶ Main</a></li>
+        <li><span class="ik">🍎</span><span class="nm"><b>Petualang Angka</b><span>Berhitung 1 sampai 20, banyak dan sedikit</span></span><a class="main" href="/edukasi/paud/angka/">▶ Main</a></li>
+        <li><span class="ik">🔺</span><span class="nm"><b>Pelangi Bentuk</b><span>Warna dan bentuk dasar</span></span><a class="main" href="/edukasi/paud/bentuk/">▶ Main</a></li>
+        <li><span class="ik">🐮</span><span class="nm"><b>Kebun Binatang Suara</b><span>Hewan, suaranya, dan makanannya</span></span><a class="main" href="/edukasi/paud/binatang/">▶ Main</a></li>
+      </ul>
+      <div class="paket"><div><b>📦 Paket offline guru PAUD</b>4 game tanpa internet + video tutorial guru, satu file zip</div><a href="https://lynk.id/creator.store/qx7nj352km6d/checkout" target="_blank" rel="noopener">Dapatkan paket</a></div>
+    </section>
+
+    <section class="kartu" id="sd" style="--w:#d6336c">
+      <div class="kepala"><small>Kelas 1 sampai 6 · Fase A, B, C</small><h2>SD</h2><p>Jelajahi pulau isometrik, setiap fase punya tantangan sendiri.</p></div>
+      <ul class="game">
+        <li><span class="ik">➗</span><span class="nm"><b>Petualang Hitung</b><span>Matematika: bilangan, uang, pecahan, luas dan keliling</span></span><span class="segera" data-main="/edukasi/sd/hitung/">Segera</span></li>
+        <li><span class="ik">🗣️</span><span class="nm"><b>English Explorer</b><span>Bahasa Inggris: kosakata dan kalimat sehari-hari</span></span><span class="segera">Segera</span></li>
+        <li><span class="ik">🌱</span><span class="nm"><b>Penjelajah Alam</b><span>IPAS: makhluk hidup, cuaca, dan lingkungan</span></span><span class="segera">Segera</span></li>
+      </ul>
+      <div class="paket"><div><b>📦 Paket offline guru SD</b>Game SD tanpa internet + tutorial guru</div><span class="segera">Segera</span></div>
+    </section>
+
+    <section class="kartu" id="smp" style="--w:#1c7ed6">
+      <div class="kepala"><small>Kelas 7, 8, 9</small><h2>SMP</h2><p>Kamera orang ketiga seperti jalan-jalan di desa Dunia Kotak.</p></div>
+      <ul class="game">
+        <li><span class="ik">🏗️</span><span class="nm"><b>Menara Hitung</b><span>Matematika: aljabar, persamaan, geometri</span></span><span class="segera">Segera</span></li>
+        <li><span class="ik">🧪</span><span class="nm"><b>Lab Ajaib</b><span>IPA: percobaan sederhana di laboratorium kotak</span></span><span class="segera">Segera</span></li>
+        <li><span class="ik">🗺️</span><span class="nm"><b>English Quest</b><span>Bahasa Inggris: misi dan percakapan</span></span><span class="segera">Segera</span></li>
+        <li><span class="ik">💻</span><span class="nm"><b>Coding Quest</b><span>Informatika: berpikir komputasional</span></span><span class="segera">Segera</span></li>
+      </ul>
+      <div class="paket"><div><b>📦 Paket offline guru SMP</b>Game SMP tanpa internet + tutorial guru</div><span class="segera">Segera</span></div>
+    </section>
+
+    <section class="kartu" id="sma" style="--w:#5f3dc4">
+      <div class="kepala"><small>Kelas 10, 11, 12</small><h2>SMA</h2><p>Simulasi dan laboratorium 3D untuk konsep yang susah dibayangkan.</p></div>
+      <ul class="game">
+        <li><span class="ik">🧲</span><span class="nm"><b>Physics Lab</b><span>Fisika: gerak, gaya, dan energi</span></span><span class="segera">Segera</span></li>
+        <li><span class="ik">⚛️</span><span class="nm"><b>Molecule Builder</b><span>Kimia: susun atom jadi molekul</span></span><span class="segera">Segera</span></li>
+        <li><span class="ik">🧬</span><span class="nm"><b>Bio Explorer</b><span>Biologi: sel, organ, dan ekosistem</span></span><span class="segera">Segera</span></li>
+        <li><span class="ik">📈</span><span class="nm"><b>Grafik Fungsi</b><span>Matematika: fungsi dan grafiknya</span></span><span class="segera">Segera</span></li>
+      </ul>
+      <div class="paket"><div><b>📦 Paket offline guru SMA</b>Game SMA tanpa internet + tutorial guru</div><span class="segera">Segera</span></div>
+    </section>
+  </div>
+
+
+  <section class="guru">
+    <h3>👩‍🏫 Untuk guru</h3>
+    <ol>
+      <li>Buka game, tekan tombol <b>Guru</b> di pojok layar.</li>
+      <li>Ubah soal langsung, atau tempel tabel soal dari Excel.</li>
+      <li>Unduh file HTML berisi soal Anda. File itu bisa dibuka tanpa internet di laptop kelas.</li>
+    </ol>
+  </section>
+
+  <section class="willo" aria-label="Kaos kelas Willo">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M22 8l-14 7-6 14 9 4 3-6v31h36V27l3 6 9-4-6-14-14-7c-1 5-5 8-10 8s-9-3-10-8z" fill="#ffd43b" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/><text x="32" y="44" text-anchor="middle" font-size="13" font-weight="900" fill="#1f2a5a" font-family="sans-serif">XI-A</text></svg>
+    <div class="t"><b>Kaos kelas custom untuk sekolah</b><span>Desain gratis, bisa custom nama kelas, pesan mulai 1 pcs. WA 0858-1690-0722</span></div>
+    <div class="tb">
+      <a class="wa" href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20saya%20guru%20dan%20mau%20tanya%20kaos%20kelas%20(dari%20Dunia%20Kotak%20Belajar)" target="_blank" rel="noopener">💬 Chat WA</a>
+      <a class="lihat" href="https://www.willoapparel.com/kaos-kelas.html?utm_source=duniakotak-belajar" target="_blank" rel="noopener">Lihat contoh</a>
+    </div>
+  </section>
+
+  <a class="dukung" href="https://www.willoapparel.com/?utm_source=duniakotak-belajar" target="_blank" rel="noopener">Supported by www.willoapparel.com</a>
+  <p class="kecil">Game ditandai “Segera” sedang dibuat dan akan terbuka otomatis di halaman ini begitu tayang.</p>
+</div>
+<script>
+// Game yang sudah tayang otomatis berubah dari "Segera" jadi tombol Main.
+document.querySelectorAll('[data-main]').forEach(function(el){
+  var u=el.getAttribute('data-main');
+  fetch(u,{method:'HEAD',cache:'no-store'}).then(function(r){
+    if(!r.ok)return;
+    var a=document.createElement('a');a.className='main';a.href=u;a.textContent='▶ Main';el.replaceWith(a);
+  }).catch(function(){});
+});
+</script>
+</body>
+</html>
