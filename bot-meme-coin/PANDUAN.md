@@ -62,3 +62,10 @@ Bot juga dijalankan otomatis oleh workflow `.github/workflows/bot-meme-coin.yml`
 - Lihat hasil: tab **Actions** > "Bot meme coin (paper trading)" > buka run terbaru > bagian Summary berisi laporan.
 - Hentikan: tab Actions > workflow itu > tombol "..." > **Disable workflow**.
 - Jadwal GitHub kadang telat beberapa menit, jadi ada jeda kecil antar run; hasil paper trading tetap tercatat.
+
+## Dua varian strategi
+
+- **utama** (`bot-meme-coin/config.json`): saringan awal.
+- **hati-hati** (`bot-meme-coin/hati-hati/config.json`): likuiditas min $50.000, umur min 1 jam, kenaikan 1 jam maks 100% dan 6 jam maks 200% (tidak beli di pucuk), RugCheck lebih ketat, beli $5, stop loss 30%, take profit 50%, batas rugi harian $10.
+
+Keduanya jalan berdampingan di GitHub Actions dengan saldo bohongan masing-masing $100. Summary tiap run menampilkan laporan kedua varian.
