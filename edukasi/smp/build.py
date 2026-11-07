@@ -26,8 +26,10 @@ GAME = {
                           desk='Panjat menara bersama satu kelas. Jawaban benar naik satu lantai, petak yang salah runtuh.'),
     'lab-ajaib': dict(judul='Lab Ajaib', mapel='IPA', kunci='ipa', bank='bank_ipa', ikon='🧪', aksen='#2f9e44', latar='#ebfbee', bersama=True,
                       desk='Tebak hasil percobaan IPA bersama satu kelas. Meja benar bersinar dan mengisi Energi Lab.'),
+    'english-quest': dict(judul='English Quest', mapel='Bahasa Inggris', kunci='inggris', bank='bank_inggris', ikon='💬', aksen='#e8590c', latar='#fff4e6', bersama=True,
+                          desk='Balapan menyusuri kota. Jawaban bahasa Inggris yang tepat berlari maju satu blok menuju garis finis.'),
 }
-SEGERA = [('English Quest', 'Bahasa Inggris', '💬'), ('Coding Quest', 'Informatika', '🤖')]
+SEGERA = [('Coding Quest', 'Informatika', '🤖')]
 
 IKLAN = (f'<a class="iklanWillo" href="https://www.willoapparel.com/kaos-kelas.html?utm_source=game-smp" target="_blank" rel="noopener">'
          '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M22 8l-14 7-6 14 9 4 3-6v31h36V27l3 6 9-4-6-14-14-7c-1 5-5 8-10 8s-9-3-10-8z" fill="#ffd43b" stroke="#1f2a5a" stroke-width="2.5" stroke-linejoin="round"/>'
