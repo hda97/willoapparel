@@ -18,7 +18,7 @@ KELUAR = AKAR.parent.parent / 'public' / 'edukasi' / 'smp'
 DIST = AKAR / 'server' / 'dist'
 sys.path.insert(0, str(AKAR))
 
-LINK_BELI = 'https://www.willoapparel.com/duniakotak/belajar/'
+LINK_BELI = 'https://lynk.id/creator.store/68me37voov51'
 WA = '0858-1690-0722'
 
 GAME = {
