@@ -5,7 +5,6 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 import { warga, pose, KULIT, WARNA_RAMBUT, GAYA_RAMBUT } from '../../public/duniakotak/mabar/js/aset/avatar.js';
 import { rumahMesh, warungMesh } from '../../public/duniakotak/mabar/js/aset/rumah.js';
 import * as F from '../../public/duniakotak/mabar/js/aset/fasum.js';
-import { GAMBAR } from './gambar.gen.js';
 import { kucingMesh } from '../../public/duniakotak/mabar/js/aset/kucing.js';
 
 // ---------------- konstanta ----------------
@@ -141,21 +140,37 @@ for (let i = 0; i < 9; i++) { const h = 40 + rnd() * 50; const m = kotak(70 + rn
 // ---------------- avatar pemain ----------------
 const SIMPAN = 'pkdk-avatar';
 const DEF = { nama: 'SkenaRunner_ID', jenis: 'L', kulit: 3, rambut: 'acak', warnaRambut: 0, kaos: 0, bawah: 0, topi: 0 };
-const KAOS = [['kaos-willo', '#1d1d22', 'Willo Onyx'], ['kaos-willo', '#2c3150', 'Willo Navy'], ['kaos-willo', '#7a4a2e', 'Willo Cokelat'], ['kaos-willo', '#849483', 'Willo Sage'], ['kaos', '#e0803a', 'Kaos Oranye'], ['kaos', '#3aa860', 'Kaos Hijau'], ['kaos', '#f4f4f2', 'Kaos Putih'], ['kaos', '#dfd8c8', 'Lengan Panjang Oat', 1], ['kaos-willo', '#3b2f2a', 'Willo Lengan Panjang', 1], ['jaket', '#516270', 'Windbreaker Slate'], ['jaket', '#a46358', 'Windbreaker Terakota']];
+const KAOS = [['kaos', '#1d1d22', 'Kaos Hitam'], ['kaos', '#2c3150', 'Kaos Navy'], ['kaos', '#8a8d91', 'Kaos Abu'], ['kaos-willo', '#1d1d22', 'Willo Onyx'], ['kaos-willo', '#2c3150', 'Willo Navy'], ['kaos-willo', '#7a4a2e', 'Willo Cokelat'], ['kaos-willo', '#849483', 'Willo Sage'], ['kaos', '#e0803a', 'Kaos Oranye'], ['kaos', '#3aa860', 'Kaos Hijau'], ['kaos', '#f4f4f2', 'Kaos Putih'], ['kaos', '#dfd8c8', 'Lengan Panjang Oat', 1], ['kaos-willo', '#3b2f2a', 'Willo Lengan Panjang', 1], ['jaket', '#516270', 'Windbreaker Slate'], ['jaket', '#a46358', 'Windbreaker Terakota'],
+  // jersey khusus pelari cewek: [jenis, warna, nama, lenganPanjang, 'P', warna panel samping]
+  ['kaos', '#e8b4a8', 'Jersey Blush', 0, 'P', '#f6f3ee'], ['kaos', '#849483', 'Jersey Sage Panel', 0, 'P', '#dfd8c8'], ['kaos', '#a46358', 'Jersey Terakota', 0, 'P', '#1d1d22'],
+  ['kaos', '#b88a9a', 'Jersey Mauve', 0, 'P', '#2c3150'], ['kaos', '#f4f4f2', 'Jersey Putih Oranye', 0, 'P', '#e0803a'], ['kaos', '#dfd8c8', 'Jersey Lengan Panjang Oat', 1, 'P', '#a46358'], ['kaos', '#2c3150', 'Jersey Lengan Panjang Navy', 1, 'P', '#e8b4a8']];
 // bawahan: [jenis, warna, nama, khusus]  (P = hanya cewek)
-const BAWAH = [['pendek', '#1d1d22', 'Split Shorts Onyx'], ['pendek', '#5f6a3e', 'Shorts Zaitun'], ['pendek', '#2c3150', 'Shorts Navy'], ['celana', '#23272b', 'Legging Panjang'], ['celana', '#3b2f2a', 'Jogger Espresso'], ['rok', '#1d1d22', 'Skort Onyx', 'P'], ['rok', '#a46358', 'Skort Terakota', 'P'], ['rok', '#849483', 'Skort Sage', 'P'], ['rok-panjang', '#384652', 'Rok Panjang + Legging', 'P']];
-const TOPI = [['none', 'Tanpa'], ['cap', 'Cap Willo', '#1d1d22'], ['cap', 'Cap Oat', '#dfd8c8'], ['visor', 'Visor Putih', '#f4f4f2'], ['visor', 'Visor Onyx', '#1d1d22'], ['band', 'Headband Onyx', '#1d1d22'], ['band', 'Headband Oranye', '#e0803a']];
+const BAWAH = [['pendek', '#1d1d22', 'Split Shorts Onyx'], ['pendek', '#5f6a3e', 'Shorts Zaitun'], ['pendek', '#2c3150', 'Shorts Navy'], ['celana', '#23272b', 'Legging Panjang'], ['celana', '#3b2f2a', 'Jogger Espresso'], ['rok', '#1d1d22', 'Skort Onyx', 'P'], ['rok', '#a46358', 'Skort Terakota', 'P'], ['rok', '#849483', 'Skort Sage', 'P'], ['rok-panjang', '#384652', 'Rok Panjang + Legging', 'P'],
+  // aneka rok lari cewek: [jenis, warna, nama, 'P', warna lis, lipit]
+  ['rok', '#e8b4a8', 'Rok Lipit Blush', 'P', '#f6f3ee', 1], ['rok', '#f4f4f2', 'Rok Tenis Putih', 'P', '#e0803a', 1], ['rok', '#2c3150', 'Skort Navy Lis Oranye', 'P', '#e0803a'],
+  ['rok', '#b88a9a', 'Rok Lari Mauve', 'P', '#2c3150'], ['rok', '#5f6a3e', 'Skort Zaitun Lipit', 'P', '#dfd8c8', 1],
+  ['rok-panjang', '#849483', 'Rok Midi Sage + Legging', 'P', '#dfd8c8'], ['rok-panjang', '#c9b99a', 'Rok Panjang Oat', 'P', '#7a4a2e'], ['rok-panjang', '#1d1d22', 'Rok Panjang Onyx', 'P', '#e0803a']];
+// Aturan Huda: yang polos gratis, yang keren (logo Willo, jaket, jersey panel, rok bermotif, cap Willo) dijual di Toko.
+const kerenKaos = (k) => k[0] === 'kaos-willo' || k[0] === 'jaket' || !!k[5];
+const OUTFIT = [...KAOS.map((k, i) => kerenKaos(k) ? { id: 'kaos-' + i, tipe: 'kaos', i, nama: k[2], P: k[4] === 'P', warna: k[0] === 'jaket' ? 'Windbreaker' : k[5] ? (k[3] ? 'Jersey lengan panjang' : 'Jersey panel samping') : 'Kaos sablon Willo', harga: k[0] === 'jaket' ? 500 : k[3] ? 450 : k[5] ? 350 : 300 } : null),
+  ...BAWAH.map((b, i) => b[4] ? { id: 'bawah-' + i, tipe: 'bawah', i, nama: b[2], P: true, warna: b[0] === 'rok' ? (b[5] ? 'Rok lipit + celana dalam' : 'Skort lis kontras') : 'Rok panjang + legging', harga: b[0] === 'rok' ? 250 + (b[5] ? 100 : 0) : 400 } : null)].filter(Boolean);
+const outfitBebas = (tipe, i) => { const o = OUTFIT.find((x) => x.tipe === tipe && x.i === i); return !o || D.punya.includes(o.id); };
+const TOPI = [['none', 'Tanpa'], ['cap', 'Topi Polos Abu', '#8a8d91', 0, 'polos'], ['cap', 'Topi Polos Hitam', '#1d1d22', 0, 'polos'], ['visor', 'Visor Putih', '#f4f4f2'], ['visor', 'Visor Onyx', '#1d1d22'], ['band', 'Headband Onyx', '#1d1d22'], ['band', 'Headband Oranye', '#e0803a'], ['cap', 'Cap Willo Onyx', '#1d1d22', 1], ['cap', 'Cap Willo Oat', '#dfd8c8', 1], ['cap', 'Cap Willo Terakota', '#a46358', 1]];
+TOPI.forEach((t, i) => { if (t[3]) OUTFIT.push({ id: 'topi-' + i, tipe: 'topi', i, nama: t[1], P: false, warna: 'Topi bordir WILLO', harga: 200 }); });
 function pasangTopi(w, t) { const h = w.userData.head; if (!t || t[0] === 'none') return;
   if (t[0] === 'band') { const b = kotak(1.02, .16, 1.02, t[2], .05); b.position.y = .86; h.add(b); }
   if (t[0] === 'visor') { const b = kotak(1.02, .16, 1.02, t[2], .05); b.position.y = .9; h.add(b); const v = kotak(.98, .06, .5, t[2], .03); v.position.set(0, .86, .68); h.add(v); }
-  if (t[0] === 'cap') { const b = kotak(1.06, .32, 1.06, t[2], .12); b.position.y = 1.1; h.add(b); const v = kotak(.98, .07, .52, t[2], .03); v.position.set(0, .98, .7); h.add(v); const lg = new THREE.Mesh(new THREE.PlaneGeometry(.5, .14), new THREE.MeshBasicMaterial({ map: papanTeks('WILLO', { w: 256, h: 72, bg: t[2], fg: t[2] === '#1d1d22' ? '#f4f2ff' : '#1d1d22' }) })); lg.position.set(0, 1.1, .535); h.add(lg); } }
+  if (t[0] === 'cap') { const b = kotak(1.06, .32, 1.06, t[2], .12); b.position.y = 1.1; h.add(b); const v = kotak(.98, .07, .52, t[2], .03); v.position.set(0, .98, .7); h.add(v); if (t[4] === 'polos') return; const lg = new THREE.Mesh(new THREE.PlaneGeometry(.5, .14), new THREE.MeshBasicMaterial({ map: papanTeks('WILLO', { w: 256, h: 72, bg: t[2], fg: t[2] === '#1d1d22' ? '#f4f2ff' : '#1d1d22' }) })); lg.position.set(0, 1.1, .535); h.add(lg); } }
 let A = { ...DEF }; try { Object.assign(A, JSON.parse(localStorage.getItem(SIMPAN) || '{}')); } catch (e) {}
 const simpanA = () => { try { localStorage.setItem(SIMPAN, JSON.stringify(A)); } catch (e) {} };
 function buatPemain() {
-  const k = KAOS[A.kaos] || KAOS[0]; const P = A.jenis === 'P'; let bw = BAWAH[A.bawah] || BAWAH[0]; if (bw[3] === 'P' && !P) bw = BAWAH[0];
+  const P = A.jenis === 'P'; let k = KAOS[A.kaos] || KAOS[0]; if ((k[4] === 'P' && !P) || !outfitBebas('kaos', A.kaos)) k = KAOS[0]; let bw = BAWAH[A.bawah] || BAWAH[0]; if (bw[3] === 'P' && (!P || !outfitBebas('bawah', A.bawah))) bw = BAWAH[0];
   const w = warga({ jenis: A.jenis, kulit: KULIT[A.kulit], ekspresi: 'senang', rambut: { gaya: A.rambut, warna: WARNA_RAMBUT[A.warnaRambut] },
     atasan: { jenis: k[0], warna: k[1] }, lenganPanjang: !!k[3], bawahan: { jenis: bw[0], warna: bw[1] }, sepatu: sepatuAktif().c });
-  if (A.rambut !== 'hijab') pasangTopi(w, TOPI[A.topi]);
+  if (A.rambut !== 'hijab' && outfitBebas('topi', A.topi)) pasangTopi(w, TOPI[A.topi]);
+  if (k[5]) { const b = w.userData.body; for (const x of [-.535, .535]) { const p = kotak(.06, 1.1, .5, k[5], .02); p.position.set(x, .62, 0); b.add(p); } const kr = kotak(.5, .07, .02, k[5], .01); kr.position.set(0, 1.12, .305); b.add(kr); }
+  if (bw[4]) { const y = bw[0] === 'rok' ? .8 : .1, t = bw[0] === 'rok' ? .08 : .14; const lis = kotak(bw[0] === 'rok' ? 1.24 : 1.34, t, bw[0] === 'rok' ? .79 : .9, bw[4], .03); lis.position.y = y; w.add(lis);
+    if (bw[5]) for (const x of [-.4, -.2, 0, .2, .4]) { const l = kotak(.035, .58, .02, new THREE.Color(bw[1]).multiplyScalar(.78).getHex(), .01); l.position.set(x, 1.1, .385); w.add(l); } }
   const jm = jamAktif(); const tali = kotak(.52, .2, .54, jm.c, .05); tali.position.set(0, -.78, 0); w.userData.armL.add(tali); const muka = kotak(.3, .24, .08, 0x0d0e10, .04); muka.position.set(0, -.78, .29); w.userData.armL.add(muka);
   const layar = kotak(.22, .16, .02, 0x3aa860, .02); layar.material.emissive = new THREE.Color(0x3aa860); layar.position.set(0, -.78, .335); w.userData.armL.add(layar); pasangGengsi(w, gengsiAktif().id); if (!D.punya.includes('none')) D.punya.push('none');
   // nomor dada BIB #0088 di punggung
@@ -250,6 +265,69 @@ function pasangGengsi(w, id) {
   if (id === 'grail_trail_pack') { tambah(h, kotak(1.05, .08, .2, 0x8c7d70, .03), 0, 1.06, 0); for (const x of [-.5, .5]) tambah(h, kotak(.08, .3, .18, 0x8c7d70, .03), x, .82, .1);
     for (const lg of [u.armL, u.armR]) { const t = kotak(.06, 2.2, .06, 0x2a2d30, .02); t.position.set(0, -1.1, .3); t.rotation.x = .35; lg.add(t); } }
 }
+// ---------------- aset barang murni balok Dunia Kotak (ikon toko dirender langsung dari model kotak) ----------------
+function grup(daftar) { const g = new THREE.Group(); for (const [w, h, d, c, x, y, z, r = .04, ry = 0, rz = 0] of daftar) { const m = kotak(w, h, d, c, r); m.position.set(x, y, z); m.rotation.y = ry; m.rotation.z = rz; g.add(m); } return g; }
+function sepatuKotak(o) { // o: atas, sol, tebal, aksen, gerigi, pelat
+  const s = o.tebal, L = [[1.7, s, .62, o.sol, 0, s / 2, 0], [1.25, .46, .58, o.atas, -.15, s + .23, 0, .08], [.5, .32, .56, o.atas, .58, s + .16, 0, .1], [.22, .62, .5, o.atas, -.7, s + .31, 0, .05],
+    [.16, .5, .6, o.aksen, -.42, s + .25, 0, .02], [.14, .05, .3, 0xf6f3ee, .05, s + .48, 0, .02], [.14, .05, .3, 0xf6f3ee, .25, s + .44, 0, .02], [.14, .05, .3, 0xf6f3ee, -.15, s + .48, 0, .02], [.2, .14, .52, o.aksen, -.72, s + .66, 0, .03]];
+  if (o.gerigi) for (let i = 0; i < 5; i++) L.push([.2, .1, .64, 0x2a2d30, -.65 + i * .32, -.04, 0, .02]);
+  if (o.pelat) L.push([1.6, .06, .64, o.pelat, 0, s * .55, 0, .01]);
+  return grup(L);
+}
+function jamKotak(o) { // tali, muka, bezel, layar, lebar
+  const L = [[.34, 2.0, .1, o.tali, 0, 0, -.06, .05], [o.lebar, o.lebar, .22, o.bezel, 0, 0, .06, .1], [o.lebar - .16, o.lebar - .16, .04, 0x0d0e10, 0, 0, .18, .03],
+    [o.lebar * .5, .1, .03, o.layar, 0, .06, .205, .01], [o.lebar * .3, .07, .03, 0xf6f3ee, -.04, -.1, .205, .01]];
+  for (let i = 0; i < 4; i++) L.push([.34, .04, .11, 0x000000, 0, -.9 + i * .16, -.06, .01]);
+  if (o.tombol) for (const y of [.12, -.12]) L.push([.08, .1, .1, o.bezel, o.lebar / 2 + .04, y, .06, .02]);
+  return grup(L);
+}
+const KAC = [[.3, .16, .05, 0x2e2622, -.2, 0, 0, .05], [.3, .16, .05, 0x2e2622, .2, 0, 0, .05], [.98, .05, .05, 0x8a5a3c, 0, .04, 0, .02], [.05, .05, .6, 0x8a5a3c, -.47, .02, -.3, .02], [.05, .05, .6, 0x8a5a3c, .47, .02, -.3, .02]];
+const ROMPI = (c) => [[.9, .85, .12, c, 0, 0, -.4, .06], [.32, .8, .08, c, -.3, 0, .1, .04], [.32, .8, .08, c, .3, 0, .1, .04], [.18, .36, .16, 0x5ab4ff, -.3, .06, .2, .07], [.18, .36, .16, 0x5ab4ff, .3, .06, .2, .07], [.08, .08, .08, 0x1e2022, -.3, .28, .2, .02], [.08, .08, .08, 0x1e2022, .3, .28, .2, .02], [.12, .12, .5, c, -.3, .35, -.15, .03], [.12, .12, .5, c, .3, .35, -.15, .03]];
+const MODEL_BARANG = {
+  shoe_starter: () => sepatuKotak({ atas: 0x8a8d91, sol: 0xf2f0ea, tebal: .2, aksen: 0x6c6f74 }),
+  daily_oat: () => sepatuKotak({ atas: 0xeae4d7, sol: 0xb5803f, tebal: .24, aksen: 0xc9a77c }),
+  trail_sandstone: () => sepatuKotak({ atas: 0xb8a692, sol: 0x6f7a62, tebal: .26, aksen: 0x8b9a7a, gerigi: 1 }),
+  solomate_carbon: () => sepatuKotak({ atas: 0x222528, sol: 0xe9e4da, tebal: .34, aksen: 0xe9e4da, pelat: 0x3a3d42 }),
+  nyx_hyperfoam: () => sepatuKotak({ atas: 0xf5f4f0, sol: 0xf5f4f0, tebal: .46, aksen: 0xb87333, pelat: 0xb87333 }),
+  watch_basic: () => jamKotak({ tali: 0x2a2d30, bezel: 0x2a2d30, layar: 0x3aa860, lebar: .5 }),
+  willo_sport: () => jamKotak({ tali: 0x4a5844, bezel: 0x1e2022, layar: 0xe0803a, lebar: .66 }),
+  coro_pro: () => jamKotak({ tali: 0xb8a692, bezel: 0x5c5248, layar: 0xe05050, lebar: .72, tombol: 1 }),
+  titanium_ultra: () => jamKotak({ tali: 0x8c7d70, bezel: 0xc8c6c0, layar: 0x5ab4ff, lebar: .82, tombol: 1 }),
+  none: () => grup([[1.1, .12, 1.1, 0xd8d2c4, 0, 0, 0, .05]]),
+  waist_bag: () => grup([[.9, .4, .3, 0x1e2022, 0, 0, 0, .12], [.7, .05, .03, 0xc5a890, 0, .08, .16, .01], [2.2, .1, .06, 0x3a3d42, 0, 0, -.18, .02]]),
+  sunglasses_matte: () => grup(KAC),
+  handuk: () => grup([[1.2, .14, .7, 0xdfd8c8, 0, 0, 0, .05], [1.2, .14, .7, 0xdfd8c8, 0, .15, 0, .05], [1.22, .15, .14, 0xa46358, 0, .07, .2, .02], [1.22, .15, .14, 0xa46358, 0, .07, -.2, .02]]),
+  ransel: () => grup([[.86, .95, .36, 0xa46358, 0, 0, 0, .14], [.6, .34, .1, 0x8a4f46, 0, -.2, .22, .06], [.5, .08, .06, 0xe9e4da, 0, .3, .2, .02], [.12, 1.0, .06, 0x1e2022, -.3, .02, -.22, .02], [.12, 1.0, .06, 0x1e2022, .3, .02, -.22, .02]]),
+  hydration_vest: () => grup(ROMPI(0x1e2022)),
+  grail_trail_pack: () => { const g = grup(ROMPI(0x2a2d30)); const k = grup(KAC); k.position.set(0, .75, .1); g.add(k); g.add(grup([[1.05, .08, .2, 0x8c7d70, 0, 1.0, -.1, .03], [.06, 2.0, .06, 0x2a2d30, -.75, 0, 0, .02, 0, .25], [.06, 2.0, .06, 0x2a2d30, .75, 0, 0, .02, 0, -.25], [.14, .24, .14, 0xb87333, -.5, .9, 0, .03], [.14, .24, .14, 0xb87333, .5, .9, 0, .03]])); return g; },
+  isotonik: () => grup([[.5, .9, .5, 0x5ab4ff, 0, 0, 0, .12], [.52, .3, .52, 0xf6f3ee, 0, -.05, 0, .04], [.3, .14, .3, 0xf6f3ee, 0, .52, 0, .04], [.18, .12, .18, 0xe0803a, 0, .64, 0, .03]]),
+  gel: () => grup([[.6, .9, .14, 0xe0803a, 0, 0, 0, .05], [.6, .14, .1, 0xf2c14a, 0, .5, 0, .02], [.3, .3, .02, 0xf6f3ee, 0, 0, .08, .01], [.2, .1, .1, 0xf2c14a, .1, .6, 0, .02]]),
+  pisang: () => grup([[.3, .3, .3, 0xf2d24a, -.6, .45, 0, .08], [.3, .3, .3, 0xf2d24a, -.32, .15, 0, .08], [.3, .3, .3, 0xf2d24a, 0, 0, 0, .08], [.3, .3, .3, 0xf2d24a, .32, .15, 0, .08], [.3, .3, .3, 0xf2d24a, .6, .45, 0, .08], [.12, .2, .12, 0x5c4630, -.74, .62, 0, .03], [.1, .1, .1, 0x5c4630, .74, .58, 0, .02]]),
+  kopi: () => grup([[.6, .8, .6, 0xc9a77c, 0, 0, 0, .06], [.64, .3, .64, 0x6b4a32, 0, -.05, 0, .04], [.66, .1, .66, 0xf6f3ee, 0, .45, 0, .03], [.08, .6, .08, 0x2a2d30, .12, .75, 0, .02, 0, -.2]]),
+  bakmi: () => grup([[1.1, .5, 1.1, 0xf6f3ee, 0, 0, 0, .14], [1.0, .1, 1.0, 0xe2b955, 0, .26, 0, .05], [.3, .08, .3, 0xa46358, .2, .33, .2, .03], [.2, .08, .2, 0x6aa84f, -.25, .33, .1, .03], [1.5, .05, .05, 0x8a5a3c, .1, .55, -.15, .02, 0, .15], [1.5, .05, .05, 0x8a5a3c, .1, .55, -.25, .02, 0, .15]]),
+};
+function modelOutfit(id) {
+  const [t, n] = id.split('-'), i = +n;
+  if (t === 'topi') { const c = TOPI[i][2]; return grup([[1.06, .32, 1.06, c, 0, 0, 0, .12], [.98, .07, .52, c, 0, -.12, .7, .03], [.5, .14, .02, c === '#1d1d22' ? 0xf4f2ff : 0x1d1d22, 0, 0, .54, .01]]); }
+  if (t === 'kaos') { const k = KAOS[i], L = [[1.1, 1.2, .6, k[1], 0, 0, 0, .06], [.5, k[3] ? 1.15 : .45, .5, k[1], -.82, k[3] ? -.1 : .35, 0, .05], [.5, k[3] ? 1.15 : .45, .5, k[1], .82, k[3] ? -.1 : .35, 0, .05]];
+    if (k[5]) L.push([.06, 1.1, .5, k[5], -.555, 0, 0, .02], [.06, 1.1, .5, k[5], .555, 0, 0, .02], [.5, .07, .02, k[5], 0, .52, .305, .01]); return grup(L); }
+  const b = BAWAH[i], gelap = new THREE.Color(b[1]).multiplyScalar(.78).getHex();
+  if (b[0] === 'rok') { const L = [[1.2, .7, .75, b[1], 0, 0, 0, .1], [1.22, .12, .77, gelap, 0, .34, 0, .04], [1.24, .08, .79, b[4], 0, -.32, 0, .03]]; if (b[5]) for (const x of [-.4, -.2, 0, .2, .4]) L.push([.035, .58, .02, gelap, x, -.02, .385, .01]); return grup(L); }
+  return grup([[1.22, 1.42, .78, b[1], 0, 0, 0, .12], [1.24, .12, .8, gelap, 0, .7, 0, .04], [1.34, .14, .9, b[4], 0, -.7, 0, .03], [.4, .3, .4, 0x23272b, -.28, -.92, 0, .04], [.4, .3, .4, 0x23272b, .28, -.92, 0, .04]]);
+}
+let RI = null; const IKON = {};
+function ikon(id) {
+  if (IKON[id] !== undefined) return IKON[id];
+  try {
+    RI = RI || new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true }); RI.setPixelRatio(1); RI.setSize(168, 168, false); RI.outputColorSpace = THREE.SRGBColorSpace;
+    const st = new THREE.Scene(); st.add(new THREE.HemisphereLight(0xfff4ff, 0xb8a890, 1.5)); const l = new THREE.DirectionalLight(0xffffff, 1.7); l.position.set(3, 5, 4); st.add(l);
+    const m = (MODEL_BARANG[id] || (() => modelOutfit(id)))(); m.rotation.y = -.55; m.rotation.x = .18; st.add(m);
+    const box = new THREE.Box3().setFromObject(m), c = box.getCenter(new THREE.Vector3()), r = box.getSize(new THREE.Vector3()).length() / 2;
+    const k = new THREE.PerspectiveCamera(30, 1, .1, 100); k.position.set(c.x, c.y + r * .5, c.z + r / Math.tan(15 * Math.PI / 180) * 1.02); k.lookAt(c);
+    RI.render(st, k); IKON[id] = RI.domElement.toDataURL('image/png');
+  } catch (e) { IKON[id] = ''; }
+  return IKON[id];
+}
 const sepatuAktif = () => SEPATU.find((x) => x.id === D.sepatu) || SEPATU[0];
 const jamAktif = () => JAM.find((x) => x.id === D.jam) || JAM[0];
 // GDD 2.2 ABC Drills
@@ -279,10 +357,10 @@ function isiLobi() {
   bar($('pilKulit'), KULIT.map((c) => ({ html: '', warna: c })), (it, i) => A.kulit === i, (it, i) => { A.kulit = i; });
   bar($('pilRambut'), GAYA_RAMBUT[A.jenis].map((g) => ({ html: g[0].toUpperCase() + g.slice(1), v: g })), (it) => A.rambut === it.v, (it) => { A.rambut = it.v; });
   bar($('pilWarnaRambut'), WARNA_RAMBUT.slice(0, 6).map((c) => ({ html: '', warna: c })), (it, i) => A.warnaRambut === i, (it, i) => { A.warnaRambut = i; });
-  bar($('pilKaos'), KAOS.map((k) => ({ html: '', warna: k[1] })), (it, i) => A.kaos === i, (it, i) => { A.kaos = i; });
+  bar($('pilKaos'), KAOS.map((k, i) => ({ html: '', warna: k[1], i, P: k[4] })).filter((k) => (!k.P || A.jenis === 'P') && outfitBebas('kaos', k.i)), (it) => (A.kaos || 0) === it.i, (it) => { A.kaos = it.i; });
   $('namaKaos').textContent = (KAOS[A.kaos] || KAOS[0])[2];
-  bar($('pilBawah'), BAWAH.map((b, i) => ({ html: b[2], i, P: b[3] })).filter((b) => !b.P || A.jenis === 'P'), (it) => (A.bawah || 0) === it.i, (it) => { A.bawah = it.i; });
-  bar($('pilTopi'), TOPI.map((t, i) => ({ html: t[1], i })), (it) => (A.topi || 0) === it.i, (it) => { A.topi = it.i; });
+  bar($('pilBawah'), BAWAH.map((b, i) => ({ html: b[2], i, P: b[3] })).filter((b) => !b.P || (A.jenis === 'P' && outfitBebas('bawah', b.i))), (it) => (A.bawah || 0) === it.i, (it) => { A.bawah = it.i; });
+  bar($('pilTopi'), TOPI.map((t, i) => ({ html: t[1], i })).filter((t) => outfitBebas('topi', t.i)), (it) => (A.topi || 0) === it.i, (it) => { A.topi = it.i; });
 }
 $('inNama').addEventListener('input', (e) => { A.nama = e.target.value.replace(/[^\w.@]/g, '').slice(0, 16) || DEF.nama; simpanA(); });
 $('bMulai').onclick = () => { bunyi(660, .08); $('pemanasan').hidden = true; mulaiGPS(); };
@@ -292,7 +370,34 @@ $('bLagi2').onclick = () => { resetLari(); keLobi(); };
 $('bJeda').onclick = () => { if (mode === 'lari') { mode = 'jeda'; $('jeda').hidden = false; } };
 $('bLanjut').onclick = () => { mode = 'lari'; $('jeda').hidden = true; jamLalu = performance.now(); };
 $('bKeluar').onclick = () => { $('jeda').hidden = true; resetLari(); keLobi(); };
-$('bSalin').onclick = async () => { const t = $('caption').textContent; try { await navigator.clipboard.writeText(t); $('bSalin').textContent = 'Tersalin ✓'; } catch (e) { const r = document.createRange(); r.selectNodeContents($('caption')); getSelection().removeAllRanges(); getSelection().addRange(r); $('bSalin').textContent = 'Tekan salin'; } };
+// Simpan struk jadi gambar story 9:16 (1080x1920) untuk IG/WA story finisher
+let STRUK = null;
+function gambarStory() {
+  const W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
+  const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#2c3150'); bg.addColorStop(1, '#13141f'); g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  g.fillStyle = 'rgba(255,255,255,.05)'; for (let i = 0; i < 14; i++) for (let j = 0; j < 25; j++) if ((i + j) % 2) g.fillRect(i * 80, j * 80, 80, 80);
+  g.textAlign = 'center'; g.fillStyle = '#f2c14a'; g.font = '800 34px Montserrat, sans-serif'; g.fillText('CFD DESA · DUNIA KOTAK', W / 2, 130);
+  g.fillStyle = '#f4f2ff'; g.font = '900 96px Montserrat, sans-serif'; g.fillText('FINISHER!', W / 2, 235);
+  const x = 120, y = 280, w = W - 240, hk = 760 + STRUK.rows.length * 40 + 150; g.fillStyle = '#fbf8f1'; g.shadowColor = 'rgba(0,0,0,.4)'; g.shadowBlur = 40; g.shadowOffsetY = 18; g.fillRect(x, y, w, hk); g.shadowColor = 'transparent';
+  g.beginPath(); for (let i = 0; i <= w; i += 30) { g.lineTo(x + i, y + hk); g.lineTo(x + i + 15, y + hk + 18); } g.lineTo(x + w, y + hk); g.closePath(); g.fill();
+  g.fillStyle = '#1d1d22'; g.font = '900 64px Montserrat, sans-serif'; g.fillText('PELARI KALCER', W / 2, y + 100);
+  g.font = '28px "Courier New", monospace'; g.fillText('RACE RECEIPT · DUNIA KOTAK', W / 2, y + 148);
+  g.fillStyle = '#efe7d6'; g.fillRect(W / 2 - 200, y + 175, 400, 480);
+  if (STRUK.img) g.drawImage(STRUK.img, W / 2 - 200, y + 175, 400, 480);
+  const garis = (yy) => { g.strokeStyle = '#999'; g.setLineDash([10, 8]); g.lineWidth = 2; g.beginPath(); g.moveTo(x + 50, yy); g.lineTo(x + w - 50, yy); g.stroke(); g.setLineDash([]); };
+  let yy = y + 690; garis(yy); yy += 46;
+  for (const [a, b] of STRUK.rows) { g.textAlign = 'left'; g.font = '30px "Courier New", monospace'; g.fillStyle = '#1d1d22'; g.fillText(a, x + 56, yy); g.textAlign = 'right'; g.font = 'bold 30px "Courier New", monospace'; g.fillText(String(b), x + w - 56, yy); yy += 40; }
+  garis(yy - 12); g.textAlign = 'center'; g.font = '28px "Courier New", monospace'; g.fillText('Supported by', W / 2, yy + 44); g.font = 'bold 36px "Courier New", monospace'; g.fillText('www.willoapparel.com', W / 2, yy + 90);
+  g.fillStyle = '#f4f2ff'; g.font = '800 40px Montserrat, sans-serif'; g.fillText('Kalcer dulu, PB kemudian 🏃', W / 2, H - 62);
+  return c;
+}
+$('bSimpan').onclick = () => {
+  if (!STRUK) return; const c = gambarStory(), url = c.toDataURL('image/png'), nama = 'pelari-kalcer-finisher.png';
+  $('storyImg').src = url; $('unduhStory').href = url; $('unduhStory').download = nama; $('story').hidden = false;
+  c.toBlob((bl) => { STRUK.blob = bl; $('bBagi').hidden = !(bl && navigator.canShare && navigator.canShare({ files: [new File([bl], nama, { type: 'image/png' })] })); }, 'image/png');
+};
+$('bBagi').onclick = async () => { try { await navigator.share({ files: [new File([STRUK.blob], 'pelari-kalcer-finisher.png', { type: 'image/png' })], text: STRUK.caption }); } catch (e) {} };
+$('bTutupStory').onclick = () => { $('story').hidden = true; };
 function tutupLaci() { document.querySelectorAll('.laci').forEach((l) => l.hidden = true); $('lobi').hidden = false; if (mode === 'lobi') $('pemanasan').hidden = false; }
 function bukaLaci(id) { tutupLaci(); $('lobi').hidden = true; $('pemanasan').hidden = true; $(id).hidden = false; bunyi(520, .05); }
 document.querySelectorAll('[data-tutup]').forEach((b) => b.onclick = tutupLaci);
@@ -300,12 +405,17 @@ function isiMenu() {
   $('hDompet').textContent = D.koin.toLocaleString('id-ID');
   const n = Object.keys(D.tas).length; $('tagToko').textContent = n ? n + ' bekal' : '';
   document.querySelectorAll('#tabToko button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.tab === tabToko));
-  if (tabToko !== 'bekal') { const L = { sepatu: SEPATU, jam: JAM, gengsi: GENGSI }[tabToko]; const kunci = tabToko;
+  if (tabToko === 'outfit') {
+    const bisa = (o) => !o.P || A.jenis === 'P'; const aktif = (o) => (o.tipe === 'kaos' ? A.kaos : o.tipe === 'bawah' ? A.bawah : A.topi) === o.i;
+    $('daftarToko').innerHTML = '<p class="catat" style="margin:0 0 6px">Kaos, celana & topi polos gratis di menu Avatar. Yang keren beli di sini, lalu otomatis terpakai.</p>' + OUTFIT.map((o) => { const punya = D.punya.includes(o.id), pakai = bisa(o) && aktif(o);
+      return `<div class="gear ${pakai ? 'pakai' : ''}"><img src="${ikon(o.id)}" alt=""><div><small>${o.tipe === 'kaos' ? (o.P ? 'Jersey cewek' : 'Atasan') : o.tipe === 'bawah' ? 'Rok lari cewek' : 'Topi'}</small><b>${o.nama}</b><i>${o.warna}</i><span>${o.P && A.jenis !== 'P' ? 'Khusus avatar cewek' : 'Gaya, tanpa bonus'}</span></div><button data-outfit="${o.id}" ${(!punya && D.koin < o.harga) || (punya && !bisa(o)) ? 'disabled' : ''}>${pakai ? 'Dipakai ✓' : punya ? (bisa(o) ? 'Pakai' : 'Dimiliki') : o.harga.toLocaleString('id-ID') + ' W'}</button></div>`; }).join('');
+    $('daftarToko').querySelectorAll('[data-outfit]').forEach((b) => b.onclick = () => { const o = OUTFIT.find((x) => x.id === b.dataset.outfit); if (!D.punya.includes(o.id)) { if (D.koin < o.harga) return; D.koin -= o.harga; D.punya.push(o.id); bunyi(1180, .08, 'triangle'); simpanD(); } if (bisa(o)) { if (o.tipe === 'kaos') A.kaos = o.i; else if (o.tipe === 'bawah') A.bawah = o.i; else A.topi = o.i; simpanA(); gantiPemain(); isiLobi(); } isiMenu(); });
+  } else if (tabToko !== 'bekal') { const L = { sepatu: SEPATU, jam: JAM, gengsi: GENGSI }[tabToko]; const kunci = tabToko;
     $('daftarToko').innerHTML = L.map((g) => { const punya = D.punya.includes(g.id), pakai = D[kunci] === g.id; const efek = tabToko === 'gengsi' ? (g.pace ? `+${g.pace}% pace · stamina hemat ${g.hemat}%` : 'Tanpa bonus') : tabToko === 'sepatu' ? `+${g.pace}% pace${g.kebal ? ' · kebal lubang' : ''}` : `GPS ${g.gps ? g.gps.toString().replace('.', ',') + ' dtk' : 'instan'} · stamina hemat ${g.hemat}%`;
-      return `<div class="gear ${pakai ? 'pakai' : ''}">${GAMBAR[g.id] ? `<img src="${GAMBAR[g.id]}" alt="">` : '<div class="kosong">—</div>'}<div><small>${g.tier}</small><b>${g.nama}</b><i>${g.warna}</i><span>${efek}</span></div><button data-gear="${g.id}" ${!punya && D.koin < g.harga ? 'disabled' : ''}>${pakai ? 'Dipakai ✓' : punya ? 'Pakai' : g.harga.toLocaleString('id-ID') + ' W'}</button></div>`; }).join('');
+      return `<div class="gear ${pakai ? 'pakai' : ''}"><img src="${ikon(g.id)}" alt=""><div><small>${g.tier}</small><b>${g.nama}</b><i>${g.warna}</i><span>${efek}</span></div><button data-gear="${g.id}" ${!punya && D.koin < g.harga ? 'disabled' : ''}>${pakai ? 'Dipakai ✓' : punya ? 'Pakai' : g.harga.toLocaleString('id-ID') + ' W'}</button></div>`; }).join('');
     $('daftarToko').querySelectorAll('[data-gear]').forEach((b) => b.onclick = () => { const g = L.find((x) => x.id === b.dataset.gear); if (!D.punya.includes(g.id)) { if (D.koin < g.harga) return; D.koin -= g.harga; D.punya.push(g.id); bunyi(1180, .08, 'triangle'); } D[kunci] = g.id; simpanD(); gantiPemain(); isiMenu(); });
   } else
-  $('daftarToko').innerHTML = TOKO.map((it) => { const punya = D.tas[it.id]; return `<div class="item ${punya ? 'punya' : ''}"><div class="ik">${it.ik}</div><div><b>${it.nama}</b><small>${it.efek}</small></div><button data-beli="${it.id}" ${punya || D.koin < it.harga ? 'disabled' : ''}>${punya ? 'Di tas ✓' : it.harga + ' W'}</button></div>`; }).join('');
+  $('daftarToko').innerHTML = TOKO.map((it) => { const punya = D.tas[it.id]; return `<div class="item ${punya ? 'punya' : ''}"><div class="ik"><img src="${ikon(it.id)}" alt="${it.ik}"></div><div><b>${it.nama}</b><small>${it.efek}</small></div><button data-beli="${it.id}" ${punya || D.koin < it.harga ? 'disabled' : ''}>${punya ? 'Di tas ✓' : it.harga + ' W'}</button></div>`; }).join('');
   $('daftarToko').querySelectorAll('[data-beli]').forEach((b) => b.onclick = () => { const it = TOKO.find((x) => x.id === b.dataset.beli); if (D.koin < it.harga) return; D.koin -= it.harga; D.tas[it.id] = 1; simpanD(); bunyi(1180, .08, 'triangle'); isiMenu(); });
   const papan = [['@nadya.run', 236], ['@kakak.pacer', 251], ['@adit.tempo', 268], ['@salsa.cfd', 284], ['@dimas_lari', 301], ['@kopiskena', 322], ['@larisore', 347]];
   if (D.rekor) papan.push(['@' + A.nama, D.rekor, 1]); papan.sort((a, b) => a[1] - b[1]);
@@ -386,16 +496,16 @@ function ambil(o) { o.habis = true; if (o.mesh) o.mesh.visible = false;
 function gagal() { mode = 'gagal'; D.koin += P.koin; D.tas = {}; D.warm = false; simpanD(); setTimeout(() => { $('gagal').hidden = false; $('kontrol').hidden = true; $('gagalInfo').textContent = `Berhenti di ${(P.d / 1000).toFixed(2).replace('.', ',')} KM. Coba lagi, pelan-pelan jaga stamina.`; }, 700); }
 // foto struk: avatar pemain berkalung medali finisher, dirender di studio kecil terpisah
 let RF = null;
-function fotoMedali() {
+function fotoMedali(w = 150, h = 180, pr = 2) {
   try {
-    RF = RF || new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true }); RF.setPixelRatio(2); RF.setSize(150, 180, false); RF.outputColorSpace = THREE.SRGBColorSpace;
+    RF = RF || new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true }); RF.setPixelRatio(pr); RF.setSize(w, h, false); RF.outputColorSpace = THREE.SRGBColorSpace;
     const st = new THREE.Scene(); st.add(new THREE.HemisphereLight(0xfff4ff, 0xb8a890, 1.4)); const l = new THREE.DirectionalLight(0xffffff, 1.6); l.position.set(2, 4, 5); st.add(l);
     const a = buatPemain(); a.rotation.y = 0; st.add(a); const b = a.userData.body;
     // medali: pita V + koin emas W
     for (const s of [-1, 1]) { const p = kotak(.16, .62, .04, s < 0 ? 0xe0803a : 0x2c3150, .02); p.position.set(s * .17, .86, .33); p.rotation.z = s * .38; b.add(p); }
     const m = new THREE.Mesh(new THREE.CylinderGeometry(.22, .22, .06, 24), [new THREE.MeshStandardMaterial({ color: 0xf2c14a, metalness: .6, roughness: .3 }), mKoinMuka, mKoinMuka]); m.rotation.x = Math.PI / 2; m.position.set(0, .5, .37); b.add(m);
     pose(a, { armL: -2.9, armR: -2.9, armLz: .35, armRz: -.35 });
-    const k = new THREE.PerspectiveCamera(30, 150 / 180, .1, 50); k.position.set(1.2, 2.6, 8.6); k.lookAt(0, 2.05, 0);
+    const k = new THREE.PerspectiveCamera(30, w / h, .1, 50); k.position.set(1.2, 2.6, 8.6); k.lookAt(0, 2.05, 0);
     RF.render(st, k); return RF.domElement.toDataURL('image/png');
   } catch (e) { return ''; }
 }
@@ -405,8 +515,9 @@ function selesai() {
   const t = P.waktu * SKALA_WAKTU, pace = t, kal = Math.round(62 * 1.04 * (60 / 60) * 1 + 0.5) + Math.round(P.koin / 50);
   const rows = [['Pelari', '@' + A.nama], ['BIB', '#0088'], ['Sepatu', sepatuAktif().nama], ['Jam', jamAktif().nama], ['Aksesori', gengsiAktif().nama], ['Rute', 'CFD Kotak Wetan'], ['Jarak', '1,00 KM'], ['Waktu', fmtWaktu(t)], ['Avg pace', fmtWaktu(pace) + ' /km'], ['Elevasi', '+9 m'], ['Kalori', (60 + Math.round(t / 6)) + ' kcal'], ['Koin W', P.koin.toLocaleString('id-ID')], ['Posisi', '#' + peringkat() + ' dari ' + (NPC.length + 1)], ['Isotonik', P.wsAmbil ? 'Diambil ✓' : 'Kelewat'], ['Rekor', baru ? 'BARU! ' + fmtWaktu(t0) : fmtWaktu(D.rekor)]];
   $('struk').querySelector('.baris').innerHTML = rows.map(([a, b]) => `<div><span>${a}</span><b>${b}</b></div>`).join('');
-  $('caption').textContent = `Finish 1 KM CFD Kotak Wetan di Pelari Kalcer · Dunia Kotak 🏃‍♂️ pace ${fmtWaktu(pace)}/km, posisi #${peringkat()}. Kalcer dulu, PB kemudian. ${URL_KAMPANYE}`;
+  const cap = `Finish 1 KM CFD Kotak Wetan di Pelari Kalcer · Dunia Kotak 🏃‍♂️ pace ${fmtWaktu(pace)}/km, posisi #${peringkat()}. Kalcer dulu, PB kemudian. ${URL_KAMPANYE}`;
   $('fotoMedali').src = fotoMedali();
+  STRUK = { rows, caption: cap, img: null }; const fb = fotoMedali(230, 276, 2); if (fb) { const im = new Image(); im.onload = () => { STRUK.img = im; }; im.src = fb; }
   setTimeout(() => { $('hud').hidden = true; $('struk').hidden = false; }, 1400);
 }
 

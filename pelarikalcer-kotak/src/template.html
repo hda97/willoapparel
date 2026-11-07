@@ -43,7 +43,7 @@ button:focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
 .swatch{width:30px;height:30px;border-radius:9px;background:var(--w);box-shadow:inset 0 0 0 2px rgba(255,255,255,.2)}
 .swatch[aria-pressed="true"]{box-shadow:inset 0 0 0 3px #fff,0 0 0 2px var(--oranye)}
 .item{display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;background:rgba(255,255,255,.06);padding:10px;border-radius:12px}
-.item .ik{font-size:28px;text-align:center}.item b{font-size:13.5px;display:block}.item small{font-size:11.5px;color:var(--redup)}
+.item .ik img{width:42px;height:42px;display:block;background:#e9e4da;border-radius:8px}.item b{font-size:13.5px;display:block}.item small{font-size:11.5px;color:var(--redup)}
 .item button{background:var(--oranye);color:#fff;font-weight:900;font-size:12.5px;padding:8px 10px;border-radius:10px;white-space:nowrap}
 .item button:disabled{background:rgba(255,255,255,.1);color:var(--redup)}
 .item.punya button{background:var(--hijau)}
@@ -118,6 +118,12 @@ body.potret #pemanasan{bottom:auto;top:calc(64px + env(safe-area-inset-top,0px))
 .kartu h2{margin:0;font-weight:900}
 body.potret #lobi{top:auto;justify-content:flex-end}body.potret .judul h1{font-size:34px}
 @media (max-height:430px){.judul h1{font-size:32px}#lobi{gap:8px}.besar{padding:12px;font-size:18px}.ubin button{padding:7px 4px 6px}.ubin span{font-size:18px}.utama{padding:11px}.stat b{font-size:16px}#hud{gap:12px}.bar{width:90px}}
+/* HP tegak: HUD 2 baris pas lebar layar */
+body.potret #hud{left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));transform:none;display:grid;grid-template-columns:1fr 1fr 1fr 36px;gap:6px 10px;padding:8px 10px 8px 12px;white-space:normal;top:calc(8px + env(safe-area-inset-top,0px))}
+body.potret #hud .stat:nth-child(1){grid-area:1/1}body.potret #hud .stat:nth-child(2){grid-area:1/2}body.potret #hud .stat:nth-child(6){grid-area:1/3}
+body.potret #hud .stat:nth-child(3){grid-area:2/1}body.potret #hud .stat:nth-child(4){grid-area:2/2}body.potret #hud .stat:nth-child(5){grid-area:2/3}body.potret #bJeda{grid-area:1/4/3/5;align-self:center}
+body.potret .stat b{font-size:16px}body.potret .bar{width:100%}
+body.potret #hBuff{top:calc(104px + env(safe-area-inset-top,0px));flex-wrap:wrap;justify-content:center;width:calc(100vw - 24px)}
 @media (prefers-reduced-motion:reduce){#bWS{animation:none}}
 </style></head><body>
 <canvas id="kanvas"></canvas>
@@ -147,7 +153,7 @@ body.potret #lobi{top:auto;justify-content:flex-end}body.potret .judul h1{font-s
 </section>
 <section id="dToko" class="laci kaca" hidden aria-label="Toko Skena">
   <div class="kepala"><h2>Toko Skena</h2><button class="tutup" data-tutup aria-label="Tutup">✕</button></div>
-  <div class="pil tab" id="tabToko"><button class="chip" data-tab="bekal">🍌 Bekal</button><button class="chip" data-tab="sepatu">👟 Sepatu</button><button class="chip" data-tab="jam">⌚ Jam GPS</button><button class="chip" data-tab="gengsi">🕶️ Bergengsi</button></div>
+  <div class="pil tab" id="tabToko"><button class="chip" data-tab="bekal">🍌 Bekal</button><button class="chip" data-tab="sepatu">👟 Sepatu</button><button class="chip" data-tab="jam">⌚ Jam GPS</button><button class="chip" data-tab="gengsi">🕶️ Bergengsi</button><button class="chip" data-tab="outfit">👕 Outfit</button></div>
   <div class="isi" id="daftarToko"></div>
 </section>
 <section id="dMap" class="laci kaca" hidden aria-label="Pilih map">
@@ -181,8 +187,12 @@ body.potret #lobi{top:auto;justify-content:flex-end}body.potret .judul h1{font-s
   <h2>PELARI KALCER</h2><div class="sub">RACE RECEIPT · DUNIA KOTAK</div><img id="fotoMedali" alt="Pelari dengan medali finisher">
   <div class="baris"></div>
   <p>Supported by<br><b>www.willoapparel.com</b></p>
-  <div id="caption"></div>
-  <div class="tombol"><button class="kedua" id="bSalin">Salin caption</button><button class="utama" id="bLagi" style="font-size:14px;padding:10px">MAIN LAGI</button></div>
+  <div class="tombol"><button class="kedua" id="bSimpan">📸 Simpan untuk Story</button><button class="utama" id="bLagi" style="font-size:14px;padding:10px">MAIN LAGI</button></div>
+</div></div>
+<div id="story" class="layar" hidden><div class="kartu kaca" style="max-height:94vh;overflow:auto;text-align:center;gap:8px">
+  <img id="storyImg" alt="Struk finisher ukuran story" style="max-height:62vh;max-width:100%;border-radius:10px;align-self:center">
+  <small style="color:var(--redup)">Kalau tombol unduh tidak jalan, tekan lama gambar lalu pilih Simpan.</small>
+  <div class="tombol"><a id="unduhStory" class="utama" style="text-decoration:none;font-size:14px;padding:10px;text-align:center">⬇ Unduh gambar</a><button class="kedua" id="bBagi" hidden>Bagikan ke Story</button><button class="kedua" id="bTutupStory">Tutup</button></div>
 </div></div>
 <script>/*KODE*/</script>
 </body></html>

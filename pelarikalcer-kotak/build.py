@@ -1,15 +1,5 @@
 import subprocess, os, pathlib
 D = pathlib.Path(__file__).parent
-import base64, io
-from PIL import Image
-def uri(path, maks=220):
-    im = Image.open(path).convert('RGBA'); im.thumbnail((maks, maks)); b = io.BytesIO(); im.save(b, 'WEBP', quality=82); return 'data:image/webp;base64,' + base64.b64encode(b.getvalue()).decode()
-A = D.parent / 'pelarikalcer'
-G = {s: uri(A / 'aset-render/hasil' / f'{s}_samping.png', 260) for s in ['shoe_starter', 'daily_oat', 'trail_sandstone', 'solomate_carbon', 'nyx_hyperfoam']}
-G.update({w: uri(A / 'aset' / f'{w}.png') for w in ['watch_basic', 'willo_sport', 'coro_pro', 'titanium_ultra', 'waist_bag', 'sunglasses_matte', 'hydration_vest', 'grail_trail_pack']})
-G.update({'handuk': uri(A / 'aset-render/hasil/handuk_leher.png'), 'ransel': uri(A / 'aset-render/hasil/ransel_lari.png')})
-import json
-(D / 'src/gambar.gen.js').write_text('export const GAMBAR = ' + json.dumps(G) + ';\n')
 env = dict(os.environ, NODE_PATH=str(D.parent / 'pelarikalcer' / 'node_modules'))
 subprocess.run([str(D.parent / 'pelarikalcer/node_modules/.bin/esbuild'), 'src/main.js', '--bundle', '--minify', '--format=iife', '--outfile=dist/main.js'], cwd=D, env=env, check=True)
 js = (D / 'dist/main.js').read_text().replace('</script', '<\\/script')
