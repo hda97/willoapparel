@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1c7ed6">
+<title>Kelas Dunia Kotak</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#eaf6ff;color:#1d2b44;font-family:'Baloo 2','Trebuchet MS',system-ui,sans-serif;touch-action:manipulation}
+body{display:flex;flex-direction:column;padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+[hidden]{display:none!important}
+.atas{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:14px;color:#5a6b85;gap:8px}
+.atas b{color:#1d2b44}
+.isi{flex:1;display:flex;flex-direction:column;gap:10px;justify-content:center;max-width:520px;width:100%;margin:0 auto}
+h1{margin:0;font-size:30px;line-height:1.05;text-align:center;color:#1c7ed6}
+.kartu{background:#fff;border-radius:22px;padding:14px;box-shadow:0 6px 0 rgba(0,0,0,.1);display:flex;flex-direction:column;gap:10px}
+input{font-family:inherit;font-size:22px;font-weight:800;border:3px solid #dee2e6;border-radius:14px;padding:8px 12px;width:100%;color:#1d2b44}
+input:focus{outline:none;border-color:#1c7ed6}
+.lbl{font-size:12px;font-weight:800;color:#868e96;letter-spacing:.6px;text-transform:uppercase}
+.pil{display:flex;flex-wrap:wrap;gap:6px}
+.pil button{border:3px solid #e9ecef;background:#fff;border-radius:12px;padding:3px 10px;font-family:inherit;font-size:16px;font-weight:800;color:#1d2b44}
+.pil button.on{border-color:#1c7ed6;background:#e7f5ff}
+.pil .bulat{width:36px;height:36px;border-radius:50%;padding:0}
+.btn{border:0;border-radius:18px;background:#1c7ed6;color:#fff;font-family:inherit;font-size:24px;font-weight:800;padding:10px;box-shadow:0 5px 0 rgba(0,0,0,.2);width:100%}
+.btn:active,.opsi button:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.2)}
+.btn:disabled{opacity:.5}
+.avatar{display:flex;align-items:center;gap:12px}
+#cvAvatar,#cvAvatar2{width:84px;height:112px;image-rendering:pixelated;flex:none}
+.soal{background:#fff;border-radius:18px;padding:10px 12px;font-size:20px;font-weight:800;line-height:1.2;text-align:center;box-shadow:0 5px 0 rgba(0,0,0,.08)}
+.opsi{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;max-height:62vh;min-height:240px}
+.opsi button{border:0;border-radius:20px;color:#fff;font-family:inherit;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px;box-shadow:0 6px 0 rgba(0,0,0,.2);line-height:1.1;font-size:18px;overflow-wrap:anywhere}
+.opsi button i{font-style:normal;font-size:36px;line-height:1}
+.opsi button.pudar{opacity:.25}.opsi button.dipilih{outline:5px solid #1d2b44;outline-offset:-5px}
+.waktu{height:10px;border-radius:99px;background:#dee2e6;overflow:hidden}.waktu i{display:block;height:100%;background:#51cf66;transition:width 1s linear}
+.besar{font-size:44px;text-align:center;line-height:1;font-weight:800}
+.tengah{text-align:center}
+.kecil{font-size:15px;color:#5a6b85;font-family:system-ui,sans-serif;text-align:center;line-height:1.4}
+.timTag{display:inline-block;color:#fff;border-radius:99px;padding:1px 10px;font-size:14px}
+.iklanWillo{display:flex;align-items:center;gap:10px;background:#fff;border-radius:16px;padding:8px 12px;text-decoration:none;color:#1f2a5a;box-shadow:0 4px 0 rgba(0,0,0,.12)}
+.iklanWillo svg{width:42px;height:42px;flex:none}.iklanWillo span{display:flex;flex-direction:column;line-height:1.15;flex:1}.iklanWillo i{font-style:normal;font-size:13px;color:#5a6b85;font-family:system-ui,sans-serif}
+.iklanWillo em{font-style:normal;background:#e8590c;color:#fff;border-radius:10px;padding:3px 10px;font-weight:800;font-size:14px}
+.dukung{text-align:center;font-size:13px;font-weight:700;color:#868e96;text-decoration:none;display:block;margin-top:4px}.dukung b{color:#e8590c}
+.goyang{animation:goyang .5s}@keyframes goyang{30%{transform:scale(1.06)}}
+.status{position:fixed;left:50%;transform:translateX(-50%);bottom:max(8px,env(safe-area-inset-bottom));background:#e03131;color:#fff;border-radius:99px;padding:4px 14px;font-weight:800;font-size:14px}
+</style>
+</head>
+<body>
+<div class="atas"><span id="aGame">Kelas Dunia Kotak</span><span id="aSkor"></span></div>
+<div class="isi">
+  <!-- 1. gabung -->
+  <section id="sGabung" hidden>
+    <h1>Masuk kelas</h1>
+    <div class="kartu">
+      <div class="lbl">Nama panggilan</div>
+      <input id="iNama" maxlength="14" autocomplete="off" placeholder="Tulis namamu">
+      <div class="avatar"><canvas id="cvAvatar" width="12" height="16"></canvas>
+        <div style="display:flex;flex-direction:column;gap:6px;flex:1">
+          <div class="pil" id="pJenis"></div><div class="pil" id="pGaya"></div>
+        </div></div>
+      <div class="lbl">Kulit</div><div class="pil" id="pKulit"></div>
+      <div class="lbl">Warna rambut</div><div class="pil" id="pRambut"></div>
+      <div id="wTim" hidden><div class="lbl">Kelompok</div><div class="pil" id="pTim"></div></div>
+    </div>
+    <button class="btn" id="bMasuk">Masuk ▶</button>
+    <a class="dukung" href="https://www.willoapparel.com" target="_blank" rel="noopener">Supported by <b>www.willoapparel.com</b></a>
+  </section>
+  <!-- 2. tunggu -->
+  <section id="sTunggu" hidden>
+    <div class="kartu tengah" style="align-items:center">
+      <canvas id="cvAvatar2" width="12" height="16"></canvas>
+      <div class="besar" id="tNama" style="font-size:34px"></div>
+      <div id="tTim"></div>
+      <div class="kecil" id="tPesan">Kamu sudah masuk. Lihat namamu di layar proyektor, lalu tunggu guru menekan Mulai.</div>
+    </div>
+    {{IKLAN}}
+  </section>
+  <!-- 3. soal -->
+  <section id="sSoal" hidden style="display:flex;flex-direction:column;gap:8px;flex:1">
+    <div class="atas"><span id="sNo"></span><span id="sSisa"></span></div>
+    <div class="waktu"><i id="sWaktu"></i></div>
+    <div class="soal" id="sTeks"></div>
+    <div class="opsi" id="sOpsi"></div>
+    <div class="kecil" id="sKet">Pilih jawaban. Lihat juga soalnya di layar proyektor.</div>
+  </section>
+  <!-- 4. hasil -->
+  <section id="sHasil" hidden>
+    <div class="kartu tengah">
+      <div class="besar" id="hJudul"></div>
+      <div id="hKunci" style="font-size:19px;font-weight:800"></div>
+      <div id="hPoin" style="font-size:22px;font-weight:800;color:#1c7ed6"></div>
+      <div class="kecil" id="hPeringkat"></div>
+    </div>
+  </section>
+  <!-- 5. akhir -->
+  <section id="sAkhir" hidden>
+    <div class="kartu tengah">
+      <div class="besar" id="kJudul"></div>
+      <div id="kIsi" style="font-size:20px;font-weight:800"></div>
+      <div class="kecil">Terima kasih sudah bermain! Lihat podium di layar proyektor.</div>
+    </div>
+    {{IKLAN}}
+    <a class="dukung" href="https://www.willoapparel.com" target="_blank" rel="noopener">Supported by <b>www.willoapparel.com</b></a>
+  </section>
+  <!-- keluar -->
+  <section id="sKeluar" hidden>
+    <div class="kartu tengah"><div class="besar" style="font-size:30px" id="xJudul">Permainan selesai</div><div class="kecil" id="xPesan">Guru menutup permainan.</div>
+      <button class="btn" onclick="location.reload()">Masuk lagi</button></div>
+  </section>
+</div>
+<div class="status" id="status" hidden>Menyambung ulang…</div>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const LS = {get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }};
+const KULIT = ['#f6d6b8', '#f2c7a0', '#e0aa7e', '#c98c5e', '#a86e44'];
+const RAMBUT = ['#0b0b0e', '#3a2416', '#6a4026', '#a0622e'];
+const GAYA = {L: [['cepak', 'Cepak'], ['belah', 'Belah'], ['acak', 'Acak'], ['keriting', 'Keriting']], P: [['panjang', 'Panjang'], ['kuncir', 'Kuncir'], ['kepang', 'Kepang'], ['bob', 'Bob'], ['hijab', 'Hijab']]};
+const WARNA = ['#e8453c', '#2f80ed', '#f2a20c', '#27ae60'];
+let saya = LS.get('kdk:saya', null) || {nama: '', rupa: {j: Math.random() < .5 ? 'L' : 'P', k: 1, g: '', w: 0}, tim: -1};
+if (!saya.rupa.g) saya.rupa.g = GAYA[saya.rupa.j][0][0];
+let token = LS.get('kdk:token', ''), ws = null, terhubung = false, masuk = false, keadaan = null, infoTim = [], dikeluarkan = false;
+
+function tampil(id) { ['sGabung', 'sTunggu', 'sSoal', 'sHasil', 'sAkhir', 'sKeluar'].forEach(x => { $(x).hidden = x !== id; }); }
+// avatar mini: piksel 12 x 16 (gaya Dunia Kotak, seragam SMP)
+function gambarAvatar(cv, r) {
+  const x = cv.getContext('2d'), k = KULIT[r.k] || KULIT[1], h = RAMBUT[r.w] || RAMBUT[0]; x.clearRect(0, 0, 12, 16);
+  const p = (c, a, b, w = 1, t = 1) => { x.fillStyle = c; x.fillRect(a, b, w, t); };
+  const hij = r.g === 'hijab';
+  p(k, 3, 1, 6, 5); // kepala
+  if (hij) { p('#f6f6f2', 2, 0, 8, 2); p('#f6f6f2', 2, 0, 1, 7); p('#f6f6f2', 9, 0, 1, 7); p('#f6f6f2', 3, 6, 6, 2); }
+  else { p(h, 3, 0, 6, 2); if (r.g !== 'cepak') p(h, 2, 1, 1, r.g === 'panjang' || r.g === 'kepang' ? 7 : 3); if (r.g !== 'cepak') p(h, 9, 1, 1, r.g === 'panjang' || r.g === 'kepang' ? 7 : 3);
+    if (r.g === 'acak' || r.g === 'keriting') { p(h, 2, 0, 1); p(h, 9, 0, 1); p(h, 5, 0, 2); } if (r.g === 'kuncir') p(h, 10, 2, 1, 3); if (r.g === 'bob') { p(h, 2, 1, 1, 4); p(h, 9, 1, 1, 4); } }
+  p('#1a1a1a', 4, 3); p('#1a1a1a', 7, 3); p('#b0474a', 5, 5, 2);
+  p('#f6f6f2', 2, 7, 8, 4); p('#1f3a6e', 6, 7, 1, 3); // baju + dasi
+  p(hij ? '#f6f6f2' : k, 1, 7, 1, 4); p(hij ? '#f6f6f2' : k, 10, 7, 1, 4);
+  if (r.j === 'P') { p('#2b4a8a', 2, 11, 8, hij ? 4 : 2); if (!hij) { p(k, 3, 13, 2, 2); p(k, 7, 13, 2, 2); } }
+  else { p('#2b4a8a', 3, 11, 6, 4); p('#2b4a8a', 5, 13, 2, 2); x.clearRect(5, 13, 2, 2); }
+  p('#1a1a1a', 3, 15, 2); p('#1a1a1a', 7, 15, 2);
+}
+function pilihan(el, daftar, aktif, ubah, bulat) {
+  el.innerHTML = daftar.map(([v, t]) => `<button class="${bulat ? 'bulat' : ''} ${String(v) === String(aktif) ? 'on' : ''}" data-v="${v}" style="${bulat ? 'background:' + t : ''}">${bulat ? '' : esc(t)}</button>`).join('');
+  el.querySelectorAll('button').forEach(b => b.onclick = () => { ubah(b.dataset.v); });
+}
+function gambarForm() {
+  const r = saya.rupa;
+  pilihan($('pJenis'), [['L', 'Putra'], ['P', 'Putri']], r.j, v => { r.j = v; r.g = GAYA[v][0][0]; gambarForm(); });
+  pilihan($('pGaya'), GAYA[r.j], r.g, v => { r.g = v; gambarForm(); });
+  pilihan($('pKulit'), KULIT.map((c, i) => [i, c]), r.k, v => { r.k = +v; gambarForm(); }, true);
+  pilihan($('pRambut'), RAMBUT.map((c, i) => [i, c]), r.w, v => { r.w = +v; gambarForm(); }, true);
+  $('wTim').hidden = !infoTim.length;
+  if (infoTim.length) { if (saya.tim >= infoTim.length) saya.tim = -1; pilihan($('pTim'), infoTim.map((t, i) => [i, t.nama]), saya.tim, v => { saya.tim = +v; gambarForm(); });
+    $('pTim').querySelectorAll('button').forEach((b, i) => { b.style.borderColor = infoTim[i].warna; if (b.classList.contains('on')) { b.style.background = infoTim[i].warna; b.style.color = '#fff'; } }); }
+  gambarAvatar($('cvAvatar'), r);
+}
+$('iNama').value = saya.nama;
+$('bMasuk').onclick = () => {
+  const n = $('iNama').value.replace(/\s+/g, ' ').trim();
+  if (n.length < 2) { $('iNama').focus(); $('iNama').placeholder = 'Nama minimal 2 huruf'; return; }
+  if (infoTim.length && saya.tim < 0) { $('pTim').classList.add('goyang'); setTimeout(() => $('pTim').classList.remove('goyang'), 600); return; }
+  saya.nama = n; LS.set('kdk:saya', saya); masuk = true; kirimGabung(); $('bMasuk').disabled = true;
+};
+function kirimGabung() { if (terhubung) ws.send(JSON.stringify({t: 'gabung', token, nama: saya.nama, rupa: saya.rupa, tim: saya.tim})); }
+function sambung() {
+  ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws?peran=murid');
+  ws.onopen = () => { terhubung = true; $('status').hidden = true; if (masuk || (token && saya.nama)) { masuk = true; kirimGabung(); } };
+  ws.onclose = () => { terhubung = false; if (dikeluarkan) return; $('status').hidden = false; setTimeout(sambung, 1500); };
+  ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (x) { return; } terima(m); };
+}
+let detik = null;
+function terima(m) {
+  if (m.t === 'halo') { token = m.token; LS.set('kdk:token', token); saya.nama = m.nama; LS.set('kdk:saya', saya); $('bMasuk').disabled = false; if (!keadaan || keadaan.t === 'lobi') tampilTunggu(); return; }
+  if (m.t === 'ditolak') { masuk = false; $('bMasuk').disabled = false; alertKecil(m.alasan); return; }
+  if (m.t === 'dikeluarkan') { dikeluarkan = true; LS.set('kdk:token', ''); $('xJudul').textContent = 'Kamu dikeluarkan guru'; $('xPesan').textContent = 'Tanyakan ke guru, lalu masuk lagi dengan nama yang sopan.'; tampil('sKeluar'); try { ws.close(); } catch (e) {} return; }
+  if (m.t === 'tutup') { keadaan = null; $('xJudul').textContent = 'Permainan ditutup'; $('xPesan').textContent = 'Guru kembali ke pengaturan. Tunggu sebentar, lalu ketuk Masuk lagi.'; tampil('sKeluar'); return; }
+  if (m.t === 'tunggu-guru') { $('aGame').textContent = 'Kelas Dunia Kotak'; if (!masuk) tampilGabung(); else tampilTunggu('Guru belum membuka permainan. Tunggu sebentar.'); return; }
+  keadaan = m; if (m.game) $('aGame').textContent = m.game;
+  if (m.poin != null) $('aSkor').innerHTML = `${m.tim ? `<span class="timTag" style="background:${m.tim.warna}">${esc(m.tim.nama)}</span> ` : ''}<b>${Number(m.poin).toLocaleString('id-ID')}</b> poin`;
+  if (m.t === 'lobi') { infoTim = m.tim || []; if (!masuk) tampilGabung(); else tampilTunggu(); }
+  if (m.t === 'soal') tampilSoal(m);
+  if (m.t === 'hasil') tampilHasil(m);
+  if (m.t === 'akhir') tampilAkhir(m);
+}
+function alertKecil(t) { $('iNama').value = ''; $('iNama').placeholder = t; $('iNama').focus(); }
+function tampilGabung() { tampil('sGabung'); gambarForm(); }
+function tampilTunggu(pesan) {
+  tampil('sTunggu'); gambarAvatar($('cvAvatar2'), saya.rupa); $('tNama').textContent = saya.nama;
+  const t = infoTim[saya.tim]; $('tTim').innerHTML = t ? `<span class="timTag" style="background:${t.warna}">${esc(t.nama)}</span>` : '';
+  $('tPesan').textContent = pesan || 'Kamu sudah masuk. Lihat namamu di layar proyektor, lalu tunggu guru menekan Mulai.';
+}
+function tampilSoal(m) {
+  tampil('sSoal'); $('sNo').textContent = `Soal ${m.no + 1} dari ${m.total}`; $('sTeks').textContent = m.teks;
+  $('sOpsi').innerHTML = m.ops.map((t, i) => `<button data-h="${'ABCD'[i]}" style="background:${WARNA[i]}"><i>${'ABCD'[i]}</i>${esc(t)}</button>`).join('');
+  const kunci = () => { $('sOpsi').querySelectorAll('button').forEach(b => { b.disabled = true; b.classList.toggle('dipilih', b.dataset.h === m.sudah); b.classList.toggle('pudar', b.dataset.h !== m.sudah); }); $('sKet').textContent = 'Jawaban terkunci. Tunggu semua teman menjawab…'; };
+  if (m.sudah) kunci(); else $('sKet').textContent = 'Pilih jawaban. Lihat juga soalnya di layar proyektor.';
+  $('sOpsi').querySelectorAll('button').forEach(b => b.onclick = () => { if (m.sudah) return; m.sudah = b.dataset.h; if (navigator.vibrate) try { navigator.vibrate(30); } catch (e) {} ws.send(JSON.stringify({t: 'jawab', no: m.no, h: b.dataset.h})); kunci(); });
+  let s = m.sisa; clearInterval(detik); const tulis = () => { $('sSisa').textContent = s + ' dtk'; $('sWaktu').style.width = Math.max(0, s / Math.max(1, m.sisaAwal || m.sisa) * 100) + '%'; };
+  m.sisaAwal = m.sisa; tulis(); detik = setInterval(() => { s = Math.max(0, s - 1); tulis(); if (!s) clearInterval(detik); }, 1000);
+}
+function tampilHasil(m) {
+  clearInterval(detik); tampil('sHasil');
+  $('hJudul').textContent = m.benar ? '✅ Benar!' : m.pilih ? '❌ Belum tepat' : '⏰ Tidak menjawab';
+  $('hJudul').style.color = m.benar ? '#2f9e44' : '#e03131';
+  $('hKunci').textContent = `Jawaban: ${m.kunci}. ${m.kunciTeks}`;
+  $('hPoin').textContent = m.maju ? (m.benar ? `+${Number(m.dapat).toLocaleString('id-ID')} poin · ` : '') + m.maju : m.benar ? `+${Number(m.dapat).toLocaleString('id-ID')} poin · naik ke lantai ${m.lantai}` : m.pilih ? `Turun ke lantai ${m.lantai}` : `Tetap di lantai ${m.lantai}`;
+  $('hPeringkat').textContent = `Peringkat ${m.peringkat} dari ${m.dari}`;
+  $('hJudul').classList.add('goyang'); setTimeout(() => $('hJudul').classList.remove('goyang'), 600);
+}
+function tampilAkhir(m) {
+  clearInterval(detik); tampil('sAkhir');
+  $('kJudul').textContent = m.peringkat === 1 ? '🏆 Juara 1!' : m.peringkat <= 3 ? `🥈 Juara ${m.peringkat}!` : `Peringkat ${m.peringkat}`;
+  $('kIsi').innerHTML = `${m.benar} dari ${m.total} benar · ${Number(m.poin).toLocaleString('id-ID')} poin${m.timJuara ? `<br>Tim juara: ${esc(m.timJuara)}` : ''}`;
+}
+tampilGabung(); sambung();
+</script>
+</body>
+</html>
