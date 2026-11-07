@@ -451,7 +451,7 @@ export class Warga extends DurableObject {
       // Misi pemula: 5 langkah berurutan, sekali seumur kavling, koin langsung masuk (hadiah cepat warga baru).
       let pm = []; try { pm = r.pemula ? JSON.parse(r.pemula) : []; } catch (e) {}
       if (!Array.isArray(pm)) pm = [];
-      const bolehPemula = pm.length > 0 || (r.koinTotal || r.koin || 0) < PEMULA_BATAS_KOIN;
+      const bolehPemula = pm.length > 0 || (r.koinTotal || r.koin || 0) < PEMULA_BATAS_KOIN || (r.koin || 0) < PEMULA_SALDO;
       let dapatPm = 0;
       if (aksi === "pemula" && bolehPemula) {
         const i = PEMULA.findIndex(([id]) => id === q.id);
@@ -542,7 +542,7 @@ export class Warga extends DurableObject {
         // bibit tomat gratis kalau koin kurang dari 10, supaya warga baru / koin habis tetap bisa mulai berkebun
         // + gratis juga saat langkah "tanam" misi pemula (warga baru sudah dapat koin dari langkah sebelumnya)
         let pm = []; try { pm = r.pemula ? JSON.parse(r.pemula) : []; } catch (e) {}
-        const pemulaTanam = Array.isArray(pm) && !pm.includes("tanam") && (pm.length > 0 || (r.koinTotal || r.koin || 0) < PEMULA_BATAS_KOIN);
+        const pemulaTanam = Array.isArray(pm) && !pm.includes("tanam") && (pm.length > 0 || (r.koinTotal || r.koin || 0) < PEMULA_BATAS_KOIN || (r.koin || 0) < PEMULA_SALDO);
         const harga = q.bibit === "tomat" && (koin < bb.harga || pemulaTanam) ? 0 : bb.harga;
         if (koin < harga) return Response.json({ galat: "Koinmu kurang (" + harga + " koin)." }, { status: 400 });
         koin -= harga; kb.b = q.bibit; kb.t = kini;
@@ -982,6 +982,7 @@ const MISI_SEPANJANG_HARI = true;
 // Misi pemula: [id, koin, permata]. Urutan HARUS sama dengan PEMULA di mabar/game.js. Total 100 koin = cukup beli hiasan pertama.
 const PEMULA = [["jalan", 10], ["tanam", 15], ["ambil", 15], ["sapa", 10], ["raka", 50, 10]];
 const PEMULA_BATAS_KOIN = 300;   // warga lama yang sudah kumpul ≥300 koin tidak ikut misi pemula
+const PEMULA_SALDO = 30;   // Huda 7 Nov: warga lama yang saldo koinnya < 30 juga ikut misi pemula
 // Hadiah hadir beruntun hari ke-1..7 (koin), lalu berulang.
 const HADIAH_HADIR = [10, 15, 20, 25, 30, 40, 60];
 const MISI_KOLAM = [["jalan", 10], ["sapa", 10], ["raka", 5], ["tetangga", 10], ["foto", 10], ["ambil", 10], ["mancing", 10], ["sungai", 5], ["lari", 5], ["kucing", 5], ["lompat", 5], ["fasum", 10], ["stadion", 5], ["npc", 10], ["supermarket", 5], ["rs", 5]];
