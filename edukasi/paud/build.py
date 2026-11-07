@@ -105,7 +105,7 @@ body:has(#layarMulai:not([hidden])) .bawah,body:has(#layarMulai:not([hidden])) #
 #guruExcel{width:100%;height:64px;font-family:monospace;font-size:14px;border:1px solid #ddd;border-radius:10px;padding:6px}
 .gBaris{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin:4px 0}
 .gInfo{font-size:14px;color:#666;margin:2px 0}
-@media (min-aspect-ratio:1/1) and (min-width:700px){#kartu{position:fixed;left:18px;top:50%;transform:translateY(-50%)}}
+@media (min-aspect-ratio:1/1) and (min-width:700px),(orientation:landscape) and (min-width:560px) and (max-height:500px){#kartu{position:fixed;left:18px;top:50%;transform:translateY(-50%)}}
 @media (max-width:420px){.nmGame{display:none}}
 @media (max-height:520px){.pil{min-width:76px;min-height:76px;font-size:38px}#kartu{font-size:42px}#gelembung{font-size:20px;padding:8px 16px}}
 """
