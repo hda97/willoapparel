@@ -203,7 +203,7 @@ function tampilHasil(m) {
   $('hJudul').textContent = m.benar ? '✅ Benar!' : m.pilih ? '❌ Belum tepat' : '⏰ Tidak menjawab';
   $('hJudul').style.color = m.benar ? '#2f9e44' : '#e03131';
   $('hKunci').textContent = `Jawaban: ${m.kunci}. ${m.kunciTeks}`;
-  $('hPoin').textContent = m.benar ? `+${Number(m.dapat).toLocaleString('id-ID')} poin · naik ke lantai ${m.lantai}` : m.pilih ? `Turun ke lantai ${m.lantai}` : `Tetap di lantai ${m.lantai}`;
+  $('hPoin').textContent = m.maju ? (m.benar ? `+${Number(m.dapat).toLocaleString('id-ID')} poin · ` : '') + m.maju : m.benar ? `+${Number(m.dapat).toLocaleString('id-ID')} poin · naik ke lantai ${m.lantai}` : m.pilih ? `Turun ke lantai ${m.lantai}` : `Tetap di lantai ${m.lantai}`;
   $('hPeringkat').textContent = `Peringkat ${m.peringkat} dari ${m.dari}`;
   $('hJudul').classList.add('goyang'); setTimeout(() => $('hJudul').classList.remove('goyang'), 600);
 }

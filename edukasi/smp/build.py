@@ -17,16 +17,17 @@ NM = AKAR / 'node_modules'
 KELUAR = AKAR.parent.parent / 'public' / 'edukasi' / 'smp'
 DIST = AKAR / 'server' / 'dist'
 sys.path.insert(0, str(AKAR))
-import bank  # noqa: E402
 
 LINK_BELI = 'https://www.willoapparel.com/duniakotak/belajar/'
 WA = '0858-1690-0722'
 
 GAME = {
-    'menara-hitung': dict(judul='Menara Hitung', mapel='Matematika', ikon='🏯', aksen='#1c7ed6', latar='#e7f5ff',
+    'menara-hitung': dict(judul='Menara Hitung', mapel='Matematika', kunci='matematika', bank='bank', ikon='🏯', aksen='#1c7ed6', latar='#e7f5ff',
                           desk='Panjat menara bersama satu kelas. Jawaban benar naik satu lantai, petak yang salah runtuh.'),
+    'lab-ajaib': dict(judul='Lab Ajaib', mapel='IPA', kunci='ipa', bank='bank_ipa', ikon='🧪', aksen='#2f9e44', latar='#ebfbee', bersama=True,
+                      desk='Tebak hasil percobaan IPA bersama satu kelas. Meja benar bersinar dan mengisi Energi Lab.'),
 }
-SEGERA = [('Lab Ajaib', 'IPA', '🧪'), ('English Quest', 'Bahasa Inggris', '💬'), ('Coding Quest', 'Informatika', '🤖')]
+SEGERA = [('English Quest', 'Bahasa Inggris', '💬'), ('Coding Quest', 'Informatika', '🤖')]
 
 IKLAN = (f'<a class="iklanWillo" href="https://www.willoapparel.com/kaos-kelas.html?utm_source=game-smp" target="_blank" rel="noopener">'
          '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M22 8l-14 7-6 14 9 4 3-6v31h36V27l3 6 9-4-6-14-14-7c-1 5-5 8-10 8s-9-3-10-8z" fill="#ffd43b" stroke="#1f2a5a" stroke-width="2.5" stroke-linejoin="round"/>'
@@ -303,13 +304,13 @@ def bundel(kode, gid):
     return hasil.replace('</script', '<\\/script')
 
 
-def rakit_game():
-    soal = bank.bank()
-    data = {'judul': 'Bank soal Matematika SMP', 'mapel': 'matematika', 'soal': soal}
+def data_game(m):
+    """bank soal lengkap + versi contoh (5 soal per kelas, untuk situs) satu game"""
+    import importlib
+    soal = importlib.import_module(m['bank']).bank()
+    data = {'judul': f'Bank soal {m["mapel"]} SMP', 'mapel': m['kunci'], 'soal': soal}
     data['sidik'] = 'bawaan-' + hashlib.sha1(json.dumps(soal, sort_keys=True).encode()).hexdigest()[:10]
     jsn = lambda d: json.dumps(d, ensure_ascii=False, separators=(',', ':')).replace('<', '\\u003c').replace('},{', '},\n{')
-    data_json = jsn(data)
-    # versi situs: hanya 5 soal contoh per kelas, selalu mode CONTOH
     contoh = []
     for k in ('7', '8', '9'):
         per = [x for x in soal if str(x['kelas']) == k]
@@ -318,11 +319,19 @@ def rakit_game():
             if x['topik'] not in topik:
                 topik.append(x['topik'])
         contoh += [next(x for x in per if x['topik'] == t) for t in topik[:5]]
-    data_contoh = jsn({**data, 'soal': contoh, 'varian': 'contoh', 'sidik': 'contoh'})
+    return jsn(data), jsn({**data, 'soal': contoh, 'varian': 'contoh', 'sidik': 'contoh'}), len(soal)
+
+
+def rakit_game():
+    total = 0
     inti = (AKAR / 'src' / 'inti.js').read_text()
     DIST.mkdir(parents=True, exist_ok=True)
     for gid, m in GAME.items():
+        data_json, data_contoh, n = data_game(m)
+        total += n
         src = (AKAR / 'src' / f'{gid}.js').read_text()
+        if m.get('bersama'):
+            src = (AKAR / 'src' / 'bersama.js').read_text() + '\n' + src
         kode = bundel(inti + '\n// ================= GAME: ' + gid + ' =================\n' + src, gid)
         html = HTML.format(css=CSS, data=data_json, kode=kode, iklan=IKLAN, link_beli=LINK_BELI, **m)
         situs = HTML.format(css=CSS, data=data_contoh, kode=kode, iklan=IKLAN, link_beli=LINK_BELI, **m)
@@ -332,7 +341,7 @@ def rakit_game():
         (DIST / f'{gid}.html').write_text(html)
         (AKAR / 'keluar').mkdir(exist_ok=True)
         (AKAR / 'keluar' / f'{gid}.html').write_text(html)  # untuk paket: dibuka langsung tanpa aplikasi
-        print('✓', out.relative_to(AKAR.parent.parent), f'{len(html) // 1024} KB')
+        print('✓', out.relative_to(AKAR.parent.parent), f'{len(html) // 1024} KB', f'{n} soal')
     murid = (AKAR / 'src' / 'murid.html').read_text().replace('{{IKLAN}}', IKLAN.replace('game-smp', 'game-smp-hp'))
     (DIST / 'murid.html').write_text(murid)
     print('✓ server/dist/murid.html', f'{len(murid) // 1024} KB')
@@ -340,7 +349,7 @@ def rakit_game():
     kartu += ''.join(f'<div class="k segera"><div class="ik">{ik}</div><small>{mp}</small><h2>{jd}</h2><p>Segera hadir di pembaruan paket.</p></div>' for jd, mp, ik in SEGERA)
     (DIST / 'menu.html').write_text(MENU.replace('{kartu}', kartu).replace('{iklan}', IKLAN))
     print('✓ server/dist/menu.html')
-    return len(soal)
+    return total
 
 
 def rakit_server():

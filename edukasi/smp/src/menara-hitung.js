@@ -10,6 +10,7 @@ Object.assign(GAME, {
     <li>Poin: benar 500, ditambah bonus kecepatan.</li>
     <li><b>Kelompok di layar ini:</b> tiap tim menekan tombol warnanya, atau tombol keyboard (Tim Merah 1 2 3 4, Biru Q W E R, Kuning A S D F, Hijau Z X C V).</li>
     <li><b>Satu kelas lewat HP:</b> murid scan QR di layar, lalu menjawab di HP.</li></ol>`,
+  labelJumlah: 'Jumlah soal (= tinggi menara)',
   musik: {bpm: 116, nada: 62, alat: 'marimba', progresi: [0, 5, 3, 4], benih: 21},
 });
 

@@ -310,7 +310,7 @@ function siarLobi() { siar(infoLobi()); }
 function keadaanUntuk(p) {
   if (!SESI || SESI.fase === 'lobi') return infoLobi();
   const q = SESI.soal[SESI.no]; const tim = ATUR.hpTim && p.tim >= 0 ? TIM[p.tim] : null;
-  const dasar = {game: GAME.judul, no: SESI.no, total: SESI.soal.length, poin: p.poin, lantai: p.lantai + 1, tim: tim ? {nama: tim.nama, warna: tim.warna} : null};
+  const dasar = {game: GAME.judul, no: SESI.no, total: SESI.soal.length, poin: p.poin, lantai: p.lantai + 1, maju: GAME.teksMaju ? GAME.teksMaju(p) : null, tim: tim ? {nama: tim.nama, warna: tim.warna} : null};
   if (SESI.fase === 'soal') return {t: 'soal', ...dasar, teks: q.soal, ops: opsiSoal(q).map(o => o.teks), sisa: Math.max(0, Math.ceil(SESI.sisa)), sudah: p.jawab[SESI.no] ? p.jawab[SESI.no].h : null};
   if (SESI.fase === 'hasil') { const j = p.jawab[SESI.no]; const urut = urutPeringkat(PEMAIN.values()); return {t: 'hasil', ...dasar, benar: !!(j && j.benar), pilih: j ? j.h : null, kunci: kunciSoal(q), kunciTeks: (opsiSoal(q).find(o => o.h === kunciSoal(q)) || {}).teks || '', dapat: j ? j.dapat : 0, peringkat: urut.indexOf(p) + 1, dari: urut.length}; }
   if (SESI.fase === 'akhir') { const urut = urutPeringkat(PEMAIN.values()); const st = skorTim(); return {t: 'akhir', ...dasar, benar: p.benar, peringkat: urut.indexOf(p) + 1, dari: urut.length, timJuara: st ? st[0].nama : null}; }
@@ -353,7 +353,7 @@ function layarAtur() {
         <button class="pilC ${ATUR.cara === 'layar' ? 'on' : ''}" data-c="layar"><b>👥 Kelompok di layar ini</b><small>2 sampai 4 tim, tanpa WiFi. Tim menjawab lewat tombol atau keyboard laptop.</small></button>
         <button class="pilC ${ATUR.cara === 'hp' ? 'on' : ''} ${SERVER ? '' : 'mati'}" data-c="hp"><b>📱 Satu kelas lewat HP</b><small>${SERVER ? 'Murid scan QR di proyektor, menjawab di HP masing-masing atau satu HP per kelompok.' : CONTOH ? 'Tersedia di paket lengkap (aplikasi Kelas Dunia Kotak di laptop guru).' : 'Buka game ini lewat aplikasi Kelas Dunia Kotak di laptop guru untuk mengaktifkan.'}</small></button>
       </div>
-      <div class="lbl">Jumlah soal (= tinggi menara)</div>${CONTOH ? `<p class="gInfo" style="margin:0">Versi contoh: ${BATAS_CONTOH} soal. Paket lengkap: 10, 15, atau 20 soal per permainan.</p>` : seg('jumlah', [[10, '10'], [15, '15'], [20, '20']])}
+      <div class="lbl">${GAME.labelJumlah || 'Jumlah soal'}</div>${CONTOH ? `<p class="gInfo" style="margin:0">Versi contoh: ${BATAS_CONTOH} soal. Paket lengkap: 10, 15, atau 20 soal per permainan.</p>` : seg('jumlah', [[10, '10'], [15, '15'], [20, '20']])}
       <div class="lbl">Waktu per soal</div>${seg('waktu', [[20, '20 dtk'], [30, '30 dtk'], [45, '45 dtk'], [60, '60 dtk']])}
       <div class="lbl">Pembahasan <small>(tunggu tombol Lanjut, guru bisa menjelaskan)</small></div>${seg('jeda', [[true, 'Nyala'], [false, 'Mati']])}`;
     $('aTopik').querySelectorAll('.pilT').forEach(b => b.onclick = () => { efek.ketuk(); ATUR.topik = b.dataset.t; $('aTopik').querySelectorAll('.pilT').forEach(x => x.classList.toggle('on', x === b)); });
