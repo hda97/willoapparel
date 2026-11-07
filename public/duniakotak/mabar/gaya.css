@@ -333,3 +333,19 @@ a.barisAtur{text-decoration:none}.barisAtur span{display:flex;flex-direction:col
 :where(html.putar:not(.mq-tegak)) #panelVoting .vtKiri{grid-template-rows:auto auto auto 1fr}
 :where(html.putar:not(.mq-tegak)) #panelVoting .vtDaftar{max-height:none}
 :where(html.putar:not(.mq-tegak)) #panelVoting #tutupVoting{align-self:end}
+/* Lima menit pertama (7 Nov 2026): satu tujuan 🎯 di atas tengah layar, tombol yang perlu ditekan disorot, koin melayang */
+.chipTujuan{position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:7;display:flex;align-items:center;gap:8px;max-width:min(440px,calc(100vw - 24px));background:rgba(26,28,46,.92);color:#fff;border:2px solid #ffd23a;border-radius:16px;padding:6px 10px;font:800 12px Montserrat,sans-serif;text-align:left;box-shadow:0 4px 14px rgba(0,0,0,.35);cursor:pointer;animation:tjMasuk .35s ease-out}
+.chipTujuan[hidden]{display:none}
+.chipTujuan .tjNo{flex:none;background:#ffd23a;color:#1b1c21;border-radius:999px;padding:3px 8px;font-weight:900;font-size:11px}
+.chipTujuan .tjIsi{min-width:0;display:flex;flex-direction:column}.chipTujuan .tjIsi b{font-weight:900;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chipTujuan .tjIsi small{font-weight:700;font-size:10.5px;color:#ffe9a8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chipTujuan .tjKoin{flex:none;color:#ffd75a;font-weight:900}
+@keyframes tjMasuk{from{transform:translate(-50%,-10px);opacity:0}to{transform:translateX(-50%);opacity:1}}
+.sorot{animation:sorot 1s ease-in-out infinite!important;outline:3px solid #ffd23a;outline-offset:2px}
+@keyframes sorot{50%{box-shadow:0 0 0 8px rgba(255,210,58,.45);transform:scale(1.08)}}
+.koinTerbang{position:fixed;left:50%;top:42%;transform:translate(-50%,0);z-index:60;pointer-events:none;color:#ffd75a;font:900 26px Montserrat,sans-serif;text-shadow:0 2px 0 #3a2a00,0 0 12px rgba(0,0,0,.5);animation:koinNaik 1.6s ease-out forwards}
+@keyframes koinNaik{0%{opacity:0;transform:translate(-50%,10px) scale(.8)}15%{opacity:1;transform:translate(-50%,0) scale(1.1)}100%{opacity:0;transform:translate(-50%,-120px) scale(1)}}
+.misi.pemula{border-color:#ffd23a;background:rgba(255,210,58,.1)}
+.misi.hadir .hdKotak{display:flex;gap:4px;margin:6px 0 3px;flex-wrap:wrap}
+.misi.hadir .hdKotak i{font-style:normal;font-size:11px;font-weight:900;min-width:26px;text-align:center;padding:3px 4px;border-radius:7px;background:rgba(255,255,255,.1);color:#ffd75a}
+.misi.hadir .hdKotak i.ok{background:#7ad06a;color:#13301a}
