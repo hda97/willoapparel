@@ -38,8 +38,6 @@ const PUTARAN_VOTING = "2026-11";
 // Stream Key Saweria bisa disetel lewat halaman /duniakotak/atur-saweria.html (Huda tidak menemukan worker di Cloudflare).
 // Halaman itu butuh token setel; di sini hanya hash SHA-256-nya (token asli dikirim ke Huda lewat chat proyek).
 const HASH_TOKEN_SETEL = "3875bd9e3be8eb385420fc08c7acbb25d81b72d5581356c72a210d4b87df4510";
-// Dashboard pantau warga (/duniakotak/dashboard/) khusus Huda: hanya hash SHA-256 kunci di sini (kunci asli dikirim di thread proyek).
-const HASH_KUNCI_DASHBOARD = "a5bc40bc6dd31581e05938a20730071e3d92907ca2716754a0750233177095a6";
 // Huda 6 Nov 2026: cukup 4 calon (usulan terbanyak dari komentar); fasum lain untuk voting berikutnya.
 // 6 Nov 2026 Huda menutup voting → Taman Kota dibangun (game.js BANGUN_VOTING); taman keluar dari calon, bintangnya dikembalikan.
 const CALON_FASUM = ["kafe", "hiburan", "polisi"];
@@ -1072,12 +1070,8 @@ async function apiWarga(request, env, url) {
   let body;
   try { body = await request.json(); } catch (e) { return json({ galat: "Data tidak terbaca" }, 400); }
   const bersihUsulan = (v) => String(v || "").replace(/[\u0000-\u001f<>]/g, " ").trim().slice(0, 140);
-  if (aksi === "statistik") {
-    const tk = String(body.kunci || "").trim();
-    const h = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(tk)))].map((b) => b.toString(16).padStart(2, "0")).join("");
-    if (h !== HASH_KUNCI_DASHBOARD) return json({ galat: "Kunci dashboard salah." }, 403);
-    return json(await statistikDashboard(env, stub));
-  }
+  // Dashboard pantau warga (Huda 7 Nov 2026: tanpa kunci). Halaman tidak ditautkan dari game.
+  if (aksi === "statistik") return json(await statistikDashboard(env, stub));
   if (aksi === "daftar-ig") {
     const d = bacaAkun(body);
     if (d.galat) return json({ galat: d.galat }, 400);

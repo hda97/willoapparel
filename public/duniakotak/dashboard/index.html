@@ -33,7 +33,7 @@ section p.ket{margin:0 0 10px;color:var(--redup);font-size:12.5px}
 .batang div{flex:1;min-width:0;position:relative;background:var(--biru);border-radius:4px 4px 0 0}
 .batang div i{position:absolute;top:-16px;left:0;right:0;text-align:center;font-style:normal;font-size:10.5px;color:var(--redup)}
 .label{display:flex;gap:4px;font-size:10.5px;color:var(--redup);margin-top:4px}
-.label span{flex:1;text-align:center;min-width:0;overflow:hidden}
+.label span{flex:1;text-align:center;min-width:0;overflow:visible;white-space:nowrap}
 table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
 th,td{padding:6px 6px;border-bottom:1px solid var(--garis);text-align:right;white-space:nowrap}
 th:first-child,td:first-child{text-align:left}
@@ -45,24 +45,13 @@ th{color:var(--redup);font-weight:600;font-size:12px}
 .baris .bar{flex:1;height:10px;background:var(--garis);border-radius:5px;overflow:hidden}
 .baris .bar u{display:block;height:100%;background:var(--ungu);border-radius:5px}
 .chip{display:inline-block;background:var(--bg);border:1px solid var(--garis);border-radius:20px;padding:3px 9px;margin:3px 4px 0 0;font-size:12.5px}
-#masuk{max-width:360px;margin:12vh auto;background:var(--kartu);border:1px solid var(--garis);border-radius:14px;padding:20px;text-align:center}
-#masuk input{width:100%;font:inherit;padding:10px;border-radius:9px;border:1px solid var(--garis);background:var(--bg);color:var(--teks);margin:12px 0}
 .galat{color:var(--merah);font-size:13px;min-height:18px}
 .catatan{color:var(--redup);font-size:12px;margin-top:6px}
 @media (max-width:520px){.k b{font-size:22px}.baris .nm{width:96px}}
 </style>
 </head>
 <body>
-<div id="masuk" hidden>
-  <img src="/duniakotak/apple-touch-icon.png" alt="" width="56" height="56" style="border-radius:12px">
-  <h2 style="margin:10px 0 0;font-size:18px">Dashboard Dunia Kotak</h2>
-  <p class="catatan">Khusus pengelola. Masukkan kunci dashboard.</p>
-  <input id="kunciIsi" type="password" placeholder="Kunci dashboard" autocomplete="current-password">
-  <div class="galat" id="galatMasuk"></div>
-  <button class="utama" id="tombolMasuk" style="width:100%">Buka dashboard</button>
-</div>
-
-<div id="isi" hidden>
+<div id="isi">
 <header>
   <img src="/duniakotak/apple-touch-icon.png" alt="">
   <h1>Dashboard Dunia Kotak<small id="waktu">Memuat…</small></h1>
@@ -93,7 +82,6 @@ th{color:var(--redup);font-weight:600;font-size:12px}
     <section><h2>Voting & dana</h2><p class="ket">Putaran voting fasum yang sedang jalan, iuran, dan donasi Saweria.</p><div id="voting"></div></section>
   </div>
   <p class="catatan" id="catatanMulai"></p>
-  <p class="catatan"><button id="keluar">Keluar dari dashboard</button></p>
 </main>
 </div>
 
@@ -110,7 +98,6 @@ const LABEL_FITUR = {
 };
 const LABEL_PROFESI = { petani: '🌾 Petani', nelayan: '🎣 Nelayan', pedagang: '🛒 Pedagang', tukang: '🔨 Tukang', guru: '📚 Guru', dokter: '🩺 Dokter', koki: '🍳 Koki', polisi: '👮 Polisi' };
 const LABEL_CALON = { kafe: '☕ Kafe', hiburan: '🎡 Taman Hiburan', polisi: '🚓 Kantor Polisi', taman: '🌳 Taman Kota' };
-let kunci = ''; try { kunci = localStorage.getItem('dk_dash') || ''; } catch (e) {}
 
 function batang(el, data, opsi = {}) {
   const max = Math.max(1, ...data.map((d) => d.v + (d.v2 || 0)));
@@ -190,28 +177,18 @@ function tampil(s) {
 }
 
 async function muat() {
-  const r = await fetch('/duniakotak/api/statistik', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kunci }) });
+  const r = await fetch('/duniakotak/api/statistik', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
   const j = await r.json().catch(() => ({ galat: 'Server tidak menjawab' }));
   if (!r.ok) throw new Error(j.galat || 'Gagal memuat');
   return j;
 }
 async function mulai() {
-  try {
-    const s = await muat();
-    try { localStorage.setItem('dk_dash', kunci); } catch (e) {}
-    $('masuk').hidden = true; $('isi').hidden = false; tampil(s);
-  } catch (e) {
-    $('isi').hidden = true; $('masuk').hidden = false; $('galatMasuk').textContent = kunci ? e.message : '';
-  }
+  try { tampil(await muat()); }
+  catch (e) { $('waktu').textContent = 'Gagal memuat: ' + e.message + '. Coba Segarkan.'; }
 }
-$('tombolMasuk').onclick = () => { kunci = $('kunciIsi').value.trim(); mulai(); };
-$('kunciIsi').onkeydown = (e) => { if (e.key === 'Enter') $('tombolMasuk').click(); };
 $('segar').onclick = () => mulai();
-$('keluar').onclick = () => { try { localStorage.removeItem('dk_dash'); } catch (e) {} kunci = ''; $('kunciIsi').value = ''; mulai(); };
-const qk = new URLSearchParams(location.search).get('kunci');
-if (qk) { kunci = qk; history.replaceState(null, '', location.pathname); }
 mulai();
-setInterval(() => { if (!$('isi').hidden && !document.hidden) mulai(); }, 60000);
+setInterval(() => { if (!document.hidden) mulai(); }, 60000);
 </script>
 </body>
 </html>
