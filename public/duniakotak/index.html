@@ -93,6 +93,28 @@ h1{font-size:24px;margin:12px 0 10px;text-shadow:0 3px 0 var(--tinta);-webkit-te
 h1{font-size:21px;margin:10px 0 8px}
 .hitung b{font-size:22px}.untungRingkas{margin-top:6px}.untungRingkas span{font-size:11px;padding:3px 8px}
 .pintu{margin-top:10px}
+/* Promosi game edukasi menggantikan daftar warga terbaru (Huda 7 Nov 2026) */
+.edu{padding:18px 16px}
+.eduLabel{display:inline-block;background:#fff1c2;border-radius:999px;padding:4px 10px;font-weight:800;font-size:12px}
+.edu h2{font-weight:900;font-size:23px;line-height:1.15;margin:8px 0 6px}
+.eduSub{font-weight:600;font-size:14px;line-height:1.5;margin:0 0 12px}
+.eduList{display:grid;gap:10px}
+.eduItem{display:grid;grid-template-columns:104px 1fr;gap:12px;align-items:center;background:#fff;border:2px solid #eadfc6;border-radius:16px;padding:8px}
+.eduItem img{width:104px;height:104px;object-fit:cover;border-radius:11px;display:block}
+.eduItem small{display:block;font-weight:800;font-size:11px;color:var(--rumput);text-transform:uppercase;letter-spacing:.3px}
+.eduItem b{display:block;font-weight:900;font-size:15px;line-height:1.2;margin:2px 0}
+.eduItem span{display:block;font-weight:600;font-size:12.5px;line-height:1.4;opacity:.8}
+.eduItem p{display:flex;gap:6px;margin:7px 0 0}
+.eduItem p a{font:800 12.5px Montserrat,sans-serif;text-decoration:none;border-radius:9px;padding:6px 10px}
+.eduBeli{background:var(--kuning);color:var(--tinta);box-shadow:0 3px 0 #c9a21d}
+.eduContoh{background:#fff;color:var(--tinta);border:2px solid #1d2a1d}
+.eduSegera{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:12px 0 0;font-size:12.5px}
+.eduSegera span{background:#eee6d6;border-radius:999px;padding:4px 10px;font-weight:800}
+.eduSegera em{font-style:normal;font-weight:700;opacity:.7}
+.eduUntung{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:7px;font-weight:700;font-size:13.5px}
+.eduUntung li{display:flex;gap:9px;align-items:center}
+.eduUntung i{font-style:normal;width:26px;height:26px;flex:none;border-radius:8px;display:grid;place-items:center;background:#eef7e6}
+.eduCta{background:var(--rumput);box-shadow:0 4px 0 #2f6b28;font-size:16px}
 </style>
 </head>
 <body>
@@ -188,9 +210,34 @@ h1{font-size:21px;margin:10px 0 8px}
     <a class="tombol" href="https://www.instagram.com/duniakotak.id/" target="_blank" rel="noopener">Follow @duniakotak.id supaya rumahmu muncul di video</a>
   </section>
 
-  <section class="kartu">
-    <h3>Warga terbaru</h3>
-    <div id="daftar"><span>Memuat…</span></div>
+  <section class="kartu edu" aria-label="Game edukasi Dunia Kotak">
+    <span class="eduLabel">🎒 Untuk guru & orang tua</span>
+    <h2>Belajar jadi petualangan 3D</h2>
+    <p class="eduSub">Game edukasi bergaya Dunia Kotak untuk PAUD sampai SMA. Jalan tanpa internet, dan soalnya bisa diganti guru tanpa coding.</p>
+    <div class="eduList">
+      <article class="eduItem">
+        <img src="/duniakotak/belajar/aset/paud-1.jpg" alt="Paket game edukasi PAUD" width="720" height="720" loading="lazy">
+        <div><small>PAUD · usia 4–6</small><b>Paket PAUD: 4 game</b><span>Huruf, angka, bentuk, binatang. Ada suara pembaca soal.</span>
+          <p><a class="eduBeli" href="https://lynk.id/creator.store/qx7nj352km6d" target="_blank" rel="noopener">🛒 Beli</a><a class="eduContoh" href="/edukasi/paud/huruf/" target="_blank">👀 Contoh</a></p></div>
+      </article>
+      <article class="eduItem">
+        <img src="/duniakotak/belajar/aset/sd-1.jpg" alt="Paket game edukasi SD" width="720" height="720" loading="lazy">
+        <div><small>SD · kelas 1–6</small><b>Paket SD: 4 mapel</b><span>Matematika siap dimainkan, mapel lain menyusul. Fase A, B, C.</span>
+          <p><a class="eduBeli" href="https://lynk.id/creator.store/vwkejw00pj39" target="_blank" rel="noopener">🛒 Beli</a><a class="eduContoh" href="/edukasi/sd/hitung/" target="_blank">👀 Contoh</a></p></div>
+      </article>
+      <article class="eduItem">
+        <img src="/duniakotak/belajar/aset/rpg-1.jpg" alt="Petualang Ilmu: Legenda Nusantara, RPG SD" width="720" height="720" loading="lazy">
+        <div><small>SD · baru · semua mapel</small><b>Petualang Ilmu: Legenda Nusantara</b><span>Adventure RPG: kalahkan monster dengan menjawab soal.</span>
+          <p><a class="eduBeli" href="/duniakotak/belajar/#sd-rpg">ℹ️ Detail</a><a class="eduContoh" href="/edukasi/sd/hitung-rpg/" target="_blank">👀 Contoh</a></p></div>
+      </article>
+    </div>
+    <p class="eduSegera"><span>SMP · 4 mapel</span><span>SMA · 4 mapel</span><em>segera hadir</em></p>
+    <ul class="eduUntung">
+      <li><i>📴</i>Sekali beli, jalan di laptop kelas tanpa internet</li>
+      <li><i>✏️</i>Ganti soal sendiri atau tempel dari Excel</li>
+      <li><i>🏠</i>Bisa dipakai belajar di rumah bersama anak</li>
+    </ul>
+    <a class="tombol eduCta" href="/duniakotak/belajar/">Lihat semua paket game edukasi</a>
   </section>
 </div>
 
@@ -206,9 +253,7 @@ const bersih=v=>String(v||'').replace(/[<>&"]/g,'');
 async function muatDaftar(){
   try{const r=await fetch('/duniakotak/api/warga');const d=await r.json();
     $('jumlah').textContent=d.jumlah.toLocaleString('id-ID');
-    const w=d.warga.slice(-40).reverse();
-    $('daftar').innerHTML=w.length?w.map(x=>`<span><b>No. ${x.no}</b> ${x.ig?'@'+bersih(x.ig):x.tiktok?'@'+bersih(x.tiktok)+' (TikTok)':x.label?bersih(x.label):'warga baru'}</span>`).join(''):'<span>Belum ada. Jadilah yang pertama!</span>';
-  }catch(e){$('jumlah').textContent='–';$('daftar').innerHTML='<span>Daftar warga belum bisa dimuat.</span>'}
+  }catch(e){$('jumlah').textContent='–'}
 }
 
 async function tampilkan(o){
