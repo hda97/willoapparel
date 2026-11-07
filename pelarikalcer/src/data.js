@@ -44,6 +44,7 @@ export const GEAR_TABS = [
 export const GEAR_CATALOG = {
   jersey: [
     { id: 'jersey_basic', name: 'Basic Cotton Tee (Warm Grey)', tier: 'TIER 1 • BASIC', style: 'short', color: '#6E7073', accent: '#DFD8C8', paceBonus: 5, staminaSave: 5, costW: 0, desc: 'Kaos lari komunitas dasar warna abu hangat.' },
+    { id: 'everyday_taupe', name: 'Willo Everyday Run Tee (Warm Taupe)', tier: 'TIER 1 • BASIC', style: 'short', color: '#9C8470', accent: '#3B2F2A', paceBonus: 9, staminaSave: 8, costW: 150, desc: 'Kaos latihan harian quick-dry, list espresso.' },
     { id: 'boxy_charcoal', name: 'Willo Boxy Skena Tee (Washed Charcoal)', tier: 'TIER 2 • SPORT', style: 'boxy', color: '#2F3236', accent: '#EFECE6', paceBonus: 14, staminaSave: 12, coinBonus: 20, costW: 400, desc: 'Potongan boxy drop-shoulder CFD, tipografi PELARI KALCER krem. Bonus Koin W +20%.' },
     { id: 'singlet_onyx', name: 'Willo Pro Race Singlet (#0088 Onyx)', tier: 'TIER 3 • PRO SKENA', style: 'singlet', color: '#1A1C1E', accent: '#DFD8C8', paceBonus: 22, staminaSave: 18, costW: 650, desc: 'Singlet tanpa lengan laser-cut ringan dengan list Bone Cream.' },
     { id: 'aero_sage', name: 'Willo Aero Short-Sleeve (Muted Sage)', tier: 'TIER 2 • SPORT', style: 'short', color: '#7A8B7A', accent: '#EFECE6', paceBonus: 16, staminaSave: 14, costW: 450, desc: 'Jahitan flatlock anti-chafing warna sage kalem.' },
@@ -53,6 +54,7 @@ export const GEAR_CATALOG = {
     { id: 'windbreaker_mist', name: 'Willo Ultralight Windbreaker (Grail)', tier: 'TIER 4 • HIGH-END GRAIL', style: 'jacket', color: '#B8BEC2', accent: '#4A5844', paceBonus: 32, staminaSave: 30, costW: 1800, desc: 'Jaket ripstop semi-transparan tahan angin gunung & hujan.' },
   ],
   bottom: [
+    { id: 'shorts_basic', name: 'Basic Running Shorts (Black)', tier: 'TIER 1 • BASIC', type: 'shorts', color: '#1E2022', accent: '#1E2022', paceBonus: 4, staminaSave: 4, costW: 0, desc: 'Celana lari polos karet pinggang.' },
     { id: 'split_onyx', name: 'Willo Pro Split Shorts (Matte Onyx)', tier: 'TIER 2 • SPORT', type: 'shorts', color: '#1E2022', accent: '#DFD8C8', paceBonus: 10, staminaSave: 10, costW: 300, desc: 'Celana pendek belah samping dengan inner spandex.' },
     { id: 'skort_pleated_cream', name: 'Willo Pleated Skena Skort (Bone Cream)', tier: 'TIER 3 • PRO SKENA', type: 'skort', color: '#E8E2D5', accent: '#1E2022', paceBonus: 18, staminaSave: 16, costW: 550, desc: 'Rok lipit 2-in-1 dengan inner spandex & saku ponsel.' },
     { id: 'skort_pleated_onyx', name: 'Willo Pleated Skena Skort (Matte Black)', tier: 'TIER 3 • PRO SKENA', type: 'skort', color: '#1E2022', accent: '#C5A890', paceBonus: 18, staminaSave: 16, costW: 550, desc: 'Rok lipit hitam yang mengembang tertiup angin.' },
@@ -76,6 +78,7 @@ export const GEAR_CATALOG = {
   ],
   prestige: [
     { id: 'none', name: 'Tanpa Aksesori', tier: 'TIER 1 • BASIC', paceBonus: 0, staminaSave: 0, costW: 0, desc: 'Lari polos tanpa aksesori.' },
+    { id: 'waist_bag', name: 'Running Waist Bag (Matte Onyx)', tier: 'TIER 1 • BASIC', hasWaistBag: true, paceBonus: 2, staminaSave: 5, costW: 150, desc: 'Tas pinggang tipis untuk HP & gel.' },
     { id: 'sunglasses_matte', name: 'Kacamata Lari Matte Tortoiseshell', tier: 'TIER 2 • SPORT', hasGlasses: true, paceBonus: 6, staminaSave: 8, costW: 350, desc: 'Frame matte kalem anti-silau.' },
     { id: 'hydration_vest', name: 'Hydration Vest Lokal (2 Soft Flask)', tier: 'TIER 3 • PRO TRAIL', hasGlasses: true, hasVest: true, paceBonus: 12, staminaSave: 22, costW: 750, desc: 'Rompi hidrasi earth-olive, 2 botol di dada.' },
     { id: 'grail_trail_pack', name: 'Carbon Vest + Bone Conduction + Poles', tier: 'TIER 4 • HIGH-END GRAIL', hasGlasses: true, hasVest: true, hasPoles: true, paceBonus: 22, staminaSave: 35, costW: 1900, desc: 'Paket sultan skena: kacamata, audio open-ear, carbon vest, tongkat lipat.' },

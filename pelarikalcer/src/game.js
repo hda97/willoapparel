@@ -15,7 +15,7 @@ const KUNCI = 'pelarikalcer:v2';
 const AWAL = {
   coins: 2850, username: 'SkenaRunner_ID', bib: '#0088', gender: 'male', hairstyleId: 'comma', hairColorHex: '#18181A', skinToneHex: '#CC9670',
   jerseyId: 'boxy_charcoal', bottomId: 'split_onyx', shoeId: 'daily_oat', watchId: 'willo_sport', prestigeId: 'sunglasses_matte', pacerFlag: '',
-  ownedGear: { jersey_basic: 1, boxy_charcoal: 1, split_onyx: 1, shoe_starter: 1, daily_oat: 1, watch_basic: 1, willo_sport: 1, none: 1, sunglasses_matte: 1 },
+  ownedGear: { jersey_basic: 1, boxy_charcoal: 1, split_onyx: 1, shorts_basic: 1, shoe_starter: 1, daily_oat: 1, watch_basic: 1, willo_sport: 1, none: 1, sunglasses_matte: 1 },
   activeMapId: 'jakarta', activeBuff: null, warmup: 0, bonusHeart: 0, rpcHari: '', terbaik: {}, hasilTerakhir: null, suara: true,
 };
 let S = JSON.parse(JSON.stringify(AWAL));
@@ -131,6 +131,7 @@ function bangunLintasan(seed) {
     if (jenis === 'kerucut') obj = model('kerucut') || sprite('kerucut', 0.95);
     else if (jenis === 'batu') obj = sprite('batu', 0.85, { warna: m.id === 'bromo' ? 0xb7b0a7 : 0xffffff });
     else if (jenis === 'lubang') { obj = new THREE.Mesh(geoLubang, matLubang); obj.rotation.x = -Math.PI / 2; }
+    else if (jenis === 'akar' && ASET.akar) obj = sprite('akar', 0.55);
     else if (jenis === 'akar') {
       obj = new THREE.Group(); const mA = mat('#5a4334');
       const a = new THREE.Mesh(geoAkar, mA); a.rotation.z = Math.PI / 2 + 0.12; a.position.y = 0.12; obj.add(a);
@@ -379,7 +380,7 @@ function gambarRambut() {
   };
   pil('pilGender', [{ id: 'male', n: 'Pria', d: 'Bahu lebih lebar' }, { id: 'female', n: 'Wanita', d: 'Siluet ramping' }], (x) => x.id === S.gender,
     (x, i, a) => `<button aria-pressed="${a}"><b>${x.n}</b><small>${x.d}</small></button>`, (x) => { S.gender = x.id; });
-  pil('pilRambut', HAIRSTYLES, (x) => x.id === S.hairstyleId, (x, i, a) => `<button aria-pressed="${a}"><b>${esc(x.name)}</b><small>${esc(x.desc)}</small></button>`, (x) => { S.hairstyleId = x.id; });
+  pil('pilRambut', HAIRSTYLES, (x) => x.id === S.hairstyleId, (x, i, a) => `<button aria-pressed="${a}" class="${ASET['rambut_' + x.id] ? 'pakai-foto' : ''}">${ASET['rambut_' + x.id] ? `<img src="${ASET['rambut_' + x.id]}" alt="">` : ''}<b>${esc(x.name)}</b><small>${esc(x.desc)}</small></button>`, (x) => { S.hairstyleId = x.id; });
   pil('pilWarna', HAIR_COLORS, (x) => x.hex === S.hairColorHex, (x, i, a) => `<button aria-pressed="${a}"><i style="background:${x.hex}"></i>${esc(x.name)}</button>`, (x) => { S.hairColorHex = x.hex; });
   pil('pilKulit', SKIN_TONES, (x) => x.hex === S.skinToneHex, (x, i, a) => `<button aria-pressed="${a}"><i style="background:${x.hex}"></i>${esc(x.name)}</button>`, (x) => { S.skinToneHex = x.hex; });
 }

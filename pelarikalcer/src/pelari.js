@@ -273,6 +273,10 @@ export function buatPelari(cfg) {
     }
     badan.add(mesh(geo('box', 0.2, 0.11, 0.03), mV, 0, 0.2, 0.118));
   }
+  if (Pr.hasWaistBag) {
+    badan.add(mesh(geo('box', 0.19, 0.065, 0.045), mat(W.onyx), 0, 0.03, -0.118));
+    badan.add(mesh(geo('box', 0.13, 0.007, 0.004), mKrem, 0, 0.045, -0.142));
+  }
   if (cfg.pacer) {
     const g = new THREE.Group(); g.position.set(0, 0.4, 0.13); badan.add(g);
     g.add(mesh(geo('cyl', 0.01, 0.01, 1.0, 6), mHitam, 0, 0.5, 0));

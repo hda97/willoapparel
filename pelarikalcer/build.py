@@ -18,9 +18,15 @@ SITUS = AKAR.parent / 'public' / 'pelarikalcer' / 'index.html'
 ARTIFACT = AKAR / 'dist' / 'artifact.html'
 
 
+# gambar Huda yang sudah dipotong tapi belum dipakai di game (rute baru / ide lanjutan) -> tidak disisipkan
+BELUM_DIPAKAI = {'headlamp', 'pos_cp', 'asap_belerang', 'gedung', 'tex_tangga', 'tex_batu_vulkanik'}
+
+
 def aset_data_uri():
     hasil = {}
     for f in sorted((AKAR / 'aset').glob('*.png')):
+        if f.stem in BELUM_DIPAKAI:
+            continue
         im = Image.open(f).convert('RGBA')
         buf = io.BytesIO()
         im.save(buf, 'WEBP', quality=86, method=6)
