@@ -1276,6 +1276,11 @@ export default {
       url.pathname = "/kelas/";
       return Response.redirect(url.toString(), 301);
     }
+    // Landing game edukasi Dunia Kotak: /edukasi, /belajar, /duniakotak/belajar → /duniakotak/belajar/.
+    if (["/edukasi", "/belajar", "/duniakotak/belajar"].includes(pendek) && url.pathname !== "/duniakotak/belajar/") {
+      url.pathname = "/duniakotak/belajar/";
+      return Response.redirect(url.toString(), 301);
+    }
     if (pendek === "/kantoragentai" || pendek === "/kantoragenai") {
       if (url.pathname !== "/kantor-agen-ai/") {
         url.pathname = "/kantor-agen-ai/";
