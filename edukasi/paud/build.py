@@ -147,7 +147,7 @@ HTML = r"""<!doctype html>
 <div class="layar" id="layarSelesai" hidden><div class="kotak">
   <div id="selesaiBintang">★★★</div><h1>Hebat sekali!</h1><p>Kamu sudah menyelesaikan semua soal.</p>
   <button class="besar" id="bUlang">↻ Main lagi</button>
-  <a class="iklanWillo" href="https://www.willoapparel.com/kaos-kelas.html?utm_source=game-paud" target="_blank" rel="noopener"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M22 8l-14 7-6 14 9 4 3-6v31h36V27l3 6 9-4-6-14-14-7c-1 5-5 8-10 8s-9-3-10-8z" fill="#ffd43b" stroke="#1f2a5a" stroke-width="2.5" stroke-linejoin="round"/><text x="32" y="44" text-anchor="middle" font-size="13" font-weight="900" fill="#1f2a5a" font-family="sans-serif">XI-A</text></svg><span><b>Kaos kelas custom untuk sekolah</b><i>Desain gratis · mulai Rp65rb/pcs</i></span><em>Lihat</em></a>
+  <a class="iklanWillo" href="https://www.willoapparel.com/kaos-kelas.html?utm_source=game-paud" target="_blank" rel="noopener"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M22 8l-14 7-6 14 9 4 3-6v31h36V27l3 6 9-4-6-14-14-7c-1 5-5 8-10 8s-9-3-10-8z" fill="#ffd43b" stroke="#1f2a5a" stroke-width="2.5" stroke-linejoin="round"/><text x="32" y="44" text-anchor="middle" font-size="13" font-weight="900" fill="#1f2a5a" font-family="sans-serif">XI-A</text></svg><span><b>Kaos kelas custom untuk sekolah</b><i>Desain gratis, bisa custom nama kelas</i></span><em>Lihat</em></a>
   <a class="dukung" href="https://www.willoapparel.com" target="_blank" rel="noopener">Supported by <b>www.willoapparel.com</b></a>
 </div></div>
 <div class="layar" id="guruGerbang" hidden><div class="kotak">
@@ -157,7 +157,7 @@ HTML = r"""<!doctype html>
 </div></div>
 <div class="layar" id="panelGuru" hidden><div class="kotak">
   <h2>Mode Guru: ubah soal</h2>
-  <a class="iklanWillo" style="margin:0 0 10px;max-width:none" href="https://www.willoapparel.com/kaos-kelas.html?utm_source=game-paud" target="_blank" rel="noopener"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M22 8l-14 7-6 14 9 4 3-6v31h36V27l3 6 9-4-6-14-14-7c-1 5-5 8-10 8s-9-3-10-8z" fill="#ffd43b" stroke="#1f2a5a" stroke-width="2.5" stroke-linejoin="round"/><text x="32" y="44" text-anchor="middle" font-size="13" font-weight="900" fill="#1f2a5a" font-family="sans-serif">XI-A</text></svg><span><b>Kaos kelas custom untuk sekolah</b><i>Desain gratis · mulai Rp65rb/pcs</i></span><em>Lihat</em></a>
+  <a class="iklanWillo" style="margin:0 0 10px;max-width:none" href="https://www.willoapparel.com/kaos-kelas.html?utm_source=game-paud" target="_blank" rel="noopener"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M22 8l-14 7-6 14 9 4 3-6v31h36V27l3 6 9-4-6-14-14-7c-1 5-5 8-10 8s-9-3-10-8z" fill="#ffd43b" stroke="#1f2a5a" stroke-width="2.5" stroke-linejoin="round"/><text x="32" y="44" text-anchor="middle" font-size="13" font-weight="900" fill="#1f2a5a" font-family="sans-serif">XI-A</text></svg><span><b>Kaos kelas custom untuk sekolah</b><i>Desain gratis, bisa custom nama kelas</i></span><em>Lihat</em></a>
   <div class="gBaris"><label>Judul game<input id="guruJudul"></label><div id="guruAtur"></div></div>
   <div class="gGulir"><table id="guruTabel"></table></div>
   <div class="gBaris"><button class="kecil" id="guruTambah">+ Tambah soal</button></div>
@@ -228,9 +228,11 @@ h1{text-align:center;margin:8px 0 2px;font-size:clamp(28px,7vw,44px)}p.sub{text-
 a.k{display:block;background:var(--kartu);border-radius:26px;padding:22px 20px;text-decoration:none;color:inherit;box-shadow:0 7px 0 rgba(0,0,0,.12);border-top:10px solid var(--w)}
 a.k:active{transform:translateY(3px)}.ik{font-size:54px;line-height:1}.k h2{margin:6px 0 2px;color:var(--w);font-size:26px}.k p{margin:0;font-size:17px}
 .cat{max-width:760px;margin:26px auto 0;font-size:16px;opacity:.85;text-align:center}
+.beli{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px 18px;max-width:760px;margin:28px auto 0;padding:18px 20px;border-radius:24px;background:#2f9e44;color:#fff;text-align:center;box-shadow:0 7px 0 rgba(0,0,0,.15)}.beli b{display:block;font-size:22px}.beli span{font-size:16px;opacity:.95}.beli a{display:inline-block;background:#ffd43b;color:#2b2b2b;font-weight:800;font-size:19px;padding:10px 22px;border-radius:16px;text-decoration:none}
 </style></head><body>
 <h1>Game Edukasi PAUD</h1><p class="sub">Dunia voxel 3D, suara pembaca soal, boleh coba lagi sampai bisa.</p>
 <div class="grid">{kartu}</div>
+<div class="beli"><div><b>📦 Paket offline untuk guru</b><span>4 game (bisa tanpa internet) + video tutorial guru, dalam satu file zip</span></div><a href="https://lynk.id/creator.store/qx7nj352km6d/checkout" target="_blank" rel="noopener">Dapatkan paketnya</a></div>
 <p class="cat">Untuk guru: setiap game punya tombol <b>Guru</b> untuk mengubah soal, menempel soal dari Excel, lalu mengunduh file HTML berisi soal Anda.</p>
 <p class="cat"><a href="https://www.willoapparel.com" style="color:#e8590c;font-weight:800;text-decoration:none">Supported by www.willoapparel.com</a></p>
 </body></html>
