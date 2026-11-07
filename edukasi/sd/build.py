@@ -55,7 +55,7 @@ UI_SD = r"""
 <div class="layar" id="layarFase" hidden><div class="kotak">
   <h1>Pilih Fase</h1><p>Pilih sesuai kelasmu. Kumpulkan 3 bintang di tiap fase!</p>
   <div id="faseDaftar"></div>
-  <a class="dukung" href="https://www.willoapparel.com" target="_blank" rel="noopener">Support by <b>www.willoapparel.com</b></a>
+  <a class="dukung" href="https://www.willoapparel.com" target="_blank" rel="noopener">Supported by <b>www.willoapparel.com</b></a>
 </div></div>
 <div class="layar" id="layarKalah" hidden><div class="kotak">
   <div class="ikonBesar">💔</div><h1>Nyawa habis</h1><p>Tidak apa-apa, ayo coba lagi!</p>
@@ -69,7 +69,7 @@ def html_sd(m, data, kode):
     h = h.replace('<div id="bintang"></div>', '<div id="nyawa"></div>\n  <div id="bintang"></div>')
     h = h.replace('<div id="gelembung">Memuat…</div>', '<div id="numpad" hidden><div id="npIsi"></div><div id="npTombol"></div></div>\n  <div id="gelembung">Memuat…</div>')
     h = h.replace('<script type="module">', UI_SD + '<script type="module">')
-    h = h.replace('Untuk guru/orang tua', 'Untuk guru')
+    h = h.replace('Untuk guru/orang tua', 'Untuk guru').replace('>Support by <b>', '>Supported by <b>')
     return h.format(css=pb.CSS + CSS_SD, data=json.dumps(data, ensure_ascii=False, indent=1).replace('<', '\\u003c'), kode=kode, **m)
 
 
@@ -107,7 +107,7 @@ a.k:active{transform:translateY(3px)}.ik{font-size:54px;line-height:1}.k small{f
 <h1>Game Edukasi SD</h1><p class="sub">Dunia voxel 3D isometrik, tiga fase: A (kelas 1–2), B (kelas 3–4), C (kelas 5–6).</p>
 <div class="grid">{kartu}</div>
 <p class="cat">Untuk guru: tombol <b>Guru</b> di setiap game untuk mengubah soal per fase, menempel soal dari Excel, lalu mengunduh file HTML berisi soal Anda. <a href="../paud/" style="color:inherit">Game PAUD ada di sini.</a></p>
-<p class="cat"><a href="https://www.willoapparel.com" style="color:#e8590c;font-weight:800;text-decoration:none">Support by www.willoapparel.com</a></p>
+<p class="cat"><a href="https://www.willoapparel.com" style="color:#e8590c;font-weight:800;text-decoration:none">Supported by www.willoapparel.com</a></p>
 </body></html>
 """
 
