@@ -204,7 +204,6 @@ function ambilSoal(suka) {
 }
 function catatJawab(benar) {
   S.st.jawab++; if (benar) S.st.benar++;
-  if (CONTOH && S.st.jawab >= CONTOH_SOAL) setTimeout(() => ajakanBeli('soal'), 1600);
 }
 
 // ===================================================================
@@ -285,7 +284,16 @@ const MISI = [
 ];
 function teksMisi() { const m = MISI[S.Q]; return typeof m.t === 'function' ? m.t() : m.t; }
 function tulisMisi(baru) { $('misiT').textContent = teksMisi(); if (baru) { const e = $('misi'); e.classList.remove('baru'); void e.offsetWidth; e.classList.add('baru'); efek.kilau(); } }
-function aturMisi(q) { S.Q = q; tulisMisi(true); simpan(); }
+function aturMisi(q) { S.Q = q; tulisMisi(true); simpan(); cekContoh(); }
+// VERSI CONTOH online (situs): boleh main utuh di desa + padang sampai misi pertama selesai
+// (kalahkan 3 Slime, lapor Pak Lurah, dapat Keris). Jembatan ke hutan & bos hanya di versi lengkap.
+const MISI_CONTOH = 3;
+function cekContoh() {
+  if (!CONTOH || !S || S.Q < MISI_CONTOH) return;
+  setTimeout(() => { ajakanBeli('soal'); const d = $('ajakanBeli'); if (!d) return; const h = d.querySelector('h2'), p = d.querySelector('p');
+    if (h) h.textContent = 'Petualangan contoh selesai!';
+    if (p) p.textContent = 'Kamu sudah menyelamatkan desa dari Slime Galat. Di versi lengkap: bangun jembatan, jelajahi Hutan Candi, kalahkan Golem Batu dan Raja Galat, semua soal fase A/B/C, jalan tanpa internet, plus Mode Guru untuk ganti soal.'; }, 1200);
+}
 function tujuanMisi() { const t = MISI[S.Q].tuju(); if (!t) return null; return t.k ? t.k.position : t; }
 function npcPunyaMisi(n) {
   if (!S) return false;
@@ -661,7 +669,7 @@ async function mulaiMain(sv) {
   fokusKam.copy(hero.position); jarakKam = jarakTuju = tegak() ? 27 : 18;
   $('hud').hidden = false; $('bTas').hidden = false; MODE = 'dialog';
   if (!sv) await percakapan('Pencerita', ['Pulau Angka dulu damai dan semua orang pandai berhitung.', 'Suatu malam, Raja Galat mencuri Kristal Angka. Monster galat pun bermunculan!', `${heroDef.nama}, hanya kamu yang bisa menyelamatkan pulau. Gerakkan dengan joystick atau ketuk tanah. Ikuti panah kuning!`]);
-  MODE = 'jelajah'; $('joy').hidden = false;
+  MODE = 'jelajah'; $('joy').hidden = false; cekContoh();
 }
 
 // ===================================================================
