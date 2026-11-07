@@ -36,7 +36,9 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timezone, timedelta
 
-FOLDER = os.path.dirname(os.path.abspath(__file__))
+# Folder data (config, status, riwayat). Bisa diganti lewat env BOT_FOLDER
+# supaya beberapa varian strategi jalan berdampingan.
+FOLDER = os.path.abspath(os.environ.get("BOT_FOLDER") or os.path.dirname(os.path.abspath(__file__)))
 FILE_CONFIG = os.path.join(FOLDER, "config.json")
 FILE_STATE = os.path.join(FOLDER, "status_paper.json")
 FILE_RIWAYAT = os.path.join(FOLDER, "riwayat_transaksi.csv")
@@ -63,6 +65,7 @@ CONFIG_DEFAULT = {
         "transaksi_1jam_min": 50,
         "rasio_beli_jual_min": 1.1,
         "kenaikan_1jam_maks_persen": 300,
+        "kenaikan_6jam_maks_persen": 100000,
         "kenaikan_5menit_maks_persen": 50,
         "pakai_rugcheck": True,
         "rugcheck_skor_maks": 50,
@@ -251,6 +254,7 @@ def ringkas_pasangan(p):
         "sells_1jam": sells,
         "naik_5m": angka((p.get("priceChange") or {}).get("m5")),
         "naik_1jam": angka((p.get("priceChange") or {}).get("h1")),
+        "naik_6jam": angka((p.get("priceChange") or {}).get("h6")),
         "umur_menit": umur_menit,
         "link": p.get("url", ""),
     }
@@ -319,6 +323,8 @@ def saring(info, f):
         return False, "harga 1 jam tidak naik"
     if info["naik_1jam"] > f["kenaikan_1jam_maks_persen"]:
         return False, f"sudah terbang {info['naik_1jam']:.0f}% (telat masuk)"
+    if info["naik_6jam"] > f.get("kenaikan_6jam_maks_persen", 100000):
+        return False, f"sudah naik {info['naik_6jam']:.0f}% dalam 6 jam (beli di pucuk)"
     if info["naik_5m"] > f["kenaikan_5menit_maks_persen"]:
         return False, f"lonjakan 5 menit {info['naik_5m']:.0f}% (rawan dump)"
     return True, "lolos filter pasar"
