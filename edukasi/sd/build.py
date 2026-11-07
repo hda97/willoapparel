@@ -68,7 +68,8 @@ def html_sd(m, data, kode):
     h = pb.HTML.replace('· Game Edukasi PAUD', '· Game Edukasi SD').replace('Game edukasi PAUD bergaya voxel 3D', 'Game edukasi SD Kurikulum Merdeka bergaya voxel 3D')
     h = h.replace('<div id="bintang"></div>', '<div id="nyawa"></div>\n  <div id="bintang"></div>')
     h = h.replace('<div id="gelembung">Memuat…</div>', '<div id="numpad" hidden><div id="npIsi"></div><div id="npTombol"></div></div>\n  <div id="gelembung">Memuat…</div>')
-    h = h.replace('<script type="module">', UI_SD + '<script type="module">')
+    # link beli paket SD untuk mode CONTOH (inti.js membaca window.PAKET_BELI, PR #163)
+    h = h.replace('<script type="module">', UI_SD + '<script>window.PAKET_BELI=\'https://lynk.id/creator.store/vwkejw00pj39\'</script>\n<script type="module">', 1)
     h = h.replace('Untuk guru/orang tua', 'Untuk guru').replace('>Support by <b>', '>Supported by <b>')
     # banner kaos kelas Willo: tanpa harga (permintaan Huda), sumber kunjungan game-sd
     h = h.replace('utm_source=game-paud', 'utm_source=game-sd').replace('Desain gratis · mulai Rp65rb/pcs', 'Desain gratis, bisa custom nama kelas')
