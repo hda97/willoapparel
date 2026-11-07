@@ -455,7 +455,7 @@ function ajakanBeli(alasan) {
   d.style.cssText = 'position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:16px;background:rgba(20,30,20,.55);font-family:inherit';
   d.innerHTML = `<div style="background:#fffaf0;color:#1d2a1d;border-radius:24px;max-width:420px;width:100%;padding:24px 22px;text-align:center;box-shadow:0 8px 0 rgba(0,0,0,.2)">
     <div style="font-size:52px;line-height:1">${alasan === 'guru' ? '🔒' : '🎉'}</div>
-    <h2 style="margin:8px 0 6px;font-size:26px">${alasan === 'guru' ? 'Mode Guru ada di paket' : 'Contoh selesai!'}</h2>
+    <h2 style="margin:8px 0 6px;font-size:26px">${alasan === 'guru' ? 'Mode Guru ada di paket' : 'Coba gratis selesai!'}</h2>
     <p style="margin:0 0 14px;font-size:16px;line-height:1.45">${alasan === 'guru' ? 'Mengganti soal dan menyimpan file game hanya tersedia di paket offline untuk guru.' : 'Ini versi contoh ' + CONTOH_SOAL + ' soal. Versi lengkap untuk kelas: semua soal, jalan tanpa internet, Mode Guru untuk ganti soal, dan tutorial untuk guru.'}</p>
     <a href="${LINK_BELI}" target="_blank" rel="noopener" style="display:block;background:#ffd23a;color:#1d2a1d;font-weight:800;font-size:18px;padding:13px 16px;border-radius:16px;text-decoration:none;box-shadow:0 5px 0 #c9a21d">🛒 Dapatkan paket lengkap</a>
     <a href="https://www.willoapparel.com/duniakotak/belajar/" style="display:block;margin-top:12px;font-weight:700;font-size:15px;color:#1d2a1d">Lihat semua paket game</a>
