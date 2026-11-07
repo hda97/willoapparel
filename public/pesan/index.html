@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-N4FLLMXDVK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-N4FLLMXDVK');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rencana Pesanan Kaos Custom: Hitung Jadwal & Ukuran | Willo Apparel</title>
+<meta name="description" content="Alat gratis untuk merencanakan pesanan kaos custom: kelas, komunitas, kantor, event, keluarga, olahraga, pengajian, sampai kado satuan. Tahu kapan paling lambat pesan, rekap ukuran, lalu kirim ke WhatsApp Willo.">
+<link rel="canonical" href="https://willoapparel.com/pesan/">
+<meta property="og:title" content="Rencana Pesanan Kaos Custom | Willo Apparel">
+<meta property="og:description" content="Pilih keperluan, isi tanggal acara & jumlah. Langsung tahu kapan paling lambat pesan, lalu kirim ke WhatsApp.">
+<meta property="og:image" content="https://willoapparel.com/hasil-sablon-kaos-ora-melu-mumet.jpg">
+<meta property="og:locale" content="id_ID">
+<link rel="icon" href="/logo-willo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#E6E2DB; --kartu:#EFECE6; --tinta:#141414; --abu:#5E5A54; --garis:#C9C4BB; --biru:#2F5BFF; --wa:#1FA855; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html { -webkit-text-size-adjust:100%; }
+  body { background:var(--bg); color:var(--tinta); font-family:Archivo, system-ui, sans-serif; line-height:1.5; padding-bottom:90px; }
+  a { color:inherit; }
+  .w { max-width:1080px; margin:0 auto; padding:0 16px; }
+  .mono { font-family:"JetBrains Mono", ui-monospace, monospace; font-size:12px; letter-spacing:.18em; text-transform:uppercase; }
+  .biru { color:var(--biru); }
+  .serif { font-family:"Instrument Serif", Georgia, serif; font-style:italic; font-weight:400; }
+  header.top { display:flex; justify-content:space-between; align-items:center; padding:18px 0; gap:12px; }
+  .logo { font-weight:900; font-size:20px; letter-spacing:-.02em; text-decoration:none; }
+  .logo span { font-weight:500; color:var(--abu); }
+  .kecil { font-size:14px; color:var(--abu); }
+  h1 { font-weight:900; font-size:clamp(40px, 8vw, 84px); line-height:.92; letter-spacing:-.04em; margin:12px 0 14px; }
+  .lead { font-size:clamp(18px, 2.4vw, 22px); max-width:720px; color:var(--abu); margin-bottom:28px; }
+  .tata { display:grid; grid-template-columns:1.25fr 1fr; gap:28px; align-items:start; padding-bottom:48px; }
+  .blok { background:var(--kartu); border-top:3px solid var(--tinta); padding:20px; margin-bottom:16px; }
+  .blok h2 { font-weight:900; font-size:22px; letter-spacing:-.01em; margin:6px 0 12px; }
+  .blok .mono { color:var(--biru); }
+  .pilih { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
+  .pilih button { font:inherit; text-align:left; background:#fff; border:1px solid var(--garis); padding:10px 12px; cursor:pointer; border-radius:2px; font-size:15px; line-height:1.25; min-height:56px; }
+  .pilih button b { display:block; font-size:15px; }
+  .pilih button small { color:var(--abu); font-size:12px; }
+  .pilih button[aria-pressed="true"] { border-color:var(--biru); box-shadow:inset 0 0 0 2px var(--biru); }
+  label { display:block; font-weight:700; font-size:15px; margin:12px 0 6px; }
+  input[type=text], input[type=date], input[type=number], select, textarea { font:inherit; width:100%; padding:11px 12px; border:1px solid var(--garis); background:#fff; border-radius:2px; font-size:16px; }
+  textarea { min-height:70px; resize:vertical; }
+  .baris { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .ukuran { display:grid; grid-template-columns:repeat(7, 1fr); gap:6px; }
+  .ukuran div { text-align:center; }
+  .ukuran span { display:block; font-family:"JetBrains Mono", monospace; font-size:12px; margin-bottom:4px; }
+  .ukuran input { text-align:center; padding:9px 2px; }
+  .cek { display:flex; flex-wrap:wrap; gap:8px; }
+  .cek label { display:flex; align-items:center; gap:8px; font-weight:500; background:#fff; border:1px solid var(--garis); padding:9px 12px; margin:0; cursor:pointer; font-size:15px; }
+  .cek input { width:18px; height:18px; accent-color:var(--biru); }
+  .hasil { position:sticky; top:16px; }
+  .hasil .blok { border-top-color:var(--biru); background:#fff; }
+  .jadwal { list-style:none; border-left:2px solid var(--garis); margin:6px 0 4px 6px; }
+  .jadwal li { position:relative; padding:0 0 14px 18px; }
+  .jadwal li::before { content:""; position:absolute; left:-7px; top:6px; width:12px; height:12px; border-radius:50%; background:var(--garis); }
+  .jadwal li.kunci::before { background:var(--biru); }
+  .jadwal b { display:block; }
+  .jadwal small { color:var(--abu); }
+  .alert { padding:12px 14px; font-size:15px; margin:10px 0; border-left:4px solid var(--biru); background:#EEF2FF; }
+  .alert.merah { border-color:#C2410C; background:#FFF1E8; }
+  .harga { font-size:15px; margin:8px 0; }
+  .harga b { font-size:26px; font-weight:900; letter-spacing:-.02em; }
+  pre { white-space:pre-wrap; font-family:"JetBrains Mono", monospace; font-size:13px; background:var(--kartu); padding:12px; max-height:260px; overflow:auto; border:1px solid var(--garis); }
+  .btn { display:flex; justify-content:center; align-items:center; gap:10px; background:var(--wa); color:#fff; text-decoration:none; font-weight:700; font-size:18px; padding:15px 20px; border-radius:2px; border:0; width:100%; cursor:pointer; font-family:inherit; margin-top:12px; }
+  .btn svg { width:22px; height:22px; flex:none; }
+  .btn.garis { background:transparent; color:var(--tinta); border:1px solid var(--tinta); font-size:15px; padding:11px; }
+  .tautan { font-weight:700; text-decoration-color:var(--biru); text-underline-offset:4px; }
+  section.info { padding:40px 0; border-top:1px solid var(--garis); }
+  section.info h2 { font-weight:900; font-size:clamp(26px, 4vw, 38px); letter-spacing:-.03em; margin:8px 0 18px; line-height:1.05; }
+  .kartu3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; }
+  .kartu3 div { background:var(--kartu); padding:18px; border-top:3px solid var(--biru); }
+  .kartu3 b { display:block; font-size:18px; margin:6px 0 4px; }
+  .kartu3 p { color:var(--abu); font-size:15px; }
+  .semua { columns:3; column-gap:24px; list-style:none; }
+  .semua li { break-inside:avoid; padding:6px 0; border-bottom:1px solid var(--garis); }
+  .bar { position:fixed; left:0; right:0; bottom:0; background:var(--tinta); color:#fff; padding:10px 16px; display:none; align-items:center; justify-content:space-between; gap:12px; z-index:9; }
+  .bar a { background:var(--wa); color:#fff; text-decoration:none; font-weight:700; padding:11px 16px; border-radius:2px; white-space:nowrap; }
+  footer { padding:28px 0; color:var(--abu); font-size:14px; border-top:1px solid var(--garis); }
+  @media (max-width:860px) {
+    .tata { grid-template-columns:1fr; }
+    .hasil { position:static; }
+    .pilih { grid-template-columns:1fr 1fr; }
+    .kartu3 { grid-template-columns:1fr; }
+    .semua { columns:1; }
+    .ukuran { grid-template-columns:repeat(4, 1fr); }
+    .bar { display:flex; }
+  }
+</style>
+</head>
+<body>
+<div class="w">
+  <header class="top">
+    <a class="logo" href="/">Willo <span>Apparel</span></a>
+    <span class="mono kecil">Ngawi · sejak 2020</span>
+  </header>
+
+  <p class="mono biru">Alat gratis · Rencana pesanan</p>
+  <h1>Pesan kaos custom<br><span class="serif">tanpa bingung.</span></h1>
+  <p class="lead">Untuk kelas, kantor, komunitas, panitia acara, keluarga, tim olahraga, pengajian, sampai kado satu kaos. Isi sebentar, langsung tahu kapan paling lambat pesan, lalu kirim ringkasannya ke WhatsApp admin.</p>
+
+  <div class="tata">
+    <form id="f" onsubmit="return false">
+      <div class="blok">
+        <span class="mono">01</span>
+        <h2>Kaosnya untuk apa?</h2>
+        <div class="pilih" id="pilih"></div>
+      </div>
+
+      <div class="blok">
+        <span class="mono">02</span>
+        <h2>Kapan dipakai & berapa banyak?</h2>
+        <label for="nama">Nama acara / kelas / instansi <span class="kecil">(boleh dikosongkan)</span></label>
+        <input type="text" id="nama" placeholder="mis. Jalan sehat RT 05, XI IPA 2, Toko Berkah">
+        <div class="baris">
+          <div>
+            <label for="tgl">Tanggal dipakai</label>
+            <input type="date" id="tgl">
+          </div>
+          <div>
+            <label for="jml">Jumlah kaos</label>
+            <input type="number" id="jml" min="1" inputmode="numeric" placeholder="mis. 30">
+          </div>
+        </div>
+        <label>Rekap ukuran <span class="kecil">(boleh nanti, admin kirim format rekap)</span></label>
+        <div class="ukuran" id="ukuran"></div>
+        <p class="kecil" id="cekUkuran" style="margin-top:6px"></p>
+      </div>
+
+      <div class="blok">
+        <span class="mono">03</span>
+        <h2>Sablon & desain</h2>
+        <label>Posisi sablon</label>
+        <div class="cek" id="posisi"></div>
+        <div class="baris">
+          <div>
+            <label for="warna">Warna kaos</label>
+            <input type="text" id="warna" placeholder="mis. hitam, navy, putih">
+          </div>
+          <div>
+            <label for="desain">Desain</label>
+            <select id="desain">
+              <option value="Minta dibantu desain">Belum ada, minta dibantu</option>
+              <option value="Sudah ada desain, nanti saya kirim">Sudah ada desain</option>
+              <option value="Ada contoh/ide, perlu dirapikan">Ada contoh/ide, perlu dirapikan</option>
+            </select>
+          </div>
+        </div>
+        <div class="baris">
+          <div>
+            <label for="kirim">Pengambilan</label>
+            <select id="kirim">
+              <option value="Ambil di workshop Ngawi">Ambil di workshop Ngawi</option>
+              <option value="Dikirim">Dikirim ke alamat</option>
+            </select>
+          </div>
+          <div>
+            <label for="kota">Kota <span class="kecil">(kalau dikirim)</span></label>
+            <input type="text" id="kota" placeholder="mis. Madiun">
+          </div>
+        </div>
+        <label for="catatan">Catatan lain</label>
+        <textarea id="catatan" placeholder="mis. ada logo sponsor, butuh lengan panjang, ukuran anak"></textarea>
+      </div>
+    </form>
+
+    <aside class="hasil" aria-live="polite">
+      <div class="blok">
+        <span class="mono">Ringkasan</span>
+        <h2 id="judulHasil">Pilih keperluan dulu</h2>
+        <div id="hargaBox"></div>
+        <div id="jadwalBox"><p class="kecil">Isi tanggal dipakai untuk melihat jadwal aman pesan.</p></div>
+        <label style="margin-top:14px">Pesan yang akan dikirim</label>
+        <pre id="pratinjau"></pre>
+        <a class="btn" id="kirimWA" href="https://wa.me/6285816900722" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2a9.9 9.9 0 0 0-8.5 15l-1.4 5 5.2-1.36A9.9 9.9 0 1 0 12.04 2zm5.8 14.1c-.25.7-1.43 1.33-2 1.42-.51.08-1.16.11-1.87-.12-.43-.13-.98-.32-1.7-.62-2.98-1.29-4.93-4.29-5.08-4.49-.15-.2-1.21-1.61-1.21-3.07s.77-2.18 1.04-2.48c.27-.3.6-.37.79-.37h.57c.18 0 .43-.07.67.51.25.6.84 2.06.92 2.21.07.15.12.32.02.52-.1.2-.15.32-.3.5-.15.17-.31.39-.45.52-.15.15-.3.31-.13.6.17.3.76 1.26 1.64 2.04 1.13 1.01 2.09 1.32 2.39 1.47.3.15.47.12.64-.07.18-.2.74-.87.94-1.16.2-.3.4-.25.67-.15.27.1 1.73.82 2.03.97.3.15.5.22.57.35.07.12.07.72-.18 1.42z"/></svg>Kirim ke WhatsApp Willo</a>
+        <button type="button" class="btn garis" id="salin">Salin pesan</button>
+        <p class="kecil" style="margin-top:10px">Admin membalas Senin–Sabtu, 08.00–16.00 WIB. Harga final ditulis di awal sebelum produksi.</p>
+        <p class="kecil" id="halamanTerkait" style="margin-top:8px"></p>
+      </div>
+    </aside>
+  </div>
+
+  <section class="info">
+    <p class="mono biru">Kenapa pesan di Willo</p>
+    <h2>Bisa didatangi, ada mockup, harga jelas.</h2>
+    <div class="kartu3">
+      <div><span class="mono">01</span><b>Workshop di Ngawi</b><p>Jl. PB. Sudirman No.31. Boleh datang lihat bahan dan hasil sablon sebelum pesan.</p></div>
+      <div><span class="mono">02</span><b>Mockup dulu</b><p>Desain dibantu gratis. Produksi baru jalan setelah mockup kamu setujui.</p></div>
+      <div><span class="mono">03</span><b>Mulai 1 pcs</b><p>Satu kaos untuk kado sampai ratusan untuk acara. Pengerjaan 3–7 hari kerja setelah desain disetujui.</p></div>
+    </div>
+  </section>
+
+  <section class="info">
+    <p class="mono biru">Panduan per keperluan</p>
+    <h2>Baca dulu sesuai acaramu</h2>
+    <ul class="semua" id="semua"></ul>
+  </section>
+
+  <footer>© Willo Apparel, Ngawi. Jadwal di alat ini perkiraan; tanggal jadi pasti dikonfirmasi admin setelah desain disetujui.</footer>
+</div>
+
+<div class="bar"><span id="barTeks">Rencana siap dikirim</span><a id="barWA" href="https://wa.me/6285816900722" target="_blank" rel="noopener">Kirim ke WA</a></div>
+
+<script>
+(function () {
+  var WA = '6285816900722';
+  // Harga hanya yang sudah resmi di situs (satuan 55K, kelas 65K, komunitas 70K). Lainnya dihitung admin.
+  var JENIS = [
+    { id:'kelas', nama:'Kaos kelas', ket:'SMA, SMK, SMP, kampus', harga:65000, nomor:true, hal:[['/kaos-kelas.html','Kaos kelas'],['/kaos-kkn-organisasi-kampus.html','Kaos KKN & organisasi kampus']] },
+    { id:'komunitas', nama:'Komunitas', ket:'Motor, hobi, organisasi', harga:70000, hal:[['/kaos-komunitas.html','Kaos komunitas'],['/kaos-karang-taruna-desa-ngawi.html','Kaos karang taruna & desa']] },
+    { id:'event', nama:'Acara & panitia', ket:'Jalan sehat, fun run, Agustusan', hal:[['/kaos-panitia-event-ngawi.html','Kaos panitia & event'],['/kaos-jalan-sehat-fun-run-ngawi.html','Kaos jalan sehat & fun run']] },
+    { id:'kantor', nama:'Kantor & usaha', ket:'Seragam karyawan, outing', hal:[['/kaos-seragam-usaha-ngawi.html','Kaos seragam usaha'],['/kaos-gathering-outing-kantor.html','Kaos gathering & outing kantor']] },
+    { id:'promosi', nama:'Promosi & brand', ket:'Merchandise, brand kaos sendiri', hal:[['/kaos-promosi-merchandise-usaha.html','Kaos promosi & merchandise'],['/mulai-brand-kaos-sendiri.html','Mulai brand kaos sendiri']] },
+    { id:'olahraga', nama:'Tim olahraga', ket:'Futsal, voli, sepeda', nomor:true, hal:[['/kaos-tim-futsal-voli-ngawi.html','Kaos tim futsal & voli']] },
+    { id:'keluarga', nama:'Keluarga & reuni', ket:'Family gathering, alumni', hal:[['/kaos-keluarga-custom-ngawi.html','Kaos keluarga'],['/kaos-reuni-alumni-ngawi.html','Kaos reuni alumni']] },
+    { id:'religi', nama:'Pengajian & masjid', ket:'Remaja masjid, majelis', hal:[['/kaos-pengajian-remaja-masjid.html','Kaos pengajian & remaja masjid']] },
+    { id:'pkk', nama:'PKK, posyandu, guru', ket:'Kader, Hari Guru', hal:[['/kaos-pkk-posyandu-kader-ngawi.html','Kaos PKK & posyandu'],['/kaos-guru-hari-guru-ngawi.html','Kaos guru & Hari Guru']] },
+    { id:'satuan', nama:'Satuan & kado', ket:'1 pcs, ulang tahun, couple', harga:55000, hal:[['/sablon-kaos-satuan-ngawi.html','Sablon kaos satuan'],['/kaos-custom-kado-ngawi.html','Kaos custom untuk kado']] },
+    { id:'lain', nama:'Lainnya', ket:'Tulis di catatan', hal:[] }
+  ];
+  var UK = ['S','M','L','XL','XXL','3XL','Anak'];
+  var POS = ['Depan','Belakang','Lengan','Nama & nomor tiap orang'];
+  var $ = function (id) { return document.getElementById(id); };
+  var pilihan = null;
+
+  // Pilihan keperluan
+  JENIS.forEach(function (j) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.setAttribute('aria-pressed', 'false'); b.dataset.id = j.id;
+    b.innerHTML = '<b>' + j.nama + '</b><small>' + j.ket + '</small>';
+    b.onclick = function () { pilih(j.id); };
+    $('pilih').appendChild(b);
+  });
+  UK.forEach(function (u) {
+    var d = document.createElement('div');
+    d.innerHTML = '<span>' + u + '</span><input type="number" min="0" inputmode="numeric" data-uk="' + u + '" aria-label="Jumlah ukuran ' + u + '">';
+    $('ukuran').appendChild(d);
+  });
+  POS.forEach(function (p, i) {
+    var l = document.createElement('label');
+    l.innerHTML = '<input type="checkbox" value="' + p + '"' + (i === 0 ? ' checked' : '') + '> ' + p;
+    $('posisi').appendChild(l);
+  });
+  JENIS.forEach(function (j) {
+    j.hal.forEach(function (h) {
+      var li = document.createElement('li');
+      li.innerHTML = '<a class="tautan" href="' + h[0] + '">' + h[1] + '</a>';
+      $('semua').appendChild(li);
+    });
+  });
+
+  function pilih(id) {
+    pilihan = JENIS.filter(function (j) { return j.id === id; })[0];
+    document.querySelectorAll('#pilih button').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.id === id ? 'true' : 'false'); });
+    var nomor = document.querySelector('#posisi input[value^="Nama"]');
+    if (nomor && pilihan.nomor) nomor.checked = true;
+    try { history.replaceState(null, '', '?untuk=' + id); } catch (e) {}
+    hitung();
+  }
+
+  function rp(n) { return 'Rp' + n.toLocaleString('id-ID'); }
+  var BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  var HARI = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+  function tglTeks(d) { return HARI[d.getDay()] + ', ' + d.getDate() + ' ' + BULAN[d.getMonth()] + ' ' + d.getFullYear(); }
+  // Hari kerja Willo: Senin–Sabtu.
+  function mundurHariKerja(d, n) {
+    var x = new Date(d);
+    while (n > 0) { x.setDate(x.getDate() - 1); if (x.getDay() !== 0) n--; }
+    return x;
+  }
+  function hariKerjaAntara(a, b) {
+    var n = 0, x = new Date(a);
+    while (x < b) { x.setDate(x.getDate() + 1); if (x.getDay() !== 0) n++; }
+    return n;
+  }
+
+  function hitung() {
+    var j = pilihan;
+    var jml = parseInt($('jml').value, 10) || 0;
+    var uk = [], totalUk = 0;
+    document.querySelectorAll('#ukuran input').forEach(function (i) {
+      var v = parseInt(i.value, 10) || 0;
+      if (v > 0) { uk.push(i.dataset.uk + ' ' + v); totalUk += v; }
+    });
+    if (!jml && totalUk) jml = totalUk;
+    $('cekUkuran').textContent = totalUk ? ('Total rekap ' + totalUk + ' kaos' + (jml && totalUk !== jml ? ', beda dengan jumlah ' + jml + '. Cek lagi ya.' : '.')) : '';
+
+    $('judulHasil').textContent = j ? j.nama + (jml ? ', ' + jml + ' kaos' : '') : 'Pilih keperluan dulu';
+    if (j && j.harga) {
+      $('hargaBox').innerHTML = '<p class="harga"><span class="kecil">Harga mulai</span><br><b>' + rp(j.harga) + '</b><span class="kecil"> /pcs</span></p><p class="kecil">Harga pasti tergantung bahan, jumlah, dan posisi sablon. Admin kirim simulasi gratis.</p>';
+    } else if (j) {
+      $('hargaBox').innerHTML = '<p class="kecil">Harga dihitung dari jumlah, bahan, dan posisi sablon. Admin kirim simulasi harga gratis lewat WhatsApp.</p>';
+    } else { $('hargaBox').innerHTML = ''; }
+
+    // Jadwal: mockup ±2 hari kerja + produksi 3–7 hari kerja + cadangan 1 hari (perkiraan).
+    var tv = $('tgl').value, jad = '';
+    var tgl = tv ? new Date(tv + 'T00:00:00') : null;
+    var hariIni = new Date(); hariIni.setHours(0, 0, 0, 0);
+    if (tgl) {
+      var besar = jml >= 100;
+      var produksi = besar ? 7 : (jml >= 24 ? 6 : 5);
+      var kirimTambah = $('kirim').value === 'Dikirim' ? 2 : 0;
+      var jadi = mundurHariKerja(tgl, 1 + kirimTambah);
+      var setujui = mundurHariKerja(jadi, produksi);
+      var chat = mundurHariKerja(setujui, 2);
+      var aman = mundurHariKerja(chat, 3);
+      var sisa = hariKerjaAntara(hariIni, tgl);
+      if (tgl <= hariIni) {
+        jad = '<div class="alert merah">Tanggalnya sudah lewat atau hari ini. Cek lagi tanggal dipakai.</div>';
+      } else {
+        if (chat < hariIni) jad += '<div class="alert merah">Waktunya mepet (' + sisa + ' hari kerja lagi). Chat admin sekarang dan tanyakan layanan express.</div>';
+        else if (aman < hariIni) jad += '<div class="alert">Masih bisa, tapi jangan ditunda. Paling lambat chat ' + tglTeks(chat) + '.</div>';
+        else jad += '<div class="alert">Waktunya longgar. Pesan lebih awal supaya ada waktu revisi desain dan kumpul uang.</div>';
+        jad += '<ul class="jadwal">' +
+          '<li><b>' + tglTeks(aman) + '</b><small>Waktu aman mulai chat & kumpulkan ukuran</small></li>' +
+          '<li class="kunci"><b>' + tglTeks(chat) + '</b><small>Paling lambat chat admin & kirim ide desain</small></li>' +
+          '<li class="kunci"><b>' + tglTeks(setujui) + '</b><small>Paling lambat setujui mockup & rekap ukuran final</small></li>' +
+          '<li><b>' + tglTeks(jadi) + '</b><small>Target kaos ' + (kirimTambah ? 'dikirim' : 'siap diambil') + ' (perkiraan)</small></li>' +
+          '<li><b>' + tglTeks(tgl) + '</b><small>Dipakai</small></li></ul>';
+      }
+    }
+    $('jadwalBox').innerHTML = jad || '<p class="kecil">Isi tanggal dipakai untuk melihat jadwal aman pesan.</p>';
+
+    var pos = [];
+    document.querySelectorAll('#posisi input:checked').forEach(function (c) { pos.push(c.value); });
+    var nama = $('nama').value.trim(), warna = $('warna').value.trim(), kota = $('kota').value.trim(), cat = $('catatan').value.trim();
+    var t = 'Halo Willo Apparel, saya mau pesan kaos custom (dari alat Rencana Pesanan di website).\n';
+    t += '\nKeperluan: ' + (j ? j.nama : '...');
+    if (nama) t += '\nNama acara/instansi: ' + nama;
+    t += '\nTanggal dipakai: ' + (tgl ? tglTeks(tgl) : '...');
+    t += '\nJumlah: ' + (jml ? jml + ' pcs' : '... pcs');
+    if (uk.length) t += '\nUkuran: ' + uk.join(', ');
+    t += '\nSablon: ' + (pos.length ? pos.join(', ') : '...');
+    if (warna) t += '\nWarna kaos: ' + warna;
+    t += '\nDesain: ' + $('desain').value;
+    t += '\nPengambilan: ' + $('kirim').value + (kota && $('kirim').value === 'Dikirim' ? ' (' + kota + ')' : '');
+    if (cat) t += '\nCatatan: ' + cat;
+    t += '\n\nMohon simulasi harganya. Terima kasih.';
+    try {
+      if (Number(localStorage.getItem('willo_dari_meta') || 0) > Date.now()) t += ' (dari IG/FB)';
+      if (Number(localStorage.getItem('willo_dari_google') || 0) > Date.now()) t += ' (dari Google)';
+    } catch (e) {}
+    $('pratinjau').textContent = t;
+    var url = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(t);
+    $('kirimWA').href = url; $('barWA').href = url;
+    $('barTeks').textContent = j ? (j.nama + (jml ? ' · ' + jml + ' pcs' : '')) : 'Rencana siap dikirim';
+    $('halamanTerkait').innerHTML = j && j.hal.length ? 'Panduan: ' + j.hal.map(function (h) { return '<a class="tautan" href="' + h[0] + '">' + h[1] + '</a>'; }).join(' · ') : '';
+  }
+
+  $('f').addEventListener('input', hitung);
+  $('f').addEventListener('change', hitung);
+  $('salin').onclick = function () {
+    var t = $('pratinjau').textContent;
+    var ok = function () { $('salin').textContent = 'Tersalin ✓'; setTimeout(function () { $('salin').textContent = 'Salin pesan'; }, 1800); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+    if (typeof gtag === 'function') gtag('event', 'salin_rencana', { keperluan: pilihan ? pilihan.id : '-' });
+  };
+  var awal = new URLSearchParams(location.search).get('untuk');
+  if (awal && JENIS.some(function (j) { return j.id === awal; })) pilih(awal); else hitung();
+})();
+</script>
+<script src="/wa-tag.js" defer></script>
+</body>
+</html>
