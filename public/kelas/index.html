@@ -76,6 +76,12 @@
   summary::after { content:"+"; font-family:"JetBrains Mono", monospace; color:var(--biru); }
   details[open] summary::after { content:"–"; }
   details p { color:var(--abu); margin-top:8px; font-size:16px; }
+  .jamin { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; }
+  .jamin div { background:var(--kartu); padding:20px; border-top:3px solid var(--biru); }
+  .jamin b { display:block; font-weight:900; font-size:19px; margin:6px 0; }
+  .jamin p { color:var(--abu); font-size:15px; }
+  .asli { margin-bottom:18px; max-width:320px; }
+  .asli img { width:100%; height:auto; display:block; }
   .penutup { text-align:left; padding:56px 0 40px; border-top:2px solid var(--tinta); }
   .penutup h2 { margin-bottom:18px; }
   footer { color:var(--abu); font-size:14px; padding:24px 0 40px; }
@@ -90,7 +96,7 @@
     .hero { grid-template-columns:1fr; gap:24px; padding-top:8px; }
     .hero .gambar { display:none; }
     .rel .hp { display:block; }
-    .langkah, .dua { grid-template-columns:1fr; }
+    .langkah, .dua, .jamin { grid-template-columns:1fr; }
     .dua { gap:8px; }
     .harga b { font-size:56px; }
     .btn { width:100%; justify-content:center; }
@@ -110,11 +116,11 @@
       <h1>Satu kelas.</h1>
       <p class="sub serif">satu seragam,<br>banyak cerita.</p>
       <div class="harga"><span class="mono">Mulai</span><b>65K</b><span class="mono">/pcs</span></div>
-      <a class="btn" href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20saya%20mau%20tanya%20harga%20kaos%20kelas.%0AKelas%2Fsekolah%3A%20%0AJumlah%3A%20%20pcs">
+      <a class="btn" href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20saya%20mau%20tanya%20harga%20kaos%20kelas.%0AKelas%2Fsekolah%3A%20%0AJumlah%3A%20%20pcs%0ATanggal%20acara%3A%20">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.3 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.6 2.1 1.1 1 2 1.3 2.3 1.4.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l2 1c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>
         Tanya harga kelasmu
       </a>
-      <p class="catatan">Gratis tanya, tanpa wajib pesan. Dibalas Senin–Sabtu 08.00–16.00 WIB.</p>
+      <p class="catatan"><b>Sudah termasuk nama &amp; nomor punggung tiap anak.</b> Harga final ditulis di awal dan tidak berubah. Gratis tanya, dibalas Senin–Sabtu 08.00–16.00 WIB.</p>
     </div>
     <div class="gambar"><img src="/iklan/kaos-kelas/slide-1.jpg" width="1080" height="1080" alt="Kaos kelas hitam bertuliskan Satu Frekuensi, mulai 65 ribu per pcs"></div>
   </div>
@@ -148,6 +154,17 @@
   </section>
 
   <section>
+    <p class="mono biru">Jaminan untuk bendahara kelas</p>
+    <h2>Uang kas kelas aman.</h2>
+    <div class="jamin">
+      <div><span class="mono">01</span><b>Harga pasti di awal</b><p>Harga per kaos sudah termasuk nama &amp; nomor punggung, ditulis di awal, tidak berubah saat produksi.</p></div>
+      <div><span class="mono">02</span><b>Cukup DP 30%</b><p>Tidak perlu menunggu uang 30 anak terkumpul. Pelunasan saat kaos jadi.</p></div>
+      <div><span class="mono">03</span><b>1 kaos contoh dulu</b><p>Pesanan 20 kaos ke atas: satu kaos contoh dicetak dan difoto dulu sebelum semua diproduksi.</p></div>
+      <div><span class="mono">04</span><b>Jadi sebelum acaramu</b><p>Tanggal jadi disepakati dari tanggal acara. Sablon pecah atau mengelupas dalam 30 hari pemakaian normal? Dicetak ulang gratis.</p></div>
+    </div>
+  </section>
+
+  <section>
     <p class="mono biru">Cara pesan</p>
     <h2>Tiga langkah, semua lewat WhatsApp.</h2>
     <div class="langkah">
@@ -163,6 +180,9 @@
       <h2>Lihat hasil sablon asli.</h2>
     </div>
     <div>
+      <div class="asli">
+        <img src="/hasil-sablon-kaos-ora-melu-mumet.jpg" width="900" height="1200" loading="lazy" alt="Foto hasil sablon kaos Willo Apparel, tulisan Ora Melu Mumete Ora Usah Maido">
+      </div>
       <p>Willo Apparel mengerjakan kaos custom di Ngawi sejak 2020. Workshop kami ada di Jl. PB. Sudirman No.31, Ngawi, dan boleh didatangi.</p>
       <p><a class="tautan" href="/hasil-sablon.html">Tonton video hasil produksi →</a></p>
       <p><a class="tautan" href="/cara-rekap-ukuran-kaos.html">Cara rekap ukuran satu kelas →</a></p>
@@ -172,7 +192,9 @@
   <section>
     <p class="mono biru">Sering ditanya</p>
     <h2>Pertanyaan kelasmu.</h2>
-    <details><summary>Harga pastinya berapa?</summary><p>Mulai Rp65.000/pcs. Harga pasti tergantung jumlah, ukuran sablon, dan bahan. Kirim jumlah dan idemu, admin hitungkan gratis.</p></details>
+    <details><summary>Harga pastinya berapa?</summary><p>Mulai Rp65.000/pcs, sudah termasuk nama &amp; nomor punggung tiap anak. Harga akhir tergantung jumlah, ukuran sablon, dan bahan, dan ditulis di awal sebelum DP. Setelah itu tidak berubah.</p></details>
+    <details><summary>Harus bayar penuh di depan?</summary><p>Tidak. Cukup DP 30% untuk mulai produksi, pelunasan saat kaos jadi. Bendahara tidak perlu menunggu uang semua anak terkumpul.</p></details>
+    <details><summary>Takut hasilnya beda dari desain?</summary><p>Mockup dikirim dulu. Untuk 20 kaos ke atas, satu kaos contoh dicetak dan difotokan sebelum semua diproduksi.</p></details>
     <details><summary>Minimal pesan berapa?</summary><p>Bisa mulai 1 pcs, jadi teman yang telat ikut pesan tetap bisa dibuatkan.</p></details>
     <details><summary>Kalau belum punya desain?</summary><p>Tidak masalah. Desain dibantu gratis, dan kamu lihat mockup-nya dulu sebelum produksi.</p></details>
     <details><summary>Bisa dikirim ke luar Ngawi?</summary><p>Bisa, ke seluruh Indonesia. Atau ambil langsung di workshop kami di Ngawi.</p></details>
@@ -181,15 +203,15 @@
   <div class="penutup">
     <p class="mono biru">Mulai sekarang</p>
     <h2>Bikin kelasmu kompak.</h2>
-    <a class="btn" href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20saya%20mau%20tanya%20harga%20kaos%20kelas.%0AKelas%2Fsekolah%3A%20%0AJumlah%3A%20%20pcs">Tanya harga via WhatsApp →</a>
+    <a class="btn" href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20saya%20mau%20tanya%20harga%20kaos%20kelas.%0AKelas%2Fsekolah%3A%20%0AJumlah%3A%20%20pcs%0ATanggal%20acara%3A%20">Tanya harga via WhatsApp →</a>
   </div>
 
   <footer>Willo Apparel · Jl. PB. Sudirman No.31, Kerek, Margomulyo, Ngawi · WA 0858-1690-0722 · <a href="/">willoapparel.com</a></footer>
 </div>
 
 <div class="lengket">
-  <span><b>Kaos kelas mulai 65K</b>Desain gratis · nama &amp; nomor</span>
-  <a href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20saya%20mau%20tanya%20harga%20kaos%20kelas.%0AKelas%2Fsekolah%3A%20%0AJumlah%3A%20%20pcs"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Z"/></svg>Chat WA</a>
+  <span><b>Kaos kelas mulai 65K</b>Termasuk nama &amp; nomor · DP 30%</span>
+  <a href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20saya%20mau%20tanya%20harga%20kaos%20kelas.%0AKelas%2Fsekolah%3A%20%0AJumlah%3A%20%20pcs%0ATanggal%20acara%3A%20"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Z"/></svg>Chat WA</a>
 </div>
 
 <script src="/wa-tag.js"></script>

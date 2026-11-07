@@ -869,7 +869,7 @@ function tulisVoting() {
   if (!S.tamu && d.no) {
     $('vtDonasi').hidden = false;
     // Paket bintang (Huda 6 Nov): tombol membuka Saweria + menyalin kode warga; nominal dipilih di Saweria.
-    $('vtDonasi').innerHTML = `<b>Tambah bintang lewat donasi sukarela</b><div class="vtPaket">${[[5, 1], [10, 2], [25, 3], [100, 5]].map(([n, k]) => `<a href="https://saweria.co/Duniakotak" target="_blank" rel="noopener" data-paket="${n}"><span class="vtBintang b${k}">${GBR_BINTANG.repeat(k)}</span><b>${n} bintang</b><small>Rp${(n * 1000).toLocaleString('id-ID')}</small></a>`).join('')}</div>Tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan donasi Saweria. Bintang masuk otomatis, plus bonus 💎 10 permata per Rp1.000 untuk Toko Hias.` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
+    $('vtDonasi').innerHTML = `<b>Tambah bintang lewat donasi sukarela</b><div class="vtPaket">${[[5, 1], [10, 2], [25, 3], [100, 5]].map(([n, k]) => `<a href="https://saweria.co/Duniakotak" target="_blank" rel="noopener" data-paket="${n}"><span class="vtBintang b${k}">${GBR_BINTANG.repeat(k)}</span><b>${n} bintang</b><small>Rp${(n * 1000).toLocaleString('id-ID')}</small></a>`).join('')}</div>Tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan donasi Saweria. Bintang masuk otomatis, plus bonus 💎 10 permata per Rp1.000 untuk Toko Hias. <br><small>Belum 17 tahun? Minta izin orang tua dulu ya. Bintang gratis harian sudah cukup untuk ikut memilih.</small>` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
   } else $('vtDonasi').hidden = true;
 }
 async function bukaVoting(wajib) {
