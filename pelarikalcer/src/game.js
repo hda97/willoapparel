@@ -71,6 +71,7 @@ const scene = new THREE.Scene();
 const kamera = new THREE.PerspectiveCamera(62, 16 / 9, 0.1, 460);
 scene.add(new THREE.HemisphereLight(0xeef0ea, 0x5d5446, 1.55));
 const matahari = new THREE.DirectionalLight(0xfff0dc, 1.7); matahari.position.set(-30, 50, 20); scene.add(matahari);
+const isi = new THREE.DirectionalLight(0xf3ede2, 0.75); isi.position.set(15, 18, -30); scene.add(isi);
 function ukur() {
   const w = window.innerWidth, h = window.innerHeight;
   renderer.setSize(w, h, false); kamera.aspect = w / h; kamera.fov = w / h < 1 ? 80 : 62; kamera.updateProjectionMatrix();
@@ -683,10 +684,10 @@ let waktuDunia = 0, geserLobi = 0;
 const vKam = new THREE.Vector3();
 function kameraIkut(dt) {
   const ty = dunia.tinggi(P.d);
-  vKam.set(P.x * 0.6, ty + 2.75 + P.y * 0.35, -P.d + 5.3);
+  vKam.set(P.x * 0.6, ty + 2.35 + P.y * 0.35, -P.d + 4.4);
   kamera.position.lerp(vKam, Math.min(1, dt * 6));
   if (goyang > 0) { goyang -= dt; kamera.position.x += (Math.random() - 0.5) * 0.25; kamera.position.y += (Math.random() - 0.5) * 0.2; }
-  kamera.lookAt(P.x * 0.3, dunia.tinggi(P.d + 10) + 1.2, -P.d - 10);
+  kamera.lookAt(P.x * 0.3, dunia.tinggi(P.d + 10) + 1.15, -P.d - 10);
   const fovT = (kamera.aspect < 1 ? 80 : 62) + (mode === 'main' && (P.burst > 0 || P.sprintKey || sprintTahan()) ? 7 : 0);
   if (Math.abs(kamera.fov - fovT) > 0.05) { kamera.fov += (fovT - kamera.fov) * Math.min(1, dt * 4); kamera.updateProjectionMatrix(); }
 }
@@ -703,8 +704,8 @@ function putar() {
     const lebar = kamera.aspect > 1.2;
     const laci = !$('mRambut').hidden || !$('mGear').hidden;
     geserLobi += ((laci && lebar ? 2.1 : 0) - geserLobi) * Math.min(1, dt * 6);
-    kamera.position.set(geserLobi + Math.sin(a) * 0.3, y0 + 1.45, 8 - (lebar ? 3.2 + geserLobi * 0.45 : 4.4));
-    kamera.lookAt(geserLobi, y0 + 1.05, 8);
+    kamera.position.set(geserLobi * 0.75 + Math.sin(a) * 0.2, y0 + 1.35, 8 - (lebar ? 2.45 + geserLobi * 0.35 : 3.6));
+    kamera.lookAt(geserLobi * 0.75, y0 + 1.12, 8);
   } else if (mode === 'gps') { avatar.userData.animasi(dt, 0, {}); kameraIkut(dt); }
   else if (mode === 'main') kameraIkut(dt);
   for (const e of entitas) {
