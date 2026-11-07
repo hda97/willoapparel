@@ -152,11 +152,11 @@ const BAWAH = [['pendek', '#1d1d22', 'Split Shorts Onyx'], ['pendek', '#5f6a3e',
   ['rok-panjang', '#849483', 'Rok Midi Sage + Legging', 'P', '#dfd8c8'], ['rok-panjang', '#c9b99a', 'Rok Panjang Oat', 'P', '#7a4a2e'], ['rok-panjang', '#1d1d22', 'Rok Panjang Onyx', 'P', '#e0803a']];
 // Aturan Huda: yang polos gratis, yang keren (logo Willo, jaket, jersey panel, rok bermotif, cap Willo) dijual di Toko.
 const kerenKaos = (k) => k[0] === 'kaos-willo' || k[0] === 'jaket' || !!k[5];
-const OUTFIT = [...KAOS.map((k, i) => kerenKaos(k) ? { id: 'kaos-' + i, tipe: 'kaos', i, nama: k[2], P: k[4] === 'P', warna: k[0] === 'jaket' ? 'Windbreaker' : k[5] ? (k[3] ? 'Jersey lengan panjang' : 'Jersey panel samping') : 'Kaos sablon Willo', harga: k[0] === 'jaket' ? 500 : k[3] ? 450 : k[5] ? 350 : 300 } : null),
-  ...BAWAH.map((b, i) => b[4] ? { id: 'bawah-' + i, tipe: 'bawah', i, nama: b[2], P: true, warna: b[0] === 'rok' ? (b[5] ? 'Rok lipit + celana dalam' : 'Skort lis kontras') : 'Rok panjang + legging', harga: b[0] === 'rok' ? 250 + (b[5] ? 100 : 0) : 400 } : null)].filter(Boolean);
+const OUTFIT = [...KAOS.map((k, i) => kerenKaos(k) ? { id: 'kaos-' + i, tipe: 'kaos', i, nama: k[2], P: k[4] === 'P', warna: k[0] === 'jaket' ? 'Windbreaker' : k[5] ? (k[3] ? 'Jersey lengan panjang' : 'Jersey panel samping') : 'Kaos sablon Willo', harga: k[0] === 'jaket' ? 50 : k[3] ? 45 : k[5] ? 35 : 30 } : null),
+  ...BAWAH.map((b, i) => b[4] ? { id: 'bawah-' + i, tipe: 'bawah', i, nama: b[2], P: true, warna: b[0] === 'rok' ? (b[5] ? 'Rok lipit + celana dalam' : 'Skort lis kontras') : 'Rok panjang + legging', harga: b[0] === 'rok' ? 25 + (b[5] ? 10 : 0) : 40 } : null)].filter(Boolean);
 const outfitBebas = (tipe, i) => { const o = OUTFIT.find((x) => x.tipe === tipe && x.i === i); return !o || D.punya.includes(o.id); };
 const TOPI = [['none', 'Tanpa'], ['cap', 'Topi Polos Abu', '#8a8d91', 0, 'polos'], ['cap', 'Topi Polos Hitam', '#1d1d22', 0, 'polos'], ['visor', 'Visor Putih', '#f4f4f2'], ['visor', 'Visor Onyx', '#1d1d22'], ['band', 'Headband Onyx', '#1d1d22'], ['band', 'Headband Oranye', '#e0803a'], ['cap', 'Cap Willo Onyx', '#1d1d22', 1], ['cap', 'Cap Willo Oat', '#dfd8c8', 1], ['cap', 'Cap Willo Terakota', '#a46358', 1]];
-TOPI.forEach((t, i) => { if (t[3]) OUTFIT.push({ id: 'topi-' + i, tipe: 'topi', i, nama: t[1], P: false, warna: 'Topi bordir WILLO', harga: 200 }); });
+TOPI.forEach((t, i) => { if (t[3]) OUTFIT.push({ id: 'topi-' + i, tipe: 'topi', i, nama: t[1], P: false, warna: 'Topi bordir WILLO', harga: 20 }); });
 function pasangTopi(w, t) { const h = w.userData.head; if (!t || t[0] === 'none') return;
   if (t[0] === 'band') { const b = kotak(1.02, .16, 1.02, t[2], .05); b.position.y = .86; h.add(b); }
   if (t[0] === 'visor') { const b = kotak(1.02, .16, 1.02, t[2], .05); b.position.y = .9; h.add(b); const v = kotak(.98, .06, .5, t[2], .03); v.position.set(0, .86, .68); h.add(v); }
@@ -184,7 +184,11 @@ function gantiPemain() { if (!pemain) return; const p = pemain.position.clone(),
 // ---------------- rintangan & pickup ----------------
 const OBJ = []; // {d, lajur, jenis, mesh, aktif}
 const mKoin = new THREE.MeshStandardMaterial({ color: 0xf2c14a, metalness: .55, roughness: .3, emissive: 0x3a2a00 });
-const texW = tekstur(128, 128, (x) => { x.fillStyle = '#f2c14a'; x.fillRect(0, 0, 128, 128); x.fillStyle = '#a8761a'; x.font = '900 92px Montserrat'; x.textAlign = 'center'; x.fillText('W', 64, 98); });
+const texW = tekstur(128, 128, (x) => { x.fillStyle = '#f2c14a'; x.fillRect(0, 0, 128, 128); x.fillStyle = '#d9a32e'; x.fillRect(10, 10, 108, 108); x.fillStyle = '#f2c14a'; x.fillRect(16, 16, 96, 96);
+  // kubus isometrik khas Dunia Kotak
+  const c = [64, 66], r = 34, t = [c[0], c[1] - r], kn = [c[0] + r * .87, c[1] - r / 2], kk = [c[0] - r * .87, c[1] - r / 2], b = [c[0], c[1] + r], bn = [c[0] + r * .87, c[1] + r / 2], bk = [c[0] - r * .87, c[1] + r / 2];
+  const sisi = (pts, w) => { x.fillStyle = w; x.beginPath(); pts.forEach((p, i) => i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1])); x.closePath(); x.fill(); };
+  sisi([t, kn, c, kk], '#fff1b8'); sisi([kk, c, b, bk], '#c98a1c'); sisi([c, kn, bn, b], '#a8761a'); });
 const mKoinMuka = new THREE.MeshStandardMaterial({ map: texW, metalness: .4, roughness: .35 });
 function koinMesh() { const g = new THREE.Group(); const c = new THREE.Mesh(new THREE.CylinderGeometry(.62, .62, .18, 20), [mKoin, mKoinMuka, mKoinMuka]); c.rotation.x = Math.PI / 2; c.castShadow = true; g.add(c); return g; }
 function kerucut() { const g = new THREE.Group(); const b = kotak(1.3, .2, 1.3, 0xe0803a, .05); b.position.y = .1; g.add(b); [[.9, .45, 0xe0803a], [.7, .45, 0xf6f3ee], [.5, .45, 0xe0803a], [.3, .35, 0xf6f3ee]].forEach(([s, h, c], i) => { const k = kotak(s, h, s, c, .06); k.position.y = .2 + h / 2 + i * .45; g.add(k); }); return g; }
@@ -218,40 +222,40 @@ function buatNPC() {
 
 // ---------------- dompet, tas toko, rekor, pemanasan (tersimpan) ----------------
 const SIMPAN2 = 'pkdk-data';
-let D = { koin: 300, tas: {}, rekor: null, warm: false, sepatu: 'shoe_starter', jam: 'watch_basic', punya: ['shoe_starter', 'watch_basic', 'none'], gengsi: 'none' };
+let D = { koin: 100, permata: 0, tas: {}, rekor: null, warm: false, sepatu: 'shoe_starter', jam: 'watch_basic', punya: ['shoe_starter', 'watch_basic', 'none'], gengsi: 'none' };
 try { Object.assign(D, JSON.parse(localStorage.getItem(SIMPAN2) || '{}')); } catch (e) {}
 const simpanD = () => { try { localStorage.setItem(SIMPAN2, JSON.stringify(D)); } catch (e) {} };
 // GDD 7.1 Toko Skena
 const TOKO = [
-  { id: 'isotonik', ik: '🧃', nama: 'Botol Isotonik', efek: 'Stamina penuh lagi sekali saat tinggal 30%', harga: 150 },
-  { id: 'gel', ik: '⚡', nama: 'Energy Gel', efek: 'Kecepatan +14% selama 20 detik pertama', harga: 200 },
-  { id: 'pisang', ik: '🍌', nama: 'Pisang', efek: '+1 nyawa', harga: 100 },
-  { id: 'kopi', ik: '🧋', nama: 'Kopi Skena Kaki', efek: 'Stamina lebih awet 25%', harga: 250 },
-  { id: 'bakmi', ik: '🍜', nama: 'Bakmi Carbo-Load', efek: 'Kecepatan +18% sepanjang lari', harga: 300 },
+  { id: 'isotonik', ik: '🧃', nama: 'Botol Isotonik', efek: 'Stamina penuh lagi sekali saat tinggal 30%', harga: 15 },
+  { id: 'gel', ik: '⚡', nama: 'Energy Gel', efek: 'Kecepatan +14% selama 20 detik pertama', harga: 20 },
+  { id: 'pisang', ik: '🍌', nama: 'Pisang', efek: '+1 nyawa', harga: 10 },
+  { id: 'kopi', ik: '🧋', nama: 'Kopi Skena Kaki', efek: 'Stamina lebih awet 25%', harga: 25 },
+  { id: 'bakmi', ik: '🍜', nama: 'Bakmi Carbo-Load', efek: 'Kecepatan +18% sepanjang lari', harga: 30 },
 ];
 // GDD 5.1 & 5.2: sepatu dan jam GPS, basic sampai grail (katalog Willo)
 const SEPATU = [
   { id: 'shoe_starter', nama: 'Starter Jogger', warna: 'Stone Grey', tier: 'Tier 1 · Basic', c: '#8A8D91', pace: 8, harga: 0, ket: 'Sol busa EVA standar.' },
-  { id: 'daily_oat', nama: 'Willo Daily Cruiser', warna: 'Oat Cream & Gum', tier: 'Tier 2 · Sport', c: '#EAE4D7', pace: 18, harga: 500, ket: 'Sepatu harian empuk, sol karet gum.' },
-  { id: 'trail_sandstone', nama: 'Willo Trail Grip', warna: 'Sandstone & Sage', tier: 'Tier 3 · Pro Trail', c: '#B8A692', pace: 22, harga: 850, kebal: true, ket: 'Sol bergerigi, kebal lubang jalan.' },
-  { id: 'solomate_carbon', nama: 'Solomate Carbon', warna: 'Matte Onyx & Bone', tier: 'Tier 3 · Pro Carbon', c: '#222528', pace: 28, harga: 1400, ket: 'Pelat karbon untuk kejar PB.' },
-  { id: 'nyx_hyperfoam', nama: 'Nyx Hyperfoam Grail', warna: 'Alabaster & Copper', tier: 'Tier 4 · Grail', c: '#F5F4F0', pace: 36, harga: 2400, kebal: true, ket: 'Super-shoe kasta tertinggi.' },
+  { id: 'daily_oat', nama: 'Willo Daily Cruiser', warna: 'Oat Cream & Gum', tier: 'Tier 2 · Sport', c: '#EAE4D7', pace: 18, harga: 50, ket: 'Sepatu harian empuk, sol karet gum.' },
+  { id: 'trail_sandstone', nama: 'Willo Trail Grip', warna: 'Sandstone & Sage', tier: 'Tier 3 · Pro Trail', c: '#B8A692', pace: 22, harga: 85, kebal: true, ket: 'Sol bergerigi, kebal lubang jalan.' },
+  { id: 'solomate_carbon', nama: 'Solomate Carbon', warna: 'Matte Onyx & Bone', tier: 'Tier 3 · Pro Carbon', c: '#222528', pace: 28, harga: 140, ket: 'Pelat karbon untuk kejar PB.' },
+  { id: 'nyx_hyperfoam', nama: 'Nyx Hyperfoam Grail', warna: 'Alabaster & Copper', tier: 'Tier 4 · Grail', c: '#F5F4F0', pace: 36, harga: 240, kebal: true, ket: 'Super-shoe kasta tertinggi.' },
 ];
 const JAM = [
   { id: 'watch_basic', nama: 'Basic Fitness Band', warna: 'Monokrom', tier: 'Tier 1 · Basic', c: '#2A2D30', gps: 3.0, hemat: 5, harga: 0, ket: 'Gelang pintar standar.' },
-  { id: 'willo_sport', nama: 'Willo Sport Watch 10:08', warna: 'Onyx / Olive', tier: 'Tier 2 · Sport', c: '#4A5844', gps: 1.5, hemat: 12, harga: 450, ket: 'Layar AMOLED bundar, langkah 8420.' },
-  { id: 'coro_pro', nama: 'Willo Coro-Pro Dual-Band', warna: 'Warm Sand', tier: 'Tier 3 · Pro Skena', c: '#B8A692', gps: 0.5, hemat: 20, harga: 950, ket: 'Detak jantung & peringatan The Wall.' },
-  { id: 'titanium_ultra', nama: 'Willo Titanium Ultra', warna: 'Sapphire', tier: 'Tier 4 · Grail', c: '#8C7D70', gps: 0, hemat: 30, harga: 2200, ket: 'Bodi titanium, GPS kunci instan.' },
+  { id: 'willo_sport', nama: 'Willo Sport Watch 10:08', warna: 'Onyx / Olive', tier: 'Tier 2 · Sport', c: '#4A5844', gps: 1.5, hemat: 12, harga: 45, ket: 'Layar AMOLED bundar, langkah 8420.' },
+  { id: 'coro_pro', nama: 'Willo Coro-Pro Dual-Band', warna: 'Warm Sand', tier: 'Tier 3 · Pro Skena', c: '#B8A692', gps: 0.5, hemat: 20, harga: 95, ket: 'Detak jantung & peringatan The Wall.' },
+  { id: 'titanium_ultra', nama: 'Willo Titanium Ultra', warna: 'Sapphire', tier: 'Tier 4 · Grail', c: '#8C7D70', gps: 0, hemat: 30, harga: 220, ket: 'Bodi titanium, GPS kunci instan.' },
 ];
 // GDD 4.3 + katalog: item bergengsi (1 slot)
 const GENGSI = [
   { id: 'none', nama: 'Tanpa Aksesori', warna: 'Lari polos', tier: 'Tier 1 · Basic', pace: 0, hemat: 0, harga: 0 },
-  { id: 'waist_bag', nama: 'Running Waist Bag', warna: 'Matte Onyx', tier: 'Tier 1 · Basic', pace: 2, hemat: 5, harga: 150 },
-  { id: 'sunglasses_matte', nama: 'Kacamata Lari Matte', warna: 'Tortoiseshell', tier: 'Tier 2 · Sport', pace: 6, hemat: 8, harga: 350 },
-  { id: 'handuk', nama: 'Handuk Leher Skena', warna: 'Oat & Terakota', tier: 'Tier 2 · Sport', pace: 4, hemat: 12, harga: 400 },
-  { id: 'ransel', nama: 'Ransel Lari Willo', warna: 'Clay', tier: 'Tier 2 · Sport', pace: 5, hemat: 14, harga: 500 },
-  { id: 'hydration_vest', nama: 'Hydration Vest Lokal', warna: '2 Soft Flask', tier: 'Tier 3 · Pro Trail', pace: 12, hemat: 22, harga: 750 },
-  { id: 'grail_trail_pack', nama: 'Carbon Vest + Bone Conduction + Poles', warna: 'Grail Set', tier: 'Tier 4 · Grail', pace: 22, hemat: 35, harga: 2600 },
+  { id: 'waist_bag', nama: 'Running Waist Bag', warna: 'Matte Onyx', tier: 'Tier 1 · Basic', pace: 2, hemat: 5, harga: 15 },
+  { id: 'sunglasses_matte', nama: 'Kacamata Lari Matte', warna: 'Tortoiseshell', tier: 'Tier 2 · Sport', pace: 6, hemat: 8, harga: 35 },
+  { id: 'handuk', nama: 'Handuk Leher Skena', warna: 'Oat & Terakota', tier: 'Tier 2 · Sport', pace: 4, hemat: 12, harga: 40 },
+  { id: 'ransel', nama: 'Ransel Lari Willo', warna: 'Clay', tier: 'Tier 2 · Sport', pace: 5, hemat: 14, harga: 50 },
+  { id: 'hydration_vest', nama: 'Hydration Vest Lokal', warna: '2 Soft Flask', tier: 'Tier 3 · Pro Trail', pace: 12, hemat: 22, harga: 75 },
+  { id: 'grail_trail_pack', nama: 'Carbon Vest + Bone Conduction + Poles', warna: 'Grail Set', tier: 'Tier 4 · Grail', pace: 22, hemat: 35, harga: 260 },
 ];
 const gengsiAktif = () => GENGSI.find((x) => x.id === D.gengsi) || GENGSI[0];
 function pasangGengsi(w, id) {
@@ -336,7 +340,32 @@ const DRILL = [{ nama: 'High Knees', pose: (t) => ({ legL: -1.4 * Math.max(0, Ma
   { nama: 'A-Skips', pose: (t) => ({ legL: -1.0 * Math.max(0, Math.sin(t)), legR: -1.0 * Math.max(0, -Math.sin(t)), armL: Math.sin(t) * 1.4, armR: -Math.sin(t) * 1.4 }) }];
 
 let tabToko = 'bekal';
+// ---------------- akun warga Dunia Kotak: koin 🪙 & permata 💎 satu dompet dengan game desa ----------------
+// Kunci warga dibaca dari perangkat (disimpan game Dunia Kotak di willoapparel.com). Tanpa akun = mode tamu (koin lokal).
+let AKUN = null; try { const w = JSON.parse(localStorage.getItem('dk_warga') || 'null'); if (w && w.kunci) AKUN = { no: w.no, ig: w.ig, kunci: w.kunci }; } catch (e) {}
+let bayarPakai = 'koin';
+async function apiPk(op, data = {}) {
+  try { const r = await fetch('/duniakotak/api/pelari', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kunci: AKUN.kunci, op, ...data }) }); return await r.json(); }
+  catch (e) { return { galat: 'Server Dunia Kotak tidak menjawab. Coba lagi.' }; }
+}
+function terimaAkun(r) { if (r.koin == null) return; D.koin = r.koin; D.permata = r.permata || 0; if (r.no) AKUN.no = r.no; (r.punya || []).forEach((id) => { if (!D.punya.includes(id)) D.punya.push(id); }); simpanD(); isiDompet(); }
+function isiDompet() { $('hDompet').textContent = D.koin.toLocaleString('id-ID'); $('dPermata').hidden = !AKUN; $('hPermata').textContent = (D.permata || 0).toLocaleString('id-ID'); }
+const hargaPm = (h) => Math.ceil(h / 10); // 1 💎 = 10 🪙 (sama dengan game Dunia Kotak)
+const cukup = (h) => bayarPakai === 'permata' ? (D.permata || 0) >= hargaPm(h) : D.koin >= h;
+const hargaTeks = (h) => bayarPakai === 'permata' ? hargaPm(h) + ' 💎' : h.toLocaleString('id-ID') + ' 🪙';
+async function bayar(id, h, habis, lalu) {
+  if (!cukup(h)) return;
+  if (AKUN) { const r = await apiPk('beli', { id, bayar: bayarPakai }); if (r.galat) { toast(r.galat); return; } terimaAkun(r); }
+  else { D.koin -= h; if (!habis) D.punya.push(id); }
+  bunyi(1180, .08, 'triangle'); simpanD(); lalu();
+}
+function setorKoin(k) {
+  if (!AKUN) { D.koin += k; simpanD(); return; }
+  apiPk('selesai', { koin: k }).then((r) => { if (r.galat) { toast(r.galat); return; } terimaAkun(r); toast(r.dapat ? `+${r.dapat} 🪙 masuk dompet Dunia Kotak` : 'Jatah koin lari hari ini sudah penuh. Besok lagi ya!'); });
+}
+
 pemain = buatPemain(); sc.add(pemain);
+if (AKUN) apiPk('akun').then((r) => { if (r.galat) { if (/Masuk dulu/.test(r.galat)) AKUN = null; } else terimaAkun(r); isiMenu(); });
 // ---------------- keadaan ----------------
 let mode = 'lobi'; // lobi | gps | hitung | lari | selesai | gagal
 const P = {};
@@ -402,21 +431,35 @@ function tutupLaci() { document.querySelectorAll('.laci').forEach((l) => l.hidde
 function bukaLaci(id) { tutupLaci(); $('lobi').hidden = true; $('pemanasan').hidden = true; $(id).hidden = false; bunyi(520, .05); }
 document.querySelectorAll('[data-tutup]').forEach((b) => b.onclick = tutupLaci);
 function isiMenu() {
-  $('hDompet').textContent = D.koin.toLocaleString('id-ID');
+  isiDompet();
   const n = Object.keys(D.tas).length; $('tagToko').textContent = n ? n + ' bekal' : '';
   document.querySelectorAll('#tabToko button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.tab === tabToko));
-  if (tabToko === 'outfit') {
+  if (tabToko === 'topup') {
+    $('daftarToko').innerHTML = AKUN ? `<div class="topup"><b>Top up 💎 Permata lewat Saweria</b>
+      <p>Kode wargamu: <button id="tuKode" class="kode">DK${AKUN.no || ''}</button> <small>(ketuk untuk salin)</small></p>
+      <p class="kecil">Tulis kode itu di <b>pesan donasi</b>. Rp1.000 = 10 💎 + 1 ⭐ bintang voting. 💎 masuk otomatis ke akun Dunia Kotak-mu, bisa dipakai di game desa dan di sini.</p>
+      <div class="paket">${[[5, 50], [10, 100], [25, 250], [100, 1000]].map(([rb, pm]) => `<button data-tu="${rb}"><b>${pm} 💎</b><small>Rp${(rb * 1000).toLocaleString('id-ID')}</small></button>`).join('')}</div>
+      <button class="utama" id="tuBuka">Buka Saweria</button><button class="kedua" id="tuCek">🔄 Cek saldo 💎</button>
+      <p class="kecil">Top up sukarela. 💎 tidak bisa jadi koin 🪙 dan tidak masuk peringkat. Di bawah umur? Minta izin orang tua dulu ya.</p></div>`
+      : `<div class="topup"><b>Masuk sebagai warga Dunia Kotak dulu</b><p class="kecil">Koin 🪙 dan 💎 Permata game ini satu dompet dengan desa Dunia Kotak. Daftar gratis, lalu buka game ini lagi dari HP yang sama.</p><a class="utama" href="/duniakotak/mabar/" target="_top">Masuk / daftar warga</a><p class="kecil">Sekarang kamu main sebagai tamu: koin hanya tersimpan di HP ini.</p></div>`;
+    const kd = () => 'DK' + (AKUN?.no || ''); const salin = () => { try { navigator.clipboard.writeText(kd()); } catch (e) {} };
+    const buka = (rb) => { salin(); toast(rb ? `Kode ${kd()} disalin. Pilih Rp${(rb * 1000).toLocaleString('id-ID')} lalu tempel kode di pesan.` : `Kode ${kd()} disalin. Tempel di pesan donasi.`); window.open('https://saweria.co/Duniakotak', '_blank', 'noopener'); };
+    if (AKUN) { $('tuKode').onclick = () => { salin(); toast('Kode ' + kd() + ' disalin'); }; $('tuBuka').onclick = () => buka(0); document.querySelectorAll('[data-tu]').forEach((b) => b.onclick = () => buka(+b.dataset.tu));
+      $('tuCek').onclick = async () => { const r = await apiPk('akun'); if (r.galat) toast(r.galat); else { terimaAkun(r); toast('Saldo: ' + (r.permata || 0) + ' 💎 · ' + r.koin + ' 🪙'); } }; }
+  } else if (tabToko === 'outfit') {
     const bisa = (o) => !o.P || A.jenis === 'P'; const aktif = (o) => (o.tipe === 'kaos' ? A.kaos : o.tipe === 'bawah' ? A.bawah : A.topi) === o.i;
     $('daftarToko').innerHTML = '<p class="catat" style="margin:0 0 6px">Kaos, celana & topi polos gratis di menu Avatar. Yang keren beli di sini, lalu otomatis terpakai.</p>' + OUTFIT.map((o) => { const punya = D.punya.includes(o.id), pakai = bisa(o) && aktif(o);
-      return `<div class="gear ${pakai ? 'pakai' : ''}"><img src="${ikon(o.id)}" alt=""><div><small>${o.tipe === 'kaos' ? (o.P ? 'Jersey cewek' : 'Atasan') : o.tipe === 'bawah' ? 'Rok lari cewek' : 'Topi'}</small><b>${o.nama}</b><i>${o.warna}</i><span>${o.P && A.jenis !== 'P' ? 'Khusus avatar cewek' : 'Gaya, tanpa bonus'}</span></div><button data-outfit="${o.id}" ${(!punya && D.koin < o.harga) || (punya && !bisa(o)) ? 'disabled' : ''}>${pakai ? 'Dipakai ✓' : punya ? (bisa(o) ? 'Pakai' : 'Dimiliki') : o.harga.toLocaleString('id-ID') + ' W'}</button></div>`; }).join('');
-    $('daftarToko').querySelectorAll('[data-outfit]').forEach((b) => b.onclick = () => { const o = OUTFIT.find((x) => x.id === b.dataset.outfit); if (!D.punya.includes(o.id)) { if (D.koin < o.harga) return; D.koin -= o.harga; D.punya.push(o.id); bunyi(1180, .08, 'triangle'); simpanD(); } if (bisa(o)) { if (o.tipe === 'kaos') A.kaos = o.i; else if (o.tipe === 'bawah') A.bawah = o.i; else A.topi = o.i; simpanA(); gantiPemain(); isiLobi(); } isiMenu(); });
+      return `<div class="gear ${pakai ? 'pakai' : ''}"><img src="${ikon(o.id)}" alt=""><div><small>${o.tipe === 'kaos' ? (o.P ? 'Jersey cewek' : 'Atasan') : o.tipe === 'bawah' ? 'Rok lari cewek' : 'Topi'}</small><b>${o.nama}</b><i>${o.warna}</i><span>${o.P && A.jenis !== 'P' ? 'Khusus avatar cewek' : 'Gaya, tanpa bonus'}</span></div><button data-outfit="${o.id}" ${(!punya && !cukup(o.harga)) || (punya && !bisa(o)) ? 'disabled' : ''}>${pakai ? 'Dipakai ✓' : punya ? (bisa(o) ? 'Pakai' : 'Dimiliki') : hargaTeks(o.harga)}</button></div>`; }).join('');
+    $('daftarToko').querySelectorAll('[data-outfit]').forEach((b) => b.onclick = () => { const o = OUTFIT.find((x) => x.id === b.dataset.outfit); const pakaiO = () => { if (bisa(o)) { if (o.tipe === 'kaos') A.kaos = o.i; else if (o.tipe === 'bawah') A.bawah = o.i; else A.topi = o.i; simpanA(); gantiPemain(); isiLobi(); } isiMenu(); }; if (!D.punya.includes(o.id)) bayar(o.id, o.harga, false, pakaiO); else pakaiO(); });
   } else if (tabToko !== 'bekal') { const L = { sepatu: SEPATU, jam: JAM, gengsi: GENGSI }[tabToko]; const kunci = tabToko;
     $('daftarToko').innerHTML = L.map((g) => { const punya = D.punya.includes(g.id), pakai = D[kunci] === g.id; const efek = tabToko === 'gengsi' ? (g.pace ? `+${g.pace}% pace · stamina hemat ${g.hemat}%` : 'Tanpa bonus') : tabToko === 'sepatu' ? `+${g.pace}% pace${g.kebal ? ' · kebal lubang' : ''}` : `GPS ${g.gps ? g.gps.toString().replace('.', ',') + ' dtk' : 'instan'} · stamina hemat ${g.hemat}%`;
-      return `<div class="gear ${pakai ? 'pakai' : ''}"><img src="${ikon(g.id)}" alt=""><div><small>${g.tier}</small><b>${g.nama}</b><i>${g.warna}</i><span>${efek}</span></div><button data-gear="${g.id}" ${!punya && D.koin < g.harga ? 'disabled' : ''}>${pakai ? 'Dipakai ✓' : punya ? 'Pakai' : g.harga.toLocaleString('id-ID') + ' W'}</button></div>`; }).join('');
-    $('daftarToko').querySelectorAll('[data-gear]').forEach((b) => b.onclick = () => { const g = L.find((x) => x.id === b.dataset.gear); if (!D.punya.includes(g.id)) { if (D.koin < g.harga) return; D.koin -= g.harga; D.punya.push(g.id); bunyi(1180, .08, 'triangle'); } D[kunci] = g.id; simpanD(); gantiPemain(); isiMenu(); });
+      return `<div class="gear ${pakai ? 'pakai' : ''}"><img src="${ikon(g.id)}" alt=""><div><small>${g.tier}</small><b>${g.nama}</b><i>${g.warna}</i><span>${efek}</span></div><button data-gear="${g.id}" ${!punya && !cukup(g.harga) ? 'disabled' : ''}>${pakai ? 'Dipakai ✓' : punya ? 'Pakai' : hargaTeks(g.harga)}</button></div>`; }).join('');
+    $('daftarToko').querySelectorAll('[data-gear]').forEach((b) => b.onclick = () => { const g = L.find((x) => x.id === b.dataset.gear); const pakaiG = () => { D[kunci] = g.id; simpanD(); gantiPemain(); isiMenu(); }; if (!D.punya.includes(g.id)) bayar(g.id, g.harga, false, pakaiG); else pakaiG(); });
   } else
-  $('daftarToko').innerHTML = TOKO.map((it) => { const punya = D.tas[it.id]; return `<div class="item ${punya ? 'punya' : ''}"><div class="ik"><img src="${ikon(it.id)}" alt="${it.ik}"></div><div><b>${it.nama}</b><small>${it.efek}</small></div><button data-beli="${it.id}" ${punya || D.koin < it.harga ? 'disabled' : ''}>${punya ? 'Di tas ✓' : it.harga + ' W'}</button></div>`; }).join('');
-  $('daftarToko').querySelectorAll('[data-beli]').forEach((b) => b.onclick = () => { const it = TOKO.find((x) => x.id === b.dataset.beli); if (D.koin < it.harga) return; D.koin -= it.harga; D.tas[it.id] = 1; simpanD(); bunyi(1180, .08, 'triangle'); isiMenu(); });
+  $('daftarToko').innerHTML = TOKO.map((it) => { const punya = D.tas[it.id]; return `<div class="item ${punya ? 'punya' : ''}"><div class="ik"><img src="${ikon(it.id)}" alt="${it.ik}"></div><div><b>${it.nama}</b><small>${it.efek}</small></div><button data-beli="${it.id}" ${punya || !cukup(it.harga) ? 'disabled' : ''}>${punya ? 'Di tas ✓' : hargaTeks(it.harga)}</button></div>`; }).join('');
+  $('daftarToko').querySelectorAll('[data-beli]').forEach((b) => b.onclick = () => { const it = TOKO.find((x) => x.id === b.dataset.beli); bayar(it.id, it.harga, true, () => { D.tas[it.id] = 1; simpanD(); isiMenu(); }); });
+  if (AKUN && tabToko !== 'topup') { $('daftarToko').insertAdjacentHTML('afterbegin', `<div class="bayarPakai"><span>Bayar pakai</span><button data-bp="koin" aria-pressed="${bayarPakai === 'koin'}">🪙 Koin</button><button data-bp="permata" aria-pressed="${bayarPakai === 'permata'}">💎 Permata</button></div>`);
+    document.querySelectorAll('[data-bp]').forEach((b) => b.onclick = () => { bayarPakai = b.dataset.bp; isiMenu(); }); }
   const papan = [['@nadya.run', 236], ['@kakak.pacer', 251], ['@adit.tempo', 268], ['@salsa.cfd', 284], ['@dimas_lari', 301], ['@kopiskena', 322], ['@larisore', 347]];
   if (D.rekor) papan.push(['@' + A.nama, D.rekor, 1]); papan.sort((a, b) => a[1] - b[1]);
   $('daftarRank').innerHTML = papan.map((r, i) => `<div class="rank ${r[2] ? 'saya' : ''}"><span>#${i + 1}</span><span>${r[0]}</span><b>${fmtWaktu(r[1])}</b></div>`).join('') + (D.rekor ? '' : '<p class="catat" style="margin:6px 0">Selesaikan 1 lari untuk masuk papan.</p>');
@@ -442,6 +485,7 @@ function labelPemanasan() { const i = Math.min(2, Math.floor((pm.n - 1) / 8)); $
   $('pmBar').style.width = (D.warm ? 100 : pm.n / 24 * 100) + '%'; $('pmInfo').textContent = D.warm ? 'Bonus dipakai di lari berikutnya' : `ABC Drills ${pm.n}/24 · selesai = +12% pace`; }
 function keLobi() { tutupLaci(); isiMenu(); if (!D.warm) pm.n = 0; labelPemanasan(); $('pemanasan').hidden = false; mode = 'lobi'; ['hud', 'gps', 'struk', 'gagal', 'jeda'].forEach((x) => $(x).hidden = true); $('lobi').hidden = false; $('kontrol').hidden = true; isiLobi(); }
 function mulaiGPS() {
+  if (AKUN) apiPk('mulai');
   mode = 'gps'; $('lobi').hidden = true; $('gps').hidden = false; $('gps').classList.remove('kunci'); $('gpsTeks').textContent = 'MENCARI GPS...';
   const tunggu = 300 + jamAktif().gps * 1000; $('gpsInfo').textContent = jamAktif().nama + ' · kunci ' + (jamAktif().gps ? jamAktif().gps.toString().replace('.', ',') + ' detik' : 'instan');
   setTimeout(() => { $('gps').classList.add('kunci'); $('gpsTeks').textContent = 'GPS LOCKED'; bunyi(1320, .12); setTimeout(() => bunyi(1320, .12), 160); }, tunggu);
@@ -479,7 +523,7 @@ addEventListener('pointercancel', () => { sentuh = null; });
 let AC = null; function bunyi(f, dur = .08, tipe = 'square', vol = .05) { try { AC = AC || new AudioContext(); const o = AC.createOscillator(), g = AC.createGain(); o.type = tipe; o.frequency.value = f; g.gain.value = vol; g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + dur); o.connect(g).connect(AC.destination); o.start(); o.stop(AC.currentTime + dur); } catch (e) {} }
 
 // ---------------- logika lari ----------------
-function ambilAir() { if (mode !== 'lari' || P.wsAmbil || !(P.d > WS.buka && P.d < WS.tutup)) return; P.wsAmbil = true; P.stamina = Math.min(100, P.stamina + 35); P.koin += 50; toast('💧 Isotonik! +35% stamina · +50 W'); bunyi(990, .1); setTimeout(() => bunyi(1320, .1), 90); }
+function ambilAir() { if (mode !== 'lari' || P.wsAmbil || !(P.d > WS.buka && P.d < WS.tutup)) return; P.wsAmbil = true; P.stamina = Math.min(100, P.stamina + 35); P.koin += 5; toast('💧 Isotonik! +35% stamina · +5 🪙'); bunyi(990, .1); setTimeout(() => bunyi(1320, .1), 90); }
 function kena(o) {
   if (P.kebal > 0) return;
   if (P.perisai > 0) { P.perisai = 0; P.kebal = 1; toast('🛡️ Perisai menahan benturan'); bunyi(300, .1); o.habis = true; if (o.mesh) o.mesh.visible = false; return; }
@@ -487,13 +531,13 @@ function kena(o) {
   if (P.nyawa <= 0) gagal();
 }
 function ambil(o) { o.habis = true; if (o.mesh) o.mesh.visible = false;
-  if (o.jenis === 'koin') { P.koin += 25; bunyi(1180 + rnd() * 200, .05, 'triangle'); }
+  if (o.jenis === 'koin') { P.koin += 1; bunyi(1180 + rnd() * 200, .05, 'triangle'); }
   if (o.jenis === 'petir') { P.stamina = Math.min(100, P.stamina + 30); toast('⚡ +30% stamina'); bunyi(800, .12, 'triangle'); }
   if (o.jenis === 'magnet') { P.magnet = 8; toast('🧲 Magnet 8 detik'); bunyi(700, .12, 'triangle'); }
   if (o.jenis === 'perisai') { P.perisai = 8; toast('🛡️ Perisai 8 detik'); bunyi(600, .12, 'triangle'); }
   if (o.jenis === 'hati') { P.nyawa = Math.min(5, P.nyawa + 1); toast('❤️ +1 nyawa'); bunyi(900, .12, 'triangle'); }
 }
-function gagal() { mode = 'gagal'; D.koin += P.koin; D.tas = {}; D.warm = false; simpanD(); setTimeout(() => { $('gagal').hidden = false; $('kontrol').hidden = true; $('gagalInfo').textContent = `Berhenti di ${(P.d / 1000).toFixed(2).replace('.', ',')} KM. Coba lagi, pelan-pelan jaga stamina.`; }, 700); }
+function gagal() { mode = 'gagal'; setorKoin(P.koin); D.tas = {}; D.warm = false; simpanD(); setTimeout(() => { $('gagal').hidden = false; $('kontrol').hidden = true; $('gagalInfo').textContent = `Berhenti di ${(P.d / 1000).toFixed(2).replace('.', ',')} KM. Coba lagi, pelan-pelan jaga stamina.`; }, 700); }
 // foto struk: avatar pemain berkalung medali finisher, dirender di studio kecil terpisah
 let RF = null;
 function fotoMedali(w = 150, h = 180, pr = 2) {
@@ -511,9 +555,9 @@ function fotoMedali(w = 150, h = 180, pr = 2) {
 }
 function selesai() {
   mode = 'selesai'; $('kontrol').hidden = true; bunyi(880, .15); setTimeout(() => bunyi(1100, .15), 150); setTimeout(() => bunyi(1320, .3), 300);
-  const t0 = P.waktu * SKALA_WAKTU; D.koin += P.koin; D.tas = {}; D.warm = false; const baru = !D.rekor || t0 < D.rekor; if (baru) D.rekor = t0; simpanD();
+  const t0 = P.waktu * SKALA_WAKTU; setorKoin(P.koin); D.tas = {}; D.warm = false; const baru = !D.rekor || t0 < D.rekor; if (baru) D.rekor = t0; simpanD();
   const t = P.waktu * SKALA_WAKTU, pace = t, kal = Math.round(62 * 1.04 * (60 / 60) * 1 + 0.5) + Math.round(P.koin / 50);
-  const rows = [['Pelari', '@' + A.nama], ['BIB', '#0088'], ['Sepatu', sepatuAktif().nama], ['Jam', jamAktif().nama], ['Aksesori', gengsiAktif().nama], ['Rute', 'CFD Kotak Wetan'], ['Jarak', '1,00 KM'], ['Waktu', fmtWaktu(t)], ['Avg pace', fmtWaktu(pace) + ' /km'], ['Elevasi', '+9 m'], ['Kalori', (60 + Math.round(t / 6)) + ' kcal'], ['Koin W', P.koin.toLocaleString('id-ID')], ['Posisi', '#' + peringkat() + ' dari ' + (NPC.length + 1)], ['Isotonik', P.wsAmbil ? 'Diambil ✓' : 'Kelewat'], ['Rekor', baru ? 'BARU! ' + fmtWaktu(t0) : fmtWaktu(D.rekor)]];
+  const rows = [['Pelari', '@' + A.nama], ['BIB', '#0088'], ['Sepatu', sepatuAktif().nama], ['Jam', jamAktif().nama], ['Aksesori', gengsiAktif().nama], ['Rute', 'CFD Kotak Wetan'], ['Jarak', '1,00 KM'], ['Waktu', fmtWaktu(t)], ['Avg pace', fmtWaktu(pace) + ' /km'], ['Elevasi', '+9 m'], ['Kalori', (60 + Math.round(t / 6)) + ' kcal'], ['Koin 🪙', P.koin.toLocaleString('id-ID')], ['Posisi', '#' + peringkat() + ' dari ' + (NPC.length + 1)], ['Isotonik', P.wsAmbil ? 'Diambil ✓' : 'Kelewat'], ['Rekor', baru ? 'BARU! ' + fmtWaktu(t0) : fmtWaktu(D.rekor)]];
   $('struk').querySelector('.baris').innerHTML = rows.map(([a, b]) => `<div><span>${a}</span><b>${b}</b></div>`).join('');
   const cap = `Finish 1 KM CFD Kotak Wetan di Pelari Kalcer · Dunia Kotak 🏃‍♂️ pace ${fmtWaktu(pace)}/km, posisi #${peringkat()}. Kalcer dulu, PB kemudian. ${URL_KAMPANYE}`;
   $('fotoMedali').src = fotoMedali();
@@ -600,4 +644,4 @@ function ukur() { const w = innerWidth, h = innerHeight; R.setSize(w, h, false);
 addEventListener('resize', ukur); ukur();
 function putar(now) { const dt = Math.min(.05, (now - jamLalu) / 1000); jamLalu = now; if (mode !== 'jeda') langkah(dt); R.render(sc, kam); requestAnimationFrame(putar); }
 resetLari(); keLobi(); requestAnimationFrame((t) => { jamLalu = t; putar(t); });
-window.__pk = { P, get mode() { return mode; }, set mode(v) { mode = v; }, NPC, OBJ };
+window.__pk = { P, get mode() { return mode; }, set mode(v) { mode = v; }, NPC, OBJ, harga: () => Object.fromEntries([...TOKO.map((x) => [x.id, x.harga]), ...SEPATU, ...JAM, ...GENGSI, ...OUTFIT].filter((x) => Array.isArray(x) || x.harga).map((x) => Array.isArray(x) ? x : [x.id, x.harga])) };

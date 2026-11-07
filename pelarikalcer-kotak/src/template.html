@@ -28,7 +28,7 @@ button:focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
 .ubin em{position:absolute;top:-6px;right:-4px;background:var(--hijau);color:#fff;font-style:normal;font-size:9.5px;padding:2px 6px;border-radius:999px}
 .ubin em:empty{display:none}
 #dompet{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));padding:8px 14px;font-weight:900;font-size:16px;display:flex;gap:7px;align-items:center}
-#dompet i{width:20px;height:20px;border-radius:50%;background:var(--kuning);color:#8a5a10;font-style:normal;font-size:12px;display:grid;place-items:center}
+#dompet i{font-style:normal;font-size:17px;line-height:1}
 .laci{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));left:max(16px,env(safe-area-inset-left,0px));width:min(360px,calc(100vw - 32px));display:flex;flex-direction:column;overflow:hidden;z-index:5}
 .laci .kepala{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 6px}
 .laci h2{margin:0;font-size:20px;font-weight:900}
@@ -124,6 +124,12 @@ body.potret #hud .stat:nth-child(1){grid-area:1/1}body.potret #hud .stat:nth-chi
 body.potret #hud .stat:nth-child(3){grid-area:2/1}body.potret #hud .stat:nth-child(4){grid-area:2/2}body.potret #hud .stat:nth-child(5){grid-area:2/3}body.potret #bJeda{grid-area:1/4/3/5;align-self:center}
 body.potret .stat b{font-size:16px}body.potret .bar{width:100%}
 body.potret #hBuff{top:calc(104px + env(safe-area-inset-top,0px));flex-wrap:wrap;justify-content:center;width:calc(100vw - 24px)}
+#dPermata{display:flex;gap:7px;align-items:center;margin-left:8px}#dPermata[hidden]{display:none}
+.topup{display:grid;gap:10px;background:rgba(255,255,255,.06);border-radius:12px;padding:14px}.topup p{margin:0;font-size:13px}.topup .kecil{font-size:11.5px;color:var(--redup)}
+.topup .kode{background:var(--kuning);color:#3a2a00;font-weight:900;padding:4px 10px;border-radius:8px;font-size:15px}
+.topup .paket{display:grid;grid-template-columns:1fr 1fr;gap:8px}.topup .paket button{background:rgba(255,255,255,.1);border-radius:10px;padding:10px;display:grid;gap:2px;color:var(--teks)}.topup .paket small{color:var(--redup);font-size:11px}
+.topup a.utama{text-align:center;text-decoration:none;display:block}
+.bayarPakai{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--redup)}.bayarPakai button{background:rgba(255,255,255,.08);border-radius:999px;padding:6px 12px;font-weight:800;font-size:12px;color:var(--teks)}.bayarPakai button[aria-pressed=true]{background:var(--oranye);color:#fff}
 @media (prefers-reduced-motion:reduce){#bWS{animation:none}}
 </style></head><body>
 <canvas id="kanvas"></canvas>
@@ -137,7 +143,7 @@ body.potret #hBuff{top:calc(104px + env(safe-area-inset-top,0px));flex-wrap:wrap
     <button class="kaca" id="mRank"><span>🏆</span>Peringkat</button>
   </div>
 </section>
-<div id="dompet" class="kaca"><i>W</i><b id="hDompet">0</b></div>
+<div id="dompet" class="kaca"><i>🪙</i><b id="hDompet">0</b><span id="dPermata" hidden><i>💎</i><b id="hPermata">0</b></span></div>
 <section id="dAvatar" class="laci kaca" hidden aria-label="Avatar">
   <div class="kepala"><h2>Avatar</h2><button class="tutup" data-tutup aria-label="Tutup">✕</button></div>
   <div class="isi">
@@ -153,7 +159,7 @@ body.potret #hBuff{top:calc(104px + env(safe-area-inset-top,0px));flex-wrap:wrap
 </section>
 <section id="dToko" class="laci kaca" hidden aria-label="Toko Skena">
   <div class="kepala"><h2>Toko Skena</h2><button class="tutup" data-tutup aria-label="Tutup">✕</button></div>
-  <div class="pil tab" id="tabToko"><button class="chip" data-tab="bekal">🍌 Bekal</button><button class="chip" data-tab="sepatu">👟 Sepatu</button><button class="chip" data-tab="jam">⌚ Jam GPS</button><button class="chip" data-tab="gengsi">🕶️ Bergengsi</button><button class="chip" data-tab="outfit">👕 Outfit</button></div>
+  <div class="pil tab" id="tabToko"><button class="chip" data-tab="bekal">🍌 Bekal</button><button class="chip" data-tab="sepatu">👟 Sepatu</button><button class="chip" data-tab="jam">⌚ Jam GPS</button><button class="chip" data-tab="gengsi">🕶️ Bergengsi</button><button class="chip" data-tab="outfit">👕 Outfit</button><button class="chip" data-tab="topup">💎 Top Up</button></div>
   <div class="isi" id="daftarToko"></div>
 </section>
 <section id="dMap" class="laci kaca" hidden aria-label="Pilih map">
