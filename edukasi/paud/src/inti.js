@@ -459,9 +459,10 @@ function ajakanBeli(alasan) {
     <p style="margin:0 0 14px;font-size:16px;line-height:1.45">${alasan === 'guru' ? 'Mengganti soal dan menyimpan file game hanya tersedia di paket offline untuk guru.' : 'Ini versi contoh ' + CONTOH_SOAL + ' soal. Versi lengkap untuk kelas: semua soal, jalan tanpa internet, Mode Guru untuk ganti soal, dan tutorial untuk guru.'}</p>
     <a href="${LINK_BELI}" target="_blank" rel="noopener" style="display:block;background:#ffd23a;color:#1d2a1d;font-weight:800;font-size:18px;padding:13px 16px;border-radius:16px;text-decoration:none;box-shadow:0 5px 0 #c9a21d">🛒 Dapatkan paket lengkap</a>
     <a href="https://www.willoapparel.com/duniakotak/belajar/" style="display:block;margin-top:12px;font-weight:700;font-size:15px;color:#1d2a1d">Lihat semua paket game</a>
-    ${alasan === 'guru' ? '<button style="margin-top:12px;border:0;background:none;font:inherit;font-weight:700;color:#666;cursor:pointer">Tutup</button>' : ''}
+    <button style="margin-top:12px;border:0;background:none;font:inherit;font-weight:700;color:#666;cursor:pointer;padding:8px">${alasan === 'guru' ? 'Tutup' : '👀 Lihat lagi'}</button>
   </div>`;
-  const t = d.querySelector('button'); if (t) t.onclick = () => { d.remove(); _ajakanMuncul = false; };
+  // Tutup (guru): hilang. Lihat lagi (contoh selesai): pengunjung boleh melihat-lihat dunia game 20 detik, lalu ajakan muncul lagi
+  const t = d.querySelector('button'); if (t) t.onclick = () => { if (alasan === 'guru') { d.remove(); _ajakanMuncul = false; return; } d.hidden = true; setTimeout(() => { d.hidden = false; }, 20000); };
   document.body.appendChild(d);
 }
 function aturBintang(n, total) { if (CONTOH && n >= CONTOH_SOAL) setTimeout(() => ajakanBeli('soal'), 1800); const b = $('bintang'); if (!b) return; if (n > _bintangLalu) setTimeout(() => efek.bintang(), 250); _bintangLalu = n; b.innerHTML = Array.from({length: total}, (_, i) => `<span class="${i < n ? 'isi' : ''}">★</span>`).join(''); }
@@ -550,7 +551,9 @@ function pasangGuru() {
   $('bGuru').onclick = bukaGerbangGuru;
   $('guruTambah').onclick = () => { _draf.soal.push(Object.fromEntries(GURU.kolom.map(c => [c.k, '']))); gambarGuru(); const t = $('guruTabel'); t.parentElement.scrollTop = t.scrollHeight; };
   $('guruTempel').onclick = () => {
-    const baris = $('guruExcel').value.split(/\r?\n/).map(r => r.split(/\t|;/).map(s => s.trim())).filter(r => r.some(Boolean));
+    // baris dari Excel dipisah tab; tanpa tab (CSV) dipisah ';'. Sel berlebih digabung ke kolom terakhir (mis. pilihan 'a;b').
+    const nK = GURU.kolom.length;
+    const baris = $('guruExcel').value.split(/\r?\n/).map(r => { let c = r.split(r.includes('\t') ? '\t' : ';').map(s => s.trim()); if (c.length > nK) c = [...c.slice(0, nK - 1), c.slice(nK - 1).filter(Boolean).join(';')]; return c; }).filter(r => r.some(Boolean));
     if (!baris.length) return;
     // lewati baris judul kolom bila ada
     if (baris[0][0] && GURU.kolom[0] && baris[0][0].toLowerCase() === GURU.kolom[0].label.toLowerCase()) baris.shift();

@@ -91,6 +91,7 @@ body:has(#layarMulai:not([hidden])) .bawah,body:has(#layarMulai:not([hidden])) #
 .kecil.utama{background:var(--aksen);color:#fff}
 #panelGuru{align-items:stretch;user-select:text;-webkit-user-select:text;touch-action:auto}
 #panelGuru .kotak{max-width:900px;text-align:left;display:flex;flex-direction:column;max-height:100%;overflow:auto;padding:18px}
+#panelGuru .kotak>*{flex-shrink:0}
 #panelGuru h2{margin:0 0 6px;color:var(--aksen)}
 .gGulir{overflow:auto;flex:1 0 auto;min-height:180px;max-height:45vh;border:1px solid #eee;border-radius:12px;margin:8px 0}
 #guruTabel{border-collapse:collapse;width:100%;font-size:16px}

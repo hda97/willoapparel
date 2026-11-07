@@ -31,6 +31,10 @@ GAME = {
     'english': dict(judul='English Explorer', aksen='#1971c2', aksen2='#e7f5ff', ikon='🗺️', mapel='Bahasa Inggris', umum=True,
                     ajak='Jelajahi English Harbor bersama Nina!',
                     desk='Bahasa Inggris SD fase A, B, C: vocabulary, spelling, kalimat sederhana, percakapan, membaca.'),
+    # Adventure RPG Matematika (produk baru, disetujui Huda 7 Nov)
+    'hitung-rpg': dict(judul='Legenda Pulau Angka', aksen='#7048e8', aksen2='#efeaff', ikon='⚔️', mapel='Matematika', rpg=True, baru=True,
+                       soal='hitung', ajak='Kalahkan Raja Galat dengan kekuatan hitungan!',
+                       desk='Adventure RPG Matematika SD fase A, B, C: jelajahi pulau, kalahkan monster dengan menjawab soal.'),
 }
 
 CSS_SD = r"""
@@ -89,22 +93,36 @@ def html_sd(m, data, kode):
     return h.format(css=pb.CSS + CSS_SD, data=json.dumps(data, ensure_ascii=False, indent=1).replace('<', '\\u003c'), kode=kode, **m)
 
 
+def html_rpg(m, data, kode):
+    h = html_sd(m, data, kode).replace('· Game Edukasi SD', '· Adventure RPG Edukasi SD')
+    h = h.replace('</style>', CSS_RPG + '</style>', 1)
+    h = h.replace('<script type="module">', UI_RPG + '<script type="module">', 1)
+    return h
+
+
 def main():
     inti = (PAUD / 'src' / 'inti.js').read_text() + '\n' + (AKAR / 'src' / 'inti-sd.js').read_text()
     for gid, m in GAME.items():
         src = AKAR / 'src' / gid
-        data = json.loads((src / 'soal.json').read_text())
+        data = json.loads((AKAR / 'src' / m.get('soal', gid) / 'soal.json').read_text())
         data.setdefault('id', 'sd-' + gid)
         data.setdefault('judul', m['judul'])
+        if m.get('soal'):  # game yang meminjam soal game lain tetap memakai judulnya sendiri
+            data['judul'] = m['judul']
+            data['id'] = 'sd-' + gid
         umum = ('\n' + (AKAR / 'src' / 'petualang.js').read_text()) if m.get('umum') else ''
         kode = pb.bundel(inti + umum + '\n// ================= GAME SD: ' + gid + ' =================\n' + (src / 'game.js').read_text(), 'sd_' + gid)
         out = KELUAR / gid / 'index.html'
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(html_sd(m, data, kode))
+        out.write_text((html_rpg if m.get('rpg') else html_sd)(m, data, kode))
         print('✓', out.relative_to(AKAR.parent.parent), f'{out.stat().st_size // 1024} KB')
-    kartu = ''.join(f'<a class="k" style="--w:{m["aksen"]}" href="{gid}/"><div class="ik">{m["ikon"]}</div><small>{m["mapel"]}</small><h2>{m["judul"]}</h2><p>{m["desk"]}</p></a>' for gid, m in GAME.items())
+    urut = sorted((g for g in GAME.items() if not g[1].get('proto')), key=lambda g: not g[1].get('baru'))
+    kartu = ''.join(f'<a class="k{" kBaru" if m.get("baru") else ""}" style="--w:{m["aksen"]}" href="{gid}/">{"<span class=baru>BARU · Adventure RPG</span>" if m.get("baru") else ""}<div class="ik">{m["ikon"]}</div><small>{m["mapel"]}</small><h2>{m["judul"]}</h2><p>{m["desk"]}</p></a>' for gid, m in urut)
     (KELUAR / 'index.html').write_text(BERANDA.replace('{kartu}', kartu))
 
+
+CSS_RPG = open(AKAR / 'src' / 'hitung-rpg' / 'rpg.css').read() if (AKAR / 'src' / 'hitung-rpg' / 'rpg.css').exists() else ''
+UI_RPG = open(AKAR / 'src' / 'hitung-rpg' / 'rpg.html').read() if (AKAR / 'src' / 'hitung-rpg' / 'rpg.html').exists() else ''
 
 BERANDA = r"""<!doctype html>
 <html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -119,6 +137,7 @@ h1{text-align:center;margin:8px 0 2px;font-size:clamp(28px,7vw,44px)}p.sub{text-
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;max-width:1000px;margin:0 auto}
 a.k{display:block;background:var(--kartu);border-radius:26px;padding:22px 20px;text-decoration:none;color:inherit;box-shadow:0 7px 0 rgba(0,0,0,.12);border-top:10px solid var(--w)}
 a.k:active{transform:translateY(3px)}.ik{font-size:54px;line-height:1}.k small{font-weight:800;opacity:.6}.k h2{margin:2px 0 2px;color:var(--w);font-size:26px}.k p{margin:0;font-size:17px}
+a.k{position:relative}.baru{position:absolute;top:-14px;right:14px;background:#ffd43b;color:#2b2b2b;font-weight:800;font-size:13px;padding:3px 10px;border-radius:99px;box-shadow:0 3px 0 rgba(0,0,0,.15)}a.kBaru{grid-column:1/-1;background:linear-gradient(135deg,#7048e8,#5f3dc4);color:#fff}a.kBaru h2{color:#ffd43b}a.kBaru small{opacity:.85}
 .cat{max-width:760px;margin:26px auto 0;font-size:16px;opacity:.85;text-align:center}
 .beli{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px 18px;max-width:760px;margin:28px auto 0;padding:18px 20px;border-radius:24px;background:#e8590c;color:#fff;text-align:center;box-shadow:0 7px 0 rgba(0,0,0,.15)}.beli b{display:block;font-size:22px}.beli span{font-size:16px;opacity:.95}.beli a{display:inline-block;background:#ffd43b;color:#2b2b2b;font-weight:800;font-size:19px;padding:10px 22px;border-radius:16px;text-decoration:none}
 </style></head><body>
