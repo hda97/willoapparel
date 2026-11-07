@@ -271,7 +271,7 @@ function skorTim() {
 // ===================================================================
 let WS = null, _wsSiap = false;
 async function cekServer() {
-  if (!/^https?:$/.test(location.protocol) || DI_SITUS) return null;
+  if (!/^https?:$/.test(location.protocol) || CONTOH) return null;
   try { const r = await fetch('/api/info', {cache: 'no-store'}); if (!r.ok) return null; const j = await r.json(); return j && j.kelasDuniaKotak ? j : null; } catch (e) { return null; }
 }
 function sambungServer() {
