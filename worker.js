@@ -982,7 +982,7 @@ const MISI_SEPANJANG_HARI = true;
 // Misi pemula: [id, koin, permata]. Urutan HARUS sama dengan PEMULA di mabar/game.js. Total 100 koin = cukup beli hiasan pertama.
 const PEMULA = [["jalan", 10], ["tanam", 15], ["ambil", 15], ["sapa", 10], ["raka", 50, 10]];
 const PEMULA_BATAS_KOIN = 300;   // warga lama yang sudah kumpul ≥300 koin tidak ikut misi pemula
-const PEMULA_SALDO = 30;   // Huda 7 Nov: warga lama yang saldo koinnya < 30 juga ikut misi pemula
+const PEMULA_SALDO = 50;   // Huda 7 Nov: warga lama yang saldo koinnya < 50 juga ikut misi pemula
 // Hadiah hadir beruntun hari ke-1..7 (koin), lalu berulang.
 const HADIAH_HADIR = [10, 15, 20, 25, 30, 40, 60];
 const MISI_KOLAM = [["jalan", 10], ["sapa", 10], ["raka", 5], ["tetangga", 10], ["foto", 10], ["ambil", 10], ["mancing", 10], ["sungai", 5], ["lari", 5], ["kucing", 5], ["lompat", 5], ["fasum", 10], ["stadion", 5], ["npc", 10], ["supermarket", 5], ["rs", 5]];
