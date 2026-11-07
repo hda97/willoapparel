@@ -1,16 +1,18 @@
-// Legenda Pulau Angka: PROTOTIPE adventure RPG Matematika SD (fase A/B/C).
+// Petualang Ilmu: Legenda Nusantara. Adventure RPG edukasi SD (fase A/B/C) untuk SEMUA mapel.
 // Pemain bebas menjelajah (joystick / WASD / ketuk tanah), bicara dengan warga,
 // menjalankan misi bercerita, dan mengalahkan monster dengan MENJAWAB SOAL.
 // Jawaban benar = serangan, jawab cepat = kritis, 3 benar beruntun = Jurus.
 // Naik level, kumpulkan Rupiah, belanja di warung dengan uang pas, kalahkan Raja Galat.
-// Soal tetap dari Mode Guru (kolom sama dengan Petualang Hitung).
+// Soal dari Mode Guru: Fase | Mapel | Soal | Jawaban | Pilihan salah | Jenis hitung (opsional, Matematika).
 import {rumahMesh, warungMesh} from '../../public/duniakotak/mabar/js/aset/rumah.js';
 
 GURU.kolom = [
   {k: 'fase', label: 'Fase (A/B/C)', contoh: 'A'},
-  {k: 'jenis', label: 'Jenis (jembatan/gerbang/kasir/pecahan/luas/keliling)', contoh: 'gerbang'},
-  {k: 'soal', label: 'Soal', contoh: '7 + 5'},
-  {k: 'jawaban', label: 'Jawaban (boleh kosong bila soal hitungan)', contoh: ''},
+  {k: 'mapel', label: 'Mapel', contoh: 'IPAS'},
+  {k: 'soal', label: 'Soal', contoh: 'Hewan pemakan tumbuhan disebut ...'},
+  {k: 'jawaban', label: 'Jawaban benar (kosong = dihitung, khusus soal hitungan)', contoh: 'herbivora'},
+  {k: 'pilihan', label: 'Pilihan salah (pisah ;)', contoh: 'karnivora;omnivora'},
+  {k: 'jenis', label: 'Jenis hitung (opsional: kasir/pecahan/luas/keliling)', contoh: ''},
 ];
 GURU.pengaturan = [];
 GURU.terapkan = () => { siapkanSoal(); };
@@ -132,7 +134,7 @@ const maxHp = () => 50 + (S.lv - 1) * 12;
 const serang = () => 10 + (S.lv - 1) * 3 + (S.keris ? 6 : 2);
 const tahan = () => (S.perisai ? 3 : 0);
 const xpPerlu = () => 20 + (S.lv - 1) * 25;
-const kunciSave = () => 'rpg:' + location.pathname + ':' + (DATA_BAWAAN.id || '') + ':' + FASE_NOW;
+const kunciSave = () => 'rpg:' + location.pathname + ':' + (DATA_BAWAAN.id || '') + ':' + FASE_NOW + ':' + MAPEL_NOW;
 function simpan() { if (!S) return; try { localStorage.setItem(kunciSave(), JSON.stringify(S)); } catch (e) {} }
 function muat() { try { return JSON.parse(localStorage.getItem(kunciSave()) || 'null'); } catch (e) { return null; } }
 function tulisHud() {
@@ -156,17 +158,26 @@ function teksTerbang(teks, pos, kelas = '', naik = 2) { const p = keLayar(pos, n
 // SOAL: dari Mode Guru, diubah jadi soal pilihan ganda untuk pertarungan
 // ===================================================================
 const JENIS = ['jembatan', 'gerbang', 'kasir', 'pecahan', 'luas', 'keliling'];
-function soalSah(f) {
-  return (DATA.soal || []).map(s => ({fase: String(s.fase || 'A').trim().toUpperCase().charAt(0), jenis: String(s.jenis || 'gerbang').trim().toLowerCase(), soal: String(s.soal ?? '').trim(), jawaban: String(s.jawaban ?? '').trim()}))
-    .filter(s => s.soal && (!f || s.fase === f)).map(s => ({...s, jenis: JENIS.includes(s.jenis) ? s.jenis : 'gerbang'}));
+function soalSah(f, mp) {
+  return (DATA.soal || []).map(s => ({fase: String(s.fase || 'A').trim().toUpperCase().charAt(0), mapel: String(s.mapel || 'Umum').trim() || 'Umum', jenis: String(s.jenis || 'gerbang').trim().toLowerCase(), soal: String(s.soal ?? '').trim(), jawaban: String(s.jawaban ?? '').trim(), pilihan: String(s.pilihan ?? '').trim()}))
+    .filter(s => s.soal && (!f || s.fase === f) && (!mp || s.mapel === mp)).map(s => ({...s, jenis: JENIS.includes(s.jenis) ? s.jenis : 'gerbang'}));
+}
+// soal pilihan ganda biasa (semua mapel): jawaban benar + pilihan salah; bila pilihan salah kosong, ambil jawaban soal lain di mapel yang sama
+function soalPilihan(s, semua) {
+  let salah = s.pilihan.split(/\s*[;|]\s*/).filter(Boolean).filter(x => x !== s.jawaban);
+  if (!salah.length) salah = kocok([...new Set(semua.filter(o => o.mapel === s.mapel && o.jawaban && o.jawaban !== s.jawaban && isNaN(bacaAngka(o.jawaban)) === isNaN(bacaAngka(s.jawaban))).map(o => o.jawaban))]).slice(0, 3);
+  if (!salah.length) return null;
+  const opsi = kocok([{t: s.jawaban, b: true}, ...salah.slice(0, 3).map(t => ({t, b: false}))]);
+  return {jenis: 'pilih', mapel: s.mapel, teks: s.soal, ucap: s.soal.replace(/\.{3,}|…/g, ' titik-titik '), opsi, jaw: s.jawaban};
 }
 const opsiAngka = j => pengecoh(j, 4).map(v => ({t: fmt(v), b: sama(v, j)}));
-function ubahSoal(s) {
+function ubahSoal(s, semua = []) {
+  if (s.pilihan || (s.jawaban && isNaN(bacaAngka(s.jawaban)) && !['kasir', 'pecahan', 'luas', 'keliling'].includes(s.jenis))) return soalPilihan(s, semua);
   const jaw = bacaAngka(s.jawaban);
   if (s.jenis === 'kasir') {
     const m = s.soal.match(/^(.*?)\s*(?:rp\.?\s*)?([\d.,]+)\s*$/i); if (m) { const harga = bacaAngka(m[2]), nama = m[1].trim() || 'barang';
       const bayar = [1000, 2000, 5000, 10000, 20000, 50000, 100000].find(u => u > harga) || harga * 2;
-      const kembali = bayar - harga; return {jenis: s.jenis, teks: `Harga ${nama.toLowerCase()} ${rupiah(harga)}. Kamu bayar ${rupiah(bayar)}. Kembaliannya?`, ucap: `Harga ${nama} ${harga} rupiah. Kamu bayar ${bayar} rupiah. Berapa kembaliannya?`, opsi: pengecoh(kembali, 4).map(v => ({t: rupiah(v), b: sama(v, kembali)})), jaw: rupiah(kembali)}; }
+      const kembali = bayar - harga; return {jenis: s.jenis, teks: `Harga ${nama.toLowerCase()} ${rupiah(harga)}. Kamu bayar ${rupiah(bayar)}. Kembaliannya?`, ucap: `Harga ${nama} ${harga} rupiah. Kamu bayar ${bayar} rupiah. Berapa kembaliannya?`, opsi: kocok([kembali, ...kocok([500, 1000, -500, -1000, 2000].map(d => kembali + d).filter(v => v > 0 && v !== kembali)).slice(0, 3)]).map(v => ({t: rupiah(v), b: sama(v, kembali)})), jaw: rupiah(kembali)}; }
   }
   if (s.jenis === 'pecahan') {
     const m = s.soal.match(/(\d+)\s*\/\s*(\d+)/); if (m) { const a = +m[1], b = +m[2];
@@ -183,7 +194,7 @@ function ubahSoal(s) {
   const v = isFinite(jaw) && s.jawaban !== '' ? jaw : hitungEkspresi(s.soal);
   if (isFinite(v)) { const ekspr = !isNaN(hitungEkspresi(s.soal)) && s.jawaban === ''; const teks = ekspr ? tampilSoal(s.soal) + ' = ?' : s.soal;
     return {jenis: s.jenis, teks, ucap: ekspr ? ucapAngka(tampilSoal(s.soal)) + ' sama dengan berapa?' : s.soal, opsi: opsiAngka(v), jaw: fmt(v)}; }
-  if (s.jawaban) { const benar = s.jawaban; return {jenis: s.jenis, teks: s.soal, ucap: s.soal, opsi: [{t: benar, b: true}], jaw: benar}; }
+  if (s.jawaban) return soalPilihan(s, semua);
   return null;
 }
 // cadangan bila guru belum mengisi soal fase ini
@@ -194,10 +205,10 @@ function soalAcak() {
   else { op = pilih(['×', ':', '-']); if (op === ':') { b = acakInt(3, 12); a = b * acakInt(6, 15); } else if (op === '×') { a = acakInt(11, 25); b = acakInt(3, 9); } else { a = acakInt(500, 2000); b = acakInt(100, 499); } }
   return ubahSoal({jenis: 'gerbang', soal: `${a} ${op} ${b}`, jawaban: ''});
 }
-let ANTRE = [], POOL = [];
-function siapkanSoal() { POOL = soalSah(FASE_NOW).map(ubahSoal).filter(Boolean); ANTRE = []; }
+let ANTRE = [], POOL = [], MAPEL_NOW = '';
+function siapkanSoal() { const semua = soalSah(FASE_NOW); const dipakai = MAPEL_NOW ? semua.filter(q => q.mapel === MAPEL_NOW) : semua; POOL = dipakai.map(q => ubahSoal(q, semua)).filter(Boolean); ANTRE = []; }
 function ambilSoal(suka) {
-  if (!POOL.length) return soalAcak();
+  if (!POOL.length) return soalAcak(); // cadangan hitungan bila guru belum mengisi soal
   if (!ANTRE.length) ANTRE = kocok(POOL);
   if (suka) { const i = ANTRE.findIndex(q => suka.includes(q.jenis)); if (i >= 0) return ANTRE.splice(i, 1)[0]; }
   return ANTRE.pop();
@@ -280,7 +291,7 @@ const MISI = [
   {t: 'Masuk Hutan Candi, temui Mbah Wiryo', tuju: () => mbah},
   {t: 'Kalahkan Golem Batu penjaga benteng', tuju: () => golem.mesh.position},
   {t: 'Kalahkan Raja Galat!', tuju: () => raja.mesh.position},
-  {t: 'Pulau Angka aman! Jelajahi & naik level', tuju: () => null},
+  {t: 'Pulau Ilmu aman! Jelajahi & naik level', tuju: () => null},
 ];
 function teksMisi() { const m = MISI[S.Q]; return typeof m.t === 'function' ? m.t() : m.t; }
 function tulisMisi(baru) { $('misiT').textContent = teksMisi(); if (baru) { const e = $('misi'); e.classList.remove('baru'); void e.offsetWidth; e.classList.add('baru'); efek.kilau(); } }
@@ -330,14 +341,14 @@ async function soalMisi(judul, suka) {
 
 async function bicaraLurah() {
   if (S.Q === 0) {
-    await percakapan('Pak Lurah', [`Syukurlah kamu datang, ${heroDef.nama}!`, 'Raja Galat mencuri Kristal Angka dari menara desa. Sejak itu, monster galat bermunculan dan hitungan semua orang jadi kacau!', 'Monster itu hanya kalah oleh jawaban hitungan yang benar. Jawab soalnya untuk menyerang!', 'Coba dulu di padang utara desa. Kalahkan 3 Slime Galat ya!']);
+    await percakapan('Pak Lurah', [`Syukurlah kamu datang, ${heroDef.nama}!`, 'Raja Galat mencuri Kristal Ilmu dari menara desa. Sejak itu, monster galat bermunculan dan semua orang jadi lupa pelajaran!', 'Monster itu hanya kalah oleh jawaban hitungan yang benar. Jawab soalnya untuk menyerang!', 'Coba dulu di padang utara desa. Kalahkan 3 Slime Galat ya!']);
     aturMisi(1);
   } else if (S.Q === 2) {
-    await percakapan('Pak Lurah', ['Luar biasa! Para slime sudah kabur.', 'Ini Keris Angka peninggalan leluhur. Seranganmu jadi lebih kuat!', 'Benteng Raja Galat ada di seberang sungai, di balik Hutan Candi. Tapi jembatannya rusak. Temui Pak Tukang di tepi sungai.']);
-    if (!S.keris) { S.keris = true; banner('⚔ Keris Angka!', 'Serangan +4'); efek.bintang(); }
+    await percakapan('Pak Lurah', ['Luar biasa! Para slime sudah kabur.', 'Ini Keris Ilmu peninggalan leluhur. Seranganmu jadi lebih kuat!', 'Benteng Raja Galat ada di seberang sungai, di balik Hutan Candi. Tapi jembatannya rusak. Temui Pak Tukang di tepi sungai.']);
+    if (!S.keris) { S.keris = true; banner('⚔ Keris Ilmu!', 'Serangan +4'); efek.bintang(); }
     tambahUang(5000); teksTerbang('+Rp5.000', hero.position, 'hijau', 2.2); aturMisi(3);
   } else if (S.Q === 1) await dialog('Pak Lurah', `Slime Galat ada di padang utara. Baru ${S.slime} dari 3. Semangat!`);
-  else if (S.Q >= 7) await dialog('Pak Lurah', 'Pulau Angka aman berkat kamu! Monster yang tersisa masih bisa jadi latihan naik level.');
+  else if (S.Q >= 7) await dialog('Pak Lurah', 'Pulau Ilmu aman berkat kamu! Monster yang tersisa masih bisa jadi latihan naik level.');
   else await dialog('Pak Lurah', 'Hati-hati di jalan. Kalau terluka, minum air mancur ajaib di alun-alun ya!');
 }
 async function bicaraSari() {
@@ -355,7 +366,7 @@ async function bicaraKoki() {
 async function bicaraTukang() {
   if (S.Q < 3) { await dialog('Pak Tukang', 'Jembatan ini rusak diterjang monster. Temui Pak Lurah dulu ya.'); return; }
   if (S.Q > 3) { await dialog('Pak Tukang', 'Jembatannya kokoh! Hutan Candi ada di seberang.'); return; }
-  await dialog('Pak Tukang', 'Untuk menyambung jembatan, kita harus menghitung kayu dengan tepat. Bantu aku 3 kali ya!');
+  await dialog('Pak Tukang', 'Jembatan ajaib ini hanya tersambung oleh jawaban yang benar. Bantu aku 3 kali ya!');
   while (S.jembatan < 3) {
     await soalMisi(`🌉 Bangun jembatan (${S.jembatan + 1}/3)`, ['jembatan', 'luas', 'keliling']);
     S.jembatan++; await bangunJembatan(S.jembatan); tulisMisi(); simpan();
@@ -366,7 +377,7 @@ async function bicaraTukang() {
 async function bicaraMbah() {
   if (S.Q < 4) { await dialog('Mbah Wiryo', 'Hutan ini berbahaya, cu.'); return; }
   if (S.Q === 4) { await percakapan('Mbah Wiryo', ['Kamu pemberani, cu. Gerbang benteng dijaga Golem Batu.', 'Golem itu kuat. Jawab dengan cepat supaya seranganmu kritis, dan kumpulkan 3 jawaban benar beruntun untuk Jurus Kilat!', 'Kalau perlu, latihan dulu melawan jamur dan kelelawar di hutan supaya naik level.']); aturMisi(5); return; }
-  await dialog('Mbah Wiryo', S.Q >= 7 ? 'Kristal Angka sudah kembali. Terima kasih, cu.' : 'Semangat, cu! Benteng Raja Galat ada di utara.');
+  await dialog('Mbah Wiryo', S.Q >= 7 ? 'Kristal Ilmu sudah kembali. Terima kasih, cu.' : 'Semangat, cu! Benteng Raja Galat ada di utara.');
 }
 async function bangunJembatan(n) {
   const per = Math.ceil(papanJembatan.length / 3); const awal = (n - 1) * per;
@@ -491,7 +502,7 @@ async function mulaiTarung(m) {
   aturFokusTarung(hx, hz, o.position);
   banner(m.J.boss ? '👑 ' + m.J.nama : '⚔ ' + m.J.nama, m.J.boss ? 'Pertarungan bos!' : 'muncul!');
   if (m === golem) await dialog('Golem Batu', 'GRRR... TIDAK ADA YANG BOLEH LEWAT... KECUALI YANG PANDAI BERHITUNG!');
-  if (m === raja) await percakapan('Raja Galat', ['Hahaha! Jadi kamu yang mengalahkan Golem-ku?', 'Dengan Kristal Angka ini, semua hitungan di pulau akan SALAH selamanya!', 'Coba kalahkan aku kalau berani!']);
+  if (m === raja) await percakapan('Raja Galat', ['Hahaha! Jadi kamu yang mengalahkan Golem-ku?', 'Dengan Kristal Ilmu ini, semua jawaban di pulau akan SALAH selamanya!', 'Coba kalahkan aku kalau berani!']);
   await tunggu(400);
   tulisLawan(); tulisHud();
   while (m.hp > 0 && S.hp > 0 && !kabur) {
@@ -572,7 +583,7 @@ async function akhirCerita() {
   k.position.copy(raja.mesh.position).setY(1.5); P.sc.add(k); efek.kilau();
   await animasi(1.2, e => { k.position.y = 1.5 + e * 1.5; k.rotation.y = e * 8; });
   await terbangKe(k, hero.position.clone().setY(2.6), .8, 1); konfeti(hero.position.clone().setY(2.5), undefined, 140); efek.menang(); setMode(hero, 'senang', 3);
-  await percakapan(heroDef.nama, ['Kristal Angka berhasil kurebut kembali!']);
+  await percakapan(heroDef.nama, ['Kristal Ilmu berhasil kurebut kembali!']);
   P.sc.remove(k); aturMisi(7); simpan();
   bukaKartu(true);
 }
@@ -615,7 +626,7 @@ function bukaToko() {
 // ===================================================================
 function bukaTas() {
   if (MODE !== 'jelajah') return; MODE = 'menu';
-  $('tasIsi').innerHTML = `${heroDef.ikon} ${heroDef.nama} · Level ${S.lv}<br>❤ ${S.hp}/${maxHp()} · ⚔ Serangan ${serang()} · 🛡 Tahan ${tahan()}<br>💰 ${rupiah(S.uang)} · 🧪 Jamu ×${S.jamu}<br>${S.keris ? '⚔ Keris Angka' : '🗡 Pedang Kayu'}${S.perisai ? ' · 🛡 Perisai Rotan' : ''}<br>✅ Soal benar ${S.st.benar}/${S.st.jawab} · 👾 Monster ${S.st.monster}`;
+  $('tasIsi').innerHTML = `${heroDef.ikon} ${heroDef.nama} · Level ${S.lv}<br>❤ ${S.hp}/${maxHp()} · ⚔ Serangan ${serang()} · 🛡 Tahan ${tahan()}<br>💰 ${rupiah(S.uang)} · 🧪 Jamu ×${S.jamu}<br>${S.keris ? '⚔ Keris Ilmu' : '🗡 Pedang Kayu'}${S.perisai ? ' · 🛡 Perisai Rotan' : ''}<br>✅ Soal benar ${S.st.benar}/${S.st.jawab} · 👾 Monster ${S.st.monster}`;
   $('bTasJamu').disabled = !S.jamu || S.hp >= maxHp(); $('layarTas').hidden = false;
 }
 $('bTasJamu').onclick = () => { minumJamu(); $('layarTas').hidden = true; MODE = 'jelajah'; };
@@ -627,7 +638,7 @@ function gambarKartu() {
   const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#5f3dc4'); g.addColorStop(1, '#1f2a5a'); x.fillStyle = g; x.fillRect(0, 0, W, H);
   x.fillStyle = '#fffaf0'; x.beginPath(); x.roundRect(40, 40, W - 80, H - 80, 28); x.fill();
   x.textAlign = 'center'; x.fillStyle = '#7048e8'; x.font = '800 30px "Baloo 2", sans-serif'; x.fillText('🧾 KARTU PETUALANG', W / 2, 100);
-  x.fillStyle = '#212529'; x.font = '800 46px "Baloo 2", sans-serif'; x.fillText('LEGENDA PULAU ANGKA', W / 2, 152);
+  x.fillStyle = '#212529'; x.font = '800 46px "Baloo 2", sans-serif'; x.fillText('PETUALANG ILMU', W / 2, 152); x.font = '700 22px "Baloo 2", sans-serif'; x.fillStyle = '#7048e8'; x.fillText('Legenda Nusantara' + (MAPEL_NOW ? '  ·  ' + MAPEL_NOW : ''), W / 2, 182); x.fillStyle = '#212529';
   x.font = '90px sans-serif'; x.fillText(heroDef.ikon, W / 2, 262);
   x.font = '800 44px "Baloo 2", sans-serif'; x.fillText(heroDef.nama + '  ·  Level ' + S.lv, W / 2, 330);
   x.font = '700 24px "Baloo 2", sans-serif'; x.fillStyle = '#868e96'; x.fillText(FASE[FASE_NOW].nama + ' (' + FASE[FASE_NOW].kelas + ')  ·  ' + new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}), W / 2, 368);
@@ -639,7 +650,7 @@ function gambarKartu() {
   x.fillStyle = '#e8590c'; x.font = '800 22px "Baloo 2", sans-serif'; x.fillText('Supported by www.willoapparel.com', W / 2, 905);
 }
 function bukaKartu(tamat) {
-  MODE = 'menu'; $('kartuJudul').textContent = tamat ? '🏆 Pulau Angka Selamat!' : '🧾 Kartu Petualang'; gambarKartu(); $('layarKartu').hidden = false; if (tamat) efek.menang();
+  MODE = 'menu'; $('kartuJudul').textContent = tamat ? '🏆 Pulau Ilmu Selamat!' : '🧾 Kartu Petualang'; gambarKartu(); $('layarKartu').hidden = false; if (tamat) efek.menang();
 }
 $('bKartuUnduh').onclick = () => { const a = document.createElement('a'); a.href = $('kartuKanvas').toDataURL('image/png'); a.download = `kartu-petualang-${heroDef.nama.toLowerCase()}.png`; a.click(); };
 $('bKartuTutup').onclick = () => { $('layarKartu').hidden = true; MODE = 'jelajah'; $('joy').hidden = false; };
@@ -652,12 +663,21 @@ $('bTas').onclick = bukaTas;
 function keMenuFase() {
   MODE = 'menu'; $('hud').hidden = true; $('joy').hidden = true; $('bAksi').hidden = true; $('bTas').hidden = true; $('kompas').hidden = true;
   const j = {}; soalSah().forEach(s => { j[s.fase] = (j[s.fase] || 0) + 1; }); ['A', 'B', 'C'].forEach(f => { j[f] = j[f] || 10; });
-  pilihFase(j, f => { FASE_NOW = f; siapkanSoal(); const sv = muat();
+  pilihFase(j, f => { FASE_NOW = f; pilihMapel(() => { siapkanSoal(); const sv = muat();
     if (sv) { $('lanjutInfo').textContent = `${(HERO.find(h => h.id === sv.hero) || HERO[0]).nama} · Level ${sv.lv} · ${MISI[sv.Q] ? (typeof MISI[sv.Q].t === 'string' ? MISI[sv.Q].t : 'misi berjalan') : ''}`; $('layarLanjut').hidden = false;
       $('bLanjut').onclick = () => { $('layarLanjut').hidden = true; mulaiMain(sv); }; $('bBaru').onclick = () => { $('layarLanjut').hidden = true; pilihHero(); }; }
-    else pilihHero(); });
+    else pilihHero(); }); });
+}
+function pilihMapel(lanjut) {
+  const daftar = {}; soalSah(FASE_NOW).forEach(q => { daftar[q.mapel] = (daftar[q.mapel] || 0) + 1; });
+  const nama = Object.keys(daftar); if (nama.length <= 1) { MAPEL_NOW = nama[0] || ''; lanjut(); return; }
+  const IKON = {matematika: '🧮', 'bahasa indonesia': '📖', ipas: '🌿', ipa: '🔬', ips: '🗺️', 'bahasa inggris': '🇬🇧', pkn: '🇮🇩', pancasila: '🇮🇩', agama: '🕌', 'bahasa jawa': '🎭', seni: '🎨', informatika: '💻'};
+  $('heroDaftar').innerHTML = nama.map((m, i) => `<button class="heroK" data-m="${m.replace(/"/g, '&quot;')}" style="--w:${['#e8590c', '#c2255c', '#2b8a3e', '#1971c2', '#7048e8', '#e67700'][i % 6]}"><b>${IKON[m.toLowerCase()] || '📚'}</b><span>${m}</span><em>${daftar[m]} soal</em></button>`).join('') + `<button class="heroK" data-m="" style="--w:#495057"><b>🎲</b><span>Campur</span><em>semua mapel</em></button>`;
+  $('layarHero').querySelector('h1').textContent = 'Pilih Mapel'; $('layarHero').querySelector('p').textContent = 'Soal pelajaran apa yang dipakai untuk melawan monster?'; $('layarHero').hidden = false;
+  $('heroDaftar').querySelectorAll('.heroK').forEach(el => el.onclick = () => { efek.ketuk(); $('layarHero').hidden = true; MAPEL_NOW = el.dataset.m; lanjut(); });
 }
 function pilihHero() {
+  $('layarHero').querySelector('h1').textContent = 'Pilih Pahlawan'; $('layarHero').querySelector('p').textContent = 'Siapa yang akan menyelamatkan Pulau Ilmu?';
   $('heroDaftar').innerHTML = HERO.map((h, i) => `<button class="heroK" data-i="${i}" style="--w:${h.w}"><b>${h.ikon}</b><span>${h.nama}</span></button>`).join('');
   $('layarHero').hidden = false;
   $('heroDaftar').querySelectorAll('.heroK').forEach(el => el.onclick = () => { efek.ketuk(); $('layarHero').hidden = true; heroDef = HERO[+el.dataset.i]; mulaiMain(null); });
@@ -668,7 +688,7 @@ async function mulaiMain(sv) {
   terapkanDunia(); tulisHud(); tulisMisi(); simpan();
   fokusKam.copy(hero.position); jarakKam = jarakTuju = tegak() ? 27 : 18;
   $('hud').hidden = false; $('bTas').hidden = false; MODE = 'dialog';
-  if (!sv) await percakapan('Pencerita', ['Pulau Angka dulu damai dan semua orang pandai berhitung.', 'Suatu malam, Raja Galat mencuri Kristal Angka. Monster galat pun bermunculan!', `${heroDef.nama}, hanya kamu yang bisa menyelamatkan pulau. Gerakkan dengan joystick atau ketuk tanah. Ikuti panah kuning!`]);
+  if (!sv) await percakapan('Pencerita', ['Pulau Ilmu dulu damai dan semua orang gemar belajar.', 'Suatu malam, Raja Galat mencuri Kristal Ilmu. Monster galat pun bermunculan!', `${heroDef.nama}, hanya kamu yang bisa menyelamatkan pulau. Gerakkan dengan joystick atau ketuk tanah. Ikuti panah kuning!`]);
   MODE = 'jelajah'; $('joy').hidden = false; cekContoh();
 }
 
@@ -700,5 +720,5 @@ addEventListener('resize', () => { if (!lawan) jarakTuju = tegak() ? 27 : 18; })
 // tampilan menu: kamera melayang di atas desa
 { pasangHero(HERO[0]); fokusKam.set(0, 0, 14); fokusTuju.set(0, 0, 14); jarakKam = jarakTuju = 24; setMode(hero, 'lambai'); }
 loop();
-layarMulai(DATA.judul || 'Legenda Pulau Angka', 'Kalahkan Raja Galat dengan kekuatan hitungan!', keMenuFase);
+layarMulai(DATA.judul || 'Petualang Ilmu', 'Legenda Nusantara: kalahkan Raja Galat dengan jawabanmu!', keMenuFase);
 if (location.hash === '#uji') window.__uji = {get S() { return S; }, get MODE() { return MODE; }, hero: () => hero, monster, npc, mulaiTarung, bicara, jawab: i => { const b = $('tOpsi').querySelectorAll('button')[i]; b && b.click(); }, benar: () => { const bs = [...$('tOpsi').querySelectorAll('button')]; const q = bs.find(b => b.classList.contains('benar')); return bs; }, tp: (x, z) => hero.position.set(x, 0, z), P};

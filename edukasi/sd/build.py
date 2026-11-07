@@ -31,10 +31,10 @@ GAME = {
     'english': dict(judul='English Explorer', aksen='#1971c2', aksen2='#e7f5ff', ikon='🗺️', mapel='Bahasa Inggris', umum=True,
                     ajak='Jelajahi English Harbor bersama Nina!',
                     desk='Bahasa Inggris SD fase A, B, C: vocabulary, spelling, kalimat sederhana, percakapan, membaca.'),
-    # Adventure RPG Matematika (produk baru, disetujui Huda 7 Nov)
-    'hitung-rpg': dict(judul='Legenda Pulau Angka', aksen='#7048e8', aksen2='#efeaff', ikon='⚔️', mapel='Matematika', rpg=True, baru=True,
-                       soal='hitung', ajak='Kalahkan Raja Galat dengan kekuatan hitungan!',
-                       desk='Adventure RPG Matematika SD fase A, B, C: jelajahi pulau, kalahkan monster dengan menjawab soal.'),
+    # Adventure RPG semua mapel (produk baru, Huda 7 Nov); soal sendiri di src/hitung-rpg/soal.json
+    'hitung-rpg': dict(judul='Petualang Ilmu: Legenda Nusantara', aksen='#7048e8', aksen2='#efeaff', ikon='⚔️', mapel='Semua mapel', rpg=True, baru=True,
+                       ajak='Kalahkan Raja Galat dengan jawabanmu!',
+                       desk='Adventure RPG SD fase A, B, C untuk semua mapel: jelajahi pulau, kalahkan monster dengan menjawab soal. Soal bisa diganti guru.'),
 }
 
 CSS_SD = r"""
