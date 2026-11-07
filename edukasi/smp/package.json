@@ -1,0 +1,10 @@
+{
+  "name": "game-edukasi-smp",
+  "private": true,
+  "description": "Perakit paket game SMP Dunia Kotak: npm install lalu python3 build.py",
+  "devDependencies": {
+    "esbuild": "0.24.0",
+    "qrcode-generator": "1.4.4",
+    "three": "0.169.0"
+  }
+}
