@@ -1,0 +1,216 @@
+{
+ "judul": "Penjelajah Alam",
+ "urutan": "berurutan",
+ "soal": [
+  {
+   "fase": "A",
+   "jenis": "pilih",
+   "soal": "Bagian tumbuhan yang menyerap air dari tanah adalah ...",
+   "jawaban": "akar",
+   "pilihan": "daun;bunga"
+  },
+  {
+   "fase": "A",
+   "jenis": "pilih",
+   "soal": "🐄 Sapi termasuk hewan pemakan ...",
+   "jawaban": "tumbuhan",
+   "pilihan": "daging;segala"
+  },
+  {
+   "fase": "A",
+   "jenis": "kelompok",
+   "soal": "Makhluk hidup: kucing, pohon, ikan ; Benda mati: batu, meja, sepatu",
+   "jawaban": "Pisahkan makhluk hidup dan benda mati",
+   "pilihan": ""
+  },
+  {
+   "fase": "A",
+   "jenis": "susun",
+   "soal": "pagi, siang, sore, malam",
+   "jawaban": "Urutkan waktu dalam sehari",
+   "pilihan": ""
+  },
+  {
+   "fase": "A",
+   "jenis": "bacaan",
+   "soal": "Tubuh kita punya lima indra. Kita melihat dengan mata dan mendengar dengan telinga. | Alat indra untuk mendengar adalah ...",
+   "jawaban": "telinga",
+   "pilihan": "mata;hidung"
+  },
+  {
+   "fase": "A",
+   "jenis": "pilih",
+   "soal": "☀️ Matahari terbit di sebelah ...",
+   "jawaban": "timur",
+   "pilihan": "barat;utara"
+  },
+  {
+   "fase": "A",
+   "jenis": "kelompok",
+   "soal": "Sampah organik: daun kering, kulit pisang, sisa nasi ; Sampah anorganik: botol plastik, kaleng, kantong plastik",
+   "jawaban": "Buang sampah ke tong yang tepat",
+   "pilihan": ""
+  },
+  {
+   "fase": "A",
+   "jenis": "susun",
+   "soal": "biji, kecambah, tanaman muda, tanaman dewasa",
+   "jawaban": "Urutkan pertumbuhan tanaman",
+   "pilihan": ""
+  },
+  {
+   "fase": "A",
+   "jenis": "pilih",
+   "soal": "Kebiasaan sehat sebelum makan adalah ...",
+   "jawaban": "mencuci tangan",
+   "pilihan": "langsung tidur;bermain tanah"
+  },
+  {
+   "fase": "A",
+   "jenis": "bacaan",
+   "soal": "Keluarga Rani terdiri dari ayah, ibu, Rani, dan adik. Mereka saling membantu di rumah. | Siapa saja anggota keluarga Rani?",
+   "jawaban": "ayah, ibu, Rani, dan adik",
+   "pilihan": "kakek dan nenek;teman sekolah"
+  },
+  {
+   "fase": "B",
+   "jenis": "pilih",
+   "soal": "Proses tumbuhan membuat makanan sendiri disebut ...",
+   "jawaban": "fotosintesis",
+   "pilihan": "respirasi;evaporasi"
+  },
+  {
+   "fase": "B",
+   "jenis": "kelompok",
+   "soal": "Padat: batu, kayu, es batu ; Cair: air, susu, minyak ; Gas: uap air, udara, asap",
+   "jawaban": "Kelompokkan wujud benda",
+   "pilihan": ""
+  },
+  {
+   "fase": "B",
+   "jenis": "susun",
+   "soal": "telur, ulat, kepompong, kupu-kupu",
+   "jawaban": "Urutkan siklus hidup kupu-kupu",
+   "pilihan": ""
+  },
+  {
+   "fase": "B",
+   "jenis": "pilih",
+   "soal": "Gaya yang membuat benda jatuh ke bawah adalah gaya ...",
+   "jawaban": "gravitasi",
+   "pilihan": "magnet;gesek"
+  },
+  {
+   "fase": "B",
+   "jenis": "bacaan",
+   "soal": "Indonesia memiliki banyak suku bangsa. Setiap suku punya bahasa daerah, rumah adat, dan pakaian adat yang berbeda. Kita harus saling menghargai. | Sikap kita terhadap perbedaan suku adalah ...",
+   "jawaban": "saling menghargai",
+   "pilihan": "saling mengejek;tidak peduli"
+  },
+  {
+   "fase": "B",
+   "jenis": "kelompok",
+   "soal": "Herbivora: kambing, kelinci, kuda ; Karnivora: harimau, elang, buaya",
+   "jawaban": "Kelompokkan hewan sesuai makanannya",
+   "pilihan": ""
+  },
+  {
+   "fase": "B",
+   "jenis": "pilih",
+   "soal": "Es batu berubah menjadi air disebut ...",
+   "jawaban": "mencair",
+   "pilihan": "membeku;menguap"
+  },
+  {
+   "fase": "B",
+   "jenis": "susun",
+   "soal": "laut, penguapan, awan, hujan, sungai",
+   "jawaban": "Urutkan siklus air",
+   "pilihan": ""
+  },
+  {
+   "fase": "B",
+   "jenis": "bacaan",
+   "soal": "Pasar adalah tempat bertemunya penjual dan pembeli. Di pasar tradisional, pembeli bisa menawar harga. | Di pasar tradisional, pembeli bisa ...",
+   "jawaban": "menawar harga",
+   "pilihan": "meminjam barang;menjual rumah"
+  },
+  {
+   "fase": "B",
+   "jenis": "pilih",
+   "soal": "Sumber energi utama bagi bumi adalah ...",
+   "jawaban": "matahari",
+   "pilihan": "bulan;listrik"
+  },
+  {
+   "fase": "C",
+   "jenis": "pilih",
+   "soal": "Organ yang memompa darah ke seluruh tubuh adalah ...",
+   "jawaban": "jantung",
+   "pilihan": "paru-paru;lambung"
+  },
+  {
+   "fase": "C",
+   "jenis": "kelompok",
+   "soal": "Sumber energi terbarukan: matahari, angin, air ; Tidak terbarukan: minyak bumi, batu bara, gas alam",
+   "jawaban": "Kelompokkan sumber energi",
+   "pilihan": ""
+  },
+  {
+   "fase": "C",
+   "jenis": "susun",
+   "soal": "mulut, kerongkongan, lambung, usus halus, usus besar",
+   "jawaban": "Urutkan organ pencernaan",
+   "pilihan": ""
+  },
+  {
+   "fase": "C",
+   "jenis": "bacaan",
+   "soal": "Indonesia terletak di antara dua benua, yaitu Asia dan Australia, serta dua samudra, yaitu Hindia dan Pasifik. | Dua samudra yang mengapit Indonesia adalah ...",
+   "jawaban": "Hindia dan Pasifik",
+   "pilihan": "Atlantik dan Arktik;Hindia dan Atlantik"
+  },
+  {
+   "fase": "C",
+   "jenis": "pilih",
+   "soal": "Rantai makanan selalu diawali oleh ...",
+   "jawaban": "produsen (tumbuhan)",
+   "pilihan": "karnivora;pengurai"
+  },
+  {
+   "fase": "C",
+   "jenis": "kelompok",
+   "soal": "Konduktor: besi, tembaga, aluminium ; Isolator: kayu, plastik, karet",
+   "jawaban": "Pisahkan konduktor dan isolator listrik",
+   "pilihan": ""
+  },
+  {
+   "fase": "C",
+   "jenis": "pilih",
+   "soal": "Teks proklamasi kemerdekaan Indonesia dibacakan pada tanggal ...",
+   "jawaban": "17 Agustus 1945",
+   "pilihan": "20 Mei 1908;28 Oktober 1928"
+  },
+  {
+   "fase": "C",
+   "jenis": "susun",
+   "soal": "rumput, belalang, katak, ular, elang",
+   "jawaban": "Urutkan rantai makanan",
+   "pilihan": ""
+  },
+  {
+   "fase": "C",
+   "jenis": "bacaan",
+   "soal": "Gempa bumi bisa terjadi kapan saja. Saat gempa, lindungi kepala dan berlindung di bawah meja yang kuat, lalu keluar ke tempat terbuka setelah guncangan berhenti. | Saat terjadi gempa, kita harus ...",
+   "jawaban": "berlindung di bawah meja yang kuat",
+   "pilihan": "berlari di tangga;naik lift"
+  },
+  {
+   "fase": "C",
+   "jenis": "pilih",
+   "soal": "Contoh kegiatan ekonomi produksi adalah ...",
+   "jawaban": "petani menanam padi",
+   "pilihan": "ibu membeli beras;adik makan nasi"
+  }
+ ]
+}

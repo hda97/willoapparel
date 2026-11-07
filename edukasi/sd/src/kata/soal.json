@@ -1,0 +1,216 @@
+{
+ "judul": "Petualang Kata",
+ "urutan": "berurutan",
+ "soal": [
+  {
+   "fase": "A",
+   "jenis": "susun",
+   "soal": "bu-ku",
+   "jawaban": "Benda untuk membaca",
+   "pilihan": ""
+  },
+  {
+   "fase": "A",
+   "jenis": "susun",
+   "soal": "me-ja",
+   "jawaban": "Tempat menulis di kelas",
+   "pilihan": ""
+  },
+  {
+   "fase": "A",
+   "jenis": "pilih",
+   "soal": "🐱 Hewan ini namanya ...",
+   "jawaban": "kucing",
+   "pilihan": "kelinci;kambing"
+  },
+  {
+   "fase": "A",
+   "jenis": "pilih",
+   "soal": "Lawan kata BESAR adalah ...",
+   "jawaban": "kecil",
+   "pilihan": "tinggi;panjang"
+  },
+  {
+   "fase": "A",
+   "jenis": "kelompok",
+   "soal": "Benda: buku, pensil, meja ; Hewan: ayam, ikan, sapi",
+   "jawaban": "Kelompokkan kata benda dan nama hewan",
+   "pilihan": ""
+  },
+  {
+   "fase": "A",
+   "jenis": "bacaan",
+   "soal": "Budi punya bola merah. Budi bermain bola di lapangan. | Apa warna bola Budi?",
+   "jawaban": "merah",
+   "pilihan": "biru;hijau"
+  },
+  {
+   "fase": "A",
+   "jenis": "pilih",
+   "soal": "Huruf awal kata APEL adalah ...",
+   "jawaban": "A",
+   "pilihan": "E;P"
+  },
+  {
+   "fase": "A",
+   "jenis": "susun",
+   "soal": "sa-pu",
+   "jawaban": "Alat untuk membersihkan lantai",
+   "pilihan": ""
+  },
+  {
+   "fase": "A",
+   "jenis": "bacaan",
+   "soal": "Ani bangun pagi. Ani mandi lalu sarapan. | Apa yang Ani lakukan setelah mandi?",
+   "jawaban": "sarapan",
+   "pilihan": "tidur;bermain"
+  },
+  {
+   "fase": "A",
+   "jenis": "pilih",
+   "soal": "Kata yang ditulis dengan benar adalah ...",
+   "jawaban": "sekolah",
+   "pilihan": "sekola;sekolha"
+  },
+  {
+   "fase": "B",
+   "jenis": "pilih",
+   "soal": "Persamaan kata (sinonim) PANDAI adalah ...",
+   "jawaban": "pintar",
+   "pilihan": "malas;lambat"
+  },
+  {
+   "fase": "B",
+   "jenis": "pilih",
+   "soal": "Lawan kata (antonim) RAJIN adalah ...",
+   "jawaban": "malas",
+   "pilihan": "tekun;giat"
+  },
+  {
+   "fase": "B",
+   "jenis": "susun",
+   "soal": "Ibu | memasak | nasi | di | dapur",
+   "jawaban": "Susun menjadi kalimat yang benar",
+   "pilihan": ""
+  },
+  {
+   "fase": "B",
+   "jenis": "kelompok",
+   "soal": "Kata benda: rumah, sepeda, kursi ; Kata kerja: berlari, menulis, makan",
+   "jawaban": "Pisahkan kata benda dan kata kerja",
+   "pilihan": ""
+  },
+  {
+   "fase": "B",
+   "jenis": "bacaan",
+   "soal": "Kancil melihat buah timun di kebun Pak Tani. Kancil ingin memakannya, tetapi ia takut ketahuan. | Apa yang dilihat Kancil?",
+   "jawaban": "buah timun",
+   "pilihan": "buaya;Pak Tani tidur"
+  },
+  {
+   "fase": "B",
+   "jenis": "pilih",
+   "soal": "Kata baku yang benar adalah ...",
+   "jawaban": "sekolah",
+   "pilihan": "sekolahan;skolah"
+  },
+  {
+   "fase": "B",
+   "jenis": "susun",
+   "soal": "ke-le-la-war",
+   "jawaban": "Hewan yang terbang di malam hari",
+   "pilihan": ""
+  },
+  {
+   "fase": "B",
+   "jenis": "pilih",
+   "soal": "Tanda baca di akhir kalimat tanya adalah ...",
+   "jawaban": "?",
+   "pilihan": ".;!"
+  },
+  {
+   "fase": "B",
+   "jenis": "bacaan",
+   "soal": "Setiap Minggu, Rina membantu ayah menyiram tanaman. Tanaman di rumah Rina tumbuh subur. | Kapan Rina menyiram tanaman?",
+   "jawaban": "hari Minggu",
+   "pilihan": "setiap pagi;hari Senin"
+  },
+  {
+   "fase": "B",
+   "jenis": "kelompok",
+   "soal": "Kata sifat: cantik, tinggi, rajin ; Kata kerja: membaca, menyapu, melompat",
+   "jawaban": "Pisahkan kata sifat dan kata kerja",
+   "pilihan": ""
+  },
+  {
+   "fase": "C",
+   "jenis": "pilih",
+   "soal": "Kata berimbuhan yang tepat: Adik sedang ... (tulis) surat.",
+   "jawaban": "menulis",
+   "pilihan": "ditulis;tulisan"
+  },
+  {
+   "fase": "C",
+   "jenis": "pilih",
+   "soal": "Makna peribahasa \"Rajin pangkal pandai\" adalah ...",
+   "jawaban": "rajin belajar membuat pandai",
+   "pilihan": "pandai itu malas;rajin itu lelah"
+  },
+  {
+   "fase": "C",
+   "jenis": "susun",
+   "soal": "Kami | bergotong royong | membersihkan | lingkungan | sekolah",
+   "jawaban": "Susun kalimat yang padu",
+   "pilihan": ""
+  },
+  {
+   "fase": "C",
+   "jenis": "bacaan",
+   "soal": "Hutan memiliki banyak manfaat. Hutan menghasilkan oksigen, menjadi rumah bagi hewan, dan mencegah banjir. Karena itu, hutan harus kita jaga. | Apa gagasan utama paragraf tersebut?",
+   "jawaban": "hutan bermanfaat dan harus dijaga",
+   "pilihan": "hewan tinggal di hutan;banjir sering terjadi"
+  },
+  {
+   "fase": "C",
+   "jenis": "kelompok",
+   "soal": "Fakta: Matahari terbit di timur, Air mendidih saat dipanaskan ; Opini: Nasi goreng paling enak, Warna biru paling indah",
+   "jawaban": "Pisahkan fakta dan opini",
+   "pilihan": ""
+  },
+  {
+   "fase": "C",
+   "jenis": "pilih",
+   "soal": "Kata yang termasuk kata serapan adalah ...",
+   "jawaban": "komputer",
+   "pilihan": "meja;sawah"
+  },
+  {
+   "fase": "C",
+   "jenis": "pilih",
+   "soal": "Kalimat yang menggunakan huruf kapital dengan benar adalah ...",
+   "jawaban": "Kami pergi ke Bandung.",
+   "pilihan": "kami pergi ke bandung.;Kami Pergi ke bandung."
+  },
+  {
+   "fase": "C",
+   "jenis": "bacaan",
+   "soal": "Dina ingin membeli buku cerita. Ia menabung sisa uang jajannya setiap hari. Setelah satu bulan, uangnya cukup untuk membeli buku. | Sifat Dina yang dapat ditiru adalah ...",
+   "jawaban": "rajin menabung",
+   "pilihan": "suka jajan;malas belajar"
+  },
+  {
+   "fase": "C",
+   "jenis": "susun",
+   "soal": "in-for-ma-si",
+   "jawaban": "Pesan atau berita yang kita terima",
+   "pilihan": ""
+  },
+  {
+   "fase": "C",
+   "jenis": "kelompok",
+   "soal": "Kalimat tanya: Kapan kamu datang?, Siapa namamu? ; Kalimat perintah: Tutup pintunya!, Buanglah sampah pada tempatnya!",
+   "jawaban": "Pisahkan kalimat tanya dan kalimat perintah",
+   "pilihan": ""
+  }
+ ]
+}

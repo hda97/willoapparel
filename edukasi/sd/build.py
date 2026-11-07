@@ -22,6 +22,15 @@ GAME = {
     'hitung': dict(judul='Petualang Hitung', aksen='#e8590c', aksen2='#fff1e0', ikon='🧮', mapel='Matematika',
                    ajak='Jelajahi Pulau Angka bersama Dimas!',
                    desk='Matematika SD fase A, B, C: operasi hitung, uang, pecahan, luas dan keliling.'),
+    'kata': dict(judul='Petualang Kata', aksen='#c2255c', aksen2='#fff0f6', ikon='📖', mapel='Bahasa Indonesia', umum=True,
+                 ajak='Jelajahi Kampung Kata bersama Sari!',
+                 desk='Bahasa Indonesia SD fase A, B, C: suku kata, kosakata, membaca pemahaman, jenis kata.'),
+    'alam': dict(judul='Penjelajah Alam', aksen='#2b8a3e', aksen2='#ebfbee', ikon='🌿', mapel='IPAS', umum=True,
+                 ajak='Jelajahi Lembah Alam bersama Bayu!',
+                 desk='IPAS SD fase A, B, C: tumbuhan, hewan, wujud benda, siklus, tubuh, energi, sosial budaya.'),
+    'english': dict(judul='English Explorer', aksen='#1971c2', aksen2='#e7f5ff', ikon='🗺️', mapel='Bahasa Inggris', umum=True,
+                    ajak='Jelajahi English Harbor bersama Nina!',
+                    desk='Bahasa Inggris SD fase A, B, C: vocabulary, spelling, kalimat sederhana, percakapan, membaca.'),
 }
 
 CSS_SD = r"""
@@ -48,6 +57,8 @@ CSS_SD = r"""
 @media (min-aspect-ratio:1/1) and (min-width:700px){#kartu{max-width:30vw;font-size:clamp(22px,2.8vw,38px);white-space:normal}
  #numpad{position:fixed;right:14px;top:78px;width:min(290px,30vw)}#npTombol{grid-template-columns:repeat(3,1fr)}#npTombol button{padding:3px 0;font-size:22px}#npIsi{min-height:44px;font-size:28px}
  body:has(#numpad:not([hidden])) #gelembung{margin-right:min(300px,31vw);max-width:calc(100vw - min(300px,31vw) - 40px)}}
+#kartu.bacaan small{font-size:clamp(15px,3.9vw,20px)}
+@media (min-aspect-ratio:1/1) and (min-width:700px){#kartu.bacaan{max-width:36vw;max-height:62vh;overflow:auto}body:has(#kartu.bacaan:not([hidden])) #pilihan{padding-left:min(38vw,460px)}#kartu.bacaan small{font-size:clamp(14px,1.5vw,19px)}}
 @media (max-width:520px){#numpad{padding:8px}#npTombol button{font-size:22px;padding:4px 0}#npIsi{font-size:28px;min-height:44px}}
 """
 
@@ -84,7 +95,8 @@ def main():
         data = json.loads((src / 'soal.json').read_text())
         data.setdefault('id', 'sd-' + gid)
         data.setdefault('judul', m['judul'])
-        kode = pb.bundel(inti + '\n// ================= GAME SD: ' + gid + ' =================\n' + (src / 'game.js').read_text(), 'sd_' + gid)
+        umum = ('\n' + (AKAR / 'src' / 'petualang.js').read_text()) if m.get('umum') else ''
+        kode = pb.bundel(inti + umum + '\n// ================= GAME SD: ' + gid + ' =================\n' + (src / 'game.js').read_text(), 'sd_' + gid)
         out = KELUAR / gid / 'index.html'
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(html_sd(m, data, kode))
