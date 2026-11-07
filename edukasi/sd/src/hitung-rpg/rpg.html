@@ -1,0 +1,71 @@
+
+<!-- ======== UI ADVENTURE RPG ======== -->
+<div id="hud" hidden>
+  <div class="hKartu">
+    <div id="hIkon">👦</div>
+    <div class="hIsi">
+      <div class="hNama"><b id="hNama">Dimas</b> <span id="hLv">Lv 1</span></div>
+      <div class="bar hp"><i id="hHp"></i><span id="hHpT">50/50</span></div>
+      <div class="bar xp"><i id="hXp"></i></div>
+    </div>
+  </div>
+  <div class="hChip" id="hUang">💰 Rp0</div>
+  <div id="misi"><small>MISI</small><span id="misiT">-</span></div>
+</div>
+<button class="bulat" id="bTas" title="Tas" hidden>🎒</button>
+<div id="joy" hidden><div id="joyBola"></div></div>
+<button id="bAksi" hidden>💬<small>Bicara</small></button>
+<div id="kompas" hidden>➤</div>
+<div id="dialog" hidden>
+  <div id="dNama">Pak Lurah</div>
+  <div id="dTeks"></div>
+  <div id="dPilih"></div>
+  <div id="dLanjut">▶ Ketuk untuk lanjut</div>
+</div>
+<div id="tarung" hidden>
+  <div id="tMonster"><div class="tmNama"><b id="tmNama">Slime Galat</b> <span id="tmLv"></span></div><div class="bar mhp"><i id="tmHp"></i><span id="tmHpT"></span></div></div>
+  <div id="tSoal">
+    <div id="tWaktu"><i></i><span>⚡ Jawab cepat = serangan kritis!</span></div>
+    <div id="tTanya"></div>
+    <div id="tOpsi"></div>
+    <div id="tAksi">
+      <button id="bJurus" disabled>⚡ Jurus <span id="jurusIsi">0/3</span></button>
+      <button id="bJamuT">🧪 Jamu <span id="jamuN">0</span></button>
+      <button id="bKabur">🏃 Kabur</button>
+    </div>
+  </div>
+</div>
+<div id="lapisTeks"></div>
+<div class="layar" id="layarHero" hidden><div class="kotak">
+  <h1>Pilih Pahlawan</h1><p>Siapa yang akan menyelamatkan Pulau Ilmu?</p>
+  <div id="heroDaftar"></div>
+</div></div>
+<div class="layar" id="layarLanjut" hidden><div class="kotak">
+  <div class="ikonBesar">📜</div><h1>Lanjutkan?</h1><p id="lanjutInfo"></p>
+  <button class="besar" id="bLanjut">▶ Lanjutkan</button><br><button class="kecil" id="bBaru" style="margin-top:12px">Mulai petualangan baru</button>
+</div></div>
+<div class="layar" id="layarToko" hidden><div class="kotak">
+  <h1>🏪 Warung Bu Sari</h1><p class="tokoUang">Uangmu: <b id="tokoUang">Rp0</b></p>
+  <div id="tokoDaftar"></div>
+  <div id="tokoBayar" hidden>
+    <p id="tokoHarga"></p>
+    <div id="tokoDibayar">Dibayar: <b>Rp0</b></div>
+    <div id="tokoUangan"></div>
+    <div><button class="kecil" id="bTokoUlang">↺ Ulang</button><button class="kecil utama" id="bTokoOk" disabled>✔ Bayar</button></div>
+  </div>
+  <button class="kecil" id="bTokoTutup" style="margin-top:10px">Tutup</button>
+</div></div>
+<div class="layar" id="layarTas" hidden><div class="kotak">
+  <h1>🎒 Tas</h1>
+  <div id="tasIsi"></div>
+  <div class="tasTombol"><button class="kecil utama" id="bTasJamu">🧪 Minum Jamu</button><button class="kecil" id="bTasKartu">🧾 Kartu Petualang</button><button class="kecil" id="bTasFase">Ganti fase</button><button class="kecil" id="bTasTutup">Tutup</button></div>
+  <a class="waWillo" href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20saya%20mau%20tanya%20kaos%20kelas" target="_blank" rel="noopener">💬 Kaos kelas custom? WA Willo 0858-1690-0722</a>
+</div></div>
+<div class="layar" id="layarKartu" hidden><div class="kotak kKartu">
+  <h1 id="kartuJudul">Petualangan Selesai!</h1>
+  <canvas id="kartuKanvas" width="720" height="960"></canvas>
+  <div class="tasTombol"><button class="kecil utama" id="bKartuUnduh">⬇ Simpan kartu</button><button class="kecil" id="bKartuTutup">Lanjut jelajah</button></div>
+  <a class="iklanWillo" href="https://www.willoapparel.com/kaos-kelas.html?utm_source=game-sd-rpg" target="_blank" rel="noopener"><span class="wK" aria-hidden="true"></span><span class="wT"><small>IKLAN · KAOS KELAS</small><b>Satu kelas, beda nama.</b><i>Desain gratis, mulai 1 pcs</i></span><em>Lihat →</em></a>
+  <a class="waWillo" href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20saya%20mau%20tanya%20kaos%20kelas" target="_blank" rel="noopener">💬 WA Willo 0858-1690-0722</a>
+  <a class="dukung" href="https://www.willoapparel.com" target="_blank" rel="noopener">Supported by <b>www.willoapparel.com</b></a>
+</div></div>

@@ -140,7 +140,7 @@ async function masukGoogle(credential, isi) {
   } catch (e) { const g2 = $('galatMasuk'); if (g2) g2.textContent = e.message; }
 }
 function selesaiMasuk(s) {
-  if (s) { S.saya = s; S.kunci = s.kunci; S.hias = s.hias || null; simpan('dk_warga', {no: s.no, ig: s.ig, kunci: s.kunci}); muatTasServer(s); }
+  if (s) { S.saya = s; S.kunci = s.kunci; S.hias = s.hias || null; muatPemula(s); aturHadir(s.hadir); simpan('dk_warga', {no: s.no, ig: s.ig, kunci: s.kunci}); muatTasServer(s); }
   $('masuk').hidden = true;
   if (!S.tamu && !baca('dk_aturan')) { $('aturan').hidden = false; $('setujuAturan').onclick = () => { simpan('dk_aturan', '1'); $('aturan').hidden = true; lanjutAvatar(); }; }
   else lanjutAvatar();
@@ -664,6 +664,9 @@ function undiMisi(hari) {
 }
 let MISI = [];
 const BONUS_MISI = 20;
+// 7 Nov 2026 (lima menit pertama): misi harian dibuka sepanjang hari, koin 1x; saat Jam Kumpul Warga koin 2x. Sama dengan worker.js.
+const MISI_SEPANJANG_HARI = true;
+const kaliKoin = () => jamKumpul() ? 2 : 1;
 const hariIni = () => new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
 const MS = {p: {}, selesai: new Set(), kirim: new Set(), t: ''};
 function muatMisi() {
@@ -679,7 +682,8 @@ function tandaKoin() {
 }
 let simpanMisiT = 0;
 function misiMaju(id, n = 1, kunciUnik) {
-  if (S.tamu || !S.saya || !jamKumpul()) return;
+  pemulaMaju(id, n);
+  if (S.tamu || !S.saya || !(MISI_SEPANJANG_HARI || jamKumpul())) return;
   if (MS.t !== hariIni()) { MS.t = hariIni(); MISI = undiMisi(MS.t); MS.p = {}; MS.selesai = new Set(); }
   const m = MISI.find(x => x.id === id); if (!m || MS.selesai.has(id)) return;
   if (kunciUnik != null) { const a = MS.p[id] = Array.isArray(MS.p[id]) ? MS.p[id] : []; if (a.includes(kunciUnik)) return; a.push(kunciUnik); }
@@ -704,15 +708,128 @@ function tulisMisi() {
   $('isiMisi').innerHTML = MISI.map(m => {
     const p = progresMisi(m), ok = MS.selesai.has(m.id);
     return `<div class="misi ${ok ? 'ok' : ''}"><span class="mi">${ok ? '✅' : m.ikon}</span><div><b>${esc(m.judul)}</b>
-      <div class="bar"><i style="width:${Math.round(100 * (ok ? 1 : p / m.target))}%"></i></div><small>${ok ? 'Selesai' : m.target > 1 ? `${p}/${m.target} ${m.satuan || ''}` : 'Belum'}</small>${!ok && m.info ? `<small class="info">📍 ${esc(m.info)}</small>` : ''}${!ok && m.antar ? `<button class="antar" data-antar="${m.antar}">🧭 Antar ke sana</button>` : ''}</div><span class="koin">+${m.koin * 2} 🪙</span></div>`;
-  }).join('') + `<div class="misi bonus ${MS.selesai.has('bonus') ? 'ok' : ''}"><span class="mi">🎁</span><div><b>Bonus: selesaikan semua misi</b><small>${MS.selesai.has('bonus') ? 'Sudah diambil' : `Otomatis masuk setelah ${MISI.length} misi selesai`}</small></div><span class="koin">+${BONUS_MISI * 2} 🪙</span></div>`;
+      <div class="bar"><i style="width:${Math.round(100 * (ok ? 1 : p / m.target))}%"></i></div><small>${ok ? 'Selesai' : m.target > 1 ? `${p}/${m.target} ${m.satuan || ''}` : 'Belum'}</small>${!ok && m.info ? `<small class="info">📍 ${esc(m.info)}</small>` : ''}${!ok && m.antar ? `<button class="antar" data-antar="${m.antar}">🧭 Antar ke sana</button>` : ''}</div><span class="koin">+${m.koin * kaliKoin()} 🪙</span></div>`;
+  }).join('') + `<div class="misi bonus ${MS.selesai.has('bonus') ? 'ok' : ''}"><span class="mi">🎁</span><div><b>Bonus: selesaikan semua misi</b><small>${MS.selesai.has('bonus') ? 'Sudah diambil' : `Otomatis masuk setelah ${MISI.length} misi selesai`}</small></div><span class="koin">+${BONUS_MISI * kaliKoin()} 🪙</span></div>`;
+  $('isiMisi').innerHTML = barisPemula() + barisHadir() + $('isiMisi').innerHTML;
   const isiTas = Object.entries(tas).map(([n, v]) => `${v.ikon} ${n} ×${v.n}`).join(' · ');
   $('isiMisi').innerHTML += `<div class="misi"><span class="mi">🎒</span><div><b>Tasmu</b><small>${isiTas ? esc(isiTas) : 'Masih kosong. Ambil barang di jalan atau mancing di sungai.'}</small></div><span></span></div>`;
   const buka = jamKumpul();
-  $('ringkasMisi').textContent = buka ? `${sesiKini().ikon} ${sesiKini().nama}: misi DIBUKA sampai ${jamTeks(sesiKini().j[1])} WIB, koin 2x! Koinmu: 🪙 ${S.saya?.koin || 0} · Hari ini bisa dapat ${total * 2} koin.`
+  $('ringkasMisi').textContent = buka ? `${sesiKini().ikon} ${sesiKini().nama}: koin misi 2x sampai ${jamTeks(sesiKini().j[1])} WIB! Koinmu: 🪙 ${S.saya?.koin || 0} · Hari ini bisa dapat ${total * 2} koin.`
+    : MISI_SEPANJANG_HARI ? `Misi bisa dikerjakan kapan saja hari ini. Mau koin 2x? Kerjakan saat Jam Kumpul Warga: ${sesiBerikut().ikon} ${sesiBerikut().nama} ${jamTeks(sesiBerikut().j[0])} WIB. Koinmu: 🪙 ${S.saya?.koin || 0}.`
     : `🔒 Misi hanya bisa dikerjakan saat Jam Kumpul Warga (${daftarSesi()} WIB), bareng warga lain, koin 2x. Berikutnya: ${sesiBerikut().ikon} ${sesiBerikut().nama} ${jamTeks(sesiBerikut().j[0])}. Koinmu: 🪙 ${S.saya?.koin || 0}.`;
 }
 document.addEventListener('click', e => { const b = e.target.closest?.('[data-antar]'); if (!b) return; $('panelMisi').hidden = true; pergiKe(+b.dataset.antar); });
+// ---------- Lima menit pertama (7 Nov 2026): misi pemula berurutan + hadiah hadir beruntun ----------
+// Satu tujuan saja di layar (chip 🎯), tiap langkah langsung dapat koin. Urutan & koin HARUS sama dengan PEMULA di worker.js.
+const PEMULA = [
+  {id: 'jalan', ikon: '👣', judul: 'Jalan masuk ke pekaranganmu', petunjuk: 'Dorong joystick kiri bawah · laptop: WASD', target: 20, satuan: 'langkah', koin: 10},
+  {id: 'tanam', ikon: '🌱', judul: 'Tanam tomat di kebunmu', petunjuk: 'Dekat rumah, tekan 🌱 Tanam (gratis) · ketuk untuk diantar', target: 1, koin: 15},
+  {id: 'ambil', ikon: '✋', judul: 'Ambil kotak bercahaya', petunjuk: 'Dekati kotak yang menyala, tekan ✋ Ambil', target: 1, koin: 15},
+  {id: 'sapa', ikon: '👋', judul: 'Sapa warga', petunjuk: 'Ketuk 👋 di kotak chat', target: 1, koin: 10},
+  {id: 'raka', ikon: '⭐', judul: 'Temui Raka & Oyen', petunjuk: 'Ketuk di sini, kamu diantar', target: 1, koin: 50, permata: 10},
+];
+const PM = {s: [], boleh: false, p: {}, kirim: false, sorot: null};
+const pemulaKini = () => PM.boleh ? PEMULA.find(x => !PM.s.includes(x.id)) || null : null;
+function muatPemula(s) {
+  PM.s = (s && s.pemula && s.pemula.s) || []; PM.boleh = !!(s && s.pemula && s.pemula.boleh);
+  const l = bacaJ('dk_pemula') || {}; PM.p = l.no === S.saya?.no ? l.p || {} : {};
+}
+function pemulaMaju(id, n = 1) {
+  const m = pemulaKini(); if (!m || m.id !== id || S.tamu || !S.saya) return;
+  PM.p[id] = (PM.p[id] || 0) + n; simpan('dk_pemula', {no: S.saya.no, p: PM.p});
+  if (PM.p[id] >= m.target) klaimPemula(m); else tulisTujuan();
+}
+async function klaimPemula(m) {
+  if (PM.kirim) return; PM.kirim = true;
+  try {
+    const r = await api('pemula', {kunci: S.kunci, id: m.id});
+    S.saya.koin = r.koin; S.saya.permata = r.permata; if (r.pemula) { PM.s = r.pemula.s; PM.boleh = r.pemula.boleh; }
+    hitungOnline(); bunyi('masuk');
+    if (r.pemula?.dapat) { koinTerbang(`+${r.pemula.dapat} 🪙${m.permata ? ` +${m.permata} 💎` : ''}`); toast(`✅ ${m.judul}! +${r.pemula.dapat} koin`, 2600); }
+    if (!pemulaKini()) setTimeout(pemulaTamat, 900);
+  } catch (e) { setTimeout(() => { PM.kirim = false; if (pemulaKini() === m && (PM.p[m.id] || 0) >= m.target) klaimPemula(m); }, 5000); return; }
+  PM.kirim = false; tulisTujuan(); siapkanLangkah();
+  if (rute.titik && rute.tujuan && /^(kotak bercahaya|kebunmu|Raka)/.test(rute.tujuan.nama)) hapusRute();   // tujuan sudah tercapai
+}
+// Langkah yang butuh bantuan: kotak bercahaya ditaruh dekat, tombol yang dipakai disorot.
+function siapkanLangkah() {
+  const m = pemulaKini();
+  if (PM.sorot) PM.sorot.classList.remove('sorot'); PM.sorot = null;
+  if (PM.bukaChat && m?.id !== 'sapa') { PM.bukaChat = false; $('chat').hidden = true; $('bBukaChat').hidden = false; tataHUD(); }   // chat dibuka otomatis untuk menyapa → kecilkan lagi
+  if (!m) return;
+  const b = {tanam: $('sTanam'), ambil: $('sAmbil'), sapa: $('chat').querySelector('.cepat [data-e="sapa"]')}[m.id];
+  if (b) { b.classList.add('sorot'); PM.sorot = b; }
+  if (m.id === 'sapa' && $('chat').hidden) { $('chat').hidden = false; $('bBukaChat').hidden = true; PM.bukaChat = true; tataHUD(); }
+  if (m.id === 'ambil') taruhItemDekat();
+}
+function taruhItemDekat() {
+  const me = tokoh.saya; if (!me || dekatItem(me)) return;
+  const arah = me.rotation.y;
+  for (let c = 0; c < 40; c++) {
+    const a = arah + (c % 2 ? 1 : -1) * c * .18, r = (5 + (c % 4)) * VS, x = me.position.x + Math.sin(a) * r, z = me.position.z + Math.cos(a) * r;
+    if (!bebas(x, z)) continue;
+    const j = ITEM[c % ITEM.length]; j.mat = j.mat || new THREE.MeshLambertMaterial({color: j.w, emissive: j.w, emissiveIntensity: .35});
+    const it = new THREE.Mesh(geomItem, j.mat), y0 = tanah(x, z); it.position.set(x, y0 + 1.4, z); it.userData = {jenis: j, ph: 0, y0}; sc.add(it); itemDunia.push(it);
+    PM.item = it; return;
+  }
+}
+function tulisTujuan() {
+  const c = $('chipTujuan'), m = pemulaKini(); if (!c) return;
+  if (!m || S.tamu) { c.hidden = true; return; }
+  const i = PEMULA.indexOf(m) + 1, p = Math.min(m.target, PM.p[m.id] || 0);
+  c.innerHTML = `<span class="tjNo">🎯 ${i}/${PEMULA.length}</span><span class="tjIsi"><b>${m.ikon} ${esc(m.judul)}${m.target > 1 ? ` ${p}/${m.target}` : ''}</b><small>${esc(m.petunjuk)}</small></span><span class="tjKoin">+${m.koin} 🪙</span>`;
+  c.hidden = false; tataHUD();
+}
+function klikTujuan() {
+  const m = pemulaKini(); if (!m) return;
+  if (m.id === 'raka') pergiKe(1);
+  else if (m.id === 'tanam') { if (bisaTanam(tokoh.saya)) bukaTanam(); else keKebun(); }
+  else if (m.id === 'ambil') { taruhItemDekat(); const it = PM.item && itemDunia.includes(PM.item) ? PM.item : itemDunia[0]; if (it) mulaiRute({x: it.position.x, z: it.position.z, nama: 'kotak bercahaya'}, true); }
+  else if (m.id === 'sapa') siapkanLangkah();
+  else toast(m.petunjuk, 3000);
+}
+// Antar ke dalam pekarangan sendiri (cukup dekat untuk 🌱 Tanam).
+function keKebun() {
+  const L = I && S.saya && I.lots[S.saya.no]; if (!L) return pergiKe(S.saya.no);
+  const dx = L.gate.x - L.c.x, dz = L.gate.z - L.c.z, d = Math.hypot(dx, dz) || 1, r = Math.min(d, 3.4 * VS);
+  mulaiRute({x: L.c.x + dx / d * r, z: L.c.z + dz / d * r, nama: 'kebunmu', kav: S.saya.no}, true);
+}
+// Angka koin melayang dari chip ke dompet: hadiah terasa langsung.
+function koinTerbang(teks) {
+  const d = document.createElement('div'); d.className = 'koinTerbang'; d.textContent = teks; document.body.appendChild(d);
+  setTimeout(() => d.remove(), 1700);
+}
+function pemulaTamat() {
+  tulisTujuan(); if (PM.sorot) PM.sorot.classList.remove('sorot');
+  const k = S.saya?.kebun, siap = k && k.siap ? jamTeks(((k.siap + 7 * 3600e3) % 864e5) / 3600e3) : '';
+  const besok = HD.besok ? `+${HD.besok} 🪙` : 'koin';
+  dialogRaka([
+    `Keren, @${S.saya.ig}! Kamu sudah jadi warga beneran. Hadiah dariku: +50 🪙 dan +10 💎. Koinmu sekarang ${S.saya.koin} 🪙.`,
+    `Koinmu cukup untuk beli bangku atau pot di pekaranganmu: ⚙ Atur → Toko Hias. Masih ada 📋 Misi hari ini kalau mau tambah koin.`,
+    `Besok balik lagi ya! Ada hadiah hadir hari ke-${(HD.n || 0) + 1} (${besok}), misi baru${siap ? `, dan tomatmu siap dipanen jam ${siap} WIB` : ''}. Meong! kata Oyen.`,
+  ]);
+}
+function barisPemula() {
+  if (!PM.boleh || S.tamu) return '';
+  const m = pemulaKini(), n = PEMULA.filter(x => PM.s.includes(x.id)).length;
+  if (!m) return '';
+  return `<div class="misi pemula"><span class="mi">🎯</span><div><b>Misi warga baru ${n}/${PEMULA.length}: ${m.ikon} ${esc(m.judul)}</b><div class="bar"><i style="width:${Math.round(100 * n / PEMULA.length)}%"></i></div><small>${esc(m.petunjuk)} · total hadiah 100 🪙 + 10 💎</small></div><span class="koin">+${m.koin} 🪙</span></div>`;
+}
+// Hadir beruntun: diambil otomatis saat masuk game sekali sehari.
+const HD = {n: 0, besok: 0, daftar: []};
+function aturHadir(h) { if (h) Object.assign(HD, h); }
+async function ambilHadir() {
+  if (S.tamu || !S.saya) return;
+  try {
+    const r = await api('hadir', {kunci: S.kunci}); S.saya.koin = r.koin; aturHadir(r.hadir); hitungOnline();
+    if (r.hadir?.dapat) { bunyi('masuk'); koinTerbang(`+${r.hadir.dapat} 🪙`); toast(`📅 Hadir hari ke-${r.hadir.n}: +${r.hadir.dapat} koin. Besok +${r.hadir.besok}, jangan sampai putus!`, 5000); }
+  } catch (e) {}
+}
+function barisHadir() {
+  if (S.tamu || !HD.daftar.length) return '';
+  const kotak = HD.daftar.map((v, i) => `<i class="${i < ((HD.n - 1) % 7) + 1 && HD.n ? 'ok' : ''}">${v}</i>`).join('');
+  return `<div class="misi hadir"><span class="mi">📅</span><div><b>Hadir beruntun: hari ke-${HD.n || 0}</b><div class="hdKotak">${kotak}</div><small>Masuk tiap hari, hadiah naik. Besok +${HD.besok} 🪙. Bolos sehari = mulai lagi dari hari 1.</small></div><span></span></div>`;
+}
 // ---------- papan peringkat warga (total koin yang pernah dikumpulkan; belanja tidak mengurangi) ----------
 async function bukaPeringkat() {
   $('panelPeringkat').hidden = false; $('isiPeringkat').innerHTML = '<p class="kecil">Memuat…</p>';
@@ -752,7 +869,7 @@ function tulisVoting() {
   if (!S.tamu && d.no) {
     $('vtDonasi').hidden = false;
     // Paket bintang (Huda 6 Nov): tombol membuka Saweria + menyalin kode warga; nominal dipilih di Saweria.
-    $('vtDonasi').innerHTML = `<b>Tambah bintang lewat donasi sukarela</b><div class="vtPaket">${[[5, 1], [10, 2], [25, 3], [100, 5]].map(([n, k]) => `<a href="https://saweria.co/Duniakotak" target="_blank" rel="noopener" data-paket="${n}"><span class="vtBintang b${k}">${GBR_BINTANG.repeat(k)}</span><b>${n} bintang</b><small>Rp${(n * 1000).toLocaleString('id-ID')}</small></a>`).join('')}</div>Tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan donasi Saweria. Bintang masuk otomatis, plus bonus 💎 10 permata per Rp1.000 untuk Toko Hias.` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
+    $('vtDonasi').innerHTML = `<b>Tambah bintang lewat donasi sukarela</b><div class="vtPaket">${[[5, 1], [10, 2], [25, 3], [100, 5]].map(([n, k]) => `<a href="https://saweria.co/Duniakotak" target="_blank" rel="noopener" data-paket="${n}"><span class="vtBintang b${k}">${GBR_BINTANG.repeat(k)}</span><b>${n} bintang</b><small>Rp${(n * 1000).toLocaleString('id-ID')}</small></a>`).join('')}</div>Tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan donasi Saweria. Bintang masuk otomatis, plus bonus 💎 10 permata per Rp1.000 untuk Toko Hias. <br><small>Belum 17 tahun? Minta izin orang tua dulu ya. Bintang gratis harian sudah cukup untuk ikut memilih.</small>` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
   } else $('vtDonasi').hidden = true;
 }
 async function bukaVoting(wajib) {
@@ -1120,7 +1237,7 @@ function gambarPetaMini(t) {
 const lab = $('label'); const pool = [];
 // ---------- tata letak HUD: cegah kartu/tombol saling tumpuk di layar HP (ukuran apa pun, termasuk mode diputar) ----------
 let kotakHUD = [], hudT = 0;
-const ID_HUD = ['profil', 'tombolAtas', 'petaMini', 'chipDusun', 'chipKumpul', 'bBukaChat', 'chat', 'stik', 'skill', 'jam'];
+const ID_HUD = ['profil', 'tombolAtas', 'petaMini', 'chipDusun', 'chipKumpul', 'chipTujuan', 'bBukaChat', 'chat', 'stik', 'skill', 'jam'];
 function tataHUD() {
   const el = id => document.getElementById(id), tampak = e => e && !e.hidden && !e.closest('[hidden]') && getComputedStyle(e).display !== 'none' && getComputedStyle(e).visibility !== 'hidden' && e.getClientRects().length > 0;
   const prof = el('profil'), atas = el('tombolAtas'), chat = el('chat'), buka = el('bBukaChat'), stik = el('stik'), peta = el('petaMini'), chip = el('chipDusun');
@@ -1148,6 +1265,15 @@ function tataHUD() {
     if (tabrak(atas) || tabrak(prof) || tabrak(peta)) jm.style.visibility = 'hidden'; } }
   if (peta && chip) { const r = peta.getBoundingClientRect(); chip.style.top = (r.bottom + 6) + 'px'; chip.style.right = (innerWidth - r.right) + 'px'; chip.style.maxWidth = Math.max(r.width, 210) + 'px'; }
   infoKumpul();
+  const tj = el('chipTujuan');
+  if (tj && !tj.hidden) {   // chip tujuan di tengah atas; geser ke kanan kotak chat bila menabrak
+    tj.style.left = ''; tj.style.transform = ''; tj.style.maxWidth = '';
+    const r = tj.getBoundingClientRect(), rc = chat && tampak(chat) ? chat.getBoundingClientRect() : null;
+    if (rc && r.left < rc.right && r.right > rc.left && r.top < rc.bottom && r.bottom > rc.top) {
+      const kiri = rc.right + 8, kanan = peta && tampak(peta) ? peta.getBoundingClientRect().left - 8 : innerWidth - 8;
+      tj.style.left = kiri + 'px'; tj.style.transform = 'none'; tj.style.maxWidth = Math.max(200, kanan - kiri) + 'px';
+    }
+  }
   const ck = el('chipKumpul');
   if (ck && chip && !ck.hidden) { const r = chip.getBoundingClientRect(); ck.style.top = (r.bottom + 6) + 'px'; ck.style.right = (innerWidth - r.right) + 'px'; }
   kotakHUD = ID_HUD.map(el).filter(tampak).map(e => e.getBoundingClientRect());
@@ -1255,12 +1381,12 @@ async function skillJual() {
 }
 function bukaTanam() {
   const bb = S.saya?.bibit || {};
-  $('isiTanam').innerHTML = Object.entries(bb).map(([id, b]) => `<div class="rkBaris"><i>${b.ikon}</i><div><b>Bibit ${esc(b.nama)}</b><small>Hasil ${b.hasil} × ${b.jual} 🪙 = ${b.hasil * b.jual} 🪙 · untung ${b.hasil * b.jual - b.harga} 🪙 · siap 6 jam</small></div><button data-tanam="${id}" ${(S.saya.koin || 0) < b.harga && id !== 'tomat' ? 'disabled' : ''}>${id === 'tomat' && (S.saya.koin || 0) < b.harga ? 'Gratis' : '🪙 ' + b.harga}</button></div>`).join('');
+  $('isiTanam').innerHTML = Object.entries(bb).map(([id, b]) => `<div class="rkBaris"><i>${b.ikon}</i><div><b>Bibit ${esc(b.nama)}</b><small>Hasil ${b.hasil} × ${b.jual} 🪙 = ${b.hasil * b.jual} 🪙 · untung ${b.hasil * b.jual - b.harga} 🪙 · siap 6 jam</small></div><button data-tanam="${id}" ${(S.saya.koin || 0) < b.harga && id !== 'tomat' ? 'disabled' : ''}>${id === 'tomat' && ((S.saya.koin || 0) < b.harga || pemulaKini()?.id === 'tanam') ? 'Gratis' : '🪙 ' + b.harga}</button></div>`).join('');
   $('panelTanam').hidden = false;
 }
 document.addEventListener('click', async e => {
   const b = e.target.closest?.('[data-tanam]'); if (!b || panenSibuk) return; panenSibuk = true;
-  try { const r = await api('tanam', {kunci: S.kunci, bibit: b.dataset.tanam}); hasilKebun(r); $('panelTanam').hidden = true; bunyi('emosi'); toast(`🌱 Bibit ${S.saya.bibit[b.dataset.tanam].nama} ditanam. Panen 6 jam lagi.`, 3500); }
+  try { const r = await api('tanam', {kunci: S.kunci, bibit: b.dataset.tanam}); hasilKebun(r); $('panelTanam').hidden = true; bunyi('emosi'); pemulaMaju('tanam'); toast(`🌱 Bibit ${S.saya.bibit[b.dataset.tanam].nama} ditanam. Panen 6 jam lagi.`, 3500); }
   catch (er) { toast(er.message, 3500); } finally { panenSibuk = false; }
 });
 // ---------- Profesi (audit ekonomi, Huda 6 Nov 2026) ----------
@@ -1918,12 +2044,13 @@ async function mulai() {
   fotoProfil();
   buatPeta();
   hitungOnline(); kabarWarga(); tulisChat(); aturHUD(); sambung();
-  if (!baca('dk_panduan')) panduan();
+  if (!baca('dk_panduan')) pemulaKini() ? panduanBaru() : panduan();
   // Voting Fasum muncul sebagai pop up saat masuk game, sekali per hari (Huda 6 Nov 2026), sekalian ambil bintang gratis harian.
   // Wajib pilih (Huda 6 Nov): tanda dk_vt baru disimpan setelah menaruh bintang, jadi muat ulang tidak melewati voting.
   else if (!S.tamu && baca('dk_vt') !== hariIni()) setTimeout(() => bukaVoting(true), 1200);
   if (!S.tamu && baca('dk_ingat') !== hariIni()) setTimeout(ingatKoin, 45e3);
   onResize(); requestAnimationFrame(loop);
+  $('chipTujuan').onclick = klikTujuan; tulisTujuan(); siapkanLangkah(); setTimeout(ambilHadir, 2500);
   { const ke = new URLSearchParams(location.search).get('ke'); if (ke) setTimeout(() => keTempat(ke), 1500); }
   $('chipKumpul').onclick = keKumpul;
 }
@@ -1974,6 +2101,21 @@ function aturHUD() {
   if (innerHeight < 500) { $('chat').hidden = true; $('bBukaChat').hidden = false; zoom = .85; }
   if (portrait() && innerWidth <= 700) { $('chat').hidden = true; $('bBukaChat').hidden = false; }
 }
+// Pemain baru: sambutan singkat (2 kalimat), sisanya diajarkan lewat tujuan 🎯 satu per satu. Panduan lengkap tetap di ⚙ Atur.
+function panduanBaru() {
+  dialogRaka([
+    `Halo @${S.saya.ig}! Aku Raka, ini Oyen. Selamat datang di rumah barumu: ${alamat(S.saya.no)}.`,
+    `Ikuti 🎯 tujuan di atas layar. Tiap tujuan selesai langsung dapat koin, total 100 🪙 + 10 💎 buat hias rumahmu. Pertama: pakai joystick, jalan masuk ke pekaranganmu.`,
+  ], () => simpan('dk_panduan', '1'));
+}
+function dialogRaka(L, akhir) {
+  let i = 0; const d = $('dialog');
+  const tutup = () => { d.hidden = true; akhir && akhir(); };
+  const tampil = () => { $('dialogTeks').textContent = L[i]; $('dLanjut').textContent = i === L.length - 1 ? 'Siap!' : 'Lanjut'; $('dLewati').hidden = L.length < 2 || i === L.length - 1; gelembung('raka', '👋', true); };
+  d.hidden = false; tampil();
+  $('dLanjut').onclick = () => { i++; if (i >= L.length) tutup(); else tampil(); };
+  $('dLewati').onclick = tutup;
+}
 function panduan() {
   const nama = S.tamu ? 'tamu' : '@' + S.saya.ig;
   const L = [
@@ -1984,11 +2126,7 @@ function panduan() {
     'Chat Sekitar terlihat warga di dekatmu, Chat Desa untuk semua warga di semua dusun. Ketuk nama warga untuk lihat rumahnya, bisukan, atau laporkan.',
     'Cek 📋 Misi tiap hari untuk dapat koin. Sekarang ayo jalan-jalan dan sapa tetangga. Meong! kata Oyen.',
   ];
-  let i = 0; const d = $('dialog');
-  const tampil = () => { $('dialogTeks').textContent = L[i]; $('dLanjut').textContent = i === L.length - 1 ? 'Selesai' : 'Lanjut'; gelembung('raka', '👋', true); };
-  d.hidden = false; tampil();
-  $('dLanjut').onclick = () => { i++; if (i >= L.length) { d.hidden = true; simpan('dk_panduan', '1'); } else tampil(); };
-  $('dLewati').onclick = () => { d.hidden = true; simpan('dk_panduan', '1'); };
+  dialogRaka(L, () => simpan('dk_panduan', '1'));
 }
 
 // =====================================================================

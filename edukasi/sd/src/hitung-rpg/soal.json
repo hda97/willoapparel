@@ -1,0 +1,622 @@
+{
+ "judul": "Petualang Ilmu: Legenda Nusantara",
+ "urutan": "acak",
+ "soal": [
+  {
+   "fase": "A",
+   "mapel": "Matematika",
+   "soal": "3 + 4",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "jembatan"
+  },
+  {
+   "fase": "A",
+   "mapel": "Matematika",
+   "soal": "Roti 3.000",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "kasir"
+  },
+  {
+   "fase": "A",
+   "mapel": "Matematika",
+   "soal": "9 - 5",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "jembatan"
+  },
+  {
+   "fase": "A",
+   "mapel": "Matematika",
+   "soal": "1/2",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "pecahan"
+  },
+  {
+   "fase": "A",
+   "mapel": "Matematika",
+   "soal": "8 + 7",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "gerbang"
+  },
+  {
+   "fase": "A",
+   "mapel": "Matematika",
+   "soal": "15 - 6",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "jembatan"
+  },
+  {
+   "fase": "A",
+   "mapel": "Matematika",
+   "soal": "Susu 7.000",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "kasir"
+  },
+  {
+   "fase": "A",
+   "mapel": "Matematika",
+   "soal": "Ada 12 burung di pohon. 5 burung terbang. Berapa burung yang tersisa?",
+   "jawaban": "7",
+   "pilihan": "",
+   "jenis": "gerbang"
+  },
+  {
+   "fase": "A",
+   "mapel": "Matematika",
+   "soal": "1/4",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "pecahan"
+  },
+  {
+   "fase": "A",
+   "mapel": "Matematika",
+   "soal": "40 + 25",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "jembatan"
+  },
+  {
+   "fase": "B",
+   "mapel": "Matematika",
+   "soal": "6 x 4",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "jembatan"
+  },
+  {
+   "fase": "B",
+   "mapel": "Matematika",
+   "soal": "36 : 4",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "gerbang"
+  },
+  {
+   "fase": "B",
+   "mapel": "Matematika",
+   "soal": "5 x 3",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "luas"
+  },
+  {
+   "fase": "B",
+   "mapel": "Matematika",
+   "soal": "3/4",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "pecahan"
+  },
+  {
+   "fase": "B",
+   "mapel": "Matematika",
+   "soal": "Buku 12.500",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "kasir"
+  },
+  {
+   "fase": "B",
+   "mapel": "Matematika",
+   "soal": "7 x 8",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "jembatan"
+  },
+  {
+   "fase": "B",
+   "mapel": "Matematika",
+   "soal": "6 x 4",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "keliling"
+  },
+  {
+   "fase": "B",
+   "mapel": "Matematika",
+   "soal": "1/2",
+   "jawaban": "6",
+   "pilihan": "",
+   "jenis": "pecahan"
+  },
+  {
+   "fase": "B",
+   "mapel": "Matematika",
+   "soal": "Ibu membeli 4 kotak kue. Setiap kotak berisi 6 kue. Berapa semua kuenya?",
+   "jawaban": "24",
+   "pilihan": "",
+   "jenis": "gerbang"
+  },
+  {
+   "fase": "B",
+   "mapel": "Matematika",
+   "soal": "125 + 238",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "gerbang"
+  },
+  {
+   "fase": "C",
+   "mapel": "Matematika",
+   "soal": "1.250 x 4",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "gerbang"
+  },
+  {
+   "fase": "C",
+   "mapel": "Matematika",
+   "soal": "144 : 12",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "jembatan"
+  },
+  {
+   "fase": "C",
+   "mapel": "Matematika",
+   "soal": "12 x 8",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "luas"
+  },
+  {
+   "fase": "C",
+   "mapel": "Matematika",
+   "soal": "15 x 9",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "keliling"
+  },
+  {
+   "fase": "C",
+   "mapel": "Matematika",
+   "soal": "2/3",
+   "jawaban": "9",
+   "pilihan": "",
+   "jenis": "pecahan"
+  },
+  {
+   "fase": "C",
+   "mapel": "Matematika",
+   "soal": "Tas 85.000",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "kasir"
+  },
+  {
+   "fase": "C",
+   "mapel": "Matematika",
+   "soal": "Berapa KPK dari 4 dan 6?",
+   "jawaban": "12",
+   "pilihan": "",
+   "jenis": "gerbang"
+  },
+  {
+   "fase": "C",
+   "mapel": "Matematika",
+   "soal": "Berapa FPB dari 12 dan 18?",
+   "jawaban": "6",
+   "pilihan": "",
+   "jenis": "gerbang"
+  },
+  {
+   "fase": "C",
+   "mapel": "Matematika",
+   "soal": "0,5 + 0,25",
+   "jawaban": "",
+   "pilihan": "",
+   "jenis": "jembatan"
+  },
+  {
+   "fase": "C",
+   "mapel": "Matematika",
+   "soal": "Berapa 25% dari 80?",
+   "jawaban": "20",
+   "pilihan": "",
+   "jenis": "gerbang"
+  },
+  {
+   "fase": "A",
+   "mapel": "Bahasa Indonesia",
+   "soal": "Susun yang benar: bu + ku (Benda untuk membaca)",
+   "jawaban": "buku",
+   "pilihan": "kubu",
+   "jenis": ""
+  },
+  {
+   "fase": "A",
+   "mapel": "Bahasa Indonesia",
+   "soal": "Susun yang benar: me + ja (Tempat menulis di kelas)",
+   "jawaban": "meja",
+   "pilihan": "jame",
+   "jenis": ""
+  },
+  {
+   "fase": "A",
+   "mapel": "Bahasa Indonesia",
+   "soal": "🐱 Hewan ini namanya ...",
+   "jawaban": "kucing",
+   "pilihan": "kelinci;kambing",
+   "jenis": ""
+  },
+  {
+   "fase": "A",
+   "mapel": "Bahasa Indonesia",
+   "soal": "Lawan kata BESAR adalah ...",
+   "jawaban": "kecil",
+   "pilihan": "tinggi;panjang",
+   "jenis": ""
+  },
+  {
+   "fase": "A",
+   "mapel": "Bahasa Indonesia",
+   "soal": "Huruf awal kata APEL adalah ...",
+   "jawaban": "A",
+   "pilihan": "E;P",
+   "jenis": ""
+  },
+  {
+   "fase": "A",
+   "mapel": "Bahasa Indonesia",
+   "soal": "Susun yang benar: sa + pu (Alat untuk membersihkan lantai)",
+   "jawaban": "sapu",
+   "pilihan": "pusa",
+   "jenis": ""
+  },
+  {
+   "fase": "A",
+   "mapel": "Bahasa Indonesia",
+   "soal": "Kata yang ditulis dengan benar adalah ...",
+   "jawaban": "sekolah",
+   "pilihan": "sekola;sekolha",
+   "jenis": ""
+  },
+  {
+   "fase": "B",
+   "mapel": "Bahasa Indonesia",
+   "soal": "Persamaan kata (sinonim) PANDAI adalah ...",
+   "jawaban": "pintar",
+   "pilihan": "malas;lambat",
+   "jenis": ""
+  },
+  {
+   "fase": "B",
+   "mapel": "Bahasa Indonesia",
+   "soal": "Lawan kata (antonim) RAJIN adalah ...",
+   "jawaban": "malas",
+   "pilihan": "tekun;giat",
+   "jenis": ""
+  },
+  {
+   "fase": "B",
+   "mapel": "Bahasa Indonesia",
+   "soal": "Kata baku yang benar adalah ...",
+   "jawaban": "sekolah",
+   "pilihan": "sekolahan;skolah",
+   "jenis": ""
+  },
+  {
+   "fase": "B",
+   "mapel": "Bahasa Indonesia",
+   "soal": "Susun yang benar: ke + le + la + war (Hewan yang terbang di malam hari)",
+   "jawaban": "kelelawar",
+   "pilihan": "lekelawar;warkelale",
+   "jenis": ""
+  },
+  {
+   "fase": "B",
+   "mapel": "Bahasa Indonesia",
+   "soal": "Tanda baca di akhir kalimat tanya adalah ...",
+   "jawaban": "?",
+   "pilihan": ".;!",
+   "jenis": ""
+  },
+  {
+   "fase": "C",
+   "mapel": "Bahasa Indonesia",
+   "soal": "Kata berimbuhan yang tepat: Adik sedang ... (tulis) surat.",
+   "jawaban": "menulis",
+   "pilihan": "ditulis;tulisan",
+   "jenis": ""
+  },
+  {
+   "fase": "C",
+   "mapel": "Bahasa Indonesia",
+   "soal": "Makna peribahasa \"Rajin pangkal pandai\" adalah ...",
+   "jawaban": "rajin belajar membuat pandai",
+   "pilihan": "pandai itu malas;rajin itu lelah",
+   "jenis": ""
+  },
+  {
+   "fase": "C",
+   "mapel": "Bahasa Indonesia",
+   "soal": "Kata yang termasuk kata serapan adalah ...",
+   "jawaban": "komputer",
+   "pilihan": "meja;sawah",
+   "jenis": ""
+  },
+  {
+   "fase": "C",
+   "mapel": "Bahasa Indonesia",
+   "soal": "Kalimat yang menggunakan huruf kapital dengan benar adalah ...",
+   "jawaban": "Kami pergi ke Bandung.",
+   "pilihan": "kami pergi ke bandung.;Kami Pergi ke bandung.",
+   "jenis": ""
+  },
+  {
+   "fase": "C",
+   "mapel": "Bahasa Indonesia",
+   "soal": "Susun yang benar: in + for + ma + si (Pesan atau berita yang kita terima)",
+   "jawaban": "informasi",
+   "pilihan": "insiforma;forinmasi",
+   "jenis": ""
+  },
+  {
+   "fase": "A",
+   "mapel": "IPAS",
+   "soal": "Bagian tumbuhan yang menyerap air dari tanah adalah ...",
+   "jawaban": "akar",
+   "pilihan": "daun;bunga",
+   "jenis": ""
+  },
+  {
+   "fase": "A",
+   "mapel": "IPAS",
+   "soal": "🐄 Sapi termasuk hewan pemakan ...",
+   "jawaban": "tumbuhan",
+   "pilihan": "daging;segala",
+   "jenis": ""
+  },
+  {
+   "fase": "A",
+   "mapel": "IPAS",
+   "soal": "☀️ Matahari terbit di sebelah ...",
+   "jawaban": "timur",
+   "pilihan": "barat;utara",
+   "jenis": ""
+  },
+  {
+   "fase": "A",
+   "mapel": "IPAS",
+   "soal": "Kebiasaan sehat sebelum makan adalah ...",
+   "jawaban": "mencuci tangan",
+   "pilihan": "langsung tidur;bermain tanah",
+   "jenis": ""
+  },
+  {
+   "fase": "B",
+   "mapel": "IPAS",
+   "soal": "Proses tumbuhan membuat makanan sendiri disebut ...",
+   "jawaban": "fotosintesis",
+   "pilihan": "respirasi;evaporasi",
+   "jenis": ""
+  },
+  {
+   "fase": "B",
+   "mapel": "IPAS",
+   "soal": "Susun yang benar: telur, ulat, kepompong, kupu + kupu (Urutkan siklus hidup kupu-kupu)",
+   "jawaban": "telur, ulat, kepompong, kupu kupu",
+   "pilihan": "kupu telur, ulat, kepompong, kupu",
+   "jenis": ""
+  },
+  {
+   "fase": "B",
+   "mapel": "IPAS",
+   "soal": "Gaya yang membuat benda jatuh ke bawah adalah gaya ...",
+   "jawaban": "gravitasi",
+   "pilihan": "magnet;gesek",
+   "jenis": ""
+  },
+  {
+   "fase": "B",
+   "mapel": "IPAS",
+   "soal": "Es batu berubah menjadi air disebut ...",
+   "jawaban": "mencair",
+   "pilihan": "membeku;menguap",
+   "jenis": ""
+  },
+  {
+   "fase": "B",
+   "mapel": "IPAS",
+   "soal": "Sumber energi utama bagi bumi adalah ...",
+   "jawaban": "matahari",
+   "pilihan": "bulan;listrik",
+   "jenis": ""
+  },
+  {
+   "fase": "C",
+   "mapel": "IPAS",
+   "soal": "Organ yang memompa darah ke seluruh tubuh adalah ...",
+   "jawaban": "jantung",
+   "pilihan": "paru-paru;lambung",
+   "jenis": ""
+  },
+  {
+   "fase": "C",
+   "mapel": "IPAS",
+   "soal": "Rantai makanan selalu diawali oleh ...",
+   "jawaban": "produsen (tumbuhan)",
+   "pilihan": "karnivora;pengurai",
+   "jenis": ""
+  },
+  {
+   "fase": "C",
+   "mapel": "IPAS",
+   "soal": "Teks proklamasi kemerdekaan Indonesia dibacakan pada tanggal ...",
+   "jawaban": "17 Agustus 1945",
+   "pilihan": "20 Mei 1908;28 Oktober 1928",
+   "jenis": ""
+  },
+  {
+   "fase": "C",
+   "mapel": "IPAS",
+   "soal": "Contoh kegiatan ekonomi produksi adalah ...",
+   "jawaban": "petani menanam padi",
+   "pilihan": "ibu membeli beras;adik makan nasi",
+   "jenis": ""
+  },
+  {
+   "fase": "A",
+   "mapel": "Bahasa Inggris",
+   "soal": "🍎",
+   "jawaban": "apple",
+   "pilihan": "banana;orange",
+   "jenis": ""
+  },
+  {
+   "fase": "A",
+   "mapel": "Bahasa Inggris",
+   "soal": "🐶",
+   "jawaban": "dog",
+   "pilihan": "cat;bird",
+   "jenis": ""
+  },
+  {
+   "fase": "A",
+   "mapel": "Bahasa Inggris",
+   "soal": "Arrange: c + a + t (🐱 Hewan yang suka mengeong)",
+   "jawaban": "cat",
+   "pilihan": "act;tca",
+   "jenis": ""
+  },
+  {
+   "fase": "A",
+   "mapel": "Bahasa Inggris",
+   "soal": "Angka 7 dalam bahasa Inggris adalah ...",
+   "jawaban": "seven",
+   "pilihan": "six;eight",
+   "jenis": ""
+  },
+  {
+   "fase": "A",
+   "mapel": "Bahasa Inggris",
+   "soal": "Arrange: b + o + o + k (📖 Benda untuk dibaca)",
+   "jawaban": "book",
+   "pilihan": "koob;obko",
+   "jenis": ""
+  },
+  {
+   "fase": "A",
+   "mapel": "Bahasa Inggris",
+   "soal": "👋 Salam saat bertemu teman adalah ...",
+   "jawaban": "Hello",
+   "pilihan": "Goodbye;Thank you",
+   "jenis": ""
+  },
+  {
+   "fase": "A",
+   "mapel": "Bahasa Inggris",
+   "soal": "🔵 This color is ...",
+   "jawaban": "blue",
+   "pilihan": "green;red",
+   "jenis": ""
+  },
+  {
+   "fase": "B",
+   "mapel": "Bahasa Inggris",
+   "soal": "Bahasa Inggris dari \"dapur\" adalah ...",
+   "jawaban": "kitchen",
+   "pilihan": "bedroom;garden",
+   "jenis": ""
+  },
+  {
+   "fase": "B",
+   "mapel": "Bahasa Inggris",
+   "soal": "👨‍🏫 Orang yang mengajar di kelas disebut ...",
+   "jawaban": "teacher",
+   "pilihan": "doctor;farmer",
+   "jenis": ""
+  },
+  {
+   "fase": "B",
+   "mapel": "Bahasa Inggris",
+   "soal": "Arrange: s + c + h + o + o + l (🏫 Tempat kita belajar)",
+   "jawaban": "school",
+   "pilihan": "shloco;ohcosl",
+   "jenis": ""
+  },
+  {
+   "fase": "B",
+   "mapel": "Bahasa Inggris",
+   "soal": "\"What time is it?\" ⏰ 9:00. Jawabannya ...",
+   "jawaban": "It is nine o'clock.",
+   "pilihan": "It is Monday.;It is sunny.",
+   "jenis": ""
+  },
+  {
+   "fase": "B",
+   "mapel": "Bahasa Inggris",
+   "soal": "Lawan kata (opposite) dari \"big\" adalah ...",
+   "jawaban": "small",
+   "pilihan": "tall;long",
+   "jenis": ""
+  },
+  {
+   "fase": "C",
+   "mapel": "Bahasa Inggris",
+   "soal": "I ... a student. Kata yang tepat adalah ...",
+   "jawaban": "am",
+   "pilihan": "is;are",
+   "jenis": ""
+  },
+  {
+   "fase": "C",
+   "mapel": "Bahasa Inggris",
+   "soal": "\"Can I borrow your pen?\" Jawaban yang sopan adalah ...",
+   "jawaban": "Sure, here you are.",
+   "pilihan": "No, go away.;I am hungry.",
+   "jenis": ""
+  },
+  {
+   "fase": "C",
+   "mapel": "Bahasa Inggris",
+   "soal": "Arrange: e + n + v + i + r + o + n + m + e + n + t (🌳 Lingkungan)",
+   "jawaban": "environment",
+   "pilihan": "miroenvtnne;nontenrmive",
+   "jenis": ""
+  },
+  {
+   "fase": "C",
+   "mapel": "Bahasa Inggris",
+   "soal": "Kalimat ajakan yang benar adalah ...",
+   "jawaban": "Let's clean the classroom!",
+   "pilihan": "I cleaned the classroom.;Is the classroom clean?",
+   "jenis": ""
+  },
+  {
+   "fase": "C",
+   "mapel": "Bahasa Inggris",
+   "soal": "Bahasa Inggris dari \"Saya suka bermain sepak bola\" adalah ...",
+   "jawaban": "I like playing football.",
+   "pilihan": "I am playing football yesterday.;I likes play football.",
+   "jenis": ""
+  }
+ ]
+}

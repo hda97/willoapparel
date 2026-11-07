@@ -1,0 +1,96 @@
+name: Bot meme coin (paper trading)
+
+# Bot paper trading (uang bohongan). Tidak memakai private key atau secret apa pun.
+# Dua varian strategi jalan berdampingan (utama dan hati-hati), masing-masing ~9 menit
+# per run (cek pasar tiap menit). Status disimpan di cache Actions per varian.
+# Tiap run memicu run berikutnya (disetujui Huda) karena cron GitHub tidak andal.
+# Hentikan: Actions > "Bot meme coin (paper trading)" > ... > Disable workflow.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: bot-meme-coin
+  cancel-in-progress: false
+
+jobs:
+  paper-trading:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - varian: utama
+            folder: bot-meme-coin
+            cache: bot-meme-coin-state-
+          - varian: hati-hati
+            folder: bot-meme-coin/hati-hati
+            cache: bot-meme-coin-hati-state-
+    name: paper-trading (${{ matrix.varian }})
+    env:
+      BOT_FOLDER: ${{ github.workspace }}/${{ matrix.folder }}
+    defaults:
+      run:
+        working-directory: bot-meme-coin
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: bot-meme-coin
+
+      - name: Ambil status sebelumnya
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ${{ matrix.folder }}/status_paper.json
+            ${{ matrix.folder }}/riwayat_transaksi.csv
+            ${{ matrix.folder }}/log_bot.txt
+          key: ${{ matrix.cache }}${{ github.run_id }}
+          restore-keys: ${{ matrix.cache }}
+
+      - name: Jalankan bot ~9 menit
+        run: python3 bot.py --durasi-menit 9
+
+      - name: Ringkas log
+        if: always()
+        run: |
+          LOG="$BOT_FOLDER/log_bot.txt"
+          if [ -f "$LOG" ]; then tail -n 20000 "$LOG" > "$LOG.tmp" && mv "$LOG.tmp" "$LOG"; fi
+          { echo "### Varian: ${{ matrix.varian }}"; echo '```'; python3 bot.py --laporan; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Simpan status
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ${{ matrix.folder }}/status_paper.json
+            ${{ matrix.folder }}/riwayat_transaksi.csv
+            ${{ matrix.folder }}/log_bot.txt
+          key: ${{ matrix.cache }}${{ github.run_id }}
+
+      - name: Unggah hasil
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hasil-${{ matrix.varian }}
+          path: |
+            ${{ matrix.folder }}/riwayat_transaksi.csv
+            ${{ matrix.folder }}/status_paper.json
+          retention-days: 3
+          if-no-files-found: ignore
+
+  lanjut:
+    needs: paper-trading
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lanjutkan run berikutnya
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run bot-meme-coin.yml --ref main --repo "$GITHUB_REPOSITORY"
