@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Potong aset Pelari Kalcer dari gambar sumber (aset-sumber/) jadi PNG transparan.
+"""Siapkan aset Pelari Kalcer 3D (Willo Apparel Master Bundle) ke pelarikalcer/aset/.
 
   python3 pelarikalcer/potong_aset.py
 
-Latar gelap gambar sumber dihapus dengan flood fill dari tepi kotak potong,
-lalu hasilnya disimpan ke pelarikalcer/aset/<nama>.png (dipakai build.py).
+1. aset-sumber/bundel/*  : aset siap pakai dari Master Bundle Huda (katalog gear, karakter,
+   booth, map, item) -> disalin & diperkecil.
+2. aset-sumber/sheet.png : sprite lingkungan (landmark, kerucut, pohon, dll) dipotong dan
+   latar gelapnya dihapus. Garuda & bendera TIDAK dipakai (arah seni baru: tanpa atribut negara).
 """
 import pathlib
 from collections import deque
@@ -15,41 +17,29 @@ SUMBER = AKAR / 'aset-sumber'
 KELUAR = AKAR / 'aset'
 KELUAR.mkdir(exist_ok=True)
 
-# nama: (file sumber, kotak (x0,y0,x1,y1) piksel asli, lebar maks keluaran, hapus latar?)
-S = 1.288  # skala lintasan-item.jpg / jam.jpg / pelari-wanita.jpg (2576 px) dari tampilan 2000 px
-POTONG = {
-    # pickup & UI (sheet 1312x1199)
-    'koin':     ('sheet.png', (918, 772, 982, 836), 128, True),
-    'petir':    ('sheet.png', (1000, 768, 1052, 836), 128, True),
-    'magnet':   ('sheet.png', (1072, 772, 1138, 838), 128, True),
-    'perisai':  ('sheet.png', (1152, 770, 1216, 840), 128, True),
-    'hati':     ('sheet.png', (1228, 774, 1292, 836), 128, True),
-    'kerucut':  ('sheet.png', (1220, 1058, 1286, 1146), 128, True),
-    'pohon':    ('sheet.png', (1012, 1048, 1098, 1146), 192, True),
-    'batu':     ('sheet.png', (1104, 1068, 1210, 1140), 160, True),
-    'lampu':    ('sheet.png', (1130, 922, 1168, 1022), 96, True),
-    'rambu':    ('sheet.png', (1202, 934, 1272, 1020), 160, True),
-    'bangku':   ('sheet.png', (1012, 958, 1098, 1018), 160, True),
-    'angkot':   ('sheet.png', (1196, 640, 1292, 724), 192, True),
-    'gerobak':  ('sheet.png', (1100, 620, 1194, 720), 192, True),
-    'bendera':  ('sheet.png', (922, 624, 990, 724), 128, True),
-    'sepeda':   ('sheet.png', (992, 642, 1094, 716), 192, True),
-    'monas':    ('sheet.png', (924, 462, 984, 580), 160, True),
-    'finish':   ('sheet.png', (818, 1074, 872, 1142), 96, True),
-    'mahkota':  ('sheet.png', (800, 1010, 852, 1062), 96, True),
-    # item koleksi (lintasan-item.jpg resolusi tinggi)
-    'botol':    ('lintasan-item.jpg', tuple(int(v * S) for v in (196, 724, 312, 980)), 160, True),
-    'gel':      ('lintasan-item.jpg', tuple(int(v * S) for v in (462, 730, 626, 976)), 160, True),
-    'pisang':   ('lintasan-item.jpg', tuple(int(v * S) for v in (740, 736, 976, 976)), 160, True),
-    'lootbox':  ('lintasan-item.jpg', tuple(int(v * S) for v in (1614, 728, 1852, 984)), 192, True),
-    'tile-aspal': ('lintasan-item.jpg', tuple(int(v * S) for v in (52, 140, 312, 428)), 256, True),
-    # jam tangan GPS (jam.jpg)
-    'jam':      ('jam.jpg', tuple(int(v * S) for v in (226, 186, 512, 606)), 420, True),
-    # garuda putih di punggung jersey (pelari-wanita.jpg, tampak belakang)
-    'garuda':   ('pelari-wanita.jpg', tuple(int(v * S) for v in (975, 282, 1075, 388)), 256, False),
-    # karakter untuk layar pilih (pelari-wanita.jpg & pria)
-    'wanita':   ('pelari-wanita.jpg', tuple(int(v * S) for v in (40, 80, 520, 1012)), 300, True),
-    'pria':     ('sheet.png', (30, 52, 166, 392), 150, True),
+# lebar maksimum per kelompok aset bundel
+LEBAR_BUNDEL = {'char_': 260, 'booth_': 300, 'item_': 128}
+PETA = {'jakarta', 'jogja', 'bali', 'lawu', 'bromo', 'dieng_rinjani'}
+
+# nama: (kotak potong di sheet.png 1312x1199, lebar maks)
+POTONG_SHEET = {
+    'magnet':   ((1072, 772, 1138, 838), 128),
+    'perisai':  ((1152, 770, 1216, 840), 128),
+    'hati':     ((1228, 774, 1292, 836), 128),
+    'kerucut':  ((1220, 1058, 1286, 1146), 128),
+    'pohon':    ((1012, 1048, 1098, 1146), 192),
+    'batu':     ((1104, 1068, 1210, 1140), 160),
+    'lampu':    ((1130, 922, 1168, 1022), 96),
+    'rambu':    ((1202, 934, 1272, 1020), 160),
+    'bangku':   ((1012, 958, 1098, 1018), 160),
+    'angkot':   ((1196, 640, 1292, 724), 192),
+    'gerobak':  ((1100, 620, 1194, 720), 192),
+    'sepeda':   ((992, 642, 1094, 716), 192),
+    'monas':    ((924, 462, 984, 580), 160),
+    'borobudur': ((992, 484, 1112, 580), 240),
+    'joglo':    ((1112, 498, 1206, 580), 200),
+    'baligate': ((1210, 462, 1296, 580), 180),
+    'finish':   ((818, 1074, 872, 1142), 96),
 }
 
 
@@ -90,15 +80,33 @@ def hapus_latar(im, toleransi=34):
     return im.crop(bbox) if bbox else im
 
 
-for nama, (berkas, kotak, lebar, latar) in POTONG.items():
-    im = Image.open(SUMBER / berkas).convert('RGB').crop(kotak)
-    if nama == 'garuda':
-        # ambil hanya garis putih garuda sebagai decal (alfa = keputihan)
-        g = im.convert('L').point(lambda v: max(0, min(255, (v - 150) * 3)))
-        im = Image.new('RGBA', im.size, (255, 255, 255, 255)); im.putalpha(g)
-    else:
-        im = hapus_latar(im) if latar else im.convert('RGBA')
+def kecilkan(im, lebar):
     if im.width > lebar:
         im = im.resize((lebar, round(im.height * lebar / im.width)), Image.LANCZOS)
-    im.save(KELUAR / f'{nama}.png', optimize=True)
-    print(f'{nama:10s} {im.size}')
+    return im
+
+
+# 1. aset bundel
+for f in sorted((SUMBER / 'bundel').iterdir()):
+    nama = f.stem
+    lebar = 220
+    for awalan, l in LEBAR_BUNDEL.items():
+        if nama.startswith(awalan):
+            lebar = l
+    if nama in PETA:
+        lebar = 560
+    im = Image.open(f)
+    im = im.convert('RGBA') if im.mode in ('RGBA', 'LA', 'P') else im.convert('RGB')
+    kecilkan(im, lebar).save(KELUAR / f'{nama}.png', optimize=True)
+
+# 2. potongan sheet lingkungan
+sheet = Image.open(SUMBER / 'sheet.png').convert('RGB')
+for nama, (kotak, lebar) in POTONG_SHEET.items():
+    kecilkan(hapus_latar(sheet.crop(kotak)), lebar).save(KELUAR / f'{nama}.png', optimize=True)
+
+# 3. jam tangan GPS 10:08 (ritual sebelum lari)
+S = 1.288
+jam = Image.open(SUMBER / 'jam.jpg').convert('RGB').crop(tuple(int(v * S) for v in (226, 186, 512, 606)))
+kecilkan(hapus_latar(jam), 300).save(KELUAR / 'jam.png', optimize=True)
+
+print(len(list(KELUAR.glob('*.png'))), 'aset siap di', KELUAR)
