@@ -438,7 +438,29 @@ const terbangKe = (o, ke, lama = .55, tinggi = 1.4) => { const a = o.position.cl
 // ---------- UI: gelembung soal, bintang, layar mulai/selesai ----------
 function tulisGelembung(teks) { const g = $('gelembung'); if (!g) return; g.textContent = teks; g.classList.remove('muncul'); void g.offsetWidth; g.classList.add('muncul'); }
 let _bintangLalu = 0;
-function aturBintang(n, total) { const b = $('bintang'); if (!b) return; if (n > _bintangLalu) setTimeout(() => efek.bintang(), 250); _bintangLalu = n; b.innerHTML = Array.from({length: total}, (_, i) => `<span class="${i < n ? 'isi' : ''}">★</span>`).join(''); }
+// ---------- Versi CONTOH online: 3 soal lalu ajakan beli paket offline ----------
+// Hanya di situs (http/https willoapparel.com / workers.dev). File offline (file://) dari paket tetap penuh.
+const CONTOH = /^https?:$/.test(location.protocol) && /(^|\.)willoapparel\.com$|\.workers\.dev$|^localhost$|^127\./.test(location.hostname);
+const CONTOH_SOAL = 3;
+const LINK_BELI = window.PAKET_BELI || 'https://lynk.id/creator.store/qx7nj352km6d';
+let _ajakanMuncul = false;
+function ajakanBeli(alasan) {
+  if (_ajakanMuncul) return; _ajakanMuncul = true;
+  try { speechSynthesis.cancel(); } catch (e) {}
+  const d = document.createElement('div'); d.id = 'ajakanBeli';
+  d.style.cssText = 'position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:16px;background:rgba(20,30,20,.55);font-family:inherit';
+  d.innerHTML = `<div style="background:#fffaf0;color:#1d2a1d;border-radius:24px;max-width:420px;width:100%;padding:24px 22px;text-align:center;box-shadow:0 8px 0 rgba(0,0,0,.2)">
+    <div style="font-size:52px;line-height:1">${alasan === 'guru' ? '🔒' : '🎉'}</div>
+    <h2 style="margin:8px 0 6px;font-size:26px">${alasan === 'guru' ? 'Mode Guru ada di paket' : 'Contoh selesai!'}</h2>
+    <p style="margin:0 0 14px;font-size:16px;line-height:1.45">${alasan === 'guru' ? 'Mengganti soal dan menyimpan file game hanya tersedia di paket offline untuk guru.' : 'Ini versi contoh ' + CONTOH_SOAL + ' soal. Versi lengkap untuk kelas: semua soal, jalan tanpa internet, Mode Guru untuk ganti soal, dan video tutorial.'}</p>
+    <a href="${LINK_BELI}" target="_blank" rel="noopener" style="display:block;background:#ffd23a;color:#1d2a1d;font-weight:800;font-size:18px;padding:13px 16px;border-radius:16px;text-decoration:none;box-shadow:0 5px 0 #c9a21d">🛒 Dapatkan paket lengkap</a>
+    <a href="https://www.willoapparel.com/duniakotak/belajar/" style="display:block;margin-top:12px;font-weight:700;font-size:15px;color:#1d2a1d">Lihat semua paket game</a>
+    ${alasan === 'guru' ? '<button style="margin-top:12px;border:0;background:none;font:inherit;font-weight:700;color:#666;cursor:pointer">Tutup</button>' : ''}
+  </div>`;
+  const t = d.querySelector('button'); if (t) t.onclick = () => { d.remove(); _ajakanMuncul = false; };
+  document.body.appendChild(d);
+}
+function aturBintang(n, total) { if (CONTOH && n >= CONTOH_SOAL) setTimeout(() => ajakanBeli('soal'), 1800); const b = $('bintang'); if (!b) return; if (n > _bintangLalu) setTimeout(() => efek.bintang(), 250); _bintangLalu = n; b.innerHTML = Array.from({length: total}, (_, i) => `<span class="${i < n ? 'isi' : ''}">★</span>`).join(''); }
 function pilihanUI(daftar, fn) {
   const w = $('pilihan'); w.innerHTML = ''; w.hidden = !daftar;
   if (!daftar) return;
@@ -492,6 +514,7 @@ const SEMANGAT = ['Hampir! Coba lagi ya.', 'Tidak apa-apa, coba lagi ya.', 'Ayo 
 // ===================================================================
 const GURU = {kolom: [], pengaturan: [], terapkan: () => {}};
 function bukaGerbangGuru() {
+  if (CONTOH) { ajakanBeli('guru'); return; }
   const a = acakInt(3, 9), b = acakInt(3, 9);
   $('guruGerbang').hidden = false; $('gTanya').textContent = `Untuk guru/orang tua: berapa ${a} + ${b}?`; $('gJawab').value = '';
   $('gMasuk').onclick = () => { if (+$('gJawab').value === a + b) { $('guruGerbang').hidden = true; bukaGuru(); } else { $('gJawab').value = ''; $('gJawab').placeholder = 'Belum tepat'; } };

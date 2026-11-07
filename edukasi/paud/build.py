@@ -232,8 +232,8 @@ a.k:active{transform:translateY(3px)}.ik{font-size:54px;line-height:1}.k h2{marg
 </style></head><body>
 <h1>Game Edukasi PAUD</h1><p class="sub">Dunia voxel 3D, suara pembaca soal, boleh coba lagi sampai bisa.</p>
 <div class="grid">{kartu}</div>
-<div class="beli"><div><b>📦 Paket offline untuk guru</b><span>4 game (bisa tanpa internet) + video tutorial guru, dalam satu file zip</span></div><a href="https://lynk.id/creator.store/qx7nj352km6d/checkout" target="_blank" rel="noopener">Dapatkan paketnya</a></div>
-<p class="cat">Untuk guru: setiap game punya tombol <b>Guru</b> untuk mengubah soal, menempel soal dari Excel, lalu mengunduh file HTML berisi soal Anda.</p>
+<div class="beli"><div><b>📦 Paket offline untuk guru</b><span>4 game (bisa tanpa internet) + video tutorial guru, dalam satu file zip</span></div><a href="https://lynk.id/creator.store/qx7nj352km6d" target="_blank" rel="noopener">Dapatkan paketnya</a></div>
+<p class="cat">Game di halaman ini adalah <b>versi contoh</b> (3 soal). Versi lengkap dengan semua soal, Mode Guru untuk mengganti soal, dan file tanpa internet ada di paket offline.</p>
 <p class="cat"><a href="https://www.willoapparel.com" style="color:#e8590c;font-weight:800;text-decoration:none">Supported by www.willoapparel.com</a></p>
 </body></html>
 """
