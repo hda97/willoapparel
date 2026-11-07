@@ -1,0 +1,10 @@
+{
+  "name": "pelari-kalcer-3d",
+  "private": true,
+  "description": "Perakit game Pelari Kalcer 3D: npm install lalu python3 build.py",
+  "devDependencies": {
+    "esbuild": "0.24.0",
+    "qrcode-generator": "1.4.4",
+    "three": "0.169.0"
+  }
+}
