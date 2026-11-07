@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Dashboard Dunia Kotak</title>
+<link rel="icon" href="/duniakotak/apple-touch-icon.png">
+<style>
+:root{--bg:#f4f6fa;--kartu:#fff;--teks:#1d2433;--redup:#6b7385;--garis:#e3e7ef;--biru:#2f63e8;--hijau:#16a36a;--kuning:#e0a100;--merah:#d64545;--ungu:#7b5cd6}
+@media (prefers-color-scheme:dark){:root{--bg:#11151d;--kartu:#1a202b;--teks:#e8ecf3;--redup:#98a1b3;--garis:#2a3240;--biru:#6b93ff;--hijau:#3cc98c;--kuning:#f0bf3a;--merah:#ff7272;--ungu:#a48bff}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--teks);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--garis);background:var(--kartu);position:sticky;top:0;z-index:2}
+header img{width:36px;height:36px;border-radius:9px}
+header h1{font-size:17px;margin:0;flex:1}
+header small{color:var(--redup);display:block;font-weight:400;font-size:12px}
+button{font:inherit;border:1px solid var(--garis);background:var(--kartu);color:var(--teks);border-radius:9px;padding:7px 12px;cursor:pointer}
+button.utama{background:var(--biru);border-color:var(--biru);color:#fff}
+main{max-width:1100px;margin:0 auto;padding:16px}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.k{background:var(--kartu);border:1px solid var(--garis);border-radius:12px;padding:12px}
+.k b{display:block;font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums}
+.k span{color:var(--redup);font-size:12.5px}
+.k.online b{color:var(--hijau)}
+.k.online b::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--hijau);margin-right:7px;vertical-align:middle;animation:d 1.6s infinite}
+@keyframes d{50%{opacity:.3}}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+section{background:var(--kartu);border:1px solid var(--garis);border-radius:12px;padding:14px;margin-bottom:12px;min-width:0}
+section h2{font-size:15px;margin:0 0 4px}
+section p.ket{margin:0 0 10px;color:var(--redup);font-size:12.5px}
+.batang{display:flex;align-items:flex-end;gap:4px;height:150px;border-bottom:1px solid var(--garis);padding-top:16px}
+.batang div{flex:1;min-width:0;position:relative;background:var(--biru);border-radius:4px 4px 0 0}
+.batang div i{position:absolute;top:-16px;left:0;right:0;text-align:center;font-style:normal;font-size:10.5px;color:var(--redup)}
+.label{display:flex;gap:4px;font-size:10.5px;color:var(--redup);margin-top:4px}
+.label span{flex:1;text-align:center;min-width:0;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{padding:6px 6px;border-bottom:1px solid var(--garis);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--redup);font-weight:600;font-size:12px}
+.gulir{overflow-x:auto}
+.baris{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:13px}
+.baris .n{width:44px;text-align:right;font-variant-numeric:tabular-nums}
+.baris .nm{width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.baris .bar{flex:1;height:10px;background:var(--garis);border-radius:5px;overflow:hidden}
+.baris .bar u{display:block;height:100%;background:var(--ungu);border-radius:5px}
+.chip{display:inline-block;background:var(--bg);border:1px solid var(--garis);border-radius:20px;padding:3px 9px;margin:3px 4px 0 0;font-size:12.5px}
+#masuk{max-width:360px;margin:12vh auto;background:var(--kartu);border:1px solid var(--garis);border-radius:14px;padding:20px;text-align:center}
+#masuk input{width:100%;font:inherit;padding:10px;border-radius:9px;border:1px solid var(--garis);background:var(--bg);color:var(--teks);margin:12px 0}
+.galat{color:var(--merah);font-size:13px;min-height:18px}
+.catatan{color:var(--redup);font-size:12px;margin-top:6px}
+@media (max-width:520px){.k b{font-size:22px}.baris .nm{width:96px}}
+</style>
+</head>
+<body>
+<div id="masuk" hidden>
+  <img src="/duniakotak/apple-touch-icon.png" alt="" width="56" height="56" style="border-radius:12px">
+  <h2 style="margin:10px 0 0;font-size:18px">Dashboard Dunia Kotak</h2>
+  <p class="catatan">Khusus pengelola. Masukkan kunci dashboard.</p>
+  <input id="kunciIsi" type="password" placeholder="Kunci dashboard" autocomplete="current-password">
+  <div class="galat" id="galatMasuk"></div>
+  <button class="utama" id="tombolMasuk" style="width:100%">Buka dashboard</button>
+</div>
+
+<div id="isi" hidden>
+<header>
+  <img src="/duniakotak/apple-touch-icon.png" alt="">
+  <h1>Dashboard Dunia Kotak<small id="waktu">Memuat…</small></h1>
+  <button id="segar">↻ Segarkan</button>
+</header>
+<main>
+  <div class="kpi" id="kpi"></div>
+
+  <div class="grid">
+    <section><h2>Pemain per hari</h2><p class="ket">Warga berbeda yang membuka game tiap hari (WIB). Hijau = pemain lama yang kembali.</p><div id="grafPemain"></div></section>
+    <section><h2>Lama main per sesi (menit)</h2><p class="ket">Rata-rata tiap hari. Dihitung dari detak posisi selama game terbuka di layar.</p><div id="grafMenit"></div></section>
+  </div>
+
+  <div class="grid">
+    <section><h2>Jam ramai (WIB)</h2><p class="ket">Total menit main per jam, 14 hari terakhir.</p><div id="grafJam"></div></section>
+    <section><h2>Sebaran lama sesi</h2><p class="ket">Berapa sesi yang berlangsung selama…</p><div id="sebaran"></div></section>
+  </div>
+
+  <section><h2>Rincian harian</h2><p class="ket">Pendaftar baru, pemain, sesi, menit main, puncak online, dan chat.</p><div class="gulir"><table id="tabelHari"></table></div></section>
+
+  <div class="grid">
+    <section><h2>Fitur yang dipakai</h2><p class="ket">Jumlah aksi berhasil, hari ini dan 7 hari terakhir.</p><div id="fitur"></div></section>
+    <section><h2>Ekonomi & kepemilikan</h2><p class="ket">Kondisi semua warga saat ini.</p><div id="ekonomi"></div></section>
+  </div>
+
+  <div class="grid">
+    <section><h2>Profesi</h2><p class="ket">Warga yang sudah membuka tiap profesi.</p><div id="profesi"></div></section>
+    <section><h2>Voting & dana</h2><p class="ket">Putaran voting fasum yang sedang jalan, iuran, dan donasi Saweria.</p><div id="voting"></div></section>
+  </div>
+  <p class="catatan" id="catatanMulai"></p>
+  <p class="catatan"><button id="keluar">Keluar dari dashboard</button></p>
+</main>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const fmt = (n) => (Math.round(n * 10) / 10).toLocaleString('id-ID');
+const tglPendek = (h) => { const [y, m, d] = h.split('-'); return +d + '/' + +m; };
+const LABEL_FITUR = {
+  sesi: '🎮 Masuk game', kode: '🔑 Masuk pakai kode', avatar: '👕 Ganti avatar', profil: '🪪 Ubah profil', kucing: '🐱 Kucing',
+  misi: '✅ Misi harian', gol: '⚽ Gol', bagikan: '📣 Bagikan', tanam: '🌱 Tanam', panen: '🧺 Panen', jual: '💰 Jual',
+  toko: '🛍️ Toko hias', dekor: '🪑 Rakit hiasan', tas: '🎒 Tas', profesi: '💼 Profesi', iuran: '🏗️ Iuran fasum',
+  voting: '⭐ Voting', iklan: '📺 Iklan', usulan: '💡 Usulan', 'usulan-kunci': '💡 Usulan', 'daftar-ig': '📝 Daftar (IG/TikTok)',
+  google: '📝 Daftar (Google)', daftar: '📝 Daftar', ig: '📷 Isi IG', saweria: '💝 Donasi Saweria', mancing: '🎣 Mancing'
+};
+const LABEL_PROFESI = { petani: '🌾 Petani', nelayan: '🎣 Nelayan', pedagang: '🛒 Pedagang', tukang: '🔨 Tukang', guru: '📚 Guru', dokter: '🩺 Dokter', koki: '🍳 Koki', polisi: '👮 Polisi' };
+const LABEL_CALON = { kafe: '☕ Kafe', hiburan: '🎡 Taman Hiburan', polisi: '🚓 Kantor Polisi', taman: '🌳 Taman Kota' };
+let kunci = ''; try { kunci = localStorage.getItem('dk_dash') || ''; } catch (e) {}
+
+function batang(el, data, opsi = {}) {
+  const max = Math.max(1, ...data.map((d) => d.v + (d.v2 || 0)));
+  el.innerHTML = '<div class="batang">' + data.map((d) => {
+    const t = (d.v + (d.v2 || 0)) / max * 100;
+    return `<div title="${d.l}: ${fmt(d.v + (d.v2 || 0))}" style="height:${t}%;background:${opsi.warna || 'var(--biru)'}">` +
+      (d.v2 ? `<span style="position:absolute;bottom:0;left:0;right:0;height:${d.v2 / (d.v + d.v2) * 100}%;background:var(--hijau);border-radius:0"></span>` : '') +
+      `<i>${opsi.tanpaAngka ? '' : fmt(d.v + (d.v2 || 0))}</i></div>`;
+  }).join('') + '</div><div class="label">' + data.map((d) => `<span>${d.l}</span>`).join('') + '</div>';
+}
+function daftarBar(el, items, warna) {
+  const max = Math.max(1, ...items.map((x) => x[1]));
+  el.innerHTML = items.length ? items.map(([nm, n]) => `<div class="baris"><span class="nm" title="${nm}">${nm}</span><span class="bar"><u style="width:${n / max * 100}%;${warna ? 'background:' + warna : ''}"></u></span><span class="n">${fmt(n)}</span></div>`).join('') : '<p class="catatan">Belum ada data.</p>';
+}
+
+function tampil(s) {
+  const r = s.ringkas, a = s.aktif, hariIni = s.hari.length ? s.hari[s.hari.length - 1] : null;
+  const kini = new Date(s.waktu + 7 * 3600e3).toISOString().slice(0, 10);
+  const hi = hariIni && hariIni.h === kini ? hariIni : { warga: 0, sesi: 0, rata: 0, median: 0, puncak: 0, kembali: 0 };
+  $('waktu').textContent = 'Diperbarui ' + new Date(s.waktu).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' · otomatis tiap 1 menit';
+  const kpi = [
+    ['online', s.online.total, 'Online sekarang · ' + Object.entries(s.online.per).map(([d, n]) => d[0].toUpperCase() + d.slice(1) + ' ' + n).join(', ')],
+    ['', s.warga, 'Total warga terdaftar'],
+    ['', s.daftar[kini] || 0, 'Pendaftar baru hari ini'],
+    ['', hi.warga, 'Pemain hari ini (' + hi.kembali + ' pemain lama)'],
+    ['', a.j24, 'Aktif 24 jam terakhir'],
+    ['', a.h7, 'Aktif 7 hari terakhir'],
+    ['', fmt(r.median) + ' mnt', 'Median lama main per sesi'],
+    ['', fmt(r.rata) + ' mnt', 'Rata-rata lama main per sesi'],
+    ['', fmt(r.sesiPerPemain), 'Sesi per pemain (14 hari)'],
+    ['', r.pemain ? Math.round(r.balik / r.pemain * 100) + '%' : '-', 'Pemain yang kembali di hari lain (' + r.balik + ' dari ' + r.pemain + ')'],
+  ];
+  $('kpi').innerHTML = kpi.map(([c, b, t]) => `<div class="k ${c}"><b>${typeof b === 'number' ? fmt(b) : b}</b><span>${t}</span></div>`).join('');
+
+  const H = s.hari.slice(-14);
+  if (H.length) {
+    batang($('grafPemain'), H.map((d) => ({ l: tglPendek(d.h), v: d.warga - d.kembali, v2: d.kembali })));
+    batang($('grafMenit'), H.map((d) => ({ l: tglPendek(d.h), v: d.rata })), { warna: 'var(--ungu)' });
+  } else { $('grafPemain').innerHTML = $('grafMenit').innerHTML = '<p class="catatan">Pencatat sesi baru dipasang. Data muncul setelah ada warga yang main.</p>'; }
+  batang($('grafJam'), s.jam.map((v, i) => ({ l: i % 3 ? '' : String(i).padStart(2, '0'), v })), { warna: 'var(--kuning)', tanpaAngka: true });
+  const lbl = (x) => x.sampai >= 1e9 ? '≥ ' + x.dari + ' mnt' : x.dari + '–' + x.sampai + ' mnt';
+  daftarBar($('sebaran'), s.sebaran.map((x) => [lbl(x), x.n]), 'var(--biru)');
+
+  // tabel harian: gabungkan hari yang punya pendaftar walau belum ada sesi tercatat
+  const semuaHari = [...new Set([...Object.keys(s.daftar), ...s.hari.map((d) => d.h)])].sort().slice(-14).reverse();
+  const peta = Object.fromEntries(s.hari.map((d) => [d.h, d]));
+  $('tabelHari').innerHTML = '<tr><th>Tanggal</th><th>Daftar baru</th><th>Pemain</th><th>Pemain lama</th><th>Sesi</th><th>Rata mnt</th><th>Median mnt</th><th>Total jam</th><th>Puncak online</th><th>Chat desa</th><th>Chat sekitar</th></tr>' +
+    semuaHari.map((h) => { const d = peta[h] || {}; return `<tr><td>${tglPendek(h)}</td><td>${s.daftar[h] || 0}</td><td>${d.warga ?? '-'}</td><td>${d.kembali ?? '-'}</td><td>${d.sesi ?? '-'}</td><td>${d.rata != null ? fmt(d.rata) : '-'}</td><td>${d.median != null ? fmt(d.median) : '-'}</td><td>${d.totalMenit != null ? fmt(d.totalMenit / 60) : '-'}</td><td>${d.puncak ?? '-'}</td><td>${d.chat ?? '-'}</td><td>${d.sekitar ?? '-'}</td></tr>`; }).join('');
+
+  // fitur
+  const tujuh = new Date(s.waktu + 7 * 3600e3 - 6 * 864e5).toISOString().slice(0, 10), fh = {}, f7 = {};
+  for (const x of s.fitur) { const nm = LABEL_FITUR[x.aksi] || x.aksi; if (x.hari === kini) fh[nm] = (fh[nm] || 0) + x.n; if (x.hari >= tujuh) f7[nm] = (f7[nm] || 0) + x.n; }
+  const fit = Object.entries(f7).sort((x, y) => y[1] - x[1]);
+  if (fit.length) {
+    const max = Math.max(...fit.map((x) => x[1]));
+    $('fitur').innerHTML = '<div class="baris" style="color:var(--redup);font-size:12px"><span class="nm">Fitur</span><span class="bar" style="background:none">7 hari</span><span class="n">Hari ini</span></div>' +
+      fit.map(([nm, n]) => `<div class="baris"><span class="nm" title="${nm}">${nm}</span><span class="bar"><u style="width:${n / max * 100}%"></u></span><span class="n" title="7 hari: ${n}">${fh[nm] || 0}</span></div>`).join('');
+  } else $('fitur').innerHTML = '<p class="catatan">Penghitung fitur baru dipasang. Angka bertambah setiap warga memakai fitur.</p>';
+
+  const e = s.ekonomi;
+  $('ekonomi').innerHTML = [
+    ['🪙 Koin beredar (saldo)', e.koin], ['🪙 Koin pernah didapat', e.koinTotal], ['💎 Permata', e.permata], ['⭐ Bintang belum dipakai', e.bintang],
+    ['🌱 Kebun sedang ditanami', s.kebun], ['🐱 Warga punya kucing', s.kucing], ['🏠 Rumah 2 lantai', s.rumah2], ['📣 Pernah membagikan', s.bagi],
+    ['✅ Ikut misi hari ini', s.misiHariIni], ['🏅 Misi lengkap hari ini', s.misiPenuh],
+  ].map(([nm, n]) => `<span class="chip">${nm}: <b>${fmt(n)}</b></span>`).join('');
+
+  daftarBar($('profesi'), Object.entries(s.profesi).sort((x, y) => y[1] - x[1]).map(([k, n]) => [LABEL_PROFESI[k] || k, n]), 'var(--hijau)');
+
+  const v = s.voting, dn = s.donasi;
+  const totDon = dn.reduce((t, x) => t + (x.rp || 0), 0), nDon = dn.reduce((t, x) => t + x.n, 0);
+  $('voting').innerHTML = `<div class="catatan" style="margin:0 0 6px">Putaran ${v.putaran} · ${v.pemilih} pemilih</div>` +
+    Object.entries(v.hasil).sort((x, y) => y[1] - x[1]).map(([c, n]) => `<div class="baris"><span class="nm">${LABEL_CALON[c] || c}</span><span class="bar"><u style="width:${n / Math.max(1, ...Object.values(v.hasil)) * 100}%;background:var(--kuning)"></u></span><span class="n">${n}⭐</span></div>`).join('') +
+    `<p style="margin:10px 0 0;font-size:13px">🏗️ Iuran fasum: <b>${fmt(v.dana.total)}</b> / ${fmt(v.dana.target)} koin dari ${v.dana.penyumbang} warga (hemat ${v.dana.hemat} hari)</p>` +
+    `<p style="margin:6px 0 0;font-size:13px">💝 Donasi Saweria: <b>${nDon}</b> kali, total <b>Rp${totDon.toLocaleString('id-ID')}</b></p>`;
+
+  $('catatanMulai').textContent = r.mulaiCatat ? 'Lama main tercatat sejak ' + new Date(r.mulaiCatat).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) + '. Sesi = sejak warga masuk dusun sampai detak terakhir saat game terbuka di layar; pindah dusun dihitung satu sesi.' : 'Pencatat lama main baru dipasang, angka sesi muncul setelah ada warga yang main.';
+}
+
+async function muat() {
+  const r = await fetch('/duniakotak/api/statistik', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kunci }) });
+  const j = await r.json().catch(() => ({ galat: 'Server tidak menjawab' }));
+  if (!r.ok) throw new Error(j.galat || 'Gagal memuat');
+  return j;
+}
+async function mulai() {
+  try {
+    const s = await muat();
+    try { localStorage.setItem('dk_dash', kunci); } catch (e) {}
+    $('masuk').hidden = true; $('isi').hidden = false; tampil(s);
+  } catch (e) {
+    $('isi').hidden = true; $('masuk').hidden = false; $('galatMasuk').textContent = kunci ? e.message : '';
+  }
+}
+$('tombolMasuk').onclick = () => { kunci = $('kunciIsi').value.trim(); mulai(); };
+$('kunciIsi').onkeydown = (e) => { if (e.key === 'Enter') $('tombolMasuk').click(); };
+$('segar').onclick = () => mulai();
+$('keluar').onclick = () => { try { localStorage.removeItem('dk_dash'); } catch (e) {} kunci = ''; $('kunciIsi').value = ''; mulai(); };
+const qk = new URLSearchParams(location.search).get('kunci');
+if (qk) { kunci = qk; history.replaceState(null, '', location.pathname); }
+mulai();
+setInterval(() => { if (!$('isi').hidden && !document.hidden) mulai(); }, 60000);
+</script>
+</body>
+</html>

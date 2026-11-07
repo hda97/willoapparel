@@ -38,6 +38,8 @@ const PUTARAN_VOTING = "2026-11";
 // Stream Key Saweria bisa disetel lewat halaman /duniakotak/atur-saweria.html (Huda tidak menemukan worker di Cloudflare).
 // Halaman itu butuh token setel; di sini hanya hash SHA-256-nya (token asli dikirim ke Huda lewat chat proyek).
 const HASH_TOKEN_SETEL = "3875bd9e3be8eb385420fc08c7acbb25d81b72d5581356c72a210d4b87df4510";
+// Dashboard pantau warga (/duniakotak/dashboard/) khusus Huda: hanya hash SHA-256 kunci di sini (kunci asli dikirim di thread proyek).
+const HASH_KUNCI_DASHBOARD = "a5bc40bc6dd31581e05938a20730071e3d92907ca2716754a0750233177095a6";
 // Huda 6 Nov 2026: cukup 4 calon (usulan terbanyak dari komentar); fasum lain untuk voting berikutnya.
 // 6 Nov 2026 Huda menutup voting → Taman Kota dibangun (game.js BANGUN_VOTING); taman keluar dari calon, bintangnya dikembalikan.
 const CALON_FASUM = ["kafe", "hiburan", "polisi"];
@@ -164,6 +166,8 @@ const KAVLING_DISIAPKAN = {
   "fajar_alflah": 63,
   "lie_yuann": 64,
 };
+// Tanggal WIB (YYYY-MM-DD) dari waktu ms.
+function hariWib(t = Date.now()) { return new Date((t || 0) + 7 * 3600e3).toISOString().slice(0, 10); }
 export class Warga extends DurableObject {
   constructor(ctx, env) {
     super(ctx, env);
@@ -206,6 +210,8 @@ export class Warga extends DurableObject {
     }
     this.sql.exec("CREATE TABLE IF NOT EXISTS rahasia (k TEXT PRIMARY KEY, v TEXT, t INTEGER)");
     this.sql.exec("CREATE TABLE IF NOT EXISTS donasi (id TEXT PRIMARY KEY, t INTEGER, no INTEGER, rp INTEGER, bintang INTEGER, nama TEXT, pesan TEXT)");
+    // Hitungan pemakaian fitur per hari WIB (dashboard Huda, 7 Nov 2026). Hanya angka, tidak tampil ke warga.
+    this.sql.exec("CREATE TABLE IF NOT EXISTS fitur (hari TEXT, aksi TEXT, n INTEGER DEFAULT 0, PRIMARY KEY (hari, aksi))");
     // Koreksi salah ketik username: pindahkan ke username & kavling yang benar (sekali jalan, aman diulang).
     for (const [salah, benar] of Object.entries(KOREKSI_IG)) {
       const r = this.sql.exec("SELECT no FROM warga WHERE ig = ?", salah).toArray()[0];
@@ -276,6 +282,37 @@ export class Warga extends DurableObject {
     return this.sql.exec("SELECT * FROM warga WHERE kunci = ?", k).toArray()[0];
   }
   async fetch(request) {
+    const aksi = new URL(request.url).pathname.slice(1);
+    if (aksi === "statistik") return Response.json(this.statistik());
+    const res = await this.layani(request);
+    if (request.method === "POST" && res.ok && !request.url.includes("ws=1") && !/^(rahasia|saweria-status|saweria-kunci)/.test(aksi)) {
+      try { this.sql.exec("INSERT INTO fitur (hari, aksi, n) VALUES (?, ?, 1) ON CONFLICT (hari, aksi) DO UPDATE SET n = n + 1", hariWib(), aksi); } catch (e) {}
+    }
+    return res;
+  }
+  // Ringkasan untuk dashboard Huda (/duniakotak/dashboard/). Angka agregat saja, tanpa email.
+  statistik() {
+    const now = Date.now(), q = (sql, ...a) => this.sql.exec(sql, ...a).toArray();
+    const rows = q("SELECT no, dibuat, aktif, koin, koinTotal, permata, kebun, profesi, kucing, hias, bagi, misi, bintang FROM warga");
+    const hari = hariWib(), daftar = {}, aktifHari = {};
+    let koin = 0, koinTotal = 0, permata = 0, kebun = 0, kucing = 0, rumah2 = 0, bagi = 0, misiHariIni = 0, misiPenuh = 0, bintang = 0;
+    const profesi = {}, a = { j1: 0, j24: 0, h7: 0, pernah: 0 };
+    for (const r of rows) {
+      const hd = hariWib(r.dibuat); daftar[hd] = (daftar[hd] || 0) + 1;
+      if (r.aktif) { a.pernah++; const d = now - r.aktif; if (d < 3600e3) a.j1++; if (d < 864e5) a.j24++; if (d < 7 * 864e5) a.h7++; }
+      koin += r.koin || 0; koinTotal += r.koinTotal || 0; permata += r.permata || 0; bintang += r.bintang || 0;
+      if (r.kebun && this.bacaKebun(r).b) kebun++;
+      if (r.kucing) kucing++;
+      if (r.bagi) bagi++;
+      if (this.bacaHias(r).rumah === "dua") rumah2++;
+      if (r.profesi) { const p = this.bacaProfesi(r); if (p.p.length) for (const x of p.p) { const nm = PROFESI[x].ikon + " " + PROFESI[x].nama; profesi[nm] = (profesi[nm] || 0) + 1; } }
+      try { const m = r.misi ? JSON.parse(r.misi) : null; if (m && m.t === hari && m.s && m.s.length) { misiHariIni++; if (m.s.includes("bonus")) misiPenuh++; } } catch (e) {}
+    }
+    const fitur = q("SELECT hari, aksi, n FROM fitur WHERE hari >= ? ORDER BY hari", hariWib(now - 14 * 864e5));
+    const donasi = q("SELECT date((t + 25200000) / 1000, 'unixepoch') AS h, COUNT(*) AS n, SUM(rp) AS rp FROM donasi GROUP BY h ORDER BY h");
+    return { waktu: now, warga: rows.length, daftar, aktif: a, ekonomi: { koin, koinTotal, permata, bintang }, kebun, kucing, rumah2, bagi, misiHariIni, misiPenuh, profesi, fitur, donasi, voting: this.hasilVoting() };
+  }
+  async layani(request) {
     const u = new URL(request.url);
     const aksi = u.pathname.slice(1);
     if (aksi === "daftar") {
@@ -761,6 +798,8 @@ export class Ruang extends DurableObject {
     try { this.sql.exec("ALTER TABLE chat ADD COLUMN d TEXT"); } catch (e) {}   // asal dusun pesan (chat Desa lintas dusun)
     this.sql.exec(`CREATE TABLE IF NOT EXISTS lapor (pelapor INTEGER, terlapor INTEGER, t INTEGER, PRIMARY KEY (pelapor, terlapor))`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS bisu (no INTEGER PRIMARY KEY, sampai INTEGER)`);
+    // Pencatat sesi main (dashboard Huda, 7 Nov 2026): jam masuk + jejak terakhir (detak posisi tiap ±30 dtk). Tidak tampil ke warga.
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS sesi (id INTEGER PRIMARY KEY AUTOINCREMENT, no INTEGER, masuk INTEGER, akhir INTEGER)`);
     this.pos = new Map();
     this.kirimTerakhir = 0;
   }
@@ -800,6 +839,14 @@ export class Ruang extends DurableObject {
         const nama = u.searchParams.get("nama") || "";
         return Response.json(this.sql.exec("SELECT t, no, ig, m FROM chat WHERE ch = 'dusun' AND (d IS NULL OR d = '' OR d = ?) ORDER BY id DESC LIMIT 200", nama).toArray());
       }
+      // Statistik untuk dashboard Huda (dipanggil worker setelah kunci dashboard dicek).
+      if (u.pathname === "/statistik") {
+        const sejak = +u.searchParams.get("sejak") || Date.now() - 14 * 864e5, nama = u.searchParams.get("nama") || "";
+        const sesi = this.sql.exec("SELECT no, masuk, akhir FROM sesi WHERE masuk >= ? ORDER BY masuk", sejak).toArray();
+        const chat = this.sql.exec("SELECT date((t + 25200000) / 1000, 'unixepoch') AS h, COUNT(*) AS n, COUNT(DISTINCT no) AS w FROM chat WHERE ch = 'dusun' AND t >= ? AND (d IS NULL OR d = '' OR d = ?) GROUP BY h", sejak, nama).toArray();
+        const sekitar = this.sql.exec("SELECT date((t + 25200000) / 1000, 'unixepoch') AS h, COUNT(*) AS n FROM chat WHERE ch = 'sekitar' AND t >= ? GROUP BY h", sejak).toArray();
+        return Response.json({ sesi, chat, sekitar });
+      }
       if (u.pathname === "/online") { const w = this.semua().filter((x) => x.a.no).map((x) => ({ no: x.a.no, ig: x.a.ig || "" })); return Response.json({ online: w.length, warga: w }); }
       return new Response("{}", { status: 404 });
     }
@@ -809,7 +856,10 @@ export class Ruang extends DurableObject {
     for (const { ws, a } of this.semua()) if (a.no === w.no) { try { ws.close(4000, "Masuk dari tempat lain"); } catch (e) {} }
     this.ctx.acceptWebSocket(s);
     const p0 = { x: w.x || 0, z: w.z || 0, r: 0, a: 0 };
-    s.serializeAttachment({ no: w.no, ig: w.ig, av: w.avatar || null, d: w.d || "", ...p0, kirim: 0 });
+    const kini = Date.now();
+    let sid = 0; try { sid = this.sql.exec("INSERT INTO sesi (no, masuk, akhir) VALUES (?, ?, ?) RETURNING id", w.no, kini, kini).toArray()[0].id; } catch (e) {}
+    if (Math.random() < 0.02) this.sql.exec("DELETE FROM sesi WHERE masuk < ?", kini - 90 * 864e5);
+    s.serializeAttachment({ no: w.no, ig: w.ig, av: w.avatar || null, d: w.d || "", ...p0, kirim: 0, sid, tulis: kini, simpan: kini });
     const lain = this.semua().filter((x) => x.ws !== s && x.a.no).map(({ a }) => ({ no: a.no, ig: a.ig, av: a.av, ...(this.pos.get(a.no) || { x: a.x, z: a.z, r: a.r || 0, a: 0 }) }));
     if (w.d) await this.gabungRiwayat(w.d);
     const riwayat = this.sql.exec("SELECT t, no, ig, ch, m, d FROM chat WHERE ch = 'dusun' ORDER BY t DESC LIMIT 60").toArray().reverse().map((r) => ({ ...r, m: saringChat(r.m).m || "★★★" }));
@@ -826,7 +876,12 @@ export class Ruang extends DurableObject {
       const p = { x: +q.x || 0, z: +q.z || 0, r: +q.r || 0, a: q.a ? 1 : 0 };
       if (![p.x, p.z, p.r].every(Number.isFinite)) return;
       this.pos.set(a.no, p);
-      if (now - (a.simpan || 0) > 5000) { ws.serializeAttachment({ ...a, ...p, simpan: now }); }
+      if (now - (a.simpan || 0) > 5000) {
+        // Detak sesi: posisi datang tiap ≤4 dtk selama game terbuka di layar (tab di belakang berhenti kirim).
+        let tulis = a.tulis || 0;
+        if (a.sid && now - tulis > 30000) { this.sql.exec("UPDATE sesi SET akhir = ? WHERE id = ?", now, a.sid); tulis = now; }
+        ws.serializeAttachment({ ...a, ...p, simpan: now, tulis });
+      }
       if (now - this.kirimTerakhir > 120) {
         this.kirimTerakhir = now;
         const daftar = []; for (const [no, v] of this.pos) daftar.push([no, Math.round(v.x * 10) / 10, Math.round(v.z * 10) / 10, Math.round(v.r * 100) / 100, v.a]);
@@ -871,7 +926,10 @@ export class Ruang extends DurableObject {
       ws.send(JSON.stringify({ t: "info", m: "Laporan terkirim. Terima kasih sudah menjaga desa." }));
     }
   }
-  async webSocketClose(ws) { const a = ws.deserializeAttachment() || {}; if (a.no) { this.pos.delete(a.no); this.siar({ t: "keluar", no: a.no }, ws); } }
+  async webSocketClose(ws) { const a = ws.deserializeAttachment() || {};
+    // Akhir sesi = detak posisi terakhir (bukan saat koneksi putus, supaya tab yang ditinggal tidak terhitung main).
+    if (a.sid && a.simpan) try { this.sql.exec("UPDATE sesi SET akhir = MAX(akhir, ?) WHERE id = ?", a.simpan, a.sid); } catch (e) {}
+    if (a.no) { this.pos.delete(a.no); this.siar({ t: "keluar", no: a.no }, ws); } }
   async webSocketError(ws) { return this.webSocketClose(ws); }
 }
 
@@ -915,6 +973,56 @@ function bacaAkun(body) {
   return { ig, tiktok, namaWarga, kerja };
 }
 
+// Gabungkan statistik warga (DO desa) + sesi main tiap dusun (DO ruang) untuk dashboard Huda.
+async function statistikDashboard(env, stub) {
+  const now = Date.now(), sejak = now - 14 * 864e5, DUSUN = ["wetan", "kulon", "curug"];
+  const w = await (await stub.fetch("https://do/statistik")).json();
+  const mentah = [], chat = {}, sekitar = {}, online = { total: 0, per: {} };
+  await Promise.all(DUSUN.map(async (d) => {
+    try {
+      const ru = env.RUANG.get(env.RUANG.idFromName(d));
+      const j = await (await ru.fetch("https://do/statistik?nama=" + d + "&sejak=" + sejak)).json();
+      for (const x of j.sesi || []) mentah.push({ ...x, d });
+      for (const x of j.chat || []) { chat[x.h] = chat[x.h] || { n: 0, w: 0 }; chat[x.h].n += x.n; chat[x.h].w += x.w; }
+      for (const x of j.sekitar || []) sekitar[x.h] = (sekitar[x.h] || 0) + x.n;
+      const o = await (await ru.fetch("https://do/online")).json(); online.per[d] = o.online || 0; online.total += o.online || 0;
+    } catch (e) { online.per[d] = online.per[d] || 0; }
+  }));
+  // Pindah dusun = koneksi baru; sambungkan sesi warga yang jedanya < 2 menit jadi satu sesi main.
+  mentah.sort((a, b) => a.no - b.no || a.masuk - b.masuk);
+  const sesi = [];
+  for (const x of mentah) {
+    const t = sesi[sesi.length - 1];
+    if (t && t.no === x.no && x.masuk - t.akhir < 120e3) { t.akhir = Math.max(t.akhir, x.akhir); continue; }
+    sesi.push({ no: x.no, masuk: x.masuk, akhir: Math.max(x.akhir, x.masuk), d: x.d });
+  }
+  const hariWibT = (t) => new Date(t + 7 * 3600e3).toISOString().slice(0, 10);
+  const median = (a) => { if (!a.length) return 0; const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+  const perHari = {}, hariWarga = new Map(), jam = Array(24).fill(0), lama = [];
+  for (const s of sesi) {
+    const h = hariWibT(s.masuk), mnt = (s.akhir - s.masuk) / 60000;
+    const p = perHari[h] = perHari[h] || { sesi: 0, menit: [], warga: new Set() };
+    p.sesi++; p.menit.push(mnt); p.warga.add(s.no); lama.push(mnt);
+    if (!hariWarga.has(s.no)) hariWarga.set(s.no, new Set()); hariWarga.get(s.no).add(h);
+    // menit main per jam WIB (untuk tahu jam ramai)
+    for (let t = s.masuk; t < s.akhir; t += 60000) jam[new Date(t + 7 * 3600e3).getUTCHours()]++;
+  }
+  // Puncak online per hari dari tumpang tindih sesi.
+  const puncak = {};
+  const ev = []; for (const s of sesi) { ev.push([s.masuk, 1]); ev.push([s.akhir + 1, -1]); }
+  ev.sort((a, b) => a[0] - b[0] || a[1] - b[1]); let c = 0;
+  for (const [t, k] of ev) { c += k; const h = hariWibT(t); if (!puncak[h] || c > puncak[h]) puncak[h] = c; }
+  const hari = Object.keys(perHari).sort().map((h) => {
+    const p = perHari[h], menitWarga = p.menit.reduce((a, b) => a + b, 0);
+    let lamaW = 0; for (const no of p.warga) { const hs = [...hariWarga.get(no)].sort(); if (hs[0] < h) lamaW++; }
+    return { h, sesi: p.sesi, warga: p.warga.size, kembali: lamaW, rata: +(menitWarga / p.sesi).toFixed(1), median: +median(p.menit).toFixed(1), totalMenit: Math.round(menitWarga), puncak: puncak[h] || 0, chat: (chat[h] || {}).n || 0, chatWarga: (chat[h] || {}).w || 0, sekitar: sekitar[h] || 0, daftar: w.daftar[h] || 0 };
+  });
+  const b = [[0, 1], [1, 5], [5, 15], [15, 30], [30, 60], [60, 1e9]];
+  const sebaran = b.map(([x, y]) => ({ dari: x, sampai: y, n: lama.filter((m) => m >= x && m < y).length }));
+  const pemain = hariWarga.size, balik = [...hariWarga.values()].filter((s) => s.size >= 2).length;
+  return { ...w, online, hari, jam, sebaran, ringkas: { sesi: sesi.length, pemain, balik, rata: lama.length ? +(lama.reduce((a, b) => a + b, 0) / lama.length).toFixed(1) : 0, median: +median(lama).toFixed(1), sesiPerPemain: pemain ? +(sesi.length / pemain).toFixed(2) : 0, mulaiCatat: mentah.length ? Math.min(...mentah.map((x) => x.masuk)) : 0 } };
+}
+
 async function apiWarga(request, env, url) {
   const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   const aksi = url.pathname.replace("/duniakotak/api/", "");
@@ -929,7 +1037,7 @@ async function apiWarga(request, env, url) {
     if (request.headers.get("Upgrade") !== "websocket") return json({ galat: "Butuh WebSocket" }, 426);
     if (!env.RUANG) return json({ galat: "Ruang belum aktif" }, 503);
     const kunci = String(url.searchParams.get("kunci") || "").slice(0, 64);
-    const r = await stub.fetch("https://do/sesi", { method: "POST", body: JSON.stringify({ kunci }) });
+    const r = await stub.fetch("https://do/sesi?ws=1", { method: "POST", body: JSON.stringify({ kunci }) });
     if (!r.ok) return json({ galat: "Masuk dulu sebagai warga." }, 401);
     const w = await r.json();
     const dusun = DUSUN_RUANG.includes(url.searchParams.get("dusun")) ? url.searchParams.get("dusun") : "wetan";
@@ -964,6 +1072,12 @@ async function apiWarga(request, env, url) {
   let body;
   try { body = await request.json(); } catch (e) { return json({ galat: "Data tidak terbaca" }, 400); }
   const bersihUsulan = (v) => String(v || "").replace(/[\u0000-\u001f<>]/g, " ").trim().slice(0, 140);
+  if (aksi === "statistik") {
+    const tk = String(body.kunci || "").trim();
+    const h = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(tk)))].map((b) => b.toString(16).padStart(2, "0")).join("");
+    if (h !== HASH_KUNCI_DASHBOARD) return json({ galat: "Kunci dashboard salah." }, 403);
+    return json(await statistikDashboard(env, stub));
+  }
   if (aksi === "daftar-ig") {
     const d = bacaAkun(body);
     if (d.galat) return json({ galat: d.galat }, 400);
