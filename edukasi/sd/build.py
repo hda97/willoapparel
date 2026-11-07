@@ -106,6 +106,9 @@ def main():
         data = json.loads((AKAR / 'src' / m.get('soal', gid) / 'soal.json').read_text())
         data.setdefault('id', 'sd-' + gid)
         data.setdefault('judul', m['judul'])
+        if m.get('soal'):  # game yang meminjam soal game lain tetap memakai judulnya sendiri
+            data['judul'] = m['judul']
+            data['id'] = 'sd-' + gid
         umum = ('\n' + (AKAR / 'src' / 'petualang.js').read_text()) if m.get('umum') else ''
         kode = pb.bundel(inti + umum + '\n// ================= GAME SD: ' + gid + ' =================\n' + (src / 'game.js').read_text(), 'sd_' + gid)
         out = KELUAR / gid / 'index.html'
