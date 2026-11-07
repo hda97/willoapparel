@@ -1,0 +1,71 @@
+name: Bot meme coin (paper trading)
+
+# Bot paper trading (uang bohongan). Tidak memakai private key atau secret apa pun.
+# Tiap jadwal, bot jalan ~9 menit (cek pasar tiap menit), lalu status disimpan
+# di cache Actions untuk dilanjutkan jadwal berikutnya.
+# Hentikan: Actions > "Bot meme coin (paper trading)" > ... > Disable workflow.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: bot-meme-coin
+  cancel-in-progress: false
+
+jobs:
+  paper-trading:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: bot-meme-coin
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: bot-meme-coin
+
+      - name: Ambil status sebelumnya
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            bot-meme-coin/status_paper.json
+            bot-meme-coin/riwayat_transaksi.csv
+            bot-meme-coin/log_bot.txt
+          key: bot-meme-coin-state-${{ github.run_id }}
+          restore-keys: bot-meme-coin-state-
+
+      - name: Jalankan bot ~9 menit
+        run: python3 bot.py --durasi-menit 9
+
+      - name: Ringkas log
+        if: always()
+        run: |
+          if [ -f log_bot.txt ]; then tail -n 20000 log_bot.txt > log.tmp && mv log.tmp log_bot.txt; fi
+          { echo '```'; python3 bot.py --laporan; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Simpan status
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            bot-meme-coin/status_paper.json
+            bot-meme-coin/riwayat_transaksi.csv
+            bot-meme-coin/log_bot.txt
+          key: bot-meme-coin-state-${{ github.run_id }}
+
+      - name: Unggah hasil
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hasil-paper-trading
+          path: |
+            bot-meme-coin/riwayat_transaksi.csv
+            bot-meme-coin/status_paper.json
+          retention-days: 3
+          if-no-files-found: ignore

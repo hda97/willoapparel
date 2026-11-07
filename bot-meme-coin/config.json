@@ -1,0 +1,36 @@
+{
+  "saldo_awal_usd": 100.0,
+  "ukuran_beli_usd": 10.0,
+  "maks_posisi_terbuka": 3,
+  "biaya_dan_slippage_persen": 2.0,
+  "jeda_putaran_detik": 60,
+  "filter": {
+    "likuiditas_min_usd": 20000,
+    "umur_min_menit": 15,
+    "umur_maks_jam": 48,
+    "volume_1jam_min_usd": 10000,
+    "transaksi_1jam_min": 50,
+    "rasio_beli_jual_min": 1.1,
+    "kenaikan_1jam_maks_persen": 300,
+    "kenaikan_5menit_maks_persen": 50,
+    "pakai_rugcheck": true,
+    "rugcheck_skor_maks": 50,
+    "top10_pemegang_maks_persen": 35,
+    "lp_terkunci_min_persen": 80,
+    "tolak_jika_mint_authority_aktif": true,
+    "tolak_jika_freeze_authority_aktif": true
+  },
+  "keluar": {
+    "take_profit_persen": 40,
+    "stop_loss_persen": 20,
+    "trailing_stop_persen": 15,
+    "trailing_aktif_setelah_naik_persen": 20,
+    "maks_tahan_menit": 240,
+    "jual_jika_likuiditas_turun_persen": 40
+  },
+  "pengaman": {
+    "batas_rugi_harian_usd": 20,
+    "maks_beli_per_hari": 10,
+    "jeda_beli_ulang_token_jam": 24
+  }
+}
