@@ -28,6 +28,11 @@ def aset_data_uri():
     return hasil
 
 
+def model_data_uri():
+    return {f.stem: 'data:model/gltf-binary;base64,' + base64.b64encode(f.read_bytes()).decode()
+            for f in sorted((AKAR / 'aset3d').glob('*.glb'))}
+
+
 def bundel():
     keluar = subprocess.run(
         [str(AKAR / 'node_modules' / '.bin' / 'esbuild'), str(AKAR / 'src' / 'game.js'), '--bundle', '--minify',
@@ -40,7 +45,8 @@ def main():
     isi = (AKAR / 'src' / 'template.html').read_text()
     aset = aset_data_uri()
     js = bundel()
-    badan = (isi + '\n<script>window.ASET=' + json.dumps(aset) + ';</script>\n<script>' + js + '</script>\n')
+    model = model_data_uri()
+    badan = (isi + '\n<script>window.ASET=' + json.dumps(aset) + ';window.ASET3D=' + json.dumps(model) + ';</script>\n<script>' + js + '</script>\n')
     ARTIFACT.parent.mkdir(exist_ok=True)
     ARTIFACT.write_text(badan)
     SITUS.parent.mkdir(parents=True, exist_ok=True)
@@ -48,7 +54,7 @@ def main():
                      '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">\n'
                      '<meta name="theme-color" content="#15181d">\n<link rel="canonical" href="https://www.willoapparel.com/pelarikalcer/">\n'
                      '</head>\n<body>\n' + badan + '</body>\n</html>\n')
-    print(f'aset {len(aset)} gambar, {sum(len(v) for v in aset.values())//1024} KB; js {len(js)//1024} KB')
+    print(f'model 3D {len(model)} ({sum(len(v) for v in model.values())//1024} KB); aset {len(aset)} gambar, {sum(len(v) for v in aset.values())//1024} KB; js {len(js)//1024} KB')
     print('ditulis:', SITUS, ARTIFACT)
 
 

@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 import qrcode from 'qrcode-generator';
 import { HAIRSTYLES, HAIR_COLORS, SKIN_TONES, GEAR_TABS, GEAR_CATALOG, GAMBAR_GEAR, MAPS, EXPO_BOOTHS, LEADERBOARD_DATA, CHAT_AWAL, CHAT_BANK, NAMA_NPC } from './data.js';
-import { ASET, $, mulberry, kanvasTex, sprite, RASIO, fmt, esc } from './util.js';
+import { ASET, $, mulberry, kanvasTex, sprite, RASIO, fmt, esc, muatModel, model } from './util.js';
 import { JARAK_FINISH, LAJUR, KECEPATAN_DASAR, KECEPATAN_MAKS, KALI_SPRINT, KALI_WALL, BATAS_WALL, KURAS_DASAR, KALI_KURAS_SPRINT, SKALA_WAKTU, WS_MULAI, WS_JENDELA, TOTAL_PELARI, URL_KAMPANYE, W } from './konst.js';
 import { bangunDunia, texLubang } from './dunia.js';
 import { buatPelari, papanNama, mat } from './pelari.js';
@@ -128,14 +128,15 @@ function bangunLintasan(seed) {
   const taruh = (o, x, d, y = 0) => { o.position.set(x, dunia.tinggi(d) + y, -d); trek.add(o); return o; };
   const tambah = (jenis, lajur, d, data = {}) => {
     let obj;
-    if (jenis === 'kerucut') obj = sprite('kerucut', 0.95);
+    if (jenis === 'kerucut') obj = model('kerucut') || sprite('kerucut', 0.95);
     else if (jenis === 'batu') obj = sprite('batu', 0.85, { warna: m.id === 'bromo' ? 0xb7b0a7 : 0xffffff });
     else if (jenis === 'lubang') { obj = new THREE.Mesh(geoLubang, matLubang); obj.rotation.x = -Math.PI / 2; }
     else if (jenis === 'akar') {
       obj = new THREE.Group(); const mA = mat('#5a4334');
       const a = new THREE.Mesh(geoAkar, mA); a.rotation.z = Math.PI / 2 + 0.12; a.position.y = 0.12; obj.add(a);
       for (const bx of [-0.6, 0.2, 0.75]) { const b = new THREE.Mesh(geoBenjol, mA); b.position.set(bx, 0.12, 0); b.scale.set(1, 0.7, 1); obj.add(b); }
-    } else if (jenis === 'pembatas') {
+    } else if (jenis === 'pembatas' && model('pembatas')) obj = model('pembatas');
+    else if (jenis === 'pembatas') {
       obj = new THREE.Group(); const p = new THREE.Mesh(geoPapan, materialPembatas); p.position.y = 0.62; obj.add(p);
       for (const sx of [-0.8, 0.8]) { const k = new THREE.Mesh(geoKaki, mat('#cfc8bb')); k.position.set(sx, 0.31, 0); obj.add(k); }
     } else obj = sprite(NAMA_SPRITE[jenis], UK_PICKUP[jenis]);
@@ -825,8 +826,10 @@ $('bCaption').onclick = () => {
 };
 
 // ---------------- mulai ----------------
-gantiDunia();
-pasangAvatar();
-perbaruiLobi();
-putar();
+muatModel().finally(() => {
+  gantiDunia();
+  pasangAvatar();
+  perbaruiLobi();
+  putar();
+});
 window.__pk = { P, S, get mode() { return mode; }, peloton: () => peloton, entitas: () => entitas, mulai, keLobi, kamera, get avatar() { return avatar; }, raycaster };

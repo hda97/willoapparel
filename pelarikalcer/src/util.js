@@ -51,3 +51,20 @@ export function sprite(nama, tinggiM, opsi = {}) {
 
 export const fmt = (s) => { s = Math.max(0, Math.round(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 export const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+// model 3D GLB buatan Sand3D (aset3d/*.glb, disisipkan build.py sebagai window.ASET3D)
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+const MODEL = {};
+export async function muatModel() {
+  const src = window.ASET3D || {}; const loader = new GLTFLoader();
+  await Promise.all(Object.entries(src).map(async ([k, uri]) => {
+    try {
+      const buf = await (await fetch(uri)).arrayBuffer();
+      const gl = await loader.parseAsync(buf, '');
+      gl.scene.traverse((o) => { if (o.isMesh) { o.userData.bersama = true; if (o.material) o.material.envMapIntensity = 0; } });
+      MODEL[k] = gl.scene;
+    } catch (e) { /* model gagal dimuat: pakai gambar datar */ }
+  }));
+}
+export const adaModel = (nama) => !!MODEL[nama];
+export function model(nama, skala = 1) { const m = MODEL[nama]; if (!m) return null; const c = m.clone(true); c.scale.setScalar(skala); return c; }

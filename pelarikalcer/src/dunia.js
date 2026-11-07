@@ -1,6 +1,6 @@
 // Dunia 3D per map (6 rute Master Bundle): permukaan jalan, elevasi, lingkungan, landmark, gerbang, area expo lobi.
 import * as THREE from 'three';
-import { kanvasTex, bintik, mulberry, sprite, texAset, saatRasio } from './util.js';
+import { kanvasTex, bintik, mulberry, sprite, texAset, saatRasio, model } from './util.js';
 import { JARAK_FINISH, AWAL_DUNIA, PANJANG_DUNIA, WS_JENDELA, W } from './konst.js';
 import { EXPO_BOOTHS } from './data.js';
 
@@ -129,6 +129,7 @@ export function bangunDunia(scene, m) {
     strip(36, 60, 0.0, permukaan[2], 12, PANJANG_DUNIA / 5, m.id === 'bromo' ? 0xb9b4ad : null);
   }
   const AKHIR = AWAL_DUNIA + PANJANG_DUNIA;
+  const pasangBangku = (x, d) => { const b = model('bangku'); if (b) { b.rotation.y = x < 0 ? Math.PI / 2 : -Math.PI / 2; taruh(b, x, d); } else taruh(sprite('bangku', 0.95), x, d); };
 
   // ---------- lingkungan ----------
   if (m.id === 'jakarta') {
@@ -145,10 +146,10 @@ export function bangunDunia(scene, m) {
       }
     }
     for (let d = AWAL_DUNIA + 4; d < AKHIR; d += 13) for (const sx of [-1, 1]) taruh(sprite('pohon', 5.2 + acak() * 1.5), sx * (8 + acak() * 3), d + acak() * 4);
-    for (let d = AWAL_DUNIA + 10; d < AKHIR; d += 30) for (const sx of [-1, 1]) taruh(sprite('lampu', 5.4), sx * 4.6, d);
+    for (let d = AWAL_DUNIA + 10; d < AKHIR; d += 30) for (const sx of [-1, 1]) { const l = model('lampu'); if (l) { l.rotation.y = sx < 0 ? 0 : Math.PI; taruh(l, sx * 4.7, d); } else taruh(sprite('lampu', 5.4), sx * 4.6, d); }
     for (let d = 60; d < JARAK_FINISH; d += 140 + acak() * 60) taruh(sprite('angkot', 2.3), (acak() < 0.5 ? -1 : 1) * 7.4, d);
     for (let d = 90; d < JARAK_FINISH; d += 120 + acak() * 70) taruh(sprite('gerobak', 2.1), (acak() < 0.5 ? -1 : 1) * 5.5, d);
-    for (let d = 40; d < JARAK_FINISH; d += 80 + acak() * 40) taruh(sprite('bangku', 0.95), (acak() < 0.5 ? -1 : 1) * 5.6, d);
+    for (let d = 40; d < JARAK_FINISH; d += 80 + acak() * 40) pasangBangku((acak() < 0.5 ? -1 : 1) * 5.6, d);
     for (let d = 120; d < JARAK_FINISH; d += 160 + acak() * 50) taruh(sprite('sepeda', 1.1), (acak() < 0.5 ? -1 : 1) * 6.3, d);
     for (const d of [150, 420, 780]) taruh(sprite('rambu', 3.6), 4.5, d);
     const mon = sprite('monas', 150, { fog: false, warna: kabutWarna('#ffffff', 0.2) }); grup.add(mon); jauh.push({ obj: mon, x: -6, dist: 420, y: -2 });
@@ -176,7 +177,7 @@ export function bangunDunia(scene, m) {
       taruh(g, -42 - acak() * 40, 40 + i * 120 + acak() * 50, -0.3);
     }
     for (const d of [150, 420, 760]) taruh(sprite('baligate', 9.5), 0, d);
-    for (let d = 30; d < JARAK_FINISH; d += 160 + acak() * 50) taruh(sprite('bangku', 0.95), 5.6, d);
+    for (let d = 30; d < JARAK_FINISH; d += 160 + acak() * 50) pasangBangku(5.6, d);
     gunung(220, 420, 170, 140, kabutWarna('#5c6e74', 0.35), 9);
   } else {
     // ---------- trail: pinus instanced, penanda pita Willo, gunung ----------
@@ -237,6 +238,8 @@ export function bangunDunia(scene, m) {
   taruh(sprite('finish', 2.6), -4.3, JARAK_FINISH); taruh(sprite('finish', 2.6), 4.3, JARAK_FINISH);
   const mMeja = lam(W.pinus);
   for (let d = WS_JENDELA[0]; d <= WS_JENDELA[1]; d += 9) for (const sx of [-1, 1]) {
+    const mj = model('meja_air');
+    if (mj) { taruh(mj, sx * 4.6, d); continue; }
     taruh(new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.8, 3), mMeja), sx * 4.6, d, 0.4);
     for (let k = -1; k <= 1; k++) taruh(sprite('item_isotonic', 0.45), sx * 4.6, d + k * 0.9, 0.8);
   }
@@ -268,7 +271,7 @@ export function bangunDunia(scene, m) {
     },
     buang() {
       scene.remove(grup);
-      grup.traverse((o) => { if (o.geometry && !o.isSprite) o.geometry.dispose(); });
+      grup.traverse((o) => { if (o.geometry && !o.isSprite && !o.userData.bersama) o.geometry.dispose(); });
       for (const x of milik) x.dispose();
     },
   };
