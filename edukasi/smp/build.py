@@ -30,6 +30,8 @@ GAME = {
                           desk='Balapan menyusuri kota. Jawaban bahasa Inggris yang tepat berlari maju satu blok menuju garis finis.'),
     'coding-quest': dict(judul='Coding Quest', mapel='Informatika', kunci='informatika', bank='bank_informatika', ikon='🤖', aksen='#5f3dc4', latar='#f3f0ff', bersama=True,
                          desk='Jalankan kode bersama satu kelas. Jawaban benar membuat robot maju satu petak di lintasan sirkuit.'),
+    'pelayaran-nusantara': dict(judul='Pelayaran Nusantara', mapel='IPS', kunci='ips', bank='bank_ips', ikon='⛵', aksen='#0b7285', latar='#e3fafc', bersama=True,
+                                desk='Berlayar dari Sabang sampai Merauke. Jawaban sejarah dan geografi yang benar membawa kapal ke pelabuhan berikutnya.'),
 }
 SEGERA = []
 
