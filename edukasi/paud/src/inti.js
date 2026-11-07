@@ -167,18 +167,19 @@ function hadapDepan(k, sudut) { k.userData.hadapDepan = true; if (sudut != null)
 const P = {};
 function gradasi(warna) { const c = document.createElement('canvas'); c.width = 4; c.height = 256; const x = c.getContext('2d'); const g = x.createLinearGradient(0, 0, 0, 256); const b = new THREE.Color(warna);
   g.addColorStop(0, '#' + b.clone().offsetHSL(0, .05, -.12).getHexString()); g.addColorStop(.7, warna); g.addColorStop(1, '#ffffff'); x.fillStyle = g; x.fillRect(0, 0, 4, 256); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; }
-function siapPanggung({langit = '#bfe6ff', tanahWarna = '#7cc96b', kabut = null, lebarArea = 10, dalamArea = 8, lebarTegak = 6.2, dalamTegak = 8.4, sudut = 46} = {}) {
+function siapPanggung({langit = '#bfe6ff', tanahWarna = '#7cc96b', kabut = null, lebarArea = 10, dalamArea = 8, lebarTegak = 6.2, dalamTegak = 8.4, sudut = 46, yaw = 0, fov = 38, dMin = 8, dMax = 40, batasX = 5, batasZ = [-6, 8]} = {}) {
+  // yaw: putaran kamera (0 = dari depan seperti PAUD, PI/4 = isometrik untuk SD)
   const R = new THREE.WebGLRenderer({canvas: $('layar'), antialias: true, preserveDrawingBuffer: true});
   R.setPixelRatio(Math.min(devicePixelRatio, 2)); R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap;
   R.outputColorSpace = THREE.SRGBColorSpace; R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.2;
   const sc = new THREE.Scene(); sc.background = gradasi(langit);
   sc.fog = new THREE.Fog(kabut || langit, 34, 80);
-  const cam = new THREE.PerspectiveCamera(38, 1, .1, 200);
+  const cam = new THREE.PerspectiveCamera(fov, 1, .1, 200);
   sc.add(new THREE.HemisphereLight(0xffffff, 0xa8c8a0, 1.3));
   const mt = new THREE.DirectionalLight(0xfff4e8, 2.4); mt.position.set(8, 18, 11); mt.castShadow = true;
   mt.shadow.mapSize.set(2048, 2048); const sh = mt.shadow.camera; sh.left = -12; sh.right = 12; sh.top = 12; sh.bottom = -12; sh.near = 1; sh.far = 40; mt.shadow.bias = -.0004; mt.shadow.radius = 4;
   sc.add(mt);
-  Object.assign(P, {R, sc, cam, mt, lebarArea, dalamArea, lebarTegak, dalamTegak, sudut, fokus: new THREE.Vector3(0, 0, 0)});
+  Object.assign(P, {R, sc, cam, mt, lebarArea, dalamArea, lebarTegak, dalamTegak, sudut, yaw, dMin, dMax, batasX, batasZ, fokus: new THREE.Vector3(0, 0, 0)});
   const ukur = () => {
     const w = innerWidth, h = innerHeight; R.setSize(w, h, false); cam.aspect = w / h;
     // kamera atas TETAP: jarak menyesuaikan lebar layar supaya area main selalu muat (HP tegak/rebah)
@@ -187,8 +188,8 @@ function siapPanggung({langit = '#bfe6ff', tanahWarna = '#7cc96b', kabut = null,
     const butuhH = (lw / 2) / Math.tan(fovH / 2), butuhV = (ld / 2) / Math.tan(fovV / 2) * (tegak() ? .9 : .8);
     const d = Math.max(butuhH, butuhV) + 1;
     const sud = THREE.MathUtils.degToRad(P.sudut); // sudut menunduk tetap
-    cam.position.set(P.fokus.x, P.fokus.y + Math.sin(sud) * d, P.fokus.z + Math.cos(sud) * d);
-    cam.lookAt(P.fokus.x, P.fokus.y + .6, P.fokus.z + (tegak() ? 1.1 : 1.0)); cam.updateProjectionMatrix();
+    cam.position.set(P.fokus.x + Math.sin(P.yaw) * Math.cos(sud) * d, P.fokus.y + Math.sin(sud) * d, P.fokus.z + Math.cos(P.yaw) * Math.cos(sud) * d);
+    cam.lookAt(P.fokus.x, P.fokus.y + .6, P.fokus.z + (P.yaw ? 0 : tegak() ? 1.1 : 1.0)); cam.updateProjectionMatrix();
   };
   addEventListener('resize', ukur); ukur(); P.ukur = ukur; pasangKetuk();
   P.drone = {d: cam.position.distanceTo(new THREE.Vector3(0, 0, 0)), tz: 0, tx: 0};
@@ -198,9 +199,10 @@ function siapPanggung({langit = '#bfe6ff', tanahWarna = '#7cc96b', kabut = null,
 const _v3 = new THREE.Vector3(), _bx = new THREE.Box3();
 function batasUI() {
   let atas = Math.max(0, ...['bintang', 'bSuara'].map(id => { const e = $(id); return e ? e.getBoundingClientRect().bottom : 0; })) + 8;
-  let bawah = innerHeight; ['gelembung', 'kartu', 'pilihan'].forEach(id => { const e = $(id); if (!e || e.hidden) return; const r = e.getBoundingClientRect(); if (r.height && !(innerWidth > 700 && r.right < innerWidth * .3)) bawah = Math.min(bawah, r.top); });
+  let bawah = innerHeight, kanan = innerWidth - 8; ['gelembung', 'kartu', 'pilihan', 'numpad'].forEach(id => { const e = $(id); if (!e || e.hidden) return; const r = e.getBoundingClientRect(); if (!r.height) return;
+    if (innerWidth > 700 && r.left > innerWidth * .6) kanan = Math.min(kanan, r.left - 10); else if (!(innerWidth > 700 && r.right < innerWidth * .45 && r.left < 40)) bawah = Math.min(bawah, r.top); });
   const lm = $('layarMulai'); if (lm && !lm.hidden) { const a = lm.querySelector('.mAtas'), z = lm.querySelector('.mBawah'); if (a) atas = Math.max(atas, a.getBoundingClientRect().bottom + 8); if (z) bawah = Math.min(bawah, z.getBoundingClientRect().top); }
-  return {atas, bawah: bawah - 10, kiri: innerWidth > 700 && $('kartu') && !$('kartu').hidden ? $('kartu').getBoundingClientRect().right + 10 : 8};
+  return {atas, bawah: bawah - 10, kanan, kiri: innerWidth > 700 && $('kartu') && !$('kartu').hidden && $('kartu').getBoundingClientRect().left < 40 ? $('kartu').getBoundingClientRect().right + 10 : 8};
 }
 function bingkaiDrone(dt) {
   const objs = [P.tokoh, ...objRonde].filter(Boolean); if (!objs.length || !P.drone) return;
@@ -213,18 +215,20 @@ function bingkaiDrone(dt) {
     }
   }
   if (!isFinite(y0)) return;
-  const tinggi = b.bawah - b.atas, lebar = innerWidth - b.kiri - 8;
+  const tinggi = b.bawah - b.atas, lebar = b.kanan - b.kiri;
   const isi = Math.max((y1 - y0) / Math.max(60, tinggi), (x1 - x0) / Math.max(60, lebar));
   const D = P.drone, k = Math.min(1, dt * 2.2);
   // zoom: isi ideal 82% ruang kosong; geser: pusat isi ke pusat ruang kosong
   if (isi > .9 || isi < .7) D.d *= 1 + (isi - .82) * k * .6;
-  D.d = Math.max(8, Math.min(40, D.d));
-  const dy = ((y0 + y1) / 2 - (b.atas + b.bawah) / 2) / innerHeight, dx = ((x0 + x1) / 2 - (b.kiri + innerWidth - 8) / 2) / innerWidth;
+  D.d = Math.max(P.dMin, Math.min(P.dMax, D.d));
+  const dy = ((y0 + y1) / 2 - (b.atas + b.bawah) / 2) / innerHeight, dx = ((x0 + x1) / 2 - (b.kiri + b.kanan) / 2) / innerWidth;
   if (Math.abs(dy) > .012) D.tz += dy * D.d * .9 * k;
   if (Math.abs(dx) > .012) D.tx += dx * D.d * .9 * k;
-  D.tz = Math.max(-6, Math.min(8, D.tz)); D.tx = Math.max(-5, Math.min(5, D.tx));
-  const sud = THREE.MathUtils.degToRad(P.sudut);
-  P.cam.position.set(D.tx, Math.sin(sud) * D.d, D.tz + Math.cos(sud) * D.d); P.cam.lookAt(D.tx, 0, D.tz);
+  D.tz = Math.max(P.batasZ[0], Math.min(P.batasZ[1], D.tz)); D.tx = Math.max(-P.batasX, Math.min(P.batasX, D.tx));
+  // tx = geser ke kanan layar, tz = geser ke arah kamera; diputar sesuai yaw (yaw 0 = sama seperti PAUD)
+  const sud = THREE.MathUtils.degToRad(P.sudut), cy = Math.cos(P.yaw), sy = Math.sin(P.yaw);
+  const fx = (P.pusat ? P.pusat.x : 0) + D.tx * cy + D.tz * sy, fz = (P.pusat ? P.pusat.z : 0) - D.tx * sy + D.tz * cy;
+  P.cam.position.set(fx + sy * Math.cos(sud) * D.d, Math.sin(sud) * D.d, fz + cy * Math.cos(sud) * D.d); P.cam.lookAt(fx, 0, fz);
 }
 // tanah halus bertekstur (seperti tanah Dunia Kotak: satu bidang, bukan ribuan kubus)
 function tanahVoxel(w, d, warna, {y = 0} = {}) {
@@ -464,7 +468,7 @@ function pilihanUI(daftar, fn) {
 }
 // tanda "Supported by www.willoapparel.com": dipasang ulang otomatis bila dihapus dari HTML
 function pastikanDukung() {
-  ['layarMulai', 'layarSelesai'].forEach(id => { const k = $(id) && $(id).querySelector('.kotak'); if (!k) return;
+  ['layarMulai', 'layarSelesai', 'layarFase'].forEach(id => { const k = $(id) && $(id).querySelector('.kotak'); if (!k) return;
     let a = k.querySelector('.dukung'); if (!a) { a = document.createElement('a'); a.className = 'dukung'; k.appendChild(a); }
     a.href = 'https://www.willoapparel.com'; a.target = '_blank'; a.rel = 'noopener'; a.innerHTML = 'Supported by <b>www.willoapparel.com</b>';
     a.style.cssText = 'display:table!important;visibility:visible!important;opacity:1!important;margin:16px auto 0;padding:4px 14px;border-radius:99px;background:rgba(255,255,255,.92);font-size:14px;font-weight:700;color:#666;text-decoration:none'; a.firstElementChild.style.color = '#e8590c'; });

@@ -5,3 +5,4 @@
 .env.*
 !.env.example
 edukasi/paud/node_modules/
+edukasi/paud/__pycache__/
