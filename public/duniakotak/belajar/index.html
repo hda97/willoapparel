@@ -63,6 +63,8 @@ ul.game li:last-child{border-bottom:0}
 .nm b{display:block;font-weight:900;font-size:15px}
 .nm span{display:block;font-weight:600;font-size:12.5px;opacity:.75;line-height:1.35}
 .isi .beli{width:100%}
+.isi .beli{margin-top:16px}
+.catat.akhir{margin-bottom:0}
 .catat{font-size:12px;font-weight:600;opacity:.7;margin:8px 0 0;text-align:center}
 video{width:100%;border-radius:14px;background:#000;display:block;margin-top:12px}
 .lain{display:grid;grid-template-columns:1fr;gap:18px}
@@ -96,6 +98,34 @@ details p{font-weight:600;font-size:14px;line-height:1.55;margin:8px 0 0}
 .willo .kaki{margin:14px 0 0;font:700 10px ui-monospace,Menlo,monospace;letter-spacing:.14em;color:#55524c}
 @media(min-width:720px){.willo{grid-template-columns:1.3fr 1fr;align-items:center}.willo{align-items:stretch}.willo .wFoto{aspect-ratio:900/440;align-self:center}.willo .wFoto img{object-fit:contain;}.willo .wFoto:after{display:none}.willo .wIsi{align-self:center}.willo .wIsi{padding:26px 28px 26px 8px}}
 .dukung{display:block;text-align:center;margin-top:14px;font-weight:900;font-size:14px;text-decoration:none;color:#1f2a5a}
+.beli.besar{font-size:18px;padding:16px 22px}
+.ctaKet{display:block;width:100%;font-weight:700;font-size:13px;opacity:.8}
+.mosaik{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:420px;width:100%;justify-self:center}
+.mosaik img{width:100%;height:auto;border-radius:14px;display:block;box-shadow:0 5px 0 rgba(29,42,29,.18);border:3px solid #fff}
+@media(max-width:819px){.mosaik{grid-template-columns:repeat(4,1fr);max-width:none;gap:6px}.mosaik img{border-radius:10px;border-width:2px}}
+.pilih{scroll-margin-top:12px}
+.ubin{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:700px){.ubin{grid-template-columns:1fr 1fr}}
+.ubin article{display:grid;grid-template-columns:110px 1fr;gap:12px;align-items:center;background:var(--kartu);border-radius:18px;padding:10px;box-shadow:0 5px 0 rgba(29,42,29,.14);border-left:6px solid var(--w)}
+.ubin img{width:110px;height:110px;object-fit:cover;border-radius:12px;display:block}
+.ubin small{display:block;font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--w)}
+.ubin b{display:block;font-weight:900;font-size:18px;margin:2px 0}
+.ubin span{display:block;font-weight:600;font-size:13px;line-height:1.35;opacity:.8}
+.ubin p{display:flex;gap:8px;align-items:center;margin:9px 0 0}
+.beli.kecil{font-size:14px;padding:9px 16px;box-shadow:0 4px 0 #c9a21d}
+.lihatIsi{font-weight:800;font-size:13px;color:var(--tinta)}
+.smaSegera{font-weight:700;font-size:13px;opacity:.75;margin:12px 0 0}
+.lekat{display:none}
+@media(max-width:819px){.lekat{display:block;position:fixed;left:12px;right:12px;bottom:12px;z-index:20;text-align:center;font:900 17px Montserrat,sans-serif;text-decoration:none;background:var(--kuning);color:var(--tinta);border-radius:16px;padding:15px;box-shadow:0 5px 0 #c9a21d,0 10px 26px rgba(0,0,0,.25);transform:translateY(140%);transition:transform .25s}.lekat.on{transform:none}body{padding-bottom:80px}}
+.pilihSub{font-weight:600;font-size:15px;margin:-4px 0 14px}
+.contoh.coba{font-size:14px;padding:9px 14px;background:var(--rumput);color:#fff;border-color:var(--rumput);box-shadow:0 4px 0 #2f6b28}
+.layar{position:fixed;inset:0;z-index:50;background:rgba(10,20,10,.88);display:flex;flex-direction:column;padding:10px}
+.layar[hidden]{display:none}
+.layarKepala{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#fff;padding:4px 4px 10px}
+.layarKepala b{font-weight:900;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.layarKepala button{font:900 15px Montserrat,sans-serif;background:#fff;color:var(--tinta);border:0;border-radius:12px;padding:10px 14px;cursor:pointer}
+.layar iframe{flex:1;width:100%;max-width:1100px;margin:0 auto;border:0;border-radius:14px;background:#cfeaff}
+body.kunci{overflow:hidden}
 </style>
 </head>
 <body>
@@ -105,56 +135,45 @@ details p{font-weight:600;font-size:14px;line-height:1.55;margin:8px 0 0}
     <div><b>Dunia Kotak</b><span>Game edukasi untuk guru · @duniakotak.id</span></div>
   </header>
 
-  <div class="hero">
+  <div class="hero" id="atas">
     <div>
-      <h1>Paket Game Edukasi 3D untuk Kelas Anda</h1>
-      <p class="sub">Game belajar bergaya kotak untuk PAUD, SD, dan SMP (5 mapel, multiplayer satu kelas). SMA segera hadir. Sekali beli, file game jalan di laptop kelas tanpa internet, dan soalnya bisa Anda ganti sendiri.</p>
-      <ul class="lencana"><li>📴 Tanpa internet</li><li>✏️ Soal bisa diganti guru</li><li>🎬 Tutorial guru</li><li>📚 Kurikulum Merdeka</li></ul>
+      <h1>Game edukasi 3D, siap dipakai besok di kelas</h1>
+      <p class="sub">Murid belajar sambil berpetualang. Sekali beli, file game jalan di laptop kelas tanpa internet, dan soalnya bisa Anda ganti sendiri.</p>
+      <ul class="lencana"><li>📴 Tanpa internet</li><li>✏️ Soal bisa diganti guru</li><li>📚 Kurikulum Merdeka</li></ul>
       <div class="cta">
-        <a class="beli" href="#paud">🛒 Paket PAUD</a>
-        <a class="beli hijau" href="#sd">🛒 Paket SD</a>
-        <a class="beli" href="#sd-rpg" style="background:#7048e8;color:#fff;box-shadow:0 5px 0 #4c2fb0">⚔️ RPG SD semua mapel</a>
-        <a class="beli" href="https://lynk.id/creator.store/68me37voov51" target="_blank" rel="noopener" style="background:#1c7ed6;color:#fff;box-shadow:0 5px 0 #145a9c">🛒 Paket SMP 5 mapel</a>
+        <a class="beli besar" id="ctaUtama" href="#pilih">▶ Coba game gratis</a>
+        <span class="ctaKet">Langsung main di halaman ini, tanpa daftar</span>
       </div>
     </div>
-    <svg class="kubus" viewBox="0 0 420 210" role="img" aria-label="Tumpukan kotak Dunia Kotak">
-      <defs>
-        <g id="k">
-          <path d="M0 -20 L34 -37 L68 -20 L34 -3 Z" fill="currentColor"/>
-          <path d="M0 -20 L34 -3 L34 37 L0 20 Z" fill="currentColor"/><path d="M0 -20 L34 -3 L34 37 L0 20 Z" fill="#000" opacity=".18"/>
-          <path d="M68 -20 L34 -3 L34 37 L68 20 Z" fill="currentColor"/><path d="M68 -20 L34 -3 L34 37 L68 20 Z" fill="#000" opacity=".32"/>
-          <path d="M0 -20 L34 -37 L68 -20 L34 -3 Z" fill="#fff" opacity=".14"/>
-        </g>
-        <g id="r">
-          <path d="M0 -20 L34 -37 L68 -20 L34 -3 Z" fill="#7ccc52"/>
-          <path d="M0 -20 L34 -3 L34 37 L0 20 Z" fill="#a9824f"/><path d="M0 -20 L34 -3 L34 -8 L0 -25 Z" fill="#5fae3d" transform="translate(0 5)"/>
-          <path d="M68 -20 L34 -3 L34 37 L68 20 Z" fill="#8a663a"/><path d="M68 -20 L34 -3 L34 2 L68 -15 Z" fill="#4f9a3a"/>
-        </g>
-      </defs>
-      <use href="#r" x="40" y="150"/><use href="#r" x="108" y="150"/><use href="#r" x="176" y="150"/><use href="#r" x="244" y="150"/><use href="#r" x="312" y="150"/>
-      <use href="#r" x="74" y="167"/><use href="#r" x="142" y="167"/><use href="#r" x="210" y="167"/><use href="#r" x="278" y="167"/>
-      <use href="#k" x="108" y="110" style="color:#2f9e44"/>
-      <use href="#k" x="176" y="110" style="color:#d6336c"/>
-      <use href="#k" x="244" y="110" style="color:#1c7ed6"/>
-      <use href="#k" x="142" y="70" style="color:#ffd23a"/>
-      <use href="#k" x="210" y="70" style="color:#5f3dc4"/>
-      <use href="#k" x="176" y="30" style="color:#2f9e44"/>
-      <text x="176" y="128" font-family="Montserrat,sans-serif" font-weight="900" font-size="20" fill="#fff" text-anchor="middle" transform="translate(34 0)">A</text>
-      <text x="244" y="128" font-family="Montserrat,sans-serif" font-weight="900" font-size="20" fill="#fff" text-anchor="middle" transform="translate(34 0)">π</text>
-      <text x="108" y="128" font-family="Montserrat,sans-serif" font-weight="900" font-size="20" fill="#fff" text-anchor="middle" transform="translate(34 0)">1</text>
-    </svg>
-
+    <div class="mosaik" aria-hidden="true">
+      <img src="aset/paud-1.jpg" alt="" width="720" height="720">
+      <img src="aset/sd-1.jpg" alt="" width="720" height="720">
+      <img src="aset/rpg-1.jpg" alt="" width="720" height="720">
+      <img src="aset/smp-1.jpg" alt="" width="720" height="720">
+    </div>
   </div>
+
+  <section class="pilih" id="pilih" aria-label="Pilih paket">
+    <h2 class="judul">Coba dulu, gratis 3 soal</h2>
+    <p class="pilihSub">Pilih jenjang, mainkan contohnya langsung di halaman ini, lalu lihat isi paketnya.</p>
+    <div class="ubin">
+      <article style="--w:#2f9e44"><img src="aset/paud-1.jpg" alt="Paket PAUD" width="720" height="720" loading="lazy"><div><small>PAUD · usia 4–6</small><b>Paket PAUD</b><span>4 game: huruf, angka, bentuk, binatang</span><p><a class="contoh coba" data-main="1" href="/edukasi/paud/huruf/">▶ Coba gratis</a><a class="lihatIsi" href="#paud">Lihat isi &amp; beli</a></p></div></article>
+      <article style="--w:#d6336c"><img src="aset/sd-1.jpg" alt="Paket SD" width="720" height="720" loading="lazy"><div><small>SD · kelas 1–6</small><b>Paket SD</b><span>4 game: Matematika, B. Indonesia, IPAS, B. Inggris</span><p><a class="contoh coba" data-main="1" href="/edukasi/sd/hitung/">▶ Coba gratis</a><a class="lihatIsi" href="#sd">Lihat isi &amp; beli</a></p></div></article>
+      <article style="--w:#7048e8"><img src="aset/rpg-1.jpg" alt="Petualang Ilmu RPG SD" width="720" height="720" loading="lazy"><div><small>SD · RPG · baru</small><b>Petualang Ilmu</b><span>Adventure RPG, soal semua mapel bisa diganti guru</span><p><a class="contoh coba" data-main="1" href="/edukasi/sd/hitung-rpg/">▶ Coba gratis</a><a class="lihatIsi" href="#sd-rpg">Lihat isi &amp; beli</a></p></div></article>
+      <article style="--w:#1c7ed6"><img src="aset/smp-1.jpg" alt="Paket SMP" width="720" height="720" loading="lazy"><div><small>SMP · kelas 7–9</small><b>Paket SMP</b><span>5 game, main satu kelas lewat laptop guru</span><p><a class="contoh coba" data-main="1" href="/edukasi/smp/menara-hitung/">▶ Coba gratis</a><a class="lihatIsi" href="#smp">Lihat isi &amp; beli</a></p></div></article>
+    </div>
+    <p class="smaSegera">SMA (Fisika, Kimia, Biologi, Matematika) segera hadir.</p>
+  </section>
 
   <h2 class="judul">Kenapa guru memakainya</h2>
   <div class="manfaat">
     <div><i>📴</i><b>Jalan tanpa internet</b><span>Cukup buka file HTML di Chrome. Cocok untuk kelas tanpa wifi, proyektor, laptop, tablet, atau HP.</span></div>
     <div><i>✏️</i><b>Soal bisa diganti tanpa coding</b><span>Tekan tombol Guru, ketik soal atau tempel dari Excel, lalu simpan jadi file game baru.</span></div>
     <div><i>🎮</i><b>Murid betah belajar</b><span>Dunia 3D, karakter lucu, musik, dan suara pembaca soal membuat latihan terasa seperti main.</span></div>
-    <div><i>🎬</i><b>Langsung bisa dipakai</b><span>Setiap paket berisi tutorial guru: video (PAUD) atau panduan bergambar (SD).</span></div>
+    <div><i>🎬</i><b>Langsung bisa dipakai</b><span>Setiap paket berisi tutorial guru, jadi tidak perlu belajar lama.</span></div>
   </div>
 
-  <h2 class="judul">Pilih paket</h2>
+  <h2 class="judul">Isi tiap paket</h2>
 
   <section class="produk" id="paud" style="--w:#2f9e44">
     <div class="kepala"><small>Usia 4 sampai 6 tahun · tersedia</small><h3>Paket PAUD: 4 game, 4 tema</h3></div>
@@ -177,15 +196,15 @@ details p{font-weight:600;font-size:14px;line-height:1.55;margin:8px 0 0}
         </ul>
         <h4>Isi game (coba contoh 3 soal)</h4>
         <ul class="game">
-          <li><span class="ik">🔤</span><span class="nm"><b>Petualang Huruf</b><span>Huruf A sampai Z dan bunyi awal kata</span></span><a class="contoh" href="/edukasi/paud/huruf/" target="_blank" rel="noopener">👀 Contoh</a></li>
-          <li><span class="ik">🍎</span><span class="nm"><b>Petualang Angka</b><span>Berhitung 1 sampai 20, banyak dan sedikit</span></span><a class="contoh" href="/edukasi/paud/angka/" target="_blank" rel="noopener">👀 Contoh</a></li>
-          <li><span class="ik">🔺</span><span class="nm"><b>Pelangi Bentuk</b><span>Warna dan bentuk dasar</span></span><a class="contoh" href="/edukasi/paud/bentuk/" target="_blank" rel="noopener">👀 Contoh</a></li>
-          <li><span class="ik">🐮</span><span class="nm"><b>Kebun Binatang Suara</b><span>Hewan, suaranya, dan makanannya</span></span><a class="contoh" href="/edukasi/paud/binatang/" target="_blank" rel="noopener">👀 Contoh</a></li>
+          <li><span class="ik">🔤</span><span class="nm"><b>Petualang Huruf</b><span>Huruf A sampai Z dan bunyi awal kata</span></span><a class="contoh" data-main="1" href="/edukasi/paud/huruf/">👀 Contoh</a></li>
+          <li><span class="ik">🍎</span><span class="nm"><b>Petualang Angka</b><span>Berhitung 1 sampai 20, banyak dan sedikit</span></span><a class="contoh" data-main="1" href="/edukasi/paud/angka/">👀 Contoh</a></li>
+          <li><span class="ik">🔺</span><span class="nm"><b>Pelangi Bentuk</b><span>Warna dan bentuk dasar</span></span><a class="contoh" data-main="1" href="/edukasi/paud/bentuk/">👀 Contoh</a></li>
+          <li><span class="ik">🐮</span><span class="nm"><b>Kebun Binatang Suara</b><span>Hewan, suaranya, dan makanannya</span></span><a class="contoh" data-main="1" href="/edukasi/paud/binatang/">👀 Contoh</a></li>
         </ul>
-        <a class="beli" href="https://lynk.id/creator.store/qx7nj352km6d" target="_blank" rel="noopener">🛒 Beli Paket PAUD di lynk.id</a>
-        <p class="catat">Pembayaran dan unduhan file lewat lynk.id.</p>
         <video controls preload="none" poster="aset/tutorial-paud.jpg" src="aset/tutorial-paud.mp4"></video>
         <p class="catat">Cuplikan video tutorial guru yang ada di dalam paket.</p>
+        <a class="beli" href="https://lynk.id/creator.store/qx7nj352km6d" target="_blank" rel="noopener">🛒 Beli Paket PAUD di lynk.id</a>
+        <p class="catat akhir">Pembayaran dan unduhan file lewat lynk.id.</p>
       </div>
     </div>
   </section>
@@ -212,15 +231,15 @@ details p{font-weight:600;font-size:14px;line-height:1.55;margin:8px 0 0}
         </ul>
         <h4>Isi game (coba contoh 3 soal)</h4>
         <ul class="game">
-          <li><span class="ik">➗</span><span class="nm"><b>Petualang Hitung</b><span>Matematika: bilangan, uang, pecahan, luas dan keliling</span></span><a class="contoh" href="/edukasi/sd/hitung/" target="_blank" rel="noopener">👀 Contoh</a></li>
-          <li><span class="ik">📖</span><span class="nm"><b>Petualang Kata</b><span>Bahasa Indonesia: membaca, kosakata, kalimat</span></span><a class="contoh" href="/edukasi/sd/kata/" target="_blank" rel="noopener">👀 Contoh</a></li>
-          <li><span class="ik">🌿</span><span class="nm"><b>Penjelajah Alam</b><span>IPAS: makhluk hidup, cuaca, lingkungan</span></span><a class="contoh" href="/edukasi/sd/alam/" target="_blank" rel="noopener">👀 Contoh</a></li>
-          <li><span class="ik">🗣️</span><span class="nm"><b>English Explorer</b><span>Bahasa Inggris: kosakata dan percakapan</span></span><a class="contoh" href="/edukasi/sd/english/" target="_blank" rel="noopener">👀 Contoh</a></li>
+          <li><span class="ik">➗</span><span class="nm"><b>Petualang Hitung</b><span>Matematika: bilangan, uang, pecahan, luas dan keliling</span></span><a class="contoh" data-main="1" href="/edukasi/sd/hitung/">👀 Contoh</a></li>
+          <li><span class="ik">📖</span><span class="nm"><b>Petualang Kata</b><span>Bahasa Indonesia: membaca, kosakata, kalimat</span></span><a class="contoh" data-main="1" href="/edukasi/sd/kata/">👀 Contoh</a></li>
+          <li><span class="ik">🌿</span><span class="nm"><b>Penjelajah Alam</b><span>IPAS: makhluk hidup, cuaca, lingkungan</span></span><a class="contoh" data-main="1" href="/edukasi/sd/alam/">👀 Contoh</a></li>
+          <li><span class="ik">🗣️</span><span class="nm"><b>English Explorer</b><span>Bahasa Inggris: kosakata dan percakapan</span></span><a class="contoh" data-main="1" href="/edukasi/sd/english/">👀 Contoh</a></li>
         </ul>
-        <a class="beli hijau" href="https://lynk.id/creator.store/vwkejw00pj39" target="_blank" rel="noopener">🛒 Beli Paket SD di lynk.id</a>
-        <p class="catat">Pembayaran dan unduhan file lewat lynk.id.</p>
         <video controls preload="none" poster="aset/tutorial-sd.jpg" src="aset/tutorial-sd.mp4"></video>
         <p class="catat">Cuplikan cara pakai Mode Guru (Petualang Hitung). Di dalam paket SD, tutorialnya berupa panduan bergambar.</p>
+        <a class="beli hijau" href="https://lynk.id/creator.store/vwkejw00pj39" target="_blank" rel="noopener">🛒 Beli Paket SD di lynk.id</a>
+        <p class="catat akhir">Pembayaran dan unduhan file lewat lynk.id.</p>
       </div>
     </div>
   </section>
@@ -247,10 +266,10 @@ details p{font-weight:600;font-size:14px;line-height:1.55;margin:8px 0 0}
         </ul>
         <h4>Isi game</h4>
         <ul class="game">
-          <li><span class="ik">⚔️</span><span class="nm"><b>Petualang Ilmu: Legenda Nusantara</b><span>Semua mapel: soal bawaan 4 mapel, bisa diganti guru</span></span><a class="contoh" href="/edukasi/sd/hitung-rpg/" target="_blank" rel="noopener">👀 Contoh</a></li>
+          <li><span class="ik">⚔️</span><span class="nm"><b>Petualang Ilmu: Legenda Nusantara</b><span>Semua mapel: soal bawaan 4 mapel, bisa diganti guru</span></span><a class="contoh" data-main="1" href="/edukasi/sd/hitung-rpg/">👀 Contoh</a></li>
         </ul>
         <a class="beli" href="https://lynk.id/creator.store/o6j4518p848o" target="_blank" rel="noopener" style="background:#7048e8;color:#fff;box-shadow:0 5px 0 #4c2fb0">🛒 Beli Petualang Ilmu di lynk.id</a>
-        <p class="catat">Pembayaran dan unduhan file lewat lynk.id. Contoh gratis sampai misi pertama.</p>
+        <p class="catat akhir">Pembayaran dan unduhan file lewat lynk.id. Contoh gratis sampai misi pertama.</p>
       </div>
     </div>
   </section>
@@ -277,14 +296,14 @@ details p{font-weight:600;font-size:14px;line-height:1.55;margin:8px 0 0}
         </ul>
         <h4>Isi game (coba contoh 3 soal)</h4>
         <ul class="game">
-          <li><span class="ik">🏯</span><span class="nm"><b>Menara Hitung</b><span>Matematika: panjat menara satu kelas</span></span><a class="contoh" href="/edukasi/smp/menara-hitung/" target="_blank" rel="noopener">👀 Contoh</a></li>
-          <li><span class="ik">🧪</span><span class="nm"><b>Lab Ajaib</b><span>IPA: tebak hasil percobaan</span></span><a class="contoh" href="/edukasi/smp/lab-ajaib/" target="_blank" rel="noopener">👀 Contoh</a></li>
-          <li><span class="ik">💬</span><span class="nm"><b>English Quest</b><span>Bahasa Inggris: balapan di jalan kota</span></span><a class="contoh" href="/edukasi/smp/english-quest/" target="_blank" rel="noopener">👀 Contoh</a></li>
-          <li><span class="ik">🤖</span><span class="nm"><b>Coding Quest</b><span>Informatika: robot maju di lintasan sirkuit</span></span><a class="contoh" href="/edukasi/smp/coding-quest/" target="_blank" rel="noopener">👀 Contoh</a></li>
-          <li><span class="ik">⛵</span><span class="nm"><b>Pelayaran Nusantara</b><span>IPS: berlayar dari Sabang sampai Merauke</span></span><a class="contoh" href="/edukasi/smp/pelayaran-nusantara/" target="_blank" rel="noopener">👀 Contoh</a></li>
+          <li><span class="ik">🏯</span><span class="nm"><b>Menara Hitung</b><span>Matematika: panjat menara satu kelas</span></span><a class="contoh" data-main="1" href="/edukasi/smp/menara-hitung/">👀 Contoh</a></li>
+          <li><span class="ik">🧪</span><span class="nm"><b>Lab Ajaib</b><span>IPA: tebak hasil percobaan</span></span><a class="contoh" data-main="1" href="/edukasi/smp/lab-ajaib/">👀 Contoh</a></li>
+          <li><span class="ik">💬</span><span class="nm"><b>English Quest</b><span>Bahasa Inggris: balapan di jalan kota</span></span><a class="contoh" data-main="1" href="/edukasi/smp/english-quest/">👀 Contoh</a></li>
+          <li><span class="ik">🤖</span><span class="nm"><b>Coding Quest</b><span>Informatika: robot maju di lintasan sirkuit</span></span><a class="contoh" data-main="1" href="/edukasi/smp/coding-quest/">👀 Contoh</a></li>
+          <li><span class="ik">⛵</span><span class="nm"><b>Pelayaran Nusantara</b><span>IPS: berlayar dari Sabang sampai Merauke</span></span><a class="contoh" data-main="1" href="/edukasi/smp/pelayaran-nusantara/">👀 Contoh</a></li>
         </ul>
         <a class="beli" href="https://lynk.id/creator.store/68me37voov51" target="_blank" rel="noopener">🛒 Beli Paket SMP di lynk.id</a>
-        <p class="catat">Pembayaran dan unduhan file lewat lynk.id.</p>
+        <p class="catat akhir">Pembayaran dan unduhan file lewat lynk.id.</p>
       </div>
     </div>
   </section>
@@ -337,7 +356,22 @@ details p{font-weight:600;font-size:14px;line-height:1.55;margin:8px 0 0}
 
   <a class="dukung" href="https://www.willoapparel.com/?utm_source=duniakotak-belajar" target="_blank" rel="noopener">Supported by www.willoapparel.com</a>
 </div>
+<div class="layar" id="layarMain" hidden role="dialog" aria-modal="true" aria-label="Contoh game">
+  <div class="layarKepala"><b id="judulMain">Contoh game</b><button type="button" id="tutupMain" aria-label="Tutup contoh">✕ Tutup</button></div>
+  <iframe id="bingkaiMain" title="Contoh game" allow="autoplay; fullscreen" allowfullscreen></iframe>
+</div>
+<a class="lekat" id="lekat" href="#pilih">🛒 Lihat paket</a>
 <script>
+// Tombol beli menempel di HP: muncul setelah tombol utama lewat, sembunyi saat daftar paket terlihat.
+(function(){var l=document.getElementById('lekat'),c=document.getElementById('ctaUtama'),p=document.getElementById('pilih');if(!('IntersectionObserver' in window))return;var lewat=false,terlihat=false;function atur(){l.classList.toggle('on',lewat&&!terlihat)}
+new IntersectionObserver(function(e){lewat=!e[0].isIntersecting&&e[0].boundingClientRect.top<0;atur()}).observe(c);
+new IntersectionObserver(function(e){terlihat=e[0].isIntersecting;atur()},{threshold:.25}).observe(p);})();
+// Contoh game dimainkan di dalam halaman (pop up), bukan tab baru.
+(function(){var L=document.getElementById('layarMain'),F=document.getElementById('bingkaiMain'),J=document.getElementById('judulMain'),asal=null;
+function buka(a){var li=a.closest('li,article');var n=li&&li.querySelector('b');J.textContent=n?'Contoh: '+n.textContent:'Contoh game';asal=a;F.src=a.getAttribute('href');L.hidden=false;document.body.classList.add('kunci');}
+function tutup(){L.hidden=true;F.src='about:blank';document.body.classList.remove('kunci');var sec=asal&&asal.closest('section.produk');if(asal&&asal.classList.contains('coba')){var t=document.querySelector(asal.parentNode.querySelector('.lihatIsi').getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth'});}else if(sec){var b=sec.querySelector('.isi .beli');if(b)b.scrollIntoView({behavior:'smooth',block:'center'});}}
+document.addEventListener('click',function(e){var a=e.target.closest('a[data-main]');if(!a||e.metaKey||e.ctrlKey)return;e.preventDefault();buka(a);});
+document.getElementById('tutupMain').onclick=tutup;document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!L.hidden)tutup();});})();
 // Ganti foto besar saat foto kecil diketuk.
 document.querySelectorAll('[data-ke]').forEach(function(im){
   im.addEventListener('click',function(){var b=document.getElementById(im.getAttribute('data-ke'));var s=b.src;b.src=im.src;im.src=s;});
@@ -347,7 +381,7 @@ document.querySelectorAll('[data-contoh]').forEach(function(el){
   var u=el.getAttribute('data-contoh');
   fetch(u,{method:'HEAD',cache:'no-store'}).then(function(r){
     if(!r.ok)return;
-    var a=document.createElement('a');a.className='contoh';a.href=u;a.target='_blank';a.rel='noopener';a.textContent='👀 Contoh';el.replaceWith(a);
+    var a=document.createElement('a');a.className='contoh';a.href=u;a.setAttribute('data-main','1');a.textContent='👀 Contoh';el.replaceWith(a);
   }).catch(function(){});
 });
 </script>
