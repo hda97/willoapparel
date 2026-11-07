@@ -31,6 +31,10 @@ GAME = {
     'english': dict(judul='English Explorer', aksen='#1971c2', aksen2='#e7f5ff', ikon='🗺️', mapel='Bahasa Inggris', umum=True,
                     ajak='Jelajahi English Harbor bersama Nina!',
                     desk='Bahasa Inggris SD fase A, B, C: vocabulary, spelling, kalimat sederhana, percakapan, membaca.'),
+    # PROTOTIPE adventure RPG (belum tampil di beranda sampai disetujui Huda)
+    'hitung-rpg': dict(judul='Legenda Pulau Angka', aksen='#7048e8', aksen2='#efeaff', ikon='⚔️', mapel='Matematika', rpg=True, proto=True,
+                       soal='hitung', ajak='Kalahkan Raja Galat dengan kekuatan hitungan!',
+                       desk='Adventure RPG Matematika SD fase A, B, C: jelajahi pulau, kalahkan monster dengan menjawab soal.'),
 }
 
 CSS_SD = r"""
@@ -88,22 +92,32 @@ def html_sd(m, data, kode):
     return h.format(css=pb.CSS + CSS_SD, data=json.dumps(data, ensure_ascii=False, indent=1).replace('<', '\\u003c'), kode=kode, **m)
 
 
+def html_rpg(m, data, kode):
+    h = html_sd(m, data, kode).replace('· Game Edukasi SD', '· Adventure RPG Edukasi SD')
+    h = h.replace('</style>', CSS_RPG + '</style>', 1)
+    h = h.replace('<script type="module">', UI_RPG + '<script type="module">', 1)
+    return h
+
+
 def main():
     inti = (PAUD / 'src' / 'inti.js').read_text() + '\n' + (AKAR / 'src' / 'inti-sd.js').read_text()
     for gid, m in GAME.items():
         src = AKAR / 'src' / gid
-        data = json.loads((src / 'soal.json').read_text())
+        data = json.loads((AKAR / 'src' / m.get('soal', gid) / 'soal.json').read_text())
         data.setdefault('id', 'sd-' + gid)
         data.setdefault('judul', m['judul'])
         umum = ('\n' + (AKAR / 'src' / 'petualang.js').read_text()) if m.get('umum') else ''
         kode = pb.bundel(inti + umum + '\n// ================= GAME SD: ' + gid + ' =================\n' + (src / 'game.js').read_text(), 'sd_' + gid)
         out = KELUAR / gid / 'index.html'
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(html_sd(m, data, kode))
+        out.write_text((html_rpg if m.get('rpg') else html_sd)(m, data, kode))
         print('✓', out.relative_to(AKAR.parent.parent), f'{out.stat().st_size // 1024} KB')
-    kartu = ''.join(f'<a class="k" style="--w:{m["aksen"]}" href="{gid}/"><div class="ik">{m["ikon"]}</div><small>{m["mapel"]}</small><h2>{m["judul"]}</h2><p>{m["desk"]}</p></a>' for gid, m in GAME.items())
+    kartu = ''.join(f'<a class="k" style="--w:{m["aksen"]}" href="{gid}/"><div class="ik">{m["ikon"]}</div><small>{m["mapel"]}</small><h2>{m["judul"]}</h2><p>{m["desk"]}</p></a>' for gid, m in GAME.items() if not m.get('proto'))
     (KELUAR / 'index.html').write_text(BERANDA.replace('{kartu}', kartu))
 
+
+CSS_RPG = open(AKAR / 'src' / 'hitung-rpg' / 'rpg.css').read() if (AKAR / 'src' / 'hitung-rpg' / 'rpg.css').exists() else ''
+UI_RPG = open(AKAR / 'src' / 'hitung-rpg' / 'rpg.html').read() if (AKAR / 'src' / 'hitung-rpg' / 'rpg.html').exists() else ''
 
 BERANDA = r"""<!doctype html>
 <html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
