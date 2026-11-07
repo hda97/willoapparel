@@ -33,8 +33,8 @@
   {
    "fase": "A",
    "jenis": "kelompok",
-   "soal": "Benda: buku, pensil, meja ; Hewan: ayam, ikan, sapi",
-   "jawaban": "Kelompokkan kata benda dan nama hewan",
+   "soal": "Alat sekolah: buku, pensil, penghapus ; Hewan: ayam, ikan, sapi",
+   "jawaban": "Kelompokkan alat sekolah dan nama hewan",
    "pilihan": ""
   },
   {
@@ -111,8 +111,8 @@
    "fase": "B",
    "jenis": "pilih",
    "soal": "Kata baku yang benar adalah ...",
-   "jawaban": "sekolah",
-   "pilihan": "sekolahan;skolah"
+   "jawaban": "apotek",
+   "pilihan": "apotik;apoteek"
   },
   {
    "fase": "B",
@@ -182,7 +182,7 @@
    "jenis": "pilih",
    "soal": "Kata yang termasuk kata serapan adalah ...",
    "jawaban": "komputer",
-   "pilihan": "meja;sawah"
+   "pilihan": "rumah;sawah"
   },
   {
    "fase": "C",

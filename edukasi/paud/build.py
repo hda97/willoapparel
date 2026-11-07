@@ -91,6 +91,7 @@ body:has(#layarMulai:not([hidden])) .bawah,body:has(#layarMulai:not([hidden])) #
 .kecil.utama{background:var(--aksen);color:#fff}
 #panelGuru{align-items:stretch;user-select:text;-webkit-user-select:text;touch-action:auto}
 #panelGuru .kotak{max-width:900px;text-align:left;display:flex;flex-direction:column;max-height:100%;overflow:auto;padding:18px}
+#panelGuru .kotak>*{flex-shrink:0}
 #panelGuru h2{margin:0 0 6px;color:var(--aksen)}
 .gGulir{overflow:auto;flex:1 0 auto;min-height:180px;max-height:45vh;border:1px solid #eee;border-radius:12px;margin:8px 0}
 #guruTabel{border-collapse:collapse;width:100%;font-size:16px}
@@ -104,7 +105,7 @@ body:has(#layarMulai:not([hidden])) .bawah,body:has(#layarMulai:not([hidden])) #
 #guruExcel{width:100%;height:64px;font-family:monospace;font-size:14px;border:1px solid #ddd;border-radius:10px;padding:6px}
 .gBaris{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin:4px 0}
 .gInfo{font-size:14px;color:#666;margin:2px 0}
-@media (min-aspect-ratio:1/1) and (min-width:700px){#kartu{position:fixed;left:18px;top:50%;transform:translateY(-50%)}}
+@media (min-aspect-ratio:1/1) and (min-width:700px),(orientation:landscape) and (min-width:560px) and (max-height:500px){#kartu{position:fixed;left:18px;top:50%;transform:translateY(-50%)}}
 @media (max-width:420px){.nmGame{display:none}}
 @media (max-height:520px){.pil{min-width:76px;min-height:76px;font-size:38px}#kartu{font-size:42px}#gelembung{font-size:20px;padding:8px 16px}}
 """
