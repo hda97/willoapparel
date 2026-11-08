@@ -244,10 +244,30 @@ function pasangFasum() {
     // tabrakan per dinding (pintu terbuka & ruang dalam bisa dimasuki, 6 Nov 2026); bagian atas disembunyikan saat warga di dalam
     fasumBangun.push({position: new THREE.Vector3(f.x, 0, f.z), nama, ...F.pisahFasum(m)});
   }
+  pasangGapuraCFD(g);
   kumpulPijakan(g);
   bakeGroup(g);
   pasangAtasFasum(fasumBangun);
 }
+// ---------- Gapura CFD Pelari Kalcer (Huda 8 Nov 2026): game lari terpisah (/pelarikalcer/), pintunya di Stadion Kotak Wetan ----------
+// Gapura berdiri di ujung timur lapangan stadion (belakang gawang). Warga yang mendekat dapat tombol "Ikut Lari".
+let GAPURA_CFD = null;
+function pasangGapuraCFD(g) {
+  const f = DI === 'wetan' && I.fas && I.fas[12]; if (!f) return;
+  const gp = new THREE.Group(), O = 0xe0803a, N = 0x2c3150;
+  for (const s of [-1, 1]) { gp.add(kotakD(.55, 3.6, .55, N, 0, 1.8, s * 2.1)); gp.add(kotakD(.7, .3, .7, O, 0, .15, s * 2.1)); gp.add(kotakD(.7, .3, .7, O, 0, 3.55, s * 2.1)); }
+  const c = document.createElement('canvas'); c.width = 1024; c.height = 256; const x = c.getContext('2d');
+  x.fillStyle = '#e0803a'; x.fillRect(0, 0, 1024, 256); x.fillStyle = '#2c3150'; x.fillRect(0, 196, 1024, 60);
+  x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = '900 104px Montserrat, sans-serif'; x.fillText('PELARI KALCER', 512, 128);
+  x.font = '800 40px Montserrat, sans-serif'; x.fillText('CFD 1 KM · START DI SINI', 512, 240);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  const papan = new THREE.Mesh(new THREE.BoxGeometry(.35, 1.15, 4.8), [0, 1, 2, 3, 4, 5].map(i => new THREE.MeshStandardMaterial(i < 2 ? {map: t, roughness: .8} : {color: N, roughness: .8})));
+  papan.position.set(0, 3.05, 0); gp.add(papan);
+  gp.scale.setScalar(VS); gp.position.set(f.x + 8.4 * VS, 0, f.z); sc.add(gp);   // tidak ikut bakeGroup supaya tulisan papan tetap ada
+  GAPURA_CFD = {x: f.x + 8.4 * VS, z: f.z};
+}
+const dekatGapuraCFD = me => !!GAPURA_CFD && Math.hypot(me.position.x - GAPURA_CFD.x, me.position.z - GAPURA_CFD.z) < 4 * VS;
+function ikutLari() { bunyi('masuk'); toast('🏃 Menuju garis start Pelari Kalcer…', 1500); setTimeout(() => { location.href = '/pelarikalcer/?dari=desa'; }, 500); }
 // bagian atas tiap fasum (atap, dinding atas, lantai 2) = grup sendiri supaya bisa disembunyikan saat warga ada di dalam
 function pasangAtasFasum(daftar) {
   for (const f of daftar) if (f.atas && !f.atas.parent) { sc.add(f.atas); kumpulPijakan(f.atas); bakeGroup(f.atas); }
@@ -1042,7 +1062,7 @@ function animSkill(dt, me) {
   // tombol skill menyala bila bisa dipakai
   const t = now | 0; if (t % 4 === 0 || !animSkill.t || now - animSkill.t > 300) { animSkill.t = now;
     // tombol hanya muncul saat skill bisa dipakai; joran sedang dipakai = tombol Mancing hilang
-    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me)};
+    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sLari: dekatGapuraCFD(me)};
     for (const id in bisa) { const b = $(id); if (b.classList.contains('siap') !== bisa[id] || b.hidden === bisa[id]) { b.classList.toggle('siap', bisa[id]); b.hidden = !bisa[id]; } }
     if (air) misiMaju('sungai'); }
 }
@@ -2095,6 +2115,7 @@ function aturHUD() {
   $('bDusun').onclick = pilihDusun;
   musikSiap();
   // pointerdown (bukan click): click tidak terpicu di HP saat jari lain masih menahan joystick -> bisa lompat sambil lari
+  $('sLari').onclick = ikutLari;
   $('sLompat').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); mulaiLompat(); }); $('sTendang').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); skillTendang(); }); $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan(); $('sPanen').onclick = () => skillPanen(); $('sTanam').onclick = () => bukaTanam(); $('sJual').onclick = () => skillJual(); $('sKerja').onclick = () => skillKerja(); $('tutupKerja').onclick = () => { $('panelKerja').hidden = true; }; $('tutupTanam').onclick = () => { $('panelTanam').hidden = true; };
   // semua tombol skill bereaksi saat disentuh (pointerdown), jadi tetap jalan walau jari lain menahan joystick
   for (const b of document.querySelectorAll('.zoom.skill button')) { const f = b.onclick; if (!f) continue; b.onclick = null; b.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); f.call(b, e); }); }

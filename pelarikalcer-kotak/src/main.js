@@ -645,5 +645,7 @@ function ukur() { const w = innerWidth, h = innerHeight; R.setSize(w, h, false);
 addEventListener('resize', ukur); ukur();
 function putar(now) { const dt = Math.min(.05, (now - jamLalu) / 1000); jamLalu = now; if (mode !== 'jeda') langkah(dt); R.render(sc, kam); requestAnimationFrame(putar); }
 resetLari(); keLobi(); requestAnimationFrame((t) => { jamLalu = t; putar(t); });
+// datang dari gapura CFD di Stadion Kotak Wetan → tampilkan jalan pulang ke desa
+if (/[?&]dari=desa/.test(location.search) || AKUN) { $('bDesa').hidden = false; $('bDesa2').hidden = false; }
 pasangIkonOtomatis();
 window.__pk = { P, get mode() { return mode; }, set mode(v) { mode = v; }, NPC, OBJ, harga: () => Object.fromEntries([...TOKO.map((x) => [x.id, x.harga]), ...SEPATU, ...JAM, ...GENGSI, ...OUTFIT].filter((x) => Array.isArray(x) || x.harga).map((x) => Array.isArray(x) ? x : [x.id, x.harga])) };
