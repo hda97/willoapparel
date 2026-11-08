@@ -35,6 +35,21 @@ ul.untung li i{font-style:normal;width:26px;height:26px;flex:none;border-radius:
 .kecil{font-size:12.5px;font-weight:600;opacity:.75;line-height:1.5;margin:12px 0 0;text-align:center}
 .kecil a{color:inherit}
 #hasil{display:none}
+#hasil h2{font-size:21px!important}#hasil .sub{font-size:14px;margin:0 0 4px}
+#hasil #ktp{max-width:300px;display:block;margin:10px auto 0;border-radius:14px}
+#hasil .tombol.main{font-size:16px;padding:12px;margin-top:12px}
+.aksiKecil{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+#hasil [hidden]{display:none!important}
+.aksiKecil .tombol{margin:0!important;font-size:13px!important;padding:0 4px;min-height:40px;display:flex;align-items:center;justify-content:center;border-radius:10px;box-shadow:0 3px 0 rgba(0,0,0,.35)}
+.aksiKecil .tombol.tt{border-left-width:3px;border-right-width:3px}
+details.ubah{margin-top:14px;border:2px solid #e3d7bd;border-radius:12px;padding:10px 12px;background:#fff}
+details.ubah summary{font-weight:800;font-size:14px;cursor:pointer}
+details.ubah label{font-size:13px;margin:10px 0 4px}
+details.ubah .tombol{font-size:14px;padding:10px;margin-top:10px}
+.judulKecil{display:block;font-weight:800;font-size:13px;margin:14px 0 6px}
+.kodeBaris{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:14px;padding:8px 12px;border-radius:10px;background:#fff;border:2px dashed #e3d7bd;font-size:12.5px;font-weight:700}
+.kodeBaris b{font:900 16px Montserrat,sans-serif;letter-spacing:3px}
+#hasil .syarat{font-size:13px;padding:10px 12px}
 #hasil h2{font-weight:900;font-size:26px;margin:0 0 4px}
 #hasil .no{display:inline-block;background:var(--tinta);color:#fff;font-weight:900;border-radius:10px;padding:4px 12px;font-size:14px;margin-bottom:12px}
 #kanvas{width:100%;aspect-ratio:1/1;border-radius:14px;overflow:hidden;background:#cfeaff;display:block}
@@ -195,17 +210,11 @@ header{margin-bottom:12px}
     <p class="sub" id="ket">Ini kavlingmu di Dunia Kotak.</p>
     <canvas id="ktp" width="1012" height="638" style="display:none" aria-label="Kartu Warga Dunia Kotak"></canvas>
     <div id="syaratMain" class="syarat" hidden><b>🔒 Satu langkah lagi sebelum main</b>Bagikan Kartu Wargamu ke Instagram Story atau TikTok, <u>cukup 1x</u>. Setelah itu game langsung terbuka dan seterusnya bisa main tanpa share lagi.</div>
-    <div class="dua bagiDua"><button class="tombol ig" id="bagiKtp">📸 Instagram Story</button><button class="tombol tt" id="bagiTT">🎵 TikTok</button></div>
-    <a class="tombol main" id="mainBtn" href="/duniakotak/mabar/" hidden>▶ Main game sekarang</a>
-    <button class="tombol kedua" id="simpanKtp">Simpan kartu</button>
+    <a class="tombol main" id="mainBtn" href="/duniakotak/mabar/" hidden>▶ Main game</a>
+    <div class="aksiKecil"><button class="tombol ig" id="bagiKtp">📸 Story IG</button><button class="tombol tt" id="bagiTT">🎵 TikTok</button><button class="tombol kedua" id="simpanKtp">💾 Simpan</button></div>
     <div id="layarStory" class="layarStory" hidden><div class="isiStory"><b>Tinggal 2 langkah</b><p>1. Tekan lama gambar di bawah, lalu <b>Simpan gambar</b>.<br>2. Tekan <b id="langkahApp">Buka Instagram</b>, buat <span id="langkahJenis">Story</span>, pilih gambar tadi, lalu bagikan.</p><img id="gbrStory" alt="Story Kartu Warga"><a class="tombol ig" id="bukaIG" href="instagram://story-camera">Buka Instagram</a><button class="tombol kedua" id="tutupStory">Tutup</button></div></div>
-    <details id="avatarKotak" style="margin-top:14px"><summary style="font-weight:800;cursor:pointer">Pilih avatar untuk foto kartumu</summary>
-      <div id="pilihAv"></div>
-      <button class="tombol" id="simpanAv" style="width:100%">Simpan avatar</button>
-      <div id="pesanAv" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
-    </details>
-    <p class="kecil">Avatar ini juga dipakai di game mabar.</p>
-    <details id="dataKotak" open style="margin-top:14px"><summary style="font-weight:800;cursor:pointer">Ubah nama &amp; pekerjaan di kartu</summary>
+    <details id="dataKotak" class="ubah"><summary>✏️ Ubah kartu: nama, pekerjaan, avatar</summary>
+
       <div class="isi">
         <label for="namaKartu">Nama</label><input id="namaKartu" maxlength="24" placeholder="Nama kamu">
         <label for="kerjaKartu">Pekerjaan</label><input id="kerjaKartu" maxlength="22" placeholder="mis. Pelajar" list="daftarKerja">
@@ -213,15 +222,20 @@ header{margin-bottom:12px}
       </div>
       <button class="tombol" id="simpanData" style="width:100%">Simpan ke kartu</button>
       <div id="pesanData" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
-    </details>
-    <canvas id="kanvas" width="600" height="600" aria-label="Rumah dan pekarangan kavlingmu"></canvas>
-    <div id="kodeKotak" style="display:none;text-align:center;margin-top:12px">
-      <small style="font-weight:700">Kode warga (untuk masuk game di HP lain)</small><br><span id="kodeWarga">––––––</span>
+    
+      <div class="avUbah"><b class="judulKecil">Avatar</b>
+      <div id="pilihAv"></div>
+      <button class="tombol" id="simpanAv" style="width:100%">Simpan avatar</button>
+      <div id="pesanAv" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
     </div>
-    <label for="usul">Usulan bangunan untuk desa</label>
+      <p class="kecil">Avatar ini juga dipakai di game.</p>
+    </details>
+    <canvas id="kanvas" width="600" height="600" aria-label="Rumah dan pekarangan kavlingmu" hidden></canvas>
+    <div id="kodeKotak" class="kodeBaris" style="display:none"><span>Kode warga (masuk di HP lain)</span><b id="kodeWarga">––––––</b></div>
+    <label for="usul" class="judulKecil">Usulan bangunan untuk desa</label>
     <div class="baris"><input id="usul" placeholder="mis. sekolah, masjid, warung, taman" maxlength="140"><button id="kirimUsul">Kirim</button></div>
     <div id="pesanUsul" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
-    <a class="tombol" href="https://www.instagram.com/duniakotak.id/" target="_blank" rel="noopener">Follow @duniakotak.id supaya rumahmu muncul di video</a>
+    <p class="kecil"><a href="https://www.instagram.com/duniakotak.id/" target="_blank" rel="noopener"><b>Follow @duniakotak.id</b></a> supaya rumahmu muncul di video.</p>
   </section>
 
   <section class="kartu edu" aria-label="Game edukasi Dunia Kotak">
@@ -275,9 +289,10 @@ async function muatDaftar(){
   }catch(e){$('jumlah').textContent='–';$('daftar').innerHTML='<span>Daftar warga belum bisa dimuat.</span>'}
 }
 
+function sorotPulau(no){const f=document.querySelector('.pulau iframe');if(f&&no&&!/[?&]no=/.test(f.src))f.src='/duniakotak/pulau/?embed=1&no='+no;const t=document.querySelector('.pulau p');if(t)t.innerHTML='🔎 Avatarmu ditandai cahaya oranye di pulau. Ketuk pulau untuk memutar.'}
 async function tampilkan(o){
   saya=o;if(o.kunci)kunci=o.kunci;sudahMasuk(true);const nm=nmTampil(o);simpanLokal({no:o.no,ig:o.ig||o.tiktok||'',label:nm,nama:o.nama||'',kunci});
-  $('hasil').style.display='block';
+  $('hasil').style.display='block';sorotPulau(o.no);
   $('noWarga').textContent='WARGA No. '+o.no;
   $('salam').textContent=(o.baru?'Selamat datang, ':'Halo lagi, ')+(o.nama||nm||'warga baru')+'!';
   $('ket').textContent=nm?nm+' sudah terukir di batu depan rumahmu.':'Ini kavlingmu di Dunia Kotak.';
@@ -288,13 +303,14 @@ async function tampilkan(o){
 }
 async function tampilKode(){
   if(!kunci)return;
-  try{const s=await kirim('sesi',{kunci});aturSyarat(s.bagi);$('kodeWarga').textContent=s.kode||'––––––';$('kodeKotak').style.display='block';
+  try{const s=await kirim('sesi',{kunci});aturSyarat(s.bagi);$('kodeWarga').textContent=s.kode||'––––––';$('kodeKotak').style.display='flex';
     K=await import('./js/ktp.js');dataKartu={no:s.no,nama:s.nama,kerja:s.kerja,ig:s.akunIg,tiktok:s.tiktok,dibuat:s.dibuat};
     $('namaKartu').value=s.nama||'';$('kerjaKartu').value=s.kerja||'';if(!s.nama){$('dataKotak').open=true;$('pesanData').textContent='Tulis namamu supaya muncul di kartu.'}
     av=K.bersihAv(s.avatar||K.avAcak(s.no));await K.gambarKTP($('ktp'),{...dataKartu,avatar:av});$('ktp').style.display='block';tulisAv()}catch(e){console.error(e);if(/tidak ditemukan/.test(e.message))$('keluar').click()}
 }
 
 async function gambarKavling(nama,no){
+  if($('kanvas').hidden)return;
   try{
     const [{THREE},D]=await Promise.all([import('./js/lib.js'),import('./js/desa.js')]);
     await document.fonts.load('900 40px Montserrat');
@@ -442,7 +458,7 @@ $('kirimUsul').onclick=async()=>{
   muatDaftar();
   const lama=bacaLokal();if(lama&&lama.kunci)kunci=lama.kunci;
   if(new URLSearchParams(location.search).has('masuk'))bukaPintu('masuk');
-  if(lama&&lama.no&&lama.kunci){sudahMasuk(true);$('hasil').style.display='block';$('noWarga').textContent='WARGA No. '+lama.no;$('salam').textContent='Halo lagi, '+(lama.nama||(lama.ig?'@'+lama.ig:'warga'))+'!';$('ket').textContent='Ini kavlingmu. Kamu masih bisa kirim usulan bangunan di bawah.';gambarKavling(lama.label||(lama.ig?'@'+lama.ig:'? ? ?'),lama.no);tampilKode()}
+  if(lama&&lama.no&&lama.kunci){sudahMasuk(true);sorotPulau(lama.no);$('hasil').style.display='block';$('noWarga').textContent='WARGA No. '+lama.no;$('salam').textContent='Halo lagi, '+(lama.nama||(lama.ig?'@'+lama.ig:'warga'))+'!';$('ket').textContent='Ini kavlingmu. Kamu masih bisa kirim usulan bangunan di bawah.';gambarKavling(lama.label||(lama.ig?'@'+lama.ig:'? ? ?'),lama.no);tampilKode()}
   const ua=navigator.userAgent||'';const dalamApp=/Instagram|FBAN|FBAV|FB_IAB|Line\/|TikTok|musical_ly|BytedanceWebview/i.test(ua);
   let id='';if(!dalamApp){try{id=(await (await fetch('/duniakotak/api/config')).json()).clientId}catch(e){}}
   // Login Google tidak jalan di dalam app IG/TikTok (atau kalau Google belum siap): tawarkan Buka di Chrome / daftar tanpa Google.
