@@ -14,6 +14,7 @@ import {buatNPC} from './js/npc.js';
 import {buatWargaNPC} from './js/wargaNpc.js';
 import {kulon, JALAN_KULON, AWAL_KULON} from './js/kulon.js';
 import {curug, JALAN_CURUG, AWAL_CURUG} from './js/curug.js';
+import {tlaga, JALAN_TLAGA, AWAL_TLAGA} from './js/tlaga.js';
 import {buatNav, pecahRute} from './js/navigasi.js';
 
 const $ = id => document.getElementById(id);
@@ -28,10 +29,11 @@ const api = async (p, data) => { const r = await fetch('/duniakotak/api/' + p, {
 
 // ---------- alamat (rumus Kotak Wetan) ----------
 const JALAN = ['Melati','Mawar','Kenanga','Anggrek','Mangga','Rambutan','Durian','Salak','Jambu','Manggis','Sawo','Nangka','Belimbing','Kelengkeng','Sirsak'];
-// Dusun: Kotak Wetan = warga No. 1–260, Kotak Kulon = No. 261–460 (3 Nov 2026), Kotak Curug = No. 461+ (6 Nov 2026, saat Kulon penuh)
-const dusunDari = n => n > AWAL_CURUG ? 'curug' : n > AWAL_KULON ? 'kulon' : 'wetan';
-const NAMA_DUSUN = {wetan: 'Kotak Wetan', kulon: 'Kotak Kulon', curug: 'Kotak Curug'};
-const AWAL_DUSUN = {wetan: 0, kulon: AWAL_KULON, curug: AWAL_CURUG}, JALAN_DUSUN = {wetan: JALAN, kulon: JALAN_KULON, curug: JALAN_CURUG};
+// Dusun: Kotak Wetan = warga No. 1–260, Kotak Kulon = No. 261–460 (3 Nov 2026), Kotak Curug = No. 461–660 (6 Nov 2026, saat Kulon penuh),
+// Kotak Tlaga = No. 661+ (8 Nov 2026, saat Curug penuh)
+const dusunDari = n => n > AWAL_TLAGA ? 'tlaga' : n > AWAL_CURUG ? 'curug' : n > AWAL_KULON ? 'kulon' : 'wetan';
+const NAMA_DUSUN = {wetan: 'Kotak Wetan', kulon: 'Kotak Kulon', curug: 'Kotak Curug', tlaga: 'Kotak Tlaga'};
+const AWAL_DUSUN = {wetan: 0, kulon: AWAL_KULON, curug: AWAL_CURUG, tlaga: AWAL_TLAGA}, JALAN_DUSUN = {wetan: JALAN, kulon: JALAN_KULON, curug: JALAN_CURUG, tlaga: JALAN_TLAGA};
 const alamat = n => { const ds = dusunDari(n), k = n - AWAL_DUSUN[ds], rt = Math.ceil(k / 20), J = JALAN_DUSUN[ds];
   return `Jl. ${J[(rt - 1) % J.length]} No. ${((k - 1) % 20) + 1} · RT ${String(rt).padStart(2, '0')}/RW ${String(Math.ceil(rt / 5)).padStart(2, '0')}`; };
 let DI = 'wetan';   // dusun yang sedang dibuka
@@ -349,6 +351,8 @@ function bangunProksi() {
 }
 // Dusun 2 Kotak Kulon (denah BAKU, bukit terasering) / Dusun 3 Kotak Curug (denah BAKU, lereng gunung + air terjun)
 function bangunCurug() { return bangunKulon(curug); }
+// Dusun 4 Kotak Tlaga (tepi danau, dibuka 8 Nov 2026)
+function bangunTlaga() { return bangunKulon(tlaga); }
 function bangunKulon(buat = kulon) {
   I = buat(sc, {names: NM, isFilled: n => !!NM[n], sm: hemat ? 1024 : 2048, shadowR: 70, hemat});
   I.light.castShadow = !hemat;
@@ -367,6 +371,7 @@ async function bangunDunia() {
   DI = NAMA_DUSUN[minta] ? minta : (S.saya ? dusunDari(S.saya.no) : 'wetan');
   if (DI === 'kulon') return bangunKulon();
   if (DI === 'curug') return bangunCurug();
+  if (DI === 'tlaga') return bangunTlaga();
   reseed(301);
   I = D.village(sc, {cols: 5, rows: BARIS + 1, fasumB: FASUM_WETAN.filter(k => k.length === 2), fasumH: FASUM_WETAN.filter(k => k.length === 3), fasUrut: FASUM_WETAN, sungai: {gap: 6, w: 14, sawah: 40}, hutan: 1, tipis: .02,
     raka: 'done', filled: 999, isFilled: n => !!NM[n], names: NM, lazy: true, sm: hemat ? 1024 : 2048, shadowR: 70});
@@ -1169,7 +1174,7 @@ function navSiap() {
   for (const [ns, L] of Object.entries(I.lots)) { for (const r of rectsKavling(+ns)) blok.push(lebar(r)); mahal.push(KAVLING_LUAS(L)); }
   for (const f of fasumBangun) if (f.rect) for (const k of f.dinding || [f.rect]) blok.push(lebar(k));
   const s = I.sungai, b = I.batas;
-  const dilarang = s ? (x, z) => x > s.x0 - 1 && x < s.x1 + 1 && !s.jembatan.some(([a, c]) => z > a + 1 && z < c - 1) : null;
+  const dilarang = s ? (x, z) => x > s.x0 - 1 && x < s.x1 + 1 && !s.jembatan.some(([a, c]) => z > a + 1 && z < c - 1) : I.air ? (x, z) => I.air(x, z) : null;
   // Wetan: jalan desa lebih murah supaya rute ikut jalan seperti Gmaps (Kulon/Curug sudah dibatasi teras)
   const murah = []; if (I.vroads && I.hroads && I.ox != null) { const z0 = I.oz * VS, z1 = (I.oz + I.TD) * VS, x0 = I.ox * VS, x1 = (I.ox + I.TW) * VS;
     for (const [a, c] of I.vroads) murah.push([(a + I.ox) * VS, (c + I.ox) * VS, z0, z1]); for (const [a, c] of I.hroads) murah.push([x0, b.x1, (a + I.oz) * VS, (c + I.oz) * VS]); }
@@ -1861,7 +1866,7 @@ function tulisOnline() {
   $('ringkasOnline').textContent = `${semua.length} warga sedang main di semua dusun. Ketuk nama untuk mampir ke rumahnya.`;
   $('isiOnline').innerHTML = Object.keys(NAMA_DUSUN).map(d => {
     const w = semua.filter(x => x.d === d);
-    return `<div class="misi"><span class="mi">${{wetan: '🌾', kulon: '🍃', curug: '💦'}[d]}</span><div><b>Dusun ${NAMA_DUSUN[d]} · ${w.length} online</b><small>${w.length ? w.map(x => `<button class="chipOn" data-on="${x.no}">${x.aku ? '⭐ ' : ''}@${esc(x.ig || 'warga' + x.no)}</button>`).join(' ') : 'Sepi. Ajak temanmu main ke sini!'}</small></div><span></span></div>`;
+    return `<div class="misi"><span class="mi">${{wetan: '🌾', kulon: '🍃', curug: '💦', tlaga: '🛶'}[d]}</span><div><b>Dusun ${NAMA_DUSUN[d]} · ${w.length} online</b><small>${w.length ? w.map(x => `<button class="chipOn" data-on="${x.no}">${x.aku ? '⭐ ' : ''}@${esc(x.ig || 'warga' + x.no)}</button>`).join(' ') : 'Sepi. Ajak temanmu main ke sini!'}</small></div><span></span></div>`;
   }).join('');
 }
 function bukaOnline() { $('panelOnline').hidden = false; tulisOnline(); muatOnline(); }
@@ -2195,6 +2200,7 @@ let tAkhir = performance.now(), tKav = 0, ph = 0, camY = 0;
 const bebas = (x, z) => {
   const b = I.batas; if (x < b.x0 || x > b.x1 || z < b.z0 || z > b.z1) return false;
   const s = I.sungai; if (s && x > s.x0 && x < s.x1 && !s.jembatan.some(([a, c]) => z > a && z < c)) return false;
+  if (I.air && I.air(x, z)) return false;   // danau & sungai Kotak Tlaga (dermaga & jembatan boleh)
   if (I.tanah && tokoh.saya && Math.abs(I.tanah(x, z) - tokoh.saya.position.y) > 3.2 && lompat.diTanah) return false;   // dinding teras: lewat tanjakan
   for (const {rects} of lotRuntime.values()) for (const [x0, x1, z0, z1] of rects) if (x > x0 - 1.2 && x < x1 + 1.2 && z > z0 - 1.2 && z < z1 + 1.2) return false;
   for (const f of fasumBangun) { const r = f.rect; if (!r || x < r[0] - 1.2 || x > r[1] + 1.2 || z < r[2] - 1.2 || z > r[3] + 1.2) continue;
@@ -2309,7 +2315,7 @@ const lalu = ms => { const m = Math.max(1, Math.round((Date.now() - ms) / 60000)
 function kabarDesa() {
   const jml = Object.keys(NM).length;
   const ak = Object.entries(AK).filter(([no]) => +no !== S.saya?.no && NM[no]).sort((a, b) => b[1] - a[1]);
-  const L = [`Sekarang sudah ${jml} warga Dunia Kotak. Kotak Wetan dan Kotak Kulon sudah penuh, jadi Dusun Kotak Curug di lereng gunung sudah dibuka! Ada air terjunnya.`];
+  const L = [`Sekarang sudah ${jml} warga Dunia Kotak. Kotak Wetan, Kotak Kulon, dan Kotak Curug sudah penuh, jadi Dusun Kotak Tlaga di tepi danau sudah dibuka! Ada dermaga dan perahunya, enak buat mancing.`];
   if (ak[0]) L.push(`Tadi ${NM[ak[0][0]]} main ke desa, ${lalu(ak[0][1])}. Rumahnya No. ${ak[0][0]}, mampir saja.`);
   L.push('Sudah ada masjid, gereja, gereja Katolik, pura, vihara, klenteng, SD, dan Warung Desa. Hasil voting warga juga sudah berdiri: Supermarket dekat rumah Raka, lalu Rumah Sakit, Stadion, dan Kampus di ujung selatan desa. Pintunya terbuka, masuk saja!');
   L.push('Kebun sudah buka! Tanam bibit di pekarangan, panen 6 jam lagi, lalu jual di warung.');
@@ -2353,7 +2359,7 @@ function pilihDusun() {
     p.style.cssText = 'position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(10,12,20,.45)';
     p.innerHTML = `<div style="background:#fffaf0;border-radius:18px;padding:16px 16px 12px;min-width:250px;max-width:86vw;font:600 15px Montserrat,sans-serif;color:#2a2a2a;box-shadow:0 10px 30px rgba(0,0,0,.3)">
       <div style="font-weight:900;font-size:17px;margin-bottom:10px">🚌 Naik bus ke dusun mana?</div>
-      ${Object.entries(NAMA_DUSUN).map(([k, n]) => `<button data-d="${k}" style="display:block;width:100%;margin:6px 0;padding:11px 12px;border-radius:12px;border:2px solid #cbbd9e;background:#fff;font:700 15px Montserrat,sans-serif;text-align:left;cursor:pointer">${{wetan: '🌾', kulon: '🍃', curug: '💦'}[k]} Dusun ${n}<span class="ini" style="float:right;color:#2a9a5a;font-size:12px"></span></button>`).join('')}
+      ${Object.entries(NAMA_DUSUN).map(([k, n]) => `<button data-d="${k}" style="display:block;width:100%;margin:6px 0;padding:11px 12px;border-radius:12px;border:2px solid #cbbd9e;background:#fff;font:700 15px Montserrat,sans-serif;text-align:left;cursor:pointer">${{wetan: '🌾', kulon: '🍃', curug: '💦', tlaga: '🛶'}[k]} Dusun ${n}<span class="ini" style="float:right;color:#2a9a5a;font-size:12px"></span></button>`).join('')}
       <button data-d="" style="display:block;width:100%;margin-top:8px;padding:9px;border:0;background:none;font:700 14px Montserrat,sans-serif;color:#777;cursor:pointer">Batal</button></div>`;
     p.onclick = e => { const b = e.target.closest('button'); if (e.target === p || (b && !b.dataset.d)) { p.hidden = true; return; } if (b && b.dataset.d && b.dataset.d !== DI) { const u = new URL(location.href); u.searchParams.set('dusun', b.dataset.d); u.searchParams.delete('ke'); location.href = u.toString(); } };
     document.body.appendChild(p);
