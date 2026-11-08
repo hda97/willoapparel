@@ -260,8 +260,11 @@ function pasangGapuraCFD(g) {
   for (const s of [-1, 1]) { gp.add(kotakD(.55, 3.6, .55, N, 0, 1.8, s * 2.1)); gp.add(kotakD(.7, .3, .7, O, 0, .15, s * 2.1)); gp.add(kotakD(.7, .3, .7, O, 0, 3.55, s * 2.1)); }
   const c = document.createElement('canvas'); c.width = 1024; c.height = 256; const x = c.getContext('2d');
   x.fillStyle = '#e0803a'; x.fillRect(0, 0, 1024, 256); x.fillStyle = '#2c3150'; x.fillRect(0, 196, 1024, 60);
-  x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = '900 104px Montserrat, sans-serif'; x.fillText('PELARI KALCER', 512, 128);
-  x.font = '800 40px Montserrat, sans-serif'; x.fillText('CFD 1 KM · START DI SINI', 512, 240);
+  // ukuran huruf disesuaikan lebar papan supaya tidak terpotong di tepi (Huda 8 Nov 2026: tulisan kebesaran, terbaca "ELARI KALCE")
+  x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  const pas = (t, w, maks, tebal) => { let u = maks; x.font = `${tebal} ${u}px Montserrat, sans-serif`; while (x.measureText(t).width > w && u > 20) { u -= 2; x.font = `${tebal} ${u}px Montserrat, sans-serif`; } };
+  pas('PELARI KALCER', 680, 84, 900); x.fillText('PELARI KALCER', 512, 100);
+  pas('CFD 1 KM · START DI SINI', 680, 34, 800); x.fillText('CFD 1 KM · START DI SINI', 512, 226);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
   const papan = new THREE.Mesh(new THREE.BoxGeometry(.35, 1.15, 4.8), [0, 1, 2, 3, 4, 5].map(i => new THREE.MeshStandardMaterial(i < 2 ? {map: t, roughness: .8} : {color: N, roughness: .8})));
   papan.position.set(0, 3.05, 0); gp.add(papan);
