@@ -34,7 +34,10 @@ const JALAN = ['Melati','Mawar','Kenanga','Anggrek','Mangga','Rambutan','Durian'
 // Dusun: Kotak Wetan = warga No. 1–260, Kotak Kulon = No. 261–460 (3 Nov 2026), Kotak Curug = No. 461–660 (6 Nov 2026, saat Kulon penuh),
 // Kotak Tlaga = No. 661–860 (8 Nov 2026, saat Curug penuh), Kotak Segara = No. 861+ (apartemen, tak terbatas; Huda 8 Nov 2026)
 const dusunDari = n => n > AWAL_SEGARA ? 'segara' : n > AWAL_TLAGA ? 'tlaga' : n > AWAL_CURUG ? 'curug' : n > AWAL_KULON ? 'kulon' : 'wetan';
-const NAMA_DUSUN = {wetan: 'Kotak Wetan', kulon: 'Kotak Kulon', curug: 'Kotak Curug', tlaga: 'Kotak Tlaga', segara: 'Kotak Segara'};
+const NAMA_DUSUN = {wetan: 'Kotak Wetan', kulon: 'Kotak Kulon', curug: 'Kotak Curug', tlaga: 'Kotak Tlaga'};
+// Segara TERKUNCI sampai 4 dusun lain benar-benar penuh (Huda 8 Nov 2026): baru ditambahkan ke NAMA_DUSUN (menu bus, gapura,
+// Peta Desa, panel online, ?dusun=) setelah ada warga No. 861+. Lihat bukaSegara() di bangunDunia().
+const bukaSegara = maks => { if (maks > AWAL_SEGARA) NAMA_DUSUN.segara = 'Kotak Segara'; };
 const AWAL_DUSUN = {wetan: 0, kulon: AWAL_KULON, curug: AWAL_CURUG, tlaga: AWAL_TLAGA, segara: AWAL_SEGARA}, JALAN_DUSUN = {wetan: JALAN, kulon: JALAN_KULON, curug: JALAN_CURUG, tlaga: JALAN_TLAGA};
 const alamat = n => { if (n > AWAL_SEGARA) return 'Apartemen Segara · ' + kodeUnit(n); const ds = dusunDari(n), k = n - AWAL_DUSUN[ds], rt = Math.ceil(k / 20), J = JALAN_DUSUN[ds];
   return `Jl. ${J[(rt - 1) % J.length]} No. ${((k - 1) % 20) + 1} · RT ${String(rt).padStart(2, '0')}/RW ${String(Math.ceil(rt / 5)).padStart(2, '0')}`; };
@@ -380,6 +383,7 @@ async function bangunDunia() {
   try { const w = await (await fetch('/duniakotak/api/warga')).json(); w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; if (x.hs) HS[x.no] = x.hs; }); } catch (e) {}
   if (S.saya && S.saya.kucing) KC[S.saya.no] = S.saya.kucing;
   if (S.saya && S.saya.ig) NM[S.saya.no] = '@' + S.saya.ig;
+  bukaSegara(Math.max(S.saya ? S.saya.no : 0, ...Object.keys(NM).map(Number)));
   await document.fonts.load('900 40px Montserrat').catch(() => {});
   const minta = new URLSearchParams(location.search).get('dusun');
   DI = NAMA_DUSUN[minta] ? minta : (S.saya ? dusunDari(S.saya.no) : 'wetan');
@@ -2393,7 +2397,7 @@ const lalu = ms => { const m = Math.max(1, Math.round((Date.now() - ms) / 60000)
 function kabarDesa() {
   const jml = Object.keys(NM).length;
   const ak = Object.entries(AK).filter(([no]) => +no !== S.saya?.no && NM[no]).sort((a, b) => b[1] - a[1]);
-  const L = [`Sekarang sudah ${jml} warga Dunia Kotak. Dusun Kotak Tlaga di tepi danau punya dermaga dan perahu, enak buat mancing. Kalau rumah di empat dusun sudah penuh, warga baru tinggal di apartemen Dusun Kotak Segara, kota menara di tepi teluk. Naik liftnya, lihat pemandangannya!`];
+  const L = [`Sekarang sudah ${jml} warga Dunia Kotak. Dusun Kotak Tlaga di tepi danau punya dermaga dan perahu, enak buat mancing.` + (NAMA_DUSUN.segara ? ' Warga baru sekarang tinggal di apartemen Dusun Kotak Segara, kota menara di tepi teluk. Naik liftnya, lihat pemandangannya!' : ' Kalau empat dusun sudah penuh, Dusun Kotak Segara di tepi teluk akan dibuka.')];
   if (ak[0]) L.push(`Tadi ${NM[ak[0][0]]} main ke desa, ${lalu(ak[0][1])}. Rumahnya No. ${ak[0][0]}, mampir saja.`);
   L.push('Sudah ada masjid, gereja, gereja Katolik, pura, vihara, klenteng, SD, dan Warung Desa. Hasil voting warga juga sudah berdiri: Supermarket dekat rumah Raka, lalu Rumah Sakit, Stadion, dan Kampus di ujung selatan desa. Pintunya terbuka, masuk saja!');
   L.push('Kebun sudah buka! Tanam bibit di pekarangan, panen 6 jam lagi, lalu jual di warung.');
