@@ -82,7 +82,7 @@ body.embed .kartuAku{bottom:calc(max(12px,env(safe-area-inset-bottom)) + 56px)}
   </div>
 </div>
 <div class="petunjuk" id="petunjuk"><span class="panjang">Seret untuk memutar 360° · scroll untuk zoom · klik kanan untuk geser</span><span class="pendek">Seret = putar · cubit = zoom · 2 jari = geser</span></div>
-<form class="cari" id="formCari" autocomplete="off">
+<form class="cari" id="formCari" autocomplete="off" onsubmit="return false">
   <input id="qCari" type="search" inputmode="search" placeholder="Cari avatarmu: No. warga atau @username" aria-label="Cari avatarmu dengan nomor warga atau username" enterkeyhint="search">
   <button type="submit">Cari</button>
   <div class="infoCari" id="infoCari" role="status"></div>
@@ -99,6 +99,7 @@ body.embed .kartuAku{bottom:calc(max(12px,env(safe-area-inset-bottom)) + 56px)}
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {CSS2DRenderer, CSS2DObject} from 'three/addons/renderers/CSS2DRenderer.js';
+import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 
 const OFF = {curug:[0,0], kulon:[1885,450], wetan:[411,1387], tlaga:[801,3797], segara:[2625,2520]};
 const INFO = {
@@ -152,7 +153,23 @@ const sun = new THREE.DirectionalLight(0xfff3e0, 1.1); sun.position.set(-3000, 5
 const rnd = (() => { let s = 7; return () => (s = (s * 16807) % 2147483647) / 2147483647; })();
 const lam = (c, o = {}) => new THREE.MeshLambertMaterial({color:c, flatShading:true, ...o});
 const BOX = new THREE.BoxGeometry(1,1,1);
-function box(x,y,z,w,h,d,mat){ const m = new THREE.Mesh(BOX, mat); m.position.set(x,y,z); m.scale.set(w,h,d); scene.add(m); return m; }
+function box(x,y,z,w,h,d,mat){ const m = new THREE.Mesh(BOX, mat); m.position.set(x,y,z); m.scale.set(w,h,d); m.userData.statis = true; scene.add(m); return m; }
+// gabungkan semua kotak statis yang warnanya sama jadi satu mesh (ribuan draw call -> puluhan) supaya ringan di HP
+function gabungStatis(){
+  const per = new Map();
+  for (const o of scene.children.slice()){
+    if (!o.isMesh || !o.userData.statis || o.material.map || o.material.transparent) continue;
+    const m = o.material, k = m.type + m.color.getHex() + '|' + (m.emissive ? m.emissive.getHex() : '') + '|' + m.flatShading;
+    if (!per.has(k)) per.set(k, []); per.get(k).push(o);
+  }
+  for (const arr of per.values()){
+    if (arr.length < 2) continue;
+    const gs = arr.map(o => { o.updateMatrix(); const g = o.geometry.clone(); g.applyMatrix4(o.matrix); return g; });
+    const m = new THREE.Mesh(mergeGeometries(gs), arr[0].material); scene.add(m);
+    for (const o of arr) scene.remove(o);
+    gs.forEach(g => g.dispose());
+  }
+}
 function bentuk(pts, s = 1, ox = CX, oz = CZ){
   const sh = new THREE.Shape();
   pts.forEach(([x,z],i) => { const X = ox + (x-ox)*s, Z = oz + (z-oz)*s; i ? sh.lineTo(X,-Z) : sh.moveTo(X,-Z); });
@@ -278,10 +295,14 @@ function pohon(){
     return true;
   };
   const cols = [0x6fae5e,0x75b363,0x6aa95a,0x7ab868,0x70b060], pts = [];
-  const jarak = (x,z) => { for (const p of pts) if ((p[0]-x)**2 + (p[1]-z)**2 < 70*70) return false; return true; };
+  const sel = new Map(), kunci = (i,j) => i*100003 + j;
+  const jarak = (x,z) => { const i = Math.floor(x/70), j = Math.floor(z/70);
+    for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++){ const L = sel.get(kunci(i+a,j+b)); if (L) for (const p of L) if ((p[0]-x)**2 + (p[1]-z)**2 < 4900) return false; }
+    return true; };
+  const simpan = p => { const k = kunci(Math.floor(p[0]/70), Math.floor(p[1]/70)); if (!sel.has(k)) sel.set(k, []); sel.get(k).push(p); };
   for (let i = 0; i < 60000 && pts.length < 1500; i++){
     const x = -1250 + rnd()*5000, z = -1850 + rnd()*6400;
-    if (bebas(x,z) && jarak(x,z)) pts.push([x, z, [40,52,66][Math.floor(rnd()*3)], cols[Math.floor(rnd()*5)]]);
+    if (bebas(x,z) && jarak(x,z)) simpan(pts[pts.push([x, z, [40,52,66][Math.floor(rnd()*3)], cols[Math.floor(rnd()*5)]]) - 1]);
   }
   const daun = new THREE.InstancedMesh(BOX, lam(0xffffff), pts.length), batang = new THREE.InstancedMesh(BOX, lam(0x8e6a4c), pts.length);
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), c = new THREE.Color();
@@ -489,7 +510,7 @@ function pilihAgen(a){
   if (!a) return;
   setPutar(false);
   const y = a.ruang.H(a.x, a.z);
-  terbang(new THREE.Vector3(a.x + 110, y + 150, a.z + 190), new THREE.Vector3(a.x, y, a.z));
+  terbang(new THREE.Vector3(a.x + 260, y + 480, a.z + 520), new THREE.Vector3(a.x, y, a.z));   // sudut drone: avatar & sekitar rumahnya terlihat, tidak terlalu dekat
   try { const u = new URL(location.href); u.searchParams.set('no', a.no); history.replaceState(null, '', u); } catch (e) {}
 }
 function cariWarga(q){
@@ -519,14 +540,17 @@ function ikutiPilihan(){
   sorot.position.set(PILIH.x, y + .5, PILIH.z);
   if (ikuti && !anim){ _ik.set(PILIH.x, y, PILIH.z).sub(ctl.target); ctl.target.add(_ik); camera.position.add(_ik); }
 }
+const PD = pendaftar(), ON = onlineSekarang();   // mulai ambil data warga sejak awal, paralel dengan data pulau
 async function dusun(){
   const [data, rumahData, lotsData] = await Promise.all([fetch('data.json').then(r => r.json()), fetch('rumah.json').then(r => r.json()).catch(() => ({})), fetch('lots.json').then(r => r.json()).catch(() => ({}))]);
   bangunRumah(data, rumahData);
-  const pd = await pendaftar();
-  wargaHidup(data, rumahData, pd.daftar, lotsData);
-  ONLINE = await onlineSekarang(); setInterval(async () => { ONLINE = await onlineSekarang(); }, 60000);
-  siapCari();
-  document.getElementById('hidup').innerHTML = `<i></i>${pd.jumlah.toLocaleString('id-ID')} warga terdaftar` + (pd.live ? '' : ' <small>(data 8 Nov)</small>');
+  // warga & status online dimuat di belakang; pulau tampil dulu
+  PD.then(pd => {
+    wargaHidup(data, rumahData, pd.daftar, lotsData);
+    siapCari();
+    document.getElementById('hidup').innerHTML = `<i></i>${pd.jumlah.toLocaleString('id-ID')} warga terdaftar` + (pd.live ? '' : ' <small>(data 8 Nov)</small>');
+  });
+  ON.then(o => { ONLINE = o; setInterval(async () => { ONLINE = await onlineSekarang(); }, 60000); });
   await Promise.all(Object.entries(data).map(([nama, d]) => new Promise(ok => {
     const [ox, oz] = OFF[nama], {x0,x1,z0,z1} = d.b, {nx, nz, st, h} = d;
     dusunBox.push([x0+ox, x1+ox, z0+oz, z1+oz]);
@@ -557,6 +581,7 @@ async function dusun(){
   })));
   for (const [t,x,y,z,p] of [['Terminal Pusat Desa',1150,90,2452,2],['Gunung',500,760,-1350,1],['Danau',2200,60,1600,1]]){ const L = label(`<b>${t}</b>`, x, y, z, true); L.userData.pri = p; semuaLabel.push(L); }
   pohon();
+  gabungStatis();
 }
 
 // ---------- awan ----------
@@ -564,12 +589,13 @@ const awan = [];
 {
   const putih = new THREE.MeshLambertMaterial({color:0xf7fafd, emissive:0xa9b8c8});
   const kelompok = (x, y, z, s) => {
-    const g = new THREE.Group();
-    const n = 5 + Math.floor(rnd()*6);
+    const n = 5 + Math.floor(rnd()*6), gs = [], m4 = new THREE.Matrix4(), q = new THREE.Quaternion();
     for (let i = 0; i < n; i++){
-      const w = s*(.5+rnd()*.8), m = new THREE.Mesh(BOX, putih);
-      m.scale.set(w, w*(.35+rnd()*.3), w*(.6+rnd()*.5)); m.position.set((rnd()-.5)*s*1.6, (rnd()-.3)*s*.35, (rnd()-.5)*s*.9); g.add(m);
+      const w = s*(.5+rnd()*.8);
+      m4.compose(new THREE.Vector3((rnd()-.5)*s*1.6, (rnd()-.3)*s*.35, (rnd()-.5)*s*.9), q, new THREE.Vector3(w, w*(.35+rnd()*.3), w*(.6+rnd()*.5)));
+      gs.push(BOX.clone().applyMatrix4(m4));
     }
+    const g = new THREE.Mesh(mergeGeometries(gs), putih); gs.forEach(x => x.dispose());
     g.position.set(x,y,z); scene.add(g); return g;
   };
   // awan di sekitar & di bawah pulau
@@ -578,7 +604,7 @@ const awan = [];
     awan.push({g: kelompok(CX + Math.cos(a)*r, y, CZ + Math.sin(a)*r, 300 + rnd()*450), v: 8 + rnd()*14});
   }
   // lautan awan jauh di bawah
-  for (let i = 0; i < 110; i++){
+  for (let i = 0; i < 70; i++){
     const a = rnd()*Math.PI*2, r = Math.sqrt(rnd())*16000;
     awan.push({g: kelompok(CX + Math.cos(a)*r, -3300 - rnd()*500, CZ + Math.sin(a)*r, 1100 + rnd()*1300), v: 4 + rnd()*6});
   }
