@@ -18,16 +18,22 @@ export const unitDari = no => { const u = no - AWAL_SEGARA; if (u < 1) return nu
 export const kodeUnit = no => { const a = unitDari(no); return a ? `Menara ${a.t} · Unit ${pad(a.f)}-${pad(a.k)}` : ''; };
 export const noDari = (t, f, k) => AWAL_SEGARA + (t - 1) * UNIT_MENARA + (f - 2) * UNIT_LANTAI + k;
 
-// ---- ukuran (satuan kavling, dikali VS di dunia) ----
+// ---- ukuran (satuan kavling, dikali VS di dunia). Lahan ±300 × 300 kavling (±1.500 × 1.500 dunia), sebanding dusun lain ----
 const TW = 16, TD = 14, FH = 2.4, TH = (LANTAI_HUNI + 1) * FH;     // badan menara
-const ZP = -30, ZS = -46, ZPL = 8, ZSEL = 36, XL = 112, XR = -110;  // Jl. Pesisir, garis laut utara, Jl. Plaza, Jl. Selatan, laut timur, sungai barat
-const KOL2 = [-90, -62, -34, 34, 62, 90];
-const slot = k => k <= 4 ? {x: [-80, -54, 54, 80][k - 1], z: -12} : {x: KOL2[(k - 5) % 6], z: 52 + Math.floor((k - 5) / 6) * 26};
+const ZP = -30, ZS = -46, XL = 152, XR = -150;                      // Jl. Pesisir, garis laut utara, laut timur, sungai barat
+const COLX = [-124, -92, -60, -28, 28, 60, 92, 124], ROW0 = 34, DROW = 34, rowZ = r => ROW0 + r * DROW;
 const DERMAGA = {x0: -3, x1: 3, z0: ZS - 18, z1: ZS + 1};
-// lahan fasum (sebaris di selatan Jl. Plaza, menghadap utara): [aset, nama]; null = kosong untuk voting
-const FASUM = [['warung', '🛒 Warung Desa'], ['sekolah', '🏫 SD Kotak Segara'], ['masjid', '🕌 Masjid'], [null], ['gereja', '⛪ Gereja'],
-  ['katedral', '⛪ Gereja Katolik'], ['pura', '🛕 Pura'], [null], ['vihara', '☸️ Vihara'], ['klenteng', '🏮 Klenteng']];
-
+// blok kota: baris × 8 petak di selatan plaza. Fasum DISEBAR (Huda 6 Nov 2026) di petak tetap; petak lain = lahan menara (terisi berurutan).
+// [aset, nama]; aset null = lahan kosong untuk voting
+const FASUM_PETAK = {0: ['warung', '🛒 Warung Desa'], 7: ['sekolah', '🏫 SD Kotak Segara'], 11: ['masjid', '🕌 Masjid'], 12: [null],
+  16: ['gereja', '⛪ Gereja'], 23: ['katedral', '⛪ Gereja Katolik'], 27: ['pura', '🛕 Pura'], 28: ['tamanKota', '🌳 Taman Segara'],
+  32: ['vihara', '☸️ Vihara'], 39: [null], 43: ['klenteng', '🏮 Klenteng'], 44: ['tamanKota', '🌳 Taman Pantai'],
+  // lahan GEDUNG PENCAKAR LANGIT (Huda 8 Nov 2026): kantor, mal, hotel, dll. nanti; dikunci, bukan untuk menara apartemen
+  3: ['_gedung'], 4: ['_gedung'], 19: ['_gedung'], 20: ['_gedung'], 35: ['_gedung'], 36: ['_gedung']};
+const petakXZ = j => ({x: COLX[j % 8], z: rowZ(Math.floor(j / 8))});
+// menara 1–4 mengapit plaza di baris depan; menara 5+ mengisi petak kota yang bukan fasum, berurutan dari utara ke selatan
+const slot = k => { if (k <= 4) return {x: [-124, -96, 96, 124][k - 1], z: -12};
+  let n = k - 5; for (let j = 0; ; j++) if (!FASUM_PETAK[j] && n-- === 0) return {...petakXZ(j), j}; };
 // lantai hunian: petak jauh di utara-timur (di luar batas dusun)
 const FO = (t, f) => ({x: 600 + f * 200, z: -600 - t * 200});
 const UX = k => -20 + ((k - 1) % 5) * 10, UZ = 7.1, RW = 4.9, RD = 3.92;    // pusat unit, setengah lebar/dalam ruangan (interior rumah × 2)
@@ -59,51 +65,50 @@ export function segara(sc, o = {}) {
   let maks = AWAL_SEGARA; for (const k of Object.keys(nm)) if (+k > maks) maks = +k; if (o.maksNo > maks) maks = o.maksNo;
   const nWarga = maks - AWAL_SEGARA, nMenara = Math.max(1, Math.ceil(nWarga / UNIT_MENARA));
   const sisaMenara = nWarga - (nMenara - 1) * UNIT_MENARA, proyekBaru = nWarga > 0 && sisaMenara >= UNIT_MENARA * .9;   // menara terakhir ≥ 90% → menara berikut mulai dibangun
-  const sl = slot(nMenara + (proyekBaru ? 1 : 0)), ZT = Math.max(48, nMenara + (proyekBaru ? 1 : 0) >= 5 ? sl.z + 22 : 48);
+  const slAkhir = slot(nMenara + (proyekBaru ? 1 : 0)), NB = Math.max(6, slAkhir.j != null ? Math.floor(slAkhir.j / 8) + 1 : 0), ZT = rowZ(NB - 1) + 30;
 
   // ---- tanah kota, pantai utara & timur, laut, sungai barat ----
-  slab(0, -.08, 0, 1400, .1, 1400, 0x6fae50);
+  slab(0, -.08, 100, 1600, .1, 1600, 0x6fae50);
   slab((XR + XL) / 2, -.02, (ZS + ZT + 14) / 2, XL - XR, .06, ZT + 14 - ZS, 0xc9cdd1);                    // paving kota
   slab((XR + XL) / 2, .0, ZS + 5, XL - XR + 10, .08, 10, 0xe2cf9a);                                     // pasir utara
   slab(XL - 4, .0, (ZS + ZT) / 2, 8, .08, ZT - ZS + 10, 0xe2cf9a);                                       // pasir timur
-  slab(0, -.04, ZS - 200, 1400, .3, 400, 0x2f8fd0, .6);                                                 // TELUK (utara)
-  slab(XL + 200, -.04, 0, 400, .3, 1400, 0x2f8fd0, .6);                                                 // laut timur
-  slab(XR - 6, -.03, 0, 11, .3, 1400, 0x3f9be0, .25);                                                    // sungai barat
+  slab(0, -.04, ZS - 250, 1600, .3, 500, 0x2f8fd0, .6);                                                 // TELUK (utara)
+  slab(XL + 250, -.04, 100, 500, .3, 1600, 0x2f8fd0, .6);                                               // laut timur
+  slab(XR - 6, -.03, 100, 11, .3, 1600, 0x3f9be0, .25);                                                  // sungai barat
   // ombak tipis di garis pantai
   for (let x = XR; x < XL; x += 7) slab(x + rnd() * 3, .02, ZS - 1.2 - rnd(), 3 + rnd() * 3, .05, .5, 0xe8f6ff, .3);
   // dermaga + perahu
   slab(0, .32, (DERMAGA.z0 + DERMAGA.z1) / 2, DERMAGA.x1 - DERMAGA.x0, .4, DERMAGA.z1 - DERMAGA.z0, 0x8a6a4a);
   const perahu = (x, z, ry, c) => { const g = new THREE.Group(); const b = box(3, .9, 7, c, .3); b.position.y = .45; g.add(b); const ds = box(2.4, .3, 6.2, 0xe8e8e8, .1); ds.position.y = .8; g.add(ds);
     g.position.set(x, .1, z); g.rotation.y = ry; G.add(g); };
-  perahu(-6.5, ZS - 9, .1, 0x2f6fd8); perahu(6.8, ZS - 13, -.15, 0xe0333a); perahu(-34, ZS - 20, 1.3, 0xf2c14a); perahu(40, ZS - 26, 2.2, 0x2a9a9a);
+  perahu(-6.5, ZS - 9, .1, 0x2f6fd8); perahu(6.8, ZS - 13, -.15, 0xe0333a); perahu(-44, ZS - 20, 1.3, 0xf2c14a); perahu(60, ZS - 26, 2.2, 0x2a9a9a); perahu(110, ZS - 14, .6, 0xffffff);
 
-  // ---- jalan: Jl. Pesisir (utara), Jl. Plaza, Jl. Selatan, jalan tengah ke terminal, jalan tiap baris menara ----
-  aspal((XR + XL - 8) / 2, ZP, XL - XR - 8, 6);
-  aspal((XR + XL - 8) / 2, ZPL, XL - XR - 8, 4);
-  aspal((XR + XL - 8) / 2, ZSEL, XL - XR - 8, 5);
-  aspal(0, (ZPL + ZT) / 2, 6, ZT - ZPL);
-  aspal(XR + 3, (ZP + ZT) / 2, 4, ZT - ZP);
-  for (let z = 52 + 26; z <= sl.z; z += 26) aspal((XR + XL - 8) / 2, z - 13, XL - XR - 8, 4);
-  // lampu jalan NEON (biru toska & merah muda bergantian) di sepanjang Jl. Pesisir
-  for (let x = XR + 8, i = 0; x < XL - 8; x += 14, i++) for (const sd of [-1, 1]) {
-    const z = ZP + sd * 4.2; slab(x, 1.6, z, .22, 3.2, .22, 0x2a3038); slab(x, 3.25, z - sd * .5, .25, .14, 1.2, 0x2a3038);
-    slab(x, 3.12, z - sd * .9, .5, .1, .4, neon(i % 2 ? 0xff4fa8 : 0x3ef0ff)); }
+  // ---- jalan: Jl. Pesisir (utara), satu jalan di depan tiap baris blok, jalan tengah ke terminal, jalan tepi barat & timur ----
+  const XJ = 140;
+  aspal(0, ZP, 2 * XJ + 4, 6);
+  for (let r = 0; r < NB; r++) aspal(0, rowZ(r) - 19, 2 * XJ + 4, 4);
+  aspal(0, (rowZ(0) - 19 + ZT) / 2, 6, ZT - rowZ(0) + 19); aspal(-XJ, (ZP + ZT) / 2, 4, ZT - ZP); aspal(XJ, (ZP + ZT) / 2, 4, ZT - ZP);
+  // lampu jalan NEON (biru toska & merah muda bergantian): Jl. Pesisir + jalan tengah
+  const lampu = (x, z, sx, sz, i) => { slab(x, 1.6, z, .22, 3.2, .22, 0x2a3038); slab(x - sx * .5, 3.25, z - sz * .5, sx ? 1.2 : .25, .14, sz ? 1.2 : .25, 0x2a3038);
+    slab(x - sx * .9, 3.12, z - sz * .9, .45, .1, .45, neon(i % 2 ? 0xff4fa8 : 0x3ef0ff)); };
+  for (let x = -XJ + 8, i = 0; x < XJ - 6; x += 14, i++) for (const sd of [-1, 1]) lampu(x, ZP + sd * 4.2, 0, sd, i);
+  for (let z = rowZ(0) - 12, i = 0; z < ZT - 12; z += 14, i++) for (const sd of [-1, 1]) lampu(sd * 4.6, z, sd, 0, i);
 
-  // ---- PLAZA: paving motif, videotron, kolam air mancur, bangku, palem ----
-  slab(0, .07, -12, 72, .1, 34, 0xe8e2d4);
-  for (let x = -34; x <= 34; x += 6) for (let z = -27; z <= 3; z += 6) if ((x + z) % 12 === 0) slab(x, .125, z, 2.6, .01, 2.6, 0xd2cab8);
-  slab(0, .35, -14, 12, .5, 12, 0xbfc8d0); slab(0, .45, -14, 10.6, .4, 10.6, 0x3aa0e0, .2); slab(0, 1.6, -14, .8, 2.4, .8, 0xdfe6ec); slab(0, 2.9, -14, 2.6, .2, 2.6, 0x8fd8ff, .2);
+  // ---- PLAZA (140 × 32): paving motif, air mancur, videotron, taman rumput, bangku, pohon ----
+  slab(0, .07, -12, 140, .1, 32, 0xe8e2d4);
+  for (let x = -66; x <= 66; x += 6) for (let z = -26; z <= 2; z += 6) if ((x + z) % 12 === 0) slab(x, .125, z, 2.6, .01, 2.6, 0xd2cab8);
+  [-1, 1].forEach(sd => { slab(sd * 46, .14, -12, 30, .08, 22, 0x6fbf5a); for (const [dx, dz] of [[-10, -7], [10, -7], [-10, 7], [10, 7], [0, 0]]) tree(sd * 46 + dx, -12 + dz, .85); });   // taman kiri-kanan
+  slab(0, .35, -14, 14, .5, 14, 0xbfc8d0); slab(0, .45, -14, 12.6, .4, 12.6, 0x3aa0e0, .2); slab(0, 1.6, -14, .8, 2.4, .8, 0xdfe6ec); slab(0, 2.9, -14, 2.6, .2, 2.6, 0x8fd8ff, .2);
   const vt = new THREE.Group(); vt.position.set(0, 0, 2); G.add(vt);                                 // VIDEOTRON menghadap utara (plaza)
-  slab(-6.4, 4, 0, .5, 8, .5, 0x2a3038, .6, vt); slab(6.4, 4, 0, .5, 8, .5, 0x2a3038, .6, vt); slab(0, 6, 0, 13.6, 5.2, .6, 0x1a2028, .6, vt);
-  const layar = new THREE.Mesh(new THREE.PlaneGeometry(12.8, 4.6), new THREE.MeshBasicMaterial({map: kanvas(1024, 368, (x, w, h) => {
+  slab(-8.4, 5, 0, .6, 10, .6, 0x2a3038, .6, vt); slab(8.4, 5, 0, .6, 10, .6, 0x2a3038, .6, vt); slab(0, 7.4, 0, 17.6, 6.6, .6, 0x1a2028, .6, vt);
+  const layar = new THREE.Mesh(new THREE.PlaneGeometry(16.8, 6), new THREE.MeshBasicMaterial({map: kanvas(1024, 368, (x, w, h) => {
     const g = x.createLinearGradient(0, 0, w, h); g.addColorStop(0, '#152a5c'); g.addColorStop(1, '#6a1f6e'); x.fillStyle = g; x.fillRect(0, 0, w, h);
     x.textAlign = 'center'; x.fillStyle = '#5ff4ff'; x.font = '900 46px Montserrat,sans-serif'; x.fillText('SELAMAT DATANG DI', w / 2, 110);
     x.fillStyle = '#ffffff'; x.font = '900 96px Montserrat,sans-serif'; x.fillText('KOTAK SEGARA', w / 2, 210);
     x.fillStyle = '#ff9ad0'; x.font = '700 38px Montserrat,sans-serif'; x.fillText('Kota menara di tepi teluk · ' + nMenara + ' menara · ' + nWarga + ' warga', w / 2, 290); })}));
-  layar.position.set(0, 6, -.32); layar.rotation.y = Math.PI; vt.add(layar);
-  [[-24, -22], [24, -22], [-24, -2], [24, -2]].forEach(([x, z]) => { slab(x, .45, z, 3.4, .2, 1, 0xa0703c); slab(x - 1.4, .22, z, .3, .44, .8, 0x3a3f46); slab(x + 1.4, .22, z, .3, .44, .8, 0x3a3f46); });
-  [[-33, -27], [33, -27], [-33, 2], [33, 2], [-14, -27], [14, -27]].forEach(([x, z]) => tree(x, z, .9));
-
+  layar.position.set(0, 7.4, -.32); layar.rotation.y = Math.PI; vt.add(layar);
+  [[-20, -24], [20, -24], [-20, -2], [20, -2], [-28, -12], [28, -12]].forEach(([x, z]) => { slab(x, .45, z, 3.4, .2, 1, 0xa0703c); slab(x - 1.4, .22, z, .3, .44, .8, 0x3a3f46); slab(x + 1.4, .22, z, .3, .44, .8, 0x3a3f46); });
+  [[-14, -26], [14, -26], [-14, 2], [14, 2]].forEach(([x, z]) => tree(x, z, .9));
   // ---- MENARA apartemen ----
   const bangunan = [], menara = [];
   const kacaLobi = mat(0x1d2f45, .15);
@@ -141,26 +146,36 @@ export function segara(sc, o = {}) {
   if (proyekBaru) { const s = slot(nMenara + 1), m = F.proyek('PEMBANGUNAN MENARA ' + (nMenara + 1), 1); m.scale.setScalar(VS); m.rotation.y = Math.PI; m.position.set(s.x * VS, 0, s.z * VS); gF.add(m);
     bangunan.push({position: V3(s.x * VS, 0, s.z * VS), nama: '🚧 Menara ' + (nMenara + 1) + ' (dibangun)', ...F.pisahFasum(m)}); }
 
-  // ---- fasum TERSEBAR sebaris di selatan Jl. Plaza (menghadap utara); 2 lahan kosong untuk voting ----
-  const fas = [], lahanKosong = [];
-  FASUM.forEach(([k, nama], i) => {
-    const x = (i < 5 ? -1 : 1) * (14 + 21.3 * (i < 5 ? 4 - i : i - 5)), z = 20.6, kk = G.children.length; fasum2(G, x, z, 21, 17.4); const f = G.children[kk]; fas.push({p: V3(x * VS, 0, z * VS), g: f});
-    if (!k) { lahanKosong.push({x, z, y: 0}); return; }
+  // ---- blok kota: fasum TERSEBAR di petak tetap, petak menara yang belum terpakai = taman kecil ----
+  const fas = [], lahanKosong = [], terpakai = new Set();
+  for (let t = 5; t <= nMenara + (proyekBaru ? 1 : 0); t++) terpakai.add(slot(t).j);
+  for (let j = 0; j < NB * 8; j++) {
+    const {x, z} = petakXZ(j), fp = FASUM_PETAK[j];
+    if (!fp) { if (!terpakai.has(j)) { slab(x, .1, z, 22, .06, 16, 0x7cc05f); tree(x - 6, z - 3, .8); tree(x + 5, z + 2, .9); tree(x, z + 5, .7); } continue; }
+    const [k, nama] = fp, kk = G.children.length; fasum2(G, x, z, 21, 17.4); const f = G.children[kk]; fas.push({p: V3(x * VS, 0, z * VS), g: f});
+    if (!k) { lahanKosong.push({x, z, y: 0}); continue; }
+    if (k === '_gedung') {   // papan proyek: lahan dipesan untuk gedung pencakar langit
+      const pg = new THREE.Group(); pg.position.set(x, 0, z - 7.5); G.add(pg); slab(-3.6, 1.4, 0, .25, 2.8, .25, 0x2a3038, .6, pg); slab(3.6, 1.4, 0, .25, 2.8, .25, 0x2a3038, .6, pg);
+      const pp = new THREE.Mesh(new THREE.PlaneGeometry(8, 1.8), new THREE.MeshBasicMaterial({map: kanvas(640, 144, (c, w, h) => { c.fillStyle = '#101826'; c.fillRect(0, 0, w, h); c.textAlign = 'center';
+        c.fillStyle = '#ffd36b'; c.font = '900 44px Montserrat,sans-serif'; c.fillText('LAHAN GEDUNG', w / 2, 60); c.fillStyle = '#5ff4ff'; c.font = '900 38px Montserrat,sans-serif'; c.fillText('PENCAKAR LANGIT', w / 2, 112); })}));
+      pp.position.set(0, 2.4, -.14); pp.rotation.y = Math.PI; pg.add(pp); slab(0, 2.4, 0, 8.2, 2, .2, 0x1a2028, .6, pg);
+      bangunan.push({position: V3(x * VS, 0, z * VS), nama: '🏗️ Lahan Gedung Pencakar Langit', tinggi: 4 * VS, rect: null}); continue; }
     f.children.slice(1).forEach(c => f.remove(c));
     const m = F[k](); m.scale.setScalar(VS); m.rotation.y = Math.PI; m.position.set(x * VS, 0, z * VS); gF.add(m);
     bangunan.push({position: V3(x * VS, 0, z * VS), nama, ...F.pisahFasum(m)});
-  });
+  }
   // terminal & gapura di selatan (menyambung ke Jl. Raya Dunia Kotak)
   { const k = G.children.length; fasum2(G, 0, ZT, 30, 16); G.children[k].children.slice(1).forEach(c => G.children[k].remove(c)); }
   const gp = new THREE.Group(); gp.position.set(0, 0, ZT - 9); G.add(gp);
   slab(-6, 3, 0, 1, 6, 1, 0x2a3038, .6, gp); slab(6, 3, 0, 1, 6, 1, 0x2a3038, .6, gp); slab(0, 6.4, 0, 13.4, 1.4, 1.2, 0x1a2028, .6, gp);
   const gpn = new THREE.Mesh(new THREE.PlaneGeometry(12.6, 1.2), new THREE.MeshBasicMaterial({map: papan('KOTAK SEGARA', 1024, 96)})); gpn.position.set(0, 6.4, -.62); gpn.rotation.y = Math.PI; gp.add(gpn);
   bangunan.push({position: V3(0, 0, ZT * VS), nama: '🚌 Terminal & Gapura Kotak Segara', tinggi: 4 * VS, rect: null});
-  bangunan.push({position: V3(0, 0, -14 * VS), nama: '📺 Plaza Segara', tinggi: 4 * VS, rect: [-6 * VS, 6 * VS, -20 * VS, -8 * VS]});
+  bangunan.push({position: V3(0, 0, -14 * VS), nama: '📺 Plaza Segara', tinggi: 4 * VS, rect: [-7 * VS, 7 * VS, -21 * VS, -7 * VS]});
   bangunan.push({position: V3(0, 0, (ZS - 8) * VS), nama: '⚓ Dermaga Teluk', tinggi: 3 * VS, rect: null});
   // pohon peneduh di tepi pantai & selatan
-  for (let x = XR + 6; x < XL - 10; x += 9) if (Math.abs(x) > 8) tree(x + rnd() * 2, ZS + 8 + rnd() * 2, .8 + rnd() * .3);
+  for (let x = XR + 6; x < XL - 10; x += 9) if (Math.abs(x) > 8 && Math.abs(Math.abs(x) - XJ) > 4) tree(x + rnd() * 2, ZS + 8 + rnd() * 2, .8 + rnd() * .3);
   for (let x = XR + 6; x < XL - 6; x += 8) if (Math.abs(x) > 18) tree(x, ZT + 10 + rnd() * 3, .9);
+  for (let z = ZP + 8; z < ZT; z += 9) { tree(XR + 4, z, .9); }
 
   // ================= LANTAI HUNIAN (dimuat satu per satu) =================
   const info = {lots: {}, G, light: d, grupFasum: gF, bangunan, dusun: 'segara', fas, nMenara, maks};
@@ -177,9 +192,10 @@ export function segara(sc, o = {}) {
     return lz < ZS - 1 || lx > XL - .5; };
   info.dekatAir = (x, z) => { const lz = z / VS, lx = x / VS; return lz > -400 && (lz < ZS + 6 || lx > XL - 7 || (Math.abs(lx) < 6 && lz < ZS + 2)); };
   info.arahAir = (x, z) => x / VS > XL - 7 ? V3(x + 20, 0, z) : V3(x, 0, z - 20);
-  const xs = [XR + 3, -40, 0, 40, XL - 12].map(v => v * VS), zs = [ZP, ZPL, ZSEL].map(v => v * VS);
-  info.jalur = {xs, zs, bolehNaik: i => i === 0 || i === 2};
-  info.tempatNPC = {warung: V3(-99 * VS, 0, (ZPL + 3) * VS), balai: V3(0, 0, -4 * VS), sungai: V3(-4 * VS, 0, (ZS + 3) * VS), sawah: V3(30 * VS, 0, -4 * VS), main: V3(lahanKosong[0].x * VS, 0, (ZPL + 3) * VS)};
+  const xs = [-XJ, 0, XJ].map(v => v * VS), zs = [ZP]; for (let r = 0; r < NB; r++) zs.push(rowZ(r) - 19);
+  info.jalur = {xs, zs: zs.map(v => v * VS), bolehNaik: () => true};
+  const pw = petakXZ(0), pt = petakXZ(28);
+  info.tempatNPC = {warung: V3(pw.x * VS, 0, (pw.z - 15) * VS), balai: V3(0, 0, -4 * VS), sungai: V3(-4 * VS, 0, (ZS + 3) * VS), sawah: V3(pt.x * VS, 0, (pt.z - 15) * VS), main: V3(lahanKosong[0].x * VS, 0, (lahanKosong[0].z - 15) * VS)};
 
   // ---- gedung: lift, lantai, pintu lobi ----
   const lantai = {g: null, z: null, rects: []};
