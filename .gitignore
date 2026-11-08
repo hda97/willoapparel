@@ -13,3 +13,5 @@ edukasi/smp/keluar/
 
 # Graphify: cache lokal tidak perlu di-commit
 graphify-out/cache/
+graphify-out/.graphify_build_state.json
+graphify-out/.graphify_labels*.json*
