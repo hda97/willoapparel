@@ -6,7 +6,7 @@
   python3 pelarikalcer/build.py
 
 Hasil:
-  public/pelarikalcer/index.html   halaman situs (dokumen lengkap)
+  public/pelarikalcer-v2/index.html   halaman situs (versi lama v2) (dokumen lengkap)
   pelarikalcer/dist/artifact.html  versi pratinjau artifact (tanpa doctype/html/body)
 Three.js + qrcode-generator dibundel (esbuild); aset gambar disisipkan sebagai data URI WebP.
 """
@@ -14,7 +14,7 @@ import base64, io, json, pathlib, subprocess
 from PIL import Image
 
 AKAR = pathlib.Path(__file__).resolve().parent
-SITUS = AKAR.parent / 'public' / 'pelarikalcer' / 'index.html'
+SITUS = AKAR.parent / 'public' / 'pelarikalcer-v2' / 'index.html'
 ARTIFACT = AKAR / 'dist' / 'artifact.html'
 
 
