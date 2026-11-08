@@ -571,7 +571,7 @@ function gambarPlakat() {
 function tulisPendukung() {
   const d = PD; if (!d) { $('isiPendukung').innerHTML = '<p class="kecil">Memuat…</p>'; return; }
   const no = S.saya?.no, saya = no ? BT[no] || 0 : 0, rp = (d.harga || BATA_RP).toLocaleString('id-ID');
-  let h = `<div class="pdHarga"><b>🧱 1 Bata = Rp${rp}</b><small>Traktir sukarela lewat Trakteer. Tiap Bata juga jadi 5 ⭐ bintang voting + 50 💎 permata.</small></div>`;
+  let h = `<div class="pdHarga"><b>🧱 Dukung desa pakai Bata</b><small>Traktir sukarela lewat Trakteer; jumlah Bata dihitung otomatis. Tiap Bata juga jadi 5 ⭐ bintang voting + 50 💎 permata.</small></div>`;
   if (!S.tamu && no) h += `<div class="pdSaya">Bata kamu: <b>🧱 ${saya}</b>${saya < BATA_BENDERA ? ` · ${BATA_BENDERA - saya} Bata lagi untuk Bendera Emas` : saya < BATA_PLAKAT ? ` · ${BATA_PLAKAT - saya} Bata lagi untuk masuk plakat fasum` : ' · namamu ada di plakat fasum'}</div>`;
   h += `<div class="pdHadiah">${[['🧱', '1 Bata', 'Lencana 🧱 di namamu + ucapan terima kasih di video Dunia Kotak'], ['🚩', `${BATA_BENDERA} Bata`, 'Bendera Emas berkibar di rumahmu, selamanya'], ['👑', 'Juragan Bata', 'Pendukung terbesar minggu ini (Senin–Minggu) dapat mahkota di atap. Disalip? Mahkota pindah!'], ['🪧', `${BATA_PLAKAT} Bata`, 'Namamu terpasang di plakat fasum yang sedang dibangun'], ['🏗️', 'Gratis', 'Pengusul pertama fasum yang menang voting jadi Bos fasum itu']].map(([i, j, k]) => `<div><i>${i}</i><span><b>${j}</b><small>${k}</small></span></div>`).join('')}</div>`;
   const jr = d.juragan; h += `<div class="pdJuragan"><i>👑</i><span><small>Juragan Bata ${jr && jr.mingguIni ? 'minggu ini' : 'saat ini'}</small><b>${jr ? '@' + esc(jr.nm) : 'Belum ada. Jadilah yang pertama!'}</b>${jr && jr.mingguIni ? `<small>${jr.bataMinggu} Bata minggu ini</small>` : ''}</span></div>`;
@@ -2231,7 +2231,7 @@ function aturHUD() {
   $('profil').style.cursor = 'pointer';
   $('profil').onclick = bukaProfil;
   $('bAvatar').onclick = () => { $('panelAtur').hidden = true; bukaPembuatAvatar(JSON.parse(JSON.stringify(S.av)), false); };
-  $('bKucing').onclick = () => bukaKucing();
+  $('pfKucing').onclick = () => { $('panelProfil').hidden = true; bukaKucing(); }; $('bDukung').onclick = bukaPendukung;   // Huda 8 Nov 2026: kucing pindah ke profil, deretan atas jadi 👑 Pendukung
   $('bPeringkat').onclick = () => bukaPeringkat(); $('tutupPeringkat').onclick = () => { $('panelPeringkat').hidden = true; };
   $('bMisi').onclick = () => bukaMisi(); $('tutupMisi').onclick = () => { $('panelMisi').hidden = true; };
   muatMisi();

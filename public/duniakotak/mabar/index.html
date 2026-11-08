@@ -9,7 +9,7 @@
 <link rel="icon" href="/duniakotak/logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap">
-<link rel="stylesheet" href="gaya.css?v=20261108trakteer">
+<link rel="stylesheet" href="gaya.css?v=20261109c">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js","three/addons/geometries/RoundedBoxGeometry.js":"/duniakotak/mabar/js/kotakBulat.js?v=20261108r","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
   <button class="bulat" id="bRumah" title="Pulang ke rumah"><i>🏠</i>Rumah</button>
   <button class="bulat" id="bKamera" title="Kamera HP"><i>📸</i>Kamera</button>
   <button class="bulat" id="bMisi" title="Misi harian"><i>📋</i>Misi</button><button class="bulat" id="bPeringkat" title="Papan peringkat warga"><i>🏆</i>Peringkat</button>
-  <button class="bulat" id="bKucing" title="Kucing & kandang"><i>🐱</i>Kucing</button>
+  <button class="bulat" id="bDukung" title="Pendukung Desa: Bata, Bendera Emas, mahkota Juragan"><i>👑</i>Dukung</button>
   <button class="bulat" id="bDusun" title="Naik bus ke dusun lain"><i>🚌</i>Dusun</button><button class="bulat" id="bAtur" title="Pengaturan: suara, avatar, panduan"><i>⚙️</i>Atur</button>
  </div>
  <div class="kartu chat" id="chat">
@@ -72,7 +72,7 @@
    <button class="barisAtur" id="bProfesi" title="Kantor Desa: buka dan pilih profesi"><i>🏛️</i><span>Kantor Desa · Profesi<small>Guru, perawat, dokter, kasir, wasit · dibuka pakai 💎</small></span></button>
    <button class="barisAtur" id="bIklan" hidden title="Tonton iklan singkat, dapat permata"><i>📺</i><span>Tonton iklan, dapat 💎<small id="iklanSisa">+3 💎 per iklan · maks 3x sehari · tidak wajib</small></span></button>
    <button class="barisAtur" id="bVoting" title="Voting fasum berikutnya"><i>⭐</i><span>Voting Fasum<small>1 bintang gratis tiap hari</small></span></button>
-   <button class="barisAtur dukung" id="bPendukung" title="Pendukung Desa: Bata, Bendera Emas, mahkota Juragan"><i>🧱</i><span>Pendukung Desa<small>1 Bata = Rp5.000 lewat Trakteer · Bendera Emas, mahkota Juragan, plakat fasum</small></span></button>
+   <button class="barisAtur dukung" id="bPendukung" title="Pendukung Desa: Bata, Bendera Emas, mahkota Juragan"><i>🧱</i><span>Pendukung Desa<small>Kumpulkan Bata lewat Trakteer · Bendera Emas, mahkota Juragan, plakat fasum</small></span></button>
   </div>
   <button class="utama" id="tutupAtur">Lanjut main</button>
  </div>
@@ -89,7 +89,7 @@
  <div class="panel pfPanel"><button class="popTutup" data-tutup="panelProfil" aria-label="Tutup">✕</button>
   <div class="pfAtas"><img id="pfAva" alt="Avatarmu"><div class="pfInfo"><h2 id="pfNama">@warga</h2><small id="pfAlamat"></small>
    <div class="pfSaldo"><span>🪙 <b id="pfKoin">0</b> koin</span><span>💎 <b id="pfPermata">0</b> permata</span></div><small id="pfPanen"></small><small id="pfProfesi" class="pfProfesi"></small></div></div>
-  <div class="pfTombol"><button id="pfAvatar">🪞 Ubah avatar</button><button id="pfToko">🎨 Toko Hias</button><button id="pfProfesiB">🏛️ Profesi</button><button id="profOnline">🟢 Online</button><button id="pfKode">🔑 Kode warga</button></div>
+  <div class="pfTombol"><button id="pfAvatar">🪞 Ubah avatar</button><button id="pfToko">🎨 Toko Hias</button><button id="pfProfesiB">🏛️ Profesi</button><button id="pfKucing">🐱 Kucing</button><button id="profOnline">🟢 Online</button><button id="pfKode">🔑 Kode warga</button></div>
   <div class="pfJudulBaris"><h3 class="pfJudul">🎒 Inventori <small>Ikan = makanan kucing / dijual di warung · barang = bahan hiasan</small></h3><button id="pfRakit" class="pfRakit">🔨 Rakit hiasan</button></div>
   <div id="pfInv" class="pfInv"></div>
   <button class="utama" id="tutupProfil">Lanjut main</button>
@@ -211,6 +211,6 @@
 
 <div id="miring" class="layarPenuh" hidden><div class="panel"><div style="font-size:54px">📱↻</div><h2>Miringkan HP-mu</h2><p class="sub">Dunia Kotak dimainkan dengan layar mendatar.</p><button class="tipis" id="tetapTegak">Tetap main tegak</button></div></div>
 
-<script type="module" src="game.js?v=20261109ekonomi"></script>
+<script type="module" src="game.js?v=20261109c"></script>
 </body>
 </html>

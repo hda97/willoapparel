@@ -241,7 +241,7 @@ a.barisAtur{text-decoration:none}.barisAtur span{display:flex;flex-direction:col
 .pfInfo small{font-size:12px;opacity:.75}
 .pfSaldo{display:flex;gap:8px;flex-wrap:wrap}
 .pfSaldo span{background:rgba(255,255,255,.08);border:1px solid var(--garis);border-radius:12px;padding:5px 10px;font-weight:700;font-size:13px}
-.pfTombol{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.pfTombol{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .pfTombol button{padding:9px 4px;border-radius:12px;border:1px solid var(--garis);background:rgba(255,255,255,.06);color:#fff;font:800 12px Montserrat,sans-serif;cursor:pointer}
 .pfJudul{margin:4px 0 0;font-size:15px;text-align:left}
 .pfInv{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
