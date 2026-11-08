@@ -350,6 +350,17 @@ a.barisAtur{text-decoration:none}.barisAtur span{display:flex;flex-direction:col
 .misi.hadir .hdKotak i{font-style:normal;font-size:11px;font-weight:900;min-width:26px;text-align:center;padding:3px 4px;border-radius:7px;background:rgba(255,255,255,.1);color:#ffd75a}
 .misi.hadir .hdKotak i.ok{background:#7ad06a;color:#13301a}
 
+/* Lift Menara Segara (8 Nov 2026) */
+.liftGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:8px;max-height:min(52vh,420px);overflow:auto;padding:2px}
+.liftGrid button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px;border-radius:12px;border:1px solid rgba(95,244,255,.35);background:#101826;color:#fff;font:800 14px Montserrat,sans-serif;cursor:pointer}
+.liftGrid button small{font-size:10px;font-weight:600;color:#9fb3c8}
+.liftGrid button.aku{border-color:#ffd36b;box-shadow:0 0 0 2px rgba(255,211,107,.35)}
+.liftGrid button.aku small{color:#ffd36b}
+.liftGrid button.ini{background:#1f4a6a;border-color:#5ff4ff}
+#tiraiLift{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:#0b111c;color:#5ff4ff;font:900 22px Montserrat,sans-serif;letter-spacing:.04em;text-shadow:0 0 12px rgba(95,244,255,.6);animation:tirai .25s ease-out}
+#tiraiLift[hidden]{display:none}
+@keyframes tirai{from{opacity:0}to{opacity:1}}
+
 /* Pendukung Desa (Bata, 8 Nov 2026) */
 #panelPendukung .panel{max-height:calc(96*var(--vh,1vh));overflow-y:auto;-webkit-overflow-scrolling:touch}
 .pdHarga{display:flex;flex-direction:column;gap:3px;padding:10px 14px;border-radius:14px;background:rgba(255,201,40,.12);border:1px solid rgba(255,201,40,.35);text-align:left}

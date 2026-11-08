@@ -1037,7 +1037,7 @@ function saringChat(teks) {
   m = tok.map((w, i) => (kotor[i] ? "★★★" : w)).join("").replace(/★★★(\s*★★★)+/g, "★★★");
   return { m };
 }
-const DUSUN_RUANG = ["wetan", "kulon", "curug", "tlaga"];
+const DUSUN_RUANG = ["wetan", "kulon", "curug", "tlaga", "segara"];
 export class Ruang extends DurableObject {
   constructor(ctx, env) {
     super(ctx, env);
@@ -1231,7 +1231,7 @@ function bacaAkun(body) {
 
 // Gabungkan statistik warga (DO desa) + sesi main tiap dusun (DO ruang) untuk dashboard Huda.
 async function statistikDashboard(env, stub) {
-  const now = Date.now(), sejak = now - 14 * 864e5, DUSUN = ["wetan", "kulon", "curug", "tlaga"];
+  const now = Date.now(), sejak = now - 14 * 864e5, DUSUN = ["wetan", "kulon", "curug", "tlaga", "segara"];
   const w = await (await stub.fetch("https://do/statistik")).json();
   const mentah = [], chat = {}, sekitar = {}, online = { total: 0, per: {} };
   await Promise.all(DUSUN.map(async (d) => {
@@ -1304,7 +1304,7 @@ async function apiWarga(request, env, url) {
   if (aksi === "online" && request.method === "GET") {
     if (!env.RUANG) return json({ online: 0 });
     // gabungan semua dusun (Huda 6 Nov 2026: status online terlihat semua, jadi satu)
-    const DUSUN = ["wetan", "kulon", "curug", "tlaga"], per = {}, warga = [], lihat = new Set();
+    const DUSUN = ["wetan", "kulon", "curug", "tlaga", "segara"], per = {}, warga = [], lihat = new Set();
     await Promise.all(DUSUN.map(async (d) => { try { const j = await (await env.RUANG.get(env.RUANG.idFromName(d)).fetch("https://do/online")).json(); per[d] = 0;
       for (const x of j.warga || []) if (!lihat.has(x.no)) { lihat.add(x.no); warga.push({ ...x, d }); per[d]++; } } catch (e) { per[d] = 0; } }));
     warga.sort((a, b) => a.no - b.no);
@@ -1315,7 +1315,7 @@ async function apiWarga(request, env, url) {
     return new Response((await stub.fetch("https://do/peringkat" + (no ? "?no=" + no : ""))).body, { headers: { "content-type": "application/json", "cache-control": no ? "no-store" : "public, max-age=30" } });
   }
   if (aksi === "warga-npc" && request.method === "GET") {
-    const RENTANG = { wetan: [0, 260], kulon: [260, 460], curug: [460, 660], tlaga: [660, 860] }, [a, b] = RENTANG[url.searchParams.get("dusun")] || RENTANG.wetan;
+    const RENTANG = { wetan: [0, 260], kulon: [260, 460], curug: [460, 660], tlaga: [660, 860], segara: [860, 1e9] }, [a, b] = RENTANG[url.searchParams.get("dusun")] || RENTANG.wetan;
     return new Response((await stub.fetch(`https://do/warga-npc?a=${a}&b=${b}`)).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=60" } });
   }
   if (aksi === "usulan" && request.method === "GET") {
