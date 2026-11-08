@@ -60,6 +60,14 @@ const BARANG = { Apel: "🍎", Bunga: "🌼", Kayu: "🪵", Jamur: "🍄", "Batu
 const IKAN = [[35, "🐟", "Ikan mas"], [28, "🐠", "Ikan nila"], [18, "🐡", "Ikan buntal kotak"], [11, "🦐", "Udang"], [5, "👟", "Sepatu bekas"], [3, "🦀", "Kepiting langka"]];
 const BATAS_AMBIL = 60, BATAS_MANCING = 40;   // per hari WIB
 const KOIN_PER_PERMATA = 10;
+// Pelari Kalcer Dunia Kotak (Huda 7 Nov 2026): koin game lari = koin Dunia Kotak (satu dompet), top up Saweria = permata.
+// Koin hasil lari dibatasi supaya ekonomi desa tidak banjir: maks PK_MAKS_LARI per lari, PK_MAKS_HARI per hari WIB,
+// dan lari baru dihitung bila jarak waktu "mulai" ke "selesai" >= PK_MIN_LARI (lari 1 KM normal ±1,5-2 menit).
+// Harga barang toko lari (dalam koin; bayar permata = harga / KOIN_PER_PERMATA dibulatkan ke atas). Sama dengan
+// pelarikalcer-kotak/src/main.js. Bekal (PK_BEKAL) habis sekali pakai, sisanya barang milik permanen.
+const PK_MAKS_LARI = 50, PK_MAKS_HARI = 150, PK_MIN_LARI = 45e3;
+const PK_BEKAL = ["isotonik", "gel", "pisang", "kopi", "bakmi"];
+const PK_HARGA = {"isotonik": 15, "gel": 20, "pisang": 10, "kopi": 25, "bakmi": 30, "daily_oat": 50, "trail_sandstone": 85, "solomate_carbon": 140, "nyx_hyperfoam": 240, "willo_sport": 45, "coro_pro": 95, "titanium_ultra": 220, "waist_bag": 15, "sunglasses_matte": 35, "handuk": 40, "ransel": 50, "hydration_vest": 75, "grail_trail_pack": 260, "kaos-3": 30, "kaos-4": 30, "kaos-5": 30, "kaos-6": 30, "kaos-11": 45, "kaos-12": 50, "kaos-13": 50, "kaos-14": 35, "kaos-15": 35, "kaos-16": 35, "kaos-17": 35, "kaos-18": 35, "kaos-19": 45, "kaos-20": 45, "bawah-9": 35, "bawah-10": 35, "bawah-11": 25, "bawah-12": 25, "bawah-13": 35, "bawah-14": 40, "bawah-15": 40, "bawah-16": 40, "topi-7": 20, "topi-8": 20, "topi-9": 20};
 // Iklan berhadiah Google H5 Games Ads (Huda 6 Nov 2026): warga MEMILIH sendiri menonton iklan → +5 permata, maks 3x/hari WIB.
 // Hanya permata (bukan koin). Menyala bila variabel IKLAN_H5 = "1" (setelah Google menyetujui H5 Games Ads).
 const IKLAN_PERMATA = 3, IKLAN_BATAS = 3, IKLAN_MIN = 8000;
@@ -200,6 +208,7 @@ export class Warga extends DurableObject {
     // Lima menit pertama (7 Nov 2026): misi pemula berurutan + hadiah hadir beruntun harian
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN pemula TEXT"); } catch (e) { /* kolom sudah ada */ }
     try { this.sql.exec("ALTER TABLE warga ADD COLUMN hadir TEXT"); } catch (e) { /* kolom sudah ada */ }
+    try { this.sql.exec("ALTER TABLE warga ADD COLUMN pelari TEXT"); } catch (e) { /* kolom sudah ada */ }
     this.sql.exec("CREATE TABLE IF NOT EXISTS iuran (put TEXT, no INTEGER, koin INTEGER DEFAULT 0, permata INTEGER DEFAULT 0, mg TEXT, mgn INTEGER DEFAULT 0, PRIMARY KEY (put, no))");
     // suara = bintang yang sudah ditaruh warga ke calon fasum; donasi = catatan webhook Saweria (id unik, tidak dobel)
     this.sql.exec("CREATE TABLE IF NOT EXISTS suara (put TEXT, calon TEXT, no INTEGER, n INTEGER, PRIMARY KEY (put, calon, no))");
@@ -571,6 +580,35 @@ export class Warga extends DurableObject {
         this.sql.exec("UPDATE warga SET koin = ?, koinTotal = COALESCE(koinTotal, 0) + ?, kebun = ?, tas = ? WHERE no = ?", koin, dapat, JSON.stringify(kb), JSON.stringify(t), r.no);
       }
       return Response.json({ koin, permata, kebun: this.infoKebun(kb), tas: t.isi, ...info });
+    }
+    if (aksi === "pelari") {
+      // Game Pelari Kalcer: op akun | mulai | selesai (setor koin lari) | beli (bayar koin/permata).
+      const q = await request.json();
+      const r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Masuk dulu sebagai warga Dunia Kotak." }, { status: 401 });
+      const kini = Date.now(), hari = new Date(kini + 7 * 3600e3).toISOString().slice(0, 10);
+      let p = {}; try { p = JSON.parse(r.pelari || "{}") || {}; } catch (e) {}
+      if (!Array.isArray(p.punya)) p.punya = [];
+      if (p.h !== hari) { p.h = hari; p.dapat = 0; }
+      let koin = r.koin || 0, koinTotal = r.koinTotal || 0, permata = r.permata || 0;
+      const info = {}, jawab = (x = {}, st = 200) => Response.json({ no: r.no, ig: this.nm(r), koin, permata, punya: p.punya, sisaHari: PK_MAKS_HARI - p.dapat, ...info, ...x }, { status: st });
+      if (q.op === "mulai") p.m = kini;
+      else if (q.op === "selesai") {
+        const lama = p.m ? kini - p.m : 0; delete p.m;
+        if (lama < PK_MIN_LARI) { this.sql.exec("UPDATE warga SET pelari = ? WHERE no = ?", JSON.stringify(p), r.no); return jawab({ galat: "Larinya tidak tercatat, koin tidak masuk. Coba lari lagi dari awal." }, 400); }
+        const k = Math.max(0, Math.min(PK_MAKS_LARI, Math.floor(+q.koin || 0), PK_MAKS_HARI - p.dapat));
+        p.dapat += k; koin += k; koinTotal += k; info.dapat = k;
+      } else if (q.op === "beli") {
+        const id = String(q.id || ""), h = PK_HARGA[id];
+        if (!h) return jawab({ galat: "Barang tidak ada di toko." }, 400);
+        const habis = PK_BEKAL.includes(id);
+        if (!habis && p.punya.includes(id)) return jawab();
+        if (q.bayar === "permata") { const hp = Math.ceil(h / KOIN_PER_PERMATA); if (permata < hp) return jawab({ galat: "Permatamu kurang. Top up dulu di tab 💎." }, 400); permata -= hp; }
+        else { if (koin < h) return jawab({ galat: "Koinmu kurang." }, 400); koin -= h; }
+        if (!habis) p.punya.push(id); info.beli = id;
+      }
+      this.sql.exec("UPDATE warga SET koin = ?, koinTotal = ?, permata = ?, pelari = ? WHERE no = ?", koin, koinTotal, permata, JSON.stringify(p), r.no);
+      return jawab();
     }
     if (aksi === "iklan") {
       // op "mulai" saat iklan mulai tampil, "selesai" saat Google melapor iklan ditonton (adViewed) → hadiah.
@@ -1155,6 +1193,11 @@ async function apiWarga(request, env, url) {
   }
   if (aksi === "iuran") {
     const r = await stub.fetch("https://do/" + aksi, { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), koin: +body.koin || 0, permata: +body.permata || 0 }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "pelari") {
+    const q = { kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), id: String(body.id || "").slice(0, 24), bayar: body.bayar === "permata" ? "permata" : "koin", koin: +body.koin || 0 };
+    const r = await stub.fetch("https://do/pelari", { method: "POST", body: JSON.stringify(q) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "iklan") {

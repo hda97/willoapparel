@@ -1,0 +1,358 @@
+<title>Pelari Kalcer 3D</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Pelari Kalcer 3D, Willo Apparel Official Edition: game lari 3D rute Nusantara. Kustom avatar, upgrade gear, jaga stamina, ambil isotonik, lalu bagikan Race Receipt kamu.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,800;1,800&family=Barlow:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Arah seni Master Bundle: earthy & monokrom, tanpa neon. Dunia 3D penuh layar, HUD kaca tipis, navigasi sentuh & swipe */
+:root{
+  --onyx:#141618; --kaca:rgba(30,32,34,.78); --kaca2:rgba(52,55,59,.7); --garis:rgba(239,236,230,.14);
+  --krem:#EFECE6; --oat:#DFD8C8; --batu:#B8AC99; --sage:#849483; --pinus:#4A5844; --tembaga:#C5A890;
+  --taupe:#9C8470; --terakota:#A46358; --slate:#516270; --redup:#a7a29a;
+  --f-judul:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;
+  --f-isi:'Barlow',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--onyx);color:var(--krem);font-family:var(--f-isi);touch-action:none;user-select:none;-webkit-user-select:none}
+#layar{position:fixed;inset:0;width:100%;height:100%;display:block}
+button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--tembaga);outline-offset:2px}
+.kaca{background:var(--kaca);border:1px solid var(--garis);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.kapsul{border-radius:999px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.koin{display:inline-flex;align-items:center;gap:5px;font-family:var(--f-judul);font-weight:800}
+.koin img{width:20px;height:20px;object-fit:contain}
+
+/* ---------- LOBI ---------- */
+#lobi{position:fixed;inset:0;pointer-events:none;padding:max(10px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));display:flex;flex-direction:column;justify-content:space-between}
+#lobi>*{pointer-events:auto}
+#lobi>.tengah-lobi{pointer-events:none}.tengah-lobi>*{pointer-events:auto}
+.bar-atas{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.profil{display:flex;align-items:center;gap:8px;padding:5px 12px 5px 5px}
+.ava{width:34px;height:34px;border-radius:50%;background:var(--kaca2);display:grid;place-items:center;font-family:var(--f-judul);font-weight:800;font-size:15px;color:var(--tembaga)}
+.profil b{display:block;font-family:var(--f-judul);font-size:17px;letter-spacing:.3px;line-height:1}
+.profil small{font-size:11px;color:var(--redup)}
+.bib{font-family:var(--f-mono);font-size:10px;background:var(--krem);color:var(--onyx);border-radius:6px;padding:2px 5px;font-weight:700}
+.merek{padding:6px 14px;display:flex;align-items:center;gap:10px;font-size:11px;color:var(--redup)}
+.merek b{font-family:var(--f-judul);font-size:16px;letter-spacing:1.5px;color:var(--krem);line-height:.9}
+.dompet{display:flex;align-items:center;gap:8px;padding:5px 6px 5px 12px}
+.jamkecil{display:flex;align-items:center;gap:6px;padding:3px 10px 3px 4px;border-radius:999px;background:var(--kaca2);font-family:var(--f-mono);font-size:12px}
+.jamkecil i{width:26px;height:26px;border-radius:50%;border:2px solid var(--sage);display:grid;place-items:center;font-style:normal;font-size:8px}
+.ikonbtn{width:34px;height:34px;border-radius:50%;background:var(--kaca2);font-size:15px}
+.tengah-lobi{display:flex;justify-content:space-between;align-items:center;gap:10px;flex:1;min-height:0}
+.ringkas{max-width:270px;padding:10px 12px;border-radius:14px;display:flex;flex-direction:column;gap:6px}
+.ringkas h2{margin:0;font-family:var(--f-judul);font-weight:800;font-style:italic;font-size:34px;line-height:.85;letter-spacing:-.3px}
+.ringkas h2 span{color:var(--tembaga);display:block}
+.stat{display:grid;grid-template-columns:auto 1fr;gap:3px 8px;font-size:12px;color:var(--redup);align-items:center}
+.stat b{color:var(--krem);font-family:var(--f-mono);font-size:12px}
+.mbar{height:4px;border-radius:2px;background:rgba(255,255,255,.1);grid-column:1/-1;margin-bottom:2px}
+.mbar i{display:block;height:100%;border-radius:2px;background:var(--sage)}
+.drill{max-width:230px;padding:10px 12px;border-radius:14px;display:flex;flex-direction:column;gap:6px;font-size:12px}
+.drill .judul{font-family:var(--f-judul);font-size:12px;letter-spacing:1px;color:var(--tembaga)}
+.drill b{font-family:var(--f-judul);font-size:19px;line-height:1}
+.drill .mbar{height:6px}
+.drill .mbar i{background:var(--tembaga);transition:width .15s}
+#bDrill{background:var(--kaca2);border-radius:10px;padding:8px;font-family:var(--f-judul);font-weight:800;font-size:16px;letter-spacing:.5px}
+#bDrill.aktif{background:var(--tembaga);color:var(--onyx)}
+.nav{display:flex;gap:8px;align-items:center;overflow-x:auto;scrollbar-width:none;padding:2px}
+.nav::-webkit-scrollbar{display:none}
+.pill{flex:none;display:flex;align-items:center;gap:6px;padding:10px 14px;border-radius:999px;font-weight:700;font-size:13px;white-space:nowrap}
+.pill span{font-size:15px}
+#bMulai{flex:none;margin-left:auto;background:var(--krem);color:var(--onyx);border-radius:999px;padding:12px 24px;font-family:var(--f-judul);font-weight:800;font-size:21px;letter-spacing:.8px;box-shadow:0 4px 0 var(--batu)}
+#bMulai:active{transform:translateY(2px);box-shadow:0 2px 0 var(--batu)}
+
+/* ---------- LACI / MODAL ---------- */
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,11,12,.55);padding:max(12px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));z-index:8}
+.laci{width:min(720px,100%);max-height:100%;display:flex;flex-direction:column;border-radius:18px;background:rgba(26,28,30,.96);border:1px solid var(--garis);box-shadow:0 20px 60px rgba(0,0,0,.5);overflow:hidden}
+.laci-kepala{flex:none;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:14px 16px 8px}
+.laci-kepala h2{margin:0;font-family:var(--f-judul);font-weight:800;font-size:22px;letter-spacing:.5px;line-height:1}
+.laci-kepala p{margin:3px 0 0;font-size:12px;color:var(--redup)}
+.tutup{width:34px;height:34px;flex:none;border-radius:50%;background:var(--kaca2);font-size:15px}
+.laci-isi{overflow-y:auto;padding:4px 16px 14px;touch-action:pan-y;min-height:0}
+.laci-kaki{flex:none;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--garis);font-size:12px;color:var(--redup)}
+.tab{flex:none;display:flex;gap:6px;overflow-x:auto;padding:0 16px 8px;scrollbar-width:none}
+.tab button{flex:none;padding:7px 12px;border-radius:999px;background:var(--kaca2);font-size:12px;font-weight:700}
+.tab button[aria-pressed="true"]{background:var(--krem);color:var(--onyx)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.kartu{background:rgba(255,255,255,.04);border:1px solid var(--garis);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:6px;font-size:12px}
+.kartu.pakai{border-color:var(--tembaga)}
+.kartu .gbr{aspect-ratio:4/3;border-radius:9px;background:#24272a center/cover no-repeat;max-width:100%}
+.kartu .kecil-atas{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:9.5px;color:var(--batu);gap:4px}
+.kartu b{font-family:var(--f-judul);font-size:15px;line-height:1.05;letter-spacing:.2px}
+.kartu p{margin:0;color:var(--redup);line-height:1.3;font-size:11.5px}
+.lencana{display:flex;flex-wrap:wrap;gap:4px}
+.lencana span{padding:2px 7px;border-radius:999px;background:#101113;font-family:var(--f-mono);font-size:10px}
+.lencana .hijau{background:var(--pinus);color:var(--krem)}
+.aksi{display:flex;gap:6px;margin-top:auto}
+.btn{flex:1;padding:7px 10px;border-radius:999px;background:var(--kaca2);font-weight:700;font-size:12px;display:inline-flex;gap:4px;align-items:center;justify-content:center}
+.btn.utama{background:var(--krem);color:var(--onyx)}
+.btn[disabled]{opacity:.4}
+.btn img{width:14px;height:14px}
+.pilihan{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.pilihan button{padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--garis);text-align:left;font-size:12px}
+.pilihan button b{display:block;font-family:var(--f-judul);font-size:15px}
+.pilihan button small{color:var(--redup);font-size:11px}
+.pilihan button.pakai-foto img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;margin-bottom:6px;background:#d9d9d9}
+.pilihan button[aria-pressed="true"]{border-color:var(--tembaga);background:rgba(197,168,144,.12)}
+.swatch{display:flex;gap:8px;flex-wrap:wrap}
+.swatch button{width:auto;display:flex;align-items:center;gap:6px;padding:5px 10px 5px 5px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--garis);font-size:11.5px}
+.swatch button i{width:24px;height:24px;border-radius:50%;display:block;border:2px solid rgba(255,255,255,.2)}
+.swatch button[aria-pressed="true"]{border-color:var(--tembaga)}
+.subjudul{font-family:var(--f-judul);font-size:13px;letter-spacing:1.2px;color:var(--tembaga);margin:12px 0 6px}
+.peta .gbr{aspect-ratio:16/9}
+#gridGear .gbr{background-size:contain;background-color:#2a2d30}
+.modal.samping{justify-content:flex-start;background:linear-gradient(90deg,rgba(10,11,12,.55),rgba(10,11,12,0) 70%)}
+.modal.samping .laci{width:min(560px,62vw)}
+body.laciBuka .tengah-lobi{visibility:hidden}
+.ranking{display:flex;flex-direction:column;gap:6px}
+.rk{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--garis);font-size:12px}
+.rk.saya{border-color:var(--tembaga);background:rgba(197,168,144,.1)}
+.rk .no{font-family:var(--f-judul);font-weight:800;font-size:22px;text-align:center;color:var(--batu)}
+.rk b{font-family:var(--f-judul);font-size:16px}
+.rk small{color:var(--redup);display:block}
+.rk .pace{text-align:right;font-family:var(--f-mono)}
+.chat{display:flex;flex-direction:column;gap:5px;font-size:12px}
+.chat div b{color:var(--tembaga)}
+.chat div i{font-style:normal;font-family:var(--f-mono);font-size:9.5px;color:var(--batu);margin-right:4px}
+.chat-form{display:flex;gap:6px;margin-top:8px}
+.chat-form input{flex:1;min-width:0;padding:8px 12px;border-radius:999px;border:1px solid var(--garis);background:#101113;color:var(--krem);font-size:13px}
+.input-nama{width:100%;padding:8px 12px;border-radius:10px;border:1px solid var(--garis);background:#101113;color:var(--krem);font-family:var(--f-mono);font-size:14px}
+
+/* ---------- HUD MAIN ---------- */
+#hud{position:fixed;inset:0;pointer-events:none;padding:max(8px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+.hud-bar{display:flex;align-items:center;gap:12px;padding:6px 8px 6px 14px;border-radius:999px;margin:0 auto;width:max-content;max-width:100%}
+.hud-bar .sel{display:flex;flex-direction:column;line-height:1}
+.hud-bar .sel small{font-size:9px;color:var(--redup);letter-spacing:1px;font-family:var(--f-mono)}
+.hud-bar .sel b{font-family:var(--f-judul);font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.hud-bar .sel b em{font-style:normal;font-size:12px;color:var(--redup)}
+.hud-peta{font-family:var(--f-judul);font-weight:800;font-size:14px;letter-spacing:1px;max-width:110px;line-height:1}
+.hud-peta small{display:block;font-family:var(--f-mono);font-weight:500;font-size:9px;color:var(--redup);letter-spacing:0;margin-top:2px}
+.st{width:min(150px,18vw)}
+.st .bar{height:8px;border-radius:4px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:4px}
+.st .bar i{display:block;height:100%;width:100%;background:var(--sage);border-radius:4px;transition:background-color .3s}
+#nyawa{display:flex;gap:2px}
+#nyawa img{width:16px;height:16px}
+#nyawa img.mati{filter:grayscale(1) brightness(.4)}
+#bJeda{pointer-events:auto;width:32px;height:32px;border-radius:50%;background:var(--kaca2);font-weight:800;font-size:12px}
+.hud-sisi{position:fixed;top:calc(64px + env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.hud-sisi .kapsul{padding:4px 10px;font-size:13px}
+#buff{display:flex;flex-direction:column;gap:4px}
+.buff{display:flex;align-items:center;gap:4px;font-family:var(--f-mono);font-size:11px;padding:3px 8px;border-radius:999px}
+.buff img{width:16px;height:16px;object-fit:contain}
+#miniChat{position:fixed;left:max(12px,env(safe-area-inset-left));bottom:calc(12px + env(safe-area-inset-bottom));width:min(260px,40vw);display:flex;flex-direction:column;gap:3px;font-size:11px;pointer-events:none}
+#miniChat div{background:rgba(20,22,24,.6);border-radius:8px;padding:3px 8px;animation:masuk .3s ease-out}
+#miniChat b{color:var(--tembaga)}
+@keyframes masuk{from{opacity:0;transform:translateY(6px)}}
+#petunjukSwipe{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:6px;pointer-events:none;transition:opacity .6s}
+#petunjukSwipe span{padding:5px 11px;border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap}
+#toast{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top));transform:translateX(-50%);padding:7px 16px;border-radius:999px;font-weight:700;font-size:13px;white-space:nowrap;pointer-events:none;transition:opacity .25s;opacity:0}
+#tembok{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .4s;box-shadow:inset 0 0 140px 30px rgba(164,99,88,.8)}
+#tembokTeks{position:fixed;left:50%;top:calc(108px + env(safe-area-inset-top));transform:translateX(-50%);font-family:var(--f-judul);font-weight:800;font-size:18px;letter-spacing:.5px;background:var(--terakota);border-radius:999px;padding:4px 14px;pointer-events:none;white-space:nowrap}
+#draft{position:fixed;right:max(14px,env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));font-family:var(--f-mono);font-size:11px;background:var(--pinus);border-radius:999px;padding:5px 11px;pointer-events:none;font-weight:700}
+#riak{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+#riak i{position:absolute;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;border:2px solid var(--krem);animation:riak .5s ease-out forwards}
+@keyframes riak{from{transform:scale(.3);opacity:.8}to{transform:scale(1.6);opacity:0}}
+#qte{position:fixed;right:max(20px,env(safe-area-inset-right));top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+#qte .pesan{font-family:var(--f-judul);font-weight:800;font-size:16px;letter-spacing:.3px;padding:6px 12px;border-radius:12px;text-align:center;line-height:1.1}
+#bAmbil{pointer-events:auto;width:96px;height:96px;border-radius:50%;background:var(--krem);color:var(--onyx);font-family:var(--f-judul);font-weight:800;font-size:15px;line-height:1;box-shadow:0 0 0 5px rgba(132,148,131,.45)}
+#bAmbil img{width:30px;height:42px;object-fit:contain;display:block;margin:0 auto 2px}
+#bAmbil.siap{box-shadow:0 0 0 7px var(--sage),0 0 26px var(--sage);animation:denyut .5s infinite alternate}
+@keyframes denyut{to{transform:scale(1.07)}}
+#kilat{position:fixed;inset:0;background:var(--terakota);opacity:0;pointer-events:none;transition:opacity .15s}
+
+/* ---------- GPS ---------- */
+#gps{flex-direction:column;gap:12px;background:radial-gradient(circle at 50% 45%,rgba(40,42,44,.9),rgba(12,13,14,.97))}
+.jam{position:relative;height:min(58vh,330px);aspect-ratio:300/464}
+.jam img{width:100%;height:100%;object-fit:contain}
+.jam .cincin{position:absolute;left:50.3%;top:50%;width:67%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;box-shadow:0 0 0 4px var(--terakota),0 0 16px 4px rgba(164,99,88,.8);animation:kedip .6s infinite alternate}
+.jam.kunci .cincin{box-shadow:0 0 0 4px var(--sage),0 0 24px 8px rgba(132,148,131,.95);animation:none}
+@keyframes kedip{to{opacity:.35}}
+#gpsTeks{font-family:var(--f-mono);font-weight:700;font-size:16px;letter-spacing:2px;color:var(--terakota)}
+#gps.kunci #gpsTeks{color:var(--sage)}
+#gpsSub{font-size:12px;color:var(--redup)}
+
+/* ---------- STRUK ---------- */
+#hasil .isi-hasil{display:flex;gap:20px;align-items:center;justify-content:center;flex-wrap:wrap;max-height:100%;overflow:auto;touch-action:pan-y}
+#struk{height:min(86vh,620px);max-width:100%;border-radius:4px;box-shadow:0 20px 50px rgba(0,0,0,.6);touch-action:auto;-webkit-touch-callout:default;user-select:auto}
+.hasil-aksi{display:flex;flex-direction:column;gap:8px;width:min(280px,100%)}
+.hasil-aksi h2{margin:0;font-family:var(--f-judul);font-weight:800;font-style:italic;font-size:40px;line-height:.9}
+.hasil-aksi .btn{flex:none;padding:10px 14px;font-size:14px;text-decoration:none;color:var(--krem)}
+.hasil-aksi .btn.utama{color:var(--onyx)}
+.kecil{font-size:12px;color:var(--redup);line-height:1.4}
+#putar{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:var(--onyx);text-align:center;padding:24px;font-family:var(--f-judul);font-size:26px;font-weight:800;z-index:30}
+#putar span{font-size:56px;animation:putar 1.6s ease-in-out infinite}
+#putar small{font-family:var(--f-isi);font-size:14px;font-weight:500;color:var(--redup)}
+@keyframes putar{50%{transform:rotate(90deg)}}
+@media (orientation:portrait) and (max-width:700px){body.main #putar{display:flex}.ringkas,.drill{display:none}}
+@media (max-height:430px){.merek{display:none}.ringkas h2{font-size:28px}.pill{padding:8px 11px}.stat{display:none}.hud-bar .sel b{font-size:19px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<canvas id="layar" aria-label="Arena lari 3D"></canvas>
+
+<!-- LOBI -->
+<div id="lobi">
+  <div class="bar-atas">
+    <button class="profil kaca kapsul" id="bProfil" aria-label="Ubah nama pelari">
+      <span class="ava" id="inisial">SR</span>
+      <span style="text-align:left"><b id="namaLobi">SkenaRunner_ID</b><small><span class="bib">BIB <span id="bibLobi">#0088</span></span> · <span id="tierLobi">Gold Sub-4</span></small></span>
+    </button>
+    <div class="merek kaca kapsul"><b>WILLO<br>APPAREL</b><span>Rute: <span id="petaLobi">Jakarta</span></span></div>
+    <div class="dompet kaca kapsul">
+      <span class="koin"><img data-aset="item_coin_w" alt="Koin W"><span id="saldo">0</span> W</span>
+      <span class="jamkecil"><i>GPS</i><span id="gpsLobi">10:08</span></span>
+      <button class="ikonbtn" id="bChat" aria-label="Chat publik">💬</button>
+      <button class="ikonbtn" id="bSuara" aria-label="Suara">🔊</button>
+    </div>
+  </div>
+  <div class="tengah-lobi">
+    <div class="ringkas kaca">
+      <h2>PELARI <span>KALCER 3D</span></h2>
+      <div class="stat" id="statLobi"></div>
+    </div>
+    <div class="drill kaca">
+      <div class="judul">SENTUH AVATAR · ABC DRILLS</div>
+      <b id="drillNama">High Knees</b>
+      <span id="drillInfo">Ketuk mengikuti ritme. Selesaikan 3 gerakan untuk Warm-Up Boost +12% pace.</span>
+      <div class="mbar"><i id="drillBar" style="width:0"></i></div>
+      <button id="bDrill">⚡ MULAI DRILL</button>
+    </div>
+  </div>
+  <div class="nav">
+    <button class="pill kaca" id="nRambut"><span>💇</span>Rambut &amp; Kulit</button>
+    <button class="pill kaca" id="nGear"><span>👕</span>Upgrade Gear</button>
+    <button class="pill kaca" id="nPeta"><span>🗺️</span><span id="nPetaTeks" style="font-size:13px">Jakarta</span></button>
+    <button class="pill kaca" id="nBooth"><span>🎪</span>6 Booth</button>
+    <button class="pill kaca" id="nRank"><span>🏆</span>Ranking</button>
+    <button id="bMulai">MULAI LARI ➔</button>
+  </div>
+</div>
+
+<!-- MODAL: rambut & kulit -->
+<div class="modal samping" id="mRambut" hidden>
+  <div class="laci">
+    <div class="laci-kepala"><div><h2>FISIK, RAMBUT &amp; KULIT NUSANTARA</h2><p>Atur avatar kamu. Semua gratis.</p></div><button class="tutup" data-tutup aria-label="Tutup">✕</button></div>
+    <div class="laci-isi">
+      <div class="subjudul">NAMA PELARI</div>
+      <input class="input-nama" id="nama" maxlength="18" autocomplete="off" spellcheck="false">
+      <div class="subjudul">TUBUH</div>
+      <div class="pilihan" id="pilGender"></div>
+      <div class="subjudul">GAYA RAMBUT</div>
+      <div class="pilihan" id="pilRambut"></div>
+      <div class="subjudul">WARNA RAMBUT KALEM</div>
+      <div class="swatch" id="pilWarna"></div>
+      <div class="subjudul">WARNA KULIT NUSANTARA</div>
+      <div class="swatch" id="pilKulit"></div>
+    </div>
+    <div class="laci-kaki"><span>Avatar tersimpan otomatis.</span><button class="btn utama" data-tutup style="flex:none;padding:8px 18px">SELESAI</button></div>
+  </div>
+</div>
+
+<!-- MODAL: gear -->
+<div class="modal samping" id="mGear" hidden>
+  <div class="laci">
+    <div class="laci-kepala"><div><h2>INVENTORI &amp; UPGRADE GEAR</h2><p>Tier Basic hingga High-End Grail · Koleksi Earthy &amp; Monokrom Willo Apparel</p></div><button class="tutup" data-tutup aria-label="Tutup">✕</button></div>
+    <div class="tab" id="tabGear"></div>
+    <div class="laci-isi"><div class="grid" id="gridGear"></div></div>
+    <div class="laci-kaki"><span class="koin"><img data-aset="item_coin_w" alt=""><span id="saldoGear">0</span> W</span><span id="statGear" class="mono"></span></div>
+  </div>
+</div>
+
+<!-- MODAL: peta -->
+<div class="modal" id="mPeta" hidden>
+  <div class="laci">
+    <div class="laci-kepala"><div><h2>PILIH RUTE &amp; EVENT LARI INDONESIA</h2><p>Road Marathon dan Mountain Trail. Tiap map punya landmark sendiri.</p></div><button class="tutup" data-tutup aria-label="Tutup">✕</button></div>
+    <div class="tab" id="tabPeta"></div>
+    <div class="laci-isi"><div class="grid peta" id="gridPeta"></div></div>
+  </div>
+</div>
+
+<!-- MODAL: booth -->
+<div class="modal" id="mBooth" hidden>
+  <div class="laci">
+    <div class="laci-kepala"><div><h2>6 BOOTH RACE EXPO</h2><p>Mampir sebelum lari: gear, race pack, kopi, foto, recovery, pacer.</p></div><button class="tutup" data-tutup aria-label="Tutup">✕</button></div>
+    <div class="laci-isi"><div class="grid" id="gridBooth"></div><div class="kecil" id="boothInfo" aria-live="polite" style="margin-top:8px"></div></div>
+  </div>
+</div>
+
+<!-- MODAL: ranking -->
+<div class="modal" id="mRank" hidden>
+  <div class="laci">
+    <div class="laci-kepala"><div><h2>LEADERBOARD &amp; RANKING NASIONAL</h2><p>Pace terbaik 1 KM. Posisi kamu ikut naik setelah finish.</p></div><button class="tutup" data-tutup aria-label="Tutup">✕</button></div>
+    <div class="laci-isi"><div class="ranking" id="listRank"></div></div>
+  </div>
+</div>
+
+<!-- MODAL: chat -->
+<div class="modal" id="mChat" hidden>
+  <div class="laci" style="width:min(460px,100%)">
+    <div class="laci-kepala"><div><h2>CHAT PUBLIK PELOTON</h2><p>Mode prototipe: pesan pelari lain masih simulasi.</p></div><button class="tutup" data-tutup aria-label="Tutup">✕</button></div>
+    <div class="laci-isi"><div class="chat" id="listChat"></div>
+      <form class="chat-form" id="formChat"><input id="isiChat" maxlength="80" placeholder="Tulis pesan..." autocomplete="off"><button class="btn utama" style="flex:none;padding:8px 14px">KIRIM</button></form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: jeda -->
+<div class="modal" id="mJeda" hidden>
+  <div class="laci" style="width:min(340px,100%);text-align:center">
+    <div class="laci-kepala" style="justify-content:center"><h2>JEDA</h2></div>
+    <div class="laci-isi" style="display:flex;gap:8px"><button class="btn utama" id="bLanjut" style="padding:10px">LANJUT</button><button class="btn" id="bKeluar" style="padding:10px">KE LOBI</button></div>
+  </div>
+</div>
+
+<!-- HUD -->
+<div id="hud" hidden>
+  <div class="hud-bar kaca">
+    <div class="hud-peta" id="hudPeta">JAKARTA<small>+14m D+</small></div>
+    <div class="sel"><small>JARAK</small><b id="jarak">0.00 <em>/ 1.0K</em></b></div>
+    <div class="sel"><small>PACE</small><b id="pace">--:-- <em>/km</em></b></div>
+    <div class="st"><div style="display:flex;justify-content:space-between;align-items:center"><small class="mono" style="font-size:9px;color:var(--redup);letter-spacing:1px">⚡ STAMINA</small><span id="nyawa"></span></div><div class="bar"><i id="stIsi"></i></div></div>
+    <div class="sel"><small>PERINGKAT</small><b id="rank">#--</b></div>
+    <button id="bJeda" aria-label="Jeda">II</button>
+  </div>
+  <div class="hud-sisi">
+    <span class="koin kaca kapsul"><img data-aset="item_coin_w" alt=""><span id="koin">0</span></span>
+    <div id="buff"></div>
+  </div>
+</div>
+<div id="miniChat" hidden></div>
+<div id="petunjukSwipe" hidden><span class="kaca">⬅ Geser Kiri</span><span class="kaca">⬆ Swipe Atas: Loncat</span><span class="kaca">👆 Tahan: Sprint</span><span class="kaca">Geser Kanan ➡</span></div>
+<div id="riak"></div>
+<div id="qte" hidden>
+  <div class="pesan kaca">💧 WATER STATION!<br>Tap untuk isotonik</div>
+  <button id="bAmbil"><img data-aset="item_isotonic" alt="">AMBIL</button>
+</div>
+<div id="toast" class="kaca"></div>
+<div id="tembok"></div>
+<div id="tembokTeks" hidden>THE WALL · lepas sprint, cari minum</div>
+<div id="draft" hidden>DRAFTING · hemat stamina</div>
+<div id="kilat"></div>
+
+<!-- GPS -->
+<div class="modal" id="gps" hidden>
+  <div class="jam" id="jam"><img data-aset="jam" alt="Jam tangan GPS 10:08"><div class="cincin"></div></div>
+  <div id="gpsTeks">MENCARI GPS...</div>
+  <div id="gpsSub"></div>
+</div>
+
+<!-- HASIL -->
+<div class="modal" id="hasil" hidden>
+  <div class="isi-hasil">
+    <img id="struk" alt="Race Receipt Willo Apparel">
+    <div class="hasil-aksi">
+      <h2 id="hasilJudul">FINISH!</h2>
+      <div class="kecil" id="hasilInfo"></div>
+      <button class="btn utama" id="bUnduh">UNDUH STRUK (.PNG)</button>
+      <button class="btn" id="bCaption">SALIN CAPTION</button>
+      <a class="btn" href="https://www.willoapparel.com/pelarikalcer" target="_blank" rel="noopener">WILLOAPPAREL.COM/PELARIKALCER</a>
+      <div style="display:flex;gap:8px"><button class="btn" id="bUlang">LARI LAGI</button><button class="btn" id="bLobi">LOBI</button></div>
+      <div class="kecil" id="hasilCatatan" aria-live="polite">Tahan gambar struk untuk menyimpan di HP.</div>
+    </div>
+  </div>
+</div>
+
+<div id="putar"><span>📱</span>Putar HP ke posisi mendatar<small>Pelari Kalcer 3D dimainkan landscape dengan swipe.</small></div>

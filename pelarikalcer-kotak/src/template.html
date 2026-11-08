@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Pelari Kalcer Dunia Kotak</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap">
+<style>
+/* Tata letak: kanvas 3D penuh layar; HUD kaca navy di atas, kontrol jempol kiri/kanan di bawah; panel lobi di kiri */
+:root{--navy:#2c3150;--navy2:#13141f;--kaca:rgba(30,33,56,.78);--teks:#f4f2ff;--redup:rgba(244,242,255,.66);--oranye:#e0803a;--hijau:#3aa860;--kuning:#f2c14a;--kertas:#fbf8f1;--tinta:#1d1d22;--f:"Montserrat",system-ui,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:#bfe4ff;color:var(--teks);font-family:var(--f);overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:none}
+#kanvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+.kaca{background:var(--kaca);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:16px}
+button{font-family:var(--f);cursor:pointer;border:0;color:inherit}
+button:focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
+[hidden]{display:none!important}
+/* MENU UTAMA */
+#lobi{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));left:max(16px,env(safe-area-inset-left,0px));width:min(330px,calc(100vw - 32px));display:flex;flex-direction:column;justify-content:center;gap:12px}
+.judul small,.eyebrow{display:block;font-size:10px;font-weight:800;letter-spacing:.18em;color:var(--oranye)}
+.judul h1{margin:2px 0 0;font-size:44px;font-weight:900;line-height:.92;letter-spacing:-.02em;color:#fff;text-shadow:0 4px 0 rgba(19,20,31,.35)}
+.judul h1 span{color:var(--kuning)}
+.dukung{margin:6px 0 0;font-size:11px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(19,20,31,.6)}
+.rute{text-align:left;padding:10px 14px;display:grid;gap:1px}
+.rute small{font-size:9px;font-weight:800;letter-spacing:.16em;color:var(--redup)}.rute b{font-size:14px}.rute i{font-style:normal;font-size:11px;color:var(--redup)}
+.utama.besar{font-size:20px;padding:16px}
+.ubin{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ubin button{padding:10px 4px 8px;font-size:11.5px;font-weight:800;display:grid;justify-items:center;gap:3px;position:relative}
+.ubin span{font-size:22px}
+.ubin em{position:absolute;top:-6px;right:-4px;background:var(--hijau);color:#fff;font-style:normal;font-size:9.5px;padding:2px 6px;border-radius:999px}
+.ubin em:empty{display:none}
+#dompet{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));padding:8px 14px;font-weight:900;font-size:16px;display:flex;gap:7px;align-items:center}
+#dompet i{font-style:normal;font-size:17px;line-height:1}
+.laci{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));left:max(16px,env(safe-area-inset-left,0px));width:min(360px,calc(100vw - 32px));display:flex;flex-direction:column;overflow:hidden;z-index:5}
+.laci .kepala{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 6px}
+.laci h2{margin:0;font-size:20px;font-weight:900}
+.tutup{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.12);font-weight:900}
+.laci .isi{padding:4px 16px 16px;overflow:auto;display:grid;gap:12px;align-content:start;flex:1}
+.catat{margin:0 16px 6px;font-size:12px;color:var(--redup)}
+.laci label,.laci .lbl{font-size:10.5px;font-weight:800;letter-spacing:.14em;color:var(--redup);text-transform:uppercase;display:block;margin-bottom:6px}
+#inNama{width:100%;font:700 15px var(--f);padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.25);color:var(--teks)}
+.pil{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.08);font-size:12.5px;font-weight:700}
+.chip[aria-pressed="true"]{background:var(--oranye);color:#fff}
+.swatch{width:30px;height:30px;border-radius:9px;background:var(--w);box-shadow:inset 0 0 0 2px rgba(255,255,255,.2)}
+.swatch[aria-pressed="true"]{box-shadow:inset 0 0 0 3px #fff,0 0 0 2px var(--oranye)}
+.item{display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;background:rgba(255,255,255,.06);padding:10px;border-radius:12px}
+.item .ik img{width:42px;height:42px;display:block;background:#e9e4da;border-radius:8px}.item b{font-size:13.5px;display:block}.item small{font-size:11.5px;color:var(--redup)}
+.item button{background:var(--oranye);color:#fff;font-weight:900;font-size:12.5px;padding:8px 10px;border-radius:10px;white-space:nowrap}
+.item button:disabled{background:rgba(255,255,255,.1);color:var(--redup)}
+.item.punya button{background:var(--hijau)}
+.tab{padding:0 16px 8px}
+.gear{display:grid;grid-template-columns:84px 1fr;gap:4px 10px;align-items:center;background:rgba(255,255,255,.06);padding:10px;border-radius:12px}
+.gear .kosong{width:84px;height:84px;border-radius:10px;background:rgba(255,255,255,.08);grid-row:span 2;display:grid;place-items:center;color:var(--redup)}
+.gear.pakai{box-shadow:inset 0 0 0 2px var(--oranye)}
+.gear img{width:84px;height:84px;object-fit:contain;background:#e9e4da;border-radius:10px;grid-row:span 2}
+.gear small{font-size:9.5px;font-weight:800;letter-spacing:.12em;color:var(--oranye);text-transform:uppercase;display:block}
+.gear b{font-size:13.5px;display:block}.gear i{font-style:normal;font-size:11px;color:var(--redup);display:block}.gear span{font-size:11.5px;font-weight:700;color:var(--kuning)}
+.gear button{background:var(--oranye);color:#fff;font-weight:900;font-size:12.5px;padding:8px 10px;border-radius:10px}
+.gear button:disabled{background:rgba(255,255,255,.1);color:var(--redup)}
+.gear.pakai button{background:var(--hijau)}
+.utama{background:var(--oranye);color:#fff;font-weight:900;font-size:17px;letter-spacing:.04em;padding:14px 18px;border-radius:14px;box-shadow:0 5px 0 #a85a22}
+.utama:active{transform:translateY(3px);box-shadow:0 2px 0 #a85a22}
+.kedua{background:rgba(255,255,255,.1);font-weight:800;font-size:14px;padding:12px 16px;border-radius:12px}
+.map{display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;padding:10px;border-radius:12px;background:rgba(255,255,255,.05);opacity:.6}
+.map.buka{opacity:1;box-shadow:inset 0 0 0 2px var(--oranye)}
+.map span{font-size:26px;text-align:center}.map b{font-size:13.5px;display:block}.map small{font-size:11px;color:var(--redup)}
+.map em{font-style:normal;font-size:10.5px;font-weight:800;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.12)}
+.map.buka em{background:var(--hijau)}
+#fotoMedali{display:block;width:150px;height:180px;margin:4px auto 8px;object-fit:contain;background:radial-gradient(circle at 50% 40%,#fff4d6,#efe9dc 70%);border-radius:6px}
+.rank{display:grid;grid-template-columns:28px 1fr auto;gap:8px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.05);font-size:13px;font-variant-numeric:tabular-nums}
+.rank.saya{background:rgba(224,128,58,.35);font-weight:800}
+#pemanasan{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(260px,calc(100vw - 32px));background:var(--kaca);border-radius:14px;padding:10px 14px;display:grid;gap:6px;pointer-events:none}
+#pemanasan b{font-size:13px}#pemanasan small{font-size:11px;color:var(--redup)}
+#pemanasan.selesai #pmBar{background:var(--kuning)}
+body.potret #pemanasan{bottom:auto;top:calc(64px + env(safe-area-inset-top,0px))}
+.lebar{width:100%}#pmBar{height:100%;width:0;background:var(--hijau);border-radius:9px;transition:width .2s}
+
+/* HUD */
+#hud{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:16px;padding:8px 10px 8px 16px;white-space:nowrap}
+.stat small{display:block;font-size:9px;font-weight:800;letter-spacing:.14em;color:var(--redup)}
+.stat b{font-size:19px;font-weight:900;font-variant-numeric:tabular-nums}
+.stat b i{font-style:normal;font-size:11px;color:var(--redup);font-weight:700}
+.bar{width:120px;height:9px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:5px}
+#hStamina{height:100%;width:100%;border-radius:9px;transition:width .2s}
+#hNyawa{font-size:14px;letter-spacing:-2px}
+#bJeda{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.12);font-weight:900}
+#hBuff{position:fixed;top:calc(66px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);display:flex;gap:6px}
+#hBuff span{background:var(--kaca);padding:5px 10px;border-radius:999px;font-size:12px;font-weight:800}
+#toast{position:fixed;top:32%;left:50%;transform:translateX(-50%);font-size:clamp(18px,4vw,30px);font-weight:900;text-align:center;text-shadow:0 3px 0 rgba(19,20,31,.5);padding:0 16px;pointer-events:none;max-width:90vw}
+#bWS{position:fixed;right:calc(20px + env(safe-area-inset-right,0px));bottom:calc(30px + env(safe-area-inset-bottom,0px));width:110px;height:110px;border-radius:50%;background:#3a8ad8;color:#fff;font-weight:900;font-size:13px;box-shadow:0 0 0 6px rgba(58,138,216,.35);animation:denyut .7s infinite alternate}
+@keyframes denyut{to{box-shadow:0 0 0 14px rgba(58,138,216,.1)}}
+/* PETUNJUK KONTROL (swipe & tap, tanpa tombol) */
+#kontrol{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;gap:8px;pointer-events:none;transition:opacity .6s;flex-wrap:wrap;justify-content:center;width:max-content;max-width:calc(100vw - 32px)}
+#kontrol span{background:var(--kaca);padding:7px 12px;border-radius:999px;font-size:12px;font-weight:800}
+#kontrol.pudar{opacity:0}
+#sprintKilat{position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 80px rgba(224,128,58,.0);transition:box-shadow .2s}
+#sprintKilat.on{box-shadow:inset 0 0 90px rgba(224,128,58,.55)}
+/* GPS */
+#gps{position:fixed;inset:0;display:grid;place-items:center;background:rgba(19,20,31,.55)}
+.jam{width:200px;height:200px;border-radius:50%;background:#0d0e10;border:10px solid #3a3a3e;box-shadow:0 0 0 6px #e05a3a,0 20px 40px rgba(0,0,0,.4);display:grid;place-items:center;text-align:center;transition:box-shadow .3s}
+#gps.kunci .jam{box-shadow:0 0 0 6px #3aa860,0 0 40px #3aa860}
+.jam b{font-size:44px;font-weight:800;display:block}.jam small{color:#bdb6aa;font-size:12px;font-weight:600}.jam em{display:block;font-style:normal;font-size:13px;margin-top:4px}
+#gpsTeks{margin-top:22px;font-weight:900;letter-spacing:.2em;color:#e05a3a;font-size:18px;text-align:center}
+#gps.kunci #gpsTeks{color:#3aa860}
+#gps .tengah{display:grid;justify-items:center}
+/* STRUK */
+.layar{position:fixed;inset:0;display:grid;place-items:center;background:rgba(19,20,31,.55);padding:16px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px));overflow:auto}
+.kertas{background:var(--kertas);color:var(--tinta);width:min(340px,100%);padding:20px 20px 16px;border-radius:4px;font-family:"Courier New",monospace;box-shadow:0 20px 50px rgba(0,0,0,.35);position:relative}
+.kertas::after{content:"";position:absolute;left:0;right:0;bottom:-8px;height:8px;background:linear-gradient(-45deg,transparent 6px,var(--kertas) 0) 0 0/12px 8px,linear-gradient(45deg,transparent 6px,var(--kertas) 0) 0 0/12px 8px}
+.kertas h2{font-family:var(--f);font-weight:900;font-size:20px;text-align:center;margin:0}
+.kertas .sub{text-align:center;font-size:11px;margin:2px 0 10px;letter-spacing:.1em}
+.kertas .baris{border-top:1px dashed #999;border-bottom:1px dashed #999;padding:8px 0;display:grid;gap:3px;font-size:13px}
+.kertas .baris div{display:flex;justify-content:space-between;gap:10px}
+.kertas p{font-size:11px;text-align:center;margin:10px 0 6px}
+#caption{font-size:11px;background:#efe9dc;padding:8px;border-radius:4px;-webkit-user-select:text;user-select:text}
+.tombol{display:flex;gap:8px;margin-top:12px}.tombol button{flex:1}
+.kertas .kedua{background:#e6dfd0;color:var(--tinta)}
+.kartu{width:min(360px,100%);padding:22px;text-align:center;display:grid;gap:12px}
+.kartu h2{margin:0;font-weight:900}
+body.potret #lobi{top:auto;justify-content:flex-end}body.potret .judul h1{font-size:34px}
+@media (max-height:430px){.judul h1{font-size:32px}#lobi{gap:8px}.besar{padding:12px;font-size:18px}.ubin button{padding:7px 4px 6px}.ubin span{font-size:18px}.utama{padding:11px}.stat b{font-size:16px}#hud{gap:12px}.bar{width:90px}}
+/* HP tegak: HUD 2 baris pas lebar layar */
+body.potret #hud{left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));transform:none;display:grid;grid-template-columns:1fr 1fr 1fr 36px;gap:6px 10px;padding:8px 10px 8px 12px;white-space:normal;top:calc(8px + env(safe-area-inset-top,0px))}
+body.potret #hud .stat:nth-child(1){grid-area:1/1}body.potret #hud .stat:nth-child(2){grid-area:1/2}body.potret #hud .stat:nth-child(6){grid-area:1/3}
+body.potret #hud .stat:nth-child(3){grid-area:2/1}body.potret #hud .stat:nth-child(4){grid-area:2/2}body.potret #hud .stat:nth-child(5){grid-area:2/3}body.potret #bJeda{grid-area:1/4/3/5;align-self:center}
+body.potret .stat b{font-size:16px}body.potret .bar{width:100%}
+body.potret #hBuff{top:calc(104px + env(safe-area-inset-top,0px));flex-wrap:wrap;justify-content:center;width:calc(100vw - 24px)}
+#dPermata{display:flex;gap:7px;align-items:center;margin-left:8px}#dPermata[hidden]{display:none}
+.topup{display:grid;gap:10px;background:rgba(255,255,255,.06);border-radius:12px;padding:14px}.topup p{margin:0;font-size:13px}.topup .kecil{font-size:11.5px;color:var(--redup)}
+.topup .kode{background:var(--kuning);color:#3a2a00;font-weight:900;padding:4px 10px;border-radius:8px;font-size:15px}
+.topup .paket{display:grid;grid-template-columns:1fr 1fr;gap:8px}.topup .paket button{background:rgba(255,255,255,.1);border-radius:10px;padding:10px;display:grid;gap:2px;color:var(--teks)}.topup .paket small{color:var(--redup);font-size:11px}
+.topup a.utama{text-align:center;text-decoration:none;display:block}
+.bayarPakai{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--redup)}.bayarPakai button{background:rgba(255,255,255,.08);border-radius:999px;padding:6px 12px;font-weight:800;font-size:12px;color:var(--teks)}.bayarPakai button[aria-pressed=true]{background:var(--oranye);color:#fff}
+.pi{width:1.25em;height:1.25em;display:inline-block;vertical-align:-.2em;image-rendering:pixelated}.ubin span .pi{width:22px;height:22px}#hNyawa .pi{width:15px;height:15px;margin-right:1px}#bWS .pi{width:26px;height:26px}.map>span .pi{width:28px;height:28px}.tutup .pi{width:14px;height:14px}.item .ik .pi{width:28px;height:28px}
+@media (prefers-reduced-motion:reduce){#bWS{animation:none}}
+</style></head><body>
+<canvas id="kanvas"></canvas>
+<section id="lobi" aria-label="Menu utama">
+  <div class="judul"><small>CFD DESA · DUNIA KOTAK</small><h1>Pelari<br><span>Kalcer</span></h1><p class="dukung">Supported by www.willoapparel.com</p></div>
+  <button class="rute kaca" id="bRute" type="button"><small>RUTE</small><b>CFD Kotak Wetan · 1 KM</b><i>Ganti map · 6 rute Nusantara segera ›</i></button>
+  <button class="utama besar" id="bMulai">MULAI LARI →</button>
+  <div class="ubin">
+    <button class="kaca" id="mAvatar"><span>👕</span>Avatar</button>
+    <button class="kaca" id="mToko"><span>🛒</span>Toko<em id="tagToko"></em></button>
+    <button class="kaca" id="mRank"><span>🏆</span>Peringkat</button>
+  </div>
+</section>
+<div id="dompet" class="kaca"><i>🪙</i><b id="hDompet">0</b><span id="dPermata" hidden><i>💎</i><b id="hPermata">0</b></span></div>
+<section id="dAvatar" class="laci kaca" hidden aria-label="Avatar">
+  <div class="kepala"><h2>Avatar</h2><button class="tutup" data-tutup aria-label="Tutup">✕</button></div>
+  <div class="isi">
+    <div><label for="inNama">Nama pelari</label><input id="inNama" maxlength="16" autocomplete="off"></div>
+    <div><span class="lbl">Tubuh</span><div class="pil" id="pilTubuh"></div></div>
+    <div><span class="lbl">Kulit</span><div class="pil" id="pilKulit"></div></div>
+    <div><span class="lbl">Gaya rambut</span><div class="pil" id="pilRambut"></div></div>
+    <div><span class="lbl">Warna rambut</span><div class="pil" id="pilWarnaRambut"></div></div>
+    <div><span class="lbl">Bawahan</span><div class="pil" id="pilBawah"></div></div>
+    <div><span class="lbl">Topi & headband</span><div class="pil" id="pilTopi"></div></div>
+    <div><span class="lbl">Atasan · <span id="namaKaos" style="letter-spacing:0;text-transform:none;color:var(--teks)"></span></span><div class="pil" id="pilKaos"></div></div>
+  </div>
+</section>
+<section id="dToko" class="laci kaca" hidden aria-label="Toko Skena">
+  <div class="kepala"><h2>Toko Skena</h2><button class="tutup" data-tutup aria-label="Tutup">✕</button></div>
+  <div class="pil tab" id="tabToko"><button class="chip" data-tab="bekal">🍌 Bekal</button><button class="chip" data-tab="sepatu">👟 Sepatu</button><button class="chip" data-tab="jam">⌚ Jam GPS</button><button class="chip" data-tab="gengsi">🕶️ Bergengsi</button><button class="chip" data-tab="outfit">👕 Outfit</button><button class="chip" data-tab="topup">💎 Top Up</button></div>
+  <div class="isi" id="daftarToko"></div>
+</section>
+<section id="dMap" class="laci kaca" hidden aria-label="Pilih map">
+  <div class="kepala"><h2>Pilih Map</h2><button class="tutup" data-tutup aria-label="Tutup">✕</button></div>
+  <p class="catat">Rute Nusantara gaya kotak menyusul satu per satu.</p>
+  <div class="isi" id="daftarMap"></div>
+</section>
+<section id="dRank" class="laci kaca" hidden aria-label="Peringkat">
+  <div class="kepala"><h2>Peringkat</h2><button class="tutup" data-tutup aria-label="Tutup">✕</button></div>
+  <p class="catat">Waktu terbaik 1 KM CFD Kotak Wetan.</p>
+  <div class="isi" id="daftarRank"></div>
+</section>
+<div id="pemanasan" hidden><b id="pmNama">🔥 Ketuk avatar untuk pemanasan</b><div class="bar lebar"><div id="pmBar"></div></div><small id="pmInfo">ABC Drills 0/24 · selesai = +12% pace</small></div>
+<div id="hud" class="kaca" hidden>
+  <div class="stat"><small>JARAK</small><b><span id="hJarak">0,00</span> <i>/ 1 KM</i></b></div>
+  <div class="stat"><small>PACE</small><b><span id="hPace">–:–</span> <i>/km</i></b></div>
+  <div class="stat"><small>⚡ STAMINA</small><div class="bar"><div id="hStamina"></div></div></div>
+  <div class="stat"><small>NYAWA</small><b id="hNyawa"></b></div>
+  <div class="stat"><small>KOIN</small><b id="hKoin">0</b></div>
+  <div class="stat"><small>POSISI</small><b id="hRank">#–</b></div>
+  <button id="bJeda" aria-label="Jeda">II</button>
+</div>
+<div id="hBuff"></div><div id="sprintKilat"></div>
+<div id="toast" hidden></div>
+<button id="bWS" hidden>💧<br>AMBIL<br>ISOTONIK</button>
+<div id="kontrol" hidden><span>⇠ ⇢ Geser ganti lajur</span><span>⇡ Geser ke atas lompat</span><span>👆 Tap / tahan untuk sprint</span></div>
+<div id="gps" hidden><div class="tengah"><div class="jam"><div><b>10:08</b><small>Kamis, 17 Agu</small><em>🏃 8420</em></div></div><div id="gpsTeks">MENCARI GPS...</div><div id="gpsInfo" style="font-size:12px;color:var(--redup);margin-top:6px"></div></div></div>
+<div id="jeda" class="layar" hidden><div class="kartu kaca"><h2>Jeda</h2><button class="utama" id="bLanjut">LANJUT LARI</button><button class="kedua" id="bKeluar">Keluar ke lobi</button></div></div>
+<div id="gagal" class="layar" hidden><div class="kartu kaca"><h2>Nyawa habis 😮‍💨</h2><div id="gagalInfo" style="color:var(--redup);font-size:14px"></div><button class="utama" id="bLagi2">COBA LAGI</button></div></div>
+<div id="struk" class="layar" hidden><div class="kertas">
+  <h2>PELARI KALCER</h2><div class="sub">RACE RECEIPT · DUNIA KOTAK</div><img id="fotoMedali" alt="Pelari dengan medali finisher">
+  <div class="baris"></div>
+  <p>Supported by<br><b>www.willoapparel.com</b></p>
+  <div class="tombol"><button class="kedua" id="bSimpan">📸 Simpan untuk Story</button><button class="utama" id="bLagi" style="font-size:14px;padding:10px">MAIN LAGI</button></div>
+</div></div>
+<div id="story" class="layar" hidden><div class="kartu kaca" style="max-height:94vh;overflow:auto;text-align:center;gap:8px">
+  <img id="storyImg" alt="Struk finisher ukuran story" style="max-height:62vh;max-width:100%;border-radius:10px;align-self:center">
+  <small style="color:var(--redup)">Kalau tombol unduh tidak jalan, tekan lama gambar lalu pilih Simpan.</small>
+  <div class="tombol"><a id="unduhStory" class="utama" style="text-decoration:none;font-size:14px;padding:10px;text-align:center">⬇ Unduh gambar</a><button class="kedua" id="bBagi" hidden>Bagikan ke Story</button><button class="kedua" id="bTutupStory">Tutup</button></div>
+</div></div>
+<script>/*KODE*/</script>
+</body></html>
