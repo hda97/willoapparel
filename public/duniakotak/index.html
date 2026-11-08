@@ -292,7 +292,7 @@ async function muatDaftar(){
 }
 
 async function pamerPulau(){const no=window.__noAku;if(!no)return;const url='https://willoapparel.com/duniakotak/pulau/?no='+no,teks='Lihat avatarku lagi ngapain di Desa Dunia Kotak 👀 Aku warga No. '+no+'. Daftar juga, gratis!';try{if(navigator.share){await navigator.share({title:'Desa Dunia Kotak',text:teks,url});return}}catch(e){if(e&&e.name==='AbortError')return}const b=$('pamerPulau');try{await navigator.clipboard.writeText(teks+' '+url);b.textContent='✅ Link disalin! Tempel di story, bio, atau chat.'}catch(e){prompt('Salin link ini:',url)}}
-function sorotPulau(no){window.__noAku=no;const f=document.querySelector('.pulau iframe');if(f&&no&&!/[?&]no=/.test(f.src))f.src='/duniakotak/pulau/?embed=1&no='+no;const t=document.querySelector('.pulau p');if(t)t.innerHTML='🔎 Avatarmu ditandai cahaya oranye di pulau. Ketuk pulau untuk memutar.'}
+function sorotPulau(no){window.__noAku=no;/* Huda 8 Nov: saat masuk pulau TIDAK langsung zoom ke avatar; zoom hanya saat warga mencari nomor/username sendiri */}
 async function tampilkan(o){
   saya=o;if(o.kunci)kunci=o.kunci;sudahMasuk(true);const nm=nmTampil(o);simpanLokal({no:o.no,ig:o.ig||o.tiktok||'',label:nm,nama:o.nama||'',kunci});
   $('hasil').style.display='block';sorotPulau(o.no);
