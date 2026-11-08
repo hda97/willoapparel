@@ -149,7 +149,9 @@ async function masukGoogle(credential, isi) {
   } catch (e) { const g2 = $('galatMasuk'); if (g2) g2.textContent = e.message; }
 }
 function selesaiMasuk(s) {
-  if (s) { S.saya = s; S.kunci = s.kunci; S.hias = s.hias || null; muatPemula(s); aturHadir(s.hadir); simpan('dk_warga', {no: s.no, ig: s.ig, kunci: s.kunci}); muatTasServer(s); }
+  if (s) { S.saya = s; S.kunci = s.kunci; S.hias = s.hias || null; muatPemula(s); aturHadir(s.hadir); simpan('dk_warga', {no: s.no, ig: s.ig, kunci: s.kunci}); muatTasServer(s);
+    // Pulang kampung (audit ekonomi #3): bonus warga yang ≥3 hari tidak main
+    if (s.pulang) setTimeout(() => { try { bunyi('masuk'); koinTerbang(`+${s.pulang.koin} 🪙 +${s.pulang.permata} 💎`); } catch (e) {} toast(`🏡 Selamat pulang kampung! ${s.pulang.hari} hari tidak ketemu, Oyen kangen. Bonus +${s.pulang.koin} koin dan +${s.pulang.permata} 💎.`, 6500); }, 4500); }
   $('masuk').hidden = true;
   if (!S.tamu && !baca('dk_aturan')) { $('aturan').hidden = false; $('setujuAturan').onclick = () => { simpan('dk_aturan', '1'); $('aturan').hidden = true; lanjutAvatar(); }; }
   else lanjutAvatar();
@@ -826,7 +828,7 @@ async function klaimMisi(id) {
   try {
     const s = await api('misi', {kunci: S.kunci, id});
     S.saya.koin = s.koin; MS.selesai = new Set(s.misi || []);
-    if (s.dapat) { const m = MISI.find(x => x.id === id); toast(id === 'bonus' ? `🎉 Semua misi hari ini selesai! Bonus +${s.dapat} koin` : `✅ Misi selesai: ${m.judul}. +${s.dapat} koin`, 4000); bunyi('masuk'); }
+    if (s.dapat) { const m = MISI.find(x => x.id === id); toast(id === 'bonus' ? `🎉 Semua misi hari ini selesai! Bonus +${s.dapat} koin${s.dapatPermata ? ` +${s.dapatPermata} 💎` : ''}` : `✅ Misi selesai: ${m.judul}. +${s.dapat} koin`, 4000); bunyi('masuk'); }
     tandaKoin(); if (!$('panelMisi').hidden) tulisMisi();
     if (id !== 'bonus' && MISI.every(m => MS.selesai.has(m.id)) && !MS.selesai.has('bonus')) setTimeout(() => klaimMisi('bonus'), 1500);
   } catch (e) { /* coba lagi nanti */ } finally { MS.kirim.delete(id); }
@@ -837,7 +839,7 @@ function tulisMisi() {
     const p = progresMisi(m), ok = MS.selesai.has(m.id);
     return `<div class="misi ${ok ? 'ok' : ''}"><span class="mi">${ok ? '✅' : m.ikon}</span><div><b>${esc(m.judul)}</b>
       <div class="bar"><i style="width:${Math.round(100 * (ok ? 1 : p / m.target))}%"></i></div><small>${ok ? 'Selesai' : m.target > 1 ? `${p}/${m.target} ${m.satuan || ''}` : 'Belum'}</small>${!ok && m.info ? `<small class="info">📍 ${esc(m.info)}</small>` : ''}${!ok && m.antar ? `<button class="antar" data-antar="${m.antar}">🧭 Antar ke sana</button>` : ''}</div><span class="koin">+${m.koin * kaliKoin()} 🪙</span></div>`;
-  }).join('') + `<div class="misi bonus ${MS.selesai.has('bonus') ? 'ok' : ''}"><span class="mi">🎁</span><div><b>Bonus: selesaikan semua misi</b><small>${MS.selesai.has('bonus') ? 'Sudah diambil' : `Otomatis masuk setelah ${MISI.length} misi selesai`}</small></div><span class="koin">+${BONUS_MISI * kaliKoin()} 🪙</span></div>`;
+  }).join('') + `<div class="misi bonus ${MS.selesai.has('bonus') ? 'ok' : ''}"><span class="mi">🎁</span><div><b>Bonus: selesaikan semua misi</b><small>${MS.selesai.has('bonus') ? 'Sudah diambil' : `Otomatis masuk setelah ${MISI.length} misi selesai`}</small></div><span class="koin">+${BONUS_MISI * kaliKoin()} 🪙 +3 💎</span></div>`;
   // Misi tetap tiap hari (Huda 8 Nov): ikut lari Pelari Kalcer sampai finish, selesai otomatis di server saat finish.
   const okLari = MS.selesai.has('pelari');
   $('isiMisi').innerHTML += `<div class="misi ${okLari ? 'ok' : ''}"><span class="mi">${okLari ? '✅' : '🏃'}</span><div><b>Ikut lari Pelari Kalcer sampai finish</b><small>${okLari ? 'Selesai' : 'Belum'}</small>${okLari ? '' : '<small class="info">📍 Gapura CFD di belakang gawang timur Stadion Kotak Wetan.</small><button class="antar" data-lari="1">🏃 Ikut lari sekarang</button>'}</div><span class="koin">+15 🪙</span></div>`;
@@ -954,13 +956,13 @@ async function ambilHadir() {
   if (S.tamu || !S.saya) return;
   try {
     const r = await api('hadir', {kunci: S.kunci}); S.saya.koin = r.koin; aturHadir(r.hadir); hitungOnline();
-    if (r.hadir?.dapat) { bunyi('masuk'); koinTerbang(`+${r.hadir.dapat} 🪙`); toast(`📅 Hadir hari ke-${r.hadir.n}: +${r.hadir.dapat} koin. Besok +${r.hadir.besok}, jangan sampai putus!`, 5000); }
+    if (r.hadir?.dapat) { bunyi('masuk'); koinTerbang(`+${r.hadir.dapat} 🪙`); toast(`📅 Hadir hari ke-${r.hadir.n}: +${r.hadir.dapat} koin${r.dapatPermata ? ` +${r.dapatPermata} 💎` : ''}. Besok +${r.hadir.besok}, jangan sampai putus!`, 5000); if (r.permata != null) S.saya.permata = r.permata; }
   } catch (e) {}
 }
 function barisHadir() {
   if (S.tamu || !HD.daftar.length) return '';
   const kotak = HD.daftar.map((v, i) => `<i class="${i < ((HD.n - 1) % 7) + 1 && HD.n ? 'ok' : ''}">${v}</i>`).join('');
-  return `<div class="misi hadir"><span class="mi">📅</span><div><b>Hadir beruntun: hari ke-${HD.n || 0}</b><div class="hdKotak">${kotak}</div><small>Masuk tiap hari, hadiah naik. Besok +${HD.besok} 🪙. Bolos sehari = mulai lagi dari hari 1.</small></div><span></span></div>`;
+  return `<div class="misi hadir"><span class="mi">📅</span><div><b>Hadir beruntun: hari ke-${HD.n || 0}</b><div class="hdKotak">${kotak}</div><small>Masuk tiap hari, hadiah naik. Besok +${HD.besok} 🪙. Hari ke-7 bonus +${HD.permata7 || 10} 💎. Bolos sehari = mulai lagi dari hari 1.</small></div><span></span></div>`;
 }
 // ---------- papan peringkat warga (total koin yang pernah dikumpulkan; belanja tidak mengurangi) ----------
 async function bukaPeringkat() {
@@ -1671,7 +1673,10 @@ function bukaProfesi() {
   if (S.tamu) { toast('Daftar jadi warga dulu untuk punya profesi.', 3000); return; }
   const pf = PF(), D = DPF(), pm = S.saya.permata || 0;
   $('infoProfesi').innerHTML = `Gaji semua profesi sama: <b>${pf.gaji} 🪙 per shift</b> (${TUGAS_N} tugas, ±6 menit) di tempat kerjanya, maks ${pf.batas} shift per hari. Shift hari ini: <b>${pf.shift}/${pf.batas}</b>. Ganti profesi 1 kali per hari.`;
-  $('isiProfesi').innerHTML = Object.entries(D).map(([id, d]) => {
+  // audit ekonomi #3: profesi berbayar pertama setengah harga
+  if (pf.diskon) $('infoProfesi').innerHTML += ` <b>🎁 Profesi pertamamu setengah harga!</b>`;
+  $('isiProfesi').innerHTML = Object.entries(D).map(([id, d0]) => {
+    const d = pf.diskon && d0.harga ? {...d0, harga: Math.ceil(d0.harga / 2)} : d0;
     const punya = pf.punya.includes(id), aktif = pf.a === id;
     const tb = aktif ? `<button disabled class="aktif">✓ Aktif</button>` : d.siap === false ? `<button disabled>Tunggu voting</button>`
       : punya ? `<button data-pf="pakai" data-id="${id}" ${pf.gantiHariIni || SH ? 'disabled' : ''}>Pakai</button>` : `<button data-pf="buka" data-id="${id}" ${pm < d.harga || SH ? 'disabled' : ''}>💎 ${d.harga}</button>`;
