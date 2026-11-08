@@ -1388,9 +1388,12 @@ async function apiWarga(request, env, url) {
     // Webhook Trakteer: header X-Webhook-Token = token dari Trakteer > Integrasi > Webhook (disimpan lewat atur-saweria.html
     // atau Secret TRAKTEER_TOKEN). Isi: transaction_id, supporter_name, supporter_message, unit, quantity, price, net_amount.
     // Kode warga di pesan: DK123. Nilai dihitung dari harga kotor (price); bila price ternyata per unit, quantity x Rp5.000 dipakai.
-    const kunciTk = env.TRAKTEER_TOKEN || (await (await stub.fetch("https://do/rahasia-get?k=trakteer")).json()).v;
-    if (!kunciTk) return json({ galat: "Webhook belum disiapkan" }, 503);
+    let kunciTk = env.TRAKTEER_TOKEN || (await (await stub.fetch("https://do/rahasia-get?k=trakteer")).json()).v;
     const tt = String(request.headers.get("X-Webhook-Token") || "");
+    // Huda 8 Nov 2026 (pilih "Ya, otomatis"): token disimpan dari kiriman PERTAMA Trakteer (tombol Test, tidak dicatat sebagai donasi) supaya tidak perlu
+    // ditempel di halaman atur. Setelah tersimpan, hanya token itu yang diterima. Ganti token lewat atur-saweria.html.
+    if (!kunciTk && /^[A-Za-z0-9_.:-]{8,300}$/.test(tt)) { await stub.fetch("https://do/rahasia-set", { method: "POST", body: JSON.stringify({ k: "trakteer", v: tt }) }); return json({ ok: 1, pesan: "Webhook Token Trakteer tersimpan dari kiriman pertama (dianggap Test, tidak dicatat sebagai donasi)." }); }
+    if (!kunciTk) return json({ galat: "Webhook belum disiapkan" }, 503);
     let beda = tt.length ^ kunciTk.length; for (let i = 0; i < kunciTk.length; i++) beda |= kunciTk.charCodeAt(i) ^ (tt.charCodeAt(i) || 0);
     if (!tt || beda) return json({ galat: "Token salah" }, 403);
     const jml = Math.max(0, Math.floor(+body.quantity || 0));
