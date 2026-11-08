@@ -415,6 +415,24 @@ function warnai(a, i){
   mBadan.setColorAt(i, _c.setHex(a.baju)); mKepala.setColorAt(i, _c.setHex(a.kulit)); mKaki.setColorAt(i, _c.setHex(a.celana));
   for (const m of [mBadan, mKepala, mKaki]){ m.count = Math.max(m.count, i + 1); if (m.instanceColor) m.instanceColor.needsUpdate = true; }
 }
+// Hadiah pendukung Bata (8 Nov 2026): total 2 Bata = Bendera Emas di rumah; Juragan Bata = mahkota emas berputar di atas rumah.
+const EMAS = new THREE.MeshLambertMaterial({color:0xffc928, emissive:0x6a4a00});
+const MAHKOTA = [];
+function hadiahRumah(w, hx, hz, K){
+  const y = K.ruang.H(hx, hz) - 3;
+  if (w.bt >= 2){
+    const g = new THREE.Group();
+    const tiang = new THREE.Mesh(BOX, lam(0xeeeeee)); tiang.scale.set(1.2, 34, 1.2); tiang.position.y = 17; g.add(tiang);
+    const kain = new THREE.Mesh(BOX, EMAS); kain.scale.set(13, 8, .8); kain.position.set(7, 29, 0); g.add(kain);
+    g.position.set(hx + 9, y, hz + 9); scene.add(g);
+  }
+  if (w.jr){
+    const g = new THREE.Group();
+    const c = new THREE.Mesh(BOX, EMAS); c.scale.set(16, 4, 16); g.add(c);
+    for (const [x, z] of [[-1,-1],[1,-1],[-1,1],[1,1],[0,-1],[0,1],[-1,0],[1,0]]){ const u = new THREE.Mesh(BOX, EMAS); u.scale.set(3, x && z ? 7 : 5, 3); u.position.set(x*6.5, x && z ? 5.5 : 4.5, z*6.5); g.add(u); }
+    g.position.set(hx, y + 42, hz); scene.add(g); MAHKOTA.push(g);
+  }
+}
 // warga ASLI: satu per pendaftar, mulai dari gerbang kavling miliknya
 function tambahWarga(w, nama){
   nama = nama || (DUSUN_NO.find(([, a, b]) => w.no >= a && w.no <= b) || [])[0];
@@ -422,7 +440,8 @@ function tambahWarga(w, nama){
   const lot = K.L.lots[w.no]; if (!lot) return null;   // kunci lots.json = nomor rumah (No. warga)
   const hx = (lot[2] ?? lot[0]) + K.ox, hz = (lot[3] ?? lot[1]) + K.oz;
   const a = buatAgen('warga', hx + (rnd()-.5)*8, hz + (rnd()-.5)*8, [hx, hz], K.ruang);
-  Object.assign(a, {no: w.no, nama: w.nama, ak: w.ak, dusun: nama, fasN: K.fasNama, tujuan: null, di: 'rumah', lot: [lot[0] + K.ox, lot[1] + K.oz]});
+  Object.assign(a, {no: w.no, nama: w.nama, ak: w.ak, dusun: nama, fasN: K.fasNama, tujuan: null, di: 'rumah', lot: [lot[0] + K.ox, lot[1] + K.oz], bt: w.bt || 0, jr: w.jr || 0});
+  if (w.bt >= 2 || w.jr) hadiahRumah(w, hx, hz, K);
   if (mBadan) warnai(a, AGEN.length - 1);
   return a;
 }
@@ -518,7 +537,7 @@ async function ambil(url, ms = 7000){ const ac = new AbortController(); const t 
 async function pendaftar(){
   try {
     const d = await ambil(API + '/duniakotak/api/warga');
-    const daftar = (d.warga || []).map(w => ({no: w.no, nama: w.ig || w.tiktok || w.label || '', ak: w.ak || 0, dibuat: w.dibuat || 0}));
+    const daftar = (d.warga || []).map(w => ({no: w.no, nama: w.ig || w.tiktok || w.label || '', ak: w.ak || 0, dibuat: w.dibuat || 0, bt: w.bt || 0, jr: w.jr || 0}));
     return {jumlah: d.jumlah ?? daftar.length, daftar, live: true};
   } catch (e) {
     // cadangan bila API tak terjangkau: 694 warga (8 Nov 2026) tanpa nama
@@ -897,6 +916,7 @@ renderer.setAnimationLoop(now => {
   if (anim) anim(performance.now());
   if (!reduce){
     for (const t of airTerjun) t.offset.y += dt * 1.6;
+    for (const m of MAHKOTA) m.rotation.y += dt * .8;
     for (const a of awan){ a.g.position.x += a.v * dt * 6; if (a.g.position.x > CX + 17000) a.g.position.x -= 34000; }
   }
   geraki(reduce ? 0 : dt);

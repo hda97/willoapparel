@@ -349,3 +349,14 @@ a.barisAtur{text-decoration:none}.barisAtur span{display:flex;flex-direction:col
 .misi.hadir .hdKotak{display:flex;gap:4px;margin:6px 0 3px;flex-wrap:wrap}
 .misi.hadir .hdKotak i{font-style:normal;font-size:11px;font-weight:900;min-width:26px;text-align:center;padding:3px 4px;border-radius:7px;background:rgba(255,255,255,.1);color:#ffd75a}
 .misi.hadir .hdKotak i.ok{background:#7ad06a;color:#13301a}
+
+/* Pendukung Desa (Bata, 8 Nov 2026) */
+#panelPendukung .panel{max-height:calc(96*var(--vh,1vh));overflow-y:auto;-webkit-overflow-scrolling:touch}
+.pdHarga{display:flex;flex-direction:column;gap:3px;padding:10px 14px;border-radius:14px;background:rgba(255,201,40,.12);border:1px solid rgba(255,201,40,.35);text-align:left}
+.pdHarga b{font:900 17px Montserrat,sans-serif;color:#ffd23a}.pdHarga small,.pdHadiah small,.pdJuragan small{font:600 12px Montserrat,sans-serif;opacity:.75}
+.pdSaya{margin:8px 0 0;padding:8px 12px;border-radius:12px;background:rgba(90,190,120,.16);font:700 13px Montserrat,sans-serif;text-align:left}
+.pdHadiah{display:grid;gap:6px;margin:10px 0}.pdHadiah div,.pdJuragan{display:flex;gap:10px;align-items:center;padding:7px 12px;border-radius:12px;border:1px solid var(--garis);background:rgba(255,255,255,.05);text-align:left}
+.pdHadiah i,.pdJuragan i{font-style:normal;font-size:22px;line-height:1}.pdHadiah span,.pdJuragan span{display:flex;flex-direction:column;gap:1px}.pdHadiah b{font:800 14px Montserrat,sans-serif}
+.pdJuragan{background:rgba(255,201,40,.1);border-color:rgba(255,201,40,.4);margin-bottom:8px}.pdJuragan b{font:900 16px Montserrat,sans-serif;color:#ffd23a}
+.pdRiwayat{text-align:left}.pdDaftar{max-height:min(230px,calc(34*var(--vh,1vh)))}
+a.pdSaweria{display:block;text-align:center;text-decoration:none;margin-top:6px}

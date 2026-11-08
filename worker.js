@@ -44,6 +44,18 @@ const CALON_FASUM = ["kafe", "hiburan", "polisi"];
 // Toko Hias (Huda 6 Nov 2026): barang hias dibeli PERMATA (dari donasi Saweria: Rp1.000 = 1 bintang + 10 permata)
 // atau koin (lebih mahal). Barang pertama tiap jenis gratis. Permata tidak masuk peringkat & tidak bisa jadi koin.
 const PERMATA_PER_RIBU = 10;
+// ---- Hadiah pendukung "Bata" (Huda 8 Nov 2026, terinspirasi sistem "Genteng" @negerikomen, tetap lewat Saweria) ----
+// 1 Bata = Rp5.000 (= 5 bintang + 50 permata, konversi lama tetap). Semua hadiah hanya hiasan & gelar, tanpa keuntungan main.
+// Total 1 Bata: label 🧱 + nama di kartu terima kasih video. Total 2 Bata: Bendera Emas permanen di rumah.
+// Donatur terbesar minggu ini (Senin–Minggu WIB) = Juragan Bata: mahkota di atap, pindah tangan saat disalip.
+// Tiap kelipatan 20 Bata: nama di plakat fasum yang sedang dibangun saat itu. Pengusul pertama fasum pemenang = Bos fasum (gratis).
+const BATA_RP = 5000, BATA_BENDERA = 2, BATA_PLAKAT = 20;
+// Fasum yang sedang dibangun (samakan dengan BANGUN_VOTING di game.js). Setelah `sampai`, plakat baru masuk ke fasum berikutnya.
+const BANGUN_SEKARANG = [{ id: "taman", sampai: Date.parse("2026-11-14T00:00:00+07:00") }];
+// Kata kunci usulan warga (kolom usulan saat daftar) untuk mencari pengusul pertama tiap fasum pemenang/calon.
+// Bisa ditimpa manual lewat BOS_TETAP (mis. { taman: 48 }) bila pengusul yang ditemukan otomatis kurang tepat.
+const BOS_TETAP = {};
+const KATA_FASUM = { taman: /taman\s*(kota|desa)|^\s*(bikin |bangun |buat )?taman(\s+(dan|&|yang|dengan)\b|\s*$)/i, kafe: /\b(kafe|cafe|coffee|kopi|ngopi)/i, hiburan: /hiburan|wahana|pasar malam|taman bermain|dufan/i, polisi: /polisi|polsek|polres/i };
 const TOKO_HIAS = {
   cat: { krem: 0, putih: 30, biru: 30, hijau: 30, pink: 30, kuning: 30, ungu: 30 },
   pagar: { putih: 0, kayu: 20, hitam: 20, biru: 20, merah: 20 },
@@ -186,6 +198,8 @@ const KAVLING_DISIAPKAN = {
 };
 // Tanggal WIB (YYYY-MM-DD) dari waktu ms.
 function hariWib(t = Date.now()) { return new Date((t || 0) + 7 * 3600e3).toISOString().slice(0, 10); }
+// Senin (YYYY-MM-DD, WIB) dari minggu waktu t.
+function mingguWib(t = Date.now()) { const d = new Date(t + 7 * 3600e3); return new Date(d.getTime() - ((d.getUTCDay() + 6) % 7) * 864e5).toISOString().slice(0, 10); }
 export class Warga extends DurableObject {
   constructor(ctx, env) {
     super(ctx, env);
@@ -232,6 +246,9 @@ export class Warga extends DurableObject {
     }
     this.sql.exec("CREATE TABLE IF NOT EXISTS rahasia (k TEXT PRIMARY KEY, v TEXT, t INTEGER)");
     this.sql.exec("CREATE TABLE IF NOT EXISTS donasi (id TEXT PRIMARY KEY, t INTEGER, no INTEGER, rp INTEGER, bintang INTEGER, nama TEXT, pesan TEXT)");
+    // juragan = riwayat pemegang mahkota Juragan Bata (baris terbaru = pemegang sekarang); plakat = nama di plakat fasum
+    this.sql.exec("CREATE TABLE IF NOT EXISTS juragan (id INTEGER PRIMARY KEY AUTOINCREMENT, no INTEGER, t INTEGER, mg TEXT)");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS plakat (no INTEGER, ke INTEGER, fasum TEXT, t INTEGER, PRIMARY KEY (no, ke))");
     // Hitungan pemakaian fitur per hari WIB (dashboard Huda, 7 Nov 2026). Hanya angka, tidak tampil ke warga.
     this.sql.exec("CREATE TABLE IF NOT EXISTS fitur (hari TEXT, aksi TEXT, n INTEGER DEFAULT 0, PRIMARY KEY (hari, aksi))");
     // Koreksi salah ketik username: pindahkan ke username & kavling yang benar (sekali jalan, aman diulang).
@@ -249,11 +266,64 @@ export class Warga extends DurableObject {
       this.sql.exec("INSERT INTO sqlite_sequence (name, seq) VALUES ('warga', ?)", 64);
     }
   }
+  // ---- Bata (hadiah pendukung) ----
+  // Total rupiah donasi per warga (hanya donasi yang memuat kode DK); di-cache di memori, dibuang tiap ada donasi baru.
+  rpWarga() {
+    if (!this._rp) { this._rp = {}; for (const x of this.sql.exec("SELECT no, SUM(rp) AS rp FROM donasi WHERE no IS NOT NULL GROUP BY no").toArray()) this._rp[x.no] = x.rp || 0; }
+    return this._rp;
+  }
+  bataWarga(no) { return Math.floor((this.rpWarga()[no] || 0) / BATA_RP); }
+  juraganKini() {
+    if (this._jr === undefined) this._jr = this.sql.exec("SELECT no, t, mg FROM juragan ORDER BY id DESC LIMIT 1").toArray()[0] || null;
+    return this._jr;
+  }
+  fasumDibangun(t = Date.now()) { const b = BANGUN_SEKARANG.find((x) => t < x.sampai); return b ? b.id : "berikut"; }
+  // Dipanggil sesudah donasi tercatat: perbarui cache, mahkota Juragan minggu ini, dan plakat fasum.
+  sesudahDonasi(no) {
+    this._rp = null;
+    const kini = Date.now(), mg = mingguWib(kini), awal = Date.parse(mg + "T00:00:00+07:00");
+    const top = this.sql.exec("SELECT no, SUM(rp) AS s, MAX(t) AS akhir FROM donasi WHERE no IS NOT NULL AND t >= ? GROUP BY no ORDER BY s DESC, akhir ASC", awal).toArray();
+    if (top.length) {
+      const jr = this.juraganKini(), maks = top[0].s;
+      // seri: pemegang lama tetap memegang mahkota (harus benar-benar menyalip)
+      const juara = jr && top.some((x) => x.no === jr.no && x.s === maks) ? jr.no : top[0].no;
+      if (!jr || jr.no !== juara) this.sql.exec("INSERT INTO juragan (no, t, mg) VALUES (?, ?, ?)", juara, kini, mg);
+      else if (jr.mg !== mg) this.sql.exec("UPDATE juragan SET mg = ? WHERE id = (SELECT MAX(id) FROM juragan)", mg);
+      this._jr = undefined;
+    }
+    if (no) {
+      const n = Math.floor(this.bataWarga(no) / BATA_PLAKAT), ada = this.sql.exec("SELECT COUNT(*) AS n FROM plakat WHERE no = ?", no).toArray()[0].n;
+      for (let ke = ada + 1; ke <= n; ke++) this.sql.exec("INSERT OR IGNORE INTO plakat (no, ke, fasum, t) VALUES (?, ?, ?, ?)", no, ke, this.fasumDibangun(kini), kini);
+    }
+  }
+  // Data publik papan pendukung (game, Pulau Desa, kartu terima kasih video).
+  pendukung() {
+    const nmNo = {}; for (const r of this.sql.exec("SELECT w.no, w.ig, w.tiktok, w.nama FROM warga w WHERE w.no IN (SELECT no FROM donasi WHERE no IS NOT NULL UNION SELECT no FROM juragan UNION SELECT no FROM plakat)").toArray()) nmNo[r.no] = r.ig || r.tiktok || r.nama || "warga " + r.no;
+    const rp = this.rpWarga(), kini = Date.now(), mg = mingguWib(kini), awal = Date.parse(mg + "T00:00:00+07:00");
+    const daftar = Object.entries(rp).map(([no, v]) => ({ no: +no, nm: nmNo[no] || "", bata: Math.floor(v / BATA_RP) })).filter((x) => x.bata >= 1).sort((a, b) => b.bata - a.bata || a.no - b.no);
+    const jr = this.juraganKini();
+    const mgIni = {}; for (const x of this.sql.exec("SELECT no, SUM(rp) AS s FROM donasi WHERE no IS NOT NULL AND t >= ? GROUP BY no", awal).toArray()) mgIni[x.no] = x.s;
+    const riwayat = this.sql.exec("SELECT no, t FROM juragan ORDER BY id DESC LIMIT 10").toArray().map((x) => ({ no: x.no, nm: nmNo[x.no] || "", sejak: x.t }));
+    const plakat = this.sql.exec("SELECT no, fasum, MIN(t) AS t, COUNT(*) AS n FROM plakat GROUP BY no, fasum ORDER BY t").toArray().map((x) => ({ no: x.no, nm: nmNo[x.no] || "", fasum: x.fasum, n: x.n }));
+    // donasi terbaru (kartu terima kasih video): tanpa kode DK = "Pendukung misterius" (nama Saweria tidak ditampilkan)
+    const terbaru = this.sql.exec("SELECT no, rp, t FROM donasi ORDER BY t DESC LIMIT 20").toArray().map((x) => ({ no: x.no || 0, nm: x.no ? nmNo[x.no] || "" : "", bata: Math.floor(x.rp / BATA_RP), t: x.t }));
+    const bos = {};
+    for (const [id, no] of Object.entries(BOS_TETAP)) { const r = this.sql.exec("SELECT no, ig, tiktok FROM warga WHERE no = ?", no).toArray()[0]; if (r) bos[id] = { no: r.no, nm: r.ig || r.tiktok }; }
+    for (const [id, re] of Object.entries(KATA_FASUM)) {
+      if (bos[id]) continue;
+      for (const r of this.sql.exec("SELECT no, ig, tiktok, usulan FROM warga WHERE usulan IS NOT NULL AND usulan != '' AND (ig IS NOT NULL AND ig != '' OR tiktok IS NOT NULL AND tiktok != '') ORDER BY dibuat ASC, no ASC").toArray()) {
+        if (re.test(r.usulan)) { bos[id] = { no: r.no, nm: r.ig || r.tiktok }; break; }
+      }
+    }
+    return { harga: BATA_RP, bendera: BATA_BENDERA, plakatTiap: BATA_PLAKAT, dibangun: this.fasumDibangun(kini), minggu: mg,
+      juragan: jr ? { no: jr.no, nm: nmNo[jr.no] || "", sejak: jr.t, bataMinggu: Math.floor((mgIni[jr.no] || 0) / BATA_RP), mingguIni: jr.mg === mg ? 1 : 0 } : null,
+      riwayat, plakat, bos, pendukung: daftar.slice(0, 50), jumlah: daftar.length, terbaru };
+  }
   publik(r) {
     // Daftar lewat Google tanpa username: nama yang ditulis warga jadi ukiran batu (label).
     let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
-    const hs = this.hiasPakai(r);
-    return { ...(hs.cat !== "krem" || hs.pagar !== "putih" || hs.rumah === "dua" || hs.dekor.length ? { hs: { c: hs.cat, p: hs.pagar, ...(hs.rumah === "dua" ? { l: 2 } : {}), ...(hs.dekor.length ? { d: hs.dekor } : {}) } } : {}), no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
+    const hs = this.hiasPakai(r), bt = this.bataWarga(r.no), jr = this.juraganKini();
+    return { ...(bt ? { bt } : {}), ...(jr && jr.no === r.no ? { jr: 1 } : {}), ...(hs.cat !== "krem" || hs.pagar !== "putih" || hs.rumah === "dua" || hs.dekor.length ? { hs: { c: hs.cat, p: hs.pagar, ...(hs.rumah === "dua" ? { l: 2 } : {}), ...(hs.dekor.length ? { d: hs.dekor } : {}) } } : {}), no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
   }
   // Hias: {punya:{cat:[...],pagar:[...],topi:[...]}, cat, pagar, topi}
   bacaHias(r) { let h = {}; try { h = r.hias ? JSON.parse(r.hias) : {}; } catch (e) {} h.punya = h.punya || {}; for (const j of Object.keys(TOKO_HIAS)) h.punya[j] = h.punya[j] || []; return h; }
@@ -528,6 +598,7 @@ export class Warga extends DurableObject {
       return Response.json({ no: r.no, saldo, gratis, sudahPilih: r.vhari === hari ? 1 : 0, saya, donasi: don, ...this.hasilVoting() });
     }
     if (aksi === "voting-publik") return Response.json(this.hasilVoting());
+    if (aksi === "pendukung") return Response.json(this.pendukung());
     if (aksi === "iuran") {
       const q = await request.json();
       const r = this.sql.exec("SELECT no, koin, permata FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
@@ -807,6 +878,7 @@ export class Warga extends DurableObject {
       const b = Math.max(0, Math.floor(q.rp / 1000));
       this.sql.exec("INSERT INTO donasi (id, t, no, rp, bintang, nama, pesan) VALUES (?, ?, ?, ?, ?, ?, ?)", q.id, Date.now(), no || null, q.rp, no ? b : 0, q.nama, q.pesan);
       if (no && b) this.sql.exec("UPDATE warga SET bintang = COALESCE(bintang, 0) + ?, permata = COALESCE(permata, 0) + ? WHERE no = ?", b, b * PERMATA_PER_RIBU, no);
+      this.sesudahDonasi(no);
       return Response.json({ ok: 1, no, bintang: no ? b : 0, permata: no ? b * PERMATA_PER_RIBU : 0 });
     }
     if (aksi === "usulan-kunci") {
@@ -1190,6 +1262,9 @@ async function apiWarga(request, env, url) {
   }
   if (aksi === "usulan" && request.method === "GET") {
     return new Response((await stub.fetch("https://do/usulan-publik")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=30", "access-control-allow-origin": "*" } });
+  }
+  if (aksi === "pendukung" && request.method === "GET") {
+    return new Response((await stub.fetch("https://do/pendukung")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=30", "access-control-allow-origin": "*" } });
   }
   if (aksi === "voting" && request.method === "GET") {
     return new Response((await stub.fetch("https://do/voting-publik")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=20" } });

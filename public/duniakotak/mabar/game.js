@@ -50,7 +50,10 @@ const hexOk = v => typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v);
 const WARNA_CAT = {krem: '#f1dcb4', putih: '#f4f1ea', biru: '#9cc4e8', hijau: '#a8d5a0', pink: '#f2b8c6', kuning: '#f5d76e', ungu: '#c3b1e1'};
 const WARNA_PAGAR = {putih: '#ffffff', kayu: '#a0703c', hitam: '#3a3a40', biru: '#3a7bd5', merah: '#c8453a'};
 const WARNA_TOPI = {merah: '#d8443a', biru: '#2f6fd8', hitam: '#24242a', kuning: '#f2c230'};
-const HS = {};   // no → {c: cat, p: pagar} (warga lain, dari /api/warga)
+const HS = {};
+// Hadiah pendukung Bata (Huda 8 Nov 2026): BT no → total Bata donasi, JR = nomor Juragan Bata (mahkota di atap)
+const BT = {}; let JR = 0;
+const lencana = no => (JR && JR === no ? '👑 ' : '') + (BT[no] >= 1 ? '🧱 ' : '');   // no → {c: cat, p: pagar} (warga lain, dari /api/warga)
 function bersihAv(a) {
   a = a && typeof a === 'object' ? a : {};
   const jenis = a.jenis === 'P' ? 'P' : 'L';
@@ -367,7 +370,7 @@ function bangunKulon(buat = kulon) {
   bangunProksi();
 }
 async function bangunDunia() {
-  try { const w = (wargaAwal && await wargaAwal) || await (await fetch('/duniakotak/api/warga')).json(); wargaAwal = null; w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; if (x.hs) HS[x.no] = x.hs; }); } catch (e) {}
+  try { const w = (wargaAwal && await wargaAwal) || await (await fetch('/duniakotak/api/warga')).json(); wargaAwal = null; w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; if (x.hs) HS[x.no] = x.hs; if (x.bt) BT[x.no] = x.bt; if (x.jr) JR = x.no; }); } catch (e) {}
   if (S.saya && S.saya.kucing) KC[S.saya.no] = S.saya.kucing;
   if (S.saya && S.saya.ig) NM[S.saya.no] = '@' + S.saya.ig;
   await document.fonts.load('900 40px Montserrat').catch(() => {});
@@ -382,6 +385,7 @@ async function bangunDunia() {
   I.light.castShadow = !hemat;
   pasangFasum();
   pasangPapanDana();
+  pasangPlakat();
   // kubus kembar yang banyak (jalan, hutan, sawah): dipecah per petak supaya yang di luar layar tidak digambar,
   // bentuk kubus versi ringan, dan tidak ikut bayangan (hemat untuk HP)
   kumpulPijakan(I.G);
@@ -493,12 +497,96 @@ function bangunKavling(n) {
       if (Math.abs(p.x) < 2.75 && p.z > -2.3 && p.z < 3.3 && lebar < 6) badan.add(c); }
     H.add(badan); bakeGroup(badan); H = badan;
   }
+  if (H && n !== 1 && (BT[n] >= BATA_BENDERA || JR === n)) pasangHadiahRumah(n, L, H, extra, rects);
   bakeGroup(g); bakeGroup(extra);
   lotRuntime.set(n, {g, extra, rects, rumah: H, dalam: H ? rectLot(L, -3, -1, -1.4, .2) : null, interior: null});
   if (S.saya && n === S.saya.no) { kebunTahap = null; segarKebun(); }
   if (isi && n !== 1) pasangKucing(n);
   if (L.proxyIdx != null) setProxy(L, false);
 }
+// ---------- Hadiah pendukung Bata (Huda 8 Nov 2026) ----------
+// Total 2 Bata = Bendera Emas di pekarangan depan; Juragan Bata minggu ini = mahkota emas di atas atap. Hanya hiasan.
+const BATA_RP = 5000, BATA_BENDERA = 2, BATA_PLAKAT = 20;
+const EMAS = () => new THREE.MeshStandardMaterial({color: 0xffc928, roughness: .35, metalness: .55, emissive: 0x6a4a00, emissiveIntensity: .35});
+function pasangHadiahRumah(n, L, H, extra, rects) {
+  H.updateWorldMatrix(true, true);
+  const box = new THREE.Box3().setFromObject(H); if (box.isEmpty()) return;
+  const dasar = L.c.y || 0, atas = box.max.y - dasar, rot = L.dir === 1 ? 0 : Math.PI;
+  if (BT[n] >= BATA_BENDERA) {   // tiang + kain emas berkibar (statis) di pojok depan rumah
+    const G = new THREE.Group(), tinggi = atas * 1.35;
+    const tiang = new THREE.Mesh(new THREE.BoxGeometry(.07 * VS, tinggi, .07 * VS), new THREE.MeshStandardMaterial({color: 0xe8e8ec, roughness: .5})); tiang.position.y = tinggi / 2; G.add(tiang);
+    const pucuk = new THREE.Mesh(new THREE.BoxGeometry(.14 * VS, .14 * VS, .14 * VS), EMAS()); pucuk.position.y = tinggi + .05 * VS; G.add(pucuk);
+    const kain = new THREE.Mesh(new THREE.BoxGeometry(1 * VS, .6 * VS, .04 * VS), EMAS()); kain.position.set(.53 * VS, tinggi - .36 * VS, 0); G.add(kain);
+    const kain2 = new THREE.Mesh(new THREE.BoxGeometry(.32 * VS, .6 * VS, .04 * VS), EMAS()); kain2.position.set(1.15 * VS, tinggi - .44 * VS, .06 * VS); kain2.rotation.y = -.35; G.add(kain2);
+    G.position.set(L.c.x + L.dir * -.62 * VS, 0, L.c.z + L.dir * .62 * VS); G.rotation.y = rot; extra.add(G);
+    rects.push(rectLot(L, -.68, -.56, .56, .68));
+  }
+  if (JR === n) {   // mahkota emas melayang di atas atap
+    const G = new THREE.Group(), w = .9 * VS, emas = EMAS();
+    const cincin = new THREE.Mesh(new THREE.BoxGeometry(w, .22 * VS, w), emas); cincin.position.y = .11 * VS; G.add(cincin);
+    for (const [x, z] of [[-1, -1], [1, -1], [-1, 1], [1, 1], [0, -1], [0, 1], [-1, 0], [1, 0]]) {
+      const ujung = new THREE.Mesh(new THREE.BoxGeometry(.14 * VS, (x && z ? .34 : .24) * VS, .14 * VS), emas);
+      ujung.position.set(x * (w / 2 - .07 * VS), .22 * VS + (x && z ? .17 : .12) * VS, z * (w / 2 - .07 * VS)); G.add(ujung);
+    }
+    [[0, -1, 0xe0403a], [0, 1, 0x3a7ae0], [-1, 0, 0x2a9a5a], [1, 0, 0xe0403a]].forEach(([x, z, c]) => { const pm = new THREE.Mesh(new THREE.BoxGeometry(.12 * VS, .1 * VS, .12 * VS), new THREE.MeshStandardMaterial({color: c, roughness: .3}));
+      pm.position.set(x * (w / 2 + .01 * VS), .11 * VS, z * (w / 2 + .01 * VS)); G.add(pm); });
+    G.position.set((box.min.x + box.max.x) / 2, atas + .35 * VS, (box.min.z + box.max.z) / 2); G.rotation.y = rot + Math.PI / 4; extra.add(G);
+  }
+}
+// Plakat pendukung di fasum yang sedang dibangun (Taman Kota, fas[13] Wetan): Bos fasum + pendukung 20 Bata + Juragan Bata.
+const PLAKAT = {kanvas: null, tex: null};
+let PD = null;   // data /api/pendukung
+async function muatPendukung() { try { PD = await (await fetch('/duniakotak/api/pendukung')).json(); gambarPlakat(); } catch (e) {} return PD; }
+function pasangPlakat() {
+  const f = I.fas && I.fas[13]; if (!f) return;
+  const g = new THREE.Group(), batu = new THREE.MeshStandardMaterial({color: 0x8a8f98, roughness: .95});
+  const kaki = new THREE.Mesh(new THREE.BoxGeometry(14, 3, 2.4), batu); kaki.position.y = 1.5; g.add(kaki);
+  const c = document.createElement('canvas'); c.width = 640; c.height = 440;
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+  const papan = new THREE.Mesh(new THREE.BoxGeometry(18, 12.4, .8), [batu, batu, batu, batu, new THREE.MeshBasicMaterial({map: tex}), batu]);
+  papan.position.y = 9.2; g.add(papan);
+  g.position.set(f.x + 16, 0, f.z + 14); sc.add(g);
+  Object.assign(PLAKAT, {kanvas: c, tex}); gambarPlakat(); muatPendukung(); setInterval(muatPendukung, 5 * 60e3);
+}
+function gambarPlakat() {
+  const c = PLAKAT.kanvas; if (!c) return; const x = c.getContext('2d'), d = PD || {};
+  x.fillStyle = '#2c3150'; x.fillRect(0, 0, 640, 440); x.strokeStyle = '#ffc928'; x.lineWidth = 12; x.strokeRect(6, 6, 628, 428);
+  x.textAlign = 'center'; x.fillStyle = '#ffc928'; x.font = '900 34px Montserrat, sans-serif'; x.fillText('PLAKAT TAMAN KOTA', 320, 58);
+  const bos = d.bos && d.bos.taman; x.fillStyle = '#fff'; x.font = '800 26px Montserrat, sans-serif';
+  x.fillText(bos ? `Bos Taman Kota: @${bos.nm}` : 'Bos Taman Kota: pengusul pertama', 320, 104);
+  x.fillStyle = '#ffe39a'; x.font = '700 22px Montserrat, sans-serif'; x.fillText('Didukung oleh', 320, 150);
+  const nama = (d.plakat || []).filter(p => p.fasum === 'taman').map(p => '@' + p.nm);
+  x.fillStyle = '#fff'; x.font = '800 24px Montserrat, sans-serif';
+  if (!nama.length) { x.fillStyle = '#b8bcd0'; x.font = '700 21px Montserrat, sans-serif'; x.fillText(`Namamu bisa di sini: dukung ${BATA_PLAKAT} Bata`, 320, 190); x.fillText('lewat Saweria (⚙ Atur > Pendukung Desa)', 320, 220); }
+  else { const baris = []; let b = ''; for (const n of nama.slice(0, 18)) { if ((b + '  ' + n).length > 34) { baris.push(b); b = n; } else b = b ? b + '  ' + n : n; } if (b) baris.push(b);
+    baris.slice(0, 5).forEach((t, i) => x.fillText(t, 320, 190 + i * 32)); }
+  const jr = d.juragan; x.fillStyle = '#ffc928'; x.font = '900 24px Montserrat, sans-serif';
+  x.fillText(jr ? `👑 Juragan Bata: @${jr.nm}` : '👑 Juragan Bata: belum ada', 320, 375);
+  x.fillStyle = '#b8bcd0'; x.font = '600 18px Montserrat, sans-serif'; x.fillText('Terima kasih sudah ikut membangun desa', 320, 410);
+  PLAKAT.tex.needsUpdate = true;
+}
+// Panel Pendukung Desa (⚙ Atur): cara dapat Bata, hadiah, Juragan minggu ini, riwayat, plakat, daftar pendukung.
+function tulisPendukung() {
+  const d = PD; if (!d) { $('isiPendukung').innerHTML = '<p class="kecil">Memuat…</p>'; return; }
+  const no = S.saya?.no, saya = no ? BT[no] || 0 : 0, rp = (d.harga || BATA_RP).toLocaleString('id-ID');
+  let h = `<div class="pdHarga"><b>🧱 1 Bata = Rp${rp}</b><small>Donasi sukarela lewat Saweria. Tiap Bata juga jadi 5 ⭐ bintang voting + 50 💎 permata.</small></div>`;
+  if (!S.tamu && no) h += `<div class="pdSaya">Bata kamu: <b>🧱 ${saya}</b>${saya < BATA_BENDERA ? ` · ${BATA_BENDERA - saya} Bata lagi untuk Bendera Emas` : saya < BATA_PLAKAT ? ` · ${BATA_PLAKAT - saya} Bata lagi untuk masuk plakat fasum` : ' · namamu ada di plakat fasum'}</div>`;
+  h += `<div class="pdHadiah">${[['🧱', '1 Bata', 'Lencana 🧱 di namamu + ucapan terima kasih di video Dunia Kotak'], ['🚩', `${BATA_BENDERA} Bata`, 'Bendera Emas berkibar di rumahmu, selamanya'], ['👑', 'Juragan Bata', 'Pendukung terbesar minggu ini (Senin–Minggu) dapat mahkota di atap. Disalip? Mahkota pindah!'], ['🪧', `${BATA_PLAKAT} Bata`, 'Namamu terpasang di plakat fasum yang sedang dibangun'], ['🏗️', 'Gratis', 'Pengusul pertama fasum yang menang voting jadi Bos fasum itu']].map(([i, j, k]) => `<div><i>${i}</i><span><b>${j}</b><small>${k}</small></span></div>`).join('')}</div>`;
+  const jr = d.juragan; h += `<div class="pdJuragan"><i>👑</i><span><small>Juragan Bata ${jr && jr.mingguIni ? 'minggu ini' : 'saat ini'}</small><b>${jr ? '@' + esc(jr.nm) : 'Belum ada. Jadilah yang pertama!'}</b>${jr && jr.mingguIni ? `<small>${jr.bataMinggu} Bata minggu ini</small>` : ''}</span></div>`;
+  if (d.riwayat?.length > 1) h += `<p class="kecil pdRiwayat"><b>Riwayat mahkota:</b> ${d.riwayat.map(r => `@${esc(r.nm)} (${new Date(r.sejak).toLocaleDateString('id-ID', {day: 'numeric', month: 'short'})})`).join(' ← ')}</p>`;
+  if (d.pendukung?.length) h += `<div class="pkDaftar pdDaftar">${d.pendukung.map((x, i) => `<div class="pkBaris${x.no === no ? ' aku' : ''}"><span class="pkNo">${i + 1}</span><span class="pkNama">${d.juragan?.no === x.no ? '👑 ' : ''}@${esc(x.nm)}</span><b>🧱 ${x.bata}</b></div>`).join('')}</div>`;
+  else h += '<p class="kecil">Belum ada pendukung. Jadilah yang pertama memasang Bata di desa ini!</p>';
+  const kode = no ? 'DK' + no : '';
+  h += `<a class="utama pdSaweria" href="https://saweria.co/Duniakotak" target="_blank" rel="noopener" data-pdkode="${kode}">💛 Dukung di Saweria</a>`
+    + (kode ? `<p class="kecil">Tulis kode <span class="vtKode" id="pdKode">${kode}</span> di pesan donasi supaya Bata masuk ke rumahmu. Tanpa kode, kamu tercatat sebagai Pendukung Misterius.</p>` : '<p class="kecil">Daftar jadi warga dulu supaya Bata masuk ke rumahmu.</p>')
+    + '<p class="kecil">Sukarela, bukan syarat main. Hadiahnya hanya hiasan dan gelar. Belum 17 tahun? Minta izin orang tua dulu ya.</p>';
+  $('isiPendukung').innerHTML = h;
+}
+async function bukaPendukung() { $('panelAtur').hidden = true; tulisPendukung(); $('panelPendukung').hidden = false; await muatPendukung(); tulisPendukung(); }
+document.addEventListener('click', async e => {
+  const k = e.target.closest?.('#pdKode'); if (k) { try { await navigator.clipboard.writeText(k.textContent); toast('Kode ' + k.textContent + ' disalin. Tempel di pesan donasi Saweria.', 3500); } catch (er) {} return; }
+  const a = e.target.closest?.('[data-pdkode]'); if (a && a.dataset.pdkode) { try { navigator.clipboard.writeText(a.dataset.pdkode); } catch (er) {} toast(`Kode ${a.dataset.pdkode} sudah disalin. Tempel di pesan donasi Saweria. 1 Bata = Rp${BATA_RP.toLocaleString('id-ID')}.`, 6000); }
+});
 // ---------- Rakit Hiasan (Huda 6 Nov 2026): barang pungutan dirakit jadi hiasan pekarangan ----------
 // posisi & ukuran dalam satuan kavling (pintu rumah ±0,76), lalu dikali VS
 const kotakD = (w, h, d, c, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({color: c, roughness: .85})); m.position.set(x, y, z); return m; };
@@ -913,7 +1001,7 @@ function tulisVoting() {
   if (!S.tamu && d.no) {
     $('vtDonasi').hidden = false;
     // Paket bintang (Huda 6 Nov): tombol membuka Saweria + menyalin kode warga; nominal dipilih di Saweria.
-    $('vtDonasi').innerHTML = `<b>Tambah bintang lewat donasi sukarela</b><div class="vtPaket">${[[5, 1], [10, 2], [25, 3], [100, 5]].map(([n, k]) => `<a href="https://saweria.co/Duniakotak" target="_blank" rel="noopener" data-paket="${n}"><span class="vtBintang b${k}">${GBR_BINTANG.repeat(k)}</span><b>${n} bintang</b><small>Rp${(n * 1000).toLocaleString('id-ID')}</small></a>`).join('')}</div>Tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan donasi Saweria. Bintang masuk otomatis, plus bonus 💎 10 permata per Rp1.000 untuk Toko Hias. <br><small>Belum 17 tahun? Minta izin orang tua dulu ya. Bintang gratis harian sudah cukup untuk ikut memilih.</small>` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
+    $('vtDonasi').innerHTML = `<b>Tambah bintang lewat donasi sukarela</b><div class="vtPaket">${[[5, 1], [10, 2], [25, 3], [100, 5]].map(([n, k]) => `<a href="https://saweria.co/Duniakotak" target="_blank" rel="noopener" data-paket="${n}"><span class="vtBintang b${k}">${GBR_BINTANG.repeat(k)}</span><b>${n} bintang</b><small>Rp${(n * 1000).toLocaleString('id-ID')}</small></a>`).join('')}</div>Tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan donasi Saweria. Bintang masuk otomatis, plus bonus 💎 10 permata per Rp1.000 untuk Toko Hias. Tiap Rp5.000 juga jadi 🧱 1 Bata (bendera emas, mahkota Juragan, plakat fasum: ⚙ Atur → Pendukung Desa). <br><small>Belum 17 tahun? Minta izin orang tua dulu ya. Bintang gratis harian sudah cukup untuk ikut memilih.</small>` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
   } else $('vtDonasi').hidden = true;
 }
 async function bukaVoting(wajib) {
@@ -1168,7 +1256,7 @@ function pasangPeta() {
 }
 function keP(x, z) { const b = peta.b || I.batas, W = peta.w || 1, H = peta.h || 1; return [(x - b.x0) / (b.x1 - b.x0) * W, (z - b.z0) / (b.z1 - b.z0) * H]; }
 function pilihRumah(n) {
-  const L = I.lots[n]; peta.pilih = n; [peta.u, peta.v] = keP(L.c.x, L.c.z); peta.z = Math.max(peta.z, 2.2); const nm = n === 1 ? 'Raka & Oyen (Warung Raka)' : NM[n] || 'kavling kosong';
+  const L = I.lots[n]; peta.pilih = n; [peta.u, peta.v] = keP(L.c.x, L.c.z); peta.z = Math.max(peta.z, 2.2); const nm = n === 1 ? 'Raka & Oyen (Warung Raka)' : NM[n] ? lencana(n) + NM[n] : 'kavling kosong';
   peta.tuju = {x: L.gate.x, z: L.gate.z + L.dir * 1.2 * VS, nama: 'No. ' + n, kav: n};
   tulisTuju(`📍 No. ${n} · ${nm} · ${alamat(n)}`);
 }
@@ -1859,7 +1947,7 @@ function fotoProfil() {
 }
 function tulisProfil() {
   const s = S.saya; if (!s) return;
-  $('pfNama').textContent = '@' + s.ig; $('pfAlamat').textContent = `No. ${s.no} · ${alamat(s.no)} · ${NAMA_DUSUN[dusunDari(s.no)]}`;
+  $('pfNama').textContent = lencana(s.no) + '@' + s.ig; $('pfAlamat').textContent = `No. ${s.no} · ${alamat(s.no)} · ${NAMA_DUSUN[dusunDari(s.no)]}`;
   $('pfKoin').textContent = s.koin || 0; $('pfPermata').textContent = s.permata || 0;
   const k = s.kebun || {}, sisa = (k.siap || 0) - Date.now(), bb = k.b && s.bibit ? s.bibit[k.b] : null;
   $('pfPanen').textContent = !k.b ? '🌱 Kebunmu kosong. Pulang ke rumah lalu tekan Tanam.' : sisa <= 0 ? `🧺 ${bb ? bb.nama : 'Tanaman'} siap dipanen. Pulang ke rumah lalu tekan Panen.` : `🌱 ${bb ? bb.nama : 'Tanaman'} siap panen ${sisa > 3600e3 ? Math.ceil(sisa / 3600e3) + ' jam' : Math.ceil(sisa / 60e3) + ' menit'} lagi.`;
@@ -1941,7 +2029,7 @@ lab.addEventListener('click', e => {
   if (!el || !el.dataset.no) return;
   const no = +el.dataset.no, o = S.others.get(no); if (!o) return;
   const mw = $('menuWarga'); mw.hidden = false; mw.style.left = Math.min(innerWidth - 200, e.clientX) + 'px'; mw.style.top = Math.min(innerHeight - 160, e.clientY + 10) + 'px';
-  mw.innerHTML = `<b>@${esc(o.ig)} · No. ${no}</b><small class="kecil" style="padding:0 4px">${esc(alamat(no))}</small>
+  mw.innerHTML = `<b>${lencana(no)}@${esc(o.ig)} · No. ${no}</b><small class="kecil" style="padding:0 4px">${esc(alamat(no))}</small>
     <button data-a="rumah">🏠 Lihat rumahnya</button><button data-a="bisu">${S.bisu.has(no) ? '🔈 Batal bisukan' : '🔇 Bisukan'}</button><button data-a="lapor">🚩 Laporkan</button>`;
   mw.onclick = ev => { const a = ev.target.dataset.a; if (!a) return; mw.hidden = true;
     if (a === 'rumah') pergiKe(no);
@@ -2141,6 +2229,7 @@ function aturHUD() {
   $('bPanduan').onclick = () => { $('panelAtur').hidden = true; panduan(); };
   $('bAtur').onclick = () => { $('jamAtur').textContent = $('jam').textContent.replace(/\s+/g, ' ').trim(); $('panelAtur').hidden = false; }; $('tutupAtur').onclick = () => { $('panelAtur').hidden = true; };
   $('bVoting').onclick = () => { $('panelAtur').hidden = true; bukaVoting(); };
+  $('bPendukung').onclick = bukaPendukung; $('tutupPendukung').onclick = () => { $('panelPendukung').hidden = true; };
   siapIklan();
   $('bProfesi').onclick = () => { $('panelAtur').hidden = true; bukaProfesi(); }; $('pfProfesiB').onclick = () => { $('panelProfil').hidden = true; bukaProfesi(); }; $('tutupProfesi').onclick = () => { $('panelProfesi').hidden = true; };
   $('bToko').onclick = () => { $('panelAtur').hidden = true; bukaToko(); }; $('tutupToko').onclick = () => { $('panelToko').hidden = true; }; $('tutupVoting').onclick = () => { if (vtWajib) return toast('Taruh 1 bintang gratismu di fasum pilihanmu dulu ya ⭐', 3000); $('panelVoting').hidden = true; };
@@ -2310,13 +2399,13 @@ function loop(t) {
   // label
   pool.forEach(d => { d.dipakai = false; }); taruh.length = 0;
   const lbl = (o, h, teks, cls, no, idNpc) => { const el = tempel(o, h, teks, cls); if (el) { el.dataset.no = no || ''; el.dataset.npc = idNpc || ''; } return el; };
-  lbl(me, 5.2, S.tamu ? 'Kamu (tamu)' : '@' + S.saya.ig, 'nm saya');
+  lbl(me, 5.2, S.tamu ? 'Kamu (tamu)' : lencana(S.saya.no) + '@' + S.saya.ig, 'nm saya');
   lbl(tokoh.raka, 5.2, '★ Raka', 'nm raka'); lbl(tokoh.oyen, 2.6, 'Oyen', 'nm raka kucing');
   for (const c of [tokoh.oyen, ...kucingHidup]) if (c.userData.senang > performance.now()) tempel(c, 4.2, '❤️ nyam!', 'gel emo', -4);
   for (const it of itemDunia) if (it.position.distanceTo(me.position) < 45) tempel(it, 3.4, it.userData.jenis.ikon, 'nm item');
   if (mancing.on) tempel(me, 6.6, mancing.teks, 'gel emo', -4);
   for (const c of kucingHidup) if (c.userData.nama && c.position.distanceTo(me.position) < 60) lbl(c, 2.6, c.userData.nama, 'nm kucing');
-  for (const [no, o] of S.others) if (o.obj.position.distanceTo(me.position) < 220) lbl(o.obj, 5.2, (S.bisu.has(no) ? '🔇 ' : '') + '@' + o.ig, 'nm', no);
+  for (const [no, o] of S.others) if (o.obj.position.distanceTo(me.position) < 220) lbl(o.obj, 5.2, (S.bisu.has(no) ? '🔇 ' : '') + lencana(no) + '@' + o.ig, 'nm', no);
   if (npc) for (const n of npc.daftar) if (n.obj.visible && n.jauh < 130) { const lap = n.kerja === 'bola' || n.kerja === 'main' || n.wasit; lbl(n.obj, n.tinggi, n.nama + ' · ' + n.peran, lap ? 'nm' : 'nm npc', '', lap ? '' : n.id); }   // pemain & wasit sedang bertanding: tidak bisa diajak ngobrol
   if (wnpc) for (const n of wnpc.daftar) if (n.obj.visible && n.jauh < 110) lbl(n.obj, 5.2, (n.gotong >= 0 ? '🔨 ' : '') + '@' + n.u, 'nm npcw');
   for (const f of fasumBangun) { const d = Math.hypot(f.position.x - me.position.x, f.position.z - me.position.z); if (d < 170) lbl(f, f.tinggi, f.nama, 'nm fasum'); }
