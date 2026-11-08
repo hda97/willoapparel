@@ -77,6 +77,8 @@ th{color:var(--redup);font-weight:600;font-size:12px}
     <section><h2>Ekonomi & kepemilikan</h2><p class="ket">Kondisi semua warga saat ini.</p><div id="ekonomi"></div></section>
   </div>
 
+  <section><h2>Arus ekonomi</h2><p class="ket">Koin dan permata masuk (sumber) dan keluar (dibelanjakan) per hari, mulai 9 Nov 2026.</p><div class="gulir"><table id="tabelArus"></table></div></section>
+
   <div class="grid">
     <section><h2>Profesi</h2><p class="ket">Warga yang sudah membuka tiap profesi.</p><div id="profesi"></div></section>
     <section><h2>Voting & dana</h2><p class="ket">Putaran voting fasum yang sedang jalan, iuran, dan donasi (Trakteer).</p><div id="voting"></div></section>
@@ -163,6 +165,15 @@ function tampil(s) {
     ['🌱 Kebun sedang ditanami', s.kebun], ['🐱 Warga punya kucing', s.kucing], ['🏠 Rumah 2 lantai', s.rumah2], ['📣 Pernah membagikan', s.bagi],
     ['✅ Ikut misi hari ini', s.misiHariIni], ['🏅 Misi lengkap hari ini', s.misiPenuh],
   ].map(([nm, n]) => `<span class="chip">${nm}: <b>${fmt(n)}</b></span>`).join('');
+
+  // Arus ekonomi (audit #3): baris = jenis (+koin:hadir, -permata:profesi, ...), kolom = hari
+  const ar = s.arus || [];
+  if (ar.length) {
+    const hr = [...new Set(ar.map((x) => x.hari))].sort().slice(-7), jn = [...new Set(ar.map((x) => x.jenis))].sort((x, y) => (x[0] === y[0] ? x.localeCompare(y) : x[0] === '+' ? -1 : 1));
+    const nilai = {}; for (const x of ar) nilai[x.jenis + '|' + x.hari] = x.n;
+    const lbl = (j) => (j[0] === '+' ? '⬆️ ' : '⬇️ ') + (j.includes('permata') ? '💎 ' : '🪙 ') + j.slice(1).split(':')[1];
+    $('tabelArus').innerHTML = `<tr><th>Jenis</th>${hr.map((h) => `<th>${h.slice(5)}</th>`).join('')}</tr>` + jn.map((j) => `<tr><td>${lbl(j)}</td>${hr.map((h) => `<td>${fmt(nilai[j + '|' + h] || 0)}</td>`).join('')}</tr>`).join('');
+  } else $('tabelArus').innerHTML = '<tr><td class="catatan">Pencatat arus baru dipasang. Angka muncul setelah warga main.</td></tr>';
 
   daftarBar($('profesi'), Object.entries(s.profesi).sort((x, y) => y[1] - x[1]).map(([k, n]) => [LABEL_PROFESI[k] || k, n]), 'var(--hijau)');
 
