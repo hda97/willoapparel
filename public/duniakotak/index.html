@@ -166,6 +166,26 @@ details.ubah[open]>.isi,details.ubah[open]>#pilihAv{margin-top:10px}
 .aksiKecil{gap:10px!important}.aksiKecil .tombol{font-size:13.5px!important;min-height:46px}
 .ikp{width:20px;height:20px;flex:none;filter:drop-shadow(1px 1px 0 rgba(0,0,0,.35))}
 .tombol.main .ikp{width:24px;height:24px}
+/* ===== PENDUKUNG DESA (Huda 8 Nov 2026, seperti papan "Pendukung Kampung" @negerikomen, satuan Bata lewat Trakteer) ===== */
+.pdk h2{margin:0 0 4px;font:900 15px/1.2 Montserrat,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#5b6650}
+.pdk .pdkSub{margin:0 0 12px;font-size:15px;display:flex;align-items:center;gap:8px}
+.pdk .pk{width:22px;height:22px;flex:none;image-rendering:pixelated}
+.pdkBos{display:flex;align-items:center;gap:12px;background:#ffe9a3;border:3px solid #d9a32e;border-radius:10px;padding:12px;box-shadow:0 4px 0 #b8861d;margin-bottom:6px}
+.pdkBos .pk{width:30px;height:30px}
+.pdkBos .nm{flex:1;min-width:0}.pdkBos .nm b{display:flex;align-items:center;gap:6px;font-size:17px;overflow-wrap:anywhere}.pdkBos .nm small{display:block;color:#8a6410;font-weight:800;font-size:13px}
+.pdkJml{flex:none;border:3px solid var(--tinta);border-radius:20px;padding:4px 10px;font:900 14px Montserrat,sans-serif;background:#fff6dc;white-space:nowrap}
+.pdkBaris{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:2px dashed #e6d6aa}
+.pdkBaris .no{flex:none;width:28px;height:28px;display:grid;place-items:center;border:2px solid var(--tinta);border-radius:5px;background:#fff6dc;font:900 13px Montserrat,sans-serif}
+.pdkBaris .no.p2{background:#dfe6ee}.pdkBaris .no.p3{background:#f0c39a}
+.pdkBaris .nm{flex:1;min-width:0;font-weight:700;display:flex;align-items:center;gap:6px;overflow-wrap:anywhere}
+.pdkBaris .pdkJml{border-width:2px;font-size:13px;background:#fff4c8}
+.pdkKosong{padding:14px;border:3px dashed #d9a32e;border-radius:10px;background:#fff8e1;font-size:14px}
+.pdk details{margin:10px 0 4px}.pdk details summary{cursor:pointer;font-weight:900;color:#8a6410;display:flex;align-items:center;gap:6px;list-style:none}
+.pdk details summary::-webkit-details-marker{display:none}.pdk details ol{margin:8px 0 0;padding-left:22px;font-size:14px}
+.pdkCara{margin-top:12px;font-size:14.5px;line-height:1.5}.pdkCara p{margin:0 0 8px}
+.pdkKode{display:inline-block;border:2px solid var(--tinta);border-radius:5px;padding:1px 7px;background:var(--kuning);font:900 14px Montserrat,sans-serif;cursor:pointer}
+.tombol.bata{background:#e0803a;margin-top:6px;width:100%;padding:12px;font-size:16px;text-decoration:none}
+.pdk .kecil{font-size:12.5px;color:#5b6650}
 </style>
 </head>
 <body>
@@ -263,6 +283,20 @@ details.ubah[open]>.isi,details.ubah[open]>#pilihAv{margin-top:10px}
     <div class="baris"><input id="usul" placeholder="mis. sekolah, masjid, warung, taman" maxlength="140"><button id="kirimUsul">Kirim</button></div>
     <div id="pesanUsul" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
     <p class="kecil"><a href="https://www.instagram.com/duniakotak.id/" target="_blank" rel="noopener"><b>Follow @duniakotak.id</b></a> supaya rumahmu muncul di video.</p>
+  </section>
+
+  <section class="kartu pdk" id="pendukung" aria-label="Pendukung Desa Dunia Kotak">
+    <h2>Pendukung Desa (<span id="pdkJumlah">…</span>)</h2>
+    <p class="pdkSub">Terima kasih sudah traktir Bata <i data-pk="bata"></i></p>
+    <div id="pdkIsi"><div class="pdkKosong">Memuat pendukung…</div></div>
+    <details id="pdkRiwayat" hidden><summary><i data-pk="mahkota"></i>Riwayat Juragan Desa</summary><ol id="pdkRiwayatIsi"></ol></details>
+    <div class="pdkCara">
+      <p>Mau namamu muncul di sini? Cukup traktir <b>1 Bata</b>.</p>
+      <p><b>Wajib tulis kode wargamu</b> di pesan traktiran: <b>DK</b> + nomor wargamu<span id="pdkKodeSaya"></span>. Bata langsung tercatat di sini, dan <b>1 Bata = 5 bintang voting + 50 permata</b> masuk otomatis ke akunmu.</p>
+      <p><b>2 Bata</b>: Bendera Emas berkibar di rumahmu. <b>Bata terbanyak minggu ini</b>: mahkota Juragan Desa di atap. Disalip? Mahkotanya pindah.</p>
+      <a class="tombol bata" href="https://trakteer.id/duniakotak.id" target="_blank" rel="noopener"><i data-pk="bata"></i>Traktir Bata</a>
+      <p class="kecil" style="margin-top:10px">Lupa nulis kode? DM <a href="https://www.instagram.com/duniakotak.id/" target="_blank" rel="noopener">@duniakotak.id</a> bukti traktiranmu + nomor warga. Sukarela, hadiahnya hanya hiasan. Belum 17 tahun? Minta izin orang tua dulu ya.</p>
+    </div>
   </section>
 
   <section class="kartu edu" aria-label="Game edukasi Dunia Kotak">
@@ -510,6 +544,31 @@ $('kirimUsul').onclick=async()=>{
     google.accounts.id.renderButton($('gbtn'),{theme:'filled_black',size:'large',shape:'pill',text:'signin_with',locale:'id',width:300});
     google.accounts.id.renderButton($('gbtnMasuk'),{theme:'filled_black',size:'large',shape:'pill',text:'signin_with',locale:'id',width:300});};
   document.head.appendChild(s);
+})();
+</script>
+<script>
+// Papan Pendukung Desa: data asli dari /duniakotak/api/pendukung (Bata dari Trakteer/Saweria dengan kode DK).
+(function(){
+var PAL={K:'#2a2218',R:'#e0803a',r:'#a8541f',L:'#f6b07a',Y:'#f2c14a',D:'#b8861d',W:'#fff1b8',E:'#e04848',C:'#6a4426'};
+var PK={bata:['..........','..........','.KKKKKKKK.','KLLLLLLLRK','KRRRRRRRrK','KRRRRRRRrK','KrrrrrrrrK','.KKKKKKKK.','..........','..........'],
+mahkota:['..........','K...KK...K','KK.KYYK.KK','KYKYYYYKYK','KYYYYYYYYK','KYEYYWYEYK','KYYYYYYYYK','KDDDDDDDDK','KKKKKKKKKK','..........'],
+bendera:['.K........','.KYYYY....','.KYWYYYY..','.KYYYYYYD.','.KYYYYD...','.KYD......','.K........','.K........','.K........','KKK.......']};
+function ik(n){var g=PK[n],r='';g.forEach(function(row,y){row.split('').forEach(function(c,x){if(c!=='.'&&PAL[c])r+='<rect x="'+x+'" y="'+y+'" width="1.04" height="1.04" fill="'+PAL[c]+'"/>'})});return '<svg class="pk" viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">'+r+'</svg>'}
+function pasang(root){(root||document).querySelectorAll('i[data-pk]').forEach(function(el){el.outerHTML=ik(el.dataset.pk)})}
+function esc(t){return String(t||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function nama(x){return x.nm?'@'+esc(x.nm):'Warga No. '+x.no}
+pasang(document.getElementById('pendukung'));
+try{var w=JSON.parse(localStorage.getItem('dk_warga')||'null');if(w&&w.no){var k=document.getElementById('pdkKodeSaya');k.innerHTML=', kodemu <span class="pdkKode" title="Ketuk untuk salin">DK'+w.no+'</span>';k.querySelector('span').onclick=function(){try{navigator.clipboard.writeText('DK'+w.no);this.textContent='Tersalin!';var t=this;setTimeout(function(){t.textContent='DK'+w.no},1500)}catch(e){}}}}catch(e){}
+fetch('/duniakotak/api/pendukung').then(function(r){return r.json()}).then(function(d){
+  var L=d.pendukung||[],B=d.bendera||2,jr=d.juragan,h='';
+  document.getElementById('pdkJumlah').textContent=d.jumlah||0;
+  if(!L.length){document.getElementById('pdkIsi').innerHTML='<div class="pdkKosong">Belum ada pendukung. Jadilah yang pertama memasang Bata di desa ini!</div>';return}
+  var jb=jr&&L.find(function(x){return x.no===jr.no});
+  if(jr)h+='<div class="pdkBos">'+ik('mahkota')+'<div class="nm"><b>'+nama(jr)+(jb&&jb.bata>=B?ik('bendera'):'')+'</b><small>Juragan Desa'+(jr.mingguIni?' minggu ini':'')+'</small></div><span class="pdkJml">'+(jr.mingguIni?jr.bataMinggu:(jb?jb.bata:0))+' Bata</span></div>';
+  L.forEach(function(x,i){h+='<div class="pdkBaris"><span class="no'+(i===1?' p2':i===2?' p3':'')+'">'+(i+1)+'</span><span class="nm">'+(jr&&jr.no===x.no?ik('mahkota'):'')+nama(x)+(x.bata>=B?ik('bendera'):'')+'</span><span class="pdkJml">'+x.bata+' Bata</span></div>'});
+  document.getElementById('pdkIsi').innerHTML=h;
+  var R=d.riwayat||[];if(R.length){document.getElementById('pdkRiwayatIsi').innerHTML=R.map(function(x){return '<li>'+nama(x)+' <span class="kecil">sejak '+new Date(x.sejak).toLocaleDateString('id-ID',{day:'numeric',month:'short'})+'</span></li>'}).join('');document.getElementById('pdkRiwayat').hidden=false}
+}).catch(function(){document.getElementById('pdkIsi').innerHTML='<div class="pdkKosong">Papan pendukung belum bisa dimuat. Coba muat ulang halaman.</div>'});
 })();
 </script>
 </body>
