@@ -27,13 +27,15 @@ export const avAcak = no => { const r = n => (no * 7919 + n * 104729) % 997; con
 
 const JALAN = ['Melati','Mawar','Kenanga','Anggrek','Mangga','Rambutan','Durian','Salak','Jambu','Manggis','Sawo','Nangka','Belimbing','Kelengkeng','Sirsak'];
 // Kotak Wetan = warga No. 1–260; Kotak Kulon (bukit teh) = No. 261–460; Kotak Curug (lereng gunung) = No. 461–660 (dibuka 6 Nov 2026);
-// Kotak Tlaga (tepi danau) = No. 661+ (dibuka 8 Nov 2026)
-const AWAL_KULON = 260, AWAL_CURUG = 460, AWAL_TLAGA = 660;
+// Kotak Tlaga (tepi danau) = No. 661–860 (dibuka 8 Nov 2026); Kotak Segara (apartemen tepi teluk) = No. 861+ tak terbatas
+const AWAL_KULON = 260, AWAL_CURUG = 460, AWAL_TLAGA = 660, AWAL_SEGARA = 860;
 const JALAN_KULON = ['Teh','Kopi','Cengkeh','Kayu Manis','Pala','Lada','Vanili','Kakao','Jahe','Kunyit'];
 const JALAN_CURUG = ['Pinus','Cemara','Jati','Mahoni','Damar','Rasamala','Puspa','Pakis','Edelweis','Akasia'];
 const JALAN_TLAGA = ['Nila','Mujair','Gurami','Lele','Patin','Bawal','Tawes','Nilem','Wader','Betok'];
-export const dusun = n => n > AWAL_TLAGA ? 'Kotak Tlaga' : n > AWAL_CURUG ? 'Kotak Curug' : n > AWAL_KULON ? 'Kotak Kulon' : 'Kotak Wetan';
-export const alamat = n => { const tl = n > AWAL_TLAGA, cg = !tl && n > AWAL_CURUG, kl = !tl && !cg && n > AWAL_KULON, k = tl ? n - AWAL_TLAGA : cg ? n - AWAL_CURUG : kl ? n - AWAL_KULON : n, J = tl ? JALAN_TLAGA : cg ? JALAN_CURUG : kl ? JALAN_KULON : JALAN, rt = Math.ceil(k / 20);
+export const dusun = n => n > AWAL_SEGARA ? 'Kotak Segara' : n > AWAL_TLAGA ? 'Kotak Tlaga' : n > AWAL_CURUG ? 'Kotak Curug' : n > AWAL_KULON ? 'Kotak Kulon' : 'Kotak Wetan';
+export const alamat = n => { if (n > AWAL_SEGARA) { const u = n - AWAL_SEGARA, i = (u - 1) % 200, p2 = v => String(v).padStart(2, '0');
+    return {jalan: `Apt. Segara Menara ${Math.ceil(u / 200)} Unit ${p2(Math.floor(i / 10) + 2)}-${p2(i % 10 + 1)}`, rtrw: '000/000', dusun: dusun(n)}; }
+  const tl = n > AWAL_TLAGA, cg = !tl && n > AWAL_CURUG, kl = !tl && !cg && n > AWAL_KULON, k = tl ? n - AWAL_TLAGA : cg ? n - AWAL_CURUG : kl ? n - AWAL_KULON : n, J = tl ? JALAN_TLAGA : cg ? JALAN_CURUG : kl ? JALAN_KULON : JALAN, rt = Math.ceil(k / 20);
   return {jalan: `Jl. ${J[(rt - 1) % J.length]} No. ${((k - 1) % 20) + 1}`, rtrw: `${String(rt).padStart(3, '0')}/${String(Math.ceil(rt / 5)).padStart(3, '0')}`, dusun: dusun(n)}; };
 
 const W = 1012, H = 638;

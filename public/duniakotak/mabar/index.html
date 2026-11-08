@@ -9,7 +9,7 @@
 <link rel="icon" href="/duniakotak/logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap">
-<link rel="stylesheet" href="gaya.css?v=20261106zl">
+<link rel="stylesheet" href="gaya.css?v=20261108s">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
 <body>
@@ -40,8 +40,11 @@
  <button id="chipTujuan" class="chipTujuan" hidden title="Tujuanmu sekarang"></button>
  <button id="chipRute" class="chipRute" hidden title="Buka peta"></button>
  <div id="stik"><div id="kenop"></div></div>
- <div class="zoom skill" id="skill"><button id="sLompat" class="siap" title="Lompat (Spasi)"><i><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2.5l7.5 8.5h-4.7v6.2H9.2V11H4.5z" fill="#fff"/><rect x="5" y="19.6" width="14" height="2.4" rx="1.2" fill="#fff" opacity=".65"/></svg></i>Lompat</button><button id="sLari" title="Ikut lari Pelari Kalcer" hidden><i>🏃</i>Ikut Lari</button><button id="sTendang" title="Tendang bola (T)" hidden><i>⚽</i>Tendang</button><button id="sAmbil" title="Ambil item (F)"><i>✋</i>Ambil</button><button id="sMancing" title="Mancing di sungai (R)"><i>🎣</i>Mancing</button><button id="sMakan" title="Beri makan kucing (G)"><i>🐟</i>Beri makan</button><button id="sTanam" title="Tanam bibit di kebunmu" hidden><i>🌱</i>Tanam</button><button id="sPanen" title="Panen kebun (+2 permata + hasil)" hidden><i>🧺</i>Panen</button><button id="sJual" title="Jual hasil panen di warungmu" hidden><i>💰</i>Jual</button><button id="sKerja" title="Kerja shift profesimu" hidden><i>💼</i>Kerja</button></div>
+ <div class="zoom skill" id="skill"><button id="sLompat" class="siap" title="Lompat (Spasi)"><i><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2.5l7.5 8.5h-4.7v6.2H9.2V11H4.5z" fill="#fff"/><rect x="5" y="19.6" width="14" height="2.4" rx="1.2" fill="#fff" opacity=".65"/></svg></i>Lompat</button><button id="sLari" title="Ikut lari Pelari Kalcer" hidden><i>🏃</i>Ikut Lari</button><button id="sTendang" title="Tendang bola (T)" hidden><i>⚽</i>Tendang</button><button id="sAmbil" title="Ambil item (F)"><i>✋</i>Ambil</button><button id="sMancing" title="Mancing di sungai (R)"><i>🎣</i>Mancing</button><button id="sMakan" title="Beri makan kucing (G)"><i>🐟</i>Beri makan</button><button id="sTanam" title="Tanam bibit di kebunmu" hidden><i>🌱</i>Tanam</button><button id="sPanen" title="Panen kebun (+2 permata + hasil)" hidden><i>🧺</i>Panen</button><button id="sJual" title="Jual hasil panen di warungmu" hidden><i>💰</i>Jual</button><button id="sKerja" title="Kerja shift profesimu" hidden><i>💼</i>Kerja</button><button id="sLift" title="Naik lift" hidden><i>🛗</i>Lift</button></div>
 </div>
+
+<div id="panelLift" class="layarPenuh popup" hidden><div class="panel"><button class="popTutup" data-tutup="panelLift" aria-label="Tutup">✕</button><div id="isiLift"></div></div></div>
+<div id="tiraiLift" hidden></div>
 
 <div id="panelPeta" class="layarPenuh" hidden>
  <div class="panel peta">
@@ -203,6 +206,6 @@
 
 <div id="miring" class="layarPenuh" hidden><div class="panel"><div style="font-size:54px">📱↻</div><h2>Miringkan HP-mu</h2><p class="sub">Dunia Kotak dimainkan dengan layar mendatar.</p><button class="tipis" id="tetapTegak">Tetap main tegak</button></div></div>
 
-<script type="module" src="game.js?v=20261108c"></script>
+<script type="module" src="game.js?v=20261108s"></script>
 </body>
 </html>
