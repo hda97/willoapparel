@@ -652,7 +652,7 @@ function tulisPendukung() {
   const kode = no ? 'DK' + no : '';
   h += `<a class="utama pdSaweria" href="https://trakteer.id/duniakotak.id" target="_blank" rel="noopener" data-pdkode="${kode}">🧱 Traktir Bata di Trakteer</a>`
     + (kode ? `<p class="kecil">Tulis kode <span class="vtKode" id="pdKode">${kode}</span> di pesan traktiran supaya Bata masuk ke rumahmu. Tanpa kode, kamu tercatat sebagai Pendukung Misterius.</p>` : '<p class="kecil">Daftar jadi warga dulu supaya Bata masuk ke rumahmu.</p>')
-    + '<p class="kecil">Sukarela, bukan syarat main. Hadiahnya hanya hiasan dan gelar. Belum 17 tahun? Minta izin orang tua dulu ya.</p>';
+    + '<p class="kecil">Sukarela, bukan syarat main. Hadiahnya hanya hiasan dan gelar.</p>';
   $('isiPendukung').innerHTML = h;
 }
 async function bukaPendukung() { $('panelAtur').hidden = true; tulisPendukung(); $('panelPendukung').hidden = false; await muatPendukung(); tulisPendukung(); }
@@ -1080,7 +1080,7 @@ function tulisVoting() {
   if (!S.tamu && d.no) {
     $('vtDonasiLipat').hidden = false;
     // Paket bintang: tombol membuka Trakteer (Huda 8 Nov 2026, satuan Bata = 5 bintang) + menyalin kode warga; jumlah Bata dipilih di Trakteer.
-    $('vtDonasi').innerHTML = `<div class="vtPaket">${[[5, 1], [10, 2], [25, 3], [100, 5]].map(([n, k]) => `<a href="https://trakteer.id/duniakotak.id" target="_blank" rel="noopener" data-paket="${n}"><span class="vtBintang b${k}">${GBR_BINTANG.repeat(k)}</span><b>${n} bintang</b><small>🧱 ${n / 5} Bata</small></a>`).join('')}</div>Tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan traktiran Trakteer. 🧱 1 Bata = 5 bintang + 50 💎, masuk otomatis. Hadiah Bata: ⚙ Atur → Pendukung Desa.<br><small>Belum 17 tahun? Minta izin orang tua dulu. Bintang gratis harian sudah cukup untuk memilih.</small>` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
+    $('vtDonasi').innerHTML = `<div class="vtPaket">${[[5, 1], [10, 2], [25, 3], [100, 5]].map(([n, k]) => `<a href="https://trakteer.id/duniakotak.id" target="_blank" rel="noopener" data-paket="${n}"><span class="vtBintang b${k}">${GBR_BINTANG.repeat(k)}</span><b>${n} bintang</b><small>🧱 ${n / 5} Bata</small></a>`).join('')}</div>Tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan traktiran Trakteer. 🧱 1 Bata = 5 bintang + 50 💎, masuk otomatis. Hadiah Bata: ⚙ Atur → Pendukung Desa.<br><small>Bintang gratis harian sudah cukup untuk memilih.</small>` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
   } else $('vtDonasiLipat').hidden = true;
 }
 async function bukaVoting(wajib) {
