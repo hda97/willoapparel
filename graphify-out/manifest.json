@@ -1,0 +1,283 @@
+{
+  ".claude/settings.json": {
+    "mtime": 1793999478.3258142,
+    "seen": 1794006423.363635,
+    "ast_hash": "dd7b6d18d3ea630b8bcbd103e0e19032",
+    "semantic_hash": "dd7b6d18d3ea630b8bcbd103e0e19032",
+    "ast_empty": true
+  },
+  ".github/workflows/deploy-staging.yml": {
+    "mtime": 1793999478.3262424,
+    "seen": 1794006423.3636472,
+    "ast_hash": "a5ba0e783ffe6cab093a78c2807bd625",
+    "semantic_hash": "a5ba0e783ffe6cab093a78c2807bd625"
+  },
+  ".github/workflows/indexnow.yml": {
+    "mtime": 1793999478.3262842,
+    "seen": 1794006423.3637578,
+    "ast_hash": "86aae3321a1b881f0c9aee93fcc6a3c9",
+    "semantic_hash": "86aae3321a1b881f0c9aee93fcc6a3c9"
+  },
+  ".github/workflows/security-check.yml": {
+    "mtime": 1793999478.3262842,
+    "seen": 1794006423.3637831,
+    "ast_hash": "0d4f1ea9a95e09fcb6e97227b64716fb",
+    "semantic_hash": "0d4f1ea9a95e09fcb6e97227b64716fb"
+  },
+  "edukasi/paud/build.py": {
+    "mtime": 1794006271.810394,
+    "seen": 1794006423.3638034,
+    "ast_hash": "c7bb6d035b75d574a58c14122953f1ca",
+    "semantic_hash": "c7bb6d035b75d574a58c14122953f1ca"
+  },
+  "edukasi/paud/package.json": {
+    "mtime": 1794006271.8106346,
+    "seen": 1794006423.3638284,
+    "ast_hash": "405c5bfac5627cdbd8bacad136349e8f",
+    "semantic_hash": "405c5bfac5627cdbd8bacad136349e8f"
+  },
+  "edukasi/paud/src/angka/game.js": {
+    "mtime": 1794006271.8106937,
+    "seen": 1794006423.363847,
+    "ast_hash": "8421c5a7de4786ece03a3d471263764c",
+    "semantic_hash": "8421c5a7de4786ece03a3d471263764c"
+  },
+  "edukasi/paud/src/angka/soal.json": {
+    "mtime": 1794006271.8108401,
+    "seen": 1794006423.3638706,
+    "ast_hash": "01edebb6e5e4a6f6e575aa5eafbcb8a9",
+    "semantic_hash": "01edebb6e5e4a6f6e575aa5eafbcb8a9",
+    "ast_empty": true
+  },
+  "edukasi/paud/src/bentuk/game.js": {
+    "mtime": 1794006271.8108401,
+    "seen": 1794006423.3638728,
+    "ast_hash": "7f0902cbe36a3fddfc25b5fd25843a4e",
+    "semantic_hash": "7f0902cbe36a3fddfc25b5fd25843a4e"
+  },
+  "edukasi/paud/src/bentuk/soal.json": {
+    "mtime": 1794006271.811323,
+    "seen": 1794006423.3638933,
+    "ast_hash": "9cf12632fb4661a4fb035d501fe129bb",
+    "semantic_hash": "9cf12632fb4661a4fb035d501fe129bb",
+    "ast_empty": true
+  },
+  "edukasi/paud/src/binatang/game.js": {
+    "mtime": 1794006271.811323,
+    "seen": 1794006423.363895,
+    "ast_hash": "e2b3e822d6ebe557b54fa643668be15c",
+    "semantic_hash": "e2b3e822d6ebe557b54fa643668be15c"
+  },
+  "edukasi/paud/src/binatang/soal.json": {
+    "mtime": 1794006271.8115592,
+    "seen": 1794006423.363916,
+    "ast_hash": "c9531a64cec29b07ad635fbf10b6e52d",
+    "semantic_hash": "c9531a64cec29b07ad635fbf10b6e52d",
+    "ast_empty": true
+  },
+  "edukasi/paud/src/huruf/game.js": {
+    "mtime": 1794006271.8115592,
+    "seen": 1794006423.3639176,
+    "ast_hash": "67eb1c9c4d76b1b0d8007c8691fc1af9",
+    "semantic_hash": "67eb1c9c4d76b1b0d8007c8691fc1af9"
+  },
+  "edukasi/paud/src/huruf/soal.json": {
+    "mtime": 1794006271.811716,
+    "seen": 1794006423.3639371,
+    "ast_hash": "de06b624378ed2cc7dd7ccf2728f37c4",
+    "semantic_hash": "de06b624378ed2cc7dd7ccf2728f37c4",
+    "ast_empty": true
+  },
+  "edukasi/paud/src/inti.js": {
+    "mtime": 1794006271.811716,
+    "seen": 1794006423.363938,
+    "ast_hash": "df897d4cd35973a105644c3359ae4c7c",
+    "semantic_hash": "df897d4cd35973a105644c3359ae4c7c"
+  },
+  "public/duniakotak/js/desa.js": {
+    "mtime": 1793999478.3279648,
+    "seen": 1794006423.3639574,
+    "ast_hash": "26f6b5a46baed7a254e701985fa21727",
+    "semantic_hash": "26f6b5a46baed7a254e701985fa21727"
+  },
+  "public/duniakotak/js/ktp.js": {
+    "mtime": 1793999478.3288562,
+    "seen": 1794006423.363981,
+    "ast_hash": "86159ee8e602cf5ecb0dcd07f5512095",
+    "semantic_hash": "86159ee8e602cf5ecb0dcd07f5512095"
+  },
+  "public/duniakotak/js/lib.js": {
+    "mtime": 1793999478.3288562,
+    "seen": 1794006423.364,
+    "ast_hash": "16f7aa92d3e9468edf41dd30b4c182d1",
+    "semantic_hash": "16f7aa92d3e9468edf41dd30b4c182d1"
+  },
+  "public/duniakotak/mabar/game.js": {
+    "mtime": 1793999478.328959,
+    "seen": 1794006423.3640182,
+    "ast_hash": "e036a5e027f298fd3a0893f5d2040311",
+    "semantic_hash": "e036a5e027f298fd3a0893f5d2040311"
+  },
+  "public/duniakotak/mabar/js/aset/avatar.js": {
+    "mtime": 1793999478.331908,
+    "seen": 1794006423.3640404,
+    "ast_hash": "f4bc0c05f1afec6f777d309aeb0249fa",
+    "semantic_hash": "f4bc0c05f1afec6f777d309aeb0249fa"
+  },
+  "public/duniakotak/mabar/js/aset/fasum.js": {
+    "mtime": 1793999478.3320255,
+    "seen": 1794006423.3640685,
+    "ast_hash": "bf7fc735a110db13aed41fa78f4b68cb",
+    "semantic_hash": "bf7fc735a110db13aed41fa78f4b68cb"
+  },
+  "public/duniakotak/mabar/js/aset/kucing.js": {
+    "mtime": 1793999478.3320255,
+    "seen": 1794006423.364124,
+    "ast_hash": "1e95be44b6f658bcf33662530dcb44fd",
+    "semantic_hash": "1e95be44b6f658bcf33662530dcb44fd"
+  },
+  "public/duniakotak/mabar/js/aset/rumah.js": {
+    "mtime": 1793999478.3320255,
+    "seen": 1794006423.3641653,
+    "ast_hash": "f9e251ff555a8e4889343a329a8cfad3",
+    "semantic_hash": "f9e251ff555a8e4889343a329a8cfad3"
+  },
+  "public/duniakotak/mabar/js/aset/tanaman.js": {
+    "mtime": 1793999478.3320255,
+    "seen": 1794006423.3641953,
+    "ast_hash": "c98a85c16aae898f3ef9279c4283e103",
+    "semantic_hash": "c98a85c16aae898f3ef9279c4283e103"
+  },
+  "public/duniakotak/mabar/js/curug.js": {
+    "mtime": 1793999478.3320255,
+    "seen": 1794006423.364218,
+    "ast_hash": "45cf92cc74f84a0a2fff946327d25edf",
+    "semantic_hash": "45cf92cc74f84a0a2fff946327d25edf"
+  },
+  "public/duniakotak/mabar/js/desa.js": {
+    "mtime": 1793999478.3320255,
+    "seen": 1794006423.3642385,
+    "ast_hash": "380f619d18d8d6cf482b96b7ed0e94b1",
+    "semantic_hash": "380f619d18d8d6cf482b96b7ed0e94b1"
+  },
+  "public/duniakotak/mabar/js/kulon.js": {
+    "mtime": 1793999478.3320255,
+    "seen": 1794006423.36426,
+    "ast_hash": "bfce9bf6e55e86f56b5cfef78d703f92",
+    "semantic_hash": "bfce9bf6e55e86f56b5cfef78d703f92"
+  },
+  "public/duniakotak/mabar/js/lib.js": {
+    "mtime": 1793999478.3320255,
+    "seen": 1794006423.364282,
+    "ast_hash": "244157a8616b55f2457c4521f10f2755",
+    "semantic_hash": "244157a8616b55f2457c4521f10f2755"
+  },
+  "public/duniakotak/mabar/js/navigasi.js": {
+    "mtime": 1793999478.3320255,
+    "seen": 1794006423.3643007,
+    "ast_hash": "bf96d0b155a5cf8f899ef7b7ee42c66c",
+    "semantic_hash": "bf96d0b155a5cf8f899ef7b7ee42c66c"
+  },
+  "public/duniakotak/mabar/js/npc.js": {
+    "mtime": 1793999478.3320255,
+    "seen": 1794006423.364323,
+    "ast_hash": "86227ca7c3e900671dfad3dba0018516",
+    "semantic_hash": "86227ca7c3e900671dfad3dba0018516"
+  },
+  "public/duniakotak/mabar/js/putar.js": {
+    "mtime": 1793999478.3320255,
+    "seen": 1794006423.364343,
+    "ast_hash": "3a1c3d41db3ce6c858337b31a98854c7",
+    "semantic_hash": "3a1c3d41db3ce6c858337b31a98854c7"
+  },
+  "public/duniakotak/mabar/js/wargaNpc.js": {
+    "mtime": 1793999478.3320255,
+    "seen": 1794006423.364363,
+    "ast_hash": "0be92aef712787dc59ef702a446cd2c7",
+    "semantic_hash": "0be92aef712787dc59ef702a446cd2c7"
+  },
+  "public/script.js": {
+    "mtime": 1793999478.400959,
+    "seen": 1794006423.3643827,
+    "ast_hash": "02e3ead495818cbc793277de5140c5f0",
+    "semantic_hash": "02e3ead495818cbc793277de5140c5f0"
+  },
+  "public/wa-tag.js": {
+    "mtime": 1793999478.888959,
+    "seen": 1794006423.3644001,
+    "ast_hash": "bf3f8e495130df0e60287acb7ca38561",
+    "semantic_hash": "bf3f8e495130df0e60287acb7ca38561"
+  },
+  "worker.js": {
+    "mtime": 1793999478.888959,
+    "seen": 1794006423.3644168,
+    "ast_hash": "b12b61bff7bc405049b876fd721d3cde",
+    "semantic_hash": "b12b61bff7bc405049b876fd721d3cde"
+  },
+  "public/duniakotak/mabar/musik.mp3": {
+    "mtime": 1793999478.336959,
+    "seen": 1794006423.3644316,
+    "ast_hash": "f5874c6c83c3baadfbd4bbc76c823365",
+    "semantic_hash": "f5874c6c83c3baadfbd4bbc76c823365"
+  },
+  "public/kantor-agen-ai/demo-kantor-ai.mp4": {
+    "mtime": 1793999478.384959,
+    "seen": 1794006423.3644533,
+    "ast_hash": "42f295d22eff76138f2624d330999030",
+    "semantic_hash": "42f295d22eff76138f2624d330999030"
+  },
+  "public/video/cara-rekap-ukuran-kaos.mp4": {
+    "mtime": 1793999478.4489589,
+    "seen": 1794006423.364481,
+    "ast_hash": "edd0557ed2800b3492fa897e2b4dc562",
+    "semantic_hash": "edd0557ed2800b3492fa897e2b4dc562"
+  },
+  "public/video/cara-siapkan-file-desain-sablon.mp4": {
+    "mtime": 1793999478.492959,
+    "seen": 1794006423.3645008,
+    "ast_hash": "754e826331127d392cfd84b1bd44e5c1",
+    "semantic_hash": "754e826331127d392cfd84b1bd44e5c1"
+  },
+  "public/video/kaos-gathering-outing-kantor.mp4": {
+    "mtime": 1793999478.528959,
+    "seen": 1794006423.3645205,
+    "ast_hash": "7b3563e8fc8ead14572a30c220c7246e",
+    "semantic_hash": "7b3563e8fc8ead14572a30c220c7246e"
+  },
+  "public/video/kaos-guru-hari-guru-ngawi.mp4": {
+    "mtime": 1793999478.560959,
+    "seen": 1794006423.3645387,
+    "ast_hash": "858ab1bef85b1650bde2d877c0110021",
+    "semantic_hash": "858ab1bef85b1650bde2d877c0110021"
+  },
+  "public/video/kaos-jalan-sehat-fun-run-ngawi.mp4": {
+    "mtime": 1793999478.676959,
+    "seen": 1794006423.3645573,
+    "ast_hash": "c68c845e8f9e2f0f44b2fcb85661ad97",
+    "semantic_hash": "c68c845e8f9e2f0f44b2fcb85661ad97"
+  },
+  "public/video/kaos-karang-taruna-desa-ngawi.mp4": {
+    "mtime": 1793999478.756959,
+    "seen": 1794006423.3645754,
+    "ast_hash": "3400a87f8204f31dedc927f93bcda71e",
+    "semantic_hash": "3400a87f8204f31dedc927f93bcda71e"
+  },
+  "public/video/kaos-pkk-posyandu-kader-ngawi.mp4": {
+    "mtime": 1793999478.796959,
+    "seen": 1794006423.3645954,
+    "ast_hash": "22f621054f902e2afeba3a5b6858f3ef",
+    "semantic_hash": "22f621054f902e2afeba3a5b6858f3ef"
+  },
+  "public/video/kaos-promosi-merchandise-usaha.mp4": {
+    "mtime": 1793999478.840959,
+    "seen": 1794006423.3646133,
+    "ast_hash": "b19a14945d12197203546b12d638f328",
+    "semantic_hash": "b19a14945d12197203546b12d638f328"
+  },
+  "public/video/kaos-tim-futsal-voli-ngawi.mp4": {
+    "mtime": 1793999478.888959,
+    "seen": 1794006423.3646305,
+    "ast_hash": "4c8396be741176306baab7e6e15db258",
+    "semantic_hash": "4c8396be741176306baab7e6e15db258"
+  }
+}

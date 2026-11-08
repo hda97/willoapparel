@@ -10,3 +10,6 @@ edukasi/smp/node_modules/
 edukasi/smp/__pycache__/
 edukasi/smp/server/dist/
 edukasi/smp/keluar/
+
+# Graphify: cache lokal tidak perlu di-commit
+graphify-out/cache/
