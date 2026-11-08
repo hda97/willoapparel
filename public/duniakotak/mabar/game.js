@@ -557,7 +557,7 @@ function gambarPlakat() {
   x.fillStyle = '#ffe39a'; x.font = '700 22px Montserrat, sans-serif'; x.fillText('Didukung oleh', 320, 150);
   const nama = (d.plakat || []).filter(p => p.fasum === 'taman').map(p => '@' + p.nm);
   x.fillStyle = '#fff'; x.font = '800 24px Montserrat, sans-serif';
-  if (!nama.length) { x.fillStyle = '#b8bcd0'; x.font = '700 21px Montserrat, sans-serif'; x.fillText(`Namamu bisa di sini: dukung ${BATA_PLAKAT} Bata`, 320, 190); x.fillText('lewat Saweria (⚙ Atur > Pendukung Desa)', 320, 220); }
+  if (!nama.length) { x.fillStyle = '#b8bcd0'; x.font = '700 21px Montserrat, sans-serif'; x.fillText(`Namamu bisa di sini: dukung ${BATA_PLAKAT} Bata`, 320, 190); x.fillText('lewat Trakteer (⚙ Atur > Pendukung Desa)', 320, 220); }
   else { const baris = []; let b = ''; for (const n of nama.slice(0, 18)) { if ((b + '  ' + n).length > 34) { baris.push(b); b = n; } else b = b ? b + '  ' + n : n; } if (b) baris.push(b);
     baris.slice(0, 5).forEach((t, i) => x.fillText(t, 320, 190 + i * 32)); }
   const jr = d.juragan; x.fillStyle = '#ffc928'; x.font = '900 24px Montserrat, sans-serif';
@@ -569,7 +569,7 @@ function gambarPlakat() {
 function tulisPendukung() {
   const d = PD; if (!d) { $('isiPendukung').innerHTML = '<p class="kecil">Memuat…</p>'; return; }
   const no = S.saya?.no, saya = no ? BT[no] || 0 : 0, rp = (d.harga || BATA_RP).toLocaleString('id-ID');
-  let h = `<div class="pdHarga"><b>🧱 1 Bata = Rp${rp}</b><small>Donasi sukarela lewat Saweria. Tiap Bata juga jadi 5 ⭐ bintang voting + 50 💎 permata.</small></div>`;
+  let h = `<div class="pdHarga"><b>🧱 1 Bata = Rp${rp}</b><small>Traktir sukarela lewat Trakteer. Tiap Bata juga jadi 5 ⭐ bintang voting + 50 💎 permata.</small></div>`;
   if (!S.tamu && no) h += `<div class="pdSaya">Bata kamu: <b>🧱 ${saya}</b>${saya < BATA_BENDERA ? ` · ${BATA_BENDERA - saya} Bata lagi untuk Bendera Emas` : saya < BATA_PLAKAT ? ` · ${BATA_PLAKAT - saya} Bata lagi untuk masuk plakat fasum` : ' · namamu ada di plakat fasum'}</div>`;
   h += `<div class="pdHadiah">${[['🧱', '1 Bata', 'Lencana 🧱 di namamu + ucapan terima kasih di video Dunia Kotak'], ['🚩', `${BATA_BENDERA} Bata`, 'Bendera Emas berkibar di rumahmu, selamanya'], ['👑', 'Juragan Bata', 'Pendukung terbesar minggu ini (Senin–Minggu) dapat mahkota di atap. Disalip? Mahkota pindah!'], ['🪧', `${BATA_PLAKAT} Bata`, 'Namamu terpasang di plakat fasum yang sedang dibangun'], ['🏗️', 'Gratis', 'Pengusul pertama fasum yang menang voting jadi Bos fasum itu']].map(([i, j, k]) => `<div><i>${i}</i><span><b>${j}</b><small>${k}</small></span></div>`).join('')}</div>`;
   const jr = d.juragan; h += `<div class="pdJuragan"><i>👑</i><span><small>Juragan Bata ${jr && jr.mingguIni ? 'minggu ini' : 'saat ini'}</small><b>${jr ? '@' + esc(jr.nm) : 'Belum ada. Jadilah yang pertama!'}</b>${jr && jr.mingguIni ? `<small>${jr.bataMinggu} Bata minggu ini</small>` : ''}</span></div>`;
@@ -577,15 +577,15 @@ function tulisPendukung() {
   if (d.pendukung?.length) h += `<div class="pkDaftar pdDaftar">${d.pendukung.map((x, i) => `<div class="pkBaris${x.no === no ? ' aku' : ''}"><span class="pkNo">${i + 1}</span><span class="pkNama">${d.juragan?.no === x.no ? '👑 ' : ''}@${esc(x.nm)}</span><b>🧱 ${x.bata}</b></div>`).join('')}</div>`;
   else h += '<p class="kecil">Belum ada pendukung. Jadilah yang pertama memasang Bata di desa ini!</p>';
   const kode = no ? 'DK' + no : '';
-  h += `<a class="utama pdSaweria" href="https://saweria.co/Duniakotak" target="_blank" rel="noopener" data-pdkode="${kode}">💛 Dukung di Saweria</a>`
-    + (kode ? `<p class="kecil">Tulis kode <span class="vtKode" id="pdKode">${kode}</span> di pesan donasi supaya Bata masuk ke rumahmu. Tanpa kode, kamu tercatat sebagai Pendukung Misterius.</p>` : '<p class="kecil">Daftar jadi warga dulu supaya Bata masuk ke rumahmu.</p>')
+  h += `<a class="utama pdSaweria" href="https://trakteer.id/duniakotak.id" target="_blank" rel="noopener" data-pdkode="${kode}">🧱 Traktir Bata di Trakteer</a>`
+    + (kode ? `<p class="kecil">Tulis kode <span class="vtKode" id="pdKode">${kode}</span> di pesan traktiran supaya Bata masuk ke rumahmu. Tanpa kode, kamu tercatat sebagai Pendukung Misterius.</p>` : '<p class="kecil">Daftar jadi warga dulu supaya Bata masuk ke rumahmu.</p>')
     + '<p class="kecil">Sukarela, bukan syarat main. Hadiahnya hanya hiasan dan gelar. Belum 17 tahun? Minta izin orang tua dulu ya.</p>';
   $('isiPendukung').innerHTML = h;
 }
 async function bukaPendukung() { $('panelAtur').hidden = true; tulisPendukung(); $('panelPendukung').hidden = false; await muatPendukung(); tulisPendukung(); }
 document.addEventListener('click', async e => {
-  const k = e.target.closest?.('#pdKode'); if (k) { try { await navigator.clipboard.writeText(k.textContent); toast('Kode ' + k.textContent + ' disalin. Tempel di pesan donasi Saweria.', 3500); } catch (er) {} return; }
-  const a = e.target.closest?.('[data-pdkode]'); if (a && a.dataset.pdkode) { try { navigator.clipboard.writeText(a.dataset.pdkode); } catch (er) {} toast(`Kode ${a.dataset.pdkode} sudah disalin. Tempel di pesan donasi Saweria. 1 Bata = Rp${BATA_RP.toLocaleString('id-ID')}.`, 6000); }
+  const k = e.target.closest?.('#pdKode'); if (k) { try { await navigator.clipboard.writeText(k.textContent); toast('Kode ' + k.textContent + ' disalin. Tempel di pesan traktiran Trakteer.', 3500); } catch (er) {} return; }
+  const a = e.target.closest?.('[data-pdkode]'); if (a && a.dataset.pdkode) { try { navigator.clipboard.writeText(a.dataset.pdkode); } catch (er) {} toast(`Kode ${a.dataset.pdkode} sudah disalin. Tempel di pesan traktiran Trakteer. 1 Bata = Rp${BATA_RP.toLocaleString('id-ID')}.`, 6000); }
 });
 // ---------- Rakit Hiasan (Huda 6 Nov 2026): barang pungutan dirakit jadi hiasan pekarangan ----------
 // posisi & ukuran dalam satuan kavling (pintu rumah ±0,76), lalu dikali VS
@@ -977,7 +977,7 @@ async function bukaPeringkat() {
   $('ringkasPeringkat').textContent = `${d.jml} warga sudah punya koin. Geser daftar untuk melihat peringkat 11 dan seterusnya.`;
 }
 // ---------- voting fasum berbintang (Huda 6 Nov 2026) ----------
-// 1 bintang gratis per hari; bintang donasi masuk otomatis dari webhook Saweria bila pesan donasi memuat kode DK<no>.
+// 1 bintang gratis per hari; bintang donasi masuk otomatis dari webhook Trakteer (Saweria lama tetap diterima) bila pesan donasi memuat kode DK<no>.
 const CALON = {kafe: ['☕', 'Kafe'], taman: ['🌳', 'Taman Kota'], hiburan: ['🎡', 'Taman Hiburan'], polisi: ['👮', 'Kantor Polisi'], damkar: ['🚒', 'Pemadam Kebakaran'], perpus: ['📚', 'Perpustakaan'], renang: ['🏊', 'Kolam Renang'], bioskop: ['🎬', 'Bioskop']};
 let VT = null, vtSibuk = false;
 // Voting WAJIB (Huda 6 Nov 2026): pop up harian tidak bisa ditutup sebelum warga menaruh bintang. Hanya berlaku bila
@@ -1000,8 +1000,8 @@ function tulisVoting() {
   $('ringkasVoting').textContent = `Pilih fasum yang dibangun berikutnya. ${d.pemilih} warga sudah memilih. ` + (S.tamu ? '' : 'Tiap hari dapat 1 bintang gratis.');
   if (!S.tamu && d.no) {
     $('vtDonasi').hidden = false;
-    // Paket bintang (Huda 6 Nov): tombol membuka Saweria + menyalin kode warga; nominal dipilih di Saweria.
-    $('vtDonasi').innerHTML = `<b>Tambah bintang lewat donasi sukarela</b><div class="vtPaket">${[[5, 1], [10, 2], [25, 3], [100, 5]].map(([n, k]) => `<a href="https://saweria.co/Duniakotak" target="_blank" rel="noopener" data-paket="${n}"><span class="vtBintang b${k}">${GBR_BINTANG.repeat(k)}</span><b>${n} bintang</b><small>Rp${(n * 1000).toLocaleString('id-ID')}</small></a>`).join('')}</div>Tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan donasi Saweria. Bintang masuk otomatis, plus bonus 💎 10 permata per Rp1.000 untuk Toko Hias. Tiap Rp5.000 juga jadi 🧱 1 Bata (bendera emas, mahkota Juragan, plakat fasum: ⚙ Atur → Pendukung Desa). <br><small>Belum 17 tahun? Minta izin orang tua dulu ya. Bintang gratis harian sudah cukup untuk ikut memilih.</small>` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
+    // Paket bintang: tombol membuka Trakteer (Huda 8 Nov 2026, satuan Bata = 5 bintang) + menyalin kode warga; jumlah Bata dipilih di Trakteer.
+    $('vtDonasi').innerHTML = `<b>Tambah bintang lewat donasi sukarela</b><div class="vtPaket">${[[5, 1], [10, 2], [25, 3], [100, 5]].map(([n, k]) => `<a href="https://trakteer.id/duniakotak.id" target="_blank" rel="noopener" data-paket="${n}"><span class="vtBintang b${k}">${GBR_BINTANG.repeat(k)}</span><b>${n} bintang</b><small>🧱 ${n / 5} Bata</small></a>`).join('')}</div>Tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan traktiran Trakteer. Tiap 🧱 1 Bata = 5 bintang + 50 💎 permata untuk Toko Hias, masuk otomatis. Bata juga dihitung untuk hadiah (bendera emas, mahkota Juragan, plakat fasum: ⚙ Atur → Pendukung Desa). <br><small>Belum 17 tahun? Minta izin orang tua dulu ya. Bintang gratis harian sudah cukup untuk ikut memilih.</small>` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
   } else $('vtDonasi').hidden = true;
 }
 async function bukaVoting(wajib) {
@@ -1015,8 +1015,8 @@ async function bukaVoting(wajib) {
   } catch (e) { $('isiVoting').innerHTML = '<p class="kecil">Voting belum bisa dimuat. Coba lagi sebentar.</p>'; }
 }
 document.addEventListener('click', async e => {
-  const k = e.target.closest?.('#vtKode'); if (k) { try { await navigator.clipboard.writeText(k.textContent); toast('Kode ' + k.textContent + ' disalin. Tempel di pesan donasi Saweria.', 3500); } catch (er) {} return; }
-  const pk = e.target.closest?.('[data-paket]'); if (pk) { const n = +pk.dataset.paket, kd = 'DK' + (VT?.no || ''); try { navigator.clipboard.writeText(kd); } catch (er) {} toast(`Pilih Rp${(n * 1000).toLocaleString('id-ID')} di Saweria dan tempel kode ${kd} di pesan (sudah disalin).`, 6000); return; }
+  const k = e.target.closest?.('#vtKode'); if (k) { try { await navigator.clipboard.writeText(k.textContent); toast('Kode ' + k.textContent + ' disalin. Tempel di pesan traktiran Trakteer.', 3500); } catch (er) {} return; }
+  const pk = e.target.closest?.('[data-paket]'); if (pk) { const n = +pk.dataset.paket, kd = 'DK' + (VT?.no || ''); try { navigator.clipboard.writeText(kd); } catch (er) {} toast(`Pilih ${n / 5} Bata di Trakteer dan tempel kode ${kd} di pesan (sudah disalin).`, 6000); return; }
   const b = e.target.closest?.('[data-vt]'); if (!b || vtSibuk) return;
   vtSibuk = true; const c = b.dataset.vt, n = +b.dataset.n;
   try { VT = await api('voting', {kunci: S.kunci, calon: c, n}); tulisVoting(); toast(`⭐ ${n} bintang untuk ${CALON[c]?.[1] || c}!`, 2500);
@@ -1040,7 +1040,7 @@ function tulisToko() {
       const label = pakai ? 'Dipakai' : punya ? 'Pakai' : tkBayar === 'koin' ? `🪙 ${harga * d.kali}` : `💎 ${harga}`;
       return `<button class="tkBrg${pakai ? ' on' : ''}" data-tkj="${j}" data-tkid="${id}" ${pakai ? 'disabled' : ''}>${tandaBrg(j, id, warna)}${NAMA_BRG[id] || id}<small>${label}</small></button>`; }).join('') + '</div></div>';
   }
-  h += `<p class="kecil tkInfo">💎 Permata didapat dari <b>panen kebun di rumahmu</b> (tanam bibit, lalu 🧺 Panen tiap 6 jam: +2 💎 + hasil yang bisa dijual) dan donasi sukarela di Saweria (Rp1.000 = 1 bintang voting + 10 permata, tulis kode DK${S.saya?.no || ''}). Permata tidak masuk peringkat.</p>`;
+  h += `<p class="kecil tkInfo">💎 Permata didapat dari <b>panen kebun di rumahmu</b> (tanam bibit, lalu 🧺 Panen tiap 6 jam: +2 💎 + hasil yang bisa dijual) dan traktiran sukarela di Trakteer (1 Bata = 5 bintang voting + 50 permata, tulis kode DK${S.saya?.no || ''}). Permata tidak masuk peringkat.</p>`;
   h += `<button class="barisAtur" id="tkDekor"><i>🪑</i><span>Hiasan pekarangan<small>Bangku, pot, lampu taman, kolam ikan · beli pakai 🪙 koin atau rakit</small></span></button>`;
   $('isiToko').innerHTML = h;
   $('tkDekor').onclick = () => { $('panelToko').hidden = true; bukaRakit(); };

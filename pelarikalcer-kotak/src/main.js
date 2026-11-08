@@ -476,15 +476,15 @@ function isiMenu() {
   const n = Object.keys(D.tas).length; $('tagToko').textContent = n ? n + ' bekal' : '';
   document.querySelectorAll('#tabToko button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.tab === tabToko));
   if (tabToko === 'topup') {
-    $('daftarToko').innerHTML = AKUN ? `<div class="topup"><b>Top up 💎 Permata lewat Saweria</b>
+    $('daftarToko').innerHTML = AKUN ? `<div class="topup"><b>Top up 💎 Permata lewat Trakteer</b>
       <p>Kode wargamu: <button id="tuKode" class="kode">DK${AKUN.no || ''}</button> <small>(ketuk untuk salin)</small></p>
-      <p class="kecil">Tulis kode itu di <b>pesan donasi</b>. Rp1.000 = 10 💎 + 1 ⭐ bintang voting. 💎 masuk otomatis ke akun Dunia Kotak-mu, bisa dipakai di game desa dan di sini.</p>
-      <div class="paket">${[[5, 50], [10, 100], [25, 250], [100, 1000]].map(([rb, pm]) => `<button data-tu="${rb}"><b>${pm} 💎</b><small>Rp${(rb * 1000).toLocaleString('id-ID')}</small></button>`).join('')}</div>
-      <button class="utama" id="tuBuka">Buka Saweria</button><button class="kedua" id="tuCek">🔄 Cek saldo 💎</button>
+      <p class="kecil">Tulis kode itu di <b>pesan traktiran</b>. 🧱 1 Bata = 50 💎 + 5 ⭐ bintang voting. 💎 masuk otomatis ke akun Dunia Kotak-mu, bisa dipakai di game desa dan di sini.</p>
+      <div class="paket">${[[1, 50], [2, 100], [5, 250], [20, 1000]].map(([bt, pm]) => `<button data-tu="${bt}"><b>${pm} 💎</b><small>🧱 ${bt} Bata</small></button>`).join('')}</div>
+      <button class="utama" id="tuBuka">Buka Trakteer</button><button class="kedua" id="tuCek">🔄 Cek saldo 💎</button>
       <p class="kecil">Top up sukarela. 💎 tidak bisa jadi koin 🪙 dan tidak masuk peringkat. Di bawah umur? Minta izin orang tua dulu ya.</p></div>`
       : `<div class="topup"><b>Masuk sebagai warga Dunia Kotak dulu</b><p class="kecil">Koin 🪙 dan 💎 Permata game ini satu dompet dengan desa Dunia Kotak. Daftar gratis, lalu buka game ini lagi dari HP yang sama.</p><a class="utama" href="/duniakotak/mabar/" target="_top">Masuk / daftar warga</a><p class="kecil">Sekarang kamu main sebagai tamu: koin hanya tersimpan di HP ini.</p></div>`;
     const kd = () => 'DK' + (AKUN?.no || ''); const salin = () => { try { navigator.clipboard.writeText(kd()); } catch (e) {} };
-    const buka = (rb) => { salin(); toast(rb ? `Kode ${kd()} disalin. Pilih Rp${(rb * 1000).toLocaleString('id-ID')} lalu tempel kode di pesan.` : `Kode ${kd()} disalin. Tempel di pesan donasi.`); window.open('https://saweria.co/Duniakotak', '_blank', 'noopener'); };
+    const buka = (rb) => { salin(); toast(rb ? `Kode ${kd()} disalin. Pilih ${rb} Bata lalu tempel kode di pesan.` : `Kode ${kd()} disalin. Tempel di pesan traktiran.`); window.open('https://trakteer.id/duniakotak.id', '_blank', 'noopener'); };
     if (AKUN) { $('tuKode').onclick = () => { salin(); toast('Kode ' + kd() + ' disalin'); }; $('tuBuka').onclick = () => buka(0); document.querySelectorAll('[data-tu]').forEach((b) => b.onclick = () => buka(+b.dataset.tu));
       $('tuCek').onclick = async () => { const r = await apiPk('akun'); if (r.galat) toast(r.galat); else { terimaAkun(r); toast('Saldo: ' + (r.permata || 0) + ' 💎 · ' + r.koin + ' 🪙'); } }; }
   } else if (tabToko === 'outfit') {
