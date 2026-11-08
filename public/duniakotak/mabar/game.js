@@ -2226,7 +2226,7 @@ function aturHUD() {
   $('profil').style.cursor = 'pointer';
   $('profil').onclick = bukaProfil;
   $('bAvatar').onclick = () => { $('panelAtur').hidden = true; bukaPembuatAvatar(JSON.parse(JSON.stringify(S.av)), false); };
-  $('bKucing').onclick = () => bukaKucing();
+  $('pfKucing').onclick = () => { $('panelProfil').hidden = true; bukaKucing(); }; $('bDukung').onclick = bukaPendukung;   // Huda 8 Nov 2026: kucing pindah ke profil, deretan atas jadi 👑 Pendukung
   $('bPeringkat').onclick = () => bukaPeringkat(); $('tutupPeringkat').onclick = () => { $('panelPeringkat').hidden = true; };
   $('bMisi').onclick = () => bukaMisi(); $('tutupMisi').onclick = () => { $('panelMisi').hidden = true; };
   muatMisi();
