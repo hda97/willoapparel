@@ -27,6 +27,14 @@ button{margin-top:18px;width:100%;padding:13px;border:0;border-radius:14px;backg
  <button id="simpanT">Simpan token Trakteer</button>
  <div id="hasilT"></div>
 </div>
+<div class="kotak" style="margin-top:16px">
+ <h1>🕵️ Traktiran tanpa kode DK</h1>
+ <p>Traktiran yang lupa menulis kode DK tercatat sebagai "Pendukung misterius". Tulis token setel, klik Tampilkan, lalu isi nomor warga yang benar dan klik Pindahkan. Bintang, permata, dan hadiah Bata langsung masuk ke warga itu.</p>
+ <label for="tokenM">Token setel</label>
+ <input id="tokenM" autocomplete="off" placeholder="DK-XXXXXXXXXXXX">
+ <button id="lihatM">Tampilkan</button>
+ <div id="hasilM"></div>
+</div>
 <div class="kotak" style="margin-top:16px;opacity:.75">
  <h1>⭐ Atur Saweria (lama)</h1>
  <p>Halaman ini khusus admin Dunia Kotak. Tempel Stream Key dari link overlay Saweria, yaitu bagian setelah <b>streamKey=</b>. Key disimpan di server dan tidak akan ditampilkan lagi.</p>
@@ -58,6 +66,27 @@ $('simpan').onclick = async () => {
     if (r.ok) $('key').value = '';
   } catch (e) { $('hasil').className = 'gagal'; $('hasil').textContent = '❌ Server tidak menjawab. Coba lagi.'; }
 };
+async function misterius(isi) {
+  const r = await fetch('/duniakotak/api/donasi-misterius', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({token: $('tokenM').value, ...isi})});
+  const j = await r.json(); if (!r.ok) throw new Error(j.galat || 'Gagal'); return j;
+}
+const esc = t => String(t || '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+async function tampilM() {
+  $('hasilM').className = ''; $('hasilM').textContent = 'Memuat…';
+  try {
+    const j = await misterius({});
+    if (!j.donasi.length) { $('hasilM').className = 'ok'; $('hasilM').textContent = '✅ Tidak ada traktiran misterius.'; return; }
+    $('hasilM').innerHTML = j.donasi.map(d => `<div style="border-top:1px solid #ddd;padding:8px 0"><b>${esc(d.nama) || 'Tanpa nama'}</b> · 🧱 ${Math.floor(d.rp / 5000)} Bata · ${new Date(d.t).toLocaleString('id-ID')}<br><small>${esc(d.pesan)}</small><br><input data-no="${esc(d.id)}" inputmode="numeric" placeholder="Nomor warga, mis. 178" style="width:60%"> <button data-pindah="${esc(d.id)}">Pindahkan</button></div>`).join('');
+  } catch (e) { $('hasilM').className = 'gagal'; $('hasilM').textContent = '❌ ' + e.message; }
+}
+$('lihatM').onclick = tampilM;
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-pindah]'); if (!b) return;
+  const no = document.querySelector(`[data-no="${CSS.escape(b.dataset.pindah)}"]`).value.replace(/\D/g, '');
+  if (!no) { alert('Isi nomor warga dulu.'); return; }
+  try { const j = await misterius({id: b.dataset.pindah, no}); alert(`Masuk ke warga No. ${j.no}: +${j.bintang} bintang, +${j.permata} permata.`); tampilM(); }
+  catch (er) { alert(er.message); }
+});
 </script>
 </body>
 </html>
