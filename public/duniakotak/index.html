@@ -141,6 +141,31 @@ header{margin-bottom:12px}
 @media (min-width:552px){.pulau{margin:4px 0 18px}.pulau iframe{border-radius:18px;box-shadow:0 6px 0 rgba(29,42,29,.18)}.pulau p{margin:10px 2px 0}}
 .wargaBaru{margin-top:14px;border-top:2px dashed #e3d7bd;padding-top:12px}.wargaBaru h3{font-size:15px;margin:0 0 8px}
 .wargaBaru #daftar{max-height:240px;overflow:auto}
+
+/* ===== TOMBOL KHAS DUNIA KOTAK (Huda 8 Nov 2026): kotak voxel, garis tinta tebal, bayangan bawah tebal seperti balok, kilau di sisi atas, ikon piksel tanpa emoji ===== */
+.tombol,.baris button,.pintu button,.cara button,.pamer,details.ubah summary,#pilihAv button:not(.w),#tutupMain{
+  border:3px solid var(--tinta)!important;border-radius:6px!important;
+  box-shadow:0 5px 0 var(--tinta),inset 0 -5px 0 rgba(0,0,0,.2),inset 0 3px 0 rgba(255,255,255,.4)!important;
+  font-family:Montserrat,sans-serif;font-weight:900;text-shadow:none;transition:transform .07s,box-shadow .07s;
+  display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;line-height:1.15}
+.tombol:active,.baris button:active,.pintu button:active,.cara button:active,.pamer:active,details.ubah summary:active{transform:translateY(4px);box-shadow:0 1px 0 var(--tinta),inset 0 -3px 0 rgba(0,0,0,.2),inset 0 3px 0 rgba(255,255,255,.4)!important}
+.tombol,.baris button{background:#5fb34a;color:#fff}
+.tombol.main{background:#5fb34a;font-size:19px;padding:13px;letter-spacing:.5px;text-transform:uppercase;-webkit-text-stroke:.6px var(--tinta);paint-order:stroke fill}
+.tombol.ig{background:#e8457c!important}
+.tombol.tt{background:#26262e!important;box-shadow:0 5px 0 var(--tinta),inset 5px 0 0 #25f4ee,inset -5px 0 0 #fe2c55,inset 0 3px 0 rgba(255,255,255,.25)!important}
+.tombol.kedua{background:#fff6dc;color:var(--tinta)}
+.pamer{background:#7cc8ff;color:var(--tinta);margin-top:12px!important;padding:10px!important;font-size:13.5px!important}
+details.ubah{border:0!important;padding:0!important;background:none!important}
+details.ubah summary{list-style:none;background:var(--kuning);color:var(--tinta);padding:10px 12px;font-size:14px;cursor:pointer}
+details.ubah summary::-webkit-details-marker{display:none}
+details.ubah[open]>.isi,details.ubah[open]>#pilihAv{margin-top:10px}
+.pintu button,.cara button{background:#fff6dc;color:var(--tinta)}
+.pintu button.aktif,.cara button.aktif{background:#5fb34a;color:#fff}
+#pilihAv button:not(.w){box-shadow:0 3px 0 var(--tinta),inset 0 -3px 0 rgba(0,0,0,.15)!important;border-width:2px!important;background:#fff6dc}
+#pilihAv button.on:not(.w){background:var(--tinta);color:#fff}
+.aksiKecil{gap:10px!important}.aksiKecil .tombol{font-size:13.5px!important;min-height:46px}
+.ikp{width:20px;height:20px;flex:none;filter:drop-shadow(1px 1px 0 rgba(0,0,0,.35))}
+.tombol.main .ikp{width:24px;height:24px}
 </style>
 </head>
 <body>
@@ -211,11 +236,11 @@ header{margin-bottom:12px}
     <p class="sub" id="ket">Ini kavlingmu di Dunia Kotak.</p>
     <canvas id="ktp" width="1012" height="638" style="display:none" aria-label="Kartu Warga Dunia Kotak"></canvas>
     <div id="syaratMain" class="syarat" hidden><b>🔒 Satu langkah lagi sebelum main</b>Bagikan Kartu Wargamu ke Instagram Story atau TikTok, <u>cukup 1x</u>. Setelah itu game langsung terbuka dan seterusnya bisa main tanpa share lagi.</div>
-    <a class="tombol main" id="mainBtn" href="/duniakotak/mabar/" hidden>▶ Main game</a>
-    <div class="aksiKecil"><button class="tombol ig" id="bagiKtp">📸 Story IG</button><button class="tombol tt" id="bagiTT">🎵 TikTok</button><button class="tombol kedua" id="simpanKtp">💾 Simpan</button></div>
-    <button type="button" class="pamer" id="pamerPulau">🏝️ Pamer avatarku: bagikan link "lihat aku lagi ngapain"</button>
+    <a class="tombol main" id="mainBtn" href="/duniakotak/mabar/" hidden><i data-ik="main"></i>Main game</a>
+    <div class="aksiKecil"><button class="tombol ig" id="bagiKtp"><i data-ik="kamera"></i>Story IG</button><button class="tombol tt" id="bagiTT"><i data-ik="nada"></i>TikTok</button><button class="tombol kedua" id="simpanKtp"><i data-ik="simpan"></i>Simpan</button></div>
+    <button type="button" class="pamer" id="pamerPulau"><i data-ik="bagi"></i>Pamer avatarku di pulau</button>
     <div id="layarStory" class="layarStory" hidden><div class="isiStory"><b>Tinggal 2 langkah</b><p>1. Tekan lama gambar di bawah, lalu <b>Simpan gambar</b>.<br>2. Tekan <b id="langkahApp">Buka Instagram</b>, buat <span id="langkahJenis">Story</span>, pilih gambar tadi, lalu bagikan.</p><img id="gbrStory" alt="Story Kartu Warga"><a class="tombol ig" id="bukaIG" href="instagram://story-camera">Buka Instagram</a><button class="tombol kedua" id="tutupStory">Tutup</button></div></div>
-    <details id="dataKotak" class="ubah"><summary>✏️ Ubah kartu: nama, pekerjaan, avatar</summary>
+    <details id="dataKotak" class="ubah"><summary><i data-ik="pensil"></i>Ubah kartu: nama, pekerjaan, avatar</summary>
 
       <div class="isi">
         <label for="namaKartu">Nama</label><input id="namaKartu" maxlength="24" placeholder="Nama kamu">
@@ -291,7 +316,17 @@ async function muatDaftar(){
   }catch(e){$('jumlah').textContent='–';$('daftar').innerHTML='<span>Daftar warga belum bisa dimuat.</span>'}
 }
 
-async function pamerPulau(){const no=window.__noAku;if(!no)return;const url='https://willoapparel.com/duniakotak/pulau/?no='+no,teks='Lihat avatarku lagi ngapain di Desa Dunia Kotak 👀 Aku warga No. '+no+'. Daftar juga, gratis!';try{if(navigator.share){await navigator.share({title:'Desa Dunia Kotak',text:teks,url});return}}catch(e){if(e&&e.name==='AbortError')return}const b=$('pamerPulau');try{await navigator.clipboard.writeText(teks+' '+url);b.textContent='✅ Link disalin! Tempel di story, bio, atau chat.'}catch(e){prompt('Salin link ini:',url)}}
+async function pamerPulau(){const no=window.__noAku;if(!no)return;const url='https://willoapparel.com/duniakotak/pulau/?no='+no,teks='Lihat avatarku lagi ngapain di Desa Dunia Kotak 👀 Aku warga No. '+no+'. Daftar juga, gratis!';try{if(navigator.share){await navigator.share({title:'Desa Dunia Kotak',text:teks,url});return}}catch(e){if(e&&e.name==='AbortError')return}const b=$('pamerPulau');try{await navigator.clipboard.writeText(teks+' '+url);b.textContent='Link disalin! Tempel di story, bio, atau chat.'}catch(e){prompt('Salin link ini:',url)}}
+// Ikon piksel khas Dunia Kotak 10x10 (palet & bentuk sama dengan pelarikalcer-kotak/src/ikon.js; Huda 8 Nov: tanpa emoji)
+const IKPAL={"K":"#2a2218","Y":"#f2c14a","L":"#fff1b8","D":"#d9a32e","O":"#a8761a","B":"#5ab4ff","b":"#2f7fd0","N":"#1b4f8a","W":"#ffffff","w":"#c9d2de","R":"#e0803a","r":"#a8541f","E":"#e04848","e":"#9c2a2a","H":"#3aa860","h":"#24733f","S":"#e9b48a","s":"#b07850","C":"#8a5a3c","c":"#4f2f1c","P":"#23252b","p":"#454a55","A":"#e2b955"};
+const IKP={main:["..........",".....W....",".....WW...",".WWWWWWW..",".WWWWWWWW.",".WWWWWWW..",".....WW...",".....W....","..........",".........."],
+kamera:["..........","..pp......","PPPPPPPPPP","PppPPPPpYP","PpPPWWPPpP","PpPWBBWPpP","PpPWBNWPpP","PpPPWWPPpP","PPPPPPPPPP",".........."],
+nada:[".....WWWW.",".....WWWWW",".....W...W",".....W....",".....W....",".....W....","..WWWW....",".WWWWW....",".WWWWW....","..WWW....."],
+simpan:["bbbbbbbbb.","bWWWWWWbbb","bWWWWWWbBb","bWWWWWWbBb","bbbbbbbbBb","bBBBBBBBBb","bBwwwwwwBb","bBwwwwwwBb","bBwwwwwwBb","bbbbbbbbbb"],
+bagi:["......HH..","....HHHHH.","...H..C..H","......C...",".....C....",".....C....","..AAAAAA..","BAAAAAAAAB","BBBBBBBBBB","bbbbbbbbbb"],
+pensil:[".......EE.","......EEEE",".....YYEE.","....YYYY..","...YYYY...","..YYYY....",".SYYY.....",".SSY......","KSS.......","KK........"]};
+function pasangIkon(){document.querySelectorAll('i[data-ik]').forEach(el=>{const g=IKP[el.dataset.ik];if(!g)return;let r='';g.forEach((row,y)=>[...row].forEach((c,x)=>{if(c!=='.')r+=`<rect x="${x}" y="${y}" width="1.04" height="1.04" fill="${IKPAL[c]}"/>`}));el.outerHTML=`<svg class="ikp" viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`})}
+pasangIkon();
 function sorotPulau(no){window.__noAku=no;/* Huda 8 Nov: saat masuk pulau TIDAK langsung zoom ke avatar; zoom hanya saat warga mencari nomor/username sendiri */}
 async function tampilkan(o){
   saya=o;if(o.kunci)kunci=o.kunci;sudahMasuk(true);const nm=nmTampil(o);simpanLokal({no:o.no,ig:o.ig||o.tiktok||'',label:nm,nama:o.nama||'',kunci});
