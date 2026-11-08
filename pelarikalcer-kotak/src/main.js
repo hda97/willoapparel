@@ -379,7 +379,7 @@ function setorLari(h) {
       if (D.sh !== hariWIB()) { D.st = D.sh === hariWIB(-1) ? (D.st || 0) + 1 : 1; D.sh = hariWIB(); } } simpanD(); isiMisiTag(); return; }
   apiPk('selesai', h).then((r) => { if (r.galat) { toast(r.galat); return; } terimaAkun(r); isiMisiTag();
     const pesan = [r.dapat ? `+${r.dapat} 🪙 masuk dompet Dunia Kotak` : 'Jatah koin lari hari ini sudah penuh'];
-    if (r.rekorBaru) pesan.push('Rekor baru masuk papan peringkat!'); if (r.diumumkan) pesan.push('💬 Hasilmu diumumkan di Chat Desa');
+    if (r.rekorBaru) pesan.push('Rekor baru masuk papan peringkat!'); if (r.misiDesa) pesan.push(`🎯 Misi desa selesai +${r.misiDesa} 🪙`); if (r.diumumkan) pesan.push('💬 Hasilmu diumumkan di Chat Desa');
     toast(pesan.join(' · '), 3200); });
 }
 async function klaimMisi(id) {
@@ -392,7 +392,7 @@ function isiMisi() {
   const s = streakKini();
   $('daftarMisi').innerHTML = `<div class="streak"><span>🔥</span><div><b>${s.n ? s.n + ' hari beruntun' : 'Belum ada streak'}</b><small>${s.hariIni ? 'Hari ini sudah lari. Lari lagi besok supaya streak naik.' : s.n ? 'Finish 1 lari hari ini supaya streak tidak putus.' : 'Finish 1 lari tiap hari untuk mulai streak.'}</small></div></div>`
     + daftarMisi().map((m) => { const [nama, ik] = MISI[m.id]; return `<div class="item misi ${m.klaim ? 'punya' : ''}"><div class="ik"><span class="besar">${{ lari: '🏃', koin: '🪙', piala: '🏆', botol: '🧃', perisai: '🛡️', petir: '⚡' }[ik]}</span></div><div><b>${nama}</b><small>Hadiah ${KOIN_MISI} 🪙 · ganti tiap hari</small></div><button data-misi="${m.id}" ${m.ok && !m.klaim ? '' : 'disabled'}>${m.klaim ? 'Diambil ✓' : m.ok ? 'Ambil' : 'Belum'}</button></div>`; }).join('')
-    + `<p class="catat" style="margin:4px 0 0">${AKUN ? 'Misi dicek server desa, koin masuk dompet Dunia Kotak.' : 'Main sebagai tamu: misi dan streak hanya tersimpan di HP ini.'}</p>`;
+    + `<p class="catat" style="margin:4px 0 0">${AKUN ? 'Misi dicek server desa, koin masuk dompet Dunia Kotak. Finish pertama hari ini juga menyelesaikan misi desa "Ikut lari Pelari Kalcer" (+15 🪙).' : 'Main sebagai tamu: misi dan streak hanya tersimpan di HP ini.'}</p>`;
   $('daftarMisi').querySelectorAll('[data-misi]').forEach((b) => b.onclick = () => klaimMisi(b.dataset.misi));
 }
 

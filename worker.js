@@ -70,6 +70,8 @@ const PK_MAKS_LARI = 50, PK_MAKS_HARI = 150, PK_MIN_LARI = 45e3;
 const PK_REKOR_MIN = 150, PK_SKALA_WAKTU = 3.4;
 // Misi harian (Huda 8 Nov): 3 misi per hari (lari1 selalu ada + 2 acak menurut tanggal, sama untuk semua warga), hadiah 10 koin.
 const PK_MISI_KOIN = 10;
+// Misi harian DESA "Ikut lari Pelari Kalcer" (Huda 8 Nov): tetap tiap hari, selesai otomatis saat finish 1 KM, di luar undian 6 misi & bonus.
+const PK_MISI_DESA = 15;
 const PK_MISI = { lari1: (p) => p.fh >= 1, lari3: (p) => p.fh >= 3, koin30: (p) => p.km >= 30, top5: (p) => p.pb > 0 && p.pb <= 5, iso: (p) => !!p.iso, mulus: (p) => !!p.mulus, cepat: (p) => p.rh > 0 && p.rh <= 330 };
 function pkMisiHari(hari) { const lain = Object.keys(PK_MISI).slice(1); let h = 0; for (const c of hari) h = (h * 31 + c.charCodeAt(0)) >>> 0;
   const a = lain[h % lain.length], sisa = lain.filter((x) => x !== a); return ["lari1", a, sisa[(h >>> 8) % sisa.length]]; }
@@ -617,6 +619,7 @@ export class Warga extends DurableObject {
       const kemarin = new Date(kini + 7 * 3600e3 - 864e5).toISOString().slice(0, 10);
       const streak = () => (p.sh === hari || p.sh === kemarin ? p.st || 0 : 0);
       const misi = () => pkMisiHari(hari).map((id) => ({ id, ok: PK_MISI[id](p), klaim: p.mk.includes(id) }));
+      let misiDesa = null;
       const info = {}, jawab = (x = {}, st = 200) => Response.json({ no: r.no, ig: this.nm(r), koin, permata, punya: p.punya, sisaHari: PK_MAKS_HARI - p.dapat, rekor: p.r || 0, streak: streak(), lariHariIni: p.sh === hari, misi: misi(), ...info, ...x }, { status: st });
       if (q.op === "mulai") p.m = kini;
       else if (q.op === "selesai") {
@@ -633,6 +636,8 @@ export class Warga extends DurableObject {
           const t = Math.round(w * 10) / 10; info.rekorBaru = !p.r || t < p.r; info.rekorHariBaru = !p.rh || t < p.rh;
           if (info.rekorBaru) p.r = t; if (info.rekorHariBaru) p.rh = t;
           if (p.sh !== hari) { p.st = p.sh === kemarin ? (p.st || 0) + 1 : 1; p.sh = hari; info.streakNaik = true; }
+          let mm = { t: hari, s: [] }; try { const m0 = r.misi ? JSON.parse(r.misi) : null; if (m0 && m0.t === hari && Array.isArray(m0.s)) mm = m0; } catch (e) {}
+          if (!mm.s.includes("pelari")) { mm.s.push("pelari"); koin += PK_MISI_DESA; koinTotal += PK_MISI_DESA; info.misiDesa = PK_MISI_DESA; misiDesa = JSON.stringify(mm); }
           // kabar ke Chat Desa: finish pertama hari ini atau rekor baru (worker yang meneruskan ke ruang dusun)
           if (info.streakNaik || info.rekorBaru) { const fm = (x) => Math.floor(x / 60) + ":" + String(Math.floor(x % 60)).padStart(2, "0");
             info.kabar = { no: r.no, ig: r.ig || r.tiktok || "warga" + r.no, m: "🏃 Finish Pelari Kalcer 1 KM CFD " + fm(t) + (pos ? " · posisi #" + pos : "") + (info.rekorBaru ? " · REKOR BARU!" : "") + (p.st > 1 ? " · lari " + p.st + " hari beruntun" : "") }; }
@@ -652,7 +657,7 @@ export class Warga extends DurableObject {
         else { if (koin < h) return jawab({ galat: "Koinmu kurang." }, 400); koin -= h; }
         if (!habis) p.punya.push(id); info.beli = id;
       }
-      this.sql.exec("UPDATE warga SET koin = ?, koinTotal = ?, permata = ?, pelari = ? WHERE no = ?", koin, koinTotal, permata, JSON.stringify(p), r.no);
+      this.sql.exec("UPDATE warga SET koin = ?, koinTotal = ?, permata = ?, pelari = ?, misi = COALESCE(?, misi) WHERE no = ?", koin, koinTotal, permata, JSON.stringify(p), misiDesa, r.no);
       return jawab();
     }
     if (aksi === "iklan") {
