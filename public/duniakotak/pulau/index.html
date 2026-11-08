@@ -57,13 +57,10 @@ button:focus-visible{outline:2px solid var(--aksen);outline-offset:2px}
 .kartuAku small{display:block;font-size:12px;color:var(--teks-lembut)}
 .kartuAku .kg{display:block;font-size:15px;font-weight:700;margin:6px 0 2px}
 .kartuAku button{min-height:34px;padding:6px 11px}
-.bAktif,.bPenuh{display:none}
+.bPenuh{display:none}
 .kartuAku[hidden]{display:none}
 body.embed .judul h1,body.embed .judul p,body.embed #bAtas,body.embed #bLabel,body.embed .petunjuk{display:none}
-body.embed .bPenuh{display:inline-flex;position:fixed;right:max(12px,env(safe-area-inset-right));top:max(12px,env(safe-area-inset-top));z-index:7;font-size:12px;font-weight:700;color:var(--teks);background:var(--kartu);border:1px solid var(--garis);border-radius:999px;padding:8px 12px;text-decoration:none}
-body.embed .atas{right:110px}
-body.embed:not(.aktif) #kanvas{pointer-events:none}
-body.embed:not(.aktif) .bAktif{display:block;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;background:rgba(29,51,71,.78);color:#fff;border:0}
+body.embed .bPenuh{display:inline-flex;align-items:center;min-height:36px;font-size:12px;font-weight:700;color:var(--teks);background:var(--kartu);border:1px solid var(--garis);border-radius:999px;padding:8px 12px;text-decoration:none}
 body.embed .cari{bottom:max(12px,env(safe-area-inset-bottom))}
 body.embed .kartuAku{bottom:calc(max(12px,env(safe-area-inset-bottom)) + 56px)}
 .lbl.ketuk{pointer-events:auto;cursor:pointer}
@@ -127,7 +124,6 @@ body.game .bPenuh{display:none}
     <div class="aksi"><button class="bBagi" id="bBagi" type="button">🔗 Pamer avatar ini</button><a class="bDaftar" id="bDaftar" href="/duniakotak/" target="_top" hidden>🏡 Daftar jadi warga</a></div></div>
   <button id="bLepas" type="button" aria-label="Tutup">✕</button>
 </div>
-<button class="bAktif" id="bAktif" type="button">👆 Ketuk untuk memutar desa</button>
 <a class="bPenuh" href="/duniakotak/pulau/" target="_top">⤢ Layar penuh</a>
 <div id="panelVote" hidden><div class="isi" role="dialog" aria-label="Voting fasum">
   <h2>🗳️ Voting fasum berikutnya</h2><p>Lahan kosong di Kotak Wetan ini akan dibangun fasum pemenang voting. 1 bintang gratis setiap hari.</p>
@@ -184,7 +180,7 @@ ctl.target.copy(AWAL_TGT);
 ctl.enableDamping = true; ctl.dampingFactor = .08;
 ctl.minDistance = 300; ctl.maxDistance = 14000;
 ctl.maxPolarAngle = Math.PI * .78;
-ctl.autoRotate = !reduce; ctl.autoRotateSpeed = .45;
+ctl.autoRotate = true; ctl.autoRotateSpeed = .6;   // Huda 8 Nov: pulau selalu berputar pelan
 ctl.screenSpacePanning = true;
 ctl.touches = {ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN};
 
@@ -586,7 +582,7 @@ function siapCari(){
     if (a){ info.textContent = ''; pilihAgen(a); inp.blur(); }
     else info.textContent = 'Belum ketemu. Cek lagi nomor warga atau username yang dipakai saat daftar.';
   };
-  document.getElementById('bLepas').onclick = () => { pilihAgen(null); terbang(awalPos(), AWAL_TGT); };
+  document.getElementById('bLepas').onclick = () => { pilihAgen(null); terbang(awalPos(), AWAL_TGT); if (!putarMati) setPutar(true); };
   const u = new URLSearchParams(location.search), awal = u.get('no') || u.get('u');
   if (awal){ inp.value = awal; const a = cariWarga(awal); if (a) setTimeout(() => pilihAgen(a), 400); }
   setInterval(tulisKartu, 500);
@@ -845,8 +841,12 @@ const awan = [];
 // ---------- UI ----------
 const bPutar = document.getElementById('bPutar'), bLabel = document.getElementById('bLabel');
 const setPutar = v => { ctl.autoRotate = v; bPutar.setAttribute('aria-pressed', v); };
-setPutar(!reduce);
-bPutar.onclick = () => setPutar(!ctl.autoRotate);
+setPutar(true);
+let putarMati = false;   // pengunjung menekan Putar untuk berhenti
+bPutar.onclick = () => { setPutar(!ctl.autoRotate); putarMati = !ctl.autoRotate; };
+// setelah digeser, pulau berputar lagi sendiri (kecuali sedang melihat avatar atau putar dimatikan)
+let tPutar = 0;
+ctl.addEventListener('end', () => { clearTimeout(tPutar); tPutar = setTimeout(() => { if (!PILIH && !putarMati && !anim) setPutar(true); }, 5000); });
 ctl.addEventListener('start', () => { setPutar(false); document.getElementById('petunjuk').style.opacity = 0; });
 let anim = null;
 function terbang(pos, tgt){
@@ -902,12 +902,14 @@ renderer.setAnimationLoop(now => {
 dusun().then(() => { const m = document.getElementById('muat'); m.style.opacity = 0; setTimeout(() => m.remove(), 600); })
   .catch(e => { document.getElementById('muat').textContent = 'Gagal memuat data pulau: ' + e.message; });
 // EMBED dipakai di halaman pendaftaran (iframe) & Peta Desa di game (?game=1&di=<dusun>)
-function aktifkan(){ if (!EMBED) return; document.body.classList.add('aktif'); }
+function aktifkan(){}
 if (GAME) document.body.classList.add('game', 'aktif');
 if (!EMBED && !akun()) $('bDaftarAtas').hidden = false;
 if (EMBED){
   document.body.classList.add('embed');
-  document.getElementById('bAktif').onclick = aktifkan;
+  // tanpa tombol "ketuk dulu": geser kiri/kanan memutar pulau, geser atas/bawah tetap menggulir halaman
+  renderer.domElement.style.touchAction = 'pan-y';
+  if (!GAME) document.querySelector('.tombol').appendChild(document.querySelector('.bPenuh'));
 }
 window.__pulau = {camera, ctl, scene, terbang, pantau: pantauBaru, cari: q => { const a = cariWarga(q); pilihAgen(a); return a && {no: a.no, nama: a.nama, kegiatan: kegiatan(a)}; }};
 </script>
