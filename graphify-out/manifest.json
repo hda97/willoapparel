@@ -1,283 +1,3223 @@
 {
   ".claude/settings.json": {
-    "mtime": 1793999478.3258142,
-    "seen": 1794006423.363635,
+    "mtime": 1794082248.347116,
+    "seen": 1794168627.9349678,
     "ast_hash": "dd7b6d18d3ea630b8bcbd103e0e19032",
     "semantic_hash": "dd7b6d18d3ea630b8bcbd103e0e19032",
     "ast_empty": true
   },
   ".github/workflows/deploy-staging.yml": {
-    "mtime": 1793999478.3262424,
-    "seen": 1794006423.3636472,
+    "mtime": 1794082248.347525,
+    "seen": 1794168627.9349947,
     "ast_hash": "a5ba0e783ffe6cab093a78c2807bd625",
     "semantic_hash": "a5ba0e783ffe6cab093a78c2807bd625"
   },
   ".github/workflows/indexnow.yml": {
-    "mtime": 1793999478.3262842,
-    "seen": 1794006423.3637578,
+    "mtime": 1794082248.347525,
+    "seen": 1794168627.934998,
     "ast_hash": "86aae3321a1b881f0c9aee93fcc6a3c9",
     "semantic_hash": "86aae3321a1b881f0c9aee93fcc6a3c9"
   },
   ".github/workflows/security-check.yml": {
-    "mtime": 1793999478.3262842,
-    "seen": 1794006423.3637831,
+    "mtime": 1794082248.347525,
+    "seen": 1794168627.9350002,
     "ast_hash": "0d4f1ea9a95e09fcb6e97227b64716fb",
     "semantic_hash": "0d4f1ea9a95e09fcb6e97227b64716fb"
   },
   "edukasi/paud/build.py": {
-    "mtime": 1794006271.810394,
-    "seen": 1794006423.3638034,
-    "ast_hash": "c7bb6d035b75d574a58c14122953f1ca",
-    "semantic_hash": "c7bb6d035b75d574a58c14122953f1ca"
+    "mtime": 1794082248.3479736,
+    "seen": 1794168627.9350078,
+    "ast_hash": "be00469e6108bd3cd0c557c6b914228a",
+    "semantic_hash": ""
   },
   "edukasi/paud/package.json": {
-    "mtime": 1794006271.8106346,
-    "seen": 1794006423.3638284,
+    "mtime": 1794082248.348369,
+    "seen": 1794168627.9350095,
     "ast_hash": "405c5bfac5627cdbd8bacad136349e8f",
     "semantic_hash": "405c5bfac5627cdbd8bacad136349e8f"
   },
   "edukasi/paud/src/angka/game.js": {
-    "mtime": 1794006271.8106937,
-    "seen": 1794006423.363847,
+    "mtime": 1794082248.3484755,
+    "seen": 1794168627.9350116,
     "ast_hash": "8421c5a7de4786ece03a3d471263764c",
     "semantic_hash": "8421c5a7de4786ece03a3d471263764c"
   },
   "edukasi/paud/src/angka/soal.json": {
-    "mtime": 1794006271.8108401,
-    "seen": 1794006423.3638706,
+    "mtime": 1794082248.348677,
+    "seen": 1794168627.9350135,
     "ast_hash": "01edebb6e5e4a6f6e575aa5eafbcb8a9",
     "semantic_hash": "01edebb6e5e4a6f6e575aa5eafbcb8a9",
     "ast_empty": true
   },
   "edukasi/paud/src/bentuk/game.js": {
-    "mtime": 1794006271.8108401,
-    "seen": 1794006423.3638728,
+    "mtime": 1794082248.348677,
+    "seen": 1794168627.9350162,
     "ast_hash": "7f0902cbe36a3fddfc25b5fd25843a4e",
     "semantic_hash": "7f0902cbe36a3fddfc25b5fd25843a4e"
   },
   "edukasi/paud/src/bentuk/soal.json": {
-    "mtime": 1794006271.811323,
-    "seen": 1794006423.3638933,
+    "mtime": 1794082248.3488333,
+    "seen": 1794168627.9350185,
     "ast_hash": "9cf12632fb4661a4fb035d501fe129bb",
     "semantic_hash": "9cf12632fb4661a4fb035d501fe129bb",
     "ast_empty": true
   },
   "edukasi/paud/src/binatang/game.js": {
-    "mtime": 1794006271.811323,
-    "seen": 1794006423.363895,
+    "mtime": 1794082248.3488333,
+    "seen": 1794168627.9350204,
     "ast_hash": "e2b3e822d6ebe557b54fa643668be15c",
     "semantic_hash": "e2b3e822d6ebe557b54fa643668be15c"
   },
   "edukasi/paud/src/binatang/soal.json": {
-    "mtime": 1794006271.8115592,
-    "seen": 1794006423.363916,
+    "mtime": 1794082248.349088,
+    "seen": 1794168627.9350224,
     "ast_hash": "c9531a64cec29b07ad635fbf10b6e52d",
     "semantic_hash": "c9531a64cec29b07ad635fbf10b6e52d",
     "ast_empty": true
   },
   "edukasi/paud/src/huruf/game.js": {
-    "mtime": 1794006271.8115592,
-    "seen": 1794006423.3639176,
+    "mtime": 1794082248.349088,
+    "seen": 1794168627.9350245,
     "ast_hash": "67eb1c9c4d76b1b0d8007c8691fc1af9",
     "semantic_hash": "67eb1c9c4d76b1b0d8007c8691fc1af9"
   },
   "edukasi/paud/src/huruf/soal.json": {
-    "mtime": 1794006271.811716,
-    "seen": 1794006423.3639371,
+    "mtime": 1794082248.3492079,
+    "seen": 1794168627.935026,
     "ast_hash": "de06b624378ed2cc7dd7ccf2728f37c4",
     "semantic_hash": "de06b624378ed2cc7dd7ccf2728f37c4",
     "ast_empty": true
   },
   "edukasi/paud/src/inti.js": {
-    "mtime": 1794006271.811716,
-    "seen": 1794006423.363938,
-    "ast_hash": "df897d4cd35973a105644c3359ae4c7c",
-    "semantic_hash": "df897d4cd35973a105644c3359ae4c7c"
+    "mtime": 1794082248.3492079,
+    "seen": 1794168627.9350274,
+    "ast_hash": "0c554568d825ec91dfe71bd44fc462a6",
+    "semantic_hash": ""
   },
   "public/duniakotak/js/desa.js": {
-    "mtime": 1793999478.3279648,
-    "seen": 1794006423.3639574,
+    "mtime": 1794082248.3758953,
+    "seen": 1794168627.9351144,
     "ast_hash": "26f6b5a46baed7a254e701985fa21727",
     "semantic_hash": "26f6b5a46baed7a254e701985fa21727"
   },
   "public/duniakotak/js/ktp.js": {
-    "mtime": 1793999478.3288562,
-    "seen": 1794006423.363981,
-    "ast_hash": "86159ee8e602cf5ecb0dcd07f5512095",
-    "semantic_hash": "86159ee8e602cf5ecb0dcd07f5512095"
+    "mtime": 1794168515.361787,
+    "seen": 1794168627.9351165,
+    "ast_hash": "a8265a62586f51c4a5392cabd63353f5",
+    "semantic_hash": ""
   },
   "public/duniakotak/js/lib.js": {
-    "mtime": 1793999478.3288562,
-    "seen": 1794006423.364,
+    "mtime": 1794082248.3778756,
+    "seen": 1794168627.9351184,
     "ast_hash": "16f7aa92d3e9468edf41dd30b4c182d1",
     "semantic_hash": "16f7aa92d3e9468edf41dd30b4c182d1"
   },
   "public/duniakotak/mabar/game.js": {
-    "mtime": 1793999478.328959,
-    "seen": 1794006423.3640182,
-    "ast_hash": "e036a5e027f298fd3a0893f5d2040311",
-    "semantic_hash": "e036a5e027f298fd3a0893f5d2040311"
+    "mtime": 1794168515.3695405,
+    "seen": 1794168627.93512,
+    "ast_hash": "6cab5c8e1760e617e32a8470eef14eee",
+    "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/avatar.js": {
-    "mtime": 1793999478.331908,
-    "seen": 1794006423.3640404,
+    "mtime": 1794082248.379759,
+    "seen": 1794168627.935122,
     "ast_hash": "f4bc0c05f1afec6f777d309aeb0249fa",
     "semantic_hash": "f4bc0c05f1afec6f777d309aeb0249fa"
   },
   "public/duniakotak/mabar/js/aset/fasum.js": {
-    "mtime": 1793999478.3320255,
-    "seen": 1794006423.3640685,
+    "mtime": 1794082248.379849,
+    "seen": 1794168627.935124,
     "ast_hash": "bf7fc735a110db13aed41fa78f4b68cb",
     "semantic_hash": "bf7fc735a110db13aed41fa78f4b68cb"
   },
   "public/duniakotak/mabar/js/aset/kucing.js": {
-    "mtime": 1793999478.3320255,
-    "seen": 1794006423.364124,
+    "mtime": 1794082248.379849,
+    "seen": 1794168627.9351258,
     "ast_hash": "1e95be44b6f658bcf33662530dcb44fd",
     "semantic_hash": "1e95be44b6f658bcf33662530dcb44fd"
   },
   "public/duniakotak/mabar/js/aset/rumah.js": {
-    "mtime": 1793999478.3320255,
-    "seen": 1794006423.3641653,
+    "mtime": 1794082248.379849,
+    "seen": 1794168627.9351273,
     "ast_hash": "f9e251ff555a8e4889343a329a8cfad3",
     "semantic_hash": "f9e251ff555a8e4889343a329a8cfad3"
   },
   "public/duniakotak/mabar/js/aset/tanaman.js": {
-    "mtime": 1793999478.3320255,
-    "seen": 1794006423.3641953,
+    "mtime": 1794082248.379849,
+    "seen": 1794168627.9351292,
     "ast_hash": "c98a85c16aae898f3ef9279c4283e103",
     "semantic_hash": "c98a85c16aae898f3ef9279c4283e103"
   },
   "public/duniakotak/mabar/js/curug.js": {
-    "mtime": 1793999478.3320255,
-    "seen": 1794006423.364218,
+    "mtime": 1794082248.379849,
+    "seen": 1794168627.9351308,
     "ast_hash": "45cf92cc74f84a0a2fff946327d25edf",
     "semantic_hash": "45cf92cc74f84a0a2fff946327d25edf"
   },
   "public/duniakotak/mabar/js/desa.js": {
-    "mtime": 1793999478.3320255,
-    "seen": 1794006423.3642385,
+    "mtime": 1794082248.379849,
+    "seen": 1794168627.9351327,
     "ast_hash": "380f619d18d8d6cf482b96b7ed0e94b1",
     "semantic_hash": "380f619d18d8d6cf482b96b7ed0e94b1"
   },
   "public/duniakotak/mabar/js/kulon.js": {
-    "mtime": 1793999478.3320255,
-    "seen": 1794006423.36426,
+    "mtime": 1794082248.379849,
+    "seen": 1794168627.9351442,
     "ast_hash": "bfce9bf6e55e86f56b5cfef78d703f92",
     "semantic_hash": "bfce9bf6e55e86f56b5cfef78d703f92"
   },
   "public/duniakotak/mabar/js/lib.js": {
-    "mtime": 1793999478.3320255,
-    "seen": 1794006423.364282,
+    "mtime": 1794082248.379849,
+    "seen": 1794168627.935146,
     "ast_hash": "244157a8616b55f2457c4521f10f2755",
     "semantic_hash": "244157a8616b55f2457c4521f10f2755"
   },
   "public/duniakotak/mabar/js/navigasi.js": {
-    "mtime": 1793999478.3320255,
-    "seen": 1794006423.3643007,
+    "mtime": 1794082248.3798952,
+    "seen": 1794168627.9351478,
     "ast_hash": "bf96d0b155a5cf8f899ef7b7ee42c66c",
     "semantic_hash": "bf96d0b155a5cf8f899ef7b7ee42c66c"
   },
   "public/duniakotak/mabar/js/npc.js": {
-    "mtime": 1793999478.3320255,
-    "seen": 1794006423.364323,
+    "mtime": 1794082248.3798952,
+    "seen": 1794168627.9351497,
     "ast_hash": "86227ca7c3e900671dfad3dba0018516",
     "semantic_hash": "86227ca7c3e900671dfad3dba0018516"
   },
   "public/duniakotak/mabar/js/putar.js": {
-    "mtime": 1793999478.3320255,
-    "seen": 1794006423.364343,
+    "mtime": 1794082248.3798952,
+    "seen": 1794168627.935151,
     "ast_hash": "3a1c3d41db3ce6c858337b31a98854c7",
     "semantic_hash": "3a1c3d41db3ce6c858337b31a98854c7"
   },
   "public/duniakotak/mabar/js/wargaNpc.js": {
-    "mtime": 1793999478.3320255,
-    "seen": 1794006423.364363,
+    "mtime": 1794082248.3798952,
+    "seen": 1794168627.9351566,
     "ast_hash": "0be92aef712787dc59ef702a446cd2c7",
     "semantic_hash": "0be92aef712787dc59ef702a446cd2c7"
   },
   "public/script.js": {
-    "mtime": 1793999478.400959,
-    "seen": 1794006423.3643827,
+    "mtime": 1794082248.444132,
+    "seen": 1794168627.9351623,
     "ast_hash": "02e3ead495818cbc793277de5140c5f0",
     "semantic_hash": "02e3ead495818cbc793277de5140c5f0"
   },
   "public/wa-tag.js": {
-    "mtime": 1793999478.888959,
-    "seen": 1794006423.3644001,
+    "mtime": 1794082248.6678953,
+    "seen": 1794168627.9351642,
     "ast_hash": "bf3f8e495130df0e60287acb7ca38561",
     "semantic_hash": "bf3f8e495130df0e60287acb7ca38561"
   },
   "worker.js": {
-    "mtime": 1793999478.888959,
-    "seen": 1794006423.3644168,
-    "ast_hash": "b12b61bff7bc405049b876fd721d3cde",
-    "semantic_hash": "b12b61bff7bc405049b876fd721d3cde"
+    "mtime": 1794168515.4055405,
+    "seen": 1794168627.9351656,
+    "ast_hash": "8ab30fd50f13c1e1d79975e631fb26ae",
+    "semantic_hash": ""
   },
   "public/duniakotak/mabar/musik.mp3": {
-    "mtime": 1793999478.336959,
-    "seen": 1794006423.3644316,
+    "mtime": 1794082248.3838954,
+    "seen": 1794168627.935827,
     "ast_hash": "f5874c6c83c3baadfbd4bbc76c823365",
     "semantic_hash": "f5874c6c83c3baadfbd4bbc76c823365"
   },
   "public/kantor-agen-ai/demo-kantor-ai.mp4": {
-    "mtime": 1793999478.384959,
-    "seen": 1794006423.3644533,
+    "mtime": 1794082248.4358954,
+    "seen": 1794168627.9358292,
     "ast_hash": "42f295d22eff76138f2624d330999030",
     "semantic_hash": "42f295d22eff76138f2624d330999030"
   },
   "public/video/cara-rekap-ukuran-kaos.mp4": {
-    "mtime": 1793999478.4489589,
-    "seen": 1794006423.364481,
+    "mtime": 1794082248.4718952,
+    "seen": 1794168627.935831,
     "ast_hash": "edd0557ed2800b3492fa897e2b4dc562",
     "semantic_hash": "edd0557ed2800b3492fa897e2b4dc562"
   },
   "public/video/cara-siapkan-file-desain-sablon.mp4": {
-    "mtime": 1793999478.492959,
-    "seen": 1794006423.3645008,
+    "mtime": 1794082248.4958954,
+    "seen": 1794168627.9358325,
     "ast_hash": "754e826331127d392cfd84b1bd44e5c1",
     "semantic_hash": "754e826331127d392cfd84b1bd44e5c1"
   },
   "public/video/kaos-gathering-outing-kantor.mp4": {
-    "mtime": 1793999478.528959,
-    "seen": 1794006423.3645205,
+    "mtime": 1794082248.5158954,
+    "seen": 1794168627.9358346,
     "ast_hash": "7b3563e8fc8ead14572a30c220c7246e",
     "semantic_hash": "7b3563e8fc8ead14572a30c220c7246e"
   },
   "public/video/kaos-guru-hari-guru-ngawi.mp4": {
-    "mtime": 1793999478.560959,
-    "seen": 1794006423.3645387,
+    "mtime": 1794082248.5318954,
+    "seen": 1794168627.9358363,
     "ast_hash": "858ab1bef85b1650bde2d877c0110021",
     "semantic_hash": "858ab1bef85b1650bde2d877c0110021"
   },
   "public/video/kaos-jalan-sehat-fun-run-ngawi.mp4": {
-    "mtime": 1793999478.676959,
-    "seen": 1794006423.3645573,
+    "mtime": 1794082248.5598953,
+    "seen": 1794168627.935838,
     "ast_hash": "c68c845e8f9e2f0f44b2fcb85661ad97",
     "semantic_hash": "c68c845e8f9e2f0f44b2fcb85661ad97"
   },
   "public/video/kaos-karang-taruna-desa-ngawi.mp4": {
-    "mtime": 1793999478.756959,
-    "seen": 1794006423.3645754,
+    "mtime": 1794082248.5918953,
+    "seen": 1794168627.9358397,
     "ast_hash": "3400a87f8204f31dedc927f93bcda71e",
     "semantic_hash": "3400a87f8204f31dedc927f93bcda71e"
   },
   "public/video/kaos-pkk-posyandu-kader-ngawi.mp4": {
-    "mtime": 1793999478.796959,
-    "seen": 1794006423.3645954,
+    "mtime": 1794082248.6198955,
+    "seen": 1794168627.9358413,
     "ast_hash": "22f621054f902e2afeba3a5b6858f3ef",
     "semantic_hash": "22f621054f902e2afeba3a5b6858f3ef"
   },
   "public/video/kaos-promosi-merchandise-usaha.mp4": {
-    "mtime": 1793999478.840959,
-    "seen": 1794006423.3646133,
+    "mtime": 1794082248.6478953,
+    "seen": 1794168627.935843,
     "ast_hash": "b19a14945d12197203546b12d638f328",
     "semantic_hash": "b19a14945d12197203546b12d638f328"
   },
   "public/video/kaos-tim-futsal-voli-ngawi.mp4": {
-    "mtime": 1793999478.888959,
-    "seen": 1794006423.3646305,
+    "mtime": 1794082248.6678953,
+    "seen": 1794168627.9358447,
     "ast_hash": "4c8396be741176306baab7e6e15db258",
     "semantic_hash": "4c8396be741176306baab7e6e15db258"
+  },
+  ".claude/skills/founder-cfo/example.json": {
+    "mtime": 1794168515.2187898,
+    "seen": 1794168627.9349785,
+    "ast_hash": "d2ed28fe58214efa0b61802eff1a8258",
+    "semantic_hash": ""
+  },
+  ".claude/skills/founder-cfo/unit_economics.py": {
+    "mtime": 1794168515.2187898,
+    "seen": 1794168627.934983,
+    "ast_hash": "5867759f6d544971bfef49283cd9f86f",
+    "semantic_hash": ""
+  },
+  ".claude/skills/founder-consumer/customer.example.json": {
+    "mtime": 1794168515.2190716,
+    "seen": 1794168627.9349854,
+    "ast_hash": "9663c4c60ccf3bc8911e3cf8efaf5ee5",
+    "semantic_hash": ""
+  },
+  ".claude/skills/founder-consumer/panel.py": {
+    "mtime": 1794168515.2190716,
+    "seen": 1794168627.9349873,
+    "ast_hash": "33e7a17db1caabbd9b4486e34dbfad91",
+    "semantic_hash": ""
+  },
+  ".claude/skills/founder-plan/compile.py": {
+    "mtime": 1794168515.2195804,
+    "seen": 1794168627.9349885,
+    "ast_hash": "aefe2dc221bd8a4062b064e78697d6b3",
+    "semantic_hash": ""
+  },
+  ".claude/skills/founder-pricing/van_westendorp.py": {
+    "mtime": 1794168515.2196875,
+    "seen": 1794168627.9349902,
+    "ast_hash": "37e20053a354847c7d48bcddf6663fed",
+    "semantic_hash": ""
+  },
+  ".github/workflows/bot-meme-coin.yml": {
+    "mtime": 1794168515.2201607,
+    "seen": 1794168627.9349916,
+    "ast_hash": "1fd5c4c0965ed7b9d7d968a4cc82bfc4",
+    "semantic_hash": ""
+  },
+  "bot-meme-coin/bot.py": {
+    "mtime": 1794168515.2201607,
+    "seen": 1794168627.9350023,
+    "ast_hash": "bc7907273f26502751b10e7f74b6dc2e",
+    "semantic_hash": ""
+  },
+  "bot-meme-coin/config.json": {
+    "mtime": 1794082248.3476892,
+    "seen": 1794168627.935004,
+    "ast_hash": "398f04135a07a1eb199cbb608ebb9f1c",
+    "semantic_hash": ""
+  },
+  "bot-meme-coin/hati-hati/config.json": {
+    "mtime": 1794168515.2201607,
+    "seen": 1794168627.9350054,
+    "ast_hash": "8701f345ac377fca252aab8bb693f443",
+    "semantic_hash": ""
+  },
+  "edukasi/sd/build.py": {
+    "mtime": 1794082248.3492079,
+    "seen": 1794168627.935029,
+    "ast_hash": "8a8a81e5bc6b340f5dd83fe0bc2f4782",
+    "semantic_hash": ""
+  },
+  "edukasi/sd/src/alam/game.js": {
+    "mtime": 1794082248.3497663,
+    "seen": 1794168627.9350307,
+    "ast_hash": "e7fea5a61fac408c9f8d9d4e0db4bcee",
+    "semantic_hash": ""
+  },
+  "edukasi/sd/src/alam/soal.json": {
+    "mtime": 1794082248.3498607,
+    "seen": 1794168627.9350324,
+    "ast_hash": "77beef1b69e0e95b96da5b0184497647",
+    "semantic_hash": ""
+  },
+  "edukasi/sd/src/english/game.js": {
+    "mtime": 1794082248.3498607,
+    "seen": 1794168627.9350338,
+    "ast_hash": "6ede6310b5ea5b22f20fc3ddfd148d61",
+    "semantic_hash": ""
+  },
+  "edukasi/sd/src/english/soal.json": {
+    "mtime": 1794082248.350007,
+    "seen": 1794168627.9350352,
+    "ast_hash": "709705c3c0c73afdf3017ebcfcee8793",
+    "semantic_hash": ""
+  },
+  "edukasi/sd/src/hitung-rpg/game.js": {
+    "mtime": 1794082248.350007,
+    "seen": 1794168627.9350367,
+    "ast_hash": "5e24b2cde4a7fc3be0e064aa7e8bf9d4",
+    "semantic_hash": ""
+  },
+  "edukasi/sd/src/hitung-rpg/soal.json": {
+    "mtime": 1794082248.3506253,
+    "seen": 1794168627.9350379,
+    "ast_hash": "0f6dcfc91a355eb72152b9dcea00b755",
+    "semantic_hash": ""
+  },
+  "edukasi/sd/src/hitung/game.js": {
+    "mtime": 1794082248.3506253,
+    "seen": 1794168627.9350395,
+    "ast_hash": "c2cba3db04d5648d794c7b5e2de8fe66",
+    "semantic_hash": ""
+  },
+  "edukasi/sd/src/hitung/soal.json": {
+    "mtime": 1794082248.3510034,
+    "seen": 1794168627.9350407,
+    "ast_hash": "64a8c5f216466f042a3f6aac222f03a9",
+    "semantic_hash": ""
+  },
+  "edukasi/sd/src/inti-sd.js": {
+    "mtime": 1794082248.3510034,
+    "seen": 1794168627.9350421,
+    "ast_hash": "622024a65beaac6dbc85fad092bc954e",
+    "semantic_hash": ""
+  },
+  "edukasi/sd/src/kata/game.js": {
+    "mtime": 1794082248.3510034,
+    "seen": 1794168627.9350436,
+    "ast_hash": "6b60581e7d0c6954455f91e1a0249522",
+    "semantic_hash": ""
+  },
+  "edukasi/sd/src/kata/soal.json": {
+    "mtime": 1794082248.351173,
+    "seen": 1794168627.9350445,
+    "ast_hash": "1337388787666ba73edaa7768d0ba685",
+    "semantic_hash": ""
+  },
+  "edukasi/sd/src/petualang.js": {
+    "mtime": 1794082248.351173,
+    "seen": 1794168627.9350464,
+    "ast_hash": "ee6382f6433f18504efb5f642951918c",
+    "semantic_hash": ""
+  },
+  "edukasi/smp/bank.py": {
+    "mtime": 1794082248.351173,
+    "seen": 1794168627.9350476,
+    "ast_hash": "ceb5a94823422eda6fce77f12ffa3ba9",
+    "semantic_hash": ""
+  },
+  "edukasi/smp/bank_informatika.py": {
+    "mtime": 1794082248.351525,
+    "seen": 1794168627.9350493,
+    "ast_hash": "32e96fa22e1804f4ee524ff5716b8278",
+    "semantic_hash": ""
+  },
+  "edukasi/smp/bank_inggris.py": {
+    "mtime": 1794082248.351525,
+    "seen": 1794168627.9350505,
+    "ast_hash": "2f6390255d3d49ffb75b59c0c17bef9f",
+    "semantic_hash": ""
+  },
+  "edukasi/smp/bank_ipa.py": {
+    "mtime": 1794082248.351525,
+    "seen": 1794168627.9350517,
+    "ast_hash": "5f48c7ae5c6ce88b32fcf86c4dae81b5",
+    "semantic_hash": ""
+  },
+  "edukasi/smp/bank_ips.py": {
+    "mtime": 1794082248.351525,
+    "seen": 1794168627.9350533,
+    "ast_hash": "71fbeebec056e7fc454a7ae36238e111",
+    "semantic_hash": ""
+  },
+  "edukasi/smp/build.py": {
+    "mtime": 1794082248.351525,
+    "seen": 1794168627.9350545,
+    "ast_hash": "757515f31d9bdbcc21704de39fff2446",
+    "semantic_hash": ""
+  },
+  "edukasi/smp/package.json": {
+    "mtime": 1794082248.351525,
+    "seen": 1794168627.9350562,
+    "ast_hash": "893b7b15cb332f5e631a7c809bdfc9f5",
+    "semantic_hash": ""
+  },
+  "edukasi/smp/server/go.mod": {
+    "mtime": 1794082248.351525,
+    "seen": 1794168627.9350576,
+    "ast_hash": "e0a60e9754922edc9c1e4bd1f05dabd4",
+    "semantic_hash": ""
+  },
+  "edukasi/smp/server/main.go": {
+    "mtime": 1794082248.3520186,
+    "seen": 1794168627.9350593,
+    "ast_hash": "3ab0a10ac627e433968197a042789c36",
+    "semantic_hash": ""
+  },
+  "edukasi/smp/src/bersama.js": {
+    "mtime": 1794082248.3520186,
+    "seen": 1794168627.9350605,
+    "ast_hash": "d5ef4b142c1f9b8a7a735bbfca9b2a96",
+    "semantic_hash": ""
+  },
+  "edukasi/smp/src/coding-quest.js": {
+    "mtime": 1794082248.352177,
+    "seen": 1794168627.935062,
+    "ast_hash": "e52441852c209e65cbeb365cd13329d5",
+    "semantic_hash": ""
+  },
+  "edukasi/smp/src/english-quest.js": {
+    "mtime": 1794082248.352177,
+    "seen": 1794168627.9350636,
+    "ast_hash": "baf7ee6e2d7fe56b17d79741112bd2fd",
+    "semantic_hash": ""
+  },
+  "edukasi/smp/src/inti.js": {
+    "mtime": 1794082248.352177,
+    "seen": 1794168627.9350653,
+    "ast_hash": "dba63f523b616b42970e10c995d1498e",
+    "semantic_hash": ""
+  },
+  "edukasi/smp/src/lab-ajaib.js": {
+    "mtime": 1794082248.352177,
+    "seen": 1794168627.9350665,
+    "ast_hash": "b3d4c2c26af4e17b672c916abd1ee3e2",
+    "semantic_hash": ""
+  },
+  "edukasi/smp/src/menara-hitung.js": {
+    "mtime": 1794082248.352177,
+    "seen": 1794168627.9350677,
+    "ast_hash": "88bae639dae00d6b70ed1ee90ad47dd3",
+    "semantic_hash": ""
+  },
+  "edukasi/smp/src/pelayaran-nusantara.js": {
+    "mtime": 1794082248.352177,
+    "seen": 1794168627.9350693,
+    "ast_hash": "ee15fccb47b747202e31be90416a5ae0",
+    "semantic_hash": ""
+  },
+  "pelarikalcer-kotak/build.py": {
+    "mtime": 1794168515.2285576,
+    "seen": 1794168627.935071,
+    "ast_hash": "60b649fe959f48cb1b0cce7f1ee871ea",
+    "semantic_hash": ""
+  },
+  "pelarikalcer-kotak/src/ikon.js": {
+    "mtime": 1794168515.2335405,
+    "seen": 1794168627.9350872,
+    "ast_hash": "2f7daddf1b7adedef4b70502fb4a8a8c",
+    "semantic_hash": ""
+  },
+  "pelarikalcer-kotak/src/main.js": {
+    "mtime": 1794168515.2391546,
+    "seen": 1794168627.9350886,
+    "ast_hash": "8cff428037c389cf2450c273351ce114",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/jalan.js": {
+    "mtime": 1794168515.2455406,
+    "seen": 1794168627.93509,
+    "ast_hash": "5bc1876e41fed79ddee2baab63a12821",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/render.js": {
+    "mtime": 1794168515.2455406,
+    "seen": 1794168627.9350917,
+    "ast_hash": "46cf9d2da0342fd98f19a14687ac2ca6",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset3d/pratinjau-src.js": {
+    "mtime": 1794168515.3600106,
+    "seen": 1794168627.935093,
+    "ast_hash": "8fade39d8d97ccfab6f840e1c447f9a1",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset3d/src/bangku.py": {
+    "mtime": 1794168515.3600106,
+    "seen": 1794168627.9350946,
+    "ast_hash": "57856123a93028f2e85fbae53ccebda1",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset3d/src/kerucut.py": {
+    "mtime": 1794168515.3613334,
+    "seen": 1794168627.935096,
+    "ast_hash": "f82faa005d12864aa54f08e3c58ba44f",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset3d/src/lampu.py": {
+    "mtime": 1794168515.3613334,
+    "seen": 1794168627.935097,
+    "ast_hash": "8972dbcb2dd68c4f45d24e6dd4ca6e0c",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset3d/src/meja_air.py": {
+    "mtime": 1794168515.3613334,
+    "seen": 1794168627.9350986,
+    "ast_hash": "8734f5eb108da4e28a9e4236ff0e1657",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset3d/src/pembatas.py": {
+    "mtime": 1794168515.3613334,
+    "seen": 1794168627.9350998,
+    "ast_hash": "f9bbede78d7fae775367abad12b5d1e1",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/build.py": {
+    "mtime": 1794168515.3613334,
+    "seen": 1794168627.9351017,
+    "ast_hash": "b4dac1a02a6a11e3bba1d00aa686a4bd",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/package.json": {
+    "mtime": 1794168515.3615067,
+    "seen": 1794168627.935103,
+    "ast_hash": "af6bd197b2f630796864387474e7711b",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/potong_aset.py": {
+    "mtime": 1794168515.3615067,
+    "seen": 1794168627.9351044,
+    "ast_hash": "7af4cc5a88d50170603748769c734b23",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/src/data.js": {
+    "mtime": 1794168515.3615067,
+    "seen": 1794168627.9351058,
+    "ast_hash": "57020fb07bca03022e37873b27a80221",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/src/dunia.js": {
+    "mtime": 1794168515.361787,
+    "seen": 1794168627.935107,
+    "ast_hash": "1803af113515ee68b0619a94c87aa8f3",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/src/game.js": {
+    "mtime": 1794168515.361787,
+    "seen": 1794168627.935109,
+    "ast_hash": "dd586fd7b99f8fa22e55043e7d857bc5",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/src/konst.js": {
+    "mtime": 1794168515.361787,
+    "seen": 1794168627.9351099,
+    "ast_hash": "828aa303ffb32c761d97af86aa00e551",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/src/pelari.js": {
+    "mtime": 1794168515.361787,
+    "seen": 1794168627.9351113,
+    "ast_hash": "17ed9eabc230da15cb2e897205ec2d52",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/src/util.js": {
+    "mtime": 1794168515.361787,
+    "seen": 1794168627.9351127,
+    "ast_hash": "d918d880c161dcae59fc92986ecce9e4",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/mabar/js/desaGabung.js": {
+    "mtime": 1794168515.3695405,
+    "seen": 1794168627.9351406,
+    "ast_hash": "f48823d25017d245fc28889da327e215",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/mabar/js/kotakBulat.js": {
+    "mtime": 1794168515.3695405,
+    "seen": 1794168627.9351425,
+    "ast_hash": "ddce6bbd5a3f15752261e45dc7479547",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/mabar/js/segara.js": {
+    "mtime": 1794168515.3695405,
+    "seen": 1794168627.9351525,
+    "ast_hash": "6db1053d2370b957bef82e641dd70316",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/mabar/js/tlaga.js": {
+    "mtime": 1794168515.3695405,
+    "seen": 1794168627.9351547,
+    "ast_hash": "65042f7180ddfdafe2c8b1cd55a45263",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/pulau/data.json": {
+    "mtime": 1794168515.3745995,
+    "seen": 1794168627.9351578,
+    "ast_hash": "8ceb14f5e7c2c3ba26e3cbba94970613",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/pulau/lots.json": {
+    "mtime": 1794168515.3745995,
+    "seen": 1794168627.9351592,
+    "ast_hash": "fa2609461f3ca3db8df364f65fd03feb",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/pulau/rumah.json": {
+    "mtime": 1794168515.3745995,
+    "seen": 1794168627.9351606,
+    "ast_hash": "e976175881ed067de142b885d11b1e3b",
+    "semantic_hash": ""
+  },
+  ".claude/CLAUDE.md": {
+    "mtime": 1794168515.2135406,
+    "seen": 1794168627.9351673,
+    "ast_hash": "9b31786b637be3c13978bec4c2330752",
+    "semantic_hash": ""
+  },
+  ".claude/README-agent.md": {
+    "mtime": 1794082248.3438954,
+    "seen": 1794168627.935169,
+    "ast_hash": "78993b4d6fec5558d318e10766e8fc8f",
+    "semantic_hash": ""
+  },
+  ".claude/agents/willo-ai-citation.md": {
+    "mtime": 1794082248.3470747,
+    "seen": 1794168627.9351707,
+    "ast_hash": "d57e73a3f0073df336d4fe8a6e2b38b1",
+    "semantic_hash": ""
+  },
+  ".claude/agents/willo-duel-strategi.md": {
+    "mtime": 1794082248.347116,
+    "seen": 1794168627.9351723,
+    "ast_hash": "d592dd10f24f7dcad084763a662f89a7",
+    "semantic_hash": ""
+  },
+  ".claude/agents/willo-editor-video.md": {
+    "mtime": 1794082248.347116,
+    "seen": 1794168627.935174,
+    "ast_hash": "0350b8b8eae4cbf255e5c01de637f9b6",
+    "semantic_hash": ""
+  },
+  ".claude/agents/willo-iklan.md": {
+    "mtime": 1794082248.347116,
+    "seen": 1794168627.9351754,
+    "ast_hash": "1ebfcf2d465f5e495c8ee9b066a142fc",
+    "semantic_hash": ""
+  },
+  ".claude/agents/willo-kampanye.md": {
+    "mtime": 1794082248.347116,
+    "seen": 1794168627.9351768,
+    "ast_hash": "beffe3ae4c96f05f087921563c5dda05",
+    "semantic_hash": ""
+  },
+  ".claude/agents/willo-pemburu-prospek.md": {
+    "mtime": 1794082248.347116,
+    "seen": 1794168627.935179,
+    "ast_hash": "514af9f73ceebe6d3db04d1c2a5f0436",
+    "semantic_hash": ""
+  },
+  ".claude/agents/willo-seo.md": {
+    "mtime": 1794082248.347116,
+    "seen": 1794168627.935181,
+    "ast_hash": "555c2189ba31480ec580ac09e441150a",
+    "semantic_hash": ""
+  },
+  ".claude/agents/willo-tiktok-reels.md": {
+    "mtime": 1794082248.347116,
+    "seen": 1794168627.935182,
+    "ast_hash": "9b87897106ac7f311e52a236c01e0beb",
+    "semantic_hash": ""
+  },
+  ".claude/aturan-bersama-agent.md": {
+    "mtime": 1794082248.347116,
+    "seen": 1794168627.9351833,
+    "ast_hash": "0c7aba590a26626c42ae76972043a7a2",
+    "semantic_hash": ""
+  },
+  ".claude/skills/LICENSE-founder-skill.txt": {
+    "mtime": 1794168515.2135406,
+    "seen": 1794168627.9351847,
+    "ast_hash": "622e7d44acfeccd5b4663ef32c58b090",
+    "semantic_hash": ""
+  },
+  ".claude/skills/founder-board/SKILL.md": {
+    "mtime": 1794168515.218557,
+    "seen": 1794168627.935186,
+    "ast_hash": "07f6ca00c9c153598156f5f879bf6730",
+    "semantic_hash": ""
+  },
+  ".claude/skills/founder-board/lenses.md": {
+    "mtime": 1794168515.218633,
+    "seen": 1794168627.9351878,
+    "ast_hash": "d8e3b9abbf25318d567c6eab5e89e48e",
+    "semantic_hash": ""
+  },
+  ".claude/skills/founder-brand/SKILL.md": {
+    "mtime": 1794168515.218633,
+    "seen": 1794168627.935189,
+    "ast_hash": "34348b7fe8dbbab6bbf86acfbf09b398",
+    "semantic_hash": ""
+  },
+  ".claude/skills/founder-cfo/SKILL.md": {
+    "mtime": 1794168515.218633,
+    "seen": 1794168627.9351902,
+    "ast_hash": "ee820fa091fd45866fab6694a08f6b34",
+    "semantic_hash": ""
+  },
+  ".claude/skills/founder-competitors/SKILL.md": {
+    "mtime": 1794168515.2187898,
+    "seen": 1794168627.935192,
+    "ast_hash": "bcbf18af55e059516fffce5546963abf",
+    "semantic_hash": ""
+  },
+  ".claude/skills/founder-consumer/SKILL.md": {
+    "mtime": 1794168515.2187898,
+    "seen": 1794168627.9351933,
+    "ast_hash": "d78987c7b2b58331cf2d68648e1304f2",
+    "semantic_hash": ""
+  },
+  ".claude/skills/founder-consumer/pitch.example.md": {
+    "mtime": 1794168515.2190716,
+    "seen": 1794168627.935195,
+    "ast_hash": "8edb7f3851f377a6f5e7316e998c3e75",
+    "semantic_hash": ""
+  },
+  ".claude/skills/founder-launch/SKILL.md": {
+    "mtime": 1794168515.2190716,
+    "seen": 1794168627.9351964,
+    "ast_hash": "fafda6cbf1970aa900896965001ec415",
+    "semantic_hash": ""
+  },
+  ".claude/skills/founder-marketing/SKILL.md": {
+    "mtime": 1794168515.2190716,
+    "seen": 1794168627.9351976,
+    "ast_hash": "8b6c5c37f1c4f54e3d931d12c77012dd",
+    "semantic_hash": ""
+  },
+  ".claude/skills/founder-offer/SKILL.md": {
+    "mtime": 1794168515.2190716,
+    "seen": 1794168627.9351993,
+    "ast_hash": "cd0b3220ef2fbfb99f8838523fa116fa",
+    "semantic_hash": ""
+  },
+  ".claude/skills/founder-ops/SKILL.md": {
+    "mtime": 1794168515.2190716,
+    "seen": 1794168627.9352005,
+    "ast_hash": "a8aabe2516511305f2bb76c74c235e07",
+    "semantic_hash": ""
+  },
+  ".claude/skills/founder-plan/SKILL.md": {
+    "mtime": 1794168515.2190716,
+    "seen": 1794168627.9352021,
+    "ast_hash": "31c1cf5fb05845d2a9ed1d577cc42fdc",
+    "semantic_hash": ""
+  },
+  ".claude/skills/founder-pricing/SKILL.md": {
+    "mtime": 1794168515.2195804,
+    "seen": 1794168627.9352033,
+    "ast_hash": "c8d2d598d2ecdd6dbe6980e787b69551",
+    "semantic_hash": ""
+  },
+  ".claude/skills/uji-bisnis-willo/SKILL.md": {
+    "mtime": 1794168515.2201607,
+    "seen": 1794168627.9352045,
+    "ast_hash": "59191b179580c26980a083adb68aa8e2",
+    "semantic_hash": ""
+  },
+  "CLAUDE.md": {
+    "mtime": 1794168515.2201607,
+    "seen": 1794168627.9352062,
+    "ast_hash": "54ded155f456cf70a3ae317680b17bdc",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1794082248.347525,
+    "seen": 1794168627.9352076,
+    "ast_hash": "839bcd48d78d784385e01a6aad614664",
+    "semantic_hash": ""
+  },
+  "bot-meme-coin/PANDUAN.md": {
+    "mtime": 1794168515.2201607,
+    "seen": 1794168627.9352095,
+    "ast_hash": "243bbcc17c77a54d41b2af0a0393f362",
+    "semantic_hash": ""
+  },
+  "edukasi/sd/src/hitung-rpg/rpg.html": {
+    "mtime": 1794082248.3506253,
+    "seen": 1794168627.9352112,
+    "ast_hash": "5a82401404e974823f51f87da0e5623f",
+    "semantic_hash": ""
+  },
+  "edukasi/smp/src/murid.html": {
+    "mtime": 1794082248.352177,
+    "seen": 1794168627.9352129,
+    "ast_hash": "64bc5da56d3b8b552d683ad5404a1978",
+    "semantic_hash": ""
+  },
+  "pelarikalcer-kotak/src/template.html": {
+    "mtime": 1794168515.2391546,
+    "seen": 1794168627.935214,
+    "ast_hash": "21fe9e5a61e19b46641f5bfb3255f3b1",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset3d/README.md": {
+    "mtime": 1794168515.3575406,
+    "seen": 1794168627.9352155,
+    "ast_hash": "0ce3ae49df7ba58325cdd3eb7eb496a5",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset3d/pratinjau.html": {
+    "mtime": 1794168515.3600106,
+    "seen": 1794168627.9352171,
+    "ast_hash": "9b573e623c5591e0b629836ecb2359cc",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/dokumen/01_Master_GDD_Pelari_Kalcer_3D_Original.md": {
+    "mtime": 1794168515.3613334,
+    "seen": 1794168627.9352186,
+    "ast_hash": "56838d50af697c5242eb84b7fee2222c",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/dokumen/02_Master_Spesifikasi_Teknis_&_Pipeline_Willo_Apparel.md": {
+    "mtime": 1794168515.3615067,
+    "seen": 1794168627.93522,
+    "ast_hash": "91d43329bc5e0dfd9a2a16f5f36e57ea",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/dokumen/03_Checklist_Produksi_Game.md": {
+    "mtime": 1794168515.3615067,
+    "seen": 1794168627.9352212,
+    "ast_hash": "0abe09be6174f3282078c61bf32ea6d0",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/src/template.html": {
+    "mtime": 1794168515.361787,
+    "seen": 1794168627.9352229,
+    "ast_hash": "a5b8931a64e0519c1463ae313c63c878",
+    "semantic_hash": ""
+  },
+  "public/404.html": {
+    "mtime": 1794082248.352177,
+    "seen": 1794168627.9352243,
+    "ast_hash": "7c9856dbe34463931b99206ce10b3686",
+    "semantic_hash": ""
+  },
+  "public/4a00f68c3c1a77a9770efaee5f4393bd.txt": {
+    "mtime": 1794082248.3531423,
+    "seen": 1794168627.935226,
+    "ast_hash": "f9e1a783566ca342f623cd125b39c314",
+    "semantic_hash": ""
+  },
+  "public/ads.txt": {
+    "mtime": 1794082248.3531423,
+    "seen": 1794168627.9352274,
+    "ast_hash": "f7d9df1da050b30c1f3dd145dbf6546a",
+    "semantic_hash": ""
+  },
+  "public/bahan-kaos-combed-24s-30s.html": {
+    "mtime": 1794168604.3178024,
+    "seen": 1794168627.9352288,
+    "ast_hash": "47a2e5fb203875660c95c54a7f145908",
+    "semantic_hash": ""
+  },
+  "public/balok/index.html": {
+    "mtime": 1794168515.361787,
+    "seen": 1794168627.9352307,
+    "ast_hash": "183b1957d20bc718d259f759a207fb87",
+    "semantic_hash": ""
+  },
+  "public/cara-rekap-ukuran-kaos.html": {
+    "mtime": 1794168604.3200297,
+    "seen": 1794168627.9352317,
+    "ast_hash": "f8b69078b4352111aa45961fca9b3d5d",
+    "semantic_hash": ""
+  },
+  "public/cara-siapkan-file-desain-sablon.html": {
+    "mtime": 1794168604.321095,
+    "seen": 1794168627.9352336,
+    "ast_hash": "80e3aae96c6fe8f7a8b97504099b6f06",
+    "semantic_hash": ""
+  },
+  "public/desain-kaos.html": {
+    "mtime": 1794082248.3531423,
+    "seen": 1794168627.9352348,
+    "ast_hash": "1f5d090581150b93d88ddd353e2f3d7c",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/atur-saweria.html": {
+    "mtime": 1794168515.361787,
+    "seen": 1794168627.935236,
+    "ast_hash": "418d5c5d146e1a51a43982bb6249d06d",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/index.html": {
+    "mtime": 1794168515.361787,
+    "seen": 1794168627.935238,
+    "ast_hash": "ddbcf7b588e04eebf0f4be24dd7a2c4d",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/dashboard/index.html": {
+    "mtime": 1794168515.361787,
+    "seen": 1794168627.9352393,
+    "ast_hash": "f37f674a862fb0bbe8878010ded02c65",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/index.html": {
+    "mtime": 1794168515.361787,
+    "seen": 1794168627.9352407,
+    "ast_hash": "a685088fd64334e6469c750b6491657c",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/mabar/index.html": {
+    "mtime": 1794168515.3695405,
+    "seen": 1794168627.9352422,
+    "ast_hash": "a32293cee96cd228ce6b527154a05472",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/privasi.html": {
+    "mtime": 1794082248.3838954,
+    "seen": 1794168627.935244,
+    "ast_hash": "8829d13f905783503c0948668b1abd5e",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/pulau/index.html": {
+    "mtime": 1794168515.3745995,
+    "seen": 1794168627.9352455,
+    "ast_hash": "e21ed803453d57c36103a97ecdcbce65",
+    "semantic_hash": ""
+  },
+  "public/edukasi/paud/angka/index.html": {
+    "mtime": 1794082248.3918953,
+    "seen": 1794168627.935247,
+    "ast_hash": "f3402190e3cd86776d448f3d36f556ab",
+    "semantic_hash": ""
+  },
+  "public/edukasi/paud/bentuk/index.html": {
+    "mtime": 1794082248.3918953,
+    "seen": 1794168627.9352489,
+    "ast_hash": "6a52b33db97397915a2f2646f32e51b6",
+    "semantic_hash": ""
+  },
+  "public/edukasi/paud/binatang/index.html": {
+    "mtime": 1794082248.3958952,
+    "seen": 1794168627.9352505,
+    "ast_hash": "b5b0867bea118e62b89519fdce76c9b2",
+    "semantic_hash": ""
+  },
+  "public/edukasi/paud/huruf/index.html": {
+    "mtime": 1794082248.3958952,
+    "seen": 1794168627.9352517,
+    "ast_hash": "44e50fbd3bf8d30cdd51598a502c84dc",
+    "semantic_hash": ""
+  },
+  "public/edukasi/paud/index.html": {
+    "mtime": 1794082248.3958952,
+    "seen": 1794168627.9352527,
+    "ast_hash": "733897ea1c4115d0c708d116dfaf7589",
+    "semantic_hash": ""
+  },
+  "public/edukasi/sd/alam/index.html": {
+    "mtime": 1794082248.3990746,
+    "seen": 1794168627.935254,
+    "ast_hash": "7d991d6b2f37a18745fa1554b8758c93",
+    "semantic_hash": ""
+  },
+  "public/edukasi/sd/english/index.html": {
+    "mtime": 1794082248.3990746,
+    "seen": 1794168627.9352577,
+    "ast_hash": "7d97280e8a5d86f538fb025dc70dae9e",
+    "semantic_hash": ""
+  },
+  "public/edukasi/sd/hitung-rpg/index.html": {
+    "mtime": 1794082248.3998954,
+    "seen": 1794168627.9352589,
+    "ast_hash": "58d48e96fed566623e1b8102e7107405",
+    "semantic_hash": ""
+  },
+  "public/edukasi/sd/hitung/index.html": {
+    "mtime": 1794082248.3998954,
+    "seen": 1794168627.9352605,
+    "ast_hash": "6a32914d0038ce75515b6201cdbabe79",
+    "semantic_hash": ""
+  },
+  "public/edukasi/sd/index.html": {
+    "mtime": 1794082248.4038954,
+    "seen": 1794168627.9352622,
+    "ast_hash": "f3ad8e683497c00f88786b5610a28c0b",
+    "semantic_hash": ""
+  },
+  "public/edukasi/sd/kata/index.html": {
+    "mtime": 1794082248.4038954,
+    "seen": 1794168627.9352636,
+    "ast_hash": "b12c856f35b9508e9c43903fa3014f2f",
+    "semantic_hash": ""
+  },
+  "public/edukasi/smp/coding-quest/index.html": {
+    "mtime": 1794082248.4061594,
+    "seen": 1794168627.9352653,
+    "ast_hash": "340d6baa0c9a28030d47b312ca07f3c9",
+    "semantic_hash": ""
+  },
+  "public/edukasi/smp/english-quest/index.html": {
+    "mtime": 1794082248.4061594,
+    "seen": 1794168627.9352667,
+    "ast_hash": "112285a07f0201793445740a00398553",
+    "semantic_hash": ""
+  },
+  "public/edukasi/smp/lab-ajaib/index.html": {
+    "mtime": 1794082248.4078953,
+    "seen": 1794168627.9352682,
+    "ast_hash": "4f57467cb6d5257d4a3b2190f444e500",
+    "semantic_hash": ""
+  },
+  "public/edukasi/smp/menara-hitung/index.html": {
+    "mtime": 1794082248.4118953,
+    "seen": 1794168627.9352696,
+    "ast_hash": "0ed4f37de92848032b1eb4bf9a0de232",
+    "semantic_hash": ""
+  },
+  "public/edukasi/smp/pelayaran-nusantara/index.html": {
+    "mtime": 1794082248.4118953,
+    "seen": 1794168627.935271,
+    "ast_hash": "8b91bcf45f56a1246b539de66d40f4e4",
+    "semantic_hash": ""
+  },
+  "public/faktor-harga-sablon-kaos.html": {
+    "mtime": 1794168604.3163092,
+    "seen": 1794168627.9352727,
+    "ast_hash": "11400c7511244c4365dfc05efcd25937",
+    "semantic_hash": ""
+  },
+  "public/google1b1111201c6a9358.html": {
+    "mtime": 1794082248.4118953,
+    "seen": 1794168627.9352741,
+    "ast_hash": "c0b23efee20d476c6785c171224a82bf",
+    "semantic_hash": ""
+  },
+  "public/hasil-sablon.html": {
+    "mtime": 1794082248.4118953,
+    "seen": 1794168627.9352756,
+    "ast_hash": "70947729568de466499991ed0ffb33bf",
+    "semantic_hash": ""
+  },
+  "public/index.html": {
+    "mtime": 1794168604.3243425,
+    "seen": 1794168627.9352767,
+    "ast_hash": "dd5613569c82d7995d112355a43f0cf8",
+    "semantic_hash": ""
+  },
+  "public/kantor-agen-ai/index.html": {
+    "mtime": 1794082248.4358954,
+    "seen": 1794168627.9352784,
+    "ast_hash": "43a8f2fc8a55590dc4df07fcd8593df6",
+    "semantic_hash": ""
+  },
+  "public/kaos-custom-kado-ngawi.html": {
+    "mtime": 1794168604.3170424,
+    "seen": 1794168627.9352796,
+    "ast_hash": "8795bb052310f0c6a6c6a008a0b3fae7",
+    "semantic_hash": ""
+  },
+  "public/kaos-gathering-outing-kantor.html": {
+    "mtime": 1794168604.3197584,
+    "seen": 1794168627.935281,
+    "ast_hash": "1d759e1394bd6b93bcefba28e982b1e1",
+    "semantic_hash": ""
+  },
+  "public/kaos-guru-hari-guru-ngawi.html": {
+    "mtime": 1794168604.3194675,
+    "seen": 1794168627.9352827,
+    "ast_hash": "509343d8fdfeff5a1a373c2c625deb0b",
+    "semantic_hash": ""
+  },
+  "public/kaos-jalan-sehat-fun-run-ngawi.html": {
+    "mtime": 1794168604.3213623,
+    "seen": 1794168627.935284,
+    "ast_hash": "ed7011ba82dfa64908044a494e4dc138",
+    "semantic_hash": ""
+  },
+  "public/kaos-karang-taruna-desa-ngawi.html": {
+    "mtime": 1794168604.320814,
+    "seen": 1794168627.9352856,
+    "ast_hash": "c173d2fa7db0bccdf3d89f8f8005a117",
+    "semantic_hash": ""
+  },
+  "public/kaos-kelas.html": {
+    "mtime": 1794168604.3137493,
+    "seen": 1794168627.9352868,
+    "ast_hash": "d3df7eb21f8d7c0db1cb3905078ee88c",
+    "semantic_hash": ""
+  },
+  "public/kaos-keluarga-custom-ngawi.html": {
+    "mtime": 1794168604.3180766,
+    "seen": 1794168627.935288,
+    "ast_hash": "bc99eb0dd58b8df4f087b2d065b61380",
+    "semantic_hash": ""
+  },
+  "public/kaos-kkn-organisasi-kampus.html": {
+    "mtime": 1794168604.3185968,
+    "seen": 1794168627.9352896,
+    "ast_hash": "94837209fc2c563ec79d8715e63150e0",
+    "semantic_hash": ""
+  },
+  "public/kaos-komunitas.html": {
+    "mtime": 1794168604.314145,
+    "seen": 1794168627.9352908,
+    "ast_hash": "2f70b223c46361b1d9fc4f0864117ed4",
+    "semantic_hash": ""
+  },
+  "public/kaos-panitia-event-ngawi.html": {
+    "mtime": 1794168604.3175201,
+    "seen": 1794168627.9352927,
+    "ast_hash": "d8079db0e69782fa7687d0e08d240f4e",
+    "semantic_hash": ""
+  },
+  "public/kaos-pengajian-remaja-masjid.html": {
+    "mtime": 1794168604.318872,
+    "seen": 1794168627.9352937,
+    "ast_hash": "200e87f6d12cc58a46956322838f6534",
+    "semantic_hash": ""
+  },
+  "public/kaos-pkk-posyandu-kader-ngawi.html": {
+    "mtime": 1794168604.3215945,
+    "seen": 1794168627.9352949,
+    "ast_hash": "b1351ce39700f568b597498424276ef9",
+    "semantic_hash": ""
+  },
+  "public/kaos-promosi-merchandise-usaha.html": {
+    "mtime": 1794168604.3204887,
+    "seen": 1794168627.9352965,
+    "ast_hash": "d1835f81f0be974f12b7413f76e6b501",
+    "semantic_hash": ""
+  },
+  "public/kaos-reuni-alumni-ngawi.html": {
+    "mtime": 1794168604.3183577,
+    "seen": 1794168627.9352977,
+    "ast_hash": "2bce2fbcc8a4d26b797ce36f2f4634fd",
+    "semantic_hash": ""
+  },
+  "public/kaos-seragam-usaha-ngawi.html": {
+    "mtime": 1794168604.3166451,
+    "seen": 1794168627.9352994,
+    "ast_hash": "30aa556daeb48700403dee5a0802cdd0",
+    "semantic_hash": ""
+  },
+  "public/kaos-study-tour-wisata-rombongan.html": {
+    "mtime": 1794168604.322351,
+    "seen": 1794168627.9353006,
+    "ast_hash": "df5c132794df269a54edbf23de3a4815",
+    "semantic_hash": ""
+  },
+  "public/kaos-tim-futsal-voli-ngawi.html": {
+    "mtime": 1794168604.321827,
+    "seen": 1794168627.9353411,
+    "ast_hash": "f5908b78620bd2adf0985bf7c62e436b",
+    "semantic_hash": ""
+  },
+  "public/kelas/index.html": {
+    "mtime": 1794168515.3775406,
+    "seen": 1794168627.9353456,
+    "ast_hash": "bad51a1e627ac295dab4bfa16c89f336",
+    "semantic_hash": ""
+  },
+  "public/llms.txt": {
+    "mtime": 1794082248.4398954,
+    "seen": 1794168627.935348,
+    "ast_hash": "536282470a162cf978ecb754054478b9",
+    "semantic_hash": ""
+  },
+  "public/mulai-brand-kaos-sendiri.html": {
+    "mtime": 1794168604.3191745,
+    "seen": 1794168627.9353497,
+    "ast_hash": "69c38e34770af4a6080e50cccf1e6421",
+    "semantic_hash": ""
+  },
+  "public/panduan-jenis-sablon-kaos.html": {
+    "mtime": 1794168604.3159518,
+    "seen": 1794168627.9353516,
+    "ast_hash": "7028c835672035e32e44bdb47a8b5065",
+    "semantic_hash": ""
+  },
+  "public/pelarikalcer-v2/index.html": {
+    "mtime": 1794168515.4015405,
+    "seen": 1794168627.9353533,
+    "ast_hash": "6a9d109eff2269be45a901440ef11f5b",
+    "semantic_hash": ""
+  },
+  "public/pelarikalcer/index.html": {
+    "mtime": 1794168515.4055405,
+    "seen": 1794168627.9353547,
+    "ast_hash": "67e3029c066a83e7b19497d8b52ffef8",
+    "semantic_hash": ""
+  },
+  "public/pesan/index.html": {
+    "mtime": 1794168515.4055405,
+    "seen": 1794168627.9353561,
+    "ast_hash": "e779bd11de2d396bff7a91e171136c3a",
+    "semantic_hash": ""
+  },
+  "public/portal/index.html": {
+    "mtime": 1794082248.444132,
+    "seen": 1794168627.9353578,
+    "ast_hash": "d16dbd566ffef2188970fa7b5b79cdf6",
+    "semantic_hash": ""
+  },
+  "public/robots.txt": {
+    "mtime": 1794082248.444132,
+    "seen": 1794168627.9353592,
+    "ast_hash": "5158195aab4d9e802d28d0758430fec9",
+    "semantic_hash": ""
+  },
+  "public/rontgen/index.html": {
+    "mtime": 1794082248.444132,
+    "seen": 1794168627.9353607,
+    "ast_hash": "94380f3e4f125160df202e2ad618bded",
+    "semantic_hash": ""
+  },
+  "public/sablon-kaos-blora.html": {
+    "mtime": 1794168604.3155913,
+    "seen": 1794168627.9353623,
+    "ast_hash": "96e939a9e4cacd15150f9098b24b285f",
+    "semantic_hash": ""
+  },
+  "public/sablon-kaos-bojonegoro.html": {
+    "mtime": 1794168604.315141,
+    "seen": 1794168627.9353635,
+    "ast_hash": "29bda7dbce985bed3661c73852b0bba0",
+    "semantic_hash": ""
+  },
+  "public/sablon-kaos-madiun.html": {
+    "mtime": 1794168604.3144138,
+    "seen": 1794168627.9353654,
+    "ast_hash": "ed9965b668bd8d71cacfcc7c5be9a302",
+    "semantic_hash": ""
+  },
+  "public/sablon-kaos-magetan.html": {
+    "mtime": 1794168604.3146687,
+    "seen": 1794168627.9353666,
+    "ast_hash": "8fdfee6180d2a6d539d35786f05a7cf1",
+    "semantic_hash": ""
+  },
+  "public/sablon-kaos-ponorogo.html": {
+    "mtime": 1794168604.3153694,
+    "seen": 1794168627.9353683,
+    "ast_hash": "b558cab1d1d92be4a68fe123dcc9e13c",
+    "semantic_hash": ""
+  },
+  "public/sablon-kaos-satuan-ngawi.html": {
+    "mtime": 1794168604.3221834,
+    "seen": 1794168627.93537,
+    "ast_hash": "528bbc0ad9e4890ba287c655e7a56e5c",
+    "semantic_hash": ""
+  },
+  "public/sablon-kaos-sragen.html": {
+    "mtime": 1794168604.3148894,
+    "seen": 1794168627.9353712,
+    "ast_hash": "9d7ae21599ec69667b776d99e70cbbcb",
+    "semantic_hash": ""
+  },
+  "public/tim-hud/index.html": {
+    "mtime": 1794082248.444132,
+    "seen": 1794168627.9353726,
+    "ast_hash": "ef3eb39df08d27476e2b860dd2fdf50f",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/daily_oat_atas.png": {
+    "mtime": 1794168515.2398393,
+    "seen": 1794168627.9353738,
+    "ast_hash": "f482fe8b2f450b8b0d635b75f0ba13ab",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/daily_oat_samping.png": {
+    "mtime": 1794168515.2400599,
+    "seen": 1794168627.9353757,
+    "ast_hash": "37c01efa601e90c96a87c3308f437a59",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/daily_oat_sol.png": {
+    "mtime": 1794168515.2400599,
+    "seen": 1794168627.935377,
+    "ast_hash": "02b2de073f771630591e9d39b13d956d",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/handuk_leher.png": {
+    "mtime": 1794168515.2400599,
+    "seen": 1794168627.9353783,
+    "ast_hash": "28abe6db90e56bb88c0db3dc0626934d",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/item_lootbox.png": {
+    "mtime": 1794168515.2400599,
+    "seen": 1794168627.93538,
+    "ast_hash": "908005b138f42934888fefcf91555294",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/item_pisang.png": {
+    "mtime": 1794168515.2400599,
+    "seen": 1794168627.9353814,
+    "ast_hash": "5e5ffa604e6d9b1d25778c270186868e",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/jam_strap_bone.png": {
+    "mtime": 1794168515.2400599,
+    "seen": 1794168627.935383,
+    "ast_hash": "9e1092c9c25c1bd32fdfd8cf1e296800",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/jam_strap_clay.png": {
+    "mtime": 1794168515.2400599,
+    "seen": 1794168627.9353843,
+    "ast_hash": "9ad16a55581029d30342cc0ad014d88d",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/jam_strap_olive.png": {
+    "mtime": 1794168515.2400599,
+    "seen": 1794168627.935386,
+    "ast_hash": "d2a3888f1512698e2d005edba73cf9b8",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/jam_strap_onyx.png": {
+    "mtime": 1794168515.2400599,
+    "seen": 1794168627.9353871,
+    "ast_hash": "0a8630b041cd7d43a77562e8dddc29fa",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/nyx_hyperfoam_atas.png": {
+    "mtime": 1794168515.2400599,
+    "seen": 1794168627.9353883,
+    "ast_hash": "c111c4263c0ff9d1dc8a65dfe99291e4",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/nyx_hyperfoam_samping.png": {
+    "mtime": 1794168515.2400599,
+    "seen": 1794168627.93539,
+    "ast_hash": "1b428cb09937a5f2124be55c0880554a",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/nyx_hyperfoam_sol.png": {
+    "mtime": 1794168515.2400599,
+    "seen": 1794168627.935391,
+    "ast_hash": "21477c5e9046ae057d8dcca993b7705c",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/rambut_boxer_braids.png": {
+    "mtime": 1794168515.2400599,
+    "seen": 1794168627.9353921,
+    "ast_hash": "fbba702029a0d9e6cd150cd40161d24e",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/rambut_buzz.png": {
+    "mtime": 1794168515.2400599,
+    "seen": 1794168627.9353938,
+    "ast_hash": "e8174409c07936bc3fda627250328661",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/rambut_curly.png": {
+    "mtime": 1794168515.2400599,
+    "seen": 1794168627.9353952,
+    "ast_hash": "1fb00a1111e5dc5759b6fbaf2a653cc1",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/rambut_manbun.png": {
+    "mtime": 1794168515.2400599,
+    "seen": 1794168627.9353967,
+    "ast_hash": "b29b7093c542fa258efbf682f4089f1f",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/rambut_ponytail_visor.png": {
+    "mtime": 1794168515.2400599,
+    "seen": 1794168627.9353983,
+    "ast_hash": "eca7ddc811b229142b09279ad008a149",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/ransel_lari.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.9354,
+    "ast_hash": "f4e5ce9ef8223f318cc6ad69dd7d7f35",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/shoe_starter_atas.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.9354014,
+    "ast_hash": "18d722f9b66a146cd14a5244f5dd15c6",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/shoe_starter_samping.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.9354033,
+    "ast_hash": "12150f98b7f4650de1c63ead8b435aea",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/shoe_starter_sol.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.9354048,
+    "ast_hash": "21b56f28fc1e1ea272c995ab0c5729ab",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/solomate_carbon_atas.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.9354057,
+    "ast_hash": "890db55c225341e9ae11457c55f51349",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/solomate_carbon_samping.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.9354072,
+    "ast_hash": "bfe79b012e8597ae34067e8ea5b64a2f",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/solomate_carbon_sol.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.9354086,
+    "ast_hash": "7a271d5762eb935480e6561c1cefd2fc",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/trail_sandstone_atas.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.9354103,
+    "ast_hash": "a03202a01f092afaa2cebffda426c4de",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/trail_sandstone_samping.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.9354115,
+    "ast_hash": "e537e17932440bd7ca813c47e5d63496",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/trail_sandstone_sol.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.9354126,
+    "ast_hash": "52a970cc2b898d60726ea633fb7c83f9",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/turnaround_pria_atas.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.9354143,
+    "ast_hash": "0e9abcec2f6050efe770d284164a2fc5",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/turnaround_pria_bawah.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.9354155,
+    "ast_hash": "8d94ef880dee695e3dabe426549eb53d",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/turnaround_pria_belakang.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.9354172,
+    "ast_hash": "9306eae164d976206c724358c9539cf8",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/turnaround_pria_depan.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.9354188,
+    "ast_hash": "efe241b430a705644cb664b07c184a0b",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/turnaround_pria_samping.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.9354203,
+    "ast_hash": "c54014ef4d7db7622ab617f0a56f0e07",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/turnaround_wanita_atas.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.9354215,
+    "ast_hash": "eacd5c42a189fa044236657f31f9806c",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/turnaround_wanita_bawah.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.935423,
+    "ast_hash": "e870a946f56bae04657823b6d1faa3f6",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/turnaround_wanita_belakang.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.935425,
+    "ast_hash": "72db63522aff7e11eb0cfce777d54534",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/turnaround_wanita_depan.png": {
+    "mtime": 1794168515.2415404,
+    "seen": 1794168627.9354262,
+    "ast_hash": "80f9c7d78fffb0447ed99b08e27eda97",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-render/hasil/turnaround_wanita_samping.png": {
+    "mtime": 1794168515.2455406,
+    "seen": 1794168627.9354284,
+    "ast_hash": "7053a046cd069934bf26e370770cd64a",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/aero_sage.jpg": {
+    "mtime": 1794168515.2476625,
+    "seen": 1794168627.93543,
+    "ast_hash": "aead83740b7f0fac29be1d4c9b371c8f",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/bali.jpg": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.9354315,
+    "ast_hash": "f776a3ef8f814b06661ce56dbe434fbe",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/booth_kopi.jpg": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.935433,
+    "ast_hash": "b448e99526db027db23323b0ffca1ffd",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/booth_pacer.jpg": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.9354346,
+    "ast_hash": "5cb725f4eb3cb129df67a90a467190d9",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/booth_photowall.jpg": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.9354358,
+    "ast_hash": "02ce46b37ef590ac98455ba958372864",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/booth_recovery.jpg": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.9354372,
+    "ast_hash": "37ab486e503b3eeab83794c857e533e9",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/booth_rpc.jpg": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.935439,
+    "ast_hash": "6ea9f8fa826ce4fe007de9a701b83c71",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/booth_willo.jpg": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.9354403,
+    "ast_hash": "32b621133cb56e240cc24038a73741c3",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/boxy_charcoal.jpg": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.935442,
+    "ast_hash": "550bec77cd3046211725bbe23be28e96",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/bromo.jpg": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.9354434,
+    "ast_hash": "4b49efabadb04b1aa8b5840b607a885b",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/char_female_hijab.png": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.9354448,
+    "ast_hash": "51647ec0f413a20528faf8f4f888e1d0",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/char_female_sage_skort.png": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.935446,
+    "ast_hash": "5ee1b9a56de80dd481ac5ba7cd87426d",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/char_female_terracotta_skort.png": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.9354475,
+    "ast_hash": "b51c9b64f0fbb0e5cf3843df9b9a3e65",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/char_female_trail.png": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.935449,
+    "ast_hash": "4b23c0c0cfcf8a2d0a147e4ec2ec4696",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/char_male_boxy.png": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.9354503,
+    "ast_hash": "70649ed086670815dad25d10333dc45e",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/char_male_oat_long.png": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.935452,
+    "ast_hash": "069100f9d920625024d809ec1e066497",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/char_runner_back.png": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.9354534,
+    "ast_hash": "ac1ed172ef738ea8fbf15897d9d017d1",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/char_runner_side.png": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.9354546,
+    "ast_hash": "3427b6c6014274004a52382dee2129d5",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/coro_pro.jpg": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.935456,
+    "ast_hash": "a6fa63ececd2aee798e1df582d3414a8",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/daily_oat.jpg": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.9354575,
+    "ast_hash": "41bfbc31837c83e2de1237d03b057acd",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/dieng_rinjani.jpg": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.935459,
+    "ast_hash": "8bcb6ae3fecd2f6a4e3f39d9b16d8ebe",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/grail_trail_pack.jpg": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.9354608,
+    "ast_hash": "a6fa63ececd2aee798e1df582d3414a8",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/halftights_espresso.jpg": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.9354622,
+    "ast_hash": "3c22f73538f38a11e166de8db6bd442f",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/hydration_vest.jpg": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.935464,
+    "ast_hash": "ebae7aa71ae28d2f99f9ed4f650da496",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/item_bakmi.png": {
+    "mtime": 1794168515.2477317,
+    "seen": 1794168627.935465,
+    "ast_hash": "8fb014d28ff40eecd200fc9f2a0cd93b",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/item_coin_w.png": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354665,
+    "ast_hash": "d85c9f01d82169e19ce9df6a34794d2e",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/item_gel.png": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354677,
+    "ast_hash": "4baf3e856ad8a43b86c1b3adb8492cc2",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/item_isotonic.png": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354692,
+    "ast_hash": "89d9c7fc00f6b6ea0301e31e3425c08b",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/item_kopi.png": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354706,
+    "ast_hash": "807f87d6d0a836e759865ed4c9108c87",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/item_lightning.png": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354718,
+    "ast_hash": "de1c25393a4fcd4d83e1c8dafdad5da9",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/jakarta.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354732,
+    "ast_hash": "afc76a067ca421b04cfbcdfa5be9bcd7",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/jersey_basic.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354744,
+    "ast_hash": "3aa9df3a3520e8a39e8f00b95a6ffd65",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/jogja.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.935476,
+    "ast_hash": "5c0c10b807a039753eb795c4add5ecd8",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/lawu.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354775,
+    "ast_hash": "4918b268216f8667bfcd1a0d68c092eb",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/modest_hijab_set.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354787,
+    "ast_hash": "8852761fb0ed95ffa95d905ce4b63552",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/nyx_hyperfoam.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354799,
+    "ast_hash": "d7bc8cdcb82be37f78f86fbab01378f0",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/shoe_starter.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354813,
+    "ast_hash": "41bfbc31837c83e2de1237d03b057acd",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/singlet_onyx.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354827,
+    "ast_hash": "d48c84f3f816c1befe1f10c5a8514e25",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/skirt_legging_modest.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.935484,
+    "ast_hash": "8852761fb0ed95ffa95d905ce4b63552",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/skort_pleated_cream.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354851,
+    "ast_hash": "bcd1ec227c48ad017de8696445af9c5c",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/skort_pleated_onyx.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354866,
+    "ast_hash": "bcd1ec227c48ad017de8696445af9c5c",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/skort_trail_olive.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.935488,
+    "ast_hash": "8633945d2a4bcad6f1bd7072d49de508",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/skort_wrap_terracotta.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354892,
+    "ast_hash": "38863439fb898be780a026130dac7bc7",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/solomate_carbon.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354908,
+    "ast_hash": "d7bc8cdcb82be37f78f86fbab01378f0",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/split_onyx.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354923,
+    "ast_hash": "3c22f73538f38a11e166de8db6bd442f",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/sunglasses_matte.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354937,
+    "ast_hash": "a6fa63ececd2aee798e1df582d3414a8",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/titanium_ultra.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.935495,
+    "ast_hash": "a6fa63ececd2aee798e1df582d3414a8",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/trail_halfzip.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.935496,
+    "ast_hash": "ebae7aa71ae28d2f99f9ed4f650da496",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/trail_sandstone.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354975,
+    "ast_hash": "1aa2004ec998d0e2f96c7eb07d26a958",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/uv_long_oat.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9354987,
+    "ast_hash": "b8232a57a82df60d0f43ed7d50f356ba",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/watch_basic.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9355001,
+    "ast_hash": "a6fa63ececd2aee798e1df582d3414a8",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/willo_sport.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9355013,
+    "ast_hash": "a6fa63ececd2aee798e1df582d3414a8",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/bundel/windbreaker_mist.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9355025,
+    "ast_hash": "22cf1601b3e01105e8f9980637b4da20",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/akar.jpg": {
+    "mtime": 1794168515.2495406,
+    "seen": 1794168627.9355044,
+    "ast_hash": "1b5bab603af05e7c668a1b293f05dcc9",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/batu_trail.jpg": {
+    "mtime": 1794168515.2546873,
+    "seen": 1794168627.9355056,
+    "ast_hash": "f08fa6132b995b5c8e8722216a0cc2af",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/bg_bali.jpg": {
+    "mtime": 1794168515.2546873,
+    "seen": 1794168627.9355075,
+    "ast_hash": "9ba90039bd958d0af9235ea3cdc607df",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/bg_bromo.jpg": {
+    "mtime": 1794168515.2546873,
+    "seen": 1794168627.9355087,
+    "ast_hash": "609ad1cc0b71f2340c9be4fa3bab45ac",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/bg_jakarta.jpg": {
+    "mtime": 1794168515.2575405,
+    "seen": 1794168627.9355102,
+    "ast_hash": "9be3b9926d6e211d09ec9091c5b4ff6e",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/bg_jogja.jpg": {
+    "mtime": 1794168515.2575405,
+    "seen": 1794168627.9355118,
+    "ast_hash": "f2f5bcc3375702464cd1b3874845f5c3",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/bg_lawu.jpg": {
+    "mtime": 1794168515.2615404,
+    "seen": 1794168627.935513,
+    "ast_hash": "ee48d5eaa466616af26f49c88d74dbfb",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/bg_rinjani.jpg": {
+    "mtime": 1794168515.2615404,
+    "seen": 1794168627.9355145,
+    "ast_hash": "9890ef30a69d1ed016e898bef0e1dc21",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/gapura_start.jpg": {
+    "mtime": 1794168515.2655406,
+    "seen": 1794168627.9355159,
+    "ast_hash": "66735e834ada8122d8ba32d390ed2941",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/hati.jpg": {
+    "mtime": 1794168515.2655406,
+    "seen": 1794168627.9355168,
+    "ast_hash": "dc1db443d16c638274b73d4ddbcb6504",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/jam_gps.jpg": {
+    "mtime": 1794168515.2655406,
+    "seen": 1794168627.9355185,
+    "ast_hash": "b4a92ce6b0d24685e6c8646c713c4e4a",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/jukung.jpg": {
+    "mtime": 1794168515.2655406,
+    "seen": 1794168627.9355197,
+    "ast_hash": "32738a271fa499b773691cff5328351f",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/kerucut.jpg": {
+    "mtime": 1794168515.2655406,
+    "seen": 1794168627.9355211,
+    "ast_hash": "4a5c87af2936b16afbb28d425f1fda1b",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/lembar/lembar_aksesori.jpg": {
+    "mtime": 1794168515.2695405,
+    "seen": 1794168627.9355223,
+    "ast_hash": "61499014493cc47ec1e977e83ea07e3a",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/lembar/lembar_gapura.jpg": {
+    "mtime": 1794168515.2695405,
+    "seen": 1794168627.9355237,
+    "ast_hash": "3a1736333522bd9d6908453db7897955",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/lembar/lembar_pakaian.jpg": {
+    "mtime": 1794168515.2735405,
+    "seen": 1794168627.9355252,
+    "ast_hash": "82ef1326caf7b2674cc4e896b146ab14",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/lembar/lembar_road.jpg": {
+    "mtime": 1794168515.2735405,
+    "seen": 1794168627.9355266,
+    "ast_hash": "57540fb72b0b1dc50b7d132c88022b1b",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/lembar/lembar_trail.jpg": {
+    "mtime": 1794168515.2775404,
+    "seen": 1794168627.9355283,
+    "ast_hash": "e922b83319dace9e750117d01ce41355",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/magnet.jpg": {
+    "mtime": 1794168515.2775404,
+    "seen": 1794168627.9355297,
+    "ast_hash": "71a525e2530f5892c190c4828b4890d2",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/pembatas.jpg": {
+    "mtime": 1794168515.2775404,
+    "seen": 1794168627.935531,
+    "ast_hash": "ff1aa2ef4921792019eceb0ea6ab8549",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/perisai.jpg": {
+    "mtime": 1794168515.2775404,
+    "seen": 1794168627.9355323,
+    "ast_hash": "d7ac472aff916fcd0fec8e6a04faae4b",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/pohon_kelapa.jpg": {
+    "mtime": 1794168515.2815406,
+    "seen": 1794168627.9355338,
+    "ast_hash": "dd5d520f84cc8b316911f80b437e7e88",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/pohon_pinus.jpg": {
+    "mtime": 1794168515.2815406,
+    "seen": 1794168627.9355352,
+    "ast_hash": "66014813239b6c40ec994de3400183f8",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/rambut_bubble_pony.jpg": {
+    "mtime": 1794168515.2815406,
+    "seen": 1794168627.9355366,
+    "ast_hash": "a9f564823116ec181b94a14ae71daaca",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/rambut_comma.jpg": {
+    "mtime": 1794168515.2855406,
+    "seen": 1794168627.9355378,
+    "ast_hash": "982fdb69e40a1a4b92e9419d5dd92a4a",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/rambut_high_bun.jpg": {
+    "mtime": 1794168515.2855406,
+    "seen": 1794168627.9355392,
+    "ast_hash": "c7e60410da72f8c1b5fbd075330db51c",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/rambut_mullet.jpg": {
+    "mtime": 1794168515.2855406,
+    "seen": 1794168627.9355407,
+    "ast_hash": "d4b90aa854b48c9112fa0cc354fe2776",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/rambut_sport_hijab.jpg": {
+    "mtime": 1794168515.2895405,
+    "seen": 1794168627.9355419,
+    "ast_hash": "2a7fb4ec8fbef7797ad0b18b90792c13",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/rambut_taper_headband.jpg": {
+    "mtime": 1794168515.2895405,
+    "seen": 1794168627.9355435,
+    "ast_hash": "cb0a89e7b03a71b5d0c1bde90fea0d8b",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/huda/rambut_wavy_bob.jpg": {
+    "mtime": 1794168515.2935405,
+    "seen": 1794168627.9355454,
+    "ast_hash": "9766a1f15cecc11e08f21db8ecf1c90d",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/jam.jpg": {
+    "mtime": 1794168515.2935405,
+    "seen": 1794168627.935551,
+    "ast_hash": "b325d22451a4f06ec1a71a69170312b9",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset-sumber/sheet.png": {
+    "mtime": 1794168515.2975404,
+    "seen": 1794168627.9355528,
+    "ast_hash": "834a28ca6c5ea67c481351561e311d3b",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/aero_sage.png": {
+    "mtime": 1794168515.3015406,
+    "seen": 1794168627.9355543,
+    "ast_hash": "1885e0e69c24e756235f5d949a34d2fa",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/akar.png": {
+    "mtime": 1794168515.3034189,
+    "seen": 1794168627.9355557,
+    "ast_hash": "4b6985523361a8f1dbea508fcbc4533a",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/angkot.png": {
+    "mtime": 1794168515.3034189,
+    "seen": 1794168627.9355571,
+    "ast_hash": "562e078f67387aff56890c4543e8b8fd",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/asap_belerang.png": {
+    "mtime": 1794168515.3034189,
+    "seen": 1794168627.9355586,
+    "ast_hash": "374880996fcf1cd692e811e1a193be4e",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/bali.png": {
+    "mtime": 1794168515.3034189,
+    "seen": 1794168627.9355602,
+    "ast_hash": "e40b56679e12d72da5bd8053a9fcb17e",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/baligate.png": {
+    "mtime": 1794168515.3034189,
+    "seen": 1794168627.9355617,
+    "ast_hash": "1978fe66ba97381b7996050fc5b3b817",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/bangku.png": {
+    "mtime": 1794168515.3034189,
+    "seen": 1794168627.935563,
+    "ast_hash": "bd2202e5bc8cb354de61b89d2e5062f5",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/batu.png": {
+    "mtime": 1794168515.3034189,
+    "seen": 1794168627.9355643,
+    "ast_hash": "360c55d5719723cb0cb5ac09a695785d",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/batu_kaldera.png": {
+    "mtime": 1794168515.3034189,
+    "seen": 1794168627.9355655,
+    "ast_hash": "c88e48f01cf139a5c00eec6b6d53747e",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/beringin.png": {
+    "mtime": 1794168515.3034189,
+    "seen": 1794168627.935567,
+    "ast_hash": "5737c485433ae1914ed9607c47de85e6",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/bg_bali.png": {
+    "mtime": 1794168515.3034189,
+    "seen": 1794168627.9355683,
+    "ast_hash": "f58d15601443e2663d9bbb8f00288566",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/bg_bromo.png": {
+    "mtime": 1794168515.3055406,
+    "seen": 1794168627.9355695,
+    "ast_hash": "f754258cdce79909efd10b37cef55cf8",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/bg_jakarta.png": {
+    "mtime": 1794168515.3055406,
+    "seen": 1794168627.935571,
+    "ast_hash": "04ea340a20cf6593f9fea85bd8fbbcdb",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/bg_jogja.png": {
+    "mtime": 1794168515.3095405,
+    "seen": 1794168627.9355721,
+    "ast_hash": "3d1246d4332d614a823a7b3153f906b7",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/bg_lawu.png": {
+    "mtime": 1794168515.3135405,
+    "seen": 1794168627.935574,
+    "ast_hash": "775f5b5c02eb3dc0dc810d58f5238859",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/bg_rinjani.png": {
+    "mtime": 1794168515.3175406,
+    "seen": 1794168627.9355752,
+    "ast_hash": "524f852be0ec17229a2cd42207dd2a14",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/booth_kopi.png": {
+    "mtime": 1794168515.3175406,
+    "seen": 1794168627.9355772,
+    "ast_hash": "6696f398017a5dd19aaaf46907d9a294",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/booth_pacer.png": {
+    "mtime": 1794168515.3175406,
+    "seen": 1794168627.9355786,
+    "ast_hash": "0e374fd9fccbf822a862b429e6bc77a1",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/booth_photowall.png": {
+    "mtime": 1794168515.3175406,
+    "seen": 1794168627.9355803,
+    "ast_hash": "74b99369a7bcd45c90a10f12f49d4a74",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/booth_recovery.png": {
+    "mtime": 1794168515.3175406,
+    "seen": 1794168627.9355814,
+    "ast_hash": "2d5bc0c603791d87198b758b13f6b95b",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/booth_rpc.png": {
+    "mtime": 1794168515.3175406,
+    "seen": 1794168627.9355829,
+    "ast_hash": "6ab2f770e27b9482fcad181e2761a233",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/booth_willo.png": {
+    "mtime": 1794168515.3175406,
+    "seen": 1794168627.9355843,
+    "ast_hash": "5961928126390d8b52033a4228cbe9b4",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/borobudur.png": {
+    "mtime": 1794168515.3175406,
+    "seen": 1794168627.9355853,
+    "ast_hash": "feeeac9ebafed27997718f845c123bcc",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/boxy_charcoal.png": {
+    "mtime": 1794168515.3175406,
+    "seen": 1794168627.935587,
+    "ast_hash": "e9f0ccb12c8d3694b359d869f1c12971",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/bromo.png": {
+    "mtime": 1794168515.3175406,
+    "seen": 1794168627.9355881,
+    "ast_hash": "073b79fdc283aa0f9c00ce5768702368",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/cemara.png": {
+    "mtime": 1794168515.3215406,
+    "seen": 1794168627.9355893,
+    "ast_hash": "0c2a96ad2219a050d13da5a204d6ec40",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/char_female_hijab.png": {
+    "mtime": 1794168515.3215406,
+    "seen": 1794168627.9355907,
+    "ast_hash": "13917ce82ab371d0e1e8a7aacd048424",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/char_female_sage_skort.png": {
+    "mtime": 1794168515.3215406,
+    "seen": 1794168627.935592,
+    "ast_hash": "a1410038bffd27a5e85443f27c9a3b27",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/char_female_terracotta_skort.png": {
+    "mtime": 1794168515.3215406,
+    "seen": 1794168627.9355934,
+    "ast_hash": "18fdb6c17ccd889c175b4bb902b0b3c9",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/char_female_trail.png": {
+    "mtime": 1794168515.3215406,
+    "seen": 1794168627.9355948,
+    "ast_hash": "15fc978aff394ee27206e2d80e5e8c9d",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/char_male_boxy.png": {
+    "mtime": 1794168515.3215406,
+    "seen": 1794168627.9355962,
+    "ast_hash": "80618215f3c4df50beeb166fa3705966",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/char_male_oat_long.png": {
+    "mtime": 1794168515.3215406,
+    "seen": 1794168627.9355977,
+    "ast_hash": "f07ab79c9b9975bf789e0ae67c5549c7",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/char_runner_back.png": {
+    "mtime": 1794168515.3215406,
+    "seen": 1794168627.9355989,
+    "ast_hash": "ac1ed172ef738ea8fbf15897d9d017d1",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/char_runner_side.png": {
+    "mtime": 1794168515.3215406,
+    "seen": 1794168627.9356,
+    "ast_hash": "3427b6c6014274004a52382dee2129d5",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/coro_pro.png": {
+    "mtime": 1794168515.3215406,
+    "seen": 1794168627.935602,
+    "ast_hash": "5f7ba9338751f1a07f8163147f5536d9",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/daily_oat.png": {
+    "mtime": 1794168515.3215406,
+    "seen": 1794168627.9356034,
+    "ast_hash": "26d8f73bd7d1c97584eb12617a5403c8",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/dieng_rinjani.png": {
+    "mtime": 1794168515.3215406,
+    "seen": 1794168627.9356048,
+    "ast_hash": "b60e7a9cb53bbd31beefdf6f53bc7785",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/edelweis.png": {
+    "mtime": 1794168515.3215406,
+    "seen": 1794168627.9356065,
+    "ast_hash": "71dcf8243ea95a3db545c1b182d86a8f",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/everyday_taupe.png": {
+    "mtime": 1794168515.3255405,
+    "seen": 1794168627.9356084,
+    "ast_hash": "926a8c3413383f81938e0216cba9ef23",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/finish.png": {
+    "mtime": 1794168515.3255405,
+    "seen": 1794168627.9356098,
+    "ast_hash": "f7c84e342ad0d4e17bb0549c9445ae83",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/gapura_bromo.png": {
+    "mtime": 1794168515.3255405,
+    "seen": 1794168627.9356115,
+    "ast_hash": "2407763219e196552d01ad8b6bbbeaa1",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/gapura_candi.png": {
+    "mtime": 1794168515.3255405,
+    "seen": 1794168627.9356127,
+    "ast_hash": "6dd2967ffaab018929b7c105c3fc9138",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/gapura_finish.png": {
+    "mtime": 1794168515.3255405,
+    "seen": 1794168627.9356139,
+    "ast_hash": "668e0ab94c114128ff7bffc21cf057e3",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/gapura_joglo.png": {
+    "mtime": 1794168515.3255405,
+    "seen": 1794168627.9356153,
+    "ast_hash": "ef80dcf70e54ec93cbae2cfc6c51f106",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/gapura_lawu.png": {
+    "mtime": 1794168515.3255405,
+    "seen": 1794168627.9356165,
+    "ast_hash": "8cb0412f597f02ef07109f730c7acb82",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/gapura_rinjani.png": {
+    "mtime": 1794168515.3255405,
+    "seen": 1794168627.9356184,
+    "ast_hash": "40d4234bf9ead735ba3bf0a97087977e",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/gapura_start.png": {
+    "mtime": 1794168515.3255405,
+    "seen": 1794168627.9356196,
+    "ast_hash": "8bca695c3336389571743ee64cf4d562",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/gapura_ws.png": {
+    "mtime": 1794168515.3255405,
+    "seen": 1794168627.9356213,
+    "ast_hash": "437323b9a1e66f245ac1878fb662dd1f",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/gedung.png": {
+    "mtime": 1794168515.3255405,
+    "seen": 1794168627.9356227,
+    "ast_hash": "a0fc3479c808314446069659f0251b59",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/gerobak.png": {
+    "mtime": 1794168515.3255405,
+    "seen": 1794168627.9356236,
+    "ast_hash": "b6e0a0a837c3039fbeca9c3bd683104e",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/grail_trail_pack.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356253,
+    "ast_hash": "bf97fe1910c1f9448623375dd7b3b757",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/halftights_espresso.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356265,
+    "ast_hash": "f9cfebcca1b6fad6b660a63c8ebcaab7",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/halte.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.935628,
+    "ast_hash": "9081c7b275f333e97a0a7093b9bdac88",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/hati.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356296,
+    "ast_hash": "efaddc6742ab20117bd04653c0abd48e",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/headlamp.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356308,
+    "ast_hash": "5ef516072583b84662d7ee75abf5fd7e",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/hydration_vest.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356325,
+    "ast_hash": "c3ab25275c90f2729275307834f126b1",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/item_bakmi.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.935634,
+    "ast_hash": "19690b5363f03eb7ae49de84d5a99dee",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/item_coin_w.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356349,
+    "ast_hash": "d85c9f01d82169e19ce9df6a34794d2e",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/item_gel.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356365,
+    "ast_hash": "4baf3e856ad8a43b86c1b3adb8492cc2",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/item_isotonic.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.935638,
+    "ast_hash": "89d9c7fc00f6b6ea0301e31e3425c08b",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/item_kopi.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356394,
+    "ast_hash": "807f87d6d0a836e759865ed4c9108c87",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/item_lightning.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356408,
+    "ast_hash": "de1c25393a4fcd4d83e1c8dafdad5da9",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/jakarta.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.935642,
+    "ast_hash": "23b34dc8116a75bfb95fcd421d81a680",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/jam.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356432,
+    "ast_hash": "a071e899cf31509d2e60b036ae3f225c",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/jersey_basic.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356444,
+    "ast_hash": "b014cb8ae8cc1176d8cd10d0c3ee9088",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/jogja.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356463,
+    "ast_hash": "1220de5406ef5a7055b78ae3afabc44c",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/joglo.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356477,
+    "ast_hash": "d11e24cb81c21c07a3bd1eee48d8f335",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/jukung.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.935649,
+    "ast_hash": "113017b7d40fc58c778ec734b3686ae7",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/kebun_teh.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356503,
+    "ast_hash": "c5a8248f5f364c552849eb1df4ccab8e",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/kerucut.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356518,
+    "ast_hash": "888742f8d511eed6adaa812a7a0af6c5",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/lampu.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356532,
+    "ast_hash": "2aeefa5dc306339950cd23444ece8f8e",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/lawu.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356544,
+    "ast_hash": "075772ceed172d10d2f3f7cd57341a8a",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/magnet.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356563,
+    "ast_hash": "ad3a645fa34cb3de74ff26c2b626fd58",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/modest_hijab_set.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.935658,
+    "ast_hash": "c52246e953ea9a79e4e05d2786c9c165",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/monas.png": {
+    "mtime": 1794168515.3295405,
+    "seen": 1794168627.9356592,
+    "ast_hash": "d86a16cf0a7a4e43bbb6e73b294943d5",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/nyx_hyperfoam.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356606,
+    "ast_hash": "ba6cae2eb254f4e67002ee4158aedb0e",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/papan_km.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.935662,
+    "ast_hash": "c1f8a3b57cc5e79bb5a689b93a745ad2",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/payung.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.935663,
+    "ast_hash": "4c74c3542cfc0b85f0980785e41f6f10",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/pembatas.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356647,
+    "ast_hash": "dc37110b65d99e46c602aaca88085ba3",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/perisai.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.935666,
+    "ast_hash": "550989a94e9d105350f3715486c2b765",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/pita.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356678,
+    "ast_hash": "ac38aa4a56f803c1e1e8b4ebd003eb01",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/pohon.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.935669,
+    "ast_hash": "c829f613ca0e597b34efb1e059319e2b",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/pohon_kelapa.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356706,
+    "ast_hash": "ffa156c2a647c6acb048ae13b3522e22",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/pohon_pinus.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356718,
+    "ast_hash": "9bb3c51d6549430b4d7c17cafa6e93a7",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/pos_cp.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.935673,
+    "ast_hash": "21810dd2fc508a652f2e14a6b42bcc5a",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/rambu.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356744,
+    "ast_hash": "0b1aab41b14cf4fe6cea414ef84a0640",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/rambut_boxer_braids.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356756,
+    "ast_hash": "a0a17a43934476f30fd028726bbe54b5",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/rambut_bubble_pony.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356773,
+    "ast_hash": "ce0525937ac8fe94597ae3111ba78fb7",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/rambut_buzz.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356787,
+    "ast_hash": "b8d92b98e97b25d56b04b8340152c399",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/rambut_comma.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.93568,
+    "ast_hash": "f5347a59e71d7091cdd2d9c61109d1e9",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/rambut_curly.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356813,
+    "ast_hash": "fac6b19978ad7db3652094d982c17533",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/rambut_high_bun.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356828,
+    "ast_hash": "46a1dad65ee6dfd74dd35f785d6bb946",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/rambut_manbun.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356844,
+    "ast_hash": "35e8d8d49e10b5e52e63ced9ac948f3b",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/rambut_mullet.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356854,
+    "ast_hash": "77c1fcfad180dd4e9c4699edff42be28",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/rambut_ponytail_visor.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356868,
+    "ast_hash": "d49df252e81b6fad3e7cba55262281fa",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/rambut_sport_hijab.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356885,
+    "ast_hash": "9259b999feadde1aa40c98f25423bcba",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/rambut_taper_headband.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356897,
+    "ast_hash": "e4288fe8edcce462af5d29f2eabbe943",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/rambut_wavy_bob.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.935691,
+    "ast_hash": "520fba8bcb25e6598d094823fa9f229a",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/rumput_sabana.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356923,
+    "ast_hash": "1fd2062e9cc88e6421e2ef25c3f41b9f",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/sepeda.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356937,
+    "ast_hash": "607008aae6002693f7e7b01c6a2ef721",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/shoe_starter.png": {
+    "mtime": 1794168515.3335404,
+    "seen": 1794168627.9356954,
+    "ast_hash": "26d8f73bd7d1c97584eb12617a5403c8",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/shorts_basic.png": {
+    "mtime": 1794168515.3375406,
+    "seen": 1794168627.9356968,
+    "ast_hash": "61c0565c0696a1cfb1ada8f1c00f4d4a",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/singlet_onyx.png": {
+    "mtime": 1794168515.3375406,
+    "seen": 1794168627.9356983,
+    "ast_hash": "ae36fc599b62a72bb88e5af40de36c31",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/skirt_legging_modest.png": {
+    "mtime": 1794168515.3375406,
+    "seen": 1794168627.9356997,
+    "ast_hash": "db1d7d526b0bbf1b6a97565c14420bd5",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/skort_pleated_cream.png": {
+    "mtime": 1794168515.3375406,
+    "seen": 1794168627.9357011,
+    "ast_hash": "1d9d3428c5de7e5cf583b504e7557fd3",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/skort_pleated_onyx.png": {
+    "mtime": 1794168515.3375406,
+    "seen": 1794168627.9357028,
+    "ast_hash": "875f8e01cad19818ebb53ab5c3e97571",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/skort_trail_olive.png": {
+    "mtime": 1794168515.3375406,
+    "seen": 1794168627.9357042,
+    "ast_hash": "5d737aea49d33e69d0f7d3d317626258",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/skort_wrap_terracotta.png": {
+    "mtime": 1794168515.3375406,
+    "seen": 1794168627.9357057,
+    "ast_hash": "0a6ef2ef562c367640ede2cca8033fd8",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/solomate_carbon.png": {
+    "mtime": 1794168515.3375406,
+    "seen": 1794168627.935707,
+    "ast_hash": "ba6cae2eb254f4e67002ee4158aedb0e",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/split_onyx.png": {
+    "mtime": 1794168515.3375406,
+    "seen": 1794168627.9357085,
+    "ast_hash": "5ed2f288a653cce54e6be6c09566fea0",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/sunglasses_matte.png": {
+    "mtime": 1794168515.3375406,
+    "seen": 1794168627.9357097,
+    "ast_hash": "48f8e8778d411ecbda342597da4eff0a",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/tex_aspal.png": {
+    "mtime": 1794168515.3375406,
+    "seen": 1794168627.9357111,
+    "ast_hash": "a8e6ceb691fb85b7be3fdb7f950b1c94",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/tex_batu_vulkanik.png": {
+    "mtime": 1794168515.3415406,
+    "seen": 1794168627.9357128,
+    "ast_hash": "ad473d914ada3b585bdb87fa8052eca7",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/tex_boardwalk.png": {
+    "mtime": 1794168515.3415406,
+    "seen": 1794168627.9357142,
+    "ast_hash": "838ba3e09092563561d429f9a58e715d",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/tex_pasir.png": {
+    "mtime": 1794168515.3415406,
+    "seen": 1794168627.9357157,
+    "ast_hash": "1995c2719a26af805dc2f13ec7fcbb5c",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/tex_pasir_vulkanik.png": {
+    "mtime": 1794168515.3415406,
+    "seen": 1794168627.9357169,
+    "ast_hash": "5469fe6329a8ef8e6e0181ec99793892",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/tex_paving.png": {
+    "mtime": 1794168515.3415406,
+    "seen": 1794168627.9357183,
+    "ast_hash": "9580230ed7a263fa76e49b4bbeaaf849",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/tex_sabana.png": {
+    "mtime": 1794168515.3455405,
+    "seen": 1794168627.9357197,
+    "ast_hash": "4f09041480e2f5a1b3eecec568c62aa3",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/tex_scree.png": {
+    "mtime": 1794168515.3495405,
+    "seen": 1794168627.9357212,
+    "ast_hash": "9f246e9c65b0133b3317d064afad8ffc",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/tex_tanah_merah.png": {
+    "mtime": 1794168515.3535404,
+    "seen": 1794168627.9357226,
+    "ast_hash": "772891343959646f267c0a07dbbef741",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/tex_tangga.png": {
+    "mtime": 1794168515.3535404,
+    "seen": 1794168627.9357238,
+    "ast_hash": "ecb816d8bb01f1ff487b9bfa991ae33e",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/tex_trotoar.png": {
+    "mtime": 1794168515.3535404,
+    "seen": 1794168627.935725,
+    "ast_hash": "c9ee176b15b202e1969765c1a95dceab",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/titanium_ultra.png": {
+    "mtime": 1794168515.3535404,
+    "seen": 1794168627.935727,
+    "ast_hash": "46fbe117357e384158ae2b87c782bc66",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/trail_halfzip.png": {
+    "mtime": 1794168515.3535404,
+    "seen": 1794168627.935728,
+    "ast_hash": "e0fa442b2e8a335bdd237cafef2b7824",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/trail_sandstone.png": {
+    "mtime": 1794168515.3575406,
+    "seen": 1794168627.9357293,
+    "ast_hash": "4b3847902f21742167ba37a0f41736d2",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/uv_long_oat.png": {
+    "mtime": 1794168515.3575406,
+    "seen": 1794168627.9357305,
+    "ast_hash": "d5241f6fdbfec6bb84541f451d8a5d1a",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/waist_bag.png": {
+    "mtime": 1794168515.3575406,
+    "seen": 1794168627.9357316,
+    "ast_hash": "9059d71f57f11098af7258da80960ed9",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/watch_basic.png": {
+    "mtime": 1794168515.3575406,
+    "seen": 1794168627.9357333,
+    "ast_hash": "d7eec1e6d46782347fb0aa2639e309a9",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/willo_sport.png": {
+    "mtime": 1794168515.3575406,
+    "seen": 1794168627.9357345,
+    "ast_hash": "6ad9b2b3fa581157a795967b7c39a2e5",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/aset/windbreaker_mist.png": {
+    "mtime": 1794168515.3575406,
+    "seen": 1794168627.9357364,
+    "ast_hash": "e0852994aa9f6710b220c036b5563f0f",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/apple-touch-icon.png": {
+    "mtime": 1794082248.3531423,
+    "seen": 1794168627.9357378,
+    "ast_hash": "dced3eed91ae36a18baa90313578bfb2",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/aset/paud-1.jpg": {
+    "mtime": 1794082248.353925,
+    "seen": 1794168627.9357393,
+    "ast_hash": "ba9a4d2d0e52642ef5b38452d4ea9924",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/aset/paud-2.jpg": {
+    "mtime": 1794082248.354343,
+    "seen": 1794168627.935741,
+    "ast_hash": "3d0e143a57c5490ea272dff1c0204104",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/aset/paud-3.jpg": {
+    "mtime": 1794082248.354343,
+    "seen": 1794168627.9357421,
+    "ast_hash": "ab5cf9775090c907382ded23c87b4d5c",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/aset/paud-4.jpg": {
+    "mtime": 1794082248.354343,
+    "seen": 1794168627.9357438,
+    "ast_hash": "3acf51caa0569551546d52ffd439f041",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/aset/rpg-1.jpg": {
+    "mtime": 1794082248.354343,
+    "seen": 1794168627.935745,
+    "ast_hash": "079fd038c7447f80341c6e50c61d62c8",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/aset/rpg-2.jpg": {
+    "mtime": 1794082248.354343,
+    "seen": 1794168627.9357462,
+    "ast_hash": "47d5d5ff3ff6f29c0d27b868217eea37",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/aset/sd-1.jpg": {
+    "mtime": 1794082248.354343,
+    "seen": 1794168627.9357476,
+    "ast_hash": "9f2151abef2a01f849cc19e2c4768c02",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/aset/sd-2.jpg": {
+    "mtime": 1794082248.3558953,
+    "seen": 1794168627.935749,
+    "ast_hash": "0da86e42acf5c8594ffff14cde47c9f9",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/aset/sd-3.jpg": {
+    "mtime": 1794082248.3558953,
+    "seen": 1794168627.9357507,
+    "ast_hash": "b958c5fbe6b4f231301b7e48fde2a5ef",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/aset/sd-4.jpg": {
+    "mtime": 1794082248.3558953,
+    "seen": 1794168627.9357522,
+    "ast_hash": "86d9a6fa110f15e725ee18cf8c1327d7",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/aset/smp-1.jpg": {
+    "mtime": 1794082248.3558953,
+    "seen": 1794168627.9357536,
+    "ast_hash": "6bd2a02559543f7ee2cf237d56dccf5c",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/aset/smp-2.jpg": {
+    "mtime": 1794082248.3558953,
+    "seen": 1794168627.935755,
+    "ast_hash": "b2015b9d78a4b7f693beb045aa97d8ec",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/aset/smp-3.jpg": {
+    "mtime": 1794082248.3558953,
+    "seen": 1794168627.9357562,
+    "ast_hash": "5888aec694acd228dd73de4ac9fa34e4",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/aset/smp-4.jpg": {
+    "mtime": 1794082248.3558953,
+    "seen": 1794168627.9357576,
+    "ast_hash": "711dd3265a32933c4a6b2479857f2c56",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/aset/tutorial-paud.jpg": {
+    "mtime": 1794082248.3558953,
+    "seen": 1794168627.935759,
+    "ast_hash": "603c81d08a72c7d85e950ba1b09963d3",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/aset/tutorial-sd.jpg": {
+    "mtime": 1794082248.3678954,
+    "seen": 1794168627.9357607,
+    "ast_hash": "300be6248f00d8a732e1b14ef9bedb8d",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/logo.jpg": {
+    "mtime": 1794082248.3778756,
+    "seen": 1794168627.935762,
+    "ast_hash": "9a94329c89d610f539e27a57a56e68ee",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/mabar/aset/peta-desa.jpg": {
+    "mtime": 1794168515.3655405,
+    "seen": 1794168627.9357631,
+    "ast_hash": "0d48fca7fef325203c964f5d71921b9f",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/pulau/curug.jpg": {
+    "mtime": 1794168515.3695405,
+    "seen": 1794168627.9357646,
+    "ast_hash": "a5fc8f588feecef49d9cb3c04343fd1c",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/pulau/kulon.jpg": {
+    "mtime": 1794168515.3745995,
+    "seen": 1794168627.9357657,
+    "ast_hash": "e1011b654a62e7272c82e5f3c16418b8",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/pulau/og.jpg": {
+    "mtime": 1794168515.3745995,
+    "seen": 1794168627.9357674,
+    "ast_hash": "0c04d5204a10d52fb081537d6397a85d",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/pulau/segara.jpg": {
+    "mtime": 1794168515.3745995,
+    "seen": 1794168627.9357686,
+    "ast_hash": "9d3121577f9165cd83c7b3b096dea0be",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/pulau/tlaga.jpg": {
+    "mtime": 1794168515.3745995,
+    "seen": 1794168627.9357703,
+    "ast_hash": "fd3325ab80f0bb97f749ca9f855fe737",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/pulau/wetan.jpg": {
+    "mtime": 1794168515.3745995,
+    "seen": 1794168627.9357715,
+    "ast_hash": "20d7cb1657b1adb1a68b617849bff75e",
+    "semantic_hash": ""
+  },
+  "public/hasil-sablon-kaos-ora-melu-mumet.jpg": {
+    "mtime": 1794082248.4118953,
+    "seen": 1794168627.9357727,
+    "ast_hash": "789583dd386d3dc64ba746637db1b74c",
+    "semantic_hash": ""
+  },
+  "public/iklan/kaos-kelas/banner-kaos.webp": {
+    "mtime": 1794082248.4164126,
+    "seen": 1794168627.9357743,
+    "ast_hash": "449033b0461bee4b19294b057f681cc6",
+    "semantic_hash": ""
+  },
+  "public/iklan/kaos-kelas/slide-1.jpg": {
+    "mtime": 1794082248.4164672,
+    "seen": 1794168627.9357758,
+    "ast_hash": "f3fe64528b4149964667e1c0c6a0bb72",
+    "semantic_hash": ""
+  },
+  "public/iklan/kaos-kelas/slide-2.jpg": {
+    "mtime": 1794082248.4164672,
+    "seen": 1794168627.935777,
+    "ast_hash": "714bd6fbf15b9e726148be9db6e5ef0c",
+    "semantic_hash": ""
+  },
+  "public/iklan/kaos-kelas/slide-3.jpg": {
+    "mtime": 1794082248.4198954,
+    "seen": 1794168627.9357784,
+    "ast_hash": "d6924b14e76e7ffe47f010be2d019417",
+    "semantic_hash": ""
+  },
+  "public/iklan/kaos-kelas/slide-4.jpg": {
+    "mtime": 1794082248.4198954,
+    "seen": 1794168627.9357796,
+    "ast_hash": "86b697e52e8ba408eb63656760c08dac",
+    "semantic_hash": ""
+  },
+  "public/iklan/kaos-kelas/slide-5.jpg": {
+    "mtime": 1794082248.4238954,
+    "seen": 1794168627.935781,
+    "ast_hash": "5b7ab8dd137ddafda837886239d8c79c",
+    "semantic_hash": ""
+  },
+  "public/kantor-agen-ai/demo-sampul.jpg": {
+    "mtime": 1794082248.4358954,
+    "seen": 1794168627.9357827,
+    "ast_hash": "f7a04e0682f533dc5ca2645b9f6d8ff9",
+    "semantic_hash": ""
+  },
+  "public/kantor-agen-ai/kantor-3d.webp": {
+    "mtime": 1794082248.4358954,
+    "seen": 1794168627.9357839,
+    "ast_hash": "24127f340b085de56a3dc126de728886",
+    "semantic_hash": ""
+  },
+  "public/kantor-agen-ai/pratinjau-10-peran.webp": {
+    "mtime": 1794082248.4358954,
+    "seen": 1794168627.9357855,
+    "ast_hash": "30dcf8472b3c4d7b30ba664a29d2c702",
+    "semantic_hash": ""
+  },
+  "public/kantor-agen-ai/pratinjau-buku-panduan.webp": {
+    "mtime": 1794082248.4358954,
+    "seen": 1794168627.9357867,
+    "ast_hash": "d4657776d366762e1e19798c277a2258",
+    "semantic_hash": ""
+  },
+  "public/kantor-agen-ai/pratinjau-satu-hari.webp": {
+    "mtime": 1794082248.4398954,
+    "seen": 1794168627.9357886,
+    "ast_hash": "93eb3076a986abb8d2242caae5532e2a",
+    "semantic_hash": ""
+  },
+  "public/kantor-agen-ai/sampul-kit.jpg": {
+    "mtime": 1794082248.4398954,
+    "seen": 1794168627.93579,
+    "ast_hash": "ce98e19b723faadf385bf5ca6b4923fb",
+    "semantic_hash": ""
+  },
+  "public/kaos-gantung.jpg": {
+    "mtime": 1794082248.4398954,
+    "seen": 1794168627.9357913,
+    "ast_hash": "96bf8dd9a4881b6407df06c752c4620b",
+    "semantic_hash": ""
+  },
+  "public/logo-willo-putih.png": {
+    "mtime": 1794082248.4398954,
+    "seen": 1794168627.9357927,
+    "ast_hash": "a206784a5b880c9d8939c4bf387bfc3e",
+    "semantic_hash": ""
+  },
+  "public/logo-willo.png": {
+    "mtime": 1794082248.4398954,
+    "seen": 1794168627.9357946,
+    "ast_hash": "6bea28286c4a321aa77ec03ee42b335e",
+    "semantic_hash": ""
+  },
+  "public/mockup/kaos-belakang.png": {
+    "mtime": 1794082248.4398954,
+    "seen": 1794168627.935796,
+    "ast_hash": "048a12a3c2b2b236e80ae1ea25e06602",
+    "semantic_hash": ""
+  },
+  "public/mockup/kaos-depan.png": {
+    "mtime": 1794082248.444132,
+    "seen": 1794168627.9357975,
+    "ast_hash": "3c214068630e5279dc20458822a34d32",
+    "semantic_hash": ""
+  },
+  "public/mockup/kaos-panjang-belakang.png": {
+    "mtime": 1794082248.444132,
+    "seen": 1794168627.935799,
+    "ast_hash": "07d688a3d730f536cc42a772deaf938d",
+    "semantic_hash": ""
+  },
+  "public/mockup/kaos-panjang.png": {
+    "mtime": 1794082248.444132,
+    "seen": 1794168627.9358,
+    "ast_hash": "f0612d6e40507cdfecf52908de9cbc69",
+    "semantic_hash": ""
+  },
+  "public/video/cara-rekap-ukuran-kaos.jpg": {
+    "mtime": 1794082248.444132,
+    "seen": 1794168627.9358015,
+    "ast_hash": "b2bdca04204f2c775cfc8451ae87582a",
+    "semantic_hash": ""
+  },
+  "public/video/cara-siapkan-file-desain-sablon.jpg": {
+    "mtime": 1794082248.4718952,
+    "seen": 1794168627.935803,
+    "ast_hash": "8becf0a3485b13292d98d1818eb70988",
+    "semantic_hash": ""
+  },
+  "public/video/kaos-gathering-outing-kantor.jpg": {
+    "mtime": 1794082248.4998953,
+    "seen": 1794168627.9358041,
+    "ast_hash": "5250ab113ad4109343d1610e170555d9",
+    "semantic_hash": ""
+  },
+  "public/video/kaos-guru-hari-guru-ngawi.jpg": {
+    "mtime": 1794082248.5158954,
+    "seen": 1794168627.9358058,
+    "ast_hash": "8ebfb2af9d2e9376bb22a604c41ab3d5",
+    "semantic_hash": ""
+  },
+  "public/video/kaos-jalan-sehat-fun-run-ngawi.jpg": {
+    "mtime": 1794082248.5318954,
+    "seen": 1794168627.9358072,
+    "ast_hash": "de5431eefbad62646eb748d988b2f3c1",
+    "semantic_hash": ""
+  },
+  "public/video/kaos-karang-taruna-desa-ngawi.jpg": {
+    "mtime": 1794082248.5598953,
+    "seen": 1794168627.935815,
+    "ast_hash": "fb0c50ba5bbfd58cf3f0c8aeea9f427b",
+    "semantic_hash": ""
+  },
+  "public/video/kaos-pkk-posyandu-kader-ngawi.jpg": {
+    "mtime": 1794082248.5918953,
+    "seen": 1794168627.9358168,
+    "ast_hash": "32af1f383e7e4ec989c13c91d85e9c74",
+    "semantic_hash": ""
+  },
+  "public/video/kaos-promosi-merchandise-usaha.jpg": {
+    "mtime": 1794082248.6198955,
+    "seen": 1794168627.935818,
+    "ast_hash": "13c24a88ff4b0bd130fbf33db2a8887f",
+    "semantic_hash": ""
+  },
+  "public/video/kaos-tim-futsal-voli-ngawi.jpg": {
+    "mtime": 1794082248.6478953,
+    "seen": 1794168627.9358191,
+    "ast_hash": "17e3efae997a3b905261bf8b203e6685",
+    "semantic_hash": ""
+  },
+  "public/video/sablon-kaos-satuan-ngawi.jpg": {
+    "mtime": 1794168558.941543,
+    "seen": 1794168627.9358206,
+    "ast_hash": "5fc2f0a3eed6d26925b065c8811f45b9",
+    "semantic_hash": ""
+  },
+  "public/workshop-sablon.jpg": {
+    "mtime": 1794082248.6678953,
+    "seen": 1794168627.9358218,
+    "ast_hash": "7cb7cbc349f301fd2b5d87eed2eefe5c",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/aset/tutorial-paud.mp4": {
+    "mtime": 1794082248.3678954,
+    "seen": 1794168627.9358232,
+    "ast_hash": "292fcd1a98dd497ab4f01de83d9529ef",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/belajar/aset/tutorial-sd.mp4": {
+    "mtime": 1794082248.3758953,
+    "seen": 1794168627.9358246,
+    "ast_hash": "b3558229fafab08eaa5cdb871c0d22d8",
+    "semantic_hash": ""
+  },
+  "public/video/sablon-kaos-satuan-ngawi.mp4": {
+    "mtime": 1794168558.6775432,
+    "seen": 1794168627.9358463,
+    "ast_hash": "bb479db7376e984a869d9c40f49dc4e2",
+    "semantic_hash": ""
+  },
+  "edukasi/paud/package-lock.json": {
+    "mtime": 1794082248.348369,
+    "seen": 1794168627.9358478,
+    "ast_hash": "80158a723e9c44dc0857bd60cdff58a5",
+    "semantic_hash": ""
+  },
+  "edukasi/smp/package-lock.json": {
+    "mtime": 1794082248.351525,
+    "seen": 1794168627.9358494,
+    "ast_hash": "82c11f9e1253a30fe53d0e593653b4b0",
+    "semantic_hash": ""
+  },
+  "pelarikalcer/package-lock.json": {
+    "mtime": 1794168515.3615067,
+    "seen": 1794168627.935851,
+    "ast_hash": "744f42b6b41133ea04167b12f1762638",
+    "semantic_hash": ""
   }
 }
