@@ -36,6 +36,9 @@ export class Pengunjung extends DurableObject {
 // Huda 8 Nov 2026: donasi pindah ke Trakteer (trakteer.id/duniakotak.id, unit "Bata" Rp5.000). Webhook Saweria tetap diterima.
 // Ganti PUTARAN untuk membuka putaran voting baru (suara putaran lama tetap tersimpan). Calon bisa ditambah/diubah di CALON_FASUM.
 const PUTARAN_VOTING = "2026-11";
+// Siklus mingguan (Huda 8 Nov 2026): voting 1 minggu → pemenang dibangun 7 hari → voting fasum lain dibuka.
+// Setelah VOTING_TUTUP suara ditolak dan pop up wajib tidak muncul sampai putaran baru (ganti PUTARAN_VOTING, CALON_FASUM, VOTING_TUTUP).
+const VOTING_TUTUP = Date.parse("2026-11-14T00:00:00+07:00");
 // Stream Key Saweria bisa disetel lewat halaman /duniakotak/atur-saweria.html (Huda tidak menemukan worker di Cloudflare).
 // Halaman itu butuh token setel; di sini hanya hash SHA-256-nya (token asli dikirim ke Huda lewat chat proyek).
 const HASH_TOKEN_SETEL = "3875bd9e3be8eb385420fc08c7acbb25d81b72d5581356c72a210d4b87df4510";
@@ -340,7 +343,7 @@ export class Warga extends DurableObject {
     const hasil = {}; for (const c of CALON_FASUM) hasil[c] = 0;
     for (const x of this.sql.exec("SELECT calon, SUM(n) AS n, COUNT(*) AS w FROM suara WHERE put = ? GROUP BY calon", PUTARAN_VOTING).toArray()) if (x.calon in hasil) hasil[x.calon] = x.n;
     const pemilih = this.sql.exec("SELECT COUNT(DISTINCT no) AS w FROM suara WHERE put = ?", PUTARAN_VOTING).toArray()[0].w;
-    return { putaran: PUTARAN_VOTING, calon: CALON_FASUM, hasil, pemilih, dana: this.danaIuran() };
+    return { putaran: PUTARAN_VOTING, calon: CALON_FASUM, hasil, pemilih, tutup: VOTING_TUTUP, ditutup: Date.now() >= VOTING_TUTUP ? 1 : 0, dana: this.danaIuran() };
   }
   danaIuran() {
     const t = this.sql.exec("SELECT COALESCE(SUM(koin + permata * ?), 0) AS v, COUNT(*) AS w FROM iuran WHERE put = ?", KOIN_PER_PERMATA, PUTARAN_VOTING).toArray()[0];
@@ -588,6 +591,7 @@ export class Warga extends DurableObject {
       if (r.bhari !== hari) { saldo += 1; gratis = 1; this.sql.exec("UPDATE warga SET bintang = ?, bhari = ? WHERE no = ?", saldo, hari, r.no); }
       if (q.calon) {
         const n = Math.floor(+q.n || 0);
+        if (Date.now() >= VOTING_TUTUP) return Response.json({ galat: "Voting minggu ini sudah ditutup. Bintangmu tetap tersimpan untuk voting berikutnya." }, { status: 400 });
         if (!CALON_FASUM.includes(q.calon)) return Response.json({ galat: "Calon fasum tidak dikenal." }, { status: 400 });
         if (n < 1 || n > saldo) return Response.json({ galat: saldo ? "Bintangmu tinggal " + saldo + "." : "Bintangmu habis. Besok dapat 1 bintang gratis lagi." }, { status: 400 });
         saldo -= n;
@@ -596,7 +600,7 @@ export class Warga extends DurableObject {
       }
       const saya = {}; for (const x of this.sql.exec("SELECT calon, n FROM suara WHERE put = ? AND no = ?", PUTARAN_VOTING, r.no).toArray()) saya[x.calon] = x.n;
       const don = this.sql.exec("SELECT COALESCE(SUM(bintang), 0) AS b FROM donasi WHERE no = ?", r.no).toArray()[0].b;
-      return Response.json({ no: r.no, saldo, gratis, sudahPilih: r.vhari === hari ? 1 : 0, saya, donasi: don, ...this.hasilVoting() });
+      return Response.json({ no: r.no, saldo, gratis, sudahPilih: r.vhari === hari || Date.now() >= VOTING_TUTUP ? 1 : 0, saya, donasi: don, ...this.hasilVoting() });
     }
     if (aksi === "voting-publik") return Response.json(this.hasilVoting());
     if (aksi === "pendukung") return Response.json(this.pendukung());
