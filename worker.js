@@ -620,7 +620,7 @@ export class Warga extends DurableObject {
       const streak = () => (p.sh === hari || p.sh === kemarin ? p.st || 0 : 0);
       const misi = () => pkMisiHari(hari).map((id) => ({ id, ok: PK_MISI[id](p), klaim: p.mk.includes(id) }));
       let misiDesa = null;
-      const info = {}, jawab = (x = {}, st = 200) => Response.json({ no: r.no, ig: this.nm(r), koin, permata, punya: p.punya, sisaHari: PK_MAKS_HARI - p.dapat, rekor: p.r || 0, streak: streak(), lariHariIni: p.sh === hari, misi: misi(), ...info, ...x }, { status: st });
+      const info = {}, jawab = (x = {}, st = 200) => Response.json({ no: r.no, ig: this.nm(r), koin, permata, punya: p.punya, sisaHari: PK_MAKS_HARI - p.dapat, rekor: p.r || 0, avatar: (() => { try { return r.avatar ? JSON.parse(r.avatar) : null; } catch (e) { return null; } })(), streak: streak(), lariHariIni: p.sh === hari, misi: misi(), ...info, ...x }, { status: st });
       if (q.op === "mulai") p.m = kini;
       else if (q.op === "selesai") {
         const lama = p.m ? kini - p.m : 0; delete p.m;

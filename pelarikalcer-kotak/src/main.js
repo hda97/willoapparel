@@ -165,6 +165,7 @@ function pasangTopi(w, t) { const h = w.userData.head; if (!t || t[0] === 'none'
 let A = { ...DEF }; try { Object.assign(A, JSON.parse(localStorage.getItem(SIMPAN) || '{}')); } catch (e) {}
 const simpanA = () => { try { localStorage.setItem(SIMPAN, JSON.stringify(A)); } catch (e) {} };
 function buatPemain() {
+  if (AKUN && AV_DESA) { const w = warga({ ...AV_DESA, ekspresi: 'senang', sepatu: sepatuAktif().c }); pasangGear(w); return w; }
   const P = A.jenis === 'P'; let k = KAOS[A.kaos] || KAOS[0]; if ((k[4] === 'P' && !P) || !outfitBebas('kaos', A.kaos)) k = KAOS[0]; let bw = BAWAH[A.bawah] || BAWAH[0]; if (bw[3] === 'P' && (!P || !outfitBebas('bawah', A.bawah))) bw = BAWAH[0];
   const w = warga({ jenis: A.jenis, kulit: KULIT[A.kulit], ekspresi: 'senang', rambut: { gaya: A.rambut, warna: WARNA_RAMBUT[A.warnaRambut] },
     atasan: { jenis: k[0], warna: k[1] }, lenganPanjang: !!k[3], bawahan: { jenis: bw[0], warna: bw[1] }, sepatu: sepatuAktif().c });
@@ -172,12 +173,17 @@ function buatPemain() {
   if (k[5]) { const b = w.userData.body; for (const x of [-.535, .535]) { const p = kotak(.06, 1.1, .5, k[5], .02); p.position.set(x, .62, 0); b.add(p); } const kr = kotak(.5, .07, .02, k[5], .01); kr.position.set(0, 1.12, .305); b.add(kr); }
   if (bw[4]) { const y = bw[0] === 'rok' ? .8 : .1, t = bw[0] === 'rok' ? .08 : .14; const lis = kotak(bw[0] === 'rok' ? 1.24 : 1.34, t, bw[0] === 'rok' ? .79 : .9, bw[4], .03); lis.position.y = y; w.add(lis);
     if (bw[5]) for (const x of [-.4, -.2, 0, .2, .4]) { const l = kotak(.035, .58, .02, new THREE.Color(bw[1]).multiplyScalar(.78).getHex(), .01); l.position.set(x, 1.1, .385); w.add(l); } }
+  pasangGear(w);
+  return w;
+}
+// jam GPS, aksesori gengsi & nomor BIB: dipasang juga ke avatar asli warga desa
+const nomorBib = () => String(AKUN && AKUN.no || 88).padStart(4, '0');
+function pasangGear(w) {
   const jm = jamAktif(); const tali = kotak(.52, .2, .54, jm.c, .05); tali.position.set(0, -.78, 0); w.userData.armL.add(tali); const muka = kotak(.3, .24, .08, 0x0d0e10, .04); muka.position.set(0, -.78, .29); w.userData.armL.add(muka);
   const layar = kotak(.22, .16, .02, 0x3aa860, .02); layar.material.emissive = new THREE.Color(0x3aa860); layar.position.set(0, -.78, .335); w.userData.armL.add(layar); pasangGengsi(w, gengsiAktif().id); if (!D.punya.includes('none')) D.punya.push('none');
   // nomor dada BIB #0088 di punggung
-  const bib = new THREE.Mesh(new THREE.PlaneGeometry(.62, .42), new THREE.MeshStandardMaterial({ map: tekstur(256, 170, (x, W, H) => { x.fillStyle = '#f6f3ee'; x.fillRect(0, 0, W, H); x.fillStyle = '#e0803a'; x.fillRect(0, 0, W, 34); x.fillStyle = '#fff'; x.font = '800 24px Montserrat'; x.textAlign = 'center'; x.fillText('PELARI KALCER', W / 2, 26); x.fillStyle = '#1d1d22'; x.font = '900 92px Montserrat'; x.fillText('0088', W / 2, 140); }) }));
+  const bib = new THREE.Mesh(new THREE.PlaneGeometry(.62, .42), new THREE.MeshStandardMaterial({ map: tekstur(256, 170, (x, W, H) => { x.fillStyle = '#f6f3ee'; x.fillRect(0, 0, W, H); x.fillStyle = '#e0803a'; x.fillRect(0, 0, W, 34); x.fillStyle = '#fff'; x.font = '800 24px Montserrat'; x.textAlign = 'center'; x.fillText('PELARI KALCER', W / 2, 26); x.fillStyle = '#1d1d22'; x.font = '900 92px Montserrat'; x.fillText(nomorBib(), W / 2, 140); }) }));
   bib.position.set(0, .62, -.31); bib.rotation.y = Math.PI; w.userData.body.add(bib);
-  return w;
 }
 let pemain = null;
 function gantiPemain() { if (!pemain) return; const p = pemain.position.clone(), r = pemain.rotation.y; sc.remove(pemain); pemain = buatPemain(); pemain.position.copy(p); pemain.rotation.y = r; sc.add(pemain); simpanA(); }
@@ -343,12 +349,14 @@ const DRILL = [{ nama: 'High Knees', pose: (t) => ({ legL: -1.4 * Math.max(0, Ma
 let tabToko = 'bekal';
 // ---------------- akun warga Dunia Kotak: koin 🪙 & permata 💎 satu dompet dengan game desa ----------------
 // Kunci warga dibaca dari perangkat (disimpan game Dunia Kotak di willoapparel.com). Tanpa akun = mode tamu (koin lokal).
+// Warga Dunia Kotak memakai avatar ASLI dari desa (Huda 8 Nov): tanpa ganti avatar & outfit di sini. Tamu tetap bisa atur avatar.
+let AV_DESA = null; try { AV_DESA = JSON.parse(localStorage.getItem('pk_avdesa') || 'null'); } catch (e) {}
 let AKUN = null; try { const w = JSON.parse(localStorage.getItem('dk_warga') || 'null'); if (w && w.kunci) AKUN = { no: w.no, ig: w.ig, kunci: w.kunci }; } catch (e) {}
 async function apiPk(op, data = {}) {
   try { const r = await fetch('/duniakotak/api/pelari', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kunci: AKUN.kunci, op, ...data }) }); return await r.json(); }
   catch (e) { return { galat: 'Server Dunia Kotak tidak menjawab. Coba lagi.' }; }
 }
-function terimaAkun(r) { if (r.koin == null) return; D.koin = r.koin; D.permata = r.permata || 0; if (r.no) AKUN.no = r.no; if (r.misi) MS.misi = r.misi; if (r.streak != null) { MS.streak = r.streak; MS.lariHariIni = !!r.lariHariIni; } if (r.rekor) MS.rekor = r.rekor; (r.punya || []).forEach((id) => { if (!D.punya.includes(id)) D.punya.push(id); }); simpanD(); isiDompet(); }
+function terimaAkun(r) { if (r.koin == null) return; D.koin = r.koin; D.permata = r.permata || 0; if (r.no) AKUN.no = r.no; if (r.misi) MS.misi = r.misi; if (r.avatar && typeof r.avatar === 'object') { const baru = JSON.stringify(r.avatar); if (baru !== JSON.stringify(AV_DESA)) { AV_DESA = r.avatar; try { localStorage.setItem('pk_avdesa', baru); } catch (e) {} gantiPemain(); siapkanHantu(); aturWarga(); } } if (r.streak != null) { MS.streak = r.streak; MS.lariHariIni = !!r.lariHariIni; } if (r.rekor) MS.rekor = r.rekor; (r.punya || []).forEach((id) => { if (!D.punya.includes(id)) D.punya.push(id); }); simpanD(); isiDompet(); }
 function isiDompet() { $('hDompet').textContent = D.koin.toLocaleString('id-ID'); $('dPermata').hidden = !AKUN; $('hPermata').textContent = (D.permata || 0).toLocaleString('id-ID'); }
 const hargaPm = (h) => Math.ceil(h / 10); // 1 💎 = 10 🪙 (sama dengan game Dunia Kotak)
 // Item keren (outfit toko, aksesori gengsi, sepatu & jam tier 3-4) khusus 💎 Permata; bekal & item dasar pakai koin lari (Huda 8 Nov).
@@ -397,7 +405,7 @@ function isiMisi() {
 }
 
 pemain = buatPemain(); sc.add(pemain);
-if (AKUN) apiPk('akun').then((r) => { if (r.galat) { if (/Masuk dulu/.test(r.galat)) AKUN = null; } else terimaAkun(r); isiMenu(); });
+if (AKUN) apiPk('akun').then((r) => { if (r.galat) { if (/Masuk dulu/.test(r.galat)) { AKUN = null; aturWarga(); gantiPemain(); } } else terimaAkun(r); isiMenu(); });
 // ---------------- keadaan ----------------
 let mode = 'lobi'; // lobi | gps | hitung | lari | selesai | gagal
 const P = {};
@@ -638,7 +646,7 @@ const angkaTier = (g) => +((g && g.tier || '').match(/Tier (\d)/) || [0, 0])[1];
 function tingkatLangka() {
   let t = Math.max(angkaTier(sepatuAktif()), angkaTier(jamAktif()), angkaTier(gengsiAktif())) - 2;
   const pakaiToko = OUTFIT.some((o) => D.punya.includes(o.id) && (o.tipe === 'kaos' ? A.kaos : o.tipe === 'bawah' ? A.bawah : A.topi) === o.i && (!o.P || A.jenis === 'P'));
-  if (pakaiToko) t = Math.max(t, 1); return Math.max(0, Math.min(2, t));
+  if (pakaiToko && !(AKUN && AV_DESA)) t = Math.max(t, 1); return Math.max(0, Math.min(2, t));
 }
 const KILAU = { g: new THREE.Group(), p: [], jejak: [], lv: -1, jejakT: 0 };
 sc.add(KILAU.g);
@@ -713,7 +721,7 @@ function selesai() {
   const t0 = P.waktu * SKALA_WAKTU, posisi = peringkat(), stk = streakKini(), stkBaru = stk.hariIni ? stk.n : stk.n + 1;
   setorLari({ koin: P.koin, finish: true, waktu: Math.round(t0 * 10) / 10, pos: posisi, iso: !!P.wsAmbil, mulus: !P.pernahKena }); D.tas = {}; D.warm = false; const baru = !D.rekor || t0 < D.rekor; if (baru) { D.rekor = t0; simpanHantu(t0); } simpanD();
   const t = P.waktu * SKALA_WAKTU, pace = t, kal = Math.round(62 * 1.04 * (60 / 60) * 1 + 0.5) + Math.round(P.koin / 50);
-  const rows = [['Pelari', '@' + A.nama], ['BIB', '#0088'], ['Sepatu', sepatuAktif().nama], ['Jam', jamAktif().nama], ['Aksesori', gengsiAktif().nama], ['Rute', 'CFD Kotak Wetan'], ['Jarak', '1,00 KM'], ['Waktu', fmtWaktu(t)], ['Avg pace', fmtWaktu(pace) + ' /km'], ['Elevasi', '+9 m'], ['Kalori', (60 + Math.round(t / 6)) + ' kcal'], ['Koin 🪙', P.koin.toLocaleString('id-ID')], ['Posisi', '#' + posisi + ' dari ' + (NPC.length + 1)], ['Menyalip', (P.salip || 0) + ' pelari'], ['Streak', stkBaru + ' hari'], ['Isotonik', P.wsAmbil ? 'Diambil ✓' : 'Kelewat'], ['Rekor', baru ? 'BARU! ' + fmtWaktu(t0) : fmtWaktu(D.rekor)]];
+  const rows = [['Pelari', '@' + (AKUN && AKUN.ig ? AKUN.ig : A.nama)], ['BIB', '#' + nomorBib()], ['Sepatu', sepatuAktif().nama], ['Jam', jamAktif().nama], ['Aksesori', gengsiAktif().nama], ['Rute', 'CFD Kotak Wetan'], ['Jarak', '1,00 KM'], ['Waktu', fmtWaktu(t)], ['Avg pace', fmtWaktu(pace) + ' /km'], ['Elevasi', '+9 m'], ['Kalori', (60 + Math.round(t / 6)) + ' kcal'], ['Koin 🪙', P.koin.toLocaleString('id-ID')], ['Posisi', '#' + posisi + ' dari ' + (NPC.length + 1)], ['Menyalip', (P.salip || 0) + ' pelari'], ['Streak', stkBaru + ' hari'], ['Isotonik', P.wsAmbil ? 'Diambil ✓' : 'Kelewat'], ['Rekor', baru ? 'BARU! ' + fmtWaktu(t0) : fmtWaktu(D.rekor)]];
   $('struk').querySelector('.baris').innerHTML = rows.map(([a, b]) => `<div><span>${a}</span><b>${b}</b></div>`).join('');
   const cap = `Finish 1 KM CFD Kotak Wetan di Pelari Kalcer · Dunia Kotak, pace ${fmtWaktu(pace)}/km, posisi #${peringkat()}. Kalcer dulu, PB kemudian. ${URL_KAMPANYE}`;
   $('fotoMedali').src = fotoMedali();
@@ -809,6 +817,8 @@ function putar(now) { const dt = Math.min(.05, (now - jamLalu) / 1000); jamLalu 
 resetLari(); keLobi(); requestAnimationFrame((t) => { jamLalu = t; putar(t); });
 // datang dari gapura CFD di Stadion Kotak Wetan → tampilkan jalan pulang ke desa
 if (/[?&]dari=desa/.test(location.search) || AKUN) { $('bDesa').hidden = false; $('bDesa2').hidden = false; }
+function aturWarga() { const w = !!(AKUN && AV_DESA); $('mAvatar').hidden = w; const t = document.querySelector('#tabToko [data-tab=outfit]'); if (t) t.hidden = w; if (w && tabToko === 'outfit') tabToko = 'bekal'; }
+aturWarga();
 $('bSuara').onclick = () => aturSuara(!SUARA); $('bSuara2').onclick = () => aturSuara(!SUARA); tombolSuara(); isiMisiTag();
 pasangIkonOtomatis();
 window.__pk = { BALON, get HANTU() { return HANTU; }, get SUARA() { return SUARA; }, P, get mode() { return mode; }, set mode(v) { mode = v; }, NPC, OBJ, harga: () => Object.fromEntries([...TOKO.map((x) => [x.id, x.harga]), ...SEPATU, ...JAM, ...GENGSI, ...OUTFIT].filter((x) => Array.isArray(x) || x.harga).map((x) => Array.isArray(x) ? x : [x.id, x.harga])) };
