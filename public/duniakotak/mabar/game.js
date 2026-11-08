@@ -17,6 +17,7 @@ import {curug, JALAN_CURUG, AWAL_CURUG} from './js/curug.js';
 import {tlaga, JALAN_TLAGA, AWAL_TLAGA} from './js/tlaga.js';
 import {segara, AWAL_SEGARA, kodeUnit} from './js/segara.js';
 import {buatNav, pecahRute} from './js/navigasi.js';
+import {pasangDesaGabung} from './js/desaGabung.js';
 
 const $ = id => document.getElementById(id);
 const VS = D.VS;
@@ -38,6 +39,7 @@ const AWAL_DUSUN = {wetan: 0, kulon: AWAL_KULON, curug: AWAL_CURUG, tlaga: AWAL_
 const alamat = n => { if (n > AWAL_SEGARA) return 'Apartemen Segara · ' + kodeUnit(n); const ds = dusunDari(n), k = n - AWAL_DUSUN[ds], rt = Math.ceil(k / 20), J = JALAN_DUSUN[ds];
   return `Jl. ${J[(rt - 1) % J.length]} No. ${((k - 1) % 20) + 1} · RT ${String(rt).padStart(2, '0')}/RW ${String(Math.ceil(rt / 5)).padStart(2, '0')}`; };
 let DI = 'wetan';   // dusun yang sedang dibuka
+let DG = null;      // desa gabungan: Peta Desa 5 dusun + jalan kaki lewat gapura (8 Nov 2026)
 
 // ---------- avatar: hanya pilihan yang ada di aset ----------
 const ATASAN = ['kaos','kaos-willo','kemeja','jaket','batik','seragam'];
@@ -2152,7 +2154,8 @@ async function mulai() {
   if (!S.tamu && baca('dk_ingat') !== hariIni()) setTimeout(ingatKoin, 45e3);
   onResize(); requestAnimationFrame(loop);
   $('chipTujuan').onclick = klikTujuan; tulisTujuan(); siapkanLangkah(); setTimeout(ambilHadir, 2500);
-  { const ke = new URLSearchParams(location.search).get('ke'); if (ke) setTimeout(() => keTempat(ke), 1500); }
+  DG = pasangDesaGabung({DI, NAMA: NAMA_DUSUN, VS, tokoh, tanah, toast, bunyi, pindahBus: d => { const u = new URL(location.href); u.searchParams.set('dusun', d); u.searchParams.delete('ke'); location.href = u.toString(); }});
+  { const ke = new URLSearchParams(location.search).get('ke'); if (ke === 'gapura') DG.tiba(); else if (ke) setTimeout(() => keTempat(ke), 1500); }
   $('chipKumpul').onclick = keKumpul;
 }
 function aturHUD() {
@@ -2302,6 +2305,7 @@ function loop(t) {
   const dtAsli = (t - tAkhir) / 1000;
   const dt = Math.min(.05, dtAsli); tAkhir = t; if (I) aturKualitas(t, dtAsli);
   const me = tokoh.saya; let vx = 0, vz = 0;
+  if (DG) DG.cek(me);
   const k = gerak.kunci;
   if (k['w'] || k['arrowup']) vz -= 1; if (k['s'] || k['arrowdown']) vz += 1; if (k['a'] || k['arrowleft']) vx -= 1; if (k['d'] || k['arrowright']) vx += 1;
   if (gerak.stik) { vx += gerak.stik.x; vz += gerak.stik.y; }
