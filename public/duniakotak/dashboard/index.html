@@ -79,7 +79,7 @@ th{color:var(--redup);font-weight:600;font-size:12px}
 
   <div class="grid">
     <section><h2>Profesi</h2><p class="ket">Warga yang sudah membuka tiap profesi.</p><div id="profesi"></div></section>
-    <section><h2>Voting & dana</h2><p class="ket">Putaran voting fasum yang sedang jalan, iuran, dan donasi Saweria.</p><div id="voting"></div></section>
+    <section><h2>Voting & dana</h2><p class="ket">Putaran voting fasum yang sedang jalan, iuran, dan donasi (Trakteer).</p><div id="voting"></div></section>
   </div>
   <p class="catatan" id="catatanMulai"></p>
 </main>
@@ -94,7 +94,7 @@ const LABEL_FITUR = {
   misi: '✅ Misi harian', gol: '⚽ Gol', bagikan: '📣 Bagikan', tanam: '🌱 Tanam', panen: '🧺 Panen', jual: '💰 Jual',
   toko: '🛍️ Toko hias', dekor: '🪑 Rakit hiasan', tas: '🎒 Tas', profesi: '💼 Profesi', iuran: '🏗️ Iuran fasum',
   voting: '⭐ Voting', iklan: '📺 Iklan', usulan: '💡 Usulan', 'usulan-kunci': '💡 Usulan', 'daftar-ig': '📝 Daftar (IG/TikTok)',
-  google: '📝 Daftar (Google)', daftar: '📝 Daftar', ig: '📷 Isi IG', saweria: '💝 Donasi Saweria', mancing: '🎣 Mancing'
+  google: '📝 Daftar (Google)', daftar: '📝 Daftar', ig: '📷 Isi IG', saweria: '💝 Donasi Saweria', trakteer: '🧱 Traktir Trakteer', mancing: '🎣 Mancing'
 };
 const LABEL_PROFESI = { petani: '🌾 Petani', nelayan: '🎣 Nelayan', pedagang: '🛒 Pedagang', tukang: '🔨 Tukang', guru: '📚 Guru', dokter: '🩺 Dokter', koki: '🍳 Koki', polisi: '👮 Polisi' };
 const LABEL_CALON = { kafe: '☕ Kafe', hiburan: '🎡 Taman Hiburan', polisi: '🚓 Kantor Polisi', taman: '🌳 Taman Kota' };
@@ -171,7 +171,7 @@ function tampil(s) {
   $('voting').innerHTML = `<div class="catatan" style="margin:0 0 6px">Putaran ${v.putaran} · ${v.pemilih} pemilih</div>` +
     Object.entries(v.hasil).sort((x, y) => y[1] - x[1]).map(([c, n]) => `<div class="baris"><span class="nm">${LABEL_CALON[c] || c}</span><span class="bar"><u style="width:${n / Math.max(1, ...Object.values(v.hasil)) * 100}%;background:var(--kuning)"></u></span><span class="n">${n}⭐</span></div>`).join('') +
     `<p style="margin:10px 0 0;font-size:13px">🏗️ Iuran fasum: <b>${fmt(v.dana.total)}</b> / ${fmt(v.dana.target)} koin dari ${v.dana.penyumbang} warga (hemat ${v.dana.hemat} hari)</p>` +
-    `<p style="margin:6px 0 0;font-size:13px">💝 Donasi Saweria: <b>${nDon}</b> kali, total <b>Rp${totDon.toLocaleString('id-ID')}</b></p>`;
+    `<p style="margin:6px 0 0;font-size:13px">💝 Donasi: <b>${nDon}</b> kali, total <b>Rp${totDon.toLocaleString('id-ID')}</b></p>`;
 
   $('catatanMulai').textContent = r.mulaiCatat ? 'Lama main tercatat sejak ' + new Date(r.mulaiCatat).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) + '. Sesi = sejak warga masuk dusun sampai detak terakhir saat game terbuka di layar; pindah dusun dihitung satu sesi.' : 'Pencatat lama main baru dipasang, angka sesi muncul setelah ada warga yang main.';
 }

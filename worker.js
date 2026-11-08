@@ -32,7 +32,8 @@ export class Pengunjung extends DurableObject {
 // Email hanya disimpan di sini (untuk 1 akun = 1 kavling), TIDAK pernah ditampilkan ke publik.
 // Warga sementara = 63 pengikut @duniakotak.id per 2 Nov 2026 (urutan follow). Kavling 1 = Raka.
 // Salah ketik yang sudah dipastikan (username salah → username benar).
-// Voting fasum berbintang (Huda 6 Nov 2026): 1 bintang gratis per hari (WIB) + bintang donasi Saweria (Rp1.000 = 1 bintang).
+// Voting fasum berbintang (Huda 6 Nov 2026): 1 bintang gratis per hari (WIB) + bintang donasi (Rp1.000 = 1 bintang).
+// Huda 8 Nov 2026: donasi pindah ke Trakteer (trakteer.id/duniakotak.id, unit "Bata" Rp5.000). Webhook Saweria tetap diterima.
 // Ganti PUTARAN untuk membuka putaran voting baru (suara putaran lama tetap tersimpan). Calon bisa ditambah/diubah di CALON_FASUM.
 const PUTARAN_VOTING = "2026-11";
 // Stream Key Saweria bisa disetel lewat halaman /duniakotak/atur-saweria.html (Huda tidak menemukan worker di Cloudflare).
@@ -377,7 +378,7 @@ export class Warga extends DurableObject {
     const aksi = new URL(request.url).pathname.slice(1);
     if (aksi === "statistik") return Response.json(this.statistik());
     const res = await this.layani(request);
-    if (request.method === "POST" && res.ok && !request.url.includes("ws=1") && !/^(rahasia|saweria-status|saweria-kunci)/.test(aksi)) {
+    if (request.method === "POST" && res.ok && !request.url.includes("ws=1") && !/^(rahasia|saweria-status|saweria-kunci|trakteer-status|trakteer-kunci)/.test(aksi)) {
       try { this.sql.exec("INSERT INTO fitur (hari, aksi, n) VALUES (?, ?, 1) ON CONFLICT (hari, aksi) DO UPDATE SET n = n + 1", hariWib(), aksi); } catch (e) {}
     }
     return res;
@@ -868,8 +869,8 @@ export class Warga extends DurableObject {
     // Hanya dipanggil worker (tidak ada rute publik yang meneruskan ke sini tanpa token).
     if (aksi === "rahasia-set") { const q = await request.json(); this.sql.exec("INSERT INTO rahasia (k, v, t) VALUES (?, ?, ?) ON CONFLICT (k) DO UPDATE SET v = excluded.v, t = excluded.t", q.k, q.v, Date.now()); return Response.json({ ok: 1 }); }
     if (aksi === "rahasia-get") { const r = this.sql.exec("SELECT v, t FROM rahasia WHERE k = ?", u.searchParams.get("k")).toArray()[0]; return Response.json(r || {}); }
-    if (aksi === "saweria") {
-      // Dipanggil worker SETELAH tanda tangan webhook Saweria dicek. Kode warga di pesan: DK123 (nomor kavling).
+    if (aksi === "saweria" || aksi === "trakteer") {
+      // Dipanggil worker SETELAH tanda tangan webhook Saweria / token webhook Trakteer dicek (Huda 8 Nov 2026: pindah ke Trakteer). Kode warga di pesan: DK123 (nomor kavling).
       const q = await request.json();
       if (this.sql.exec("SELECT 1 FROM donasi WHERE id = ?", q.id).toArray().length) return Response.json({ ok: 1, dobel: 1 });
       const m = /\bDK\s*[-.#:]?\s*(\d{1,5})\b/i.exec(q.pesan + " " + q.nama);
@@ -1369,6 +1370,35 @@ async function apiWarga(request, env, url) {
     if (!/^[A-Za-z0-9_-]{8,200}$/.test(key)) return json({ galat: "Stream Key tidak terbaca. Tempel hanya kode setelah streamKey= (tanpa link)." }, 400);
     await stub.fetch("https://do/rahasia-set", { method: "POST", body: JSON.stringify({ k: "saweria", v: key }) });
     return json({ ok: 1, pesan: "Stream Key tersimpan. Donasi Saweria sekarang bisa menambah bintang." });
+  }
+  if (aksi === "trakteer-kunci") {
+    // Setel Webhook Token Trakteer (Huda 8 Nov 2026: donasi pindah dari Saweria ke trakteer.id/duniakotak.id).
+    const tk = String(body.token || "").trim().toUpperCase(), key = String(body.key || "").trim();
+    const h = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(tk)))].map((b) => b.toString(16).padStart(2, "0")).join("");
+    if (h !== HASH_TOKEN_SETEL) return json({ galat: "Token setel salah." }, 403);
+    if (!/^[A-Za-z0-9_.:-]{8,300}$/.test(key)) return json({ galat: "Webhook Token tidak terbaca. Salin token dari Trakteer > Integrasi > Webhook." }, 400);
+    await stub.fetch("https://do/rahasia-set", { method: "POST", body: JSON.stringify({ k: "trakteer", v: key }) });
+    return json({ ok: 1, pesan: "Webhook Token Trakteer tersimpan. Traktiran Bata sekarang masuk otomatis." });
+  }
+  if (aksi === "trakteer-status") {
+    const ada = !!(env.TRAKTEER_TOKEN || (await (await stub.fetch("https://do/rahasia-get?k=trakteer")).json()).v);
+    return json({ siap: ada });
+  }
+  if (aksi === "trakteer") {
+    // Webhook Trakteer: header X-Webhook-Token = token dari Trakteer > Integrasi > Webhook (disimpan lewat atur-saweria.html
+    // atau Secret TRAKTEER_TOKEN). Isi: transaction_id, supporter_name, supporter_message, unit, quantity, price, net_amount.
+    // Kode warga di pesan: DK123. Nilai dihitung dari harga kotor (price); bila price ternyata per unit, quantity x Rp5.000 dipakai.
+    const kunciTk = env.TRAKTEER_TOKEN || (await (await stub.fetch("https://do/rahasia-get?k=trakteer")).json()).v;
+    if (!kunciTk) return json({ galat: "Webhook belum disiapkan" }, 503);
+    const tt = String(request.headers.get("X-Webhook-Token") || "");
+    let beda = tt.length ^ kunciTk.length; for (let i = 0; i < kunciTk.length; i++) beda |= kunciTk.charCodeAt(i) ^ (tt.charCodeAt(i) || 0);
+    if (!tt || beda) return json({ galat: "Token salah" }, 403);
+    const jml = Math.max(0, Math.floor(+body.quantity || 0));
+    const rp = Math.max(Math.floor(+body.price || 0), jml * BATA_RP);
+    const q = { id: "tk:" + String(body.transaction_id || body.id || "").slice(0, 80), rp, nama: String(body.supporter_name || "").slice(0, 60), pesan: String(body.supporter_message || "").slice(0, 300) };
+    if (q.id === "tk:") return json({ galat: "Tanpa transaction_id" }, 400);
+    const r = await stub.fetch("https://do/trakteer", { method: "POST", body: JSON.stringify(q) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "saweria-status" ) {
     const ada = !!(env.SAWERIA_KEY || (await (await stub.fetch("https://do/rahasia-get?k=saweria")).json()).v);
