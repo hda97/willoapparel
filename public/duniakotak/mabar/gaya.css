@@ -241,7 +241,7 @@ a.barisAtur{text-decoration:none}.barisAtur span{display:flex;flex-direction:col
 .pfInfo small{font-size:12px;opacity:.75}
 .pfSaldo{display:flex;gap:8px;flex-wrap:wrap}
 .pfSaldo span{background:rgba(255,255,255,.08);border:1px solid var(--garis);border-radius:12px;padding:5px 10px;font-weight:700;font-size:13px}
-.pfTombol{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.pfTombol{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .pfTombol button{padding:9px 4px;border-radius:12px;border:1px solid var(--garis);background:rgba(255,255,255,.06);color:#fff;font:800 12px Montserrat,sans-serif;cursor:pointer}
 .pfJudul{margin:4px 0 0;font-size:15px;text-align:left}
 .pfInv{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
@@ -360,3 +360,14 @@ a.barisAtur{text-decoration:none}.barisAtur span{display:flex;flex-direction:col
 #tiraiLift{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:#0b111c;color:#5ff4ff;font:900 22px Montserrat,sans-serif;letter-spacing:.04em;text-shadow:0 0 12px rgba(95,244,255,.6);animation:tirai .25s ease-out}
 #tiraiLift[hidden]{display:none}
 @keyframes tirai{from{opacity:0}to{opacity:1}}
+
+/* Pendukung Desa (Bata, 8 Nov 2026) */
+#panelPendukung .panel{max-height:calc(96*var(--vh,1vh));overflow-y:auto;-webkit-overflow-scrolling:touch}
+.pdHarga{display:flex;flex-direction:column;gap:3px;padding:10px 14px;border-radius:14px;background:rgba(255,201,40,.12);border:1px solid rgba(255,201,40,.35);text-align:left}
+.pdHarga b{font:900 17px Montserrat,sans-serif;color:#ffd23a}.pdHarga small,.pdHadiah small,.pdJuragan small{font:600 12px Montserrat,sans-serif;opacity:.75}
+.pdSaya{margin:8px 0 0;padding:8px 12px;border-radius:12px;background:rgba(90,190,120,.16);font:700 13px Montserrat,sans-serif;text-align:left}
+.pdHadiah{display:grid;gap:6px;margin:10px 0}.pdHadiah div,.pdJuragan{display:flex;gap:10px;align-items:center;padding:7px 12px;border-radius:12px;border:1px solid var(--garis);background:rgba(255,255,255,.05);text-align:left}
+.pdHadiah i,.pdJuragan i{font-style:normal;font-size:22px;line-height:1}.pdHadiah span,.pdJuragan span{display:flex;flex-direction:column;gap:1px}.pdHadiah b{font:800 14px Montserrat,sans-serif}
+.pdJuragan{background:rgba(255,201,40,.1);border-color:rgba(255,201,40,.4);margin-bottom:8px}.pdJuragan b{font:900 16px Montserrat,sans-serif;color:#ffd23a}
+.pdRiwayat{text-align:left}.pdDaftar{max-height:min(230px,calc(34*var(--vh,1vh)))}
+a.pdSaweria{display:block;text-align:center;text-decoration:none;margin-top:6px}
