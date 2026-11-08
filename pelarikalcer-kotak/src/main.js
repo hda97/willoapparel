@@ -1,6 +1,7 @@
 // PELARI KALCER · DUNIA KOTAK — game lari CFD keliling desa, pakai aset asli Dunia Kotak (avatar warga, rumah, fasum, kucing).
 // Pemain lari ke arah -z. 1 meter lomba = U satuan dunia.
 import * as THREE from 'three';
+import { pasangIkonOtomatis, gambarIkon, namaEmoji } from './ikon.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { warga, pose, KULIT, WARNA_RAMBUT, GAYA_RAMBUT } from '../../public/duniakotak/mabar/js/aset/avatar.js';
 import { rumahMesh, warungMesh } from '../../public/duniakotak/mabar/js/aset/rumah.js';
@@ -195,7 +196,7 @@ function kerucut() { const g = new THREE.Group(); const b = kotak(1.3, .2, 1.3, 
 function pembatas() { const g = new THREE.Group(); for (const s of [-1, 1]) { const k = kotak(.25, 1.3, .7, 0x2c3150, .05); k.position.set(s * 1.1, .65, 0); g.add(k); } for (let i = 0; i < 2; i++) { const p = kotak(2.7, .32, .22, i ? 0xf6f3ee : 0xe0803a, .05); p.position.set(0, .7 + i * .42, 0); g.add(p); } return g; }
 function lubang() { const g = new THREE.Group(); const l = kotak(2.4, .05, 1.8, 0x23252a, .03); l.position.y = .03; l.receiveShadow = true; l.castShadow = false; g.add(l); for (let i = 0; i < 5; i++) { const k = kotak(.4, .25, .4, 0x7a7d84, .05); const a = i / 5 * 6.28; k.position.set(Math.cos(a) * 1.35, .12, Math.sin(a) * 1.05); g.add(k); } return g; }
 function ikonPickup(warna, simbol) { const g = new THREE.Group(); const k = kotak(1.1, 1.1, 1.1, warna, .25); k.material.emissive = new THREE.Color(warna).multiplyScalar(.25); g.add(k);
-  const t = tekstur(128, 128, (x) => { x.font = '80px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(simbol, 64, 70); });
+  const t = tekstur(128, 128, (x) => { gambarIkon(x, namaEmoji(simbol), 14, 14, 10); });
   for (const r of [0, Math.PI / 2, Math.PI, -Math.PI / 2]) { const p = new THREE.Mesh(new THREE.PlaneGeometry(.9, .9), new THREE.MeshBasicMaterial({ map: t, transparent: true })); p.rotation.y = r; p.position.set(Math.sin(r) * .56, 0, Math.cos(r) * .56); g.add(p); } return g; }
 const BUAT = { koin: koinMesh, kerucut, pembatas, lubang, petir: () => ikonPickup(0x3aa860, '⚡'), magnet: () => ikonPickup(0xe05a6a, '🧲'), perisai: () => ikonPickup(0x3a8ad8, '🛡️'), hati: () => ikonPickup(0xf06a8a, '❤️') };
 function isiLintasan() {
@@ -417,7 +418,7 @@ function gambarStory() {
   let yy = y + 690; garis(yy); yy += 46;
   for (const [a, b] of STRUK.rows) { g.textAlign = 'left'; g.font = '30px "Courier New", monospace'; g.fillStyle = '#1d1d22'; g.fillText(a, x + 56, yy); g.textAlign = 'right'; g.font = 'bold 30px "Courier New", monospace'; g.fillText(String(b), x + w - 56, yy); yy += 40; }
   garis(yy - 12); g.textAlign = 'center'; g.font = '28px "Courier New", monospace'; g.fillText('Supported by', W / 2, yy + 44); g.font = 'bold 36px "Courier New", monospace'; g.fillText('www.willoapparel.com', W / 2, yy + 90);
-  g.fillStyle = '#f4f2ff'; g.font = '800 40px Montserrat, sans-serif'; g.fillText('Kalcer dulu, PB kemudian 🏃', W / 2, H - 62);
+  g.fillStyle = '#f4f2ff'; g.font = '800 40px Montserrat, sans-serif'; g.fillText('Kalcer dulu, PB kemudian', W / 2, H - 62);
   return c;
 }
 $('bSimpan').onclick = () => {
@@ -498,10 +499,10 @@ function hud() {
   $('hJarak').textContent = (P.d / 1000).toFixed(2).replace('.', ',');
   const pace = P.d > 5 ? (P.waktu * SKALA_WAKTU) / (P.d / 1000) : 0; $('hPace').textContent = pace ? fmtWaktu(pace) : '–:–';
   const st = $('hStamina'); st.style.width = P.stamina + '%'; st.style.background = P.stamina > 55 ? '#3aa860' : P.stamina > BATAS_WALL ? '#f2c14a' : '#e05a3a';
-  $('hNyawa').textContent = '❤️'.repeat(Math.max(0, P.nyawa)) + '🤍'.repeat(Math.max(0, 3 - P.nyawa));
+  { const nh = '❤️'.repeat(Math.max(0, P.nyawa)) + '🤍'.repeat(Math.max(0, 3 - P.nyawa)); if ($('hNyawa').dataset.n !== nh) { $('hNyawa').dataset.n = nh; $('hNyawa').textContent = nh; } }
   $('hKoin').textContent = P.koin; $('hRank').textContent = '#' + peringkat();
   const b = []; if (P.draft) b.push('🌬️ Drafting −15%'); if (P.magnet > 0) b.push('🧲 ' + Math.ceil(P.magnet) + 's'); if (P.perisai > 0) b.push('🛡️ ' + Math.ceil(P.perisai) + 's'); if (P.wall) b.push('🧱 THE WALL'); if (P.warm) b.push('🔥 Warm-up +12%'); if (P.gel > 0) b.push('⚡ Gel ' + Math.ceil(P.gel) + 's'); if (P.bekal.bakmi) b.push('🍜 +18%'); if (P.bekal.kopi) b.push('🧋 hemat 25%');
-  $('hBuff').innerHTML = b.map((x) => `<span>${x}</span>`).join('');
+  { const hb = b.map((x) => `<span>${x}</span>`).join(''); if ($('hBuff').dataset.h !== hb) { $('hBuff').dataset.h = hb; $('hBuff').innerHTML = hb; } }
   $('bWS').hidden = !(P.d > WS.buka && P.d < WS.tutup && !P.wsAmbil);
 }
 const peringkat = () => 1 + NPC.filter((n) => n.d > P.d).length;
@@ -559,7 +560,7 @@ function selesai() {
   const t = P.waktu * SKALA_WAKTU, pace = t, kal = Math.round(62 * 1.04 * (60 / 60) * 1 + 0.5) + Math.round(P.koin / 50);
   const rows = [['Pelari', '@' + A.nama], ['BIB', '#0088'], ['Sepatu', sepatuAktif().nama], ['Jam', jamAktif().nama], ['Aksesori', gengsiAktif().nama], ['Rute', 'CFD Kotak Wetan'], ['Jarak', '1,00 KM'], ['Waktu', fmtWaktu(t)], ['Avg pace', fmtWaktu(pace) + ' /km'], ['Elevasi', '+9 m'], ['Kalori', (60 + Math.round(t / 6)) + ' kcal'], ['Koin 🪙', P.koin.toLocaleString('id-ID')], ['Posisi', '#' + peringkat() + ' dari ' + (NPC.length + 1)], ['Isotonik', P.wsAmbil ? 'Diambil ✓' : 'Kelewat'], ['Rekor', baru ? 'BARU! ' + fmtWaktu(t0) : fmtWaktu(D.rekor)]];
   $('struk').querySelector('.baris').innerHTML = rows.map(([a, b]) => `<div><span>${a}</span><b>${b}</b></div>`).join('');
-  const cap = `Finish 1 KM CFD Kotak Wetan di Pelari Kalcer · Dunia Kotak 🏃‍♂️ pace ${fmtWaktu(pace)}/km, posisi #${peringkat()}. Kalcer dulu, PB kemudian. ${URL_KAMPANYE}`;
+  const cap = `Finish 1 KM CFD Kotak Wetan di Pelari Kalcer · Dunia Kotak, pace ${fmtWaktu(pace)}/km, posisi #${peringkat()}. Kalcer dulu, PB kemudian. ${URL_KAMPANYE}`;
   $('fotoMedali').src = fotoMedali();
   STRUK = { rows, caption: cap, img: null }; const fb = fotoMedali(230, 276, 2); if (fb) { const im = new Image(); im.onload = () => { STRUK.img = im; }; im.src = fb; }
   setTimeout(() => { $('hud').hidden = true; $('struk').hidden = false; }, 1400);
@@ -644,4 +645,5 @@ function ukur() { const w = innerWidth, h = innerHeight; R.setSize(w, h, false);
 addEventListener('resize', ukur); ukur();
 function putar(now) { const dt = Math.min(.05, (now - jamLalu) / 1000); jamLalu = now; if (mode !== 'jeda') langkah(dt); R.render(sc, kam); requestAnimationFrame(putar); }
 resetLari(); keLobi(); requestAnimationFrame((t) => { jamLalu = t; putar(t); });
+pasangIkonOtomatis();
 window.__pk = { P, get mode() { return mode; }, set mode(v) { mode = v; }, NPC, OBJ, harga: () => Object.fromEntries([...TOKO.map((x) => [x.id, x.harga]), ...SEPATU, ...JAM, ...GENGSI, ...OUTFIT].filter((x) => Array.isArray(x) || x.harga).map((x) => Array.isArray(x) ? x : [x.id, x.harga])) };
