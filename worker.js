@@ -32,9 +32,13 @@ export class Pengunjung extends DurableObject {
 // Email hanya disimpan di sini (untuk 1 akun = 1 kavling), TIDAK pernah ditampilkan ke publik.
 // Warga sementara = 63 pengikut @duniakotak.id per 2 Nov 2026 (urutan follow). Kavling 1 = Raka.
 // Salah ketik yang sudah dipastikan (username salah → username benar).
-// Voting fasum berbintang (Huda 6 Nov 2026): 1 bintang gratis per hari (WIB) + bintang donasi Saweria (Rp1.000 = 1 bintang).
+// Voting fasum berbintang (Huda 6 Nov 2026): 1 bintang gratis per hari (WIB) + bintang donasi (Rp1.000 = 1 bintang).
+// Huda 8 Nov 2026: donasi pindah ke Trakteer (trakteer.id/duniakotak.id, unit "Bata" Rp5.000). Webhook Saweria tetap diterima.
 // Ganti PUTARAN untuk membuka putaran voting baru (suara putaran lama tetap tersimpan). Calon bisa ditambah/diubah di CALON_FASUM.
 const PUTARAN_VOTING = "2026-11";
+// Siklus mingguan (Huda 8 Nov 2026): voting 1 minggu → pemenang dibangun 7 hari → voting fasum lain dibuka.
+// Setelah VOTING_TUTUP suara ditolak dan pop up wajib tidak muncul sampai putaran baru (ganti PUTARAN_VOTING, CALON_FASUM, VOTING_TUTUP).
+const VOTING_TUTUP = Date.parse("2026-11-14T00:00:00+07:00");
 // Stream Key Saweria bisa disetel lewat halaman /duniakotak/atur-saweria.html (Huda tidak menemukan worker di Cloudflare).
 // Halaman itu butuh token setel; di sini hanya hash SHA-256-nya (token asli dikirim ke Huda lewat chat proyek).
 const HASH_TOKEN_SETEL = "3875bd9e3be8eb385420fc08c7acbb25d81b72d5581356c72a210d4b87df4510";
@@ -339,7 +343,7 @@ export class Warga extends DurableObject {
     const hasil = {}; for (const c of CALON_FASUM) hasil[c] = 0;
     for (const x of this.sql.exec("SELECT calon, SUM(n) AS n, COUNT(*) AS w FROM suara WHERE put = ? GROUP BY calon", PUTARAN_VOTING).toArray()) if (x.calon in hasil) hasil[x.calon] = x.n;
     const pemilih = this.sql.exec("SELECT COUNT(DISTINCT no) AS w FROM suara WHERE put = ?", PUTARAN_VOTING).toArray()[0].w;
-    return { putaran: PUTARAN_VOTING, calon: CALON_FASUM, hasil, pemilih, dana: this.danaIuran() };
+    return { putaran: PUTARAN_VOTING, calon: CALON_FASUM, hasil, pemilih, tutup: VOTING_TUTUP, ditutup: Date.now() >= VOTING_TUTUP ? 1 : 0, dana: this.danaIuran() };
   }
   danaIuran() {
     const t = this.sql.exec("SELECT COALESCE(SUM(koin + permata * ?), 0) AS v, COUNT(*) AS w FROM iuran WHERE put = ?", KOIN_PER_PERMATA, PUTARAN_VOTING).toArray()[0];
@@ -377,7 +381,7 @@ export class Warga extends DurableObject {
     const aksi = new URL(request.url).pathname.slice(1);
     if (aksi === "statistik") return Response.json(this.statistik());
     const res = await this.layani(request);
-    if (request.method === "POST" && res.ok && !request.url.includes("ws=1") && !/^(rahasia|saweria-status|saweria-kunci)/.test(aksi)) {
+    if (request.method === "POST" && res.ok && !request.url.includes("ws=1") && !/^(rahasia|saweria-status|saweria-kunci|trakteer-status|trakteer-kunci)/.test(aksi)) {
       try { this.sql.exec("INSERT INTO fitur (hari, aksi, n) VALUES (?, ?, 1) ON CONFLICT (hari, aksi) DO UPDATE SET n = n + 1", hariWib(), aksi); } catch (e) {}
     }
     return res;
@@ -587,6 +591,7 @@ export class Warga extends DurableObject {
       if (r.bhari !== hari) { saldo += 1; gratis = 1; this.sql.exec("UPDATE warga SET bintang = ?, bhari = ? WHERE no = ?", saldo, hari, r.no); }
       if (q.calon) {
         const n = Math.floor(+q.n || 0);
+        if (Date.now() >= VOTING_TUTUP) return Response.json({ galat: "Voting minggu ini sudah ditutup. Bintangmu tetap tersimpan untuk voting berikutnya." }, { status: 400 });
         if (!CALON_FASUM.includes(q.calon)) return Response.json({ galat: "Calon fasum tidak dikenal." }, { status: 400 });
         if (n < 1 || n > saldo) return Response.json({ galat: saldo ? "Bintangmu tinggal " + saldo + "." : "Bintangmu habis. Besok dapat 1 bintang gratis lagi." }, { status: 400 });
         saldo -= n;
@@ -595,7 +600,7 @@ export class Warga extends DurableObject {
       }
       const saya = {}; for (const x of this.sql.exec("SELECT calon, n FROM suara WHERE put = ? AND no = ?", PUTARAN_VOTING, r.no).toArray()) saya[x.calon] = x.n;
       const don = this.sql.exec("SELECT COALESCE(SUM(bintang), 0) AS b FROM donasi WHERE no = ?", r.no).toArray()[0].b;
-      return Response.json({ no: r.no, saldo, gratis, sudahPilih: r.vhari === hari ? 1 : 0, saya, donasi: don, ...this.hasilVoting() });
+      return Response.json({ no: r.no, saldo, gratis, sudahPilih: r.vhari === hari || Date.now() >= VOTING_TUTUP ? 1 : 0, saya, donasi: don, ...this.hasilVoting() });
     }
     if (aksi === "voting-publik") return Response.json(this.hasilVoting());
     if (aksi === "pendukung") return Response.json(this.pendukung());
@@ -868,8 +873,8 @@ export class Warga extends DurableObject {
     // Hanya dipanggil worker (tidak ada rute publik yang meneruskan ke sini tanpa token).
     if (aksi === "rahasia-set") { const q = await request.json(); this.sql.exec("INSERT INTO rahasia (k, v, t) VALUES (?, ?, ?) ON CONFLICT (k) DO UPDATE SET v = excluded.v, t = excluded.t", q.k, q.v, Date.now()); return Response.json({ ok: 1 }); }
     if (aksi === "rahasia-get") { const r = this.sql.exec("SELECT v, t FROM rahasia WHERE k = ?", u.searchParams.get("k")).toArray()[0]; return Response.json(r || {}); }
-    if (aksi === "saweria") {
-      // Dipanggil worker SETELAH tanda tangan webhook Saweria dicek. Kode warga di pesan: DK123 (nomor kavling).
+    if (aksi === "saweria" || aksi === "trakteer") {
+      // Dipanggil worker SETELAH tanda tangan webhook Saweria / token webhook Trakteer dicek (Huda 8 Nov 2026: pindah ke Trakteer). Kode warga di pesan: DK123 (nomor kavling).
       const q = await request.json();
       if (this.sql.exec("SELECT 1 FROM donasi WHERE id = ?", q.id).toArray().length) return Response.json({ ok: 1, dobel: 1 });
       const m = /\bDK\s*[-.#:]?\s*(\d{1,5})\b/i.exec(q.pesan + " " + q.nama);
@@ -1369,6 +1374,38 @@ async function apiWarga(request, env, url) {
     if (!/^[A-Za-z0-9_-]{8,200}$/.test(key)) return json({ galat: "Stream Key tidak terbaca. Tempel hanya kode setelah streamKey= (tanpa link)." }, 400);
     await stub.fetch("https://do/rahasia-set", { method: "POST", body: JSON.stringify({ k: "saweria", v: key }) });
     return json({ ok: 1, pesan: "Stream Key tersimpan. Donasi Saweria sekarang bisa menambah bintang." });
+  }
+  if (aksi === "trakteer-kunci") {
+    // Setel Webhook Token Trakteer (Huda 8 Nov 2026: donasi pindah dari Saweria ke trakteer.id/duniakotak.id).
+    const tk = String(body.token || "").trim().toUpperCase(), key = String(body.key || "").trim();
+    const h = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(tk)))].map((b) => b.toString(16).padStart(2, "0")).join("");
+    if (h !== HASH_TOKEN_SETEL) return json({ galat: "Token setel salah." }, 403);
+    if (!/^[A-Za-z0-9_.:-]{8,300}$/.test(key)) return json({ galat: "Webhook Token tidak terbaca. Salin token dari Trakteer > Integrasi > Webhook." }, 400);
+    await stub.fetch("https://do/rahasia-set", { method: "POST", body: JSON.stringify({ k: "trakteer", v: key }) });
+    return json({ ok: 1, pesan: "Webhook Token Trakteer tersimpan. Traktiran Bata sekarang masuk otomatis." });
+  }
+  if (aksi === "trakteer-status") {
+    const ada = !!(env.TRAKTEER_TOKEN || (await (await stub.fetch("https://do/rahasia-get?k=trakteer")).json()).v);
+    return json({ siap: ada });
+  }
+  if (aksi === "trakteer") {
+    // Webhook Trakteer: header X-Webhook-Token = token dari Trakteer > Integrasi > Webhook (disimpan lewat atur-saweria.html
+    // atau Secret TRAKTEER_TOKEN). Isi: transaction_id, supporter_name, supporter_message, unit, quantity, price, net_amount.
+    // Kode warga di pesan: DK123. Nilai dihitung dari harga kotor (price); bila price ternyata per unit, quantity x Rp5.000 dipakai.
+    let kunciTk = env.TRAKTEER_TOKEN || (await (await stub.fetch("https://do/rahasia-get?k=trakteer")).json()).v;
+    const tt = String(request.headers.get("X-Webhook-Token") || "");
+    // Huda 8 Nov 2026 (pilih "Ya, otomatis"): token disimpan dari kiriman PERTAMA Trakteer (tombol Test, tidak dicatat sebagai donasi) supaya tidak perlu
+    // ditempel di halaman atur. Setelah tersimpan, hanya token itu yang diterima. Ganti token lewat atur-saweria.html.
+    if (!kunciTk && /^[A-Za-z0-9_.:-]{8,300}$/.test(tt)) { await stub.fetch("https://do/rahasia-set", { method: "POST", body: JSON.stringify({ k: "trakteer", v: tt }) }); return json({ ok: 1, pesan: "Webhook Token Trakteer tersimpan dari kiriman pertama (dianggap Test, tidak dicatat sebagai donasi)." }); }
+    if (!kunciTk) return json({ galat: "Webhook belum disiapkan" }, 503);
+    let beda = tt.length ^ kunciTk.length; for (let i = 0; i < kunciTk.length; i++) beda |= kunciTk.charCodeAt(i) ^ (tt.charCodeAt(i) || 0);
+    if (!tt || beda) return json({ galat: "Token salah" }, 403);
+    const jml = Math.max(0, Math.floor(+body.quantity || 0));
+    const rp = Math.max(Math.floor(+body.price || 0), jml * BATA_RP);
+    const q = { id: "tk:" + String(body.transaction_id || body.id || "").slice(0, 80), rp, nama: String(body.supporter_name || "").slice(0, 60), pesan: String(body.supporter_message || "").slice(0, 300) };
+    if (q.id === "tk:") return json({ galat: "Tanpa transaction_id" }, 400);
+    const r = await stub.fetch("https://do/trakteer", { method: "POST", body: JSON.stringify(q) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "saweria-status" ) {
     const ada = !!(env.SAWERIA_KEY || (await (await stub.fetch("https://do/rahasia-get?k=saweria")).json()).v);
