@@ -992,24 +992,26 @@ const GBR_BINTANG = '<svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGr
 function tulisVoting() {
   const d = VT; if (!d) return;
   const urut = [...d.calon].sort((a, b) => (d.hasil[b] || 0) - (d.hasil[a] || 0)), maks = Math.max(1, ...urut.map(c => d.hasil[c] || 0)), saldo = d.saldo || 0;
-  let h = S.tamu ? '<p class="kecil">Daftar jadi warga dulu supaya bisa ikut voting.</p>' : `<div class="vtSaldo"><span>Bintangmu</span><b>⭐ ${saldo}</b></div>`;
+  // pop up ringkas (Huda 8 Nov 2026): saldo bintang jadi chip di judul, satu baris per calon
+  $('vtSaldo').hidden = !!S.tamu; $('vtSaldo').innerHTML = `Bintangmu <b>⭐ ${saldo}</b>`;
+  let h = S.tamu ? '<p class="kecil">Daftar jadi warga dulu supaya bisa ikut voting.</p>' : '';
   h += '<div class="vtDaftar">' + urut.map(c => { const [ik, nm] = CALON[c] || ['🏗️', c], n = d.hasil[c] || 0, sy = d.saya?.[c] || 0;
-    return `<div class="vtBaris"><span class="vtBar" style="width:${(n / maks * 100).toFixed(1)}%"></span><span class="vtIkon">${ik}</span><span class="vtNama">${esc(nm)}${sy ? `<small>Bintangmu di sini: ${sy}</small>` : ''}</span><span class="vtJml">⭐ ${n}</span>`
+    return `<div class="vtBaris"><span class="vtBar" style="width:${(n / maks * 100).toFixed(1)}%"></span><span class="vtIkon">${ik}</span><span class="vtNama">${esc(nm)}${sy ? `<small title="Bintangmu di sini">kamu ${sy}</small>` : ''}</span><span class="vtJml">⭐ ${n}</span>`
       + (S.tamu ? '' : `<button data-vt="${c}" data-n="1" ${saldo < 1 ? 'disabled' : ''}>+1</button>${saldo >= 5 ? `<button data-vt="${c}" data-n="${saldo}">+${saldo}</button>` : ''}`) + '</div>'; }).join('') + '</div>';
   $('isiVoting').innerHTML = h; tulisDana();
   // Siklus mingguan (Huda 8 Nov 2026): voting 1 minggu, pemenang langsung dibangun, lalu voting fasum lain.
   const sisa = d.tutup ? d.tutup - Date.now() : 0, tgl = d.tutup ? new Date(d.tutup).toLocaleDateString('id-ID', {weekday: 'long', day: 'numeric', month: 'short', timeZone: 'Asia/Jakarta'}) : '';
-  const waktu = !d.tutup ? '' : sisa <= 0 ? 'Voting minggu ini sudah ditutup, pemenangnya mulai dibangun. Voting fasum berikutnya segera dibuka. ' : `Ditutup ${tgl} pukul 00.00 WIB (${sisa > 864e5 ? 'sisa ' + Math.floor(sisa / 864e5) + ' hari' : 'kurang dari sehari lagi'}). Bintang terbanyak langsung dibangun. `;
-  $('ringkasVoting').textContent = waktu + `Pilih fasum yang dibangun berikutnya. ${d.pemilih} warga sudah memilih. ` + (S.tamu ? '' : 'Tiap hari dapat 1 bintang gratis.');
+  const waktu = !d.tutup ? '' : sisa <= 0 ? 'Voting minggu ini sudah ditutup, pemenangnya mulai dibangun. ' : `Ditutup ${tgl}, 00.00 WIB (${sisa > 864e5 ? 'sisa ' + Math.floor(sisa / 864e5) + ' hari' : 'kurang dari sehari'}). `;
+  $('ringkasVoting').textContent = waktu + `Terbanyak langsung dibangun. ${d.pemilih} warga sudah memilih` + (S.tamu ? '.' : ', 1 bintang gratis tiap hari.');
   if (sisa < 0 || d.ditutup) $('isiVoting').querySelectorAll('button[data-vt]').forEach(b => b.disabled = true);
   if (!S.tamu && d.no) {
-    $('vtDonasi').hidden = false;
+    $('vtDonasiLipat').hidden = false;
     // Paket bintang: tombol membuka Trakteer (Huda 8 Nov 2026, satuan Bata = 5 bintang) + menyalin kode warga; jumlah Bata dipilih di Trakteer.
-    $('vtDonasi').innerHTML = `<b>Tambah bintang lewat donasi sukarela</b><div class="vtPaket">${[[5, 1], [10, 2], [25, 3], [100, 5]].map(([n, k]) => `<a href="https://trakteer.id/duniakotak.id" target="_blank" rel="noopener" data-paket="${n}"><span class="vtBintang b${k}">${GBR_BINTANG.repeat(k)}</span><b>${n} bintang</b><small>🧱 ${n / 5} Bata</small></a>`).join('')}</div>Tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan traktiran Trakteer. Tiap 🧱 1 Bata = 5 bintang + 50 💎 permata untuk Toko Hias, masuk otomatis. Bata juga dihitung untuk hadiah (bendera emas, mahkota Juragan, plakat fasum: ⚙ Atur → Pendukung Desa). <br><small>Belum 17 tahun? Minta izin orang tua dulu ya. Bintang gratis harian sudah cukup untuk ikut memilih.</small>` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
-  } else $('vtDonasi').hidden = true;
+    $('vtDonasi').innerHTML = `<div class="vtPaket">${[[5, 1], [10, 2], [25, 3], [100, 5]].map(([n, k]) => `<a href="https://trakteer.id/duniakotak.id" target="_blank" rel="noopener" data-paket="${n}"><span class="vtBintang b${k}">${GBR_BINTANG.repeat(k)}</span><b>${n} bintang</b><small>🧱 ${n / 5} Bata</small></a>`).join('')}</div>Tulis kode <span class="vtKode" id="vtKode" title="Salin">DK${d.no}</span> di pesan traktiran Trakteer. 🧱 1 Bata = 5 bintang + 50 💎, masuk otomatis. Hadiah Bata: ⚙ Atur → Pendukung Desa.<br><small>Belum 17 tahun? Minta izin orang tua dulu. Bintang gratis harian sudah cukup untuk memilih.</small>` + (d.donasi ? ` <b>Bintang dari donasimu: ${d.donasi}. Terima kasih!</b>` : '');
+  } else $('vtDonasiLipat').hidden = true;
 }
 async function bukaVoting(wajib) {
-  kunciVoting(false); $('panelVoting').hidden = !!wajib;   // pop up wajib baru tampil setelah tahu hak pilih hari ini belum dipakai $('isiVoting').innerHTML = '<p class="kecil">Memuat…</p>'; $('vtDonasi').hidden = true;
+  kunciVoting(false); $('panelVoting').hidden = !!wajib;   // pop up wajib baru tampil setelah tahu hak pilih hari ini belum dipakai $('isiVoting').innerHTML = '<p class="kecil">Memuat…</p>'; $('vtDonasiLipat').hidden = true;
   try {
     VT = S.tamu || !S.kunci ? await (await fetch('/duniakotak/api/voting')).json() : await api('voting', {kunci: S.kunci});
     if (VT.gratis) toast('⭐ Bintang gratis hari ini masuk!', 3000);
@@ -1747,11 +1749,13 @@ function ingatKoin() {
 }
 function tulisDana() {
   if (VT && VT.dana && PAPAN.kanvas) { PAPAN.data = {...(PAPAN.data || {}), dana: VT.dana, hasil: VT.hasil || PAPAN.data?.hasil}; gambarPapan(); }
-  const d = VT?.dana; if (!d) { $('vtDana').innerHTML = ''; return; }
+  const d = VT?.dana; if (!d) { $('vtDana').innerHTML = ''; $('vtDanaLipat').hidden = true; return; }
   const pr = Math.min(100, d.total / d.target * 100), penuh = d.total >= d.target, k = S.saya?.koin || 0, pm = S.saya?.permata || 0;
-  let h = `<b>🏗️ Dana pembangunan</b><div class="danaBar"><span style="width:${pr.toFixed(1)}%"></span><em>${d.total.toLocaleString('id-ID')} / ${d.target.toLocaleString('id-ID')} 🪙</em></div>`
-    + `<small>${penuh ? 'Dana penuh! Fasum pemenang langsung dibangun begitu voting ditutup.' : `Pemenang dibangun <b>${d.hari} hari</b> setelah voting ditutup${d.hemat ? ` (lebih cepat ${d.hemat} hari berkat iuran)` : ''}. Tiap ${d.perHari.toLocaleString('id-ID')} koin iuran = 1 hari lebih cepat.`} ${d.penyumbang} warga sudah iuran. 1 💎 = 10 🪙, maks ${d.batasPermata} 💎 per minggu.</small>`;
-  if (d.top?.length) h += `<small class="danaTop">Penyumbang terbesar (masuk prasasti peresmian): ${d.top.map(x => `@${esc(x.ig)} ${x.v.toLocaleString('id-ID')}`).join(' · ')}</small>`;
+  // dilipat di pop up (Huda 8 Nov 2026): judul lipatan sudah memuat bar progres, isi dibuka bila ingin iuran
+  $('vtDanaLipat').hidden = false;
+  $('vtDanaRingkas').innerHTML = `<span>🏗️ Dana pembangunan</span><span class="danaBar mini"><span style="width:${pr.toFixed(1)}%"></span><em>${d.total.toLocaleString('id-ID')} / ${d.target.toLocaleString('id-ID')} 🪙</em></span>`;
+  let h = `<small>${penuh ? 'Dana penuh! Pemenang langsung dibangun begitu voting ditutup.' : `Pemenang dibangun <b>${d.hari} hari</b> setelah voting ditutup${d.hemat ? ` (lebih cepat ${d.hemat} hari berkat iuran)` : ''}. Tiap ${d.perHari.toLocaleString('id-ID')} 🪙 iuran = 1 hari lebih cepat.`} ${d.penyumbang} warga sudah iuran. 1 💎 = 10 🪙, maks ${d.batasPermata} 💎/minggu.</small>`;
+  if (d.top?.length) h += `<small class="danaTop">Penyumbang terbesar (masuk prasasti): ${d.top.map(x => `@${esc(x.ig)} ${x.v.toLocaleString('id-ID')}`).join(' · ')}</small>`;
   if (!S.tamu && !penuh) h += `<div class="danaTombol">${[50, 100, 500].map(n => `<button data-iuran="koin" data-n="${n}" ${k < n ? 'disabled' : ''}>🪙 ${n}</button>`).join('')}${[5, 10].map(n => `<button data-iuran="permata" data-n="${n}" ${pm < n || (IU && IU.sisaPermata < n) ? 'disabled' : ''}>💎 ${n}</button>`).join('')}</div>`
     + (IU && (IU.koin || IU.permata) ? `<small>Iuranmu putaran ini: ${IU.koin} 🪙 + ${IU.permata} 💎</small>` : '');
   $('vtDana').innerHTML = h;

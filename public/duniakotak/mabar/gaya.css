@@ -201,9 +201,9 @@ a.barisAtur{text-decoration:none}.barisAtur span{display:flex;flex-direction:col
 .vtDonasi{margin:8px 0 2px;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.06);color:#dde;font:600 12px/1.45 Montserrat,sans-serif;text-align:left}
 .vtDonasi b{color:#ffd23a}.vtDonasi a{color:#ffe39a;font-weight:800}
 .vtKode{display:inline-block;padding:1px 8px;border-radius:8px;background:#ffd23a;color:#3a2a00;font-weight:900;cursor:pointer}
-@media (max-height:460px){#panelVoting{padding:6px 12px}#panelVoting .panel{gap:6px}#panelVoting h2{margin:0;font-size:17px}#panelVoting .vtDaftar{max-height:34vh}#panelVoting .vtSaldo{padding:4px 12px;margin-bottom:6px}#panelVoting .vtDonasi{margin:4px 0 0;padding:6px 10px;font-size:11px;line-height:1.35}#panelVoting .utama{padding:9px 18px}#ringkasVoting{margin:0}
+@media (max-height:460px){
 #panelAtur .barisAtur span{flex-direction:row;align-items:baseline;gap:8px;flex-wrap:wrap}#panelAtur #jamAtur{margin:0}}
-:where(html.putar.mq-pendek) #panelVoting .vtDaftar{max-height:34vh}:where(html.putar.mq-pendek) #panelVoting .vtDonasi{font-size:11px;padding:6px 10px}:where(html.putar.mq-pendek) #panelAtur .barisAtur span{flex-direction:row;align-items:baseline;gap:8px}
+:where(html.putar.mq-pendek) #panelAtur .barisAtur span{flex-direction:row;align-items:baseline;gap:8px}
 .vtPaket{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0}
 .vtPaket a{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 4px;border-radius:12px;background:linear-gradient(#3b3560,#2a2547);border:1px solid rgba(255,210,58,.55);color:#ffe39a;font:900 13px Montserrat,sans-serif;text-decoration:none}
 .vtPaket a b{color:#ffd23a;font-weight:900}
@@ -313,26 +313,42 @@ a.barisAtur{text-decoration:none}.barisAtur span{display:flex;flex-direction:col
 #isiSewa{display:grid;gap:6px;margin:8px 0}
 .rkBaris button s{opacity:.6;font-weight:700}
 
-/* Voting layar penuh di HP landscape / layar lebar (Huda 6 Nov 2026): 2 kolom memenuhi layar, ukuran huruf tetap ringkas.
-   Kiri = judul + bintang + daftar calon, kanan = dana pembangunan + donasi + tombol. Tiap kolom bergulir sendiri bila perlu. */
-.vtKiri,.vtKanan{display:grid;gap:8px;align-content:start;min-width:0}
-@media (min-width:700px){
-#panelVoting{padding:10px 14px;place-items:stretch}
-#panelVoting .vtPanel{width:100%;max-width:1100px;margin:0 auto;height:calc(100vh - 20px);grid-template-rows:100%;box-sizing:border-box;grid-template-columns:1.15fr 1fr;gap:14px;align-items:stretch}
-#panelVoting .vtKiri,#panelVoting .vtKanan{overflow:auto;max-height:100%;padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);box-sizing:border-box}
-#panelVoting .vtKiri{grid-template-rows:auto auto auto 1fr}
-#panelVoting h2{margin:0;font-size:19px}#ringkasVoting{margin:0;font-size:12px}
-#panelVoting .vtDaftar{max-height:none}
-#panelVoting .vtBaris{padding:6px 10px;font-size:13px}
-#panelVoting .vtDana{margin:0;padding:9px 12px}#panelVoting .vtDonasi{margin:0;font-size:11.5px;padding:8px 12px}
-#panelVoting #tutupVoting{align-self:end;justify-self:stretch;padding:10px 18px;position:sticky;bottom:0}
-}
-:where(html.putar:not(.mq-tegak)) #panelVoting{padding:10px 14px;place-items:stretch}
-:where(html.putar:not(.mq-tegak)) #panelVoting .vtPanel{width:100%;height:calc(var(--vh, 1vh) * 100 - 20px);grid-template-rows:100%;box-sizing:border-box;grid-template-columns:1.15fr 1fr;gap:14px;align-items:stretch}
-:where(html.putar:not(.mq-tegak)) #panelVoting .vtKiri,:where(html.putar:not(.mq-tegak)) #panelVoting .vtKanan{overflow:auto;max-height:100%;padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);box-sizing:border-box}
-:where(html.putar:not(.mq-tegak)) #panelVoting .vtKiri{grid-template-rows:auto auto auto 1fr}
-:where(html.putar:not(.mq-tegak)) #panelVoting .vtDaftar{max-height:none}
-:where(html.putar:not(.mq-tegak)) #panelVoting #tutupVoting{align-self:end}
+/* Pop up Voting ringkas (Huda 8 Nov 2026): satu kartu yang selalu muat di layar HP (tegak, mendatar, maupun diputar).
+   Kepala (judul + bintangmu + tanggal tutup) tetap, isi (calon, dana, donasi) bergulir di dalam, tombol Lanjut main selalu terlihat di bawah.
+   Dana pembangunan & donasi dilipat supaya daftar calon langsung kelihatan. */
+#panelVoting{padding:max(8px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+#panelVoting>.vtPanel{width:min(520px,100%);max-height:calc(100dvh - 16px);display:flex;flex-direction:column;gap:6px;padding:12px 14px;overflow:hidden;text-align:left}
+:where(html.putar) #panelVoting{padding:8px 16px}
+:where(html.putar) #panelVoting>.vtPanel{max-height:calc(var(--vh,1vh) * 100 - 16px)}
+.vtKepala{display:flex;align-items:center;justify-content:space-between;gap:10px;flex:none}
+#panelVoting h2{margin:0;font-size:18px;line-height:1.2}
+#panelVoting .vtSaldo{flex:none;margin:0;padding:4px 10px;border-radius:999px;font-size:12px;gap:6px}
+#panelVoting .vtSaldo b{font-size:15px}
+#ringkasVoting{flex:none;margin:0;font-size:11.5px;line-height:1.35;text-align:left}
+.vtIsi{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;display:grid;gap:6px;align-content:start}
+#panelVoting .vtDaftar{max-height:none;overflow:visible}
+#panelVoting .vtBaris{gap:8px;padding:5px 8px;font-size:13px;min-height:36px;box-sizing:border-box}
+#panelVoting .vtIkon{font-size:18px;width:22px}
+#panelVoting .vtNama{display:flex;align-items:baseline;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#panelVoting .vtNama small{display:inline;flex:none;font-size:10.5px;color:#ffe39a}
+#panelVoting .vtBaris button{padding:6px 9px;min-width:34px}
+.vtLipat{border-radius:12px;background:rgba(255,255,255,.06);border:1px solid var(--garis)}
+.vtLipat>summary{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:8px 10px;list-style:none;cursor:pointer;font:800 12.5px Montserrat,sans-serif;color:#ffe39a}
+.vtLipat>summary::-webkit-details-marker{display:none}
+.vtLipat>summary::after{content:'▾';margin-left:auto;flex:none;color:#ffd23a;transition:transform .15s}
+.vtLipat[open]>summary::after{transform:rotate(180deg)}
+.vtLipat[hidden]{display:none}
+.vtLipat>summary>span:first-child{flex:none}
+.danaBar.mini{flex:1 1 110px;min-width:110px;height:18px}.danaBar.mini em{font-size:10.5px;line-height:18px}
+#panelVoting .vtDana,#panelVoting .vtDonasi{margin:0;padding:0 10px 10px;border:0;background:none;border-radius:0}
+#panelVoting .vtDonasi{font-size:11.5px;line-height:1.4}
+#panelVoting .vtPaket{margin:0 0 6px}
+#tutupVoting{flex:none;margin:2px 0 0;padding:10px 18px;width:100%}
+@media (max-height:460px){#panelVoting>.vtPanel{padding:10px 12px;gap:5px}#panelVoting h2{font-size:16px}}
+:where(html.putar.mq-pendek) #panelVoting>.vtPanel{padding:10px 12px;gap:5px}:where(html.putar.mq-pendek) #panelVoting h2{font-size:16px}
+/* Landscape lebar: daftar calon & lipatan berdampingan, tetap satu kartu */
+@media (min-width:760px) and (max-height:560px){#panelVoting>.vtPanel{width:min(760px,100%)}.vtIsi{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}.vtIsi>#isiVoting{grid-row:span 3}}
+:where(html.putar:not(.mq-tegak)) .vtIsi{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}:where(html.putar:not(.mq-tegak)) .vtIsi>#isiVoting{grid-row:span 3}:where(html.putar:not(.mq-tegak)) #panelVoting>.vtPanel{width:min(600px,100%)}
 /* Lima menit pertama (7 Nov 2026): satu tujuan 🎯 di atas tengah layar, tombol yang perlu ditekan disorot, koin melayang */
 .chipTujuan{position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:7;display:flex;align-items:center;gap:8px;max-width:min(440px,calc(100vw - 24px));background:rgba(26,28,46,.92);color:#fff;border:2px solid #ffd23a;border-radius:16px;padding:6px 10px;font:800 12px Montserrat,sans-serif;text-align:left;box-shadow:0 4px 14px rgba(0,0,0,.35);cursor:pointer;animation:tjMasuk .35s ease-out}
 .chipTujuan[hidden]{display:none}

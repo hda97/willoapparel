@@ -9,7 +9,7 @@
 <link rel="icon" href="/duniakotak/logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap">
-<link rel="stylesheet" href="gaya.css?v=20261108trakteer">
+<link rel="stylesheet" href="gaya.css?v=20261109vtringkas">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js","three/addons/geometries/RoundedBoxGeometry.js":"/duniakotak/mabar/js/kotakBulat.js?v=20261108r","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
 <body>
@@ -142,18 +142,17 @@
   <button class="utama" id="tutupPeringkat">Lanjut main</button>
  </div>
 </div>
-<div id="panelVoting" class="layarPenuh" hidden>
+<div id="panelVoting" class="layarPenuh popup" hidden>
+ <!-- Pop up voting ringkas (Huda 8 Nov 2026): muat 1 layar HP; isi bergulir di dalam, tombol Lanjut main selalu terlihat di bawah -->
  <div class="panel vtPanel">
-  <div class="vtKiri">
-   <h2>⭐ Voting Fasum</h2>
-   <p class="kecil" id="ringkasVoting">Pilih fasum yang dibangun berikutnya. Taruh bintangmu di calon pilihanmu.</p>
+  <div class="vtKepala"><h2>⭐ Voting Fasum</h2><span class="vtSaldo" id="vtSaldo" hidden></span></div>
+  <p class="kecil" id="ringkasVoting">Pilih fasum yang dibangun berikutnya.</p>
+  <div class="vtIsi">
    <div id="isiVoting"></div>
-   <button class="utama" id="tutupVoting">Lanjut main</button>
+   <details class="vtLipat" id="vtDanaLipat" hidden><summary id="vtDanaRingkas">🏗️ Dana pembangunan</summary><div class="vtDana" id="vtDana"></div></details>
+   <details class="vtLipat" id="vtDonasiLipat" hidden><summary>⭐ Tambah bintang (donasi sukarela)</summary><div class="vtDonasi" id="vtDonasi"></div></details>
   </div>
-  <div class="vtKanan">
-   <div class="vtDana" id="vtDana"></div>
-   <div class="vtDonasi" id="vtDonasi" hidden></div>
-  </div>
+  <button class="utama" id="tutupVoting">Lanjut main</button>
  </div>
 </div>
 <div id="panelToko" class="layarPenuh" hidden>
@@ -211,6 +210,6 @@
 
 <div id="miring" class="layarPenuh" hidden><div class="panel"><div style="font-size:54px">📱↻</div><h2>Miringkan HP-mu</h2><p class="sub">Dunia Kotak dimainkan dengan layar mendatar.</p><button class="tipis" id="tetapTegak">Tetap main tegak</button></div></div>
 
-<script type="module" src="game.js?v=20261109voting"></script>
+<script type="module" src="game.js?v=20261109vtringkas"></script>
 </body>
 </html>
