@@ -131,13 +131,14 @@ body.potret #hBuff{top:calc(104px + env(safe-area-inset-top,0px));flex-wrap:wrap
 .topup a.utama{text-align:center;text-decoration:none;display:block}
 .bayarPakai{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--redup)}.bayarPakai button{background:rgba(255,255,255,.08);border-radius:999px;padding:6px 12px;font-weight:800;font-size:12px;color:var(--teks)}.bayarPakai button[aria-pressed=true]{background:var(--oranye);color:#fff}
 .pi{width:1.25em;height:1.25em;display:inline-block;vertical-align:-.2em;image-rendering:pixelated}.ubin span .pi{width:22px;height:22px}#hNyawa .pi{width:15px;height:15px;margin-right:1px}#bWS .pi{width:26px;height:26px}.map>span .pi{width:28px;height:28px}.tutup .pi{width:14px;height:14px}.item .ik .pi{width:28px;height:28px}
+#bDesa[hidden],#bDesa2[hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){#bWS{animation:none}}
 </style></head><body>
 <canvas id="kanvas"></canvas>
 <section id="lobi" aria-label="Menu utama">
   <div class="judul"><small>CFD DESA · DUNIA KOTAK</small><h1>Pelari<br><span>Kalcer</span></h1><p class="dukung">Supported by www.willoapparel.com</p></div>
   <button class="rute kaca" id="bRute" type="button"><small>RUTE</small><b>CFD Kotak Wetan · 1 KM</b><i>Ganti map · 6 rute Nusantara segera ›</i></button>
-  <button class="utama besar" id="bMulai">MULAI LARI →</button>
+  <button class="utama besar" id="bMulai">MULAI LARI →</button><a class="kedua" id="bDesa" href="/duniakotak/mabar/?dusun=wetan&amp;ke=stadion" target="_top" hidden style="text-align:center;text-decoration:none;display:block">← Kembali ke desa Dunia Kotak</a>
   <div class="ubin">
     <button class="kaca" id="mAvatar"><span>👕</span>Avatar</button>
     <button class="kaca" id="mToko"><span>🛒</span>Toko<em id="tagToko"></em></button>
@@ -194,7 +195,7 @@ body.potret #hBuff{top:calc(104px + env(safe-area-inset-top,0px));flex-wrap:wrap
   <h2>PELARI KALCER</h2><div class="sub">RACE RECEIPT · DUNIA KOTAK</div><img id="fotoMedali" alt="Pelari dengan medali finisher">
   <div class="baris"></div>
   <p>Supported by<br><b>www.willoapparel.com</b></p>
-  <div class="tombol"><button class="kedua" id="bSimpan">📸 Simpan untuk Story</button><button class="utama" id="bLagi" style="font-size:14px;padding:10px">MAIN LAGI</button></div>
+  <div class="tombol"><button class="kedua" id="bSimpan">📸 Simpan untuk Story</button><a class="kedua" id="bDesa2" href="/duniakotak/mabar/?dusun=wetan&amp;ke=stadion" target="_top" hidden style="text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;font-size:13px">Ke desa</a><button class="utama" id="bLagi" style="font-size:14px;padding:10px">MAIN LAGI</button></div>
 </div></div>
 <div id="story" class="layar" hidden><div class="kartu kaca" style="max-height:94vh;overflow:auto;text-align:center;gap:8px">
   <img id="storyImg" alt="Struk finisher ukuran story" style="max-height:62vh;max-width:100%;border-radius:10px;align-self:center">
