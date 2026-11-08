@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Atur Saweria · Dunia Kotak</title>
+<title>Atur Donasi · Dunia Kotak</title>
 <style>
 :root{color-scheme:dark}
-body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 50% 30%,#2c3150,#13141f);color:#fff;font:15px/1.5 system-ui,sans-serif;padding:16px;box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 30%,#2c3150,#13141f);color:#fff;font:15px/1.5 system-ui,sans-serif;padding:16px;box-sizing:border-box}
 .kotak{width:100%;max-width:420px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:18px;padding:20px}
 h1{margin:0 0 6px;font-size:20px}p{margin:0 0 14px;color:#cdd}
 label{display:block;font-weight:700;margin:12px 0 6px}
@@ -18,7 +18,25 @@ button{margin-top:18px;width:100%;padding:13px;border:0;border-radius:14px;backg
 </head>
 <body>
 <div class="kotak">
- <h1>⭐ Atur Saweria</h1>
+ <h1>🧱 Atur Trakteer</h1>
+ <p>Buka <b>trakteer.id</b> &gt; menu <b>Integrasi</b> &gt; <b>Webhook</b>. Isi Webhook URL dengan <b>https://willoapparel.com/duniakotak/api/trakteer</b>, salin <b>Webhook Token</b>-nya ke sini, lalu klik Simpan. Setelah itu traktiran Bata dengan kode DK masuk otomatis.</p>
+ <label for="tokenT">Token setel</label>
+ <input id="tokenT" autocomplete="off" placeholder="DK-XXXXXXXXXXXX">
+ <label for="keyT">Webhook Token Trakteer</label>
+ <input id="keyT" autocomplete="off" placeholder="tempel di sini">
+ <button id="simpanT">Simpan token Trakteer</button>
+ <div id="hasilT"></div>
+</div>
+<div class="kotak" style="margin-top:16px">
+ <h1>🕵️ Traktiran tanpa kode DK</h1>
+ <p>Traktiran yang lupa menulis kode DK tercatat sebagai "Pendukung misterius". Tulis token setel, klik Tampilkan, lalu isi nomor warga yang benar dan klik Pindahkan. Bintang, permata, dan hadiah Bata langsung masuk ke warga itu.</p>
+ <label for="tokenM">Token setel</label>
+ <input id="tokenM" autocomplete="off" placeholder="DK-XXXXXXXXXXXX">
+ <button id="lihatM">Tampilkan</button>
+ <div id="hasilM"></div>
+</div>
+<div class="kotak" style="margin-top:16px;opacity:.75">
+ <h1>⭐ Atur Saweria (lama)</h1>
  <p>Halaman ini khusus admin Dunia Kotak. Tempel Stream Key dari link overlay Saweria, yaitu bagian setelah <b>streamKey=</b>. Key disimpan di server dan tidak akan ditampilkan lagi.</p>
  <label for="token">Token setel</label>
  <input id="token" autocomplete="off" placeholder="DK-XXXXXXXXXXXX">
@@ -30,6 +48,15 @@ button{margin-top:18px;width:100%;padding:13px;border:0;border-radius:14px;backg
 <script>
 const $ = id => document.getElementById(id);
 $('key').addEventListener('input', () => { const v = $('key').value, m = /streamKey=([^&\s]+)/.exec(v); if (m) $('key').value = m[1]; });
+$('simpanT').onclick = async () => {
+  $('hasilT').className = ''; $('hasilT').textContent = 'Menyimpan…';
+  try {
+    const r = await fetch('/duniakotak/api/trakteer-kunci', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({token: $('tokenT').value, key: $('keyT').value})});
+    const j = await r.json();
+    $('hasilT').className = r.ok ? 'ok' : 'gagal'; $('hasilT').textContent = r.ok ? '✅ ' + j.pesan : '❌ ' + (j.galat || 'Gagal');
+    if (r.ok) $('keyT').value = '';
+  } catch (e) { $('hasilT').className = 'gagal'; $('hasilT').textContent = '❌ Server tidak menjawab. Coba lagi.'; }
+};
 $('simpan').onclick = async () => {
   $('hasil').className = ''; $('hasil').textContent = 'Menyimpan…';
   try {
@@ -39,6 +66,27 @@ $('simpan').onclick = async () => {
     if (r.ok) $('key').value = '';
   } catch (e) { $('hasil').className = 'gagal'; $('hasil').textContent = '❌ Server tidak menjawab. Coba lagi.'; }
 };
+async function misterius(isi) {
+  const r = await fetch('/duniakotak/api/donasi-misterius', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({token: $('tokenM').value, ...isi})});
+  const j = await r.json(); if (!r.ok) throw new Error(j.galat || 'Gagal'); return j;
+}
+const esc = t => String(t || '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+async function tampilM() {
+  $('hasilM').className = ''; $('hasilM').textContent = 'Memuat…';
+  try {
+    const j = await misterius({});
+    if (!j.donasi.length) { $('hasilM').className = 'ok'; $('hasilM').textContent = '✅ Tidak ada traktiran misterius.'; return; }
+    $('hasilM').innerHTML = j.donasi.map(d => `<div style="border-top:1px solid #ddd;padding:8px 0"><b>${esc(d.nama) || 'Tanpa nama'}</b> · 🧱 ${Math.floor(d.rp / 5000)} Bata · ${new Date(d.t).toLocaleString('id-ID')}<br><small>${esc(d.pesan)}</small><br><input data-no="${esc(d.id)}" inputmode="numeric" placeholder="Nomor warga, mis. 178" style="width:60%"> <button data-pindah="${esc(d.id)}">Pindahkan</button></div>`).join('');
+  } catch (e) { $('hasilM').className = 'gagal'; $('hasilM').textContent = '❌ ' + e.message; }
+}
+$('lihatM').onclick = tampilM;
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-pindah]'); if (!b) return;
+  const no = document.querySelector(`[data-no="${CSS.escape(b.dataset.pindah)}"]`).value.replace(/\D/g, '');
+  if (!no) { alert('Isi nomor warga dulu.'); return; }
+  try { const j = await misterius({id: b.dataset.pindah, no}); alert(`Masuk ke warga No. ${j.no}: +${j.bintang} bintang, +${j.permata} permata.`); tampilM(); }
+  catch (er) { alert(er.message); }
+});
 </script>
 </body>
 </html>

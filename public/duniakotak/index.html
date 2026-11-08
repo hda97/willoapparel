@@ -35,6 +35,22 @@ ul.untung li i{font-style:normal;width:26px;height:26px;flex:none;border-radius:
 .kecil{font-size:12.5px;font-weight:600;opacity:.75;line-height:1.5;margin:12px 0 0;text-align:center}
 .kecil a{color:inherit}
 #hasil{display:none}
+#hasil h2{font-size:21px!important}#hasil .sub{font-size:14px;margin:0 0 4px}
+#hasil #ktp{max-width:300px;display:block;margin:10px auto 0;border-radius:14px}
+#hasil .tombol.main{font-size:16px;padding:12px;margin-top:12px}
+.aksiKecil{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+#hasil [hidden]{display:none!important}
+.aksiKecil .tombol{margin:0!important;font-size:13px!important;padding:0 4px;min-height:40px;display:flex;align-items:center;justify-content:center;border-radius:10px;box-shadow:0 3px 0 rgba(0,0,0,.35)}
+.aksiKecil .tombol.tt{border-left-width:3px;border-right-width:3px}
+details.ubah{margin-top:14px;border:2px solid #e3d7bd;border-radius:12px;padding:10px 12px;background:#fff}
+details.ubah summary{font-weight:800;font-size:14px;cursor:pointer}
+details.ubah label{font-size:13px;margin:10px 0 4px}
+details.ubah .tombol{font-size:14px;padding:10px;margin-top:10px}
+.judulKecil{display:block;font-weight:800;font-size:13px;margin:14px 0 6px}
+.pamer{display:block;width:100%;margin-top:8px;border:2px solid #2f6fd8;background:#eef4ff;color:#1d3f82;border-radius:10px;padding:9px 10px;font:800 13px Montserrat,sans-serif;cursor:pointer}
+.kodeBaris{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:14px;padding:8px 12px;border-radius:10px;background:#fff;border:2px dashed #e3d7bd;font-size:12.5px;font-weight:700}
+.kodeBaris b{font:900 16px Montserrat,sans-serif;letter-spacing:3px}
+#hasil .syarat{font-size:13px;padding:10px 12px}
 #hasil h2{font-weight:900;font-size:26px;margin:0 0 4px}
 #hasil .no{display:inline-block;background:var(--tinta);color:#fff;font-weight:900;border-radius:10px;padding:4px 12px;font-size:14px;margin-bottom:12px}
 #kanvas{width:100%;aspect-ratio:1/1;border-radius:14px;overflow:hidden;background:#cfeaff;display:block}
@@ -119,8 +135,57 @@ h1{font-size:21px;margin:10px 0 8px}
 .layarKepala button{font:900 15px Montserrat,sans-serif;background:#fff;color:#1d2a1d;border:0;border-radius:12px;padding:10px 14px;cursor:pointer}
 .layarMain iframe{flex:1;width:100%;max-width:1100px;margin:0 auto;border:0;border-radius:14px;background:#cfeaff}
 header{margin-bottom:12px}
+.pulau{margin:4px -16px 18px}
+.pulau iframe{display:block;width:100%;height:clamp(380px,62vh,540px);border:0;background:#8cc6f2}
+.pulau p{margin:10px 16px 0;font-size:13px;font-weight:600;line-height:1.45}
+@media (min-width:552px){.pulau{margin:4px 0 18px}.pulau iframe{border-radius:18px;box-shadow:0 6px 0 rgba(29,42,29,.18)}.pulau p{margin:10px 2px 0}}
 .wargaBaru{margin-top:14px;border-top:2px dashed #e3d7bd;padding-top:12px}.wargaBaru h3{font-size:15px;margin:0 0 8px}
 .wargaBaru #daftar{max-height:240px;overflow:auto}
+
+/* ===== TOMBOL KHAS DUNIA KOTAK (Huda 8 Nov 2026): kotak voxel, garis tinta tebal, bayangan bawah tebal seperti balok, kilau di sisi atas, ikon piksel tanpa emoji ===== */
+.tombol,.baris button,.pintu button,.cara button,.pamer,details.ubah summary,#pilihAv button:not(.w),#tutupMain{
+  border:3px solid var(--tinta)!important;border-radius:6px!important;
+  box-shadow:0 5px 0 var(--tinta),inset 0 -5px 0 rgba(0,0,0,.2),inset 0 3px 0 rgba(255,255,255,.4)!important;
+  font-family:Montserrat,sans-serif;font-weight:900;text-shadow:none;transition:transform .07s,box-shadow .07s;
+  display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;line-height:1.15}
+.tombol:active,.baris button:active,.pintu button:active,.cara button:active,.pamer:active,details.ubah summary:active{transform:translateY(4px);box-shadow:0 1px 0 var(--tinta),inset 0 -3px 0 rgba(0,0,0,.2),inset 0 3px 0 rgba(255,255,255,.4)!important}
+.tombol,.baris button{background:#5fb34a;color:#fff}
+.tombol.main{background:#5fb34a;font-size:19px;padding:13px;letter-spacing:.5px;text-transform:uppercase;-webkit-text-stroke:.6px var(--tinta);paint-order:stroke fill}
+.tombol.ig{background:#e8457c!important}
+.tombol.tt{background:#26262e!important;box-shadow:0 5px 0 var(--tinta),inset 5px 0 0 #25f4ee,inset -5px 0 0 #fe2c55,inset 0 3px 0 rgba(255,255,255,.25)!important}
+.tombol.kedua{background:#fff6dc;color:var(--tinta)}
+.pamer{background:#7cc8ff;color:var(--tinta);margin-top:12px!important;padding:10px!important;font-size:13.5px!important}
+details.ubah{border:0!important;padding:0!important;background:none!important}
+details.ubah summary{list-style:none;background:var(--kuning);color:var(--tinta);padding:10px 12px;font-size:14px;cursor:pointer}
+details.ubah summary::-webkit-details-marker{display:none}
+details.ubah[open]>.isi,details.ubah[open]>#pilihAv{margin-top:10px}
+.pintu button,.cara button{background:#fff6dc;color:var(--tinta)}
+.pintu button.aktif,.cara button.aktif{background:#5fb34a;color:#fff}
+#pilihAv button:not(.w){box-shadow:0 3px 0 var(--tinta),inset 0 -3px 0 rgba(0,0,0,.15)!important;border-width:2px!important;background:#fff6dc}
+#pilihAv button.on:not(.w){background:var(--tinta);color:#fff}
+.aksiKecil{gap:10px!important}.aksiKecil .tombol{font-size:13.5px!important;min-height:46px}
+.ikp{width:20px;height:20px;flex:none;filter:drop-shadow(1px 1px 0 rgba(0,0,0,.35))}
+.tombol.main .ikp{width:24px;height:24px}
+/* ===== PENDUKUNG DESA (Huda 8 Nov 2026, seperti papan "Pendukung Kampung" @negerikomen, satuan Bata lewat Trakteer) ===== */
+.pdk h2{margin:0 0 4px;font:900 15px/1.2 Montserrat,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#5b6650}
+.pdk .pdkSub{margin:0 0 12px;font-size:15px;display:flex;align-items:center;gap:8px}
+.pdk .pk{width:22px;height:22px;flex:none;image-rendering:pixelated}
+.pdkBos{display:flex;align-items:center;gap:12px;background:#ffe9a3;border:3px solid #d9a32e;border-radius:10px;padding:12px;box-shadow:0 4px 0 #b8861d;margin-bottom:6px}
+.pdkBos .pk{width:30px;height:30px}
+.pdkBos .nm{flex:1;min-width:0}.pdkBos .nm b{display:flex;align-items:center;gap:6px;font-size:17px;overflow-wrap:anywhere}.pdkBos .nm small{display:block;color:#8a6410;font-weight:800;font-size:13px}
+.pdkJml{flex:none;border:3px solid var(--tinta);border-radius:20px;padding:4px 10px;font:900 14px Montserrat,sans-serif;background:#fff6dc;white-space:nowrap}
+.pdkBaris{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:2px dashed #e6d6aa}
+.pdkBaris .no{flex:none;width:28px;height:28px;display:grid;place-items:center;border:2px solid var(--tinta);border-radius:5px;background:#fff6dc;font:900 13px Montserrat,sans-serif}
+.pdkBaris .no.p2{background:#dfe6ee}.pdkBaris .no.p3{background:#f0c39a}
+.pdkBaris .nm{flex:1;min-width:0;font-weight:700;display:flex;align-items:center;gap:6px;overflow-wrap:anywhere}
+.pdkBaris .pdkJml{border-width:2px;font-size:13px;background:#fff4c8}
+.pdkKosong{padding:14px;border:3px dashed #d9a32e;border-radius:10px;background:#fff8e1;font-size:14px}
+.pdk details{margin:10px 0 4px}.pdk details summary{cursor:pointer;font-weight:900;color:#8a6410;display:flex;align-items:center;gap:6px;list-style:none}
+.pdk details summary::-webkit-details-marker{display:none}.pdk details ol{margin:8px 0 0;padding-left:22px;font-size:14px}
+.pdkCara{margin-top:12px;font-size:14.5px;line-height:1.5}.pdkCara p{margin:0 0 8px}
+.pdkKode{display:inline-block;border:2px solid var(--tinta);border-radius:5px;padding:1px 7px;background:var(--kuning);font:900 14px Montserrat,sans-serif;cursor:pointer}
+.tombol.bata{background:#e0803a;margin-top:6px;width:100%;padding:12px;font-size:16px;text-decoration:none}
+.pdk .kecil{font-size:12.5px;color:#5b6650}
 </style>
 </head>
 <body>
@@ -129,6 +194,11 @@ header{margin-bottom:12px}
     <img src="/duniakotak/logo.jpg" alt="Logo Dunia Kotak" width="52" height="52">
     <div><b>Dunia Kotak</b><span>Desa kotak yang dibangun netizen · @duniakotak.id</span></div>
   </header>
+
+  <section class="pulau" aria-label="Desa Dunia Kotak 3D: cari avatarmu">
+    <iframe src="/duniakotak/pulau/?embed=1" title="Desa Dunia Kotak, pulau melayang 3D. Cari avatarmu dan lihat lagi ngapain." loading="eager" allow="fullscreen; web-share; clipboard-write"></iframe>
+    <p>🔎 Sudah jadi warga? Ketik nomor wargamu atau @username di kolom <b>Cari</b> untuk melihat avatarmu lagi ngapain.</p>
+  </section>
 
   <section class="kartu" id="ajak">
     <div class="hitung"><b id="jumlah">…</b> warga sudah terdaftar</div>
@@ -186,17 +256,12 @@ header{margin-bottom:12px}
     <p class="sub" id="ket">Ini kavlingmu di Dunia Kotak.</p>
     <canvas id="ktp" width="1012" height="638" style="display:none" aria-label="Kartu Warga Dunia Kotak"></canvas>
     <div id="syaratMain" class="syarat" hidden><b>🔒 Satu langkah lagi sebelum main</b>Bagikan Kartu Wargamu ke Instagram Story atau TikTok, <u>cukup 1x</u>. Setelah itu game langsung terbuka dan seterusnya bisa main tanpa share lagi.</div>
-    <div class="dua bagiDua"><button class="tombol ig" id="bagiKtp">📸 Instagram Story</button><button class="tombol tt" id="bagiTT">🎵 TikTok</button></div>
-    <a class="tombol main" id="mainBtn" href="/duniakotak/mabar/" hidden>▶ Main game sekarang</a>
-    <button class="tombol kedua" id="simpanKtp">Simpan kartu</button>
+    <a class="tombol main" id="mainBtn" href="/duniakotak/mabar/" hidden><i data-ik="main"></i>Main game</a>
+    <div class="aksiKecil"><button class="tombol ig" id="bagiKtp"><i data-ik="kamera"></i>Story IG</button><button class="tombol tt" id="bagiTT"><i data-ik="nada"></i>TikTok</button><button class="tombol kedua" id="simpanKtp"><i data-ik="simpan"></i>Simpan</button></div>
+    <button type="button" class="pamer" id="pamerPulau"><i data-ik="bagi"></i>Pamer avatarku di pulau</button>
     <div id="layarStory" class="layarStory" hidden><div class="isiStory"><b>Tinggal 2 langkah</b><p>1. Tekan lama gambar di bawah, lalu <b>Simpan gambar</b>.<br>2. Tekan <b id="langkahApp">Buka Instagram</b>, buat <span id="langkahJenis">Story</span>, pilih gambar tadi, lalu bagikan.</p><img id="gbrStory" alt="Story Kartu Warga"><a class="tombol ig" id="bukaIG" href="instagram://story-camera">Buka Instagram</a><button class="tombol kedua" id="tutupStory">Tutup</button></div></div>
-    <details id="avatarKotak" style="margin-top:14px"><summary style="font-weight:800;cursor:pointer">Pilih avatar untuk foto kartumu</summary>
-      <div id="pilihAv"></div>
-      <button class="tombol" id="simpanAv" style="width:100%">Simpan avatar</button>
-      <div id="pesanAv" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
-    </details>
-    <p class="kecil">Avatar ini juga dipakai di game mabar.</p>
-    <details id="dataKotak" open style="margin-top:14px"><summary style="font-weight:800;cursor:pointer">Ubah nama &amp; pekerjaan di kartu</summary>
+    <details id="dataKotak" class="ubah"><summary><i data-ik="pensil"></i>Ubah kartu: nama, pekerjaan, avatar</summary>
+
       <div class="isi">
         <label for="namaKartu">Nama</label><input id="namaKartu" maxlength="24" placeholder="Nama kamu">
         <label for="kerjaKartu">Pekerjaan</label><input id="kerjaKartu" maxlength="22" placeholder="mis. Pelajar" list="daftarKerja">
@@ -204,15 +269,34 @@ header{margin-bottom:12px}
       </div>
       <button class="tombol" id="simpanData" style="width:100%">Simpan ke kartu</button>
       <div id="pesanData" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
-    </details>
-    <canvas id="kanvas" width="600" height="600" aria-label="Rumah dan pekarangan kavlingmu"></canvas>
-    <div id="kodeKotak" style="display:none;text-align:center;margin-top:12px">
-      <small style="font-weight:700">Kode warga (untuk masuk game di HP lain)</small><br><span id="kodeWarga">––––––</span>
+    
+      <div class="avUbah"><b class="judulKecil">Avatar</b>
+      <div id="pilihAv"></div>
+      <button class="tombol" id="simpanAv" style="width:100%">Simpan avatar</button>
+      <div id="pesanAv" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
     </div>
-    <label for="usul">Usulan bangunan untuk desa</label>
+      <p class="kecil">Avatar ini juga dipakai di game.</p>
+    </details>
+    <canvas id="kanvas" width="600" height="600" aria-label="Rumah dan pekarangan kavlingmu" hidden></canvas>
+    <div id="kodeKotak" class="kodeBaris" style="display:none"><span>Kode warga (masuk di HP lain)</span><b id="kodeWarga">––––––</b></div>
+    <label for="usul" class="judulKecil">Usulan bangunan untuk desa</label>
     <div class="baris"><input id="usul" placeholder="mis. sekolah, masjid, warung, taman" maxlength="140"><button id="kirimUsul">Kirim</button></div>
     <div id="pesanUsul" style="font-weight:700;font-size:14px;margin-top:8px;min-height:20px"></div>
-    <a class="tombol" href="https://www.instagram.com/duniakotak.id/" target="_blank" rel="noopener">Follow @duniakotak.id supaya rumahmu muncul di video</a>
+    <p class="kecil"><a href="https://www.instagram.com/duniakotak.id/" target="_blank" rel="noopener"><b>Follow @duniakotak.id</b></a> supaya rumahmu muncul di video.</p>
+  </section>
+
+  <section class="kartu pdk" id="pendukung" aria-label="Pendukung Desa Dunia Kotak">
+    <h2>Pendukung Desa (<span id="pdkJumlah">…</span>)</h2>
+    <p class="pdkSub">Terima kasih sudah traktir Bata <i data-pk="bata"></i></p>
+    <div id="pdkIsi"><div class="pdkKosong">Memuat pendukung…</div></div>
+    <details id="pdkRiwayat" hidden><summary><i data-pk="mahkota"></i>Riwayat Juragan Desa</summary><ol id="pdkRiwayatIsi"></ol></details>
+    <div class="pdkCara">
+      <p>Mau namamu muncul di sini? Cukup traktir <b>1 Bata</b>.</p>
+      <p><b>Wajib tulis kode wargamu</b> di pesan traktiran: <b>DK</b> + nomor wargamu<span id="pdkKodeSaya"></span>. Bata langsung tercatat di sini, dan <b>1 Bata = 5 bintang voting + 50 permata</b> masuk otomatis ke akunmu.</p>
+      <p><b>2 Bata</b>: Bendera Emas berkibar di rumahmu. <b>Bata terbanyak minggu ini</b>: mahkota Juragan Desa di atap. Disalip? Mahkotanya pindah.</p>
+      <a class="tombol bata" href="https://trakteer.id/duniakotak.id" target="_blank" rel="noopener"><i data-pk="bata"></i>Traktir Bata</a>
+      <p class="kecil" style="margin-top:10px">Lupa nulis kode? DM <a href="https://www.instagram.com/duniakotak.id/" target="_blank" rel="noopener">@duniakotak.id</a> bukti traktiranmu + nomor warga. Sukarela, hadiahnya hanya hiasan. Belum 17 tahun? Minta izin orang tua dulu ya.</p>
+    </div>
   </section>
 
   <section class="kartu edu" aria-label="Game edukasi Dunia Kotak">
@@ -266,9 +350,21 @@ async function muatDaftar(){
   }catch(e){$('jumlah').textContent='–';$('daftar').innerHTML='<span>Daftar warga belum bisa dimuat.</span>'}
 }
 
+async function pamerPulau(){const no=window.__noAku;if(!no)return;const url='https://willoapparel.com/duniakotak/pulau/?no='+no,teks='Lihat avatarku lagi ngapain di Desa Dunia Kotak 👀 Aku warga No. '+no+'. Daftar juga, gratis!';try{if(navigator.share){await navigator.share({title:'Desa Dunia Kotak',text:teks,url});return}}catch(e){if(e&&e.name==='AbortError')return}const b=$('pamerPulau');try{await navigator.clipboard.writeText(teks+' '+url);b.textContent='Link disalin! Tempel di story, bio, atau chat.'}catch(e){prompt('Salin link ini:',url)}}
+// Ikon piksel khas Dunia Kotak 10x10 (palet & bentuk sama dengan pelarikalcer-kotak/src/ikon.js; Huda 8 Nov: tanpa emoji)
+const IKPAL={"K":"#2a2218","Y":"#f2c14a","L":"#fff1b8","D":"#d9a32e","O":"#a8761a","B":"#5ab4ff","b":"#2f7fd0","N":"#1b4f8a","W":"#ffffff","w":"#c9d2de","R":"#e0803a","r":"#a8541f","E":"#e04848","e":"#9c2a2a","H":"#3aa860","h":"#24733f","S":"#e9b48a","s":"#b07850","C":"#8a5a3c","c":"#4f2f1c","P":"#23252b","p":"#454a55","A":"#e2b955"};
+const IKP={main:["..........",".....W....",".....WW...",".WWWWWWW..",".WWWWWWWW.",".WWWWWWW..",".....WW...",".....W....","..........",".........."],
+kamera:["..........","..pp......","PPPPPPPPPP","PppPPPPpYP","PpPPWWPPpP","PpPWBBWPpP","PpPWBNWPpP","PpPPWWPPpP","PPPPPPPPPP",".........."],
+nada:[".....WWWW.",".....WWWWW",".....W...W",".....W....",".....W....",".....W....","..WWWW....",".WWWWW....",".WWWWW....","..WWW....."],
+simpan:["bbbbbbbbb.","bWWWWWWbbb","bWWWWWWbBb","bWWWWWWbBb","bbbbbbbbBb","bBBBBBBBBb","bBwwwwwwBb","bBwwwwwwBb","bBwwwwwwBb","bbbbbbbbbb"],
+bagi:["......HH..","....HHHHH.","...H..C..H","......C...",".....C....",".....C....","..AAAAAA..","BAAAAAAAAB","BBBBBBBBBB","bbbbbbbbbb"],
+pensil:[".......EE.","......EEEE",".....YYEE.","....YYYY..","...YYYY...","..YYYY....",".SYYY.....",".SSY......","KSS.......","KK........"]};
+function pasangIkon(){document.querySelectorAll('i[data-ik]').forEach(el=>{const g=IKP[el.dataset.ik];if(!g)return;let r='';g.forEach((row,y)=>[...row].forEach((c,x)=>{if(c!=='.')r+=`<rect x="${x}" y="${y}" width="1.04" height="1.04" fill="${IKPAL[c]}"/>`}));el.outerHTML=`<svg class="ikp" viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`})}
+pasangIkon();
+function sorotPulau(no){window.__noAku=no;/* Huda 8 Nov: saat masuk pulau TIDAK langsung zoom ke avatar; zoom hanya saat warga mencari nomor/username sendiri */}
 async function tampilkan(o){
   saya=o;if(o.kunci)kunci=o.kunci;sudahMasuk(true);const nm=nmTampil(o);simpanLokal({no:o.no,ig:o.ig||o.tiktok||'',label:nm,nama:o.nama||'',kunci});
-  $('hasil').style.display='block';
+  $('hasil').style.display='block';sorotPulau(o.no);
   $('noWarga').textContent='WARGA No. '+o.no;
   $('salam').textContent=(o.baru?'Selamat datang, ':'Halo lagi, ')+(o.nama||nm||'warga baru')+'!';
   $('ket').textContent=nm?nm+' sudah terukir di batu depan rumahmu.':'Ini kavlingmu di Dunia Kotak.';
@@ -279,13 +375,14 @@ async function tampilkan(o){
 }
 async function tampilKode(){
   if(!kunci)return;
-  try{const s=await kirim('sesi',{kunci});aturSyarat(s.bagi);$('kodeWarga').textContent=s.kode||'––––––';$('kodeKotak').style.display='block';
+  try{const s=await kirim('sesi',{kunci});aturSyarat(s.bagi);$('kodeWarga').textContent=s.kode||'––––––';$('kodeKotak').style.display='flex';
     K=await import('./js/ktp.js');dataKartu={no:s.no,nama:s.nama,kerja:s.kerja,ig:s.akunIg,tiktok:s.tiktok,dibuat:s.dibuat};
     $('namaKartu').value=s.nama||'';$('kerjaKartu').value=s.kerja||'';if(!s.nama){$('dataKotak').open=true;$('pesanData').textContent='Tulis namamu supaya muncul di kartu.'}
     av=K.bersihAv(s.avatar||K.avAcak(s.no));await K.gambarKTP($('ktp'),{...dataKartu,avatar:av});$('ktp').style.display='block';tulisAv()}catch(e){console.error(e);if(/tidak ditemukan/.test(e.message))$('keluar').click()}
 }
 
 async function gambarKavling(nama,no){
+  if($('kanvas').hidden)return;
   try{
     const [{THREE},D]=await Promise.all([import('./js/lib.js'),import('./js/desa.js')]);
     await document.fonts.load('900 40px Montserrat');
@@ -302,6 +399,7 @@ async function kirim(path,data){
 }
 
 $('simpanKtp').onclick=()=>{const a=document.createElement('a');a.download='kartu-warga-dunia-kotak.png';a.href=$('ktp').toDataURL('image/png');a.click()};
+$('pamerPulau').onclick=pamerPulau;
 // Bagikan versi story 9:16 (IG/TikTok/WA). Kalau HP tidak bisa share langsung, gambar story diunduh.
 // Syarat main: bagikan Kartu Warga ke Instagram Story sekali. Dicatat di server (tidak bisa dicek ke IG).
 function aturSyarat(bagi){$('syaratMain').hidden=!!bagi;$('mainBtn').hidden=!bagi}
@@ -433,7 +531,7 @@ $('kirimUsul').onclick=async()=>{
   muatDaftar();
   const lama=bacaLokal();if(lama&&lama.kunci)kunci=lama.kunci;
   if(new URLSearchParams(location.search).has('masuk'))bukaPintu('masuk');
-  if(lama&&lama.no&&lama.kunci){sudahMasuk(true);$('hasil').style.display='block';$('noWarga').textContent='WARGA No. '+lama.no;$('salam').textContent='Halo lagi, '+(lama.nama||(lama.ig?'@'+lama.ig:'warga'))+'!';$('ket').textContent='Ini kavlingmu. Kamu masih bisa kirim usulan bangunan di bawah.';gambarKavling(lama.label||(lama.ig?'@'+lama.ig:'? ? ?'),lama.no);tampilKode()}
+  if(lama&&lama.no&&lama.kunci){sudahMasuk(true);sorotPulau(lama.no);$('hasil').style.display='block';$('noWarga').textContent='WARGA No. '+lama.no;$('salam').textContent='Halo lagi, '+(lama.nama||(lama.ig?'@'+lama.ig:'warga'))+'!';$('ket').textContent='Ini kavlingmu. Kamu masih bisa kirim usulan bangunan di bawah.';gambarKavling(lama.label||(lama.ig?'@'+lama.ig:'? ? ?'),lama.no);tampilKode()}
   const ua=navigator.userAgent||'';const dalamApp=/Instagram|FBAN|FBAV|FB_IAB|Line\/|TikTok|musical_ly|BytedanceWebview/i.test(ua);
   let id='';if(!dalamApp){try{id=(await (await fetch('/duniakotak/api/config')).json()).clientId}catch(e){}}
   // Login Google tidak jalan di dalam app IG/TikTok (atau kalau Google belum siap): tawarkan Buka di Chrome / daftar tanpa Google.
@@ -446,6 +544,31 @@ $('kirimUsul').onclick=async()=>{
     google.accounts.id.renderButton($('gbtn'),{theme:'filled_black',size:'large',shape:'pill',text:'signin_with',locale:'id',width:300});
     google.accounts.id.renderButton($('gbtnMasuk'),{theme:'filled_black',size:'large',shape:'pill',text:'signin_with',locale:'id',width:300});};
   document.head.appendChild(s);
+})();
+</script>
+<script>
+// Papan Pendukung Desa: data asli dari /duniakotak/api/pendukung (Bata dari Trakteer/Saweria dengan kode DK).
+(function(){
+var PAL={K:'#2a2218',R:'#e0803a',r:'#a8541f',L:'#f6b07a',Y:'#f2c14a',D:'#b8861d',W:'#fff1b8',E:'#e04848',C:'#6a4426'};
+var PK={bata:['..........','..........','.KKKKKKKK.','KLLLLLLLRK','KRRRRRRRrK','KRRRRRRRrK','KrrrrrrrrK','.KKKKKKKK.','..........','..........'],
+mahkota:['..........','K...KK...K','KK.KYYK.KK','KYKYYYYKYK','KYYYYYYYYK','KYEYYWYEYK','KYYYYYYYYK','KDDDDDDDDK','KKKKKKKKKK','..........'],
+bendera:['.K........','.KYYYY....','.KYWYYYY..','.KYYYYYYD.','.KYYYYD...','.KYD......','.K........','.K........','.K........','KKK.......']};
+function ik(n){var g=PK[n],r='';g.forEach(function(row,y){row.split('').forEach(function(c,x){if(c!=='.'&&PAL[c])r+='<rect x="'+x+'" y="'+y+'" width="1.04" height="1.04" fill="'+PAL[c]+'"/>'})});return '<svg class="pk" viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">'+r+'</svg>'}
+function pasang(root){(root||document).querySelectorAll('i[data-pk]').forEach(function(el){el.outerHTML=ik(el.dataset.pk)})}
+function esc(t){return String(t||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function nama(x){return x.nm?'@'+esc(x.nm):'Warga No. '+x.no}
+pasang(document.getElementById('pendukung'));
+try{var w=JSON.parse(localStorage.getItem('dk_warga')||'null');if(w&&w.no){var k=document.getElementById('pdkKodeSaya');k.innerHTML=', kodemu <span class="pdkKode" title="Ketuk untuk salin">DK'+w.no+'</span>';k.querySelector('span').onclick=function(){try{navigator.clipboard.writeText('DK'+w.no);this.textContent='Tersalin!';var t=this;setTimeout(function(){t.textContent='DK'+w.no},1500)}catch(e){}}}}catch(e){}
+fetch('/duniakotak/api/pendukung').then(function(r){return r.json()}).then(function(d){
+  var L=d.pendukung||[],B=d.bendera||2,jr=d.juragan,h='';
+  document.getElementById('pdkJumlah').textContent=d.jumlah||0;
+  if(!L.length){document.getElementById('pdkIsi').innerHTML='<div class="pdkKosong">Belum ada pendukung. Jadilah yang pertama memasang Bata di desa ini!</div>';return}
+  var jb=jr&&L.find(function(x){return x.no===jr.no});
+  if(jr)h+='<div class="pdkBos">'+ik('mahkota')+'<div class="nm"><b>'+nama(jr)+(jb&&jb.bata>=B?ik('bendera'):'')+'</b><small>Juragan Desa'+(jr.mingguIni?' minggu ini':'')+'</small></div><span class="pdkJml">'+(jr.mingguIni?jr.bataMinggu:(jb?jb.bata:0))+' Bata</span></div>';
+  L.forEach(function(x,i){h+='<div class="pdkBaris"><span class="no'+(i===1?' p2':i===2?' p3':'')+'">'+(i+1)+'</span><span class="nm">'+(jr&&jr.no===x.no?ik('mahkota'):'')+nama(x)+(x.bata>=B?ik('bendera'):'')+'</span><span class="pdkJml">'+x.bata+' Bata</span></div>'});
+  document.getElementById('pdkIsi').innerHTML=h;
+  var R=d.riwayat||[];if(R.length){document.getElementById('pdkRiwayatIsi').innerHTML=R.map(function(x){return '<li>'+nama(x)+' <span class="kecil">sejak '+new Date(x.sejak).toLocaleDateString('id-ID',{day:'numeric',month:'short'})+'</span></li>'}).join('');document.getElementById('pdkRiwayat').hidden=false}
+}).catch(function(){document.getElementById('pdkIsi').innerHTML='<div class="pdkKosong">Papan pendukung belum bisa dimuat. Coba muat ulang halaman.</div>'});
 })();
 </script>
 </body>
