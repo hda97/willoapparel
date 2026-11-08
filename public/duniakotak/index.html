@@ -119,6 +119,10 @@ h1{font-size:21px;margin:10px 0 8px}
 .layarKepala button{font:900 15px Montserrat,sans-serif;background:#fff;color:#1d2a1d;border:0;border-radius:12px;padding:10px 14px;cursor:pointer}
 .layarMain iframe{flex:1;width:100%;max-width:1100px;margin:0 auto;border:0;border-radius:14px;background:#cfeaff}
 header{margin-bottom:12px}
+.pulau{margin:4px -16px 18px}
+.pulau iframe{display:block;width:100%;height:clamp(380px,62vh,540px);border:0;background:#8cc6f2}
+.pulau p{margin:10px 16px 0;font-size:13px;font-weight:600;line-height:1.45}
+@media (min-width:552px){.pulau{margin:4px 0 18px}.pulau iframe{border-radius:18px;box-shadow:0 6px 0 rgba(29,42,29,.18)}.pulau p{margin:10px 2px 0}}
 .wargaBaru{margin-top:14px;border-top:2px dashed #e3d7bd;padding-top:12px}.wargaBaru h3{font-size:15px;margin:0 0 8px}
 .wargaBaru #daftar{max-height:240px;overflow:auto}
 </style>
@@ -129,6 +133,11 @@ header{margin-bottom:12px}
     <img src="/duniakotak/logo.jpg" alt="Logo Dunia Kotak" width="52" height="52">
     <div><b>Dunia Kotak</b><span>Desa kotak yang dibangun netizen · @duniakotak.id</span></div>
   </header>
+
+  <section class="pulau" aria-label="Desa Dunia Kotak 3D: cari avatarmu">
+    <iframe src="/duniakotak/pulau/?embed=1" title="Desa Dunia Kotak, pulau melayang 3D. Cari avatarmu dan lihat lagi ngapain." loading="eager" allow="fullscreen"></iframe>
+    <p>🔎 Sudah jadi warga? Ketik nomor wargamu atau @username di kolom <b>Cari</b> untuk melihat avatarmu lagi ngapain.</p>
+  </section>
 
   <section class="kartu" id="ajak">
     <div class="hitung"><b id="jumlah">…</b> warga sudah terdaftar</div>
