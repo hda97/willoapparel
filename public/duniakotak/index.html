@@ -47,6 +47,7 @@ details.ubah summary{font-weight:800;font-size:14px;cursor:pointer}
 details.ubah label{font-size:13px;margin:10px 0 4px}
 details.ubah .tombol{font-size:14px;padding:10px;margin-top:10px}
 .judulKecil{display:block;font-weight:800;font-size:13px;margin:14px 0 6px}
+.pamer{display:block;width:100%;margin-top:8px;border:2px solid #2f6fd8;background:#eef4ff;color:#1d3f82;border-radius:10px;padding:9px 10px;font:800 13px Montserrat,sans-serif;cursor:pointer}
 .kodeBaris{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:14px;padding:8px 12px;border-radius:10px;background:#fff;border:2px dashed #e3d7bd;font-size:12.5px;font-weight:700}
 .kodeBaris b{font:900 16px Montserrat,sans-serif;letter-spacing:3px}
 #hasil .syarat{font-size:13px;padding:10px 12px}
@@ -150,7 +151,7 @@ header{margin-bottom:12px}
   </header>
 
   <section class="pulau" aria-label="Desa Dunia Kotak 3D: cari avatarmu">
-    <iframe src="/duniakotak/pulau/?embed=1" title="Desa Dunia Kotak, pulau melayang 3D. Cari avatarmu dan lihat lagi ngapain." loading="eager" allow="fullscreen"></iframe>
+    <iframe src="/duniakotak/pulau/?embed=1" title="Desa Dunia Kotak, pulau melayang 3D. Cari avatarmu dan lihat lagi ngapain." loading="eager" allow="fullscreen; web-share; clipboard-write"></iframe>
     <p>🔎 Sudah jadi warga? Ketik nomor wargamu atau @username di kolom <b>Cari</b> untuk melihat avatarmu lagi ngapain.</p>
   </section>
 
@@ -212,6 +213,7 @@ header{margin-bottom:12px}
     <div id="syaratMain" class="syarat" hidden><b>🔒 Satu langkah lagi sebelum main</b>Bagikan Kartu Wargamu ke Instagram Story atau TikTok, <u>cukup 1x</u>. Setelah itu game langsung terbuka dan seterusnya bisa main tanpa share lagi.</div>
     <a class="tombol main" id="mainBtn" href="/duniakotak/mabar/" hidden>▶ Main game</a>
     <div class="aksiKecil"><button class="tombol ig" id="bagiKtp">📸 Story IG</button><button class="tombol tt" id="bagiTT">🎵 TikTok</button><button class="tombol kedua" id="simpanKtp">💾 Simpan</button></div>
+    <button type="button" class="pamer" id="pamerPulau">🏝️ Pamer avatarku: bagikan link "lihat aku lagi ngapain"</button>
     <div id="layarStory" class="layarStory" hidden><div class="isiStory"><b>Tinggal 2 langkah</b><p>1. Tekan lama gambar di bawah, lalu <b>Simpan gambar</b>.<br>2. Tekan <b id="langkahApp">Buka Instagram</b>, buat <span id="langkahJenis">Story</span>, pilih gambar tadi, lalu bagikan.</p><img id="gbrStory" alt="Story Kartu Warga"><a class="tombol ig" id="bukaIG" href="instagram://story-camera">Buka Instagram</a><button class="tombol kedua" id="tutupStory">Tutup</button></div></div>
     <details id="dataKotak" class="ubah"><summary>✏️ Ubah kartu: nama, pekerjaan, avatar</summary>
 
@@ -289,7 +291,8 @@ async function muatDaftar(){
   }catch(e){$('jumlah').textContent='–';$('daftar').innerHTML='<span>Daftar warga belum bisa dimuat.</span>'}
 }
 
-function sorotPulau(no){const f=document.querySelector('.pulau iframe');if(f&&no&&!/[?&]no=/.test(f.src))f.src='/duniakotak/pulau/?embed=1&no='+no;const t=document.querySelector('.pulau p');if(t)t.innerHTML='🔎 Avatarmu ditandai cahaya oranye di pulau. Ketuk pulau untuk memutar.'}
+async function pamerPulau(){const no=window.__noAku;if(!no)return;const url='https://willoapparel.com/duniakotak/pulau/?no='+no,teks='Lihat avatarku lagi ngapain di Desa Dunia Kotak 👀 Aku warga No. '+no+'. Daftar juga, gratis!';try{if(navigator.share){await navigator.share({title:'Desa Dunia Kotak',text:teks,url});return}}catch(e){if(e&&e.name==='AbortError')return}const b=$('pamerPulau');try{await navigator.clipboard.writeText(teks+' '+url);b.textContent='✅ Link disalin! Tempel di story, bio, atau chat.'}catch(e){prompt('Salin link ini:',url)}}
+function sorotPulau(no){window.__noAku=no;const f=document.querySelector('.pulau iframe');if(f&&no&&!/[?&]no=/.test(f.src))f.src='/duniakotak/pulau/?embed=1&no='+no;const t=document.querySelector('.pulau p');if(t)t.innerHTML='🔎 Avatarmu ditandai cahaya oranye di pulau. Ketuk pulau untuk memutar.'}
 async function tampilkan(o){
   saya=o;if(o.kunci)kunci=o.kunci;sudahMasuk(true);const nm=nmTampil(o);simpanLokal({no:o.no,ig:o.ig||o.tiktok||'',label:nm,nama:o.nama||'',kunci});
   $('hasil').style.display='block';sorotPulau(o.no);
@@ -327,6 +330,7 @@ async function kirim(path,data){
 }
 
 $('simpanKtp').onclick=()=>{const a=document.createElement('a');a.download='kartu-warga-dunia-kotak.png';a.href=$('ktp').toDataURL('image/png');a.click()};
+$('pamerPulau').onclick=pamerPulau;
 // Bagikan versi story 9:16 (IG/TikTok/WA). Kalau HP tidak bisa share langsung, gambar story diunduh.
 // Syarat main: bagikan Kartu Warga ke Instagram Story sekali. Dicatat di server (tidak bisa dicek ke IG).
 function aturSyarat(bagi){$('syaratMain').hidden=!!bagi;$('mainBtn').hidden=!bagi}
