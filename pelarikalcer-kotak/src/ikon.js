@@ -4,6 +4,12 @@ export const PAL = { K: '#2a2218', Y: '#f2c14a', L: '#fff1b8', D: '#d9a32e', O: 
   R: '#e0803a', r: '#a8541f', E: '#e04848', e: '#9c2a2a', G: '#c8c6c0', g: '#6c6f74', H: '#3aa860', h: '#24733f', S: '#e9b48a', s: '#b07850', C: '#8a5a3c', c: '#4f2f1c',
   P: '#23252b', p: '#454a55', T: '#9bb07a', t: '#5f7a45', V: '#8a6ad8', A: '#e2b955' };
 export const PIX = {
+  kilau: ['....Y.....', '....Y.....', '...YLY....', 'YYYLWLYYY.', '...YLY..B.', '....Y..BWB', '....Y...B.', '.B........', 'BWB.......', '.B........'],
+  suara: ['..........', '....W..W..', '...WW...W.', 'WWWWW.W.W.', 'WWWWW.W.W.', 'WWWWW.W.W.', 'WWWWW.W.W.', '...WW...W.', '....W..W..', '..........'],
+  bisu: ['..........', '....W.....', '...WW.....', 'WWWWW.E..E', 'WWWWW..EE.', 'WWWWW..EE.', 'WWWWW.E..E', '...WW.....', '....W.....', '..........'],
+  hantu: ['...wwww...', '..wWWWWw..', '.wWWWWWWw.', '.wWPWWPWw.', '.wWPWWPWw.', '.wWWWWWWw.', '.wWWWWWWw.', '.wWWWWWWw.', '.wWwWWwWw.', '.w.w..w.w.'],
+  target: ['...EEEE...', '..EWWWWE..', '.EWEEEEWE.', 'EWEWWWWEWE', 'EWEWEEWEWE', 'EWEWEEWEWE', 'EWEWWWWEWE', '.EWEEEEWE.', '..EWWWWE..', '...EEEE...'],
+  chat: ['..........', '.WWWWWWWW.', 'WWWWWWWWWW', 'WWPWWPWWPW', 'WWWWWWWWWW', '.WWWWWWWW.', '..WW......', '.WW.......', 'W.........', '..........'],
   koin: ['...KKKK...', '..KYYYYK..', '.KYYLLYYK.', 'KYYLLLLYYK', 'KYDDLLOOYK', 'KYDDDOOOYK', 'KYDDDOOOYK', '.KYYDOYYK.', '..KYYYYK..', '...KKKK...'],
   permata: ['..........', '..NNNNNN..', '.NWBBBbbN.', 'NWWBBBbbbN', 'NNNNNNNNNN', '.NBBBBbbN.', '..NBBBbN..', '...NBbN...', '....NN....', '..........'],
   bintang: ['....KK....', '....YY....', '...KYYK...', 'KKKYYYYKKK', 'KYYYLYYYYK', '.KYYYYYYK.', '..KYYYYK..', '..KYKKYK..', '.KYK..KYK.', '.KK....KK.'],
@@ -49,7 +55,7 @@ export const PIX = {
 const EMO = { '🪙': 'koin', '💎': 'permata', '⭐': 'bintang', '👕': 'kaos', '🛒': 'toko', '🏆': 'piala', '✕': 'tutup', '🍌': 'pisang', '👟': 'sepatu', '⌚': 'jam', '🕶': 'kacamata',
   '🔥': 'api', '⚡': 'petir', '💧': 'tetes', '⇠': 'kiri', '⇢': 'kanan', '⇡': 'atas', '→': 'panah', '👆': 'tap', '🏃': 'lari', '😮‍💨': 'lelah', '📸': 'kamera', '🧃': 'botol', '🧋': 'kopi',
   '🍜': 'mangkok', '🔄': 'ulang', '✓': 'centang', '🏘': 'rumah', '🏙': 'kota', '🛕': 'candi', '🏝': 'pulau', '🌲': 'pohon', '🌋': 'gunungapi', '⛰': 'gunung', '❤': 'hati', '🤍': 'hatiKosong',
-  '🛡': 'perisai', '🧲': 'magnet', '🌬': 'angin', '🧱': 'bata' };
+  '🛡': 'perisai', '🧲': 'magnet', '🌬': 'angin', '🧱': 'bata', '🔊': 'suara', '🔇': 'bisu', '👻': 'hantu', '🎯': 'target', '💬': 'chat', '✨': 'kilau' };
 const RE = new RegExp('(' + Object.keys(EMO).sort((a, b) => b.length - a.length).map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')(\\u200D[\\u2640\\u2642])?\\uFE0F?', 'gu');
 const cache = {};
 export function svgIkon(n) {

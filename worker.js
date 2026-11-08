@@ -66,7 +66,17 @@ const KOIN_PER_PERMATA = 10;
 // Harga barang toko lari (dalam koin; bayar permata = harga / KOIN_PER_PERMATA dibulatkan ke atas). Sama dengan
 // pelarikalcer-kotak/src/main.js. Bekal (PK_BEKAL) habis sekali pakai, sisanya barang milik permanen.
 const PK_MAKS_LARI = 50, PK_MAKS_HARI = 150, PK_MIN_LARI = 45e3;
+// Rekor 1 KM: waktu game tercepat yang masuk akal (sepatu+bekal terbaik, sprint penuh ±3:00). Di bawah ini ditolak.
+const PK_REKOR_MIN = 150, PK_SKALA_WAKTU = 3.4;
+// Misi harian (Huda 8 Nov): 3 misi per hari (lari1 selalu ada + 2 acak menurut tanggal, sama untuk semua warga), hadiah 10 koin.
+const PK_MISI_KOIN = 10;
+const PK_MISI = { lari1: (p) => p.fh >= 1, lari3: (p) => p.fh >= 3, koin30: (p) => p.km >= 30, top5: (p) => p.pb > 0 && p.pb <= 5, iso: (p) => !!p.iso, mulus: (p) => !!p.mulus, cepat: (p) => p.rh > 0 && p.rh <= 330 };
+function pkMisiHari(hari) { const lain = Object.keys(PK_MISI).slice(1); let h = 0; for (const c of hari) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  const a = lain[h % lain.length], sisa = lain.filter((x) => x !== a); return ["lari1", a, sisa[(h >>> 8) % sisa.length]]; }
 const PK_BEKAL = ["isotonik", "gel", "pisang", "kopi", "bakmi"];
+// Item keren khusus 💎 (Huda 8 Nov): outfit toko, aksesori gengsi, sepatu & jam tier 3-4. Sisanya koin lari.
+const PK_GENGSI = ["waist_bag", "sunglasses_matte", "handuk", "ransel", "hydration_vest", "grail_trail_pack"];
+const pkPermata = (id) => ["trail_sandstone", "solomate_carbon", "nyx_hyperfoam", "coro_pro", "titanium_ultra"].includes(id) || PK_GENGSI.includes(id) || /^(kaos|bawah|topi)-/.test(id);
 const PK_HARGA = {"isotonik": 15, "gel": 20, "pisang": 10, "kopi": 25, "bakmi": 30, "daily_oat": 50, "trail_sandstone": 85, "solomate_carbon": 140, "nyx_hyperfoam": 240, "willo_sport": 45, "coro_pro": 95, "titanium_ultra": 220, "waist_bag": 15, "sunglasses_matte": 35, "handuk": 40, "ransel": 50, "hydration_vest": 75, "grail_trail_pack": 260, "kaos-3": 30, "kaos-4": 30, "kaos-5": 30, "kaos-6": 30, "kaos-11": 45, "kaos-12": 50, "kaos-13": 50, "kaos-14": 35, "kaos-15": 35, "kaos-16": 35, "kaos-17": 35, "kaos-18": 35, "kaos-19": 45, "kaos-20": 45, "bawah-9": 35, "bawah-10": 35, "bawah-11": 25, "bawah-12": 25, "bawah-13": 35, "bawah-14": 40, "bawah-15": 40, "bawah-16": 40, "topi-7": 20, "topi-8": 20, "topi-9": 20};
 // Iklan berhadiah Google H5 Games Ads (Huda 6 Nov 2026): warga MEMILIH sendiri menonton iklan → +5 permata, maks 3x/hari WIB.
 // Hanya permata (bukan koin). Menyala bila variabel IKLAN_H5 = "1" (setelah Google menyetujui H5 Games Ads).
@@ -584,26 +594,61 @@ export class Warga extends DurableObject {
     if (aksi === "pelari") {
       // Game Pelari Kalcer: op akun | mulai | selesai (setor koin lari) | beli (bayar koin/permata).
       const q = await request.json();
-      const r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
-      if (!r) return Response.json({ galat: "Masuk dulu sebagai warga Dunia Kotak." }, { status: 401 });
       const kini = Date.now(), hari = new Date(kini + 7 * 3600e3).toISOString().slice(0, 10);
+      const r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      // Papan peringkat asli (boleh dilihat tamu): rekor 1 KM tercepat sepanjang masa + tercepat hari ini.
+      if (q.op === "papan") {
+        const nama = (x) => x.ig || x.tiktok || "";
+        const ambil = (kol, syarat, ...a) => this.sql.exec(`SELECT no, ig, tiktok, json_extract(pelari, '$.${kol}') AS t FROM warga WHERE pelari IS NOT NULL AND json_extract(pelari, '$.${kol}') > 0 ${syarat} ORDER BY t ASC, no ASC LIMIT 30`, ...a).toArray().map((x, i) => ({ r: i + 1, no: x.no, u: nama(x), t: x.t }));
+        const semua = ambil("r", ""), harian = ambil("rh", "AND json_extract(pelari, '$.h') = ?", hari);
+        let saya = null;
+        if (r) { let p = {}; try { p = JSON.parse(r.pelari || "{}") || {}; } catch (e) {}
+          if (p.r > 0) saya = { no: r.no, u: nama(r), t: p.r, r: 1 + this.sql.exec("SELECT COUNT(*) AS n FROM warga WHERE json_extract(pelari, '$.r') > 0 AND json_extract(pelari, '$.r') < ?", p.r).toArray()[0].n }; }
+        const pelari = this.sql.exec("SELECT COUNT(*) AS n FROM warga WHERE json_extract(pelari, '$.r') > 0").toArray()[0].n;
+        return Response.json({ semua, harian, saya, pelari });
+      }
+      if (!r) return Response.json({ galat: "Masuk dulu sebagai warga Dunia Kotak." }, { status: 401 });
       let p = {}; try { p = JSON.parse(r.pelari || "{}") || {}; } catch (e) {}
       if (!Array.isArray(p.punya)) p.punya = [];
-      if (p.h !== hari) { p.h = hari; p.dapat = 0; }
+      // statistik harian untuk misi: fh lari finish, km koin terbanyak 1 lari, pb posisi terbaik, rh rekor hari ini, iso, mulus, mk misi diklaim
+      if (p.h !== hari) { p.h = hari; p.dapat = 0; p.fh = 0; p.km = 0; p.pb = 0; p.rh = 0; p.iso = 0; p.mulus = 0; p.mk = []; }
+      if (!Array.isArray(p.mk)) p.mk = [];
       let koin = r.koin || 0, koinTotal = r.koinTotal || 0, permata = r.permata || 0;
-      const info = {}, jawab = (x = {}, st = 200) => Response.json({ no: r.no, ig: this.nm(r), koin, permata, punya: p.punya, sisaHari: PK_MAKS_HARI - p.dapat, ...info, ...x }, { status: st });
+      const kemarin = new Date(kini + 7 * 3600e3 - 864e5).toISOString().slice(0, 10);
+      const streak = () => (p.sh === hari || p.sh === kemarin ? p.st || 0 : 0);
+      const misi = () => pkMisiHari(hari).map((id) => ({ id, ok: PK_MISI[id](p), klaim: p.mk.includes(id) }));
+      const info = {}, jawab = (x = {}, st = 200) => Response.json({ no: r.no, ig: this.nm(r), koin, permata, punya: p.punya, sisaHari: PK_MAKS_HARI - p.dapat, rekor: p.r || 0, streak: streak(), lariHariIni: p.sh === hari, misi: misi(), ...info, ...x }, { status: st });
       if (q.op === "mulai") p.m = kini;
       else if (q.op === "selesai") {
         const lama = p.m ? kini - p.m : 0; delete p.m;
         if (lama < PK_MIN_LARI) { this.sql.exec("UPDATE warga SET pelari = ? WHERE no = ?", JSON.stringify(p), r.no); return jawab({ galat: "Larinya tidak tercatat, koin tidak masuk. Coba lari lagi dari awal." }, 400); }
         const k = Math.max(0, Math.min(PK_MAKS_LARI, Math.floor(+q.koin || 0), PK_MAKS_HARI - p.dapat));
         p.dapat += k; koin += k; koinTotal += k; info.dapat = k;
+        // lari sampai finish: catat rekor, streak & statistik misi
+        const w = +q.waktu || 0;
+        if (q.finish && w >= PK_REKOR_MIN && w <= 3600 && lama >= w / PK_SKALA_WAKTU * 1000 - 3000) {
+          p.fh = (p.fh || 0) + 1; p.km = Math.max(p.km || 0, Math.min(PK_MAKS_LARI, Math.floor(+q.koin || 0)));
+          const pos = Math.floor(+q.pos || 0); if (pos > 0) p.pb = p.pb ? Math.min(p.pb, pos) : pos;
+          if (q.iso) p.iso = 1; if (q.mulus) p.mulus = 1;
+          const t = Math.round(w * 10) / 10; info.rekorBaru = !p.r || t < p.r; info.rekorHariBaru = !p.rh || t < p.rh;
+          if (info.rekorBaru) p.r = t; if (info.rekorHariBaru) p.rh = t;
+          if (p.sh !== hari) { p.st = p.sh === kemarin ? (p.st || 0) + 1 : 1; p.sh = hari; info.streakNaik = true; }
+          // kabar ke Chat Desa: finish pertama hari ini atau rekor baru (worker yang meneruskan ke ruang dusun)
+          if (info.streakNaik || info.rekorBaru) { const fm = (x) => Math.floor(x / 60) + ":" + String(Math.floor(x % 60)).padStart(2, "0");
+            info.kabar = { no: r.no, ig: r.ig || r.tiktok || "warga" + r.no, m: "🏃 Finish Pelari Kalcer 1 KM CFD " + fm(t) + (pos ? " · posisi #" + pos : "") + (info.rekorBaru ? " · REKOR BARU!" : "") + (p.st > 1 ? " · lari " + p.st + " hari beruntun" : "") }; }
+        }
+      } else if (q.op === "misi") {
+        const id = String(q.id || "");
+        if (!pkMisiHari(hari).includes(id)) return jawab({ galat: "Misi itu bukan misi hari ini." }, 400);
+        if (p.mk.includes(id)) return jawab();
+        if (!PK_MISI[id](p)) return jawab({ galat: "Misinya belum selesai." }, 400);
+        p.mk.push(id); koin += PK_MISI_KOIN; koinTotal += PK_MISI_KOIN; info.dapat = PK_MISI_KOIN;
       } else if (q.op === "beli") {
         const id = String(q.id || ""), h = PK_HARGA[id];
         if (!h) return jawab({ galat: "Barang tidak ada di toko." }, 400);
         const habis = PK_BEKAL.includes(id);
         if (!habis && p.punya.includes(id)) return jawab();
-        if (q.bayar === "permata") { const hp = Math.ceil(h / KOIN_PER_PERMATA); if (permata < hp) return jawab({ galat: "Permatamu kurang. Top up dulu di tab 💎." }, 400); permata -= hp; }
+        if (pkPermata(id)) { const hp = Math.ceil(h / KOIN_PER_PERMATA); if (permata < hp) return jawab({ galat: "Permatamu kurang. Top up dulu di tab 💎." }, 400); permata -= hp; }
         else { if (koin < h) return jawab({ galat: "Koinmu kurang." }, 400); koin -= h; }
         if (!habis) p.punya.push(id); info.beli = id;
       }
@@ -1196,9 +1241,15 @@ async function apiWarga(request, env, url) {
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "pelari") {
-    const q = { kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), id: String(body.id || "").slice(0, 24), bayar: body.bayar === "permata" ? "permata" : "koin", koin: +body.koin || 0 };
+    const q = { kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), id: String(body.id || "").slice(0, 24), bayar: body.bayar === "permata" ? "permata" : "koin", koin: +body.koin || 0,
+      finish: !!body.finish, waktu: +body.waktu || 0, pos: +body.pos || 0, iso: !!body.iso, mulus: !!body.mulus };
     const r = await stub.fetch("https://do/pelari", { method: "POST", body: JSON.stringify(q) });
-    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+    const j = await r.json();
+    // Hasil lari diumumkan di Chat Desa (semua dusun), lalu kabar dihapus dari jawaban.
+    if (j.kabar && env.RUANG) { const isi = JSON.stringify({ ...j.kabar, w: Date.now(), d: "" });
+      await Promise.all(DUSUN_RUANG.map((d) => env.RUANG.get(env.RUANG.idFromName(d)).fetch("https://ruang/desa", { method: "POST", body: isi }).catch(() => {}))); j.diumumkan = true; }
+    delete j.kabar;
+    return Response.json(j, { status: r.status, headers: { "cache-control": "no-store" } });
   }
   if (aksi === "iklan") {
     const r = await stub.fetch("https://do/iklan", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), aktif: env.IKLAN_H5 === "1" }) });

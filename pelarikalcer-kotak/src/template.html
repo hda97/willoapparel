@@ -22,7 +22,7 @@ button:focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
 .rute{text-align:left;padding:10px 14px;display:grid;gap:1px}
 .rute small{font-size:9px;font-weight:800;letter-spacing:.16em;color:var(--redup)}.rute b{font-size:14px}.rute i{font-style:normal;font-size:11px;color:var(--redup)}
 .utama.besar{font-size:20px;padding:16px}
-.ubin{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ubin{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .ubin button{padding:10px 4px 8px;font-size:11.5px;font-weight:800;display:grid;justify-items:center;gap:3px;position:relative}
 .ubin span{font-size:22px}
 .ubin em{position:absolute;top:-6px;right:-4px;background:var(--hijau);color:#fff;font-style:normal;font-size:9.5px;padding:2px 6px;border-radius:999px}
@@ -133,6 +133,9 @@ body.potret #hBuff{top:calc(104px + env(safe-area-inset-top,0px));flex-wrap:wrap
 .pi{width:1.25em;height:1.25em;display:inline-block;vertical-align:-.2em;image-rendering:pixelated}.ubin span .pi{width:22px;height:22px}#hNyawa .pi{width:15px;height:15px;margin-right:1px}#bWS .pi{width:26px;height:26px}.map>span .pi{width:28px;height:28px}.tutup .pi{width:14px;height:14px}.item .ik .pi{width:28px;height:28px}
 #bDesa[hidden],#bDesa2[hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){#bWS{animation:none}}
+#bSuara{width:26px;height:26px;margin:-4px 2px -4px -6px;border-radius:50%;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:14px}
+.streak{display:grid;grid-template-columns:42px 1fr;gap:10px;align-items:center;background:rgba(242,193,74,.14);padding:10px;border-radius:12px}.streak>span{font-size:30px;text-align:center}.streak b{font-size:15px;display:block}.streak small{font-size:11.5px;color:var(--redup)}
+.item.misi .ik{width:42px;height:42px;display:grid;place-items:center;background:rgba(255,255,255,.08);border-radius:8px}.item.misi .besar{font-size:24px}
 </style></head><body>
 <canvas id="kanvas"></canvas>
 <section id="lobi" aria-label="Menu utama">
@@ -142,10 +145,11 @@ body.potret #hBuff{top:calc(104px + env(safe-area-inset-top,0px));flex-wrap:wrap
   <div class="ubin">
     <button class="kaca" id="mAvatar"><span>👕</span>Avatar</button>
     <button class="kaca" id="mToko"><span>🛒</span>Toko<em id="tagToko"></em></button>
+    <button class="kaca" id="mMisi"><span>🎯</span>Misi<em id="tagMisi"></em></button>
     <button class="kaca" id="mRank"><span>🏆</span>Peringkat</button>
   </div>
 </section>
-<div id="dompet" class="kaca"><i>🪙</i><b id="hDompet">0</b><span id="dPermata" hidden><i>💎</i><b id="hPermata">0</b></span></div>
+<div id="dompet" class="kaca"><button id="bSuara" type="button" aria-label="Matikan suara">🔊</button><i>🪙</i><b id="hDompet">0</b><span id="dPermata" hidden><i>💎</i><b id="hPermata">0</b></span></div>
 <section id="dAvatar" class="laci kaca" hidden aria-label="Avatar">
   <div class="kepala"><h2>Avatar</h2><button class="tutup" data-tutup aria-label="Tutup">✕</button></div>
   <div class="isi">
@@ -169,9 +173,14 @@ body.potret #hBuff{top:calc(104px + env(safe-area-inset-top,0px));flex-wrap:wrap
   <p class="catat">Rute Nusantara gaya kotak menyusul satu per satu.</p>
   <div class="isi" id="daftarMap"></div>
 </section>
+<section id="dMisi" class="laci kaca" hidden aria-label="Misi harian">
+  <div class="kepala"><h2>Misi Harian</h2><button class="tutup" data-tutup aria-label="Tutup">✕</button></div>
+  <div class="isi" id="daftarMisi"></div>
+</section>
 <section id="dRank" class="laci kaca" hidden aria-label="Peringkat">
   <div class="kepala"><h2>Peringkat</h2><button class="tutup" data-tutup aria-label="Tutup">✕</button></div>
-  <p class="catat">Waktu terbaik 1 KM CFD Kotak Wetan.</p>
+  <p class="catat">Waktu terbaik 1 KM CFD Kotak Wetan, semua warga Dunia Kotak.</p>
+  <div class="pil tab" id="tabRank"><button class="chip" data-rank="harian">Hari ini</button><button class="chip" data-rank="semua">Sepanjang masa</button></div>
   <div class="isi" id="daftarRank"></div>
 </section>
 <div id="pemanasan" hidden><b id="pmNama">🔥 Ketuk avatar untuk pemanasan</b><div class="bar lebar"><div id="pmBar"></div></div><small id="pmInfo">ABC Drills 0/24 · selesai = +12% pace</small></div>
@@ -189,7 +198,7 @@ body.potret #hBuff{top:calc(104px + env(safe-area-inset-top,0px));flex-wrap:wrap
 <button id="bWS" hidden>💧<br>AMBIL<br>ISOTONIK</button>
 <div id="kontrol" hidden><span>⇠ ⇢ Geser ganti lajur</span><span>⇡ Geser ke atas lompat</span><span>👆 Tap / tahan untuk sprint</span></div>
 <div id="gps" hidden><div class="tengah"><div class="jam"><div><b>10:08</b><small>Kamis, 17 Agu</small><em>🏃 8420</em></div></div><div id="gpsTeks">MENCARI GPS...</div><div id="gpsInfo" style="font-size:12px;color:var(--redup);margin-top:6px"></div></div></div>
-<div id="jeda" class="layar" hidden><div class="kartu kaca"><h2>Jeda</h2><button class="utama" id="bLanjut">LANJUT LARI</button><button class="kedua" id="bKeluar">Keluar ke lobi</button></div></div>
+<div id="jeda" class="layar" hidden><div class="kartu kaca"><h2>Jeda</h2><button class="utama" id="bLanjut">LANJUT LARI</button><button class="kedua" id="bSuara2" type="button">🔊 Suara nyala</button><button class="kedua" id="bKeluar">Keluar ke lobi</button></div></div>
 <div id="gagal" class="layar" hidden><div class="kartu kaca"><h2>Nyawa habis 😮‍💨</h2><div id="gagalInfo" style="color:var(--redup);font-size:14px"></div><button class="utama" id="bLagi2">COBA LAGI</button></div></div>
 <div id="struk" class="layar" hidden><div class="kertas">
   <h2>PELARI KALCER</h2><div class="sub">RACE RECEIPT · DUNIA KOTAK</div><img id="fotoMedali" alt="Pelari dengan medali finisher">
