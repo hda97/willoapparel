@@ -73,9 +73,11 @@ const portrait = () => innerHeight > innerWidth;
 // =====================================================================
 // 1. MASUK
 // =====================================================================
+let wargaAwal = null;   // /api/warga diambil paralel dengan cek sesi supaya layar memuat lebih cepat
 async function layarMasuk() {
   const isi = $('masukIsi');
   const lama = bacaJ('dk_warga');
+  if ((lama && lama.kunci) || new URLSearchParams(location.search).has('tamu')) wargaAwal = fetch('/duniakotak/api/warga').then(r => r.json()).catch(() => null);
   if (lama && lama.kunci) {
     try { const s = await api('sesi', {kunci: lama.kunci}); if (!s.bagi) { location.replace('/duniakotak/?bagi=1#hasil'); return; } return selesaiMasuk(s); }
     catch (e) { /* kunci tidak berlaku: lanjut ke pintu masuk */ }
@@ -365,7 +367,7 @@ function bangunKulon(buat = kulon) {
   bangunProksi();
 }
 async function bangunDunia() {
-  try { const w = await (await fetch('/duniakotak/api/warga')).json(); w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; if (x.hs) HS[x.no] = x.hs; }); } catch (e) {}
+  try { const w = (wargaAwal && await wargaAwal) || await (await fetch('/duniakotak/api/warga')).json(); wargaAwal = null; w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; if (x.hs) HS[x.no] = x.hs; }); } catch (e) {}
   if (S.saya && S.saya.kucing) KC[S.saya.no] = S.saya.kucing;
   if (S.saya && S.saya.ig) NM[S.saya.no] = '@' + S.saya.ig;
   await document.fonts.load('900 40px Montserrat').catch(() => {});
@@ -400,42 +402,51 @@ function pecahInstanced(root) {
   root.updateMatrixWorld(true);
   const daftar = []; root.traverse(m => { if (m.isInstancedMesh && m.count > 300) daftar.push(m); });
   const M = new THREE.Matrix4(), W = new THREE.Matrix4(), P = new THREE.Vector3(), C = new THREE.Color();
+  // Ringan untuk HP (8 Nov 2026): kubus dari semua kelompok (jalan, rumput, sawah, hutan) yang bahannya sama
+  // digabung per petak 140x140, jadi satu petak = satu kali gambar (dulu satu petak bisa puluhan kali gambar).
+  const sel = new Map(), CELL = 140;
   for (const im of daftar) {
     const datar = im.scale.y < .5;                      // jalan dicat: kubus pipih
-    const sel = new Map(), CELL = 140;
+    const mt = im.material, mk = [mt.type, mt.color.getHex(), mt.emissive ? mt.emissive.getHex() : 0, mt.roughness, mt.metalness, mt.transparent, mt.opacity, mt.map ? mt.map.id : 0, datar].join('|');
     for (let i = 0; i < im.count; i++) {
       im.getMatrixAt(i, M); W.multiplyMatrices(im.matrixWorld, M); P.setFromMatrixPosition(W);
-      const k = Math.floor(P.x / CELL) + ',' + Math.floor(P.z / CELL);
-      if (!sel.has(k)) sel.set(k, []); im.getColorAt(i, C); sel.get(k).push([W.clone(), C.clone()]);
-    }
-    for (const isi of sel.values()) {
-      const c = new THREE.InstancedMesh(GEO_DATAR, im.material, isi.length);
-      isi.forEach(([w, col], i) => { c.setMatrixAt(i, w); c.setColorAt(i, col); });
-      c.castShadow = false; c.receiveShadow = !datar; c.computeBoundingSphere(); c.userData.jangan = true; sc.add(c);
+      const k = Math.floor(P.x / CELL) + ',' + Math.floor(P.z / CELL) + '|' + mk;
+      if (!sel.has(k)) sel.set(k, {mt, datar, isi: []}); if (im.instanceColor) im.getColorAt(i, C); else C.set(0xffffff); sel.get(k).isi.push([W.clone(), C.clone()]);
     }
     im.parent.remove(im);
   }
+  for (const {mt, datar, isi} of sel.values()) {
+    const c = new THREE.InstancedMesh(GEO_DATAR, mt, isi.length);
+    isi.forEach(([w, col], i) => { c.setMatrixAt(i, w); c.setColorAt(i, col); });
+    c.castShadow = false; c.receiveShadow = !datar; c.computeBoundingSphere(); c.userData.jangan = true; sc.add(c);
+  }
 }
-// gabungkan mesh polos (tanpa tekstur) per warna jadi sedikit draw call
+// gabungkan mesh polos (tanpa tekstur) jadi sedikit draw call. Ringan untuk HP (8 Nov 2026): warna disimpan per titik
+// (vertex color), jadi semua warna dengan bahan yang sama (kasar/kilap/nyala) cukup satu kali gambar, bukan satu per warna.
+const LIN = new THREE.Color();
 function bakeGroup(root) {
   root.updateMatrixWorld(true);
   const inv = new THREE.Matrix4().copy(root.matrixWorld).invert();
   const grup = new Map(), buang = [];
   root.traverse(m => {
     if (!m.isMesh || m.isInstancedMesh || m.userData.jangan) return;
-    const mt = m.material; if (Array.isArray(mt) || !mt.isMeshStandardMaterial || mt.map || mt.transparent) return;
-    const k = [mt.color.getHex(), mt.emissive.getHex(), mt.roughness.toFixed(2), mt.metalness.toFixed(2), m.castShadow ? 1 : 0].join('|');
+    const mt = m.material; if (Array.isArray(mt) || !mt.isMeshStandardMaterial || mt.map || mt.transparent || mt.vertexColors) return;
+    const k = [mt.type, mt.emissive.getHex(), mt.emissiveIntensity, mt.roughness.toFixed(2), mt.metalness.toFixed(2), mt.side, mt.flatShading ? 1 : 0, mt.fog ? 1 : 0, m.castShadow ? 1 : 0].join('|');
     let g = m.geometry.index ? m.geometry.toNonIndexed() : m.geometry.clone();
     for (const a of Object.keys(g.attributes)) if (a !== 'position' && a !== 'normal') g.deleteAttribute(a);
     g.applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld));
+    LIN.copy(mt.color); const n = g.attributes.position.count, cl = new Float32Array(n * 3);
+    for (let i = 0; i < n * 3; i += 3) { cl[i] = LIN.r; cl[i + 1] = LIN.g; cl[i + 2] = LIN.b; }
+    g.setAttribute('color', new THREE.BufferAttribute(cl, 3));
     if (!grup.has(k)) grup.set(k, {mt, cast: m.castShadow, gs: []});
     grup.get(k).gs.push(g); buang.push(m);
   });
   buang.forEach(m => m.parent && m.parent.remove(m));
   for (const {mt, cast, gs} of grup.values()) {
+    const bahan = mt.clone(); bahan.color.set(0xffffff); bahan.vertexColors = true;
     for (let i = 0; i < gs.length; i += 400) {
       const mg = mergeGeometries(gs.slice(i, i + 400), false); if (!mg) continue;
-      const mesh = new THREE.Mesh(mg, mt); mesh.castShadow = cast; mesh.receiveShadow = true; mesh.userData.jangan = true; root.add(mesh);
+      const mesh = new THREE.Mesh(mg, bahan); mesh.castShadow = cast; mesh.receiveShadow = true; mesh.userData.jangan = true; root.add(mesh);
     }
     gs.forEach(g => g.dispose());
   }
@@ -612,6 +623,8 @@ function pasangKucing(n) {
   });
   G.traverse(m => { if (m.isMesh) m.castShadow = !hemat; });
   sc.add(G); rt.kc = G;
+  // kandang & kucing digabung per warna (kucing hanya bergerak utuh: lompat kecil + menoleh), hemat draw call di HP
+  for (const o of G.children) bakeGroup(o);
   const r = rectLot(L, -4.35, -3.45, 3.0, 3.8); r.kandang = true; rt.rects.push(r);
 }
 function bukaKucing() {
@@ -1096,6 +1109,11 @@ function gantiAvatarSaya() {
 // =====================================================================
 const peta = {img: null, w: 0, h: 0, b: null, pilih: null, t: 0, u: 0, v: 0, z: 2.2};
 function buatPeta() {
+  // foto udara (render seluruh dusun dari atas) berat: dibuat sesudah desa tampil, bukan saat layar memuat
+  requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(fotoUdaraPeta, 300)));
+  pasangPeta();
+}
+function fotoUdaraPeta() {
   try {
     const b = I.batas, lebar = b.x1 - b.x0, tinggi = b.z1 - b.z0, k = 1400 / Math.max(lebar, tinggi);
     const W = Math.round(lebar * k), H = Math.round(tinggi * k);
@@ -1117,7 +1135,10 @@ function buatPeta() {
     c.font = `900 ${Math.round(15 * k / 1.4)}px Montserrat,sans-serif`; c.lineJoin = 'round';
     for (const f of fasumBangun) { if (!f.nama) continue; const [u, v] = keP(f.position.x, f.position.z); c.lineWidth = 4; c.strokeStyle = 'rgba(0,0,0,.6)'; c.strokeText(f.nama, u, v); c.fillStyle = '#fff6c8'; c.fillText(f.nama, u, v); }
     peta.img = cv; peta.w = W; peta.h = H; peta.b = b;
+    if (!$('panelPeta').hidden) { const p = tokoh.saya.position; [peta.u, peta.v] = keP(p.x, p.z); gambarPetaBesar(); }
   } catch (e) { console.error('peta', e); $('petaMini').hidden = true; }
+}
+function pasangPeta() {
   $('petaMini').onclick = bukaPeta;
   $('tutupPeta').onclick = () => { $('panelPeta').hidden = true; };
   // peta besar: geser 1 jari = pindah, cubit/roda = zoom, ketuk = pilih rumah
