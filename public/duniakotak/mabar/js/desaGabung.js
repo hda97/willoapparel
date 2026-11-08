@@ -38,10 +38,8 @@ export function pasangDesaGabung(o) {
   const ada = d => !!NAMA[d];
   const css = document.createElement('style');
   css.textContent = `#panelDesa .panel{width:min(960px,96vw);padding:10px 12px}
-#desaBingkai{position:relative;overflow:auto;border-radius:14px;max-height:calc(100 * var(--vh,1vh) - 150px);background:#9fd3f5;-webkit-overflow-scrolling:touch}
-#desaIsi{position:relative;width:max(100%,820px)}#desaIsi img{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none}
-.dsTap{position:absolute;border:0;background:rgba(255,255,255,0);border-radius:10px;cursor:pointer;outline:3px solid transparent;transition:background .15s}
-.dsTap:hover,.dsTap:focus{background:rgba(255,255,255,.14);outline-color:rgba(255,255,255,.7)}.dsTap.ini{outline:3px dashed #ffd23a}
+#desaBingkai{position:relative;border-radius:14px;height:calc(100 * var(--vh,1vh) - 170px);min-height:320px;background:#9fd3f5;overflow:hidden}
+#desaBingkai iframe{display:block;width:100%;height:100%;border:0}
 .dsAku{position:absolute;transform:translate(-50%,-100%);pointer-events:none;font:900 12px Montserrat,sans-serif;color:#fff;background:#2f6fd8;border:2px solid #fff;border-radius:999px;padding:3px 8px;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.4)}
 .dsAku:after{content:'';position:absolute;left:50%;bottom:-8px;margin-left:-6px;border:6px solid transparent;border-top-color:#2f6fd8}
 #chipGapura{position:fixed;left:50%;top:calc(74px + env(safe-area-inset-top));transform:translateX(-50%);z-index:30;border:0;border-radius:999px;padding:10px 16px;background:#f2a13a;color:#2a1a05;font:900 14px Montserrat,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.35);cursor:pointer;animation:popMuncul .16s ease-out}
@@ -56,22 +54,23 @@ export function pasangDesaGabung(o) {
 
   // ---------- panel "Seluruh Desa" ----------
   const pn = document.createElement('div'); pn.id = 'panelDesa'; pn.className = 'layarPenuh'; pn.hidden = true;
-  const tap = Object.entries(LETAK).map(([d, L]) => { const [a, b] = keGambar(L.batas[0] + L.gx, L.batas[2] + L.gz), [c, e] = keGambar(L.batas[1] + L.gx, L.batas[3] + L.gz);
-    return `<button class="dsTap${d === DI ? ' ini' : ''}" data-d="${d}" style="left:${a}%;top:${b}%;width:${c - a}%;height:${e - b}%" aria-label="Dusun ${d}"></button>`; }).join('');
   pn.innerHTML = `<div class="panel"><div class="petaAtas"><h2>🌄 Peta Desa Dunia Kotak</h2><button class="tutupX" data-x aria-label="Tutup">✕</button></div>
-    <div id="desaBingkai"><div id="desaIsi"><img src="/duniakotak/mabar/aset/peta-desa.jpg" alt="Peta 3D Desa Dunia Kotak: 5 dusun">${tap}<div class="dsAku" id="dsAku">📍 Kamu di sini</div></div></div>
-    <p class="kecil" style="margin:8px 0 0">Ketuk dusun untuk berkunjung. Jalan kaki lewat gapura di ujung jalan dusunmu, atau naik bus 🚌.</p></div>`;
+    <div id="desaBingkai"><iframe title="Pulau 3D Desa Dunia Kotak" allow="web-share; clipboard-write" loading="lazy"></iframe></div>
+    <p class="kecil" style="margin:8px 0 0">Putar & zoom pulau. Ketuk dusun untuk berkunjung lewat Jl. Raya Dunia Kotak, atau naik bus 🚌.</p></div>`;
   document.body.appendChild(pn);
-  pn.onclick = e => { if (e.target === pn || e.target.closest('[data-x]')) { pn.hidden = true; return; }
-    const b = e.target.closest('.dsTap'); if (!b) return; const d = b.dataset.d;
-    if (d === DI) { o.toast(`Kamu sedang di Dusun ${NAMA[d]}. Gapura ada di ujung jalan keluar dusun.`, 3500); return; }
-    if (!ada(d)) { o.toast('Dusun Kotak Segara segera dibuka! 🏙️', 3000); return; }
-    pn.hidden = true; pilihan(true); };
+  pn.onclick = e => { if (e.target === pn || e.target.closest('[data-x]')) pn.hidden = true; };
+  // Peta Desa = pulau 3D yang sama dengan willoapparel.com/duniakotak/pulau/ (Huda 8 Nov: jadi bahan konten).
+  // Ketuk nama dusun di pulau → pesan {dk:'pergi', dusun} → jalan kaki ke dusun itu.
+  addEventListener('message', e => {
+    if (e.origin !== location.origin || !e.data || e.data.dk !== 'pergi' || pn.hidden) return;
+    const d = String(e.data.dusun || ''); if (!LETAK[d] || d === DI) return;
+    if (!ada(d)) { o.toast(d === 'segara' ? 'Dusun Kotak Segara dibuka setelah 4 dusun lain penuh! 🏙️' : 'Dusun ini belum dibuka.', 3000); return; }
+    pn.hidden = true; jalanKe(d);
+  });
   const bukaDesa = () => {
-    const me = o.tokoh.saya; if (me) { const [x, z] = global(DI, me.position.x, me.position.z), [u, v] = keGambar(x, z); const a = document.getElementById('dsAku'); a.style.left = u + '%'; a.style.top = v + '%'; }
+    const f = pn.querySelector('iframe');
+    if (!f.src) f.src = `/duniakotak/pulau/?embed=1&game=1&di=${encodeURIComponent(DI)}`;
     pn.hidden = false;
-    const bk = document.getElementById('desaBingkai'), aku = document.getElementById('dsAku');
-    requestAnimationFrame(() => { bk.scrollLeft = aku.offsetLeft - bk.clientWidth / 2; bk.scrollTop = aku.offsetTop - bk.clientHeight / 2; });
   };
   // tombol di Peta Dusun → Peta Desa
   const atas = document.querySelector('#panelPeta .petaAtas');
