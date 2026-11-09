@@ -17,7 +17,7 @@ import {curug, JALAN_CURUG, AWAL_CURUG} from './js/curug.js';
 import {tlaga, JALAN_TLAGA, AWAL_TLAGA} from './js/tlaga.js';
 import {segara, AWAL_SEGARA, kodeUnit} from './js/segara.js';
 import {buatNav, pecahRute} from './js/navigasi.js';
-import {pasangDesaGabung} from './js/desaGabung.js';
+import {pasangDesaGabung, LETAK} from './js/desaGabung.js';
 
 const $ = id => document.getElementById(id);
 const VS = D.VS;
@@ -1044,7 +1044,8 @@ function barisHadir() {
   return `<div class="misi hadir"><span class="mi">📅</span><div><b>Hadir beruntun: hari ke-${HD.n || 0}</b><div class="hdKotak">${kotak}</div><small>Masuk tiap hari, hadiah naik. Besok +${HD.besok} 🪙. Hari ke-7 bonus +${HD.permata7 || 10} 💎. Bolos sehari = mulai lagi dari hari 1.</small></div><span></span></div>`;
 }
 // ---------- papan peringkat warga (total koin yang pernah dikumpulkan; belanja tidak mengurangi) ----------
-async function bukaPeringkat() {
+async function bukaPeringkat(dariTab) {
+  if (!dariTab) { tabPeringkat('piala'); return; }   // tombol 🏆 membuka tab Piala Dusun dulu (9 Nov 2026)
   $('panelPeringkat').hidden = false; $('isiPeringkat').innerHTML = '<p class="kecil">Memuat…</p>';
   let d = null; try { d = await (await fetch('/duniakotak/api/peringkat' + (S.saya ? '?no=' + S.saya.no : ''))).json(); } catch (e) {}
   if (!d || !d.top) { $('isiPeringkat').innerHTML = '<p class="kecil">Papan peringkat belum bisa dimuat. Coba lagi sebentar.</p>'; return; }
@@ -1056,6 +1057,66 @@ async function bukaPeringkat() {
   if (S.saya && d.saya && !aku) h += `<div class="pkBaris aku pkSaya"><span class="pkNo">${d.saya.r || '–'}</span><span class="pkNama">@${esc(S.saya.ig || '')} (kamu)<small>${d.saya.r ? 'dari ' + d.jml + ' warga berkoin' : 'Belum punya koin'}</small></span><b>🪙 ${d.saya.koin}</b></div>`;
   $('isiPeringkat').innerHTML = h;
   $('ringkasPeringkat').textContent = `${d.jml} warga sudah punya koin. Geser daftar untuk melihat peringkat 11 dan seterusnya.`;
+}
+// ---------- Piala Antardusun Mingguan (Huda 9 Nov 2026) ----------
+// Finish Pelari Kalcer (+10, maks 3x/hari) & gol stadion (+2, maks 5/hari) = poin untuk dusun sendiri. Juara Senin–Minggu
+// dapat bendera emas di gapura dusunnya selama seminggu berikutnya. Data: GET /duniakotak/api/piala[?no=].
+const DUSUN_PIALA = {wetan: ['🌾', 'Kotak Wetan'], kulon: ['🍃', 'Kotak Kulon'], curug: ['💦', 'Kotak Curug'], tlaga: ['🛶', 'Kotak Tlaga'], segara: ['🏙️', 'Kotak Segara']};
+const namaPiala = d => (DUSUN_PIALA[d] || ['', d])[1];
+let PIALA = null;
+async function ambilPiala() { try { PIALA = await (await fetch('/duniakotak/api/piala' + (S.saya ? '?no=' + S.saya.no : ''), {cache: 'no-store'})).json(); } catch (e) { PIALA = null; } return PIALA; }
+function sisaWaktu(ms) { const j = Math.max(0, Math.floor(ms / 3600e3)); return j >= 24 ? Math.floor(j / 24) + ' hari ' + (j % 24) + ' jam' : j + ' jam ' + Math.max(0, Math.floor(ms % 3600e3 / 60e3)) + ' menit'; }
+function tabPeringkat(t) {
+  document.querySelectorAll('#tabPeringkat button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  if (t === 'piala') bukaPiala(); else bukaPeringkat(true);
+}
+async function bukaPiala() {
+  $('panelPeringkat').hidden = false; $('isiPeringkat').innerHTML = '<p class="kecil">Memuat…</p>';
+  $('ringkasPeringkat').textContent = 'Lari Pelari Kalcer sampai finish dan cetak gol di stadion untuk menambah poin dusunmu.';
+  const d = await ambilPiala();
+  if (!d || !d.klasemen) { $('isiPeringkat').innerHTML = '<p class="kecil">Klasemen Piala belum bisa dimuat. Coba lagi sebentar.</p>'; return; }
+  const maks = Math.max(1, ...d.klasemen.map(x => x.poin)), medali = ['🥇', '🥈', '🥉', '4', '5'];
+  const sayaD = S.saya ? dusunDari(S.saya.no) : '';
+  let h = '';
+  if (d.juara) h += `<div class="plJuara">🏆 Juara minggu lalu: <b>${DUSUN_PIALA[d.juara.d][0]} Dusun ${namaPiala(d.juara.d)}</b> (${d.juara.poin} poin). Bendera emas berkibar di gapuranya.${d.juara.top.length ? '<small>Penyumbang poin terbanyak: ' + d.juara.top.map(x => '@' + esc(x.u || 'warga ' + x.no)).join(', ') + '</small>' : ''}</div>`;
+  h += `<div class="plDaftar">${d.klasemen.map((x, i) => `<div class="plBaris${x.d === sayaD ? ' aku' : ''}"><span class="plMedali">${x.poin ? medali[i] : '–'}</span><span class="plNama">${DUSUN_PIALA[x.d][0]} ${namaPiala(x.d)}${x.d === sayaD ? '<small>dusunmu</small>' : ''}<i style="width:${Math.round(x.poin / maks * 100)}%"></i></span><b>${x.poin}<small>${x.pemain} pemain</small></b></div>`).join('')}</div>`;
+  if (d.saya) h += `<p class="kecil plSaya">Sumbanganmu minggu ini: <b>${d.saya.poin} poin</b> (${d.saya.lari} finish lari, ${d.saya.gol} gol). Sisa finish berpoin hari ini: ${Math.max(0, d.saya.sisaLari)}/${d.aturan.lariHari}.</p>`;
+  if (d.top.length) h += `<p class="kecil plJudul">⭐ Pahlawan dusun minggu ini</p><div class="pkDaftar plTop">${d.top.map((x, i) => `<div class="pkBaris${S.saya && x.no === S.saya.no ? ' aku' : ''}${i < 3 ? ' juara' : ''}"><span class="pkNo">${['🥇', '🥈', '🥉'][i] || i + 1}</span><span class="pkNama">@${esc(x.u || 'warga ' + x.no)}<small>${namaPiala(x.d)}</small></span><b>${x.poin}</b></div>`).join('')}</div>`;
+  h += `<p class="kecil plAturan">🏃 Finish Pelari Kalcer = +${d.aturan.lari} poin (maks ${d.aturan.lariHari}x sehari) · ⚽ Gol di stadion = +${d.aturan.gol} poin (maks 5 sehari). Ditutup Minggu 23.59 WIB, sisa ${sisaWaktu(d.tutup - Date.now())}. Dusun juara dapat bendera emas di gapura selama seminggu.</p>`;
+  if (!S.tamu) h += '<button class="antar plLari" id="plLari">🏃 Lari sekarang, tambah poin dusun</button>';
+  $('isiPeringkat').innerHTML = h;
+  const b = $('plLari'); if (b) b.onclick = () => { $('panelPeringkat').hidden = true; ikutLari(); };
+}
+// bendera emas di gapura dusun juara minggu lalu (tidak ikut bakeGroup supaya kain bisa berkibar)
+let BENDERA_PIALA = null;
+async function pasangBenderaPiala() {
+  const d = PIALA || await ambilPiala(); if (!d || !d.juara) return;
+  const g = LETAK[DI] && LETAK[DI].gerbang;
+  if (d.juara.d === DI && g) {
+    const gp = new THREE.Group(), E = 0xf2c230;
+    for (const s of [-1, 1]) {
+      const tiang = kotakD(.1, 2.6, .1, 0xf4f1ea, 0, 1.3, 0), kaki = kotakD(.36, .16, .36, 0x2c3150, 0, .08, 0);
+      const c = document.createElement('canvas'); c.width = 256; c.height = 160; const x = c.getContext('2d');
+      x.fillStyle = '#f2c230'; x.fillRect(0, 0, 256, 160); x.fillStyle = '#2c3150'; x.fillRect(0, 128, 256, 32);
+      x.font = '72px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('🏆', 128, 64);
+      x.fillStyle = '#fff'; x.font = '900 22px Montserrat, sans-serif'; x.fillText('JUARA PIALA DUSUN', 128, 145);
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+      // depan & belakang berbagi satu geometri (ikut berkibar bersama); tekstur belakang dibalik supaya tulisan tidak terbalik
+      const t2 = t.clone(); t2.wrapS = THREE.RepeatWrapping; t2.repeat.x = -1; t2.offset.x = 1;
+      const geo = new THREE.PlaneGeometry(1.3, .82, 8, 1), bhn = (map, side) => new THREE.MeshStandardMaterial({map, side, roughness: .7, emissive: E, emissiveIntensity: .12});
+      const kain = new THREE.Group(); kain.add(new THREE.Mesh(geo, bhn(t, THREE.FrontSide)), new THREE.Mesh(geo, bhn(t2, THREE.BackSide)));
+      kain.position.set(s * .65, 2.15, 0); kain.userData.kibar = {geo, a: geo.attributes.position.array.slice(), s};
+      const sub = new THREE.Group(); sub.add(tiang, kaki, kain); sub.position.set(s * 3, 0, 0); gp.add(sub);
+    }
+    gp.scale.setScalar(VS); const z = g[1] - 26; gp.position.set(g[0], tanah(g[0], z, 0), z); sc.add(gp); BENDERA_PIALA = gp;
+    setTimeout(() => toast(`🏆 Dusun ${namaPiala(DI)} juara Piala Dusun minggu lalu! Bendera emas berkibar di gapura.`, 4500), 4000);
+  }
+}
+function kibarPiala(t) {
+  if (!BENDERA_PIALA) return;
+  BENDERA_PIALA.traverse(o => { const k = o.userData && o.userData.kibar; if (!k) return; const p = k.geo.attributes.position;
+    // simpangan nol di sisi tiang, makin besar ke ujung kain
+    for (let i = 0; i < p.count; i++) { const x0 = k.a[i * 3], jauh = (k.s * x0 + .65) / 1.3; p.array[i * 3 + 2] = Math.sin(t * 3 - jauh * 5) * .09 * jauh; } p.needsUpdate = true; });
 }
 // ---------- voting fasum berbintang (Huda 6 Nov 2026) ----------
 // 1 bintang gratis per hari; bintang donasi masuk otomatis dari webhook Trakteer (Saweria lama tetap diterima) bila pesan donasi memuat kode DK<no>.
@@ -1876,7 +1937,7 @@ function bolaTendang(dx, dz, kuat, kirim) {
 async function golKoin() {
   try {
     const r = await api('gol', {kunci: S.kunci}); S.saya.koin = r.koin; tandaKoin();
-    toast(r.dapat ? `⚽ GOOOL! Kamu mencetak gol, +${r.dapat} koin (${r.gol}/5 hari ini)` : (r.gol >= 5 ? '⚽ GOOOL! Koin gol hari ini sudah penuh (5/5), besok lagi ya.' : '⚽ GOOOL! Tunggu sebentar untuk koin gol berikutnya.'), 4000);
+    toast(r.dapat ? `⚽ GOOOL! Kamu mencetak gol, +${r.dapat} koin (${r.gol}/5 hari ini)${r.piala ? ` · +${r.piala.dapat} poin Piala Dusun ${namaPiala(r.piala.d)}` : ''}` : (r.gol >= 5 ? '⚽ GOOOL! Koin gol hari ini sudah penuh (5/5), besok lagi ya.' : '⚽ GOOOL! Tunggu sebentar untuk koin gol berikutnya.'), 4000);
   } catch (e) { toast('⚽ GOOOL! Kamu mencetak gol!', 3000); }
 }
 function bolaTerima(q) {
@@ -2295,6 +2356,7 @@ async function mulai() {
   DG = pasangDesaGabung({DI, NAMA: NAMA_DUSUN, VS, tokoh, tanah, toast, bunyi, pindahBus: d => { const u = new URL(location.href); u.searchParams.set('dusun', d); u.searchParams.delete('ke'); location.href = u.toString(); }});
   { const ke = new URLSearchParams(location.search).get('ke'); if (ke === 'gapura') DG.tiba(); else if (ke) setTimeout(() => keTempat(ke), 1500); }
   $('chipKumpul').onclick = keKumpul;
+  setTimeout(pasangBenderaPiala, 3000);
 }
 function aturHUD() {
   $('chat').querySelectorAll('.tab button[data-ch]').forEach(b => b.onclick = () => { S.ch = b.dataset.ch; $('chat').querySelectorAll('.tab button[data-ch]').forEach(x => x.classList.toggle('on', x === b)); tulisChat(); });
@@ -2324,7 +2386,7 @@ function aturHUD() {
   $('profil').onclick = bukaProfil;
   $('bAvatar').onclick = () => { $('panelAtur').hidden = true; bukaPembuatAvatar(JSON.parse(JSON.stringify(S.av)), false); };
   $('pfKucing').onclick = () => { $('panelProfil').hidden = true; bukaKucing(); }; $('bDukung').onclick = bukaPendukung;   // Huda 8 Nov 2026: kucing pindah ke profil, deretan atas jadi 👑 Pendukung
-  $('bPeringkat').onclick = () => bukaPeringkat(); $('tutupPeringkat').onclick = () => { $('panelPeringkat').hidden = true; };
+  $('bPeringkat').onclick = () => bukaPeringkat(); document.querySelectorAll('#tabPeringkat button').forEach(b => b.onclick = () => tabPeringkat(b.dataset.t)); $('tutupPeringkat').onclick = () => { $('panelPeringkat').hidden = true; };
   $('bMisi').onclick = () => bukaMisi(); $('tutupMisi').onclick = () => { $('panelMisi').hidden = true; };
   muatMisi();
   $('bPanduan').onclick = () => { $('panelAtur').hidden = true; panduan(); };
@@ -2445,6 +2507,7 @@ function loop(t) {
   const dt = Math.min(.05, dtAsli); tAkhir = t; if (I) aturKualitas(t, dtAsli);
   const me = tokoh.saya; let vx = 0, vz = 0;
   if (DG) DG.cek(me);
+  if (BENDERA_PIALA) kibarPiala(t / 1000);
   const k = gerak.kunci;
   if (k['w'] || k['arrowup']) vz -= 1; if (k['s'] || k['arrowdown']) vz += 1; if (k['a'] || k['arrowleft']) vx -= 1; if (k['d'] || k['arrowright']) vx += 1;
   if (gerak.stik) { vx += gerak.stik.x; vz += gerak.stik.y; }

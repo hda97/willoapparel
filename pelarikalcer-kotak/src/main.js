@@ -393,7 +393,7 @@ function setorLari(h) {
       if (D.sh !== hariWIB()) { D.st = D.sh === hariWIB(-1) ? (D.st || 0) + 1 : 1; D.sh = hariWIB(); } } simpanD(); isiMisiTag(); return; }
   apiPk('selesai', h).then((r) => { if (r.galat) { toast(r.galat); return; } terimaAkun(r); isiMisiTag();
     const pesan = [r.dapat ? `+${r.dapat} 🪙 masuk dompet Dunia Kotak` : 'Jatah koin lari hari ini sudah penuh'];
-    if (r.rekorBaru) pesan.push('Rekor baru masuk papan peringkat!'); if (r.misiDesa) pesan.push(`🎯 Misi desa selesai +${r.misiDesa} 🪙`); if (r.diumumkan) pesan.push('💬 Hasilmu diumumkan di Chat Desa');
+    if (r.rekorBaru) pesan.push('Rekor baru masuk papan peringkat!'); if (r.misiDesa) pesan.push(`🎯 Misi desa selesai +${r.misiDesa} 🪙`); if (r.piala) pesan.push(`🏆 +${r.piala.dapat} poin Piala Dusun ${({ wetan: 'Kotak Wetan', kulon: 'Kotak Kulon', curug: 'Kotak Curug', tlaga: 'Kotak Tlaga', segara: 'Kotak Segara' })[r.piala.d] || ''}`); if (r.diumumkan) pesan.push('💬 Hasilmu diumumkan di Chat Desa');
     toast(pesan.join(' · '), 3200); });
 }
 async function klaimMisi(id) {
