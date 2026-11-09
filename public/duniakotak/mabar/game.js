@@ -56,8 +56,8 @@ const WARNA_PAGAR = {putih: '#ffffff', kayu: '#a0703c', hitam: '#3a3a40', biru: 
 const WARNA_TOPI = {merah: '#d8443a', biru: '#2f6fd8', hitam: '#24242a', kuning: '#f2c230'};
 const HS = {};
 // Hadiah pendukung Bata (Huda 8 Nov 2026): BT no → total Bata donasi, JR = nomor Juragan Bata (mahkota di atap)
-const BT = {}; let JR = 0;
-const lencana = no => (JR && JR === no ? '👑 ' : '') + (BT[no] >= 1 ? '🧱 ' : '');   // no → {c: cat, p: pagar} (warga lain, dari /api/warga)
+const BT = {}; let JR = 0, TR = 0;   // TR = rumah juara Lomba Rumah Terindah minggu lalu (piala emas di atas rumah)
+const lencana = no => (TR && TR === no ? '🏡 ' : '') + (JR && JR === no ? '👑 ' : '') + (BT[no] >= 1 ? '🧱 ' : '');   // no → {c: cat, p: pagar} (warga lain, dari /api/warga)
 function bersihAv(a) {
   a = a && typeof a === 'object' ? a : {};
   const jenis = a.jenis === 'P' ? 'P' : 'L';
@@ -390,7 +390,7 @@ function bangunKulon(buat = kulon) {
   bangunProksi();
 }
 async function bangunDunia() {
-  try { const w = (wargaAwal && await wargaAwal) || await (await fetch('/duniakotak/api/warga')).json(); wargaAwal = null; w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; if (x.hs) HS[x.no] = x.hs; if (x.bt) BT[x.no] = x.bt; if (x.jr) JR = x.no; }); } catch (e) {}
+  try { const w = (wargaAwal && await wargaAwal) || await (await fetch('/duniakotak/api/warga')).json(); wargaAwal = null; w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; if (x.hs) HS[x.no] = x.hs; if (x.bt) BT[x.no] = x.bt; if (x.jr) JR = x.no; if (x.tr) TR = x.no; }); } catch (e) {}
   if (S.saya && S.saya.kucing) KC[S.saya.no] = S.saya.kucing;
   if (S.saya && S.saya.ig) NM[S.saya.no] = '@' + S.saya.ig;
   bukaSegara(Math.max(S.saya ? S.saya.no : 0, ...Object.keys(NM).map(Number)));
@@ -521,7 +521,7 @@ function bangunKavling(n) {
       if (Math.abs(p.x) < 2.75 && p.z > -2.3 && p.z < 3.3 && lebar < 6) badan.add(c); }
     H.add(badan); bakeGroup(badan); H = badan;
   }
-  if (H && n !== 1 && (BT[n] >= BATA_BENDERA || JR === n)) pasangHadiahRumah(n, L, H, extra, rects);
+  if (H && n !== 1 && (BT[n] >= BATA_BENDERA || JR === n || TR === n)) pasangHadiahRumah(n, L, H, extra, rects);
   bakeGroup(g); bakeGroup(extra);
   lotRuntime.set(n, {g, extra, rects, rumah: H, dalam: H ? rectLot(L, -3, -1, -1.4, .2) : null, interior: null});
   if (S.saya && n === S.saya.no) { kebunTahap = null; segarKebun(); }
@@ -593,6 +593,13 @@ function pasangHadiahRumah(n, L, H, extra, rects) {
     const kain2 = new THREE.Mesh(new THREE.BoxGeometry(.32 * VS, .6 * VS, .04 * VS), EMAS()); kain2.position.set(1.15 * VS, tinggi - .44 * VS, .06 * VS); kain2.rotation.y = -.35; G.add(kain2);
     G.position.set(L.c.x + L.dir * -.62 * VS, 0, L.c.z + L.dir * .62 * VS); G.rotation.y = rot; extra.add(G);
     rects.push(rectLot(L, -.68, -.56, .56, .68));
+  }
+  if (TR === n) {   // Lomba Rumah Terindah: piala emas di atas atap (lebih tinggi bila rumah ini juga bermahkota)
+    const G = new THREE.Group(), emas = EMAS(), k = VS;
+    const add = (w, h, d, y) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w * k, h * k, d * k), emas); m.position.y = y * k; G.add(m); };
+    add(.6, .12, .6, .06); add(.18, .3, .18, .27); add(.7, .12, .7, .48); add(.62, .5, .62, .78); add(.78, .1, .78, 1.08);
+    for (const s of [-1, 1]) { const g = new THREE.Mesh(new THREE.BoxGeometry(.1 * k, .38 * k, .1 * k), emas); g.position.set(s * .45 * k, .82 * k, 0); G.add(g); const g2 = new THREE.Mesh(new THREE.BoxGeometry(.18 * k, .1 * k, .1 * k), emas); g2.position.set(s * .38 * k, 1.0 * k, 0); G.add(g2); }
+    G.position.set((box.min.x + box.max.x) / 2, atas + (JR === n ? 1.5 : .35) * VS, (box.min.z + box.max.z) / 2); G.rotation.y = rot; extra.add(G);
   }
   if (JR === n) {   // mahkota emas melayang di atas atap
     const G = new THREE.Group(), w = .9 * VS, emas = EMAS();
@@ -1088,17 +1095,22 @@ async function bukaAjak() {
 }
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
-const KABAR = 'dk_kabar_ajak1';
+// Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
+const KABAR_LAMA = {ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
-  if (baca(KABAR)) return;
+  const baru = [...document.querySelectorAll('#panelKabar .kbItem[data-k]')].filter(e => !baca(KABAR_LAMA[e.dataset.k]));
+  if (!baru.length) return;
   const sibuk = [...document.querySelectorAll('.layarPenuh')].some(e => !e.hidden) || (typeof pemulaKini === 'function' && pemulaKini() && n < 40);
   if (sibuk) { if (n < 120) setTimeout(() => kabarBaru(n + 1), 5000); return; }
-  simpan(KABAR, '1'); bunyi('masuk');
+  document.querySelectorAll('#panelKabar .kbItem[data-k]').forEach(e => { e.hidden = !baru.includes(e); });
+  $('kbAjakBtn').hidden = !baru.some(e => e.dataset.k === 'ajak'); $('kbRumahBtn').hidden = !baru.some(e => e.dataset.k === 'rumah');
+  baru.forEach(e => simpan(KABAR_LAMA[e.dataset.k], '1')); bunyi('masuk');
   ambilAjakSingkat();
   $('panelKabar').hidden = false;
   $('kbAjakBtn').onclick = () => { $('panelKabar').hidden = true; bukaAjak(); };
   $('kbPialaBtn').onclick = () => { $('panelKabar').hidden = true; bukaPeringkat(); };
+  $('kbRumahBtn').onclick = () => { $('panelKabar').hidden = true; $('panelPeringkat').hidden = false; tabPeringkat('rumah'); };
 }
 async function ambilAjakSingkat() { try { const d = await (await fetch('/duniakotak/api/ajak')).json(); if (d.kurang) $('kbAjak').textContent = `Bagikan link ajakmu. Teman daftar & tanam bibit pertama: kamu +${d.hadiah.pengajak} 💎, temanmu +${d.hadiah.baru} 💎. Kurang ${d.kurang} warga lagi, Dusun Segara dibuka!`; } catch (e) {} }
 // ---------- Piala Antardusun Mingguan (Huda 9 Nov 2026) ----------
@@ -1111,7 +1123,7 @@ async function ambilPiala() { try { PIALA = await (await fetch('/duniakotak/api/
 function sisaWaktu(ms) { const j = Math.max(0, Math.floor(ms / 3600e3)); return j >= 24 ? Math.floor(j / 24) + ' hari ' + (j % 24) + ' jam' : j + ' jam ' + Math.max(0, Math.floor(ms % 3600e3 / 60e3)) + ' menit'; }
 function tabPeringkat(t) {
   document.querySelectorAll('#tabPeringkat button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
-  if (t === 'piala') bukaPiala(); else bukaPeringkat(true);
+  if (t === 'piala') bukaPiala(); else if (t === 'rumah') bukaLombaRumah(); else bukaPeringkat(true);
 }
 async function bukaPiala() {
   $('panelPeringkat').hidden = false; $('isiPeringkat').innerHTML = '<p class="kecil">Memuat…</p>';
@@ -1129,6 +1141,22 @@ async function bukaPiala() {
   if (!S.tamu) h += '<button class="antar plLari" id="plLari">🏃 Lari sekarang, tambah poin dusun</button>';
   $('isiPeringkat').innerHTML = h;
   const b = $('plLari'); if (b) b.onclick = () => { $('panelPeringkat').hidden = true; ikutLari(); };
+}
+// ---------- Lomba Rumah Terindah (Huda 9 Nov 2026) ----------
+async function bukaLombaRumah() {
+  $('panelPeringkat').hidden = false; $('isiPeringkat').innerHTML = '<p class="kecil">Memuat…</p>';
+  $('ringkasPeringkat').textContent = 'Hias rumahmu (Toko Hias, rumah 2 lantai, rakit hiasan), lalu ajak tetangga mampir dan memberi ❤️.';
+  let d = null; try { d = await (await fetch('/duniakotak/api/rumah' + (S.saya ? '?no=' + S.saya.no : ''), {cache: 'no-store'})).json(); } catch (e) {}
+  if (!d || !d.top) { $('isiPeringkat').innerHTML = '<p class="kecil">Klasemen lomba belum bisa dimuat. Coba lagi sebentar.</p>'; return; }
+  if (d.saya) { RS.sisa = d.saya.sisa; RS.sudah = d.saya.sudah; }
+  let h = '';
+  if (d.juara) h += `<div class="plJuara">🏡 Rumah Terindah minggu lalu: <b>@${esc(d.juara.u || 'warga ' + d.juara.no)}</b> (${d.juara.suka} ❤️). Piala emas melayang di atas rumahnya.<small><button class="rmKunjungi" data-no="${d.juara.no}">🧭 Kunjungi rumahnya</button></small></div>`;
+  if (d.saya) h += `<p class="kecil plSaya">Rumahmu: <b>${d.saya.suka} ❤️</b> minggu ini · ❤️ yang bisa kamu berikan hari ini: <b>${d.saya.sisa}/${d.aturan.hari}</b></p>`;
+  h += d.top.length ? `<div class="pkDaftar">${d.top.map((x, i) => `<div class="pkBaris${S.saya && x.no === S.saya.no ? ' aku' : ''}${i < 3 ? ' juara' : ''}"><span class="pkNo">${['🥇', '🥈', '🥉'][i] || i + 1}</span><span class="pkNama">@${esc(x.u || 'warga ' + x.no)}<small>${NAMA_DUSUN[dusunDari(x.no)] || ''}</small></span><button class="rmKunjungi" data-no="${x.no}">🧭</button><b>${x.suka} ❤️</b></div>`).join('')}</div>`
+    : '<p class="kecil">Belum ada ❤️ minggu ini. Jalan-jalan ke rumah tetangga dan jadilah yang pertama memberi ❤️!</p>';
+  h += `<p class="kecil plAturan">❤️ Dekati rumah warga lain, tekan tombol <b>❤️ Suka</b>. Gratis ${d.aturan.hari} ❤️ per hari, 1 rumah sekali sehari, rumah sendiri tidak bisa. Ditutup Minggu 23.59 WIB, sisa ${sisaWaktu(d.tutup - Date.now())}. Juara dapat piala emas di atas rumah + lencana 🏡 seminggu, dan dikunjungi Raka di vlog!</p>`;
+  $('isiPeringkat').innerHTML = h;
+  $('isiPeringkat').querySelectorAll('.rmKunjungi').forEach(b => b.onclick = () => { $('panelPeringkat').hidden = true; pergiKe(+b.dataset.no); toast('🧭 Menuju rumah ' + (NM[+b.dataset.no] || 'No. ' + b.dataset.no) + '…', 2500); });
 }
 // bendera emas di gapura dusun juara minggu lalu (tidak ikut bakeGroup supaya kain bisa berkibar)
 let BENDERA_PIALA = null;
@@ -1365,7 +1393,7 @@ function animSkill(dt, me) {
   // tombol skill menyala bila bisa dipakai
   const t = now | 0; if (t % 4 === 0 || !animSkill.t || now - animSkill.t > 300) { animSkill.t = now;
     // tombol hanya muncul saat skill bisa dipakai; joran sedang dipakai = tombol Mancing hilang
-    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sLari: dekatGapuraCFD(me), sLift: !!(I.gedung && I.gedung.dekatLift(me.position.x, me.position.z))};
+    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sSuka: !!rumahTetangga(me), sLari: dekatGapuraCFD(me), sLift: !!(I.gedung && I.gedung.dekatLift(me.position.x, me.position.z))};
     for (const id in bisa) { const b = $(id); if (b.classList.contains('siap') !== bisa[id] || b.hidden === bisa[id]) { b.classList.toggle('siap', bisa[id]); b.hidden = !bisa[id]; } }
     if (air) misiMaju('sungai'); }
 }
@@ -1677,6 +1705,23 @@ function bolaBuat(L) {
 }
 // skill Tendang (Huda 6 Nov: ganti skill Ngobrol): tombol muncul bila bola dekat; tendangan keras melambung ke arah hadap avatar
 // Kebun sendiri (audit ekonomi 6 Nov 2026): 🌱 Tanam (beli bibit pakai koin) → 6 jam → 🧺 Panen (5 hasil + 2 permata) → 💰 Jual di warung depan rumah.
+// Lomba Rumah Terindah: rumah warga lain (terdaftar, bukan Raka) yang sedang didekati → tombol ❤️ Suka
+let RS = {sisa: null, sudah: []}, rtCache = {t: 0, n: 0};
+function rumahTetangga(me) {
+  if (S.tamu || !S.saya || !I) return 0;
+  const t = performance.now(); if (t - rtCache.t < 400) return rtCache.n;
+  let best = 0, bd = 4.5 * VS;
+  for (const n of lotRuntime.keys()) { if (n === 1 || n === S.saya.no || !NM[n]) continue; const L = I.lots[n]; if (!L) continue;
+    const d = Math.hypot(L.c.x - me.position.x, L.c.z - me.position.z); if (d < bd) { bd = d; best = n; } }
+  rtCache = {t, n: best}; return best;
+}
+async function sukaRumah() {
+  const n = rumahTetangga(tokoh.saya); if (!n) return;
+  try { const r = await api('rumah-suka', {kunci: S.kunci, ke: n}); bunyi('masuk'); koinTerbang('❤️');
+    RS.sisa = r.sisa; RS.sudah.push(n);
+    toast(`❤️ Kamu suka rumah ${NM[n] || 'No. ' + n}! Kini ${r.suka} ❤️ minggu ini (peringkat #${r.pos}). Sisa ❤️ hari ini: ${r.sisa}`, 4200);
+  } catch (e) { toast(e.message, 3200); }
+}
 function dekatRumah(me) {
   if (S.tamu || !S.saya || !I || !lotRuntime.has(S.saya.no)) return false;
   const L = I.lots[S.saya.no]; return !!L && Math.hypot(L.c.x - me.position.x, L.c.z - me.position.z) < 4.5 * VS;
@@ -2446,7 +2491,7 @@ function aturHUD() {
   // pointerdown (bukan click): click tidak terpicu di HP saat jari lain masih menahan joystick -> bisa lompat sambil lari
   $('sLari').onclick = ikutLari;
   $('sLift').onclick = () => { const d = I.gedung && I.gedung.dekatLift(tokoh.saya.position.x, tokoh.saya.position.z); if (d) bukaLift(d); };
-  $('sLompat').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); mulaiLompat(); }); $('sTendang').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); skillTendang(); }); $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan(); $('sPanen').onclick = () => skillPanen(); $('sTanam').onclick = () => bukaTanam(); $('sJual').onclick = () => skillJual(); $('sKerja').onclick = () => skillKerja(); $('tutupKerja').onclick = () => { $('panelKerja').hidden = true; }; $('tutupTanam').onclick = () => { $('panelTanam').hidden = true; };
+  $('sLompat').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); mulaiLompat(); }); $('sTendang').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); skillTendang(); }); $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan(); $('sPanen').onclick = () => skillPanen(); $('sTanam').onclick = () => bukaTanam(); $('sJual').onclick = () => skillJual(); $('sKerja').onclick = () => skillKerja(); $('sSuka').onclick = () => sukaRumah(); $('tutupKerja').onclick = () => { $('panelKerja').hidden = true; }; $('tutupTanam').onclick = () => { $('panelTanam').hidden = true; };
   // semua tombol skill bereaksi saat disentuh (pointerdown), jadi tetap jalan walau jari lain menahan joystick
   for (const b of document.querySelectorAll('.zoom.skill button')) { const f = b.onclick; if (!f) continue; b.onclick = null; b.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); f.call(b, e); }); }
   if (innerHeight < 500) { $('chat').hidden = true; $('bBukaChat').hidden = false; zoom = .85; }

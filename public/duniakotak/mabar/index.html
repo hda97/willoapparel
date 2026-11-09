@@ -9,7 +9,7 @@
 <link rel="icon" href="/duniakotak/logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap">
-<link rel="stylesheet" href="gaya.css?v=20261109kabar">
+<link rel="stylesheet" href="gaya.css?v=20261109rumah">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js","three/addons/geometries/RoundedBoxGeometry.js":"/duniakotak/mabar/js/kotakBulat.js?v=20261108r","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
 <body>
@@ -40,7 +40,7 @@
  <button id="chipTujuan" class="chipTujuan" hidden title="Tujuanmu sekarang"></button>
  <button id="chipRute" class="chipRute" hidden title="Buka peta"></button>
  <div id="stik"><div id="kenop"></div></div>
- <div class="zoom skill" id="skill"><button id="sLompat" class="siap" title="Lompat (Spasi)"><i><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2.5l7.5 8.5h-4.7v6.2H9.2V11H4.5z" fill="#fff"/><rect x="5" y="19.6" width="14" height="2.4" rx="1.2" fill="#fff" opacity=".65"/></svg></i>Lompat</button><button id="sLari" title="Ikut lari Pelari Kalcer" hidden><i>🏃</i>Ikut Lari</button><button id="sTendang" title="Tendang bola (T)" hidden><i>⚽</i>Tendang</button><button id="sAmbil" title="Ambil item (F)"><i>✋</i>Ambil</button><button id="sMancing" title="Mancing di sungai (R)"><i>🎣</i>Mancing</button><button id="sMakan" title="Beri makan kucing (G)"><i>🐟</i>Beri makan</button><button id="sTanam" title="Tanam bibit di kebunmu" hidden><i>🌱</i>Tanam</button><button id="sPanen" title="Panen kebun (+2 permata + hasil)" hidden><i>🧺</i>Panen</button><button id="sJual" title="Jual hasil panen di warungmu" hidden><i>💰</i>Jual</button><button id="sKerja" title="Kerja shift profesimu" hidden><i>💼</i>Kerja</button><button id="sLift" title="Naik lift" hidden><i>🛗</i>Lift</button></div>
+ <div class="zoom skill" id="skill"><button id="sLompat" class="siap" title="Lompat (Spasi)"><i><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2.5l7.5 8.5h-4.7v6.2H9.2V11H4.5z" fill="#fff"/><rect x="5" y="19.6" width="14" height="2.4" rx="1.2" fill="#fff" opacity=".65"/></svg></i>Lompat</button><button id="sLari" title="Ikut lari Pelari Kalcer" hidden><i>🏃</i>Ikut Lari</button><button id="sTendang" title="Tendang bola (T)" hidden><i>⚽</i>Tendang</button><button id="sAmbil" title="Ambil item (F)"><i>✋</i>Ambil</button><button id="sMancing" title="Mancing di sungai (R)"><i>🎣</i>Mancing</button><button id="sMakan" title="Beri makan kucing (G)"><i>🐟</i>Beri makan</button><button id="sTanam" title="Tanam bibit di kebunmu" hidden><i>🌱</i>Tanam</button><button id="sPanen" title="Panen kebun (+2 permata + hasil)" hidden><i>🧺</i>Panen</button><button id="sJual" title="Jual hasil panen di warungmu" hidden><i>💰</i>Jual</button><button id="sSuka" title="Beri ❤️ untuk rumah ini (Lomba Rumah Terindah)" hidden><i>❤️</i>Suka</button><button id="sKerja" title="Kerja shift profesimu" hidden><i>💼</i>Kerja</button><button id="sLift" title="Naik lift" hidden><i>🛗</i>Lift</button></div>
 </div>
 
 <div id="panelLift" class="layarPenuh popup" hidden><div class="panel"><button class="popTutup" data-tutup="panelLift" aria-label="Tutup">✕</button><div id="isiLift"></div></div></div>
@@ -84,10 +84,11 @@
 <div id="panelKabar" class="layarPenuh popup" hidden>
  <div class="panel"><button class="popTutup" data-tutup="panelKabar" aria-label="Tutup">✕</button>
   <h2>📣 Baru di Desa!</h2>
-  <div class="kbItem"><i>🤝</i><div><b>Ajak Tetangga</b><small id="kbAjak">Bagikan link ajakmu. Teman daftar &amp; tanam bibit pertama: kamu +10 💎, temanmu +5 💎. Ayo penuhi warga ke-861, Dusun Segara dibuka!</small></div></div>
-  <div class="kbItem"><i>🏆</i><div><b>Piala Antardusun Mingguan</b><small>Finish Pelari Kalcer +10 poin &amp; gol di stadion +2 poin untuk dusunmu. Dusun juara dapat bendera emas di gapura!</small></div></div>
-  <div class="kbTombol"><button class="utama" id="kbAjakBtn">🤝 Ajak teman sekarang</button><button id="kbPialaBtn">🏆 Lihat klasemen</button></div>
-  <p class="kecil">Keduanya ada di ⚙️ Atur dan tombol 🏆 Peringkat.</p>
+  <div class="kbItem" data-k="rumah"><i>🏡</i><div><b>Lomba Rumah Terindah</b><small>Hias rumahmu! Tiap hari kamu punya 3 ❤️ gratis untuk rumah tetangga (dekati rumahnya, tekan ❤️ Suka). Rumah dengan ❤️ terbanyak minggu ini dapat piala emas di atas rumah + dikunjungi Raka di vlog!</small></div></div>
+  <div class="kbItem" data-k="ajak"><i>🤝</i><div><b>Ajak Tetangga</b><small id="kbAjak">Bagikan link ajakmu. Teman daftar &amp; tanam bibit pertama: kamu +10 💎, temanmu +5 💎. Ayo penuhi warga ke-861, Dusun Segara dibuka!</small></div></div>
+  <div class="kbItem" data-k="piala"><i>🏆</i><div><b>Piala Antardusun Mingguan</b><small>Finish Pelari Kalcer +10 poin &amp; gol di stadion +2 poin untuk dusunmu. Dusun juara dapat bendera emas di gapura!</small></div></div>
+  <div class="kbTombol"><button class="utama" id="kbRumahBtn">🏡 Lihat lomba</button><button class="utama" id="kbAjakBtn">🤝 Ajak teman sekarang</button><button id="kbPialaBtn">🏆 Lihat klasemen</button></div>
+  <p class="kecil">Semuanya ada di ⚙️ Atur dan tombol 🏆 Peringkat.</p>
  </div>
 </div>
 <div id="panelAjak" class="layarPenuh popup" hidden>
@@ -156,7 +157,7 @@
 <div id="panelPeringkat" class="layarPenuh" hidden>
  <div class="panel">
   <h2>🏆 Papan Peringkat</h2>
-  <div class="tabPk" id="tabPeringkat"><button data-t="piala" class="on">🏆 Piala Dusun</button><button data-t="koin">🪙 Koin Warga</button></div>
+  <div class="tabPk" id="tabPeringkat"><button data-t="piala" class="on">🏆 Piala Dusun</button><button data-t="rumah">🏡 Rumah</button><button data-t="koin">🪙 Koin</button></div>
   <p class="kecil" id="ringkasPeringkat">Warga dengan total koin terbanyak yang pernah dikumpulkan. Belanja di Toko Hias tidak mengurangi peringkat.</p>
   <div id="isiPeringkat"></div>
   <button class="utama" id="tutupPeringkat">Lanjut main</button>
@@ -230,6 +231,6 @@
 
 <div id="miring" class="layarPenuh" hidden><div class="panel"><div style="font-size:54px">📱↻</div><h2>Miringkan HP-mu</h2><p class="sub">Dunia Kotak dimainkan dengan layar mendatar.</p><button class="tipis" id="tetapTegak">Tetap main tegak</button></div></div>
 
-<script type="module" src="game.js?v=20261109kabar"></script>
+<script type="module" src="game.js?v=20261109rumah"></script>
 </body>
 </html>
