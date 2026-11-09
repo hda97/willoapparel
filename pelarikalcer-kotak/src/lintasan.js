@@ -33,19 +33,19 @@ const pilihA = (a) => a[Math.floor(Math.random() * a.length)];
 
 // ---------- daftar rute (urutan = urutan buka) ----------
 export const RUTE = [
-  { id: 'wetan', ikon: '🏘️', nama: 'CFD Kotak Wetan', jenis: 'Desa', permukaan: 'jalan desa', el: 9, mulai: 'START · CFD KOTAK WETAN',
+  { id: 'wetan', sorot: 'Keliling desa: sekolah, masjid, warung dan taman kota.', ikon: '🏘️', nama: 'CFD Kotak Wetan', jenis: 'Desa', permukaan: 'jalan desa', el: 9, mulai: 'START · CFD KOTAK WETAN',
     langit: ['#5ab4ff', '#bfe4ff', '#f2f8ff'], kabut: [0xd6ecff, 120, 330], tanah: 0x8cc46a, jalan: 'aspal', tepi: 'trotoar', rintangan: ['kerucut', 'kerucut', 'pembatas', 'lubang'], gunung: [.33, .3, .45], rencana: desa, kucing: true },
-  { id: 'sudirman', ikon: '🏙️', nama: 'Jakarta Sudirman CFD', jenis: 'Road', permukaan: 'aspal kota + flyover', el: 14, mulai: 'START · SUDIRMAN CFD',
+  { id: 'sudirman', sorot: 'Jalan kota di antara gedung tinggi, lalu naik flyover di meter 380.', ikon: '🏙️', nama: 'Jakarta Sudirman CFD', jenis: 'Road', permukaan: 'aspal kota + flyover', el: 14, mulai: 'START · SUDIRMAN CFD',
     langit: ['#4f9fe6', '#b8dcf6', '#eef4f8'], kabut: [0xd8e6ee, 110, 320], tanah: 0x9aa39a, jalan: 'aspalKota', tepi: 'trotoarKota', rintangan: ['kerucut', 'kerucut', 'pembatas', 'lubang'], gunung: null, turun: [[380, 560, 13]], rencana: sudirman, latar: latarKota },
-  { id: 'borobudur', ikon: '🛕', nama: 'Jogja Borobudur', jenis: 'Road', permukaan: 'paving desa + rel kereta', el: 28, mulai: 'START · JOGJA BOROBUDUR',
+  { id: 'borobudur', sorot: 'Paving desa dengan candi di kejauhan dan perlintasan rel kereta.', ikon: '🛕', nama: 'Jogja Borobudur', jenis: 'Road', permukaan: 'paving desa + rel kereta', el: 28, mulai: 'START · JOGJA BOROBUDUR',
     langit: ['#5aa8f0', '#c4e2f6', '#f6f4ea'], kabut: [0xe2ecea, 110, 320], tanah: 0x86b85e, jalan: 'paving', tepi: 'batuAlam', rintangan: ['kerucut', 'pembatas', 'lubang', 'batu'], gunung: [.3, .25, .42], rencana: borobudur, latar: latarMerapi, kucing: true },
-  { id: 'sanur', ikon: '🏝️', nama: 'Bali Sanur', jenis: 'Road', permukaan: 'boardwalk pantai', el: 8, mulai: 'START · SANUR BEACH RUN',
+  { id: 'sanur', sorot: 'Boardwalk kayu di tepi pantai, berjajar pohon kelapa.', ikon: '🏝️', nama: 'Bali Sanur', jenis: 'Road', permukaan: 'boardwalk pantai', el: 8, mulai: 'START · SANUR BEACH RUN',
     langit: ['#38a8f0', '#a8def8', '#fff6e4'], kabut: [0xdaf0f8, 130, 340], tanah: 0xe9d6a0, jalan: 'papan', tepi: 'pasir', rintangan: ['kerucut', 'pembatas', 'batu'], gunung: null, rencana: sanur, latar: latarLaut },
-  { id: 'lawu', ikon: '🌲', nama: 'Siksorogo Lawu', jenis: 'Trail', permukaan: 'tanah merah', el: 120, mulai: 'START · SIKSOROGO LAWU TRAIL',
+  { id: 'lawu', sorot: 'Trail tanah merah di hutan pinus. Awas batu, akar dan kayu!', ikon: '🌲', nama: 'Siksorogo Lawu', jenis: 'Trail', permukaan: 'tanah merah', el: 120, mulai: 'START · SIKSOROGO LAWU TRAIL',
     langit: ['#7fa8c8', '#c8d8dc', '#e8eee8'], kabut: [0xcfdad4, 60, 230], tanah: 0x4f7a3a, jalan: 'tanahMerah', tepi: 'rumput', rintangan: ['batu', 'akar', 'kayu', 'akar'], gunung: [.32, .35, .3], rencana: lawu, trail: true },
-  { id: 'bromo', ikon: '🌋', nama: 'Bromo Trail', jenis: 'Trail', permukaan: 'pasir vulkanik', el: 95, mulai: 'START · BROMO SEA OF SAND',
+  { id: 'bromo', sorot: 'Lautan pasir vulkanik, gunung berasap di depan mata.', ikon: '🌋', nama: 'Bromo Trail', jenis: 'Trail', permukaan: 'pasir vulkanik', el: 95, mulai: 'START · BROMO SEA OF SAND',
     langit: ['#6a7fd0', '#e6b8c8', '#fbe8d6'], kabut: [0xe8d8d4, 90, 300], tanah: 0x6e665e, jalan: 'pasirVulkanik', tepi: 'abu', rintangan: ['batu', 'batu', 'kayu', 'akar'], gunung: null, rencana: bromo, latar: latarBromo, trail: true },
-  { id: 'rinjani', ikon: '⛰️', nama: 'Dieng & Rinjani', jenis: 'Trail', permukaan: 'sabana', el: 140, mulai: 'START · DIENG RINJANI SKYRUN',
+  { id: 'rinjani', sorot: 'Sabana di atas awan, tanjakan paling tinggi: +140 m.', ikon: '⛰️', nama: 'Dieng & Rinjani', jenis: 'Trail', permukaan: 'sabana', el: 140, mulai: 'START · DIENG RINJANI SKYRUN',
     langit: ['#4a9ae8', '#bfe0f4', '#f4f8f0'], kabut: [0xe6efe8, 90, 300], tanah: 0xa8b85a, jalan: 'sabana', tepi: 'sabanaRumput', rintangan: ['batu', 'akar', 'kayu', 'batu'], gunung: null, rencana: rinjani, latar: latarRinjani, trail: true },
 ];
 export const TEKS_JALAN = JALAN, TEKS_TEPI = TEPI;
