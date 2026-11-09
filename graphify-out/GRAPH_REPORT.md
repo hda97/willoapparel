@@ -1,17 +1,17 @@
 # Graph Report - willoapparel  (2026-11-09)
 
 ## Corpus Check
-- 102 files · ~787,164 words
+- 102 files · ~787,884 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 15 file(s) not represented in the graph (top: .glb 5, (none) 4, .css 4)
 
 ## Summary
-- 2487 nodes · 5801 edges · 99 communities (91 shown, 8 thin omitted)
-- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 165 edges (avg confidence: 0.85)
+- 2500 nodes · 5840 edges · 97 communities (90 shown, 7 thin omitted)
+- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 166 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `aa265087`
+- Built from commit: `a5b6d057`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -26,7 +26,7 @@
 - fasum.js
 - render.js
 - ktp.js
-- setorLari
+- wargaNpc.js
 - binatang/game.js
 - loop
 - tanaman.js
@@ -77,7 +77,7 @@
 - segara.js
 - Warga
 - mulaiTarung
-- $
+- mulai
 - inti-sd.js
 - akhirSesi
 - pelayaran-nusantara.js
@@ -87,7 +87,7 @@
 - jalankan
 - pelari.js
 - desaGabung.js
-- kucing.js
+- buatNPC
 - bersama.js
 - soalMisi
 - van_westendorp.py
@@ -104,13 +104,11 @@
 - paud/package.json
 - hariWib
 - Ruang
-- langkah
+- ref_three
 - jalankan
 - jalan.js
 - rnd
-- lot
 - kotakBulat.js
-- cekSalip
 - kelasduniakotak
 - siapkanHantu
 
@@ -121,27 +119,27 @@
 4. `mulai()` - 41 edges
 5. `V3()` - 39 edges
 6. `rnd()` - 38 edges
-7. `aturHUD()` - 36 edges
+7. `aturHUD()` - 37 edges
 8. `Warga` - 36 edges
-9. `box()` - 31 edges
-10. `bunyi()` - 30 edges
+9. `bunyi()` - 31 edges
+10. `box()` - 31 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `tulis()` --indirect_call--> `KUNCI()`  [INFERRED]
   pelarikalcer/src/game.js → edukasi/smp/src/inti.js
 - `buatSiswa()` --calls--> `warga()`  [EXTRACTED]
   edukasi/smp/src/inti.js → public/duniakotak/mabar/js/aset/avatar.js
-- `kucing()` --calls--> `kucingMesh()`  [EXTRACTED]
-  pelarikalcer-kotak/src/main.js → public/duniakotak/mabar/js/aset/kucing.js
 - `buatPemain()` --calls--> `warga()`  [EXTRACTED]
   pelarikalcer-kotak/src/main.js → public/duniakotak/mabar/js/aset/avatar.js
 - `fotoMedali()` --calls--> `pose()`  [EXTRACTED]
   pelarikalcer-kotak/src/main.js → public/duniakotak/mabar/js/aset/avatar.js
+- `warungDepan()` --calls--> `warungMesh()`  [EXTRACTED]
+  pelarikalcer-kotak/src/main.js → public/duniakotak/mabar/js/aset/rumah.js
 
 ## Import Cycles
 - None detected.
 
-## Communities (99 total, 8 thin omitted)
+## Communities (97 total, 7 thin omitted)
 
 ### Community 0 - "duniakotak/js/desa.js"
 Cohesion: 0.06
@@ -149,11 +147,11 @@ Nodes (108): ANIM, base(), bigYard(), blockWorld(), blue(), boxHouse(), btree(),
 
 ### Community 1 - "mabar/game.js"
 Cohesion: 0.02
-Nodes (117): AK, ATASAN, aturProyek(), AWAL_DUSUN, BANGUN_VOTING, bangunAktif(), BAWAHAN, BOLA (+109 more)
+Nodes (120): AK, AL, ALBUM, ALBUM_IKAN, ATASAN, aturProyek(), AWAL_DUSUN, BANGUN_VOTING (+112 more)
 
 ### Community 2 - "worker.js"
-Cohesion: 0.06
-Nodes (43): AKHIRAN, apiWarga(), bacaAkun(), BANGUN_SEKARANG, BARANG, bersihUn(), BIBIT, BOS_TETAP (+35 more)
+Cohesion: 0.05
+Nodes (44): AKHIRAN, ALBUM_IKAN, apiWarga(), bacaAkun(), BANGUN_SEKARANG, BARANG, bersihUn(), BIBIT (+36 more)
 
 ### Community 3 - "paud/src/inti.js"
 Cohesion: 0.05
@@ -161,11 +159,11 @@ Nodes (31): aturMusik(), bersihRonde(), bisaKetuk, _bx, daftarKetuk(), DATA_BAWA
 
 ### Community 4 - "mulai"
 Cohesion: 0.09
-Nodes (58): api(), aturHUD(), aturTas(), baca(), bacaJ(), beriMakan(), bolaTendang(), bolaUpdate() (+50 more)
+Nodes (61): ALBUM_PANEN(), albumBaru(), albumHitung(), albumPunya(), ambilHadir(), api(), aturAlbum(), aturHadir() (+53 more)
 
 ### Community 5 - "mabar/js/desa.js"
-Cohesion: 0.08
-Nodes (72): ANIM, base(), bigYard(), blockWorld(), blue(), boxHouse(), btree(), C01() (+64 more)
+Cohesion: 0.07
+Nodes (89): tanamanSel(), ANIM, base(), bigYard(), blockWorld(), blue(), boxHouse(), btree() (+81 more)
 
 ### Community 6 - "lintasan.js"
 Cohesion: 0.09
@@ -181,11 +179,11 @@ Nodes (26): buatDaftar(), foto(), g(), handuk(), jam(), kanvas(), lootBox(), M()
 
 ### Community 9 - "ktp.js"
 Cohesion: 0.12
-Nodes (30): alamat(), ATASAN, avAcak(), BAWAHAN, bersihAv(), dusun(), foto(), gambarKTP() (+22 more)
+Nodes (31): alamat(), ATASAN, avAcak(), BAWAHAN, bersihAv(), dusun(), foto(), gambarKTP() (+23 more)
 
-### Community 10 - "setorLari"
-Cohesion: 0.24
-Nodes (13): apiPk(), daftarMisi(), hariWIB(), hitungMundur(), isiMisi(), isiMisiTag(), jamAktif(), klaimMisi() (+5 more)
+### Community 10 - "wargaNpc.js"
+Cohesion: 0.32
+Nodes (10): alat(), buatWargaNPC(), aturGotong(), isi(), setProyek(), kotak(), lepasTukang(), mat() (+2 more)
 
 ### Community 11 - "binatang/game.js"
 Cohesion: 0.13
@@ -193,23 +191,23 @@ Nodes (23): benar(), buatHewan(), buatMakanan(), bunyiHewan(), dodo, HEWAN_ADA, 
 
 ### Community 12 - "loop"
 Cohesion: 0.06
-Nodes (41): animSkill(), aturKualitas(), bebas(), bisaJual(), bisaKerja(), bisaPanen(), bisaTanam(), bolaBuat() (+33 more)
+Nodes (42): animSkill(), aturKualitas(), bebas(), bisaJual(), bisaPanen(), bisaTanam(), bolaBuat(), bolaLapangan() (+34 more)
 
 ### Community 13 - "tanaman.js"
-Cohesion: 0.18
-Nodes (23): bibit(), cabai(), CG, cubes(), DAFTAR_TANAMAN, grassBed(), hsl(), island() (+15 more)
+Cohesion: 0.19
+Nodes (22): bibit(), cabai(), CG, cubes(), DAFTAR_TANAMAN, grassBed(), hsl(), island() (+14 more)
 
 ### Community 14 - "main.js"
 Cohesion: 0.03
-Nodes (76): A, akar(), AKOR, ATAP, BALAS, BALON, batu(), BAWAH (+68 more)
+Nodes (82): A, akar(), AKOR, ATAP, aturSuara(), BALAS, BALON, balon() (+74 more)
 
 ### Community 15 - "security-check.yml"
 Cohesion: 0.09
 Nodes (21): concurrency, cancel-in-progress, group, jobs, syntax-and-regression, name, on, pull_request (+13 more)
 
 ### Community 16 - "mulai"
-Cohesion: 0.14
-Nodes (26): ambilHadir(), aturHadir(), avAcak(), avKerja(), bersihAv(), buatAvatarObj(), bukaPembuatAvatar(), dialogRaka() (+18 more)
+Cohesion: 0.16
+Nodes (24): avAcak(), avKerja(), bersihAv(), buatAvatarObj(), bukaPembuatAvatar(), dialogRaka(), fotoAvatar(), fotoProfil() (+16 more)
 
 ### Community 17 - "pasangPeta"
 Cohesion: 0.35
@@ -220,8 +218,8 @@ Cohesion: 0.18
 Nodes (16): benar(), bendaBentuk(), BENTUK, bentukVoxel(), garisBentuk(), kotakMainan(), lala, mulaiMain() (+8 more)
 
 ### Community 19 - "tlaga.js"
-Cohesion: 0.13
-Nodes (29): curug(), FASUM_TERAS, aturTipis(), fasum2(), HOOK(), hutan(), hutanPts(), L() (+21 more)
+Cohesion: 0.15
+Nodes (23): curug(), FASUM_TERAS, aturTipis(), fasum2(), hutan(), hutanPts(), lot2(), nameTex() (+15 more)
 
 ### Community 20 - "angka/game.js"
 Cohesion: 0.22
@@ -240,8 +238,8 @@ Cohesion: 0.23
 Nodes (14): awan, bima, jawabCari(), jenisRonde(), kataHTML(), mulaiMain(), putaran(), rondeCari() (+6 more)
 
 ### Community 24 - "esc"
-Cohesion: 0.11
-Nodes (29): alamat(), ambilAjakSingkat(), ambilPiala(), bukaLombaRumah(), bukaOnline(), bukaPeringkat(), bukaPiala(), bukaProfesi() (+21 more)
+Cohesion: 0.10
+Nodes (34): alamat(), ambilAjakSingkat(), ambilPiala(), bisaKerja(), bukaAlbum(), bukaLombaRumah(), bukaOnline(), bukaPeringkat() (+26 more)
 
 ### Community 25 - "hitung-rpg/game.js"
 Cohesion: 0.04
@@ -264,16 +262,16 @@ Cohesion: 0.21
 Nodes (12): acak(), awanVoxel(), batuVoxel(), konfeti(), kotak(), lempeng(), mataK(), pilih() (+4 more)
 
 ### Community 30 - "tulisMisi"
-Cohesion: 0.18
-Nodes (20): barisHadir(), barisPemula(), daftarSesi(), infoKumpul(), jamKumpul(), jamTeks(), jamWIB(), kaliKoin() (+12 more)
+Cohesion: 0.19
+Nodes (16): barisHadir(), barisPemula(), daftarSesi(), infoKumpul(), jamKumpul(), jamTeks(), jamWIB(), kaliKoin() (+8 more)
 
 ### Community 31 - "Vox"
 Cohesion: 0.33
 Nodes (4): alasBatu(), bungaVoxel(), geoKubus(), Vox
 
 ### Community 32 - "bangunDunia"
-Cohesion: 0.18
-Nodes (21): bakeGroup(), bangunCurug(), bangunDunia(), bangunKulon(), bangunProksi(), bangunSegara(), bangunTlaga(), bangunUnitSegara() (+13 more)
+Cohesion: 0.08
+Nodes (44): aturKavling(), bakeGroup(), bangunCurug(), bangunDunia(), bangunKavling(), bangunKulon(), bangunProksi(), bangunSegara() (+36 more)
 
 ### Community 33 - "json"
 Cohesion: 0.11
@@ -285,7 +283,7 @@ Nodes (8): fadeEls, fadeObserver, hamburger, navbar, navItems, navLinks, observe
 
 ### Community 35 - "src/game.js"
 Cohesion: 0.04
-Nodes (63): CHAT_AWAL, CHAT_BANK, EXPO_BOOTHS, GAMBAR_GEAR, GEAR_CATALOG, GEAR_TABS, HAIR_COLORS, HAIRSTYLES (+55 more)
+Nodes (65): CHAT_AWAL, CHAT_BANK, EXPO_BOOTHS, GAMBAR_GEAR, GEAR_CATALOG, GEAR_TABS, HAIR_COLORS, HAIRSTYLES (+57 more)
 
 ### Community 36 - "gambarGuru"
 Cohesion: 0.25
@@ -316,8 +314,8 @@ Cohesion: 0.09
 Nodes (36): akar(), aljabar_sederhana(), bank(), bulat(), bulat_cerita(), desimal_persen(), fmt(), garis_titik() (+28 more)
 
 ### Community 45 - "dunia.js"
-Cohesion: 0.11
-Nodes (31): bangunDunia(), gapuraGambar(), strip(), CADANGAN_LANTAI, LANTAI_HUDA, TEX, tex(), texAsap (+23 more)
+Cohesion: 0.13
+Nodes (24): bangunDunia(), gapuraGambar(), strip(), CADANGAN_LANTAI, LANTAI_HUDA, TEX, tex(), texAsap (+16 more)
 
 ### Community 46 - "main.go"
 Cohesion: 0.07
@@ -332,12 +330,12 @@ Cohesion: 0.10
 Nodes (36): awan, BARANG, barangDari(), benar(), buatUang(), dimas, gerbang, jawabanDari() (+28 more)
 
 ### Community 49 - "mulaiRute"
-Cohesion: 0.10
-Nodes (32): aturKavling(), bangunKavling(), bangunUlangKavling(), buang(), bukaLift(), catKavling(), dekorKavling(), EMAS() (+24 more)
+Cohesion: 0.16
+Nodes (21): bukaTanam(), hapusGaris(), hapusRute(), jalanRute(), keKebun(), klaimPemula(), klikTujuan(), mulaiRute() (+13 more)
 
 ### Community 51 - "isiMenu"
-Cohesion: 0.23
-Nodes (15): aktif, aturWarga(), bayar(), cukup(), gantiPemain(), hargaPm(), hargaTeks(), isiDompet() (+7 more)
+Cohesion: 0.14
+Nodes (30): aktif, apiPk(), aturWarga(), bayar(), cukup(), daftarMisi(), gagal(), gantiPemain() (+22 more)
 
 ### Community 52 - "bot.py"
 Cohesion: 0.14
@@ -349,19 +347,19 @@ Nodes (33): adaEmoji(), AYO, bacaKelompok(), benarPT(), DEPAN, esc(), JENIS_UMUM
 
 ### Community 54 - "$"
 Cohesion: 0.09
-Nodes (46): KUNCI(), aksiBooth(), aturMain(), audio(), avatar(), bersihkanEfek(), biayaUpgrade(), buka() (+38 more)
+Nodes (45): KUNCI(), aksiBooth(), avatar(), biayaUpgrade(), buka(), cari(), cfgSaya(), chatMasuk() (+37 more)
 
 ### Community 55 - "kotak"
 Cohesion: 0.14
-Nodes (21): buatPemain(), fotoMedali(), gapura(), kerucut(), kotak(), landmark(), langitRute(), letak() (+13 more)
+Nodes (22): bangunDunia(), buang(), buatPemain(), fotoMedali(), gapura(), kerucut(), kotak(), langitRute() (+14 more)
 
 ### Community 56 - "panel.py"
 Cohesion: 0.17
 Nodes (19): _answer_ok(), check(), deal(), init(), load_state(), main(), _num(), PanelError (+11 more)
 
 ### Community 57 - "rumah.js"
-Cohesion: 0.07
-Nodes (48): cam, d, g, r, sc, warungDepan(), ambil(), at() (+40 more)
+Cohesion: 0.23
+Nodes (21): ambil(), at(), atapPelana(), BENTUK, box(), DAFTAR_RUMAH, DEF, duaLantai() (+13 more)
 
 ### Community 58 - "unit_economics.py"
 Cohesion: 0.17
@@ -372,16 +370,16 @@ Cohesion: 0.13
 Nodes (20): AWAL_SEGARA, COLX, DERMAGA, FASUM_PETAK, FO(), kanvas(), kodeUnit(), LANTAI_HUNI (+12 more)
 
 ### Community 60 - "Warga"
-Cohesion: 0.14
-Nodes (6): kavlingSiap(), mingguWib(), misiHari(), pkMisiHari(), pkPermata(), Warga
+Cohesion: 0.15
+Nodes (6): albumBit(), kavlingSiap(), misiHari(), pkMisiHari(), pkPermata(), Warga
 
 ### Community 61 - "mulaiTarung"
 Cohesion: 0.18
 Nodes (24): aturFokusTarung(), banner(), bebas(), bicaraKoki(), bicaraSari(), bukaTas(), bukaToko(), kalah() (+16 more)
 
-### Community 62 - "$"
-Cohesion: 0.13
-Nodes (23): ambil(), ambilIsotonik(), aturUlangAngin(), chatMasuk(), gambarNyawa(), kameraIkut(), ketukDrill(), langkah() (+15 more)
+### Community 62 - "mulai"
+Cohesion: 0.16
+Nodes (22): ambil(), aturMain(), aturUlangAngin(), audio(), bersihkanEfek(), gambarNyawa(), jeda(), kameraIkut() (+14 more)
 
 ### Community 63 - "inti-sd.js"
 Cohesion: 0.12
@@ -396,8 +394,8 @@ Cohesion: 0.16
 Nodes (19): aturPosisi(), bangunKapal(), bangunPeta(), gx(), gz(), jarakRuas(), jawabanKini(), kapalVoxel() (+11 more)
 
 ### Community 66 - "selesai"
-Cohesion: 0.15
-Nodes (24): ambil(), ambilAir(), bangunDunia(), buang(), bukaLaci(), bukaRayakan(), bunyi(), gagal() (+16 more)
+Cohesion: 0.12
+Nodes (29): ambil(), ambilAir(), angkaTier(), aturKilau(), bukaLaci(), bukaRayakan(), bunyi(), gambarStory() (+21 more)
 
 ### Community 67 - "simpan"
 Cohesion: 0.19
@@ -412,16 +410,16 @@ Cohesion: 0.18
 Nodes (19): angka(), bukaJawaban(), gambarHitungJawab(), gambarJawabTim(), gambarPapan(), keadaanUntuk(), keMurid(), kirimKeadaanKe() (+11 more)
 
 ### Community 70 - "pelari.js"
-Cohesion: 0.27
-Nodes (17): buatPelari(), kaki(), lengan(), cGeo, cLathe, cMat, cTex, geo() (+9 more)
+Cohesion: 0.18
+Nodes (24): bangunLintasan(), kosongkanTrek(), materialPembatas, buatPelari(), kaki(), lengan(), cGeo, cLathe (+16 more)
 
 ### Community 71 - "desaGabung.js"
 Cohesion: 0.18
 Nodes (14): ARAH(), CABANG, global(), IKON, IMG, keGambar(), LETAK, panjang() (+6 more)
 
-### Community 72 - "kucing.js"
-Cohesion: 0.36
-Nodes (7): box(), DAFTAR_KUCING, gc, kucingMesh(), prism(), wajah(), WARNA_KUCING
+### Community 72 - "buatNPC"
+Cohesion: 0.38
+Nodes (9): buatNPC(), dalam(), gayaDiam(), jalanKe(), langkah(), mainBola(), pilihTuju(), update() (+1 more)
 
 ### Community 73 - "bersama.js"
 Cohesion: 0.17
@@ -479,9 +477,13 @@ Nodes (10): bacaTempel(), bersihDraf(), daftarTopik(), gambarGuru(), kocok(), KU
 Cohesion: 0.28
 Nodes (8): description, devDependencies, esbuild@0.24.0, three@0.169.0, esbuild, three, name, private
 
-### Community 89 - "langkah"
-Cohesion: 0.25
-Nodes (11): angkaTier(), aturKilau(), gengsiAktif(), langkah(), posHantu(), putar(), sepatuAktif(), tingkatLangka() (+3 more)
+### Community 87 - "hariWib"
+Cohesion: 0.22
+Nodes (3): dusunNo(), hariWib(), mingguWib()
+
+### Community 89 - "ref_three"
+Cohesion: 0.22
+Nodes (6): cam, d, g, r, sc, DATA
 
 ### Community 90 - "jalankan"
 Cohesion: 0.15
@@ -492,16 +494,8 @@ Cohesion: 0.29
 Nodes (3): { chromium }, fs, path
 
 ### Community 92 - "rnd"
-Cohesion: 0.29
-Nodes (11): buatNPC(), isiLintasan(), kucing(), muatDunia(), penonton(), pilih(), resetLari(), rnd() (+3 more)
-
-### Community 93 - "lot"
-Cohesion: 0.24
-Nodes (10): cat(), catFace(), fruitTree(), fullHouse(), kandang(), lot(), lumbung(), numTex() (+2 more)
-
-### Community 96 - "cekSalip"
-Cohesion: 0.33
-Nodes (6): aturSuara(), balon(), cekSalip(), siapAudio(), teriak(), tombolSuara()
+Cohesion: 0.21
+Nodes (15): buatNPC(), isiLintasan(), kucing(), landmark(), letak(), muatDunia(), penonton(), pilih() (+7 more)
 
 ### Community 98 - "siapkanHantu"
 Cohesion: 0.33
@@ -509,14 +503,14 @@ Nodes (6): fmtWaktu(), hud(), isiPapan(), muatPapan(), peringkat(), siapkanHantu
 
 ## Knowledge Gaps
 - **1 isolated node(s):** `kelasduniakotak`
-  These have ≤1 connection - possible missing edges. (Counts symbols only; 803 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges. (Counts symbols only; 807 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `lepas()` connect `$` to `hitung-rpg/game.js`, `src/game.js`?**
-  _High betweenness centrality (0.065) - this node is a cross-community bridge._
+- **Why does `lepas()` connect `src/game.js` to `hitung-rpg/game.js`?**
+  _High betweenness centrality (0.062) - this node is a cross-community bridge._
 - **Are the 9 inferred relationships involving `mulai()` (e.g. with `ambilHadir()` and `bersihAv()`) actually correct?**
   _`mulai()` has 9 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `kelasduniakotak` to the rest of the system?**
@@ -524,8 +518,8 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `duniakotak/js/desa.js` be split into smaller, more focused modules?**
   _Cohesion score 0.06289506953223767 - nodes in this community are weakly interconnected._
 - **Why does `warga()` connect `ktp.js` to `mabar/game.js`, `main.js`, `smp/src/inti.js`, `mulai`, `kotak`, `rnd`?**
-  _High betweenness centrality (0.020) - this node is a cross-community bridge._
+  _High betweenness centrality (0.014) - this node is a cross-community bridge._
 - **Should `mabar/game.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.017716535433070866 - nodes in this community are weakly interconnected._
-- **Why does `KULIT` connect `ktp.js` to `mabar/game.js`, `main.js`, `smp/src/inti.js`?**
-  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+  _Cohesion score 0.017263652378156195 - nodes in this community are weakly interconnected._
+- **Why does `$` connect `$` to `src/game.js`, `pelari.js`, `dunia.js`, `ref_three`, `mulai`?**
+  _High betweenness centrality (0.012) - this node is a cross-community bridge._

@@ -9,7 +9,7 @@
 <link rel="icon" href="/duniakotak/logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap">
-<link rel="stylesheet" href="gaya.css?v=20261109npc">
+<link rel="stylesheet" href="gaya.css?v=20261109album">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js","three/addons/geometries/RoundedBoxGeometry.js":"/duniakotak/mabar/js/kotakBulat.js?v=20261108r","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
 <body>
@@ -55,7 +55,7 @@
   <div id="petaTombol" class="petaTombol" hidden><button class="utama" id="petaRute">🧭 Tunjukkan rute</button></div></div>
  </div>
 </div>
-<div id="panelMisi" class="layarPenuh" hidden>
+<div id="panelMisi" class="layarPenuh popup" hidden>
  <div class="panel">
   <h2>Misi hari ini</h2>
   <p class="kecil" id="ringkasMisi"></p>
@@ -73,6 +73,7 @@
    <button class="barisAtur" id="bProfesi" title="Kantor Desa: buka dan pilih profesi"><i>🏛️</i><span>Kantor Desa · Profesi<small>Guru, perawat, dokter, kasir, wasit · dibuka pakai 💎</small></span></button>
    <button class="barisAtur ajakAtur" id="bAjak" title="Ajak teman jadi warga"><i>🤝</i><span>Ajak Tetangga<small id="ajakSisa">Ajak teman daftar, kalian berdua dapat 💎 · menuju Dusun Segara</small></span></button>
    <button class="barisAtur" id="bVoting" title="Voting fasum berikutnya"><i>⭐</i><span>Voting Fasum<small>1 bintang gratis tiap hari</small></span></button>
+   <button class="barisAtur" id="bAlbum" title="Album Ikan &amp; Panen"><i>📖</i><span>Album Ikan &amp; Panen<small>Kumpulkan semua ikan &amp; hasil kebun · dapat lencana 🎣 🧺</small></span></button>
    <button class="barisAtur" id="bIklan" hidden title="Tonton iklan singkat, dapat permata"><i>📺</i><span>Tonton iklan, dapat 💎<small id="iklanSisa">+3 💎 per iklan · maks 3x sehari · tidak wajib</small></span></button>
    <!-- Huda 9 Nov 2026: item yang berhubungan dengan 💎/top up & keaktifan game di atas, pengaturan biasa di bawah -->
    <button class="barisAtur" id="bMusik" title="Suara: semua / efek saja / senyap"><i>🔊</i>Suara</button>
@@ -85,12 +86,20 @@
 <div id="panelKabar" class="layarPenuh popup" hidden>
  <div class="panel"><button class="popTutup" data-tutup="panelKabar" aria-label="Tutup">✕</button>
   <h2>📣 Baru di Desa!</h2>
+  <div class="kbItem" data-k="album"><i>📖</i><div><b>Album Ikan &amp; Panen</b><small>Tiap ikan yang kamu pancing &amp; tiap hasil kebun pertama masuk album. Ada kepiting langka! Lengkapi semuanya untuk lencana 🎣 dan 🧺 di namamu.</small></div></div>
   <div class="kbItem" data-k="npc"><i>🏥</i><div><b>Fasum makin ramai!</b><small>Masuk ke dalam gedung: di Rumah Sakit ada dokter, perawat &amp; pasien; di SD ada Bu Guru &amp; murid yang sedang belajar (07.00–16.00); di Supermarket ada kasir &amp; pembeli. Ajak mereka ngobrol!</small></div></div>
   <div class="kbItem" data-k="rumah"><i>🏡</i><div><b>Lomba Rumah Terindah</b><small>Hias rumahmu! Tiap hari kamu punya 3 ❤️ gratis untuk rumah tetangga (dekati rumahnya, tekan ❤️ Suka). Rumah dengan ❤️ terbanyak minggu ini dapat piala emas di atas rumah + dikunjungi Raka di vlog!</small></div></div>
   <div class="kbItem" data-k="ajak"><i>🤝</i><div><b>Ajak Tetangga</b><small id="kbAjak">Bagikan link ajakmu. Teman daftar &amp; tanam bibit pertama: kamu +10 💎, temanmu +5 💎. Ayo penuhi warga ke-861, Dusun Segara dibuka!</small></div></div>
   <div class="kbItem" data-k="piala"><i>🏆</i><div><b>Piala Antardusun Mingguan</b><small>Finish Pelari Kalcer +10 poin &amp; gol di stadion +2 poin untuk dusunmu. Dusun juara dapat bendera emas di gapura!</small></div></div>
-  <div class="kbTombol"><button class="utama" id="kbNpcBtn">🧭 Antar ke Rumah Sakit</button><button class="utama" id="kbRumahBtn">🏡 Lihat lomba</button><button class="utama" id="kbAjakBtn">🤝 Ajak teman sekarang</button><button id="kbPialaBtn">🏆 Lihat klasemen</button></div>
+  <div class="kbTombol"><button class="utama" id="kbAlbumBtn">📖 Buka album</button><button class="utama" id="kbNpcBtn">🧭 Antar ke Rumah Sakit</button><button class="utama" id="kbRumahBtn">🏡 Lihat lomba</button><button class="utama" id="kbAjakBtn">🤝 Ajak teman sekarang</button><button id="kbPialaBtn">🏆 Lihat klasemen</button></div>
   <p class="kecil">Semuanya ada di ⚙️ Atur dan tombol 🏆 Peringkat.</p>
+ </div>
+</div>
+<div id="panelAlbum" class="layarPenuh popup" hidden>
+ <div class="panel"><button class="popTutup" data-tutup="panelAlbum" aria-label="Tutup">✕</button>
+  <h2>📖 Album Ikan &amp; Panen</h2>
+  <div id="isiAlbum"></div>
+  <button class="utama" id="tutupAlbum">Lanjut main</button>
  </div>
 </div>
 <div id="panelAjak" class="layarPenuh popup" hidden>
@@ -148,7 +157,7 @@
   <button class="utama" id="tutupTanam">Lanjut main</button>
  </div>
 </div>
-<div id="panelOnline" class="layarPenuh" hidden>
+<div id="panelOnline" class="layarPenuh popup" hidden>
  <div class="panel">
   <h2>🟢 Warga online</h2>
   <p class="kecil" id="ringkasOnline"></p>
@@ -156,7 +165,7 @@
   <button class="utama" id="tutupOnline">Lanjut main</button>
  </div>
 </div>
-<div id="panelPeringkat" class="layarPenuh" hidden>
+<div id="panelPeringkat" class="layarPenuh popup" hidden>
  <div class="panel">
   <h2>🏆 Papan Peringkat</h2>
   <div class="tabPk" id="tabPeringkat"><button data-t="piala" class="on">🏆 Piala Dusun</button><button data-t="rumah">🏡 Rumah</button><button data-t="koin">🪙 Koin</button></div>
@@ -233,6 +242,6 @@
 
 <div id="miring" class="layarPenuh" hidden><div class="panel"><div style="font-size:54px">📱↻</div><h2>Miringkan HP-mu</h2><p class="sub">Dunia Kotak dimainkan dengan layar mendatar.</p><button class="tipis" id="tetapTegak">Tetap main tegak</button></div></div>
 
-<script type="module" src="game.js?v=20261109npc"></script>
+<script type="module" src="game.js?v=20261109album"></script>
 </body>
 </html>

@@ -75,6 +75,9 @@ const RESEP_DEKOR = { bangku: { Kayu: 3, "Batu kotak": 1 }, pot: { Bunga: 2, Dau
 const BARANG = { Apel: "🍎", Bunga: "🌼", Kayu: "🪵", Jamur: "🍄", "Batu kotak": "🪨", Daun: "🍃" };
 const IKAN = [[35, "🐟", "Ikan mas"], [28, "🐠", "Ikan nila"], [18, "🐡", "Ikan buntal kotak"], [11, "🦐", "Udang"], [5, "👟", "Sepatu bekas"], [3, "🦀", "Kepiting langka"]];
 const BATAS_AMBIL = 60, BATAS_MANCING = 40;   // per hari WIB
+// Album Ikan & Panen (Huda 9 Nov 2026): koleksi pertama kali dapat tiap ikan (mancing) & hasil kebun (panen), disimpan di tas._al
+// {nama: waktu}. Album lengkap = lencana (tampilan saja): bit 1 = 🎣 semua ikan, bit 2 = 🧺 semua hasil panen (tas._alb).
+const ALBUM_IKAN = IKAN.map((i) => i[2]);
 const KOIN_PER_PERMATA = 10;
 // Pelari Kalcer Dunia Kotak (Huda 7 Nov 2026): koin game lari = koin Dunia Kotak (satu dompet), top up Saweria = permata.
 // Koin hasil lari dibatasi supaya ekonomi desa tidak banjir: maks PK_MAKS_LARI per lari, PK_MAKS_HARI per hari WIB,
@@ -122,6 +125,7 @@ const IKLAN_PERMATA = 3, IKLAN_BATAS = 3, IKLAN_MIN = 8000;
 const PANEN_JEDA = 6 * 3600e3, PANEN_PERMATA = 2;
 // Bibit & jual hasil panen (audit ekonomi, Huda 6 Nov 2026): bibit dibeli koin tiap tanam, panen = 5 hasil + 2 permata,
 // hasil dijual di warung depan rumah (batas 60 hasil/hari). Untung terbaik +20 koin per panen (cabai).
+const albumBit = (al) => (ALBUM_IKAN.every((n) => al[n]) ? 1 : 0) | (Object.values(BIBIT).every((b) => al[b.nama]) ? 2 : 0);
 const BIBIT = { tomat: { nama: "Tomat", ikon: "🍅", harga: 10, hasil: 5, jual: 6 }, jagung: { nama: "Jagung", ikon: "🌽", harga: 20, hasil: 5, jual: 9 }, cabai: { nama: "Cabai", ikon: "🌶️", harga: 30, hasil: 5, jual: 14 } };
 const BATAS_JUAL = 60;
 // Audit ekonomi #2 (Huda 6 Nov 2026): harga jual kebun naik (tomat 6, jagung 9, cabai 14) dan IKAN bisa dijual di warung
@@ -457,7 +461,7 @@ export class Warga extends DurableObject {
     // Daftar lewat Google tanpa username: nama yang ditulis warga jadi ukiran batu (label).
     let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
     const hs = this.hiasPakai(r), bt = this.bataWarga(r.no), jr = this.juraganKini(), tr = this.juaraRumah();
-    return { ...(bt ? { bt } : {}), ...(jr && jr.no === r.no ? { jr: 1 } : {}), ...(tr && tr.no === r.no ? { tr: 1 } : {}), ...(hs.cat !== "krem" || hs.pagar !== "putih" || hs.rumah === "dua" || hs.dekor.length ? { hs: { c: hs.cat, p: hs.pagar, ...(hs.rumah === "dua" ? { l: 2 } : {}), ...(hs.dekor.length ? { d: hs.dekor } : {}) } } : {}), no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
+    return { ...(bt ? { bt } : {}), ...(r.alb ? { al: r.alb } : {}), ...(jr && jr.no === r.no ? { jr: 1 } : {}), ...(tr && tr.no === r.no ? { tr: 1 } : {}), ...(hs.cat !== "krem" || hs.pagar !== "putih" || hs.rumah === "dua" || hs.dekor.length ? { hs: { c: hs.cat, p: hs.pagar, ...(hs.rumah === "dua" ? { l: 2 } : {}), ...(hs.dekor.length ? { d: hs.dekor } : {}) } } : {}), no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
   }
   // Hias: {punya:{cat:[...],pagar:[...],topi:[...]}, cat, pagar, topi}
   bacaHias(r) { let h = {}; try { h = r.hias ? JSON.parse(r.hias) : {}; } catch (e) {} h.punya = h.punya || {}; for (const j of Object.keys(TOKO_HIAS)) h.punya[j] = h.punya[j] || []; return h; }
@@ -466,7 +470,11 @@ export class Warga extends DurableObject {
   bacaProfesi(r) { let p = {}; try { p = r.profesi ? JSON.parse(r.profesi) : {}; } catch (e) {} p.p = Array.isArray(p.p) ? p.p.filter(x => PROFESI[x]) : []; if (!PROFESI[p.a]) p.a = "petani"; return p; }
   infoProfesi(p) { const hari = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
     return { a: p.a, punya: ["petani", "pedagang", ...p.p], sh: p.sh || null, shift: p.sd === hari ? p.sn || 0 : 0, gantiHariIni: p.g === hari ? 1 : 0, batas: BATAS_SHIFT, gaji: GAJI_SHIFT, min: SHIFT_MIN, diskon: p.p.length ? 0 : 1 }; }
-  bacaTas(r) { let t = {}; try { t = r.tas ? JSON.parse(r.tas) : {}; } catch (e) {} t.isi = t.isi && typeof t.isi === "object" ? t.isi : {}; return t; }
+  bacaTas(r) { let t = {}; try { t = r.tas ? JSON.parse(r.tas) : {}; } catch (e) {} t.isi = t.isi && typeof t.isi === "object" ? t.isi : {};
+    // album: yang sudah ada di tas (sebelum fitur album) langsung tercatat
+    t._al = t._al && typeof t._al === "object" ? t._al : {};
+    for (const n of Object.keys(t.isi)) if (!t._al[n] && (ALBUM_IKAN.includes(n) || Object.values(BIBIT).some((b) => b.nama === n))) t._al[n] = 1;
+    t._alb = albumBit(t._al); return t; }
   hiasPakai(r) { const h = this.bacaHias(r); return { cat: h.cat || "krem", pagar: h.pagar || "putih", topi: h.topi || "tanpa", rumah: h.rumah || "satu", dekor: (h.dekor || []).filter(x => DEKOR.includes(x)) }; }
   pasangTopi(avatarJson, topi) { let a = {}; try { a = avatarJson ? JSON.parse(avatarJson) : {}; } catch (e) {} if (WARNA_TOPI[topi]) a.topi = WARNA_TOPI[topi]; else delete a.topi; return JSON.stringify(a).slice(0, 600); }
   hasilVoting() {
@@ -729,7 +737,7 @@ export class Warga extends DurableObject {
       }
       let av = null; try { av = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
       let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
-      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, kucing: kc, koin: r.koin || 0, misi: ms.s, gol: ms.g || 0, dapat, bagi: r.bagi ? 1 : 0, nama: r.nama || "", kerja: r.kerja || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat, permata: r.permata || 0, hias: this.bacaHias(r), kebun: this.infoKebun(this.bacaKebun(r)), bibit: BIBIT, tas: this.bacaTas(r).isi, tasImpor: this.bacaTas(r)._impor ? 1 : 0, koinTotal: r.koinTotal || r.koin || 0, profesi: this.infoProfesi(this.bacaProfesi(r)), daftarProfesi: PROFESI, pemula: { s: pm, boleh: bolehPemula, dapat: dapatPm }, hadir: { ...hadirInfo, dapat: dapatHadir }, dapatPermata, ...(pulang ? { pulang } : {}), ...(r._piala ? { piala: r._piala } : {}), ...(r._ajak ? { ajak: r._ajak } : {}) });
+      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, kucing: kc, koin: r.koin || 0, misi: ms.s, gol: ms.g || 0, dapat, bagi: r.bagi ? 1 : 0, nama: r.nama || "", kerja: r.kerja || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat, permata: r.permata || 0, hias: this.bacaHias(r), kebun: this.infoKebun(this.bacaKebun(r)), bibit: BIBIT, tas: this.bacaTas(r).isi, album: this.bacaTas(r)._al, tasImpor: this.bacaTas(r)._impor ? 1 : 0, koinTotal: r.koinTotal || r.koin || 0, profesi: this.infoProfesi(this.bacaProfesi(r)), daftarProfesi: PROFESI, pemula: { s: pm, boleh: bolehPemula, dapat: dapatPm }, hadir: { ...hadirInfo, dapat: dapatHadir }, dapatPermata, ...(pulang ? { pulang } : {}), ...(r._piala ? { piala: r._piala } : {}), ...(r._ajak ? { ajak: r._ajak } : {}) });
     }
     // ---- Voting fasum berbintang ----
     if (aksi === "voting") {
@@ -817,6 +825,7 @@ export class Warga extends DurableObject {
         if (kini < kb.t + PANEN_JEDA) return Response.json({ galat: "Tanamanmu belum siap dipanen.", kebun: this.infoKebun(kb) }, { status: 400 });
         const bb = BIBIT[kb.b]; t.isi[bb.nama] = t.isi[bb.nama] || { ikon: bb.ikon, n: 0 }; t.isi[bb.nama].n += bb.hasil;
         permata += PANEN_PERMATA; this.arus("+permata:panen", PANEN_PERMATA); info = { dapat: PANEN_PERMATA, hasil: { ikon: bb.ikon, nama: bb.nama, n: bb.hasil } };
+        if (!t._al[bb.nama] || t._al[bb.nama] === 1) { if (!t._al[bb.nama]) info.hasil.baru = 1; t._al[bb.nama] = kini; t._alb = albumBit(t._al); }
         kb.b = null; kb.t = 0;
         this.sql.exec("UPDATE warga SET permata = ?, panen = ?, kebun = ?, tas = ? WHERE no = ?", permata, kini, JSON.stringify(kb), JSON.stringify(t), r.no);
       } else {
@@ -835,7 +844,7 @@ export class Warga extends DurableObject {
         kb.jn += n; koin += dapat; info = { terjual: n, dapatKoin: dapat }; this.arus("+koin:jual", dapat);
         this.sql.exec("UPDATE warga SET koin = ?, koinTotal = COALESCE(koinTotal, 0) + ?, kebun = ?, tas = ? WHERE no = ?", koin, dapat, JSON.stringify(kb), JSON.stringify(t), r.no);
       }
-      return Response.json({ koin, permata, kebun: this.infoKebun(kb), tas: t.isi, ...info });
+      return Response.json({ koin, permata, kebun: this.infoKebun(kb), tas: t.isi, album: t._al, ...info });
     }
     if (aksi === "pelari") {
       // Game Pelari Kalcer: op akun | mulai | selesai (setor koin lari) | beli (bayar koin/permata).
@@ -986,6 +995,7 @@ export class Warga extends DurableObject {
         if (kini - (t._tm || 0) < 3500) return Response.json({ galat: "Tunggu umpannya dulu." }, { status: 429 });
         let x = Math.random() * 100, h = IKAN[0]; for (const i of IKAN) { if ((x -= i[0]) < 0) { h = i; break; } }
         t._m++; t._tm = kini; tambah(h[2], h[1]); hasil = { ikon: h[1], nama: h[2] };
+        if (!t._al[h[2]]) { t._al[h[2]] = kini; hasil.baru = 1; t._alb = albumBit(t._al); }
       } else if (q.op === "makan") {
         const ikan = Object.entries(isi).filter(([n, v]) => v.n > 0 && IKAN.some((i) => i[2] === n && i[1] !== "👟")).sort((a, b) => b[1].n - a[1].n)[0];
         if (!ikan) return Response.json({ galat: "🎣 Tidak ada ikan di inventori. Mancing dulu di sungai, baru bisa memberi makan kucing." }, { status: 400 });
@@ -997,7 +1007,7 @@ export class Warga extends DurableObject {
           const k = Math.max(0, Math.min(10, Math.floor(+(v && v.n) || 0))); if (k) { isi[n] = isi[n] || { ikon: ik, n: 0 }; isi[n].n += k; } }
       }
       this.sql.exec("UPDATE warga SET tas = ? WHERE no = ?", JSON.stringify(t), r.no);
-      return Response.json({ tas: isi, hasil });
+      return Response.json({ tas: isi, hasil, album: t._al });
     }
     if (aksi === "dekor") {
       const q = await request.json();
@@ -1123,7 +1133,7 @@ export class Warga extends DurableObject {
     }
     if (aksi === "daftar-publik") {
       // Gabungkan warga terdaftar dengan 63 pengikut awal yang kavlingnya sudah disiapkan (sudah warga sejak video).
-      const rows = this.sql.exec("SELECT no, sub, nama, ig, tiktok, usulan, dibuat, kucing, aktif, hias FROM warga ORDER BY no").toArray();
+      const rows = this.sql.exec("SELECT no, sub, nama, ig, tiktok, usulan, dibuat, kucing, aktif, hias, json_extract(tas, '$._alb') AS alb FROM warga ORDER BY no").toArray();
       const terisi = new Set(rows.map((r) => r.no));
       const igTerdaftar = new Set(rows.map((r) => r.ig).filter(Boolean));
       const awalan = Object.entries(KAVLING_AWALAN).map(([a, no]) => [a + "…", no]);

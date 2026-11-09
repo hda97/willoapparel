@@ -442,3 +442,21 @@ a.pdSaweria{display:block;text-align:center;text-decoration:none;margin-top:6px}
 .rmKunjungi{flex:none;border:1px solid var(--garis);background:rgba(255,255,255,.08);color:#fff;border-radius:99px;padding:3px 9px;font:800 12px Montserrat,sans-serif;margin-right:6px;cursor:pointer}
 .plJuara .rmKunjungi{margin-top:5px}
 .kbTombol{flex-wrap:wrap}.kbItem[hidden]{display:none}
+
+/* Album Ikan & Panen (9 Nov 2026) */
+#isiAlbum{display:grid;gap:8px;text-align:left}
+#isiAlbum h3{margin:6px 0 0;font-size:14px;display:flex;justify-content:space-between}#isiAlbum h3 small{opacity:.7}
+.alBar{height:10px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}.alBar span{display:block;height:100%;background:linear-gradient(90deg,#7be39b,#ffd23a)}
+.alGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.alKartu{display:grid;justify-items:center;gap:2px;padding:10px 6px;border-radius:12px;background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.25);text-align:center}
+.alKartu i{font-style:normal;font-size:30px;filter:grayscale(1) opacity(.55)}.alKartu b{font-size:12px}.alKartu small{font-size:10px;opacity:.7}
+.alKartu.on{border:1px solid #ffd23a;background:rgba(255,210,58,.1)}.alKartu.on i{filter:none}
+
+/* Huda 9 Nov 2026: semua pop up ke warga muat di layar HP (isi panjang bergulir di dalam), papan peringkat tampil 5 baris lalu geser */
+.layarPenuh.popup{padding:10px}
+.layarPenuh.popup>.panel{max-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.pkDaftar,.plTop{max-height:196px}
+#panelPeringkat .panel{width:min(400px,100%);gap:8px}#panelPeringkat h2{margin:0;font-size:19px}#panelPeringkat .kecil{margin:0}
+@media (max-height:520px){.layarPenuh.popup{padding:6px}.layarPenuh.popup>.panel{gap:7px;padding:10px 14px}.layarPenuh.popup h2{margin:0;font-size:17px}.layarPenuh.popup .utama{padding:9px 18px}.pkDaftar,.plTop{max-height:162px}.pkBaris{height:32px;font-size:12px}}
+:where(html.putar.mq-pendek) .layarPenuh.popup{padding:6px}:where(html.putar.mq-pendek) .layarPenuh.popup>.panel{gap:7px;padding:10px 14px}:where(html.putar.mq-pendek) .layarPenuh.popup h2{margin:0;font-size:17px}:where(html.putar.mq-pendek) .pkDaftar,:where(html.putar.mq-pendek) .plTop{max-height:162px}:where(html.putar.mq-pendek) .pkBaris{height:32px;font-size:12px}
+.alGrid{grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}.alKartu{padding:6px 4px}.alKartu i{font-size:24px}
