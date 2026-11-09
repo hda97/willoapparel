@@ -60,7 +60,7 @@ export function curug(sc, o = {}) {
   const gF = new THREE.Group(); sc.add(gF); const bangunan = [], lahanKosong = [];
   for (const [j, sd, s0, k, nama] of FASUM_TERAS) {
     const x = -L / 2 + SP * (s0 + 1), z = -j * DEP + sd * 10.6, y = j * STEP, f = fasum(x, z, 21, 17.4, y);
-    if (!k) { lahanKosong.push({x, z, y}); continue; }
+    if (!k) { lahanKosong.push({x, z, y, g: f}); continue; }
     f.children.slice(1).forEach(c => f.remove(c));
     const m = F[k](); m.scale.setScalar(VS); if (sd > 0) m.rotation.y = Math.PI; m.position.set(x * VS, y * VS, z * VS); gF.add(m);
     bangunan.push({position: new THREE.Vector3(m.position.x, m.position.y, m.position.z), nama, ...F.pisahFasum(m)});
@@ -69,7 +69,7 @@ export function curug(sc, o = {}) {
   bangunan.push({position: V3(195 * VS, 0, (30 + dF) * VS), nama: '🚌 Terminal & Gapura Kotak Curug', tinggi: 3 * VS, rect: null});
 
   // ---- kavling bertahap: warga No. 461+ ----
-  const info = {lots: {}, G, light: d, grupFasum: gF, bangunan, dusun: 'curug'};
+  const info = {lots: {}, G, light: d, grupFasum: gF, bangunan, lahanKosong, dusun: 'curug'};
   const nm = o.names || {};
   const roofs2 = [0xc8553d, 0x3a7ad8, 0x3aa860, 0xe0a020, 0x9a5ad8, 0xd84a8a, 0x2a9a9a, 0xe06a2a];
   const bl = l => {

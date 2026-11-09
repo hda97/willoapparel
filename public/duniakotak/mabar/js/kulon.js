@@ -67,7 +67,7 @@ export function kulon(sc, o = {}) {
   const gF = new THREE.Group(); sc.add(gF); const bangunan = [], lahanKosong = [];
   FASUM_TERAS.forEach(([, k, nama], j) => {
     const t = lahanTeras[j], f = fasum(t.x, t.z, 21, 17.4, t.y);
-    if (!k) { lahanKosong.push(t); return; }
+    if (!k) { lahanKosong.push({...t, g: f}); return; }
     f.children.slice(1).forEach(c => f.remove(c));
     const m = F[k](); m.scale.setScalar(VS); m.position.set(t.x * VS, t.y * VS, t.z * VS); gF.add(m);
     // pintu terbuka + ruang dalam (6 Nov 2026): tabrakan per dinding, bagian atas dipisah (game.js)
@@ -77,7 +77,7 @@ export function kulon(sc, o = {}) {
   bangunan.push({position: V3(0, 0, 18 * VS), nama: '🚌 Terminal & Gapura Kotak Kulon', tinggi: 3 * VS, rect: null});
 
   // ---- kavling bertahap: warga No. 261+ ----
-  const info = {lots: {}, G, light: d, grupFasum: gF, bangunan, dusun: 'kulon'};
+  const info = {lots: {}, G, light: d, grupFasum: gF, bangunan, lahanKosong, dusun: 'kulon'};
   const nm = o.names || {};
   const bl = l => {
     const no = AWAL_KULON + l.n, isi = o.isFilled ? o.isFilled(no) : !!nm[no];

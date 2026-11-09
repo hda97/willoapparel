@@ -104,7 +104,7 @@ export function tlaga(sc, o = {}) {
   const gF = new THREE.Group(); sc.add(gF); const bangunan = [], lahanKosong = [];
   for (const [j, sd, s0, k, nama] of FASUM) {
     const x = -W / 2 + SP * (s0 + 1), z = -j * P + sd * 10.6, f = fasum(x, z, 21, 17.4);
-    if (!k) { lahanKosong.push({x, z, y: 0}); continue; }
+    if (!k) { lahanKosong.push({x, z, y: 0, g: f}); continue; }
     f.children.slice(1).forEach(c => f.remove(c));
     const m = F[k](); m.scale.setScalar(VS); if (sd > 0) m.rotation.y = Math.PI; m.position.set(x * VS, 0, z * VS); gF.add(m);
     bangunan.push({position: new THREE.Vector3(m.position.x, 0, m.position.z), nama, ...F.pisahFasum(m)});
@@ -114,7 +114,7 @@ export function tlaga(sc, o = {}) {
   bangunan.push({position: V3(0, 0, ZT * VS), nama: '🚌 Terminal & Gapura Kotak Tlaga', tinggi: 3 * VS, rect: null});
 
   // ---- kavling bertahap: warga No. 661+ ----
-  const info = {lots: {}, G, light: d, grupFasum: gF, bangunan, dusun: 'tlaga'};
+  const info = {lots: {}, G, light: d, grupFasum: gF, bangunan, lahanKosong, dusun: 'tlaga'};
   const nm = o.names || {};
   const roofs2 = [0xc8553d, 0x3a7ad8, 0x3aa860, 0xe0a020, 0x9a5ad8, 0xd84a8a, 0x2a9a9a, 0xe06a2a];
   const bl = l => {

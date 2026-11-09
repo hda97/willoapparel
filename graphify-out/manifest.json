@@ -113,9 +113,9 @@
     "semantic_hash": "16f7aa92d3e9468edf41dd30b4c182d1"
   },
   "public/duniakotak/mabar/game.js": {
-    "mtime": 1794240156.9132211,
-    "seen": 1794240379.2516098,
-    "ast_hash": "dd5b72918d80338f6560be0a077820d0",
+    "mtime": 1794241358.8308709,
+    "seen": 1794241596.853774,
+    "ast_hash": "95cb31b90bf766f34e71f95c73979605",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/avatar.js": {
@@ -125,10 +125,10 @@
     "semantic_hash": "f4bc0c05f1afec6f777d309aeb0249fa"
   },
   "public/duniakotak/mabar/js/aset/fasum.js": {
-    "mtime": 1794171597.3567483,
-    "seen": 1794200130.2552886,
-    "ast_hash": "bf7fc735a110db13aed41fa78f4b68cb",
-    "semantic_hash": "bf7fc735a110db13aed41fa78f4b68cb"
+    "mtime": 1794241456.2570841,
+    "seen": 1794241596.853778,
+    "ast_hash": "2f271b8a333348cb8c33db80eb791210",
+    "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/kucing.js": {
     "mtime": 1794171597.3567483,
@@ -149,10 +149,10 @@
     "semantic_hash": "c98a85c16aae898f3ef9279c4283e103"
   },
   "public/duniakotak/mabar/js/curug.js": {
-    "mtime": 1794171597.3567483,
-    "seen": 1794200130.2552927,
-    "ast_hash": "45cf92cc74f84a0a2fff946327d25edf",
-    "semantic_hash": "45cf92cc74f84a0a2fff946327d25edf"
+    "mtime": 1794241246.6449635,
+    "seen": 1794241596.8537853,
+    "ast_hash": "db8e0ff5866145e6021569498505f3ce",
+    "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/desa.js": {
     "mtime": 1794171597.3567483,
@@ -161,10 +161,10 @@
     "semantic_hash": "380f619d18d8d6cf482b96b7ed0e94b1"
   },
   "public/duniakotak/mabar/js/kulon.js": {
-    "mtime": 1794171597.3567483,
-    "seen": 1794200130.2552965,
-    "ast_hash": "bfce9bf6e55e86f56b5cfef78d703f92",
-    "semantic_hash": "bfce9bf6e55e86f56b5cfef78d703f92"
+    "mtime": 1794241246.64429,
+    "seen": 1794241596.8537905,
+    "ast_hash": "2c01900e8c1e7d754c75d5fc121ca8e0",
+    "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/lib.js": {
     "mtime": 1794171597.3567483,
@@ -209,9 +209,9 @@
     "semantic_hash": "bf3f8e495130df0e60287acb7ca38561"
   },
   "worker.js": {
-    "mtime": 1794239976.6418376,
-    "seen": 1794240379.251641,
-    "ast_hash": "63668705033c9f3775ac6c0dbb33ca1d",
+    "mtime": 1794241316.9517095,
+    "seen": 1794241596.8538094,
+    "ast_hash": "969a4488a4307f5b7b7e8bb270baa4eb",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/musik.mp3": {
@@ -653,9 +653,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/tlaga.js": {
-    "mtime": 1794171597.3567483,
-    "seen": 1794200130.2553027,
-    "ast_hash": "65042f7180ddfdafe2c8b1cd55a45263",
+    "mtime": 1794241246.6453886,
+    "seen": 1794241596.8537998,
+    "ast_hash": "d24f7b359c632c3288f5175bf0acb6e9",
     "semantic_hash": ""
   },
   "public/duniakotak/pulau/data.json": {
@@ -977,9 +977,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/index.html": {
-    "mtime": 1794240098.176677,
-    "seen": 1794240379.2517421,
-    "ast_hash": "beb5c165bdb8899eb23f370940967ce5",
+    "mtime": 1794241332.48814,
+    "seen": 1794241596.8538723,
+    "ast_hash": "80c27db1dd483eb74858a3280904bda8",
     "semantic_hash": ""
   },
   "public/duniakotak/privasi.html": {
