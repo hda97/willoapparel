@@ -2491,7 +2491,8 @@ function kirimPos(paksa) {
   if (!S.ws || S.ws.readyState !== 1) return;
   const p = tokoh.saya.position, now = performance.now();
   const k = p.x.toFixed(1) + ',' + p.z.toFixed(1);
-  if (!paksa && (now - kirimT < 170 || (k === posLama && now - kirimT < 4000))) return;
+  // hemat kuota Durable Objects (10 Nov 2026): maks 4 posisi/detik saat jalan, diam cukup tiap 10 detik
+  if (!paksa && (now - kirimT < 250 || (k === posLama && now - kirimT < 10000))) return;
   kirimT = now; posLama = k;
   S.ws.send(JSON.stringify({t: 'p', x: +p.x.toFixed(2), z: +p.z.toFixed(2), r: +tokoh.saya.rotation.y.toFixed(2), a: gerak.jalan ? 1 : 0}));
 }
@@ -2726,7 +2727,7 @@ function aturHUD() {
   $('panelProfil').addEventListener('click', e => { if (e.target === $('panelProfil')) $('panelProfil').hidden = true; });
   $('tutupOnline').onclick = () => { $('panelOnline').hidden = true; };
   $('isiOnline').addEventListener('click', e => { const b = e.target.closest('[data-on]'); if (!b) return; $('panelOnline').hidden = true; pergiKe(+b.dataset.on); });
-  muatOnline(); setInterval(muatOnline, 20000);
+  muatOnline(); setInterval(() => { if (!document.hidden) muatOnline(); }, 60000);
   $('profil').style.cursor = 'pointer';
   $('profil').onclick = bukaProfil;
   $('bAvatar').onclick = () => { $('panelAtur').hidden = true; bukaPembuatAvatar(JSON.parse(JSON.stringify(S.av)), false); };

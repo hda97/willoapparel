@@ -1348,7 +1348,7 @@ export class Ruang extends DurableObject {
       if (![p.x, p.z, p.r].every(Number.isFinite)) return;
       this.pos.set(a.no, p);
       if (now - (a.simpan || 0) > 5000) {
-        // Detak sesi: posisi datang tiap ≤4 dtk selama game terbuka di layar (tab di belakang berhenti kirim).
+        // Detak sesi: posisi datang tiap ≤10 dtk selama game terbuka di layar (tab di belakang berhenti kirim).
         let tulis = a.tulis || 0;
         if (a.sid && now - tulis > 30000) { this.sql.exec("UPDATE sesi SET akhir = ? WHERE id = ?", now, a.sid); tulis = now; }
         ws.serializeAttachment({ ...a, ...p, simpan: now, tulis });
@@ -1503,7 +1503,23 @@ async function statistikDashboard(env, stub) {
   return { ...w, online, hari, jam, sebaran, ringkas: { sesi: sesi.length, pemain, balik, rata: lama.length ? +(lama.reduce((a, b) => a + b, 0) / lama.length).toFixed(1) : 0, median: +median(lama).toFixed(1), sesiPerPemain: pemain ? +(sesi.length / pemain).toFixed(2) : 0, mulaiCatat: mentah.length ? Math.min(...mentah.map((x) => x.masuk)) : 0 } };
 }
 
-async function apiWarga(request, env, url) {
+// Hemat kuota Durable Objects (10 Nov 2026: semua API warga sempat mati, dugaan batas harian Cloudflare habis).
+// GET publik yang sama untuk semua warga disimpan di cache Cloudflare beberapa detik, jadi ratusan HP berbagi satu
+// panggilan ke database. Data pribadi (POST, sesi, kunci) tidak pernah di-cache.
+const CACHE_API = { online: 15, warga: 60, "warga-npc": 120, peringkat: 60, usulan: 120, rumah: 60, ajak: 60, piala: 60, pendukung: 60, voting: 30 };
+async function apiWarga(request, env, url, ctx) {
+  const aksi = url.pathname.replace("/duniakotak/api/", ""), detik = CACHE_API[aksi];
+  if (request.method !== "GET" || !detik || typeof caches === "undefined") return apiWargaInti(request, env, url);
+  const kunci = new Request(url.toString(), { method: "GET" }), cache = caches.default;
+  try { const ada = await cache.match(kunci); if (ada) return ada; } catch (e) {}
+  const res = await apiWargaInti(request, env, url);
+  if (res.status !== 200) return res;
+  const h = new Headers(res.headers); h.set("cache-control", `public, max-age=${detik}`);
+  const simpan = new Response(res.body, { status: 200, headers: h });
+  try { const p = cache.put(kunci, simpan.clone()); if (ctx && ctx.waitUntil) ctx.waitUntil(p); else await p; } catch (e) {}
+  return simpan;
+}
+async function apiWargaInti(request, env, url) {
   const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   const aksi = url.pathname.replace("/duniakotak/api/", "");
   if (aksi === "config") return json({ clientId: env.GOOGLE_CLIENT_ID || "", iklan: env.IKLAN_H5 === "1" ? 1 : 0 });
@@ -1528,7 +1544,7 @@ async function apiWarga(request, env, url) {
   if (aksi === "online" && request.method === "GET") {
     if (!env.RUANG) return json({ online: 0 });
     // gabungan semua dusun (Huda 6 Nov 2026: status online terlihat semua, jadi satu)
-    const DUSUN = ["wetan", "kulon", "curug", "tlaga", "segara"], per = {}, warga = [], lihat = new Set();
+    const DUSUN = ["wetan", "kulon", "curug", "tlaga"], per = { segara: 0 }, warga = [], lihat = new Set();
     await Promise.all(DUSUN.map(async (d) => { try { const j = await (await env.RUANG.get(env.RUANG.idFromName(d)).fetch("https://do/online")).json(); per[d] = 0;
       for (const x of j.warga || []) if (!lihat.has(x.no)) { lihat.add(x.no); warga.push({ ...x, d }); per[d]++; } } catch (e) { per[d] = 0; } }));
     warga.sort((a, b) => a.no - b.no);
@@ -1870,7 +1886,7 @@ export default {
       const r = await stub.fetch("https://do/?" + q);
       return new Response(r.body, { headers: { "content-type": "application/json", "cache-control": "no-store" } });
     }
-    if (url.pathname.startsWith("/duniakotak/api/")) return apiWarga(request, env, url);
+    if (url.pathname.startsWith("/duniakotak/api/")) return apiWarga(request, env, url, ctx);
     if (pendek === "/warga" || pendek === "/daftarwarga") {
       url.pathname = "/duniakotak/";
       return Response.redirect(url.toString(), 302);
