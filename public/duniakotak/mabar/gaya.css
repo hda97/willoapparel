@@ -430,3 +430,10 @@ a.pdSaweria{display:block;text-align:center;text-decoration:none;margin-top:6px}
 .ajLink{border:1px dashed var(--garis);border-radius:10px;padding:8px 10px;font:700 13px Montserrat,sans-serif;color:var(--emas);word-break:break-all;margin:6px 0;user-select:text;-webkit-user-select:text}
 .ajTombol{display:flex;gap:6px;margin-bottom:8px}.ajTombol button{flex:1;margin:0;border:1px solid var(--garis);border-radius:99px;background:rgba(255,255,255,.08);color:#fff;font:800 13px Montserrat,sans-serif;padding:9px 6px}
 .ajTombol button.utama{background:var(--emas);color:#2a1a05;border-color:var(--emas)}
+
+/* Pengumuman fitur baru (9 Nov 2026) */
+.kbItem{display:flex;gap:10px;align-items:flex-start;text-align:left;border:1px solid var(--garis);border-radius:14px;padding:9px 12px;margin-bottom:8px;background:rgba(255,255,255,.05)}
+.kbItem i{font-style:normal;font-size:26px;line-height:1.1}.kbItem b{display:block;font:900 15px Montserrat,sans-serif;color:var(--emas)}.kbItem small{display:block;color:#dfe3f5;font:600 12px/1.4 Montserrat,sans-serif;margin-top:2px}
+.kbTombol{display:flex;gap:8px}.kbTombol button{flex:1;margin:0;border:1px solid var(--garis);border-radius:99px;background:rgba(255,255,255,.08);color:#fff;font:800 13px Montserrat,sans-serif;padding:10px 8px}
+.kbTombol button.utama{background:var(--emas);border-color:var(--emas);color:#2a1a05}
+.bulat.baru{position:relative}.bulat.baru::after{content:'BARU';position:absolute;top:-4px;right:-6px;background:#e04848;color:#fff;font:900 8px Montserrat,sans-serif;padding:2px 4px;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.4)}
