@@ -958,6 +958,7 @@ async function klaimPemula(m) {
     const r = await api('pemula', {kunci: S.kunci, id: m.id});
     S.saya.koin = r.koin; S.saya.permata = r.permata; if (r.pemula) { PM.s = r.pemula.s; PM.boleh = r.pemula.boleh; }
     hitungOnline(); bunyi('masuk');
+    if (r.ajak) setTimeout(() => toast(`🤝 Bonus diajak${r.ajak.dari ? ' @' + esc(r.ajak.dari) : ''}: +${r.ajak.permata} 💎 untukmu, temanmu juga dapat 💎`, 4500), 2800);
     if (r.pemula?.dapat) { koinTerbang(`+${r.pemula.dapat} 🪙${m.permata ? ` +${m.permata} 💎` : ''}`); toast(`✅ ${m.judul}! +${r.pemula.dapat} koin`, 2600); }
     if (!pemulaKini()) setTimeout(pemulaTamat, 900);
   } catch (e) { setTimeout(() => { PM.kirim = false; if (pemulaKini() === m && (PM.p[m.id] || 0) >= m.target) klaimPemula(m); }, 5000); return; }
@@ -1057,6 +1058,32 @@ async function bukaPeringkat(dariTab) {
   if (S.saya && d.saya && !aku) h += `<div class="pkBaris aku pkSaya"><span class="pkNo">${d.saya.r || '–'}</span><span class="pkNama">@${esc(S.saya.ig || '')} (kamu)<small>${d.saya.r ? 'dari ' + d.jml + ' warga berkoin' : 'Belum punya koin'}</small></span><b>🪙 ${d.saya.koin}</b></div>`;
   $('isiPeringkat').innerHTML = h;
   $('ringkasPeringkat').textContent = `${d.jml} warga sudah punya koin. Geser daftar untuk melihat peringkat 11 dan seterusnya.`;
+}
+// ---------- Ajak Tetangga (Huda 9 Nov 2026) ----------
+// Link willoapparel.com/duniakotak/?ajak=<no>. Teman yang daftar lewat link lalu menanam bibit pertama (misi pemula 🌱) →
+// pengajak +10 💎 (maks 5 teman per hari), teman +5 💎. Bar = warga terdaftar menuju warga ke-861 (Dusun Segara dibuka).
+const linkAjak = () => 'https://willoapparel.com/duniakotak/?ajak=' + (S.saya ? S.saya.no : '');
+async function bukaAjak() {
+  $('panelAjak').hidden = false; $('isiAjak').innerHTML = '<p class="kecil">Memuat…</p>';
+  let d = null; try { d = await (await fetch('/duniakotak/api/ajak' + (S.saya ? '?no=' + S.saya.no : ''), {cache: 'no-store'})).json(); } catch (e) {}
+  if (!d || !d.target) { $('isiAjak').innerHTML = '<p class="kecil">Belum bisa dimuat. Coba lagi sebentar.</p>'; return; }
+  const pct = Math.min(100, Math.round(d.maks / d.target * 100));
+  let h = `<div class="ajBar"><div class="ajJudul">${d.kurang ? `Kurang <b>${d.kurang}</b> warga lagi, 🏙️ Dusun Segara dibuka!` : '🏙️ Dusun Segara sudah dibuka!'}</div>
+    <div class="ajTrek"><i style="width:${pct}%"></i></div><div class="ajAngka"><span>Warga No. ${d.maks}</span><span>No. ${d.target}</span></div></div>`;
+  if (S.tamu) h += '<p class="kecil">Daftar jadi warga dulu supaya punya link ajak sendiri.</p>';
+  else {
+    h += `<p class="kecil ajKet">Bagikan link ini. Teman yang daftar lewat linkmu lalu menanam bibit pertamanya: <b>kamu +${d.hadiah.pengajak} 💎</b>, <b>temanmu +${d.hadiah.baru} 💎</b> (maks ${d.hadiah.hari} teman berhadiah per hari).</p>
+      <div class="ajLink" id="ajLink">${esc(linkAjak().replace('https://', ''))}</div>
+      <div class="ajTombol"><button class="utama" id="ajBagi">📤 Bagikan</button><button id="ajWa">WhatsApp</button><button id="ajSalin">Salin link</button></div>`;
+    if (d.saya) h += `<p class="kecil ajSaya">Temanmu yang daftar: <b>${d.saya.daftar}</b> · sudah mulai main: <b>${d.saya.main}</b>${d.saya.baru.length ? '<br>' + d.saya.baru.map(x => `${x.main ? '✅' : '⏳'} @${esc(x.u || 'warga ' + x.no)}`).join(' · ') : ''}</p>`;
+  }
+  if (d.top.length) h += `<p class="kecil plJudul">🏅 Pengajak terbanyak minggu ini</p><div class="pkDaftar">${d.top.map((x, i) => `<div class="pkBaris${S.saya && x.no === S.saya.no ? ' aku' : ''}${i < 3 ? ' juara' : ''}"><span class="pkNo">${['🥇', '🥈', '🥉'][i] || i + 1}</span><span class="pkNama">@${esc(x.u || 'warga ' + x.no)}</span><b>${x.n} teman</b></div>`).join('')}</div>`;
+  $('isiAjak').innerHTML = h;
+  const teks = `Aku warga No. ${S.saya?.no || ''} di Desa Dunia Kotak 🏡 Daftar gratis lewat link ini, nanti kita sama-sama dapat permata 💎.${d.kurang ? ` Kurang ${d.kurang} warga lagi Dusun Segara dibuka!` : ''}`;
+  const salin = async () => { try { await navigator.clipboard.writeText(teks + ' ' + linkAjak()); toast('🔗 Link ajak disalin. Tempel di chat, story, atau bio.', 3000); } catch (e) { prompt('Salin link ini:', linkAjak()); } };
+  if ($('ajBagi')) $('ajBagi').onclick = async () => { try { if (navigator.share) { await navigator.share({title: 'Desa Dunia Kotak', text: teks, url: linkAjak()}); return; } } catch (e) { if (e && e.name === 'AbortError') return; } salin(); };
+  if ($('ajWa')) $('ajWa').onclick = () => window.open('https://wa.me/?text=' + encodeURIComponent(teks + ' ' + linkAjak()), '_blank');
+  if ($('ajSalin')) $('ajSalin').onclick = salin;
 }
 // ---------- Piala Antardusun Mingguan (Huda 9 Nov 2026) ----------
 // Finish Pelari Kalcer (+10, maks 3x/hari) & gol stadion (+2, maks 5/hari) = poin untuk dusun sendiri. Juara Senin–Minggu
@@ -2392,6 +2419,7 @@ function aturHUD() {
   $('bPanduan').onclick = () => { $('panelAtur').hidden = true; panduan(); };
   $('bAtur').onclick = () => { $('jamAtur').textContent = $('jam').textContent.replace(/\s+/g, ' ').trim(); $('panelAtur').hidden = false; }; $('tutupAtur').onclick = () => { $('panelAtur').hidden = true; };
   $('bVoting').onclick = () => { $('panelAtur').hidden = true; bukaVoting(); };
+  $('bAjak').onclick = () => { $('panelAtur').hidden = true; bukaAjak(); }; $('tutupAjak').onclick = () => { $('panelAjak').hidden = true; };
   $('bPendukung').onclick = bukaPendukung; $('tutupPendukung').onclick = () => { $('panelPendukung').hidden = true; };
   siapIklan();
   $('bProfesi').onclick = () => { $('panelAtur').hidden = true; bukaProfesi(); }; $('pfProfesiB').onclick = () => { $('panelProfil').hidden = true; bukaProfesi(); }; $('tutupProfesi').onclick = () => { $('panelProfesi').hidden = true; };

@@ -419,3 +419,14 @@ a.pdSaweria{display:block;text-align:center;text-decoration:none;margin-top:6px}
 .plSaya,.plAturan,.plJudul{text-align:left;margin:6px 2px}
 .plTop{max-height:min(200px,calc(32*var(--vh,1vh)))}
 .plLari{display:block;width:100%;margin:6px 0 10px;border:0;border-radius:99px;background:#ffd75a;color:#3a2a00;font:900 14px Montserrat,sans-serif;padding:10px 12px;cursor:pointer}
+
+/* Ajak Tetangga (9 Nov 2026) */
+.barisAtur.ajakAtur{border-color:rgba(255,207,122,.6);background:rgba(255,207,122,.12)}
+.ajBar{border:1px solid rgba(92,184,255,.45);background:rgba(92,184,255,.12);border-radius:14px;padding:10px 12px;margin-bottom:8px;text-align:left}
+.ajJudul{font:800 14px Montserrat,sans-serif;color:#fff;margin-bottom:6px}.ajJudul b{color:var(--emas);font-size:17px}
+.ajTrek{height:12px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}.ajTrek i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#5cb8ff,#7ee08a)}
+.ajAngka{display:flex;justify-content:space-between;font:700 11px Montserrat,sans-serif;color:var(--redup);margin-top:4px}
+.ajKet,.ajSaya{text-align:left;margin:6px 2px}
+.ajLink{border:1px dashed var(--garis);border-radius:10px;padding:8px 10px;font:700 13px Montserrat,sans-serif;color:var(--emas);word-break:break-all;margin:6px 0;user-select:text;-webkit-user-select:text}
+.ajTombol{display:flex;gap:6px;margin-bottom:8px}.ajTombol button{flex:1;margin:0;border:1px solid var(--garis);border-radius:99px;background:rgba(255,255,255,.08);color:#fff;font:800 13px Montserrat,sans-serif;padding:9px 6px}
+.ajTombol button.utama{background:var(--emas);color:#2a1a05;border-color:var(--emas)}
