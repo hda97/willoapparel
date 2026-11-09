@@ -91,6 +91,13 @@ const PK_MISI_KOIN = 10;
 const PK_MISI_DESA = 15;
 // Lintasan (Huda 9 Nov): 7 rute 1 KM, urutan sama dengan pelarikalcer-kotak/src/lintasan.js. Rute ke-n terbuka setelah finish
 // sah rute ke-(n-1); progres disimpan di kolom pelari ($.rb = indeks rute tertinggi yang terbuka).
+// Piala Antardusun Mingguan (Huda 9 Nov 2026): tiap finish Pelari Kalcer & gol stadion = poin untuk dusun warga itu.
+// Minggu = Senin 00.00 – Minggu 23.59 WIB (sama dengan Juragan Minggu Ini). Dusun dengan poin terbanyak = juara minggu itu:
+// bendera emas di gapura dusunnya selama minggu berikutnya. Hadiah hanya tampilan/gelar (tidak menambah koin/permata).
+// Batas harian per warga supaya satu orang tidak bisa memborong poin dusun: 3 finish berpoin + 5 gol berkoin.
+const PIALA_LARI = 10, PIALA_LARI_HARI = 3, PIALA_GOL = 2;
+const PIALA_DUSUN = ["wetan", "kulon", "curug", "tlaga", "segara"];
+const dusunNo = (no) => (no > 860 ? "segara" : no > 660 ? "tlaga" : no > 460 ? "curug" : no > 260 ? "kulon" : "wetan");
 const PK_RUTE = ["CFD Kotak Wetan", "Jakarta Sudirman CFD", "Jogja Borobudur", "Bali Sanur", "Siksorogo Lawu", "Bromo Trail", "Dieng & Rinjani"];
 const PK_MISI = { lari1: (p) => p.fh >= 1, lari3: (p) => p.fh >= 3, koin30: (p) => p.km >= 30, top5: (p) => p.pb > 0 && p.pb <= 5, iso: (p) => !!p.iso, mulus: (p) => !!p.mulus, cepat: (p) => p.rh > 0 && p.rh <= 330 };
 function pkMisiHari(hari) { const lain = Object.keys(PK_MISI).slice(1); let h = 0; for (const c of hari) h = (h * 31 + c.charCodeAt(0)) >>> 0;
@@ -264,6 +271,8 @@ export class Warga extends DurableObject {
       this.sql.exec("DELETE FROM suara WHERE put = ? AND calon = ? AND no = ?", PUTARAN_VOTING, x.calon, x.no);
     }
     this.sql.exec("CREATE TABLE IF NOT EXISTS rahasia (k TEXT PRIMARY KEY, v TEXT, t INTEGER)");
+    // Piala Antardusun: poin warga per minggu (mg = Senin WIB), d = dusun saat poin didapat, lh = finish berpoin hari itu
+    this.sql.exec("CREATE TABLE IF NOT EXISTS piala (mg TEXT, no INTEGER, d TEXT, poin INTEGER DEFAULT 0, lari INTEGER DEFAULT 0, gol INTEGER DEFAULT 0, hari TEXT, lh INTEGER DEFAULT 0, PRIMARY KEY (mg, no))");
     this.sql.exec("CREATE TABLE IF NOT EXISTS donasi (id TEXT PRIMARY KEY, t INTEGER, no INTEGER, rp INTEGER, bintang INTEGER, nama TEXT, pesan TEXT)");
     // juragan = riwayat pemegang mahkota Juragan Bata (baris terbaru = pemegang sekarang); plakat = nama di plakat fasum
     this.sql.exec("CREATE TABLE IF NOT EXISTS juragan (id INTEGER PRIMARY KEY AUTOINCREMENT, no INTEGER, t INTEGER, mg TEXT)");
@@ -284,6 +293,42 @@ export class Warga extends DurableObject {
       this.sql.exec("DELETE FROM sqlite_sequence WHERE name = 'warga'");
       this.sql.exec("INSERT INTO sqlite_sequence (name, seq) VALUES ('warga', ?)", 64);
     }
+  }
+  // ---- Piala Antardusun Mingguan ----
+  // jenis "lari" (finish sah) atau "gol" (gol berkoin). Mengembalikan {dapat, d, nd} atau null bila jatah harian habis.
+  tambahPiala(no, jenis) {
+    try {
+      const kini = Date.now(), mg = mingguWib(kini), hari = hariWib(kini), d = dusunNo(no);
+      const x = this.sql.exec("SELECT lh, hari FROM piala WHERE mg = ? AND no = ?", mg, no).toArray()[0];
+      const lh = x && x.hari === hari ? x.lh || 0 : 0;
+      if (jenis === "lari" && lh >= PIALA_LARI_HARI) return null;
+      const dapat = jenis === "lari" ? PIALA_LARI : PIALA_GOL;
+      this.sql.exec("INSERT INTO piala (mg, no, d, poin, lari, gol, hari, lh) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (mg, no) DO UPDATE SET d = excluded.d, poin = poin + excluded.poin, lari = lari + excluded.lari, gol = gol + excluded.gol, hari = excluded.hari, lh = ?",
+        mg, no, d, dapat, jenis === "lari" ? 1 : 0, jenis === "gol" ? 1 : 0, hari, jenis === "lari" ? 1 : 0, jenis === "lari" ? lh + 1 : lh);
+      const nd = this.sql.exec("SELECT COALESCE(SUM(poin), 0) AS n FROM piala WHERE mg = ? AND d = ?", mg, d).toArray()[0].n;
+      return { dapat, d, nd };
+    } catch (e) { return null; }
+  }
+  // Klasemen satu minggu: 5 dusun urut poin (seri: dusun dengan pemain lebih sedikit di atas, lalu urutan dusun).
+  klasemenPiala(mg) {
+    const per = {}; for (const d of PIALA_DUSUN) per[d] = { d, poin: 0, pemain: 0 };
+    for (const x of this.sql.exec("SELECT d, SUM(poin) AS poin, COUNT(*) AS pemain FROM piala WHERE mg = ? AND poin > 0 GROUP BY d", mg).toArray()) if (per[x.d]) per[x.d] = { d: x.d, poin: x.poin, pemain: x.pemain };
+    return Object.values(per).sort((a, b) => b.poin - a.poin || a.pemain - b.pemain || PIALA_DUSUN.indexOf(a.d) - PIALA_DUSUN.indexOf(b.d));
+  }
+  topPiala(mg, d, n) {
+    return this.sql.exec(`SELECT p.no, p.d, p.poin, p.lari, p.gol, w.ig, w.tiktok FROM piala p LEFT JOIN warga w ON w.no = p.no WHERE p.mg = ? AND p.poin > 0 ${d ? "AND p.d = ?" : ""} ORDER BY p.poin DESC, p.no ASC LIMIT ${n}`, ...(d ? [mg, d] : [mg])).toArray()
+      .map((x) => ({ no: x.no, u: x.ig || x.tiktok || "", d: x.d, poin: x.poin, lari: x.lari, gol: x.gol }));
+  }
+  // Data publik papan Piala: minggu ini + juara minggu lalu (gapura berbendera emas).
+  piala(no) {
+    const kini = Date.now(), mg = mingguWib(kini), lalu = mingguWib(kini - 7 * 864e5);
+    const tutup = Date.parse(mg + "T00:00:00+07:00") + 7 * 864e5;
+    const kl = this.klasemenPiala(mg), kll = this.klasemenPiala(lalu);
+    const juara = kll[0] && kll[0].poin > 0 ? { d: kll[0].d, poin: kll[0].poin, mg: lalu, top: this.topPiala(lalu, kll[0].d, 3) } : null;
+    const out = { mg, tutup, klasemen: kl, top: this.topPiala(mg, "", 10), juara, aturan: { lari: PIALA_LARI, lariHari: PIALA_LARI_HARI, gol: PIALA_GOL } };
+    if (no) { const x = this.sql.exec("SELECT poin, lari, gol, hari, lh FROM piala WHERE mg = ? AND no = ?", mg, no).toArray()[0];
+      out.saya = { no, d: dusunNo(no), poin: x ? x.poin : 0, lari: x ? x.lari : 0, gol: x ? x.gol : 0, sisaLari: PIALA_LARI_HARI - (x && x.hari === hariWib(kini) ? x.lh || 0 : 0) }; }
+    return out;
   }
   // Catat arus ekonomi: jenis "+koin:hadir", "-permata:profesi", dst. n = jumlah koin/permata.
   arus(jenis, n) { n = Math.floor(+n || 0); if (!n) return; try { this.sql.exec("INSERT INTO arus (hari, jenis, n) VALUES (?, ?, ?) ON CONFLICT (hari, jenis) DO UPDATE SET n = n + excluded.n", hariWib(), jenis, n); } catch (e) {} }
@@ -571,6 +616,7 @@ export class Warga extends DurableObject {
         ms.g = ms.g || 0;
         if (ms.g < 5 && kini2 - (ms.gt || 0) > 20000) {
           ms.g += 1; ms.gt = kini2; dapat = 5; this.arus("+koin:gol", dapat);
+          r._piala = this.tambahPiala(r.no, "gol");
           this.sql.exec("UPDATE warga SET koin = COALESCE(koin, 0) + ?, koinTotal = COALESCE(koinTotal, 0) + ?, misi = ? WHERE no = ?", dapat, dapat, JSON.stringify(ms), r.no);
           r.koin = (r.koin || 0) + dapat;
         }
@@ -615,7 +661,7 @@ export class Warga extends DurableObject {
       }
       let av = null; try { av = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
       let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
-      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, kucing: kc, koin: r.koin || 0, misi: ms.s, gol: ms.g || 0, dapat, bagi: r.bagi ? 1 : 0, nama: r.nama || "", kerja: r.kerja || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat, permata: r.permata || 0, hias: this.bacaHias(r), kebun: this.infoKebun(this.bacaKebun(r)), bibit: BIBIT, tas: this.bacaTas(r).isi, tasImpor: this.bacaTas(r)._impor ? 1 : 0, koinTotal: r.koinTotal || r.koin || 0, profesi: this.infoProfesi(this.bacaProfesi(r)), daftarProfesi: PROFESI, pemula: { s: pm, boleh: bolehPemula, dapat: dapatPm }, hadir: { ...hadirInfo, dapat: dapatHadir }, dapatPermata, ...(pulang ? { pulang } : {}) });
+      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, kucing: kc, koin: r.koin || 0, misi: ms.s, gol: ms.g || 0, dapat, bagi: r.bagi ? 1 : 0, nama: r.nama || "", kerja: r.kerja || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat, permata: r.permata || 0, hias: this.bacaHias(r), kebun: this.infoKebun(this.bacaKebun(r)), bibit: BIBIT, tas: this.bacaTas(r).isi, tasImpor: this.bacaTas(r)._impor ? 1 : 0, koinTotal: r.koinTotal || r.koin || 0, profesi: this.infoProfesi(this.bacaProfesi(r)), daftarProfesi: PROFESI, pemula: { s: pm, boleh: bolehPemula, dapat: dapatPm }, hadir: { ...hadirInfo, dapat: dapatHadir }, dapatPermata, ...(pulang ? { pulang } : {}), ...(r._piala ? { piala: r._piala } : {}) });
     }
     // ---- Voting fasum berbintang ----
     if (aksi === "voting") {
@@ -640,6 +686,7 @@ export class Warga extends DurableObject {
     }
     if (aksi === "voting-publik") return Response.json(this.hasilVoting());
     if (aksi === "pendukung") return Response.json(this.pendukung());
+    if (aksi === "piala") return Response.json(this.piala(Math.max(0, Math.floor(+u.searchParams.get("no") || 0))));
     if (aksi === "iuran") {
       const q = await request.json();
       const r = this.sql.exec("SELECT no, koin, permata FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
@@ -751,12 +798,13 @@ export class Warga extends DurableObject {
           if (ri === (p.rb || 0) && ri < PK_RUTE.length - 1) { p.rb = ri + 1; info.ruteBaru = PK_RUTE[ri + 1]; }
           const t = Math.round(w * 10) / 10; info.rekorBaru = !p.r || t < p.r; info.rekorHariBaru = !p.rh || t < p.rh;
           if (info.rekorBaru) p.r = t; if (info.rekorHariBaru) p.rh = t;
+          const pl = this.tambahPiala(r.no, "lari"); if (pl) info.piala = pl;
           if (p.sh !== hari) { p.st = p.sh === kemarin ? (p.st || 0) + 1 : 1; p.sh = hari; info.streakNaik = true; }
           let mm = { t: hari, s: [] }; try { const m0 = r.misi ? JSON.parse(r.misi) : null; if (m0 && m0.t === hari && Array.isArray(m0.s)) mm = m0; } catch (e) {}
           if (!mm.s.includes("pelari")) { mm.s.push("pelari"); koin += PK_MISI_DESA; koinTotal += PK_MISI_DESA; info.misiDesa = PK_MISI_DESA; misiDesa = JSON.stringify(mm); this.arus("+koin:misi-lari", PK_MISI_DESA); }
           // kabar ke Chat Desa: finish pertama hari ini atau rekor baru (worker yang meneruskan ke ruang dusun)
           if (info.streakNaik || info.rekorBaru) { const fm = (x) => Math.floor(x / 60) + ":" + String(Math.floor(x % 60)).padStart(2, "0");
-            info.kabar = { no: r.no, ig: r.ig || r.tiktok || "warga" + r.no, m: "🏃 Finish Pelari Kalcer 1 KM " + PK_RUTE[ri] + " " + fm(t) + (pos ? " · posisi #" + pos : "") + (info.rekorBaru ? " · REKOR BARU!" : "") + (p.st > 1 ? " · lari " + p.st + " hari beruntun" : "") }; }
+            info.kabar = { no: r.no, ig: r.ig || r.tiktok || "warga" + r.no, m: "🏃 Finish Pelari Kalcer 1 KM " + PK_RUTE[ri] + " " + fm(t) + (pos ? " · posisi #" + pos : "") + (info.rekorBaru ? " · REKOR BARU!" : "") + (p.st > 1 ? " · lari " + p.st + " hari beruntun" : "") + (pl ? " · +" + pl.dapat + " poin Piala Dusun" : "") }; }
         }
       } else if (q.op === "misi") {
         const id = String(q.id || "");
@@ -1329,6 +1377,10 @@ async function apiWarga(request, env, url) {
   if (aksi === "usulan" && request.method === "GET") {
     return new Response((await stub.fetch("https://do/usulan-publik")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=30", "access-control-allow-origin": "*" } });
   }
+  if (aksi === "piala" && request.method === "GET") {
+    const no = Math.max(0, Math.min(99999, parseInt(url.searchParams.get("no") || "0", 10) || 0));
+    return new Response((await stub.fetch("https://do/piala" + (no ? "?no=" + no : ""))).body, { headers: { "content-type": "application/json", "cache-control": no ? "no-store" : "public, max-age=30", "access-control-allow-origin": "*" } });
+  }
   if (aksi === "pendukung" && request.method === "GET") {
     return new Response((await stub.fetch("https://do/pendukung")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=30", "access-control-allow-origin": "*" } });
   }
@@ -1388,7 +1440,7 @@ async function apiWarga(request, env, url) {
   }
   if (aksi === "pelari") {
     const q = { kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), id: String(body.id || "").slice(0, 24), bayar: body.bayar === "permata" ? "permata" : "koin", koin: +body.koin || 0,
-      finish: !!body.finish, waktu: +body.waktu || 0, pos: +body.pos || 0, iso: !!body.iso, mulus: !!body.mulus };
+      finish: !!body.finish, waktu: +body.waktu || 0, pos: +body.pos || 0, iso: !!body.iso, mulus: !!body.mulus, rute: Math.max(0, Math.floor(+body.rute || 0)) };
     const r = await stub.fetch("https://do/pelari", { method: "POST", body: JSON.stringify(q) });
     const j = await r.json();
     // Hasil lari diumumkan di Chat Desa (semua dusun), lalu kabar dihapus dari jawaban.

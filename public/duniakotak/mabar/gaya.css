@@ -401,3 +401,21 @@ a.pdSaweria{display:block;text-align:center;text-decoration:none;margin-top:6px}
 .pdPapanKet{margin:0 0 6px}
 .pdJudul{margin:14px 0 4px;font:900 18px Montserrat,sans-serif;color:#fff}
 .pdSemua{text-align:left;margin:10px 0 4px}
+
+/* Piala Antardusun Mingguan (9 Nov 2026) */
+.tabPk{display:flex;gap:6px;justify-content:center;margin:2px 0 8px}
+.tabPk button{border:1px solid var(--garis);border-radius:999px;padding:6px 14px;background:transparent;color:var(--redup);font:800 13px Montserrat,sans-serif}
+.tabPk button.on{background:var(--emas);border-color:var(--emas);color:#2a1a05}
+.plJuara{background:rgba(242,194,48,.14);border:1px solid rgba(242,194,48,.5);border-radius:12px;padding:8px 12px;margin-bottom:8px;font:700 13px Montserrat,sans-serif;color:#fff;text-align:left}
+.plJuara small{display:block;margin-top:3px;color:var(--emas);font-weight:600;font-size:11px}
+.plDaftar{border:1px solid var(--garis);border-radius:14px;margin-bottom:8px;overflow:hidden}
+.plBaris{display:flex;align-items:center;gap:10px;min-height:42px;padding:4px 12px;border-bottom:1px solid rgba(255,255,255,.07);font:800 14px Montserrat,sans-serif;color:#fff;text-align:left}
+.plBaris:last-child{border-bottom:0}.plBaris.aku{background:rgba(90,190,120,.18)}
+.plMedali{width:24px;text-align:center;flex:none}
+.plNama{flex:1;min-width:0;position:relative;padding-bottom:7px}
+.plNama small{margin-left:8px;color:var(--hijau);font-weight:700;font-size:11px}
+.plNama i{position:absolute;left:0;bottom:0;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--emas),#f2a13a);min-width:2px}
+.plBaris b{flex:none;text-align:right;font-size:15px}.plBaris b small{display:block;color:var(--redup);font-size:10px;font-weight:600}
+.plSaya,.plAturan,.plJudul{text-align:left;margin:6px 2px}
+.plTop{max-height:min(200px,calc(32*var(--vh,1vh)))}
+.plLari{display:block;width:100%;margin:6px 0 10px;border:0;border-radius:99px;background:#ffd75a;color:#3a2a00;font:900 14px Montserrat,sans-serif;padding:10px 12px;cursor:pointer}
