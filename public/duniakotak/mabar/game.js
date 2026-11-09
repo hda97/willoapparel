@@ -10,7 +10,7 @@ import {warga, pose as wpose, KULIT, WARNA_RAMBUT, GAYA_RAMBUT} from './js/aset/
 import {kucingMesh, WARNA_KUCING, DAFTAR_KUCING} from './js/aset/kucing.js';
 import {warungMesh, rumahKucingMesh, WARNA_DINDING, WARNA_ATAP} from './js/aset/rumah.js';
 import * as F from './js/aset/fasum.js';
-import {buatNPC} from './js/npc.js?v=20261109npc';
+import {buatNPC} from './js/npc.js?v=20261109pasar';
 import {buatWargaNPC} from './js/wargaNpc.js';
 import {kulon, JALAN_KULON, AWAL_KULON} from './js/kulon.js';
 import {curug, JALAN_CURUG, AWAL_CURUG} from './js/curug.js';
@@ -58,7 +58,7 @@ const HS = {};
 // Hadiah pendukung Bata (Huda 8 Nov 2026): BT no → total Bata donasi, JR = nomor Juragan Bata (mahkota di atap)
 const BT = {}, AL = {}; let JR = 0, TR = 0;   // AL = lencana Album lengkap (bit 1 🎣 ikan, bit 2 🧺 panen)
    // TR = rumah juara Lomba Rumah Terindah minggu lalu (piala emas di atas rumah)
-const lencana = no => (AL[no] & 1 ? '🎣 ' : '') + (AL[no] & 2 ? '🧺 ' : '') + (TR && TR === no ? '🏡 ' : '') + (JR && JR === no ? '👑 ' : '') + (BT[no] >= 1 ? '🧱 ' : '');   // no → {c: cat, p: pagar} (warga lain, dari /api/warga)
+const lencana = no => (AL[no] & 1 ? '🎣 ' : '') + (AL[no] & 2 ? '🧺 ' : '') + (AL[no] & 4 ? '🎪 ' : '') + (TR && TR === no ? '🏡 ' : '') + (JR && JR === no ? '👑 ' : '') + (BT[no] >= 1 ? '🧱 ' : '');   // no → {c: cat, p: pagar} (warga lain, dari /api/warga)
 function bersihAv(a) {
   a = a && typeof a === 'object' ? a : {};
   const jenis = a.jenis === 'P' ? 'P' : 'L';
@@ -1097,7 +1097,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1'};
+const KABAR_LAMA = {ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   const baru = [...document.querySelectorAll('#panelKabar .kbItem[data-k]')].filter(e => !baca(KABAR_LAMA[e.dataset.k]));
@@ -1105,7 +1105,7 @@ function kabarBaru(n = 0) {
   const sibuk = [...document.querySelectorAll('.layarPenuh')].some(e => !e.hidden) || (typeof pemulaKini === 'function' && pemulaKini() && n < 40);
   if (sibuk) { if (n < 120) setTimeout(() => kabarBaru(n + 1), 5000); return; }
   document.querySelectorAll('#panelKabar .kbItem[data-k]').forEach(e => { e.hidden = !baru.includes(e); });
-  $('kbAjakBtn').hidden = !baru.some(e => e.dataset.k === 'ajak'); $('kbRumahBtn').hidden = !baru.some(e => e.dataset.k === 'rumah'); $('kbAlbumBtn').hidden = !baru.some(e => e.dataset.k === 'album'); $('kbNpcBtn').hidden = !baru.some(e => e.dataset.k === 'npc') || DI !== 'wetan' || !I.fas?.[11];
+  $('kbAjakBtn').hidden = !baru.some(e => e.dataset.k === 'ajak'); $('kbRumahBtn').hidden = !baru.some(e => e.dataset.k === 'rumah'); $('kbAlbumBtn').hidden = !baru.some(e => e.dataset.k === 'album'); $('kbPasarBtn').hidden = !baru.some(e => e.dataset.k === 'pasar'); $('kbNpcBtn').hidden = !baru.some(e => e.dataset.k === 'npc') || DI !== 'wetan' || !I.fas?.[11];
   baru.forEach(e => simpan(KABAR_LAMA[e.dataset.k], '1')); bunyi('masuk');
   ambilAjakSingkat();
   $('panelKabar').hidden = false;
@@ -1113,6 +1113,7 @@ function kabarBaru(n = 0) {
   $('kbPialaBtn').onclick = () => { $('panelKabar').hidden = true; bukaPeringkat(); };
   // NPC fasum (Huda 9 Nov 2026): antar ke pintu IGD Rumah Sakit (fas[11])
   $('kbNpcBtn').onclick = () => { $('panelKabar').hidden = true; const f = I.fas[11]; mulaiRute({x: f.x + 6.6 * VS, z: f.z + .6 * VS, nama: 'Rumah Sakit'}, true); };
+  $('kbPasarBtn').onclick = () => { $('panelKabar').hidden = true; bukaPasar(); };
   $('kbAlbumBtn').onclick = () => { $('panelKabar').hidden = true; bukaAlbum(); };
   $('kbRumahBtn').onclick = () => { $('panelKabar').hidden = true; $('panelPeringkat').hidden = false; tabPeringkat('rumah'); };
 }
@@ -1372,25 +1373,152 @@ function skillMancing() {
     }, 700);
   }, tunggu);
 }
+// ---------- Pasar Malam Sabtu (Huda 9 Nov 2026) ----------
+// Tiap Sabtu 19.00–23.00 WIB di lapangan Stadion Kotak Wetan (fas[12]): lapak jajan, bianglala, lampu warna-warni, kembang api,
+// pedagang NPC. Jajan & Lempar Gelang bayar koin (server /api/pasar). Suvenir Lempar Gelang masuk Album (lengkap = lencana 🎪).
+// ?uji_pasar=1 memaksa pasar buka (hanya tampilan; server tetap menolak transaksi di luar jam).
+const PASAR_UJI = new URLSearchParams(location.search).get('uji_pasar') === '1';
+const PASAR_JAJAN = {sate: ['🍢', 'Sate', 6], martabak: ['🥞', 'Martabak', 8], dawet: ['🥤', 'Es dawet', 3], gulali: ['🍭', 'Gulali', 4], jagung: ['🌽', 'Jagung bakar', 5]};
+const SUVENIR = [['🧸', 'Boneka beruang'], ['🐰', 'Boneka kelinci'], ['🎈', 'Balon'], ['🪀', 'Yoyo'], ['🏮', 'Lampion']];
+const PASAR_GELANG = 10;
+function pasarBuka(t = Date.now()) { if (PASAR_UJI) return true; const d = new Date(t + 7 * 3600e3); return d.getUTCDay() === 6 && d.getUTCHours() >= 19 && d.getUTCHours() < 23; }
+function pasarBerikut() { const n = Date.now(); for (let k = 0; k < 8; k++) { const d = new Date(n + 7 * 3600e3 + k * 864e5); if (d.getUTCDay() === 6) { const t = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 19) - 7 * 3600e3; if (t + 4 * 3600e3 > n) return t; } } return n; }
+const PASAR = {g: null, roda: null, gondola: [], kembang: [], tK: 0, umum: false};
+const LAPAK = [[-4.6, -3.2, 'SATE', 0xe0303a], [0, -3.2, 'MARTABAK', 0xf2a020], [4.6, -3.2, 'ES DAWET', 0x3aa860], [-4.6, 3.2, 'GULALI', 0xe06ab0], [0, 3.2, 'LEMPAR GELANG', 0x3a8ad8], [4.6, 3.2, 'JAGUNG BAKAR', 0x9a5ad8]];
+function papanPasar(teks, warna) {
+  const c = document.createElement('canvas'); c.width = 512; c.height = 128; const x = c.getContext('2d');
+  x.fillStyle = '#' + warna.toString(16).padStart(6, '0'); x.fillRect(0, 0, 512, 128); x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  let u = 76; x.font = `900 ${u}px Montserrat, sans-serif`; while (x.measureText(teks).width > 470 && u > 20) { u -= 4; x.font = `900 ${u}px Montserrat, sans-serif`; } x.fillText(teks, 256, 68);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return new THREE.MeshBasicMaterial({map: t});
+}
+function bangunPasar() {
+  const f = I.fas[12], g = new THREE.Group(); g.scale.setScalar(VS); g.position.set(f.x, .48 * VS, f.z);
+  const nyala = c => new THREE.MeshStandardMaterial({color: c, emissive: c, emissiveIntensity: .9});
+  // lapak: meja, tiang, atap belang, papan nama, dagangan
+  for (const [x, z, teks, w] of LAPAK) {
+    const s = Math.sign(z), L = new THREE.Group(); L.position.set(x, 0, z); L.rotation.y = s > 0 ? Math.PI : 0; g.add(L);
+    L.add(kotakD(1.9, .75, .55, 0x8a5a2a, 0, .38, .35));
+    for (const [a, b] of [[-.9, -.45], [.9, -.45], [-.9, .6], [.9, .6]]) L.add(kotakD(.07, 1.9, .07, 0xdddddd, a, .95, b));
+    for (let i = 0; i < 5; i++) { const m = kotakD(.4, .1, 1.3, i % 2 ? 0xffffff : w, -.8 + i * .4, 1.95, .08); m.rotation.x = -.18; L.add(m); }
+    const pn = new THREE.Mesh(new THREE.PlaneGeometry(1.9, .45), papanPasar(teks, w)); pn.position.set(0, 2.32, .62); L.add(pn);
+    for (let i = 0; i < 4; i++) L.add(kotakD(.22, .16, .22, [0xffd23a, 0xff6a3a, 0xffffff, w][i], -.6 + i * .4, .84, .38));
+    const lampu = new THREE.Mesh(new THREE.BoxGeometry(.14, .14, .14), nyala(0xfff2a0)); lampu.position.set(0, 1.78, .4); L.add(lampu);
+  }
+  // bianglala di tengah lapangan
+  const kaki = new THREE.MeshStandardMaterial({color: 0xdddddd, roughness: .6});
+  for (const sz of [-.35, .35]) for (const sx of [-1, 1]) { const k = new THREE.Mesh(new THREE.BoxGeometry(.14, 3.4, .14), kaki); k.position.set(sx * .75, 1.6, sz); k.rotation.z = sx * .24; g.add(k); }
+  const roda = new THREE.Group(); roda.position.set(0, 3.1, 0); g.add(roda); PASAR.roda = roda;
+  const cincin = new THREE.Mesh(new THREE.TorusGeometry(2.3, .06, 6, 40), nyala(0xff4ab0)); roda.add(cincin);
+  const cincin2 = new THREE.Mesh(new THREE.TorusGeometry(1.2, .04, 6, 28), nyala(0x4ad8ff)); roda.add(cincin2);
+  PASAR.gondola = [];
+  for (let i = 0; i < 8; i++) {
+    const a = i / 8 * Math.PI * 2, j = new THREE.Mesh(new THREE.BoxGeometry(.05, 2.3, .05), kaki); j.position.set(Math.cos(a) * 1.15, Math.sin(a) * 1.15, 0); j.rotation.z = a - Math.PI / 2; roda.add(j);
+    const go = new THREE.Group(); go.position.set(Math.cos(a) * 2.3, Math.sin(a) * 2.3, 0); roda.add(go);
+    const kabin = kotakD(.42, .34, .42, [0xe0303a, 0xf2c14a, 0x3a8ad8, 0x3aa860][i % 4], 0, -.3, 0); go.add(kabin); go.add(kotakD(.46, .05, .46, 0xffffff, 0, -.1, 0));
+    PASAR.gondola.push(go);
+  }
+  roda.add(new THREE.Mesh(new THREE.BoxGeometry(.25, .25, .9), nyala(0xffd23a)));
+  // untaian lampu warna-warni dari tiang sudut ke puncak bianglala
+  const bohlam = new THREE.InstancedMesh(new THREE.BoxGeometry(.13, .13, .13), new THREE.MeshBasicMaterial(), 96), mt = new THREE.Matrix4(), cw = new THREE.Color();
+  const sudut = [[-6.4, -4.1], [6.4, -4.1], [-6.4, 4.1], [6.4, 4.1]]; let n = 0;
+  for (const [x, z] of sudut) { g.add(kotakD(.1, 3.2, .1, 0x666666, x, 1.6, z));
+    for (let i = 1; i <= 24; i++) { const t = i / 25, px = x * (1 - t), pz = z * (1 - t), py = 3.2 + (5.4 - 3.2) * t - Math.sin(t * Math.PI) * .8;
+      mt.makeTranslation(px, py, pz); bohlam.setMatrixAt(n, mt); bohlam.setColorAt(n, cw.setHex([0xff4a4a, 0xffd23a, 0x4ad84a, 0x4aa8ff, 0xff6ad8][n % 5])); n++; } }
+  g.add(bohlam);
+  sc.add(g); PASAR.g = g;
+}
+function kembangApi(now) {
+  if (now - PASAR.tK > 2600) { PASAR.tK = now;
+    const f = I.fas[12], N = 48, pos = new Float32Array(N * 3), arah = [];
+    const o = new THREE.Vector3(f.x + (Math.random() - .5) * 60, 70 + Math.random() * 30, f.z + (Math.random() - .5) * 40);
+    for (let i = 0; i < N; i++) { const v = new THREE.Vector3(Math.random() - .5, Math.random() - .5, Math.random() - .5).normalize().multiplyScalar(14 + Math.random() * 6); arah.push(v); pos.set([o.x, o.y, o.z], i * 3); }
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const p = new THREE.Points(geo, new THREE.PointsMaterial({color: [0xff4a4a, 0xffd23a, 0x4ad8ff, 0xff6ad8, 0x7bff7b][Math.floor(Math.random() * 5)], size: 2.2, transparent: true, depthWrite: false}));
+    sc.add(p); PASAR.kembang.push({p, arah, o, t0: now});
+  }
+  PASAR.kembang = PASAR.kembang.filter(k => { const u = (now - k.t0) / 1000; if (u > 1.8) { sc.remove(k.p); k.p.geometry.dispose(); k.p.material.dispose(); return false; }
+    const a = k.p.geometry.attributes.position; for (let i = 0; i < k.arah.length; i++) { const v = k.arah[i]; a.setXYZ(i, k.o.x + v.x * u, k.o.y + v.y * u - 6 * u * u, k.o.z + v.z * u); } a.needsUpdate = true; k.p.material.opacity = 1 - u / 1.8; return true; });
+}
+function animPasar(dt, me) {
+  const ada = DI === 'wetan' && I.fas && I.fas[12] && pasarBuka();
+  if (!ada) { if (PASAR.g) PASAR.g.visible = false; return; }
+  const f = I.fas[12], dekat = Math.hypot(me.position.x - f.x, me.position.z - f.z) < 140 * VS;
+  if (!PASAR.g) bangunPasar();
+  PASAR.g.visible = dekat; if (!dekat) return;
+  PASAR.roda.rotation.z += dt * .25; for (const go of PASAR.gondola) go.rotation.z = -PASAR.roda.rotation.z;
+  if (!hemat) kembangApi(performance.now());
+  if (!PASAR.umum) { PASAR.umum = true; if (!PASAR_UJI) toast('🎪 Pasar Malam sudah buka di Stadion! Jajan, naik bianglala, lempar gelang. Buka ⚙ Atur › 🎪 Pasar Malam.', 5000); }
+}
+function dekatPasar(me) { const f = DI === 'wetan' && I.fas && I.fas[12]; return !!(f && PASAR.g && PASAR.g.visible && Math.abs(me.position.x - f.x) < 7.6 * VS && Math.abs(me.position.z - f.z) < 5 * VS); }
+const GL = {main: false, ke: 0, kena: 0, x: 0, v: 1, raf: 0};
+function tulisPasar() {
+  const buka = pasarBuka(), dekat = dekatPasar(tokoh.saya), koin = S.saya?.koin || 0;
+  let h = '';
+  if (!buka) { const t = pasarBerikut(), sisa = t - Date.now(), j = Math.floor(sisa / 36e5), hr = Math.floor(j / 24);
+    h += `<p class="psStatus">🌙 Buka tiap <b>Sabtu 19.00–23.00 WIB</b> di Stadion Kotak Wetan.<br>Buka lagi ${hr ? hr + ' hari ' + (j % 24) + ' jam' : j ? j + ' jam ' + Math.floor(sisa / 6e4) % 60 + ' menit' : Math.floor(sisa / 6e4) + ' menit'} lagi.</p>`; }
+  else if (DI !== 'wetan') h += `<p class="psStatus">🎪 Pasar Malam <b>sedang buka</b> di Kotak Wetan!</p><button class="utama" id="psKeWetan">🚌 Pindah ke Kotak Wetan</button>`;
+  else if (!dekat) h += `<p class="psStatus">🎪 Pasar Malam <b>sedang buka</b> di lapangan Stadion sampai 23.00 WIB!</p><button class="utama" id="psAntar">🧭 Antar ke Pasar Malam</button>`;
+  else h += `<p class="psStatus">🎪 Sedang buka sampai 23.00 WIB · koinmu <b>${koin} 🪙</b></p>`;
+  const bisa = buka && dekat && !S.tamu;
+  h += `<h3>🍢 Jajan</h3><div class="psJajan">${Object.entries(PASAR_JAJAN).map(([id, [ik, nm, hg]]) => `<button data-jajan="${id}" ${bisa && koin >= hg ? '' : 'disabled'}><i>${ik}</i><b>${nm}</b><small>${hg} 🪙</small></button>`).join('')}</div>
+    <h3>🎯 Lempar Gelang <small>${PASAR_GELANG} 🪙 · 3 gelang</small></h3>
+    <div class="psGelang"><div class="psBar"><span class="psZona"></span><span class="psJarum" id="psJarum"></span></div>
+    <p class="kecil" id="psInfo">Tekan <b>Lempar!</b> saat jarum di zona kuning. Kena 2 dari 3 = suvenir acak (🧸 🐰 🎈 🪀 🏮) masuk Album. Lengkapi 5 suvenir untuk lencana 🎪!</p>
+    <button class="utama" id="psMain" ${bisa && koin >= PASAR_GELANG ? '' : 'disabled'}>🎯 Main (${PASAR_GELANG} 🪙)</button></div>
+    ${S.tamu ? '<p class="kecil">Daftar jadi warga dulu supaya bisa jajan &amp; main.</p>' : ''}`;
+  $('isiPasar').innerHTML = h;
+  if ($('psAntar')) $('psAntar').onclick = () => { $('panelPasar').hidden = true; const f = I.fas[12]; mulaiRute({x: f.x, z: f.z + 5.6 * VS, nama: 'Pasar Malam'}, true); };
+  if ($('psKeWetan')) $('psKeWetan').onclick = () => { $('panelPasar').hidden = true; pindahDusun('wetan'); };
+  $('psMain').onclick = mainGelang;
+}
+function bukaPasar() { GL.main = false; cancelAnimationFrame(GL.raf); tulisPasar(); $('panelPasar').hidden = false; }
+function mainGelang() {
+  if (GL.main) { // lempar
+    const kena = GL.x > .4 && GL.x < .6; GL.kena += kena; GL.ke++; bunyi(kena ? 'masuk' : 'buka');
+    $('psInfo').innerHTML = `Gelang ${GL.ke}/3: ${kena ? '<b class="ok">Kena! 🎯</b>' : 'Meleset…'} · kena ${GL.kena}`;
+    if (GL.ke >= 3) { GL.main = false; cancelAnimationFrame(GL.raf); $('psMain').disabled = true; selesaiGelang(GL.kena); }
+    return;
+  }
+  Object.assign(GL, {main: true, ke: 0, kena: 0, x: 0, v: 1}); $('psMain').textContent = '🎯 Lempar!'; $('psInfo').textContent = 'Tunggu jarum masuk zona kuning…';
+  let t0 = performance.now();
+  const jalan = now => { const dt = (now - t0) / 1000; t0 = now; GL.x += GL.v * dt * (1.1 + GL.ke * .35); if (GL.x > 1) { GL.x = 1; GL.v = -1; } if (GL.x < 0) { GL.x = 0; GL.v = 1; }
+    const j = $('psJarum'); if (j) j.style.left = (GL.x * 100) + '%'; if (GL.main && !$('panelPasar').hidden) GL.raf = requestAnimationFrame(jalan); else GL.main = false; };
+  GL.raf = requestAnimationFrame(jalan);
+}
+async function selesaiGelang(kena) {
+  try { const r = await api('pasar', {kunci: S.kunci, op: 'gelang', kena}); S.saya.koin = r.koin; aturTas(r.tas); aturAlbum(r.album); hitungOnline();
+    const sv = r.hasil.suvenir;
+    $('psInfo').innerHTML = sv ? `<b class="ok">Hore! Kena ${kena}×, dapat ${sv.ikon} ${esc(sv.nama)}!</b>${sv.baru ? ' 📖 Baru di Album!' : ''}` : `Kena ${kena}×. Sayang sekali, kurang ${2 - kena} lagi. Coba lagi!`;
+    if (sv) { bunyi('emosi'); tokoh.saya.userData.gel = {m: sv.ikon, emo: true, sampai: performance.now() + 2500}; if (sv.baru) albumBaru(); }
+  } catch (e) { $('psInfo').textContent = e.message; }
+  setTimeout(() => { if (!$('panelPasar').hidden && !GL.main) { const m = $('psMain'); if (m) { m.disabled = (S.saya?.koin || 0) < PASAR_GELANG; m.textContent = `🎯 Main lagi (${PASAR_GELANG} 🪙)`; } } }, 1200);
+}
+document.addEventListener('click', async e => {
+  const b = e.target.closest?.('[data-jajan]'); if (!b || b.disabled) return; b.disabled = true;
+  try { const r = await api('pasar', {kunci: S.kunci, op: 'jajan', id: b.dataset.jajan}); S.saya.koin = r.koin; hitungOnline();
+    bunyi('emosi'); tokoh.saya.userData.gel = {m: r.hasil.ikon, emo: true, sampai: performance.now() + 2500}; toast(`${r.hasil.ikon} Nyam! ${r.hasil.nama} enak sekali. (-${r.hasil.harga} 🪙)`, 2500); tulisPasar(); }
+  catch (err) { toast(err.message, 3000); b.disabled = false; }
+});
 // ---------- Album Ikan & Panen (Huda 9 Nov 2026) ----------
 // Koleksi: tiap ikan/barang dari sungai & tiap hasil kebun yang pernah didapat (server: tas._al). Lengkap = lencana 🎣 / 🧺 di nama (tampilan saja).
 const ALBUM_IKAN = IKAN.map(x => x[2]);
 const ALBUM_PANEN = () => Object.values(S.saya?.bibit || {tomat: {nama: 'Tomat', ikon: '🍅', harga: 10}, jagung: {nama: 'Jagung', ikon: '🌽', harga: 20}, cabai: {nama: 'Cabai', ikon: '🌶️', harga: 30}});
 let ALBUM = {};
-function aturAlbum(a) { if (a && typeof a === 'object') ALBUM = a; if (!S.tamu && S.saya) { const h = albumHitung(); AL[S.saya.no] = (h.ikan === ALBUM_IKAN.length ? 1 : 0) | (h.panen === ALBUM_PANEN().length ? 2 : 0); } if ($('panelAlbum') && !$('panelAlbum').hidden) tulisAlbum(); }
+function aturAlbum(a) { if (a && typeof a === 'object') ALBUM = a; if (!S.tamu && S.saya) { const h = albumHitung(); AL[S.saya.no] = (h.ikan === ALBUM_IKAN.length ? 1 : 0) | (h.panen === ALBUM_PANEN().length ? 2 : 0) | (h.suvenir === SUVENIR.length ? 4 : 0); } if ($('panelAlbum') && !$('panelAlbum').hidden) tulisAlbum(); }
 const albumPunya = n => !!(ALBUM[n] || (S.tamu && tas[n]));
-function albumHitung() { return {ikan: ALBUM_IKAN.filter(albumPunya).length, panen: ALBUM_PANEN().filter(b => albumPunya(b.nama)).length}; }
+function albumHitung() { return {ikan: ALBUM_IKAN.filter(albumPunya).length, panen: ALBUM_PANEN().filter(b => albumPunya(b.nama)).length, suvenir: SUVENIR.filter(x => albumPunya(x[1])).length}; }
 function albumBaru() { bunyi('emosi'); aturAlbum(); }
 const tglAlbum = t => t > 1 ? new Date(t + 7 * 3600e3).toISOString().slice(5, 10).split('-').reverse().join('/') : '';
 function tulisAlbum() {
-  const h = albumHitung(), nI = ALBUM_IKAN.length, nP = ALBUM_PANEN().length, total = h.ikan + h.panen;
+  const h = albumHitung(), nI = ALBUM_IKAN.length, nP = ALBUM_PANEN().length + SUVENIR.length, total = h.ikan + h.panen + h.suvenir;
   const kartu = (punya, ikon, nama, info) => `<div class="alKartu${punya ? ' on' : ''}"><i>${punya ? ikon : '❓'}</i><b>${punya ? esc(nama) : '???'}</b><small>${info}</small></div>`;
   const ikan = IKAN.map(([p, ik, nm]) => kartu(albumPunya(nm), ik, nm, albumPunya(nm) ? (tglAlbum(ALBUM[nm]) ? 'pertama ' + tglAlbum(ALBUM[nm]) : 'sudah dapat') : p >= 28 ? 'umum · mancing di sungai' : p >= 11 ? 'agak jarang' : p >= 5 ? 'kadang nyangkut, he he' : '✨ langka sekali!')).join('');
   const panen = ALBUM_PANEN().map(b => kartu(albumPunya(b.nama), b.ikon, b.nama, albumPunya(b.nama) ? (tglAlbum(ALBUM[b.nama]) ? 'pertama ' + tglAlbum(ALBUM[b.nama]) : 'sudah panen') : `tanam bibit ${esc(b.nama)} (${b.harga} 🪙), panen 6 jam`)).join('');
   $('isiAlbum').innerHTML = `<div class="alBar"><span style="width:${Math.round(total / (nI + nP) * 100)}%"></span></div><p class="kecil">Terkumpul <b>${total}/${nI + nP}</b>${S.tamu ? ' · daftar jadi warga supaya albummu tersimpan' : ''}</p>
     <h3>🎣 Ikan & temuan sungai <small>${h.ikan}/${nI}</small></h3><div class="alGrid">${ikan}</div>
-    <h3>🧺 Hasil kebun <small>${h.panen}/${nP}</small></h3><div class="alGrid">${panen}</div>
-    <p class="kecil">Lengkapi semua ikan → lencana <b>🎣</b> di namamu. Lengkapi semua hasil kebun → lencana <b>🧺</b>. Semua warga bisa melihatnya!</p>`;
+    <h3>🧺 Hasil kebun <small>${h.panen}/${ALBUM_PANEN().length}</small></h3><div class="alGrid">${panen}</div>
+    <h3>🎪 Suvenir Pasar Malam <small>${h.suvenir}/${SUVENIR.length}</small></h3><div class="alGrid">${SUVENIR.map(([ik, nm]) => kartu(albumPunya(nm), ik, nm, albumPunya(nm) ? (tglAlbum(ALBUM[nm]) ? 'pertama ' + tglAlbum(ALBUM[nm]) : 'sudah dapat') : 'Lempar Gelang, Sabtu malam')).join('')}</div>
+    <p class="kecil">Lengkapi semua ikan → lencana <b>🎣</b>. Semua hasil kebun → <b>🧺</b>. Semua suvenir → <b>🎪</b>. Lencana tampil di namamu!</p>`;
 }
 function bukaAlbum() { tulisAlbum(); $('panelAlbum').hidden = false; }
 let makanT = 0;
@@ -1412,13 +1540,14 @@ function beriMakan(me, c, nama, ikon) {
 }
 function animSkill(dt, me) {
   const now = performance.now();
+  animPasar(dt, me);
   if (now - itemT > 1500) { itemT = now; isiItem(me); }
   for (const it of itemDunia) { const u = it.userData; u.ph += dt; it.position.y = (u.y0 || 0) + 1.4 + Math.sin(u.ph * 2) * .4; it.rotation.y += dt * 1.2; }
   for (const c of [tokoh.oyen, ...kucingHidup]) if (c && c.userData.senang > now) c.position.y = Math.abs(Math.sin(now / 90)) * .6;
   // tombol skill menyala bila bisa dipakai
   const t = now | 0; if (t % 4 === 0 || !animSkill.t || now - animSkill.t > 300) { animSkill.t = now;
     // tombol hanya muncul saat skill bisa dipakai; joran sedang dipakai = tombol Mancing hilang
-    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sSuka: !!rumahTetangga(me), sLari: dekatGapuraCFD(me), sLift: !!(I.gedung && I.gedung.dekatLift(me.position.x, me.position.z))};
+    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sSuka: !!rumahTetangga(me), sLari: dekatGapuraCFD(me), sPasar: dekatPasar(me), sLift: !!(I.gedung && I.gedung.dekatLift(me.position.x, me.position.z))};
     for (const id in bisa) { const b = $(id); if (b.classList.contains('siap') !== bisa[id] || b.hidden === bisa[id]) { b.classList.toggle('siap', bisa[id]); b.hidden = !bisa[id]; } }
     if (air) misiMaju('sungai'); }
 }
@@ -1680,8 +1809,10 @@ const SESI = [   // 5 event sehari (Huda 4 Nov)
   {j: [20, 21], nama: 'Main Bola Malam', tempat: 'stadion', label: 'Stadion', ikon: '⚽'},
 ];
 const jamTeks = h => String(Math.floor(h)).padStart(2, '0') + '.' + String(Math.round(h % 1 * 60)).padStart(2, '0');
-const sesiKini = () => { const j = jamWIB(); return SESI.find(x => j >= x.j[0] && j < x.j[1]) || null; };
-const sesiBerikut = () => { const j = jamWIB(); return SESI.find(x => j < x.j[0]) || SESI[0]; };
+// Sabtu malam: sesi bola 20.00 di stadion jadi Pasar Malam (lapangan dipakai lapak & bianglala)
+const sesiPasar = x => x && x.tempat === 'stadion' && x.j[0] === 20 && pasarBuka() ? {...x, nama: 'Pasar Malam', ikon: '🎪'} : x;
+const sesiKini = () => { const j = jamWIB(); return sesiPasar(SESI.find(x => j >= x.j[0] && j < x.j[1]) || null); };
+const sesiBerikut = () => { const j = jamWIB(); return sesiPasar(SESI.find(x => j < x.j[0]) || SESI[0]); };
 const jamKumpul = () => !!sesiKini();
 const daftarSesi = () => SESI.map(x => `${jamTeks(x.j[0])}–${jamTeks(x.j[1])}`).join(', ');
 let kumpulDiumumkan = '';
@@ -2060,7 +2191,7 @@ function bolaTerima(q) {
 function bolaUpdate(dt, me) {
   const L = bolaLapangan(); if (!L || !me) return;
   if (!BOLA.m) bolaBuat(L);
-  const jauh = Math.hypot(me.position.x - L.cx, me.position.z - L.cz) > 60 * VS; BOLA.m.visible = !jauh; if (jauh) return;
+  const jauh = Math.hypot(me.position.x - L.cx, me.position.z - L.cz) > 60 * VS || pasarBuka(); BOLA.m.visible = !jauh; if (jauh) return;
   dt = Math.min(dt, .05); const now = performance.now();
   // tendangan warga (aku): kaki menyentuh bola
   const dxm = BOLA.x - me.position.x, dzm = BOLA.z - me.position.z;
@@ -2447,7 +2578,7 @@ async function mulai() {
   tokoh.raka = raka('senang'); tokoh.raka.traverse(m => { if (m.isMesh) m.castShadow = true; }); tokoh.raka.position.set(L1.gate.x + 1.6 * VS, 0, L1.gate.z + L1.dir * 1.1 * VS); tokoh.raka.rotation.y = L1.dir === 1 ? .3 : Math.PI + .3; sc.add(tokoh.raka);
   tokoh.oyen = kucingMesh('oranye'); tokoh.oyen.traverse(m => { if (m.isMesh) m.castShadow = true; }); tokoh.oyen.position.set(L1.gate.x + 2.4 * VS, 0, L1.gate.z + L1.dir * 1.7 * VS); sc.add(tokoh.oyen);
   tokoh.oyen.userData.ph = 0;
-  npc = buatNPC({sc, I, VS, warga, pose: wpose, siapAv: bersihAv, bayangan: !hemat, tinggi: (x, z, r) => tanah(x, z, r)});
+  npc = buatNPC({sc, I, VS, warga, pose: wpose, siapAv: bersihAv, bayangan: !hemat, tinggi: (x, z, r) => tanah(x, z, r), pasar: () => DI === 'wetan' && pasarBuka()});
   // warga offline jadi NPC (Huda 6 Nov 2026), dimuat di belakang supaya tidak menunda layar masuk
   wnpc = buatWargaNPC({sc, I, VS, warga, pose: wpose, siapAv: bersihAv, bayangan: false, tinggi: (x, z, r) => tanah(x, z, r)});
   muatWargaNPC();
@@ -2515,7 +2646,8 @@ function aturHUD() {
   $('bDusun').onclick = pilihDusun;
   musikSiap();
   // pointerdown (bukan click): click tidak terpicu di HP saat jari lain masih menahan joystick -> bisa lompat sambil lari
-  $('sLari').onclick = ikutLari;
+  $('sLari').onclick = ikutLari; $('sPasar').onclick = bukaPasar;
+  $('bPasar').onclick = () => { $('panelAtur').hidden = true; bukaPasar(); }; $('tutupPasar').onclick = () => { $('panelPasar').hidden = true; };
   $('sLift').onclick = () => { const d = I.gedung && I.gedung.dekatLift(tokoh.saya.position.x, tokoh.saya.position.z); if (d) bukaLift(d); };
   $('sLompat').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); mulaiLompat(); }); $('sTendang').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); skillTendang(); }); $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan(); $('sPanen').onclick = () => skillPanen(); $('sTanam').onclick = () => bukaTanam(); $('sJual').onclick = () => skillJual(); $('sKerja').onclick = () => skillKerja(); $('sSuka').onclick = () => sukaRumah(); $('tutupKerja').onclick = () => { $('panelKerja').hidden = true; }; $('tutupTanam').onclick = () => { $('panelTanam').hidden = true; };
   // semua tombol skill bereaksi saat disentuh (pointerdown), jadi tetap jalan walau jari lain menahan joystick

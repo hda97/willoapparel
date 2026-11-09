@@ -78,6 +78,12 @@ const BATAS_AMBIL = 60, BATAS_MANCING = 40;   // per hari WIB
 // Album Ikan & Panen (Huda 9 Nov 2026): koleksi pertama kali dapat tiap ikan (mancing) & hasil kebun (panen), disimpan di tas._al
 // {nama: waktu}. Album lengkap = lencana (tampilan saja): bit 1 = 🎣 semua ikan, bit 2 = 🧺 semua hasil panen (tas._alb).
 const ALBUM_IKAN = IKAN.map((i) => i[2]);
+// Pasar Malam Sabtu (Huda 9 Nov 2026): tiap Sabtu 19.00–23.00 WIB di lapangan Stadion Kotak Wetan. Jajan & Lempar Gelang bayar koin
+// (penyerap koin mengendap). Lempar Gelang kena >= 2 dari 3 = suvenir acak masuk tas & Album (lengkap 5 = lencana 🎪, bit 4).
+const PASAR_JAJAN = { sate: ["🍢", "Sate", 6], martabak: ["🥞", "Martabak", 8], dawet: ["🥤", "Es dawet", 3], gulali: ["🍭", "Gulali", 4], jagung: ["🌽", "Jagung bakar", 5] };
+const PASAR_GELANG = 10, PASAR_GELANG_HARI = 10, PASAR_JAJAN_HARI = 20;
+const SUVENIR = [["🧸", "Boneka beruang"], ["🐰", "Boneka kelinci"], ["🎈", "Balon"], ["🪀", "Yoyo"], ["🏮", "Lampion"]];
+const pasarBuka = (t) => { const d = new Date(t + 7 * 3600e3); return d.getUTCDay() === 6 && d.getUTCHours() >= 19 && d.getUTCHours() < 23; };
 const KOIN_PER_PERMATA = 10;
 // Pelari Kalcer Dunia Kotak (Huda 7 Nov 2026): koin game lari = koin Dunia Kotak (satu dompet), top up Saweria = permata.
 // Koin hasil lari dibatasi supaya ekonomi desa tidak banjir: maks PK_MAKS_LARI per lari, PK_MAKS_HARI per hari WIB,
@@ -125,7 +131,7 @@ const IKLAN_PERMATA = 3, IKLAN_BATAS = 3, IKLAN_MIN = 8000;
 const PANEN_JEDA = 6 * 3600e3, PANEN_PERMATA = 2;
 // Bibit & jual hasil panen (audit ekonomi, Huda 6 Nov 2026): bibit dibeli koin tiap tanam, panen = 5 hasil + 2 permata,
 // hasil dijual di warung depan rumah (batas 60 hasil/hari). Untung terbaik +20 koin per panen (cabai).
-const albumBit = (al) => (ALBUM_IKAN.every((n) => al[n]) ? 1 : 0) | (Object.values(BIBIT).every((b) => al[b.nama]) ? 2 : 0);
+const albumBit = (al) => (ALBUM_IKAN.every((n) => al[n]) ? 1 : 0) | (Object.values(BIBIT).every((b) => al[b.nama]) ? 2 : 0) | (SUVENIR.every((x) => al[x[1]]) ? 4 : 0);
 const BIBIT = { tomat: { nama: "Tomat", ikon: "🍅", harga: 10, hasil: 5, jual: 6 }, jagung: { nama: "Jagung", ikon: "🌽", harga: 20, hasil: 5, jual: 9 }, cabai: { nama: "Cabai", ikon: "🌶️", harga: 30, hasil: 5, jual: 14 } };
 const BATAS_JUAL = 60;
 // Audit ekonomi #2 (Huda 6 Nov 2026): harga jual kebun naik (tomat 6, jagung 9, cabai 14) dan IKAN bisa dijual di warung
@@ -473,7 +479,7 @@ export class Warga extends DurableObject {
   bacaTas(r) { let t = {}; try { t = r.tas ? JSON.parse(r.tas) : {}; } catch (e) {} t.isi = t.isi && typeof t.isi === "object" ? t.isi : {};
     // album: yang sudah ada di tas (sebelum fitur album) langsung tercatat
     t._al = t._al && typeof t._al === "object" ? t._al : {};
-    for (const n of Object.keys(t.isi)) if (!t._al[n] && (ALBUM_IKAN.includes(n) || Object.values(BIBIT).some((b) => b.nama === n))) t._al[n] = 1;
+    for (const n of Object.keys(t.isi)) if (!t._al[n] && (ALBUM_IKAN.includes(n) || SUVENIR.some((x) => x[1] === n) || Object.values(BIBIT).some((b) => b.nama === n))) t._al[n] = 1;
     t._alb = albumBit(t._al); return t; }
   hiasPakai(r) { const h = this.bacaHias(r); return { cat: h.cat || "krem", pagar: h.pagar || "putih", topi: h.topi || "tanpa", rumah: h.rumah || "satu", dekor: (h.dekor || []).filter(x => DEKOR.includes(x)) }; }
   pasangTopi(avatarJson, topi) { let a = {}; try { a = avatarJson ? JSON.parse(avatarJson) : {}; } catch (e) {} if (WARNA_TOPI[topi]) a.topi = WARNA_TOPI[topi]; else delete a.topi; return JSON.stringify(a).slice(0, 600); }
@@ -976,6 +982,31 @@ export class Warga extends DurableObject {
       else return galat("Perintah tidak dikenal.");
       this.sql.exec("UPDATE warga SET koin = ?, koinTotal = COALESCE(koinTotal, 0) + ?, permata = ?, profesi = ? WHERE no = ?", koin, tambahKoin, permata, JSON.stringify(p), r.no);
       return Response.json({ koin, permata, profesi: this.infoProfesi(p), ...info });
+    }
+    if (aksi === "pasar") {
+      const q = await request.json(), kini = Date.now();
+      if (!pasarBuka(kini)) return Response.json({ galat: "Pasar Malam buka tiap Sabtu 19.00–23.00 WIB di Stadion Kotak Wetan." }, { status: 400 });
+      const r = this.sql.exec("SELECT no, koin, tas FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Daftar jadi warga dulu supaya bisa jajan di Pasar Malam." }, { status: 401 });
+      const t = this.bacaTas(r), hari = new Date(kini + 7 * 3600e3).toISOString().slice(0, 10);
+      if (t._ph !== hari) { t._ph = hari; t._pj = 0; t._pg = 0; }
+      let koin = r.koin || 0, hasil = null;
+      if (q.op === "jajan") {
+        const j = PASAR_JAJAN[q.id]; if (!j) return Response.json({ galat: "Jajanan tidak ada." }, { status: 400 });
+        if (t._pj >= PASAR_JAJAN_HARI) return Response.json({ galat: "Sudah kenyang! Jajan lagi Sabtu depan ya." }, { status: 400 });
+        if (koin < j[2]) return Response.json({ galat: "Koinmu kurang (" + j[2] + " koin)." }, { status: 400 });
+        koin -= j[2]; t._pj++; this.arus("-koin:pasar", j[2]); hasil = { ikon: j[0], nama: j[1], harga: j[2] };
+      } else if (q.op === "gelang") {
+        if (t._pg >= PASAR_GELANG_HARI) return Response.json({ galat: "Gelangnya habis untuk malam ini. Main lagi Sabtu depan!" }, { status: 400 });
+        if (koin < PASAR_GELANG) return Response.json({ galat: "Koinmu kurang (" + PASAR_GELANG + " koin)." }, { status: 400 });
+        if (kini - (t._tg || 0) < 4000) return Response.json({ galat: "Pelan-pelan, satu-satu ya." }, { status: 429 });
+        const kena = Math.max(0, Math.min(3, Math.floor(+q.kena || 0)));
+        koin -= PASAR_GELANG; t._pg++; t._tg = kini; this.arus("-koin:pasar", PASAR_GELANG); hasil = { kena };
+        if (kena >= 2) { const sv = SUVENIR[Math.floor(Math.random() * SUVENIR.length)]; t.isi[sv[1]] = t.isi[sv[1]] || { ikon: sv[0], n: 0 }; t.isi[sv[1]].n++;
+          hasil.suvenir = { ikon: sv[0], nama: sv[1] }; if (!t._al[sv[1]] || t._al[sv[1]] === 1) { if (!t._al[sv[1]]) hasil.suvenir.baru = 1; t._al[sv[1]] = kini; t._alb = albumBit(t._al); } }
+      } else return Response.json({ galat: "?" }, { status: 400 });
+      this.sql.exec("UPDATE warga SET koin = ?, tas = ? WHERE no = ?", koin, JSON.stringify(t), r.no);
+      return Response.json({ koin, tas: t.isi, album: t._al, hasil, sisa: { jajan: PASAR_JAJAN_HARI - t._pj, gelang: PASAR_GELANG_HARI - t._pg } });
     }
     if (aksi === "tas") {
       const q = await request.json();
@@ -1563,6 +1594,11 @@ async function apiWarga(request, env, url) {
   }
   if (aksi === "profesi") {
     const r = await stub.fetch("https://do/profesi", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), id: String(body.id || "").slice(0, 12) }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "pasar") {
+    const q = { kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), id: String(body.id || "").slice(0, 12), kena: +body.kena || 0 };
+    const r = await stub.fetch("https://do/pasar", { method: "POST", body: JSON.stringify(q) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "tas") {

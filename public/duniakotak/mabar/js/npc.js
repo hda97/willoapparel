@@ -152,6 +152,19 @@ const DATA = [
     a: {jenis: 'P', kulit: '#f2c7a0', rambut: {gaya: 'kepang', warna: '#3a2416'}, atasan: {jenis: 'kemeja', warna: '#e06a2a'}, bawahan: {jenis: 'rok-panjang', warna: '#6a5a48'}},
     kegiatan: ['Jualan gorengan keliling. Tahu isi masih panas!', 'Mau ke stadion, anak-anak bola suka gorengan.', 'Tinggal pisang goreng tiga.'],
     sapa: ['Gorengan, gorengan!', 'Masih anget!', 'Tahu isi, Mas?']},
+  // Pasar Malam Sabtu 19.00–23.00 (Huda 9 Nov 2026): pedagang berdiri di balik meja lapak di lapangan stadion
+  {id: 'kardi', nama: 'Pak Kardi', peran: 'Penjual sate', kerja: 'stadion', sabtu: 1, dx: -4.6, dz: -3.75, ry: 0, jam: [19, 23],
+    a: {jenis: 'L', kulit: '#a86e44', rambut: {gaya: 'cepak', warna: '#0b0b0e'}, atasan: {jenis: 'kaos', warna: '#f4f4f4'}, bawahan: {jenis: 'sarung', warna: '#3a5a3a'}},
+    kegiatan: ['Kipas-kipas sate. Wangi, kan? Cuma 6 koin!', 'Pasar Malam cuma tiap Sabtu malam, jangan sampai kelewatan.', 'Sambal kacangnya resep turun-temurun.'],
+    sapa: ['Sate, sate!', 'Masih anget!', 'Mampir, Mas, Mbak!']},
+  {id: 'imah', nama: 'Bu Imah', peran: 'Penjual es dawet', kerja: 'stadion', sabtu: 1, dx: 4.6, dz: -3.75, ry: 0, jam: [19, 23],
+    a: {jenis: 'P', kulit: '#c98c5e', rambut: {gaya: 'kepang', warna: '#0b0b0e'}, atasan: {jenis: 'batik', warna: '#2a9a5a'}, bawahan: {jenis: 'rok-panjang', warna: '#6a5a48'}},
+    kegiatan: ['Es dawet seger, cuma 3 koin!', 'Habis naik bianglala, minum es dawet enak.', 'Rame banget malam ini, alhamdulillah.'],
+    sapa: ['Dawet, dawet!', 'Seger!', 'Haus, Nak?']},
+  {id: 'beni', nama: 'Mas Beni', peran: 'Penjaga Lempar Gelang', kerja: 'stadion', sabtu: 1, dx: 0, dz: 3.75, ry: Math.PI, jam: [19, 23],
+    a: {jenis: 'L', kulit: '#e0aa7e', rambut: {gaya: 'keriting', warna: '#3a2416'}, atasan: {jenis: 'jaket', warna: '#e0303a'}, bawahan: {jenis: 'celana', warna: '#1d1d22'}},
+    kegiatan: ['Ayo lempar gelang! Kena 2 dari 3, bawa pulang boneka!', 'Hadiahnya masuk Album lho. Kumpulkan 5 suvenir, dapat lencana 🎪.', 'Tadi ada yang kena 3 kali, jago banget!'],
+    sapa: ['Lempar gelang!', 'Ayo coba!', 'Hadiahnya lucu-lucu!']},
   // Sekolah: murid duduk di bangku kelas, Bu Rina mengajar di depan papan tulis (Huda 9 Nov 2026)
   {id: 'putri', nama: 'Putri', peran: 'Murid SD', kerja: 'dalam', kecil: 1, di: {f: 1, x: -4.5, z: -4.95, ry: Math.PI, gaya: 'murid'}, jam: [7, 16],
     a: {jenis: 'P', kulit: '#f2c7a0', rambut: {gaya: 'kuncir', warna: '#0b0b0e'}, atasan: {jenis: 'seragam', warna: '#f4f4f4'}, bawahan: {jenis: 'rok', warna: '#c8202a'}},
@@ -179,7 +192,7 @@ const DATA = [
     sapa: ['Halo, Kak!', 'Ssst, lagi belajar', 'Hihi']},
 ];
 
-export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan, tinggi = () => 0}) {
+export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan, tinggi = () => 0, pasar = () => false}) {
   const J = I.jalur;
   const xs = J ? J.xs : I.vroads.map(([a, b]) => ((a + b) / 2 + I.ox) * VS), zs = J ? J.zs : I.hroads.map(([a, b]) => ((a + b) / 2 + I.oz) * VS);
   const bolehNaik = J ? J.bolehNaik : () => true;
@@ -273,11 +286,11 @@ export function buatNPC({sc, I, VS, warga, pose, siapAv, bayangan, tinggi = () =
       obj.position.copy(node(n.i, n.j)); n.tuju = null;
     } else {
       const p = tempat[d.kerja].clone(); if (d.id === 'sari') p.x += 3 * VS; if (d.dx) p.x += d.dx * VS; if (d.dz) p.z += d.dz * VS; p.y = tinggi(p.x, p.z, p.y); obj.position.copy(p); n.pusat = p.clone();
-      obj.rotation.y = d.kerja === 'sungai' ? Math.PI / 2 : 0;
+      obj.rotation.y = d.ry != null ? d.ry : d.kerja === 'sungai' ? Math.PI / 2 : 0;
     }
     obj.visible = false; sc.add(obj); return n;
   });
-  const di = (n, j) => { const [a, b] = n.jam; return (j >= a && j < b) || (j + 24 >= a && j + 24 < b) || ((n.kerja === 'bola' || n.kerja === 'stadion') && j >= 20 && j < 21); };   // Jam Kumpul Warga 20.00-21.00: pertandingan malam di stadion
+  const di = (n, j) => { if (n.sabtu) { const p = pasar(); return p && j >= n.jam[0] && j < n.jam[1]; } if ((n.kerja === 'bola' || n.wasit) && pasar()) return false; const [a, b] = n.jam; return (j >= a && j < b) || (j + 24 >= a && j + 24 < b) || ((n.kerja === 'bola' || n.kerja === 'stadion') && j >= 20 && j < 21); };   // Jam Kumpul Warga 20.00-21.00: pertandingan malam di stadion
   function pilihTuju(n) {
     const opsi = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([a, b]) => [n.i + a, n.j + b]).filter(([i, j]) => i >= 0 && j >= 0 && i < xs.length && j < zs.length && !(i === n.pi && j === n.pj) && (j === n.j || bolehNaik(n.i)));
     const [i, j] = opsi[Math.floor(acak() * opsi.length)] || [n.pi, n.pj];
