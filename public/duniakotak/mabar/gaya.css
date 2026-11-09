@@ -437,3 +437,8 @@ a.pdSaweria{display:block;text-align:center;text-decoration:none;margin-top:6px}
 .kbTombol{display:flex;gap:8px}.kbTombol button{flex:1;margin:0;border:1px solid var(--garis);border-radius:99px;background:rgba(255,255,255,.08);color:#fff;font:800 13px Montserrat,sans-serif;padding:10px 8px}
 .kbTombol button.utama{background:var(--emas);border-color:var(--emas);color:#2a1a05}
 .bulat.baru{position:relative}.bulat.baru::after{content:'BARU';position:absolute;top:-4px;right:-6px;background:#e04848;color:#fff;font:900 8px Montserrat,sans-serif;padding:2px 4px;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+
+/* Lomba Rumah Terindah (9 Nov 2026) */
+.rmKunjungi{flex:none;border:1px solid var(--garis);background:rgba(255,255,255,.08);color:#fff;border-radius:99px;padding:3px 9px;font:800 12px Montserrat,sans-serif;margin-right:6px;cursor:pointer}
+.plJuara .rmKunjungi{margin-top:5px}
+.kbTombol{flex-wrap:wrap}.kbItem[hidden]{display:none}

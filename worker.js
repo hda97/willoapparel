@@ -98,6 +98,10 @@ const PK_MISI_DESA = 15;
 // Ajak Tetangga (Huda 9 Nov 2026): link willoapparel.com/duniakotak/?ajak=<no>. Pendaftar baru lewat link itu dicatat (kolom ajak).
 // Hadiah baru dibayar saat warga baru menyelesaikan misi pemula ke-2 (🌱 tanam), supaya akun asal daftar tidak berhadiah.
 // Pengajak +AJAK_PERMATA, yang diajak +AJAK_PERMATA_BARU; pengajak maks AJAK_HARI hadiah per hari WIB. Target = Segara dibuka di warga ke-861.
+// Lomba Rumah Terindah (Huda 9 Nov 2026): tiap warga punya RUMAH_SUKA_HARI ❤️ gratis per hari WIB untuk rumah warga lain
+// (bukan rumah sendiri/Raka, 1 rumah sekali per hari). Minggu Senin–Minggu WIB; rumah dengan ❤️ terbanyak = juara minggu itu:
+// piala emas di atas rumah + lencana 🏡 selama minggu berikutnya (hanya tampilan). Juara masuk Vlog Raka (konten).
+const RUMAH_SUKA_HARI = 3;
 const AJAK_PERMATA = 10, AJAK_PERMATA_BARU = 5, AJAK_HARI = 5, AJAK_TARGET = 861;
 const PIALA_LARI = 10, PIALA_LARI_HARI = 3, PIALA_GOL = 2;
 const PIALA_DUSUN = ["wetan", "kulon", "curug", "tlaga", "segara"];
@@ -278,6 +282,8 @@ export class Warga extends DurableObject {
       this.sql.exec("DELETE FROM suara WHERE put = ? AND calon = ? AND no = ?", PUTARAN_VOTING, x.calon, x.no);
     }
     this.sql.exec("CREATE TABLE IF NOT EXISTS rahasia (k TEXT PRIMARY KEY, v TEXT, t INTEGER)");
+    // Lomba Rumah Terindah: satu baris = satu ❤️ dari warga `dari` ke rumah `ke` pada hari WIB `hari` (minggu `mg`)
+    this.sql.exec("CREATE TABLE IF NOT EXISTS rumahSuka (mg TEXT, hari TEXT, dari INTEGER, ke INTEGER, t INTEGER, PRIMARY KEY (hari, dari, ke))");
     // Piala Antardusun: poin warga per minggu (mg = Senin WIB), d = dusun saat poin didapat, lh = finish berpoin hari itu
     this.sql.exec("CREATE TABLE IF NOT EXISTS piala (mg TEXT, no INTEGER, d TEXT, poin INTEGER DEFAULT 0, lari INTEGER DEFAULT 0, gol INTEGER DEFAULT 0, hari TEXT, lh INTEGER DEFAULT 0, PRIMARY KEY (mg, no))");
     this.sql.exec("CREATE TABLE IF NOT EXISTS donasi (id TEXT PRIMARY KEY, t INTEGER, no INTEGER, rp INTEGER, bintang INTEGER, nama TEXT, pesan TEXT)");
@@ -300,6 +306,32 @@ export class Warga extends DurableObject {
       this.sql.exec("DELETE FROM sqlite_sequence WHERE name = 'warga'");
       this.sql.exec("INSERT INTO sqlite_sequence (name, seq) VALUES ('warga', ?)", 64);
     }
+  }
+  // ---- Lomba Rumah Terindah ----
+  // Juara minggu lalu (cache per minggu; data minggu lalu tidak berubah lagi). Seri: yang lebih dulu mencapai jumlah itu.
+  juaraRumah() {
+    const lalu = mingguWib(Date.now() - 7 * 864e5);
+    if (!this._tr || this._tr.mg !== lalu) {
+      const x = this.sql.exec("SELECT ke AS no, COUNT(*) AS n, MAX(t) AS akhir FROM rumahSuka WHERE mg = ? GROUP BY ke ORDER BY n DESC, akhir ASC LIMIT 1", lalu).toArray()[0];
+      this._tr = { mg: lalu, no: x ? x.no : 0, n: x ? x.n : 0 };
+    }
+    return this._tr.no ? this._tr : null;
+  }
+  topRumah(mg, n) {
+    return this.sql.exec(`SELECT s.ke AS no, COUNT(*) AS suka, MAX(s.t) AS akhir, w.ig, w.tiktok FROM rumahSuka s LEFT JOIN warga w ON w.no = s.ke WHERE s.mg = ? GROUP BY s.ke ORDER BY suka DESC, akhir ASC LIMIT ${n}`, mg).toArray()
+      .map((x) => ({ no: x.no, u: x.ig || x.tiktok || "", suka: x.suka }));
+  }
+  infoRumah(no) {
+    const kini = Date.now(), mg = mingguWib(kini), hari = hariWib(kini), tr = this.juaraRumah();
+    let juara = null;
+    if (tr) { const w = this.sql.exec("SELECT ig, tiktok FROM warga WHERE no = ?", tr.no).toArray()[0]; juara = { no: tr.no, u: w ? w.ig || w.tiktok || "" : "", suka: tr.n, mg: tr.mg }; }
+    const out = { mg, tutup: Date.parse(mg + "T00:00:00+07:00") + 7 * 864e5, top: this.topRumah(mg, 10), juara, aturan: { hari: RUMAH_SUKA_HARI } };
+    if (no) {
+      const pakai = this.sql.exec("SELECT ke FROM rumahSuka WHERE hari = ? AND dari = ?", hari, no).toArray().map((x) => x.ke);
+      const suka = this.sql.exec("SELECT COUNT(*) AS n FROM rumahSuka WHERE mg = ? AND ke = ?", mg, no).toArray()[0].n;
+      out.saya = { no, sisa: Math.max(0, RUMAH_SUKA_HARI - pakai.length), sudah: pakai, suka };
+    }
+    return out;
   }
   // ---- Ajak Tetangga ----
   // Dipanggil saat warga r menyelesaikan misi pemula "tanam". Bayar sekali; pengajak dibatasi AJAK_HARI hadiah per hari.
@@ -424,8 +456,8 @@ export class Warga extends DurableObject {
   publik(r) {
     // Daftar lewat Google tanpa username: nama yang ditulis warga jadi ukiran batu (label).
     let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
-    const hs = this.hiasPakai(r), bt = this.bataWarga(r.no), jr = this.juraganKini();
-    return { ...(bt ? { bt } : {}), ...(jr && jr.no === r.no ? { jr: 1 } : {}), ...(hs.cat !== "krem" || hs.pagar !== "putih" || hs.rumah === "dua" || hs.dekor.length ? { hs: { c: hs.cat, p: hs.pagar, ...(hs.rumah === "dua" ? { l: 2 } : {}), ...(hs.dekor.length ? { d: hs.dekor } : {}) } } : {}), no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
+    const hs = this.hiasPakai(r), bt = this.bataWarga(r.no), jr = this.juraganKini(), tr = this.juaraRumah();
+    return { ...(bt ? { bt } : {}), ...(jr && jr.no === r.no ? { jr: 1 } : {}), ...(tr && tr.no === r.no ? { tr: 1 } : {}), ...(hs.cat !== "krem" || hs.pagar !== "putih" || hs.rumah === "dua" || hs.dekor.length ? { hs: { c: hs.cat, p: hs.pagar, ...(hs.rumah === "dua" ? { l: 2 } : {}), ...(hs.dekor.length ? { d: hs.dekor } : {}) } } : {}), no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
   }
   // Hias: {punya:{cat:[...],pagar:[...],topi:[...]}, cat, pagar, topi}
   bacaHias(r) { let h = {}; try { h = r.hias ? JSON.parse(r.hias) : {}; } catch (e) {} h.punya = h.punya || {}; for (const j of Object.keys(TOKO_HIAS)) h.punya[j] = h.punya[j] || []; return h; }
@@ -722,6 +754,22 @@ export class Warga extends DurableObject {
     }
     if (aksi === "voting-publik") return Response.json(this.hasilVoting());
     if (aksi === "pendukung") return Response.json(this.pendukung());
+    if (aksi === "rumah") return Response.json(this.infoRumah(Math.max(0, Math.floor(+u.searchParams.get("no") || 0))));
+    if (aksi === "rumah-suka") {
+      const q = await request.json();
+      const r = this.sql.exec("SELECT no FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Masuk dulu sebagai warga." }, { status: 401 });
+      const ke = Math.floor(+q.ke || 0), kini = Date.now(), hari = hariWib(kini), mg = mingguWib(kini);
+      if (ke === r.no) return Response.json({ galat: "Itu rumahmu sendiri. Ajak tetangga memberi ❤️ ya!" }, { status: 400 });
+      if (ke <= 1 || !this.sql.exec("SELECT 1 FROM warga WHERE no = ?", ke).toArray().length) return Response.json({ galat: "Rumah ini belum ikut lomba." }, { status: 400 });
+      const pakai = this.sql.exec("SELECT ke FROM rumahSuka WHERE hari = ? AND dari = ?", hari, r.no).toArray().map((x) => x.ke);
+      if (pakai.includes(ke)) return Response.json({ galat: "Kamu sudah memberi ❤️ ke rumah ini hari ini." }, { status: 400 });
+      if (pakai.length >= RUMAH_SUKA_HARI) return Response.json({ galat: "❤️ hari ini sudah habis (" + RUMAH_SUKA_HARI + "/" + RUMAH_SUKA_HARI + "). Besok dapat lagi." }, { status: 400 });
+      this.sql.exec("INSERT INTO rumahSuka (mg, hari, dari, ke, t) VALUES (?, ?, ?, ?, ?)", mg, hari, r.no, ke, kini);
+      const suka = this.sql.exec("SELECT COUNT(*) AS n FROM rumahSuka WHERE mg = ? AND ke = ?", mg, ke).toArray()[0].n;
+      const pos = 1 + this.sql.exec("SELECT COUNT(*) AS n FROM (SELECT ke, COUNT(*) AS c FROM rumahSuka WHERE mg = ? GROUP BY ke HAVING c > ?)", mg, suka).toArray()[0].n;
+      return Response.json({ ok: 1, ke, suka, pos, sisa: RUMAH_SUKA_HARI - pakai.length - 1 });
+    }
     if (aksi === "ajak") return Response.json(this.infoAjak(Math.max(0, Math.floor(+u.searchParams.get("no") || 0)), Math.max(0, Math.floor(+u.searchParams.get("dari") || 0))));
     if (aksi === "piala") return Response.json(this.piala(Math.max(0, Math.floor(+u.searchParams.get("no") || 0))));
     if (aksi === "iuran") {
@@ -1415,6 +1463,10 @@ async function apiWarga(request, env, url) {
   if (aksi === "usulan" && request.method === "GET") {
     return new Response((await stub.fetch("https://do/usulan-publik")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=30", "access-control-allow-origin": "*" } });
   }
+  if (aksi === "rumah" && request.method === "GET") {
+    const no = Math.max(0, Math.min(99999, parseInt(url.searchParams.get("no") || "0", 10) || 0));
+    return new Response((await stub.fetch("https://do/rumah" + (no ? "?no=" + no : ""))).body, { headers: { "content-type": "application/json", "cache-control": no ? "no-store" : "public, max-age=30", "access-control-allow-origin": "*" } });
+  }
   if (aksi === "ajak" && request.method === "GET") {
     const no = Math.max(0, Math.min(99999, parseInt(url.searchParams.get("no") || "0", 10) || 0)), dari = Math.max(0, Math.min(99999, parseInt(url.searchParams.get("dari") || "0", 10) || 0));
     return new Response((await stub.fetch("https://do/ajak?no=" + no + "&dari=" + dari)).body, { headers: { "content-type": "application/json", "cache-control": no ? "no-store" : "public, max-age=30" } });
@@ -1466,6 +1518,10 @@ async function apiWarga(request, env, url) {
   }
   if (aksi === "bagikan") {
     const r = await stub.fetch("https://do/bagikan", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64) }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "rumah-suka") {
+    const r = await stub.fetch("https://do/rumah-suka", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), ke: Math.max(0, Math.min(99999, Math.floor(+body.ke || 0))) }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "gol") {
