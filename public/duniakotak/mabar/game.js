@@ -1064,6 +1064,7 @@ async function bukaPeringkat(dariTab) {
 // pengajak +10 💎 (maks 5 teman per hari), teman +5 💎. Bar = warga terdaftar menuju warga ke-861 (Dusun Segara dibuka).
 const linkAjak = () => 'https://willoapparel.com/duniakotak/?ajak=' + (S.saya ? S.saya.no : '');
 async function bukaAjak() {
+  simpan('dk_ajak_lihat', '1'); $('bAtur').classList.remove('baru');
   $('panelAjak').hidden = false; $('isiAjak').innerHTML = '<p class="kecil">Memuat…</p>';
   let d = null; try { d = await (await fetch('/duniakotak/api/ajak' + (S.saya ? '?no=' + S.saya.no : ''), {cache: 'no-store'})).json(); } catch (e) {}
   if (!d || !d.target) { $('isiAjak').innerHTML = '<p class="kecil">Belum bisa dimuat. Coba lagi sebentar.</p>'; return; }
@@ -1085,6 +1086,21 @@ async function bukaAjak() {
   if ($('ajWa')) $('ajWa').onclick = () => window.open('https://wa.me/?text=' + encodeURIComponent(teks + ' ' + linkAjak()), '_blank');
   if ($('ajSalin')) $('ajSalin').onclick = salin;
 }
+// Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
+// (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
+const KABAR = 'dk_kabar_ajak1';
+function kabarBaru(n = 0) {
+  if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
+  if (baca(KABAR)) return;
+  const sibuk = [...document.querySelectorAll('.layarPenuh')].some(e => !e.hidden) || (typeof pemulaKini === 'function' && pemulaKini() && n < 40);
+  if (sibuk) { if (n < 120) setTimeout(() => kabarBaru(n + 1), 5000); return; }
+  simpan(KABAR, '1'); bunyi('masuk');
+  ambilAjakSingkat();
+  $('panelKabar').hidden = false;
+  $('kbAjakBtn').onclick = () => { $('panelKabar').hidden = true; bukaAjak(); };
+  $('kbPialaBtn').onclick = () => { $('panelKabar').hidden = true; bukaPeringkat(); };
+}
+async function ambilAjakSingkat() { try { const d = await (await fetch('/duniakotak/api/ajak')).json(); if (d.kurang) $('kbAjak').textContent = `Bagikan link ajakmu. Teman daftar & tanam bibit pertama: kamu +${d.hadiah.pengajak} 💎, temanmu +${d.hadiah.baru} 💎. Kurang ${d.kurang} warga lagi, Dusun Segara dibuka!`; } catch (e) {} }
 // ---------- Piala Antardusun Mingguan (Huda 9 Nov 2026) ----------
 // Finish Pelari Kalcer (+10, maks 3x/hari) & gol stadion (+2, maks 5/hari) = poin untuk dusun sendiri. Juara Senin–Minggu
 // dapat bendera emas di gapura dusunnya selama seminggu berikutnya. Data: GET /duniakotak/api/piala[?no=].
@@ -2383,7 +2399,7 @@ async function mulai() {
   DG = pasangDesaGabung({DI, NAMA: NAMA_DUSUN, VS, tokoh, tanah, toast, bunyi, pindahBus: d => { const u = new URL(location.href); u.searchParams.set('dusun', d); u.searchParams.delete('ke'); location.href = u.toString(); }});
   { const ke = new URLSearchParams(location.search).get('ke'); if (ke === 'gapura') DG.tiba(); else if (ke) setTimeout(() => keTempat(ke), 1500); }
   $('chipKumpul').onclick = keKumpul;
-  setTimeout(pasangBenderaPiala, 3000);
+  setTimeout(pasangBenderaPiala, 3000); setTimeout(kabarBaru, 8000);
 }
 function aturHUD() {
   $('chat').querySelectorAll('.tab button[data-ch]').forEach(b => b.onclick = () => { S.ch = b.dataset.ch; $('chat').querySelectorAll('.tab button[data-ch]').forEach(x => x.classList.toggle('on', x === b)); tulisChat(); });
