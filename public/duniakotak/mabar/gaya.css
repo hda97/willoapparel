@@ -460,3 +460,13 @@ a.pdSaweria{display:block;text-align:center;text-decoration:none;margin-top:6px}
 @media (max-height:520px){.layarPenuh.popup{padding:6px}.layarPenuh.popup>.panel{gap:7px;padding:10px 14px}.layarPenuh.popup h2{margin:0;font-size:17px}.layarPenuh.popup .utama{padding:9px 18px}.pkDaftar,.plTop{max-height:162px}.pkBaris{height:32px;font-size:12px}}
 :where(html.putar.mq-pendek) .layarPenuh.popup{padding:6px}:where(html.putar.mq-pendek) .layarPenuh.popup>.panel{gap:7px;padding:10px 14px}:where(html.putar.mq-pendek) .layarPenuh.popup h2{margin:0;font-size:17px}:where(html.putar.mq-pendek) .pkDaftar,:where(html.putar.mq-pendek) .plTop{max-height:162px}:where(html.putar.mq-pendek) .pkBaris{height:32px;font-size:12px}
 .alGrid{grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}.alKartu{padding:6px 4px}.alKartu i{font-size:24px}
+
+/* Pasar Malam Sabtu (9 Nov 2026) */
+#isiPasar{display:grid;gap:8px;text-align:left}#isiPasar h3{margin:4px 0 0;font-size:14px;display:flex;justify-content:space-between}#isiPasar h3 small{opacity:.7;font-size:11px}
+.psStatus{margin:0;padding:8px 12px;border-radius:12px;background:rgba(255,210,58,.12);border:1px solid rgba(255,210,58,.4);font:700 13px Montserrat,sans-serif}
+.psJajan{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.psJajan button{display:grid;justify-items:center;gap:1px;padding:6px 4px;border-radius:12px;border:1px solid var(--garis);background:rgba(255,255,255,.06);color:#fff;font:700 11px Montserrat,sans-serif;cursor:pointer}
+.psJajan button i{font-style:normal;font-size:22px}.psJajan button small{opacity:.8}.psJajan button:disabled{opacity:.45;cursor:default}
+.psGelang{display:grid;gap:6px}.psBar{position:relative;height:22px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+.psZona{position:absolute;left:40%;width:20%;top:0;bottom:0;background:rgba(255,210,58,.55)}.psJarum{position:absolute;left:0;top:-2px;bottom:-2px;width:5px;margin-left:-2px;background:#fff;border-radius:3px;box-shadow:0 0 6px #fff}
+.psGelang .ok,#psInfo .ok{color:#7be39b}
