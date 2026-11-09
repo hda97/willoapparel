@@ -153,11 +153,19 @@ const PROFESI = {
 // tiap 1.000 koin iuran warga mempercepat 1 hari (maks 7.000 = langsung dibangun). Permata dihitung 10 koin, maks 50 💎 per warga per minggu.
 // Iuran TIDAK ikut menentukan pemenang (voting tetap pakai bintang) dan tidak masuk peringkat.
 const IURAN_HARI = 7, IURAN_PER_HARI = 1000, IURAN_PERMATA_MINGGU = 50;
-const GAJI_SHIFT = 50, BATAS_SHIFT = 2, SHIFT_MIN = 5.5 * 60e3;
+const GAJI_SHIFT = 50, BATAS_SHIFT = 4, SHIFT_MIN = 5.5 * 60e3;
 // Audit ekonomi #3 (Huda 9 Nov 2026 "usulan terbaik terapkan"): permata kecil dari kegiatan harian supaya profesi bisa dibuka
 // (semua misi harian selesai +3, hadir beruntun hari ke-7 +10, tiap misi Pelari Kalcer +1), dan bonus pulang kampung
 // untuk warga yang ≥3 hari tidak main (+50 koin +5 permata, maks 1x per 30 hari).
 const MISI_BONUS_PERMATA = 3, HADIR7_PERMATA = 10, PK_MISI_PERMATA = 1;
+// Lama main (Huda 10 Nov 2026: target warga rata-rata 1 jam main/hari). Game mengirim "detak" tiap ±1 menit selama layar
+// terbuka & dipakai; server menghitung menit main harian (jeda >3 menit = menit itu tidak dihitung).
+// Misi menit main 15/30/60 → +2/+3/+5 💎; Jam Kumpul Warga: tiap 10 menit main +1 💎 (maks 6/hari);
+// tiap 10 menit main, tanaman di kebun tumbuh 30 menit lebih cepat (siram otomatis).
+const MENIT_TIER = [[15, 2], [30, 3], [60, 5]], MENIT_KUMPUL_PERMATA = 1, MENIT_KUMPUL_MAKS = 6, SIRAM_TIAP = 10, SIRAM_MAJU = 30 * 60e3;
+// Jam Kumpul Warga (menit WIB): 06 Senam Pagi, 12 Belanja Siang, 16 Mancing Bareng, 19 Nongkrong + 20 Main Bola (toleransi 2 menit)
+const JAM_KUMPUL = [[360, 422], [720, 782], [960, 1022], [1140, 1262]];
+const menitWib = (t = Date.now()) => { const w = new Date(t + 7 * 3600e3); return w.getUTCHours() * 60 + w.getUTCMinutes(); };
 const PULANG_HARI = 3, PULANG_JEDA_HARI = 30, PULANG_KOIN = 50, PULANG_PERMATA = 5;
 // Koin lari maks per detik lari sungguhan (lari 1 KM normal ±90 detik = sampai 50 koin; lari 45 detik paling banyak 36).
 const PK_KOIN_DETIK = 0.8;   // harga koin = harga permata x 10
@@ -526,8 +534,17 @@ export class Warga extends DurableObject {
   async fetch(request) {
     const aksi = new URL(request.url).pathname.slice(1);
     if (aksi === "statistik") return Response.json(this.statistik());
+    // Jejak keluar (Huda 10 Nov 2026): kapan & di layar mana warga menutup game, lama layar memuat. Angka saja, tanpa nama.
+    if (aksi === "jejak") {
+      const q = await request.json().catch(() => ({})), hari = hariWib();
+      const pilih = (v, L) => (L.includes(v) ? v : "?"), nm = (v) => (/^[a-z]{1,16}$/i.test(v || "") ? v : "main");
+      const tambah = (k) => { try { this.sql.exec("INSERT INTO fitur (hari, aksi, n) VALUES (?, ?, 1) ON CONFLICT (hari, aksi) DO UPDATE SET n = n + 1", hari, k); } catch (e) {} };
+      if (q.m) tambah("muat:" + pilih(q.m, ["<3", "3-6", "6-10", "10-20", "20+", "gagal"]));
+      if (q.d) tambah("keluar:" + pilih(q.d, ["<30d", "30-60d", "1-3m", "3-5m", "5-15m", "15m+"]) + ":" + nm(q.p));
+      return Response.json({ ok: 1 });
+    }
     const res = await this.layani(request);
-    if (request.method === "POST" && res.ok && !request.url.includes("ws=1") && !/^(rahasia|saweria-status|saweria-kunci|trakteer-status|trakteer-kunci|donasi-misterius)/.test(aksi)) {
+    if (request.method === "POST" && res.ok && !request.url.includes("ws=1") && !/^(rahasia|saweria-status|saweria-kunci|trakteer-status|trakteer-kunci|donasi-misterius|detak)/.test(aksi)) {
       try { this.sql.exec("INSERT INTO fitur (hari, aksi, n) VALUES (?, ?, 1) ON CONFLICT (hari, aksi) DO UPDATE SET n = n + 1", hariWib(), aksi); } catch (e) {}
     }
     return res;
@@ -537,6 +554,7 @@ export class Warga extends DurableObject {
     const now = Date.now(), q = (sql, ...a) => this.sql.exec(sql, ...a).toArray();
     const rows = q("SELECT no, dibuat, aktif, koin, koinTotal, permata, kebun, profesi, kucing, hias, bagi, misi, bintang FROM warga");
     const hari = hariWib(), daftar = {}, aktifHari = {};
+    const menit = { warga: 0, total: 0, m15: 0, m30: 0, m60: 0 };
     let koin = 0, koinTotal = 0, permata = 0, kebun = 0, kucing = 0, rumah2 = 0, bagi = 0, misiHariIni = 0, misiPenuh = 0, bintang = 0;
     const profesi = {}, a = { j1: 0, j24: 0, h7: 0, pernah: 0 };
     for (const r of rows) {
@@ -548,12 +566,13 @@ export class Warga extends DurableObject {
       if (r.bagi) bagi++;
       if (this.bacaHias(r).rumah === "dua") rumah2++;
       if (r.profesi) { const p = this.bacaProfesi(r); if (p.p.length) for (const x of p.p) { const nm = PROFESI[x].ikon + " " + PROFESI[x].nama; profesi[nm] = (profesi[nm] || 0) + 1; } }
-      try { const m = r.misi ? JSON.parse(r.misi) : null; if (m && m.t === hari && m.s && m.s.length) { misiHariIni++; if (m.s.includes("bonus")) misiPenuh++; } } catch (e) {}
+      try { const m = r.misi ? JSON.parse(r.misi) : null; if (m && m.t === hari && m.s && m.s.length) { misiHariIni++; if (m.s.includes("bonus")) misiPenuh++; }
+        if (m && m.t === hari && m.mm) { menit.warga++; menit.total += m.mm; if (m.mm >= 15) menit.m15++; if (m.mm >= 30) menit.m30++; if (m.mm >= 60) menit.m60++; } } catch (e) {}
     }
     const fitur = q("SELECT hari, aksi, n FROM fitur WHERE hari >= ? ORDER BY hari", hariWib(now - 14 * 864e5));
     const donasi = q("SELECT date((t + 25200000) / 1000, 'unixepoch') AS h, COUNT(*) AS n, SUM(rp) AS rp FROM donasi GROUP BY h ORDER BY h");
     const arus = q("SELECT hari, jenis, n FROM arus WHERE hari >= ? ORDER BY hari", hariWib(now - 14 * 864e5));
-    return { waktu: now, warga: rows.length, daftar, aktif: a, ekonomi: { koin, koinTotal, permata, bintang }, kebun, kucing, rumah2, bagi, misiHariIni, misiPenuh, profesi, fitur, donasi, arus, voting: this.hasilVoting() };
+    return { waktu: now, warga: rows.length, daftar, aktif: a, ekonomi: { koin, koinTotal, permata, bintang }, kebun, kucing, rumah2, bagi, misiHariIni, misiPenuh, menit, profesi, fitur, donasi, arus, voting: this.hasilVoting() };
   }
   async layani(request) {
     const u = new URL(request.url);
@@ -679,7 +698,7 @@ export class Warga extends DurableObject {
       // Misi harian HANYA bisa diklaim saat Jam Kumpul Warga (Huda: supaya warga online bareng), toleransi 2 menit:
       // 5 event: 06 Senam Pagi, 12 Belanja Siang, 16 Mancing Bareng, 19 Nongkrong Warung, 20 Main Bola (sama dengan SESI di mabar/game.js)
       const wibM = new Date(Date.now() + 7 * 3600e3), mntM = wibM.getUTCHours() * 60 + wibM.getUTCMinutes();
-      const jamKumpul = [[360, 422], [720, 782], [960, 1022], [1140, 1262]].some(([a, b]) => mntM >= a && mntM < b);
+      const jamKumpul = JAM_KUMPUL.some(([a, b]) => mntM >= a && mntM < b);
       // 7 Nov 2026 (lima menit pertama): misi harian bisa dikerjakan SEPANJANG HARI (koin 1x); Jam Kumpul Warga tetap koin 2x.
       if (aksi === "misi" && (MISI_SEPANJANG_HARI || jamKumpul) && MISI_HARIAN[q.id] && !ms.s.includes(q.id)) {
         const inti = Object.keys(MISI_HARIAN).filter((k) => k !== "bonus");
@@ -743,7 +762,7 @@ export class Warga extends DurableObject {
       }
       let av = null; try { av = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
       let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
-      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, kucing: kc, koin: r.koin || 0, misi: ms.s, gol: ms.g || 0, dapat, bagi: r.bagi ? 1 : 0, nama: r.nama || "", kerja: r.kerja || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat, permata: r.permata || 0, hias: this.bacaHias(r), kebun: this.infoKebun(this.bacaKebun(r)), bibit: BIBIT, tas: this.bacaTas(r).isi, album: this.bacaTas(r)._al, tasImpor: this.bacaTas(r)._impor ? 1 : 0, koinTotal: r.koinTotal || r.koin || 0, profesi: this.infoProfesi(this.bacaProfesi(r)), daftarProfesi: PROFESI, pemula: { s: pm, boleh: bolehPemula, dapat: dapatPm }, hadir: { ...hadirInfo, dapat: dapatHadir }, dapatPermata, ...(pulang ? { pulang } : {}), ...(r._piala ? { piala: r._piala } : {}), ...(r._ajak ? { ajak: r._ajak } : {}) });
+      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, kucing: kc, koin: r.koin || 0, misi: ms.s, gol: ms.g || 0, menit: { m: ms.mm || 0, h: ms.mh || [], k: Math.min(MENIT_KUMPUL_MAKS, Math.floor((ms.mk || 0) / 10)) }, dapat, bagi: r.bagi ? 1 : 0, nama: r.nama || "", kerja: r.kerja || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat, permata: r.permata || 0, hias: this.bacaHias(r), kebun: this.infoKebun(this.bacaKebun(r)), bibit: BIBIT, tas: this.bacaTas(r).isi, album: this.bacaTas(r)._al, tasImpor: this.bacaTas(r)._impor ? 1 : 0, koinTotal: r.koinTotal || r.koin || 0, profesi: this.infoProfesi(this.bacaProfesi(r)), daftarProfesi: PROFESI, pemula: { s: pm, boleh: bolehPemula, dapat: dapatPm }, hadir: { ...hadirInfo, dapat: dapatHadir }, dapatPermata, ...(pulang ? { pulang } : {}), ...(r._piala ? { piala: r._piala } : {}), ...(r._ajak ? { ajak: r._ajak } : {}) });
     }
     // ---- Voting fasum berbintang ----
     if (aksi === "voting") {
@@ -808,6 +827,28 @@ export class Warga extends DurableObject {
       }
       const w = this.sql.exec("SELECT koin, permata FROM warga WHERE no = ?", r.no).toArray()[0];
       return Response.json({ koin: w.koin || 0, permata: w.permata || 0, saya: { koin: saya.koin, permata: saya.permata, sisaPermata: IURAN_PERMATA_MINGGU - saya.mgn }, dana: this.danaIuran() });
+    }
+    if (aksi === "detak") {
+      const q = await request.json();
+      const r = this.sql.exec("SELECT no, permata, misi, kebun FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Masuk dulu sebagai warga." }, { status: 401 });
+      const kini = Date.now(), hari = hariWib(kini);
+      let ms = { t: hari, s: [] }; try { const m0 = r.misi ? JSON.parse(r.misi) : null; if (m0 && m0.t === hari && Array.isArray(m0.s)) ms = m0; } catch (e) {}
+      const kb = this.bacaKebun(r); let permata = r.permata || 0, dapat = 0, siram = 0;
+      const jeda = kini - (ms.dt || 0);
+      if (jeda >= 50000) {
+        if (jeda <= 180000) {
+          ms.mm = (ms.mm || 0) + 1; this.arus("menit", 1); if (ms.mm === 1) this.arus("menit-warga", 1);
+          ms.mh = ms.mh || [];
+          for (const [m, p] of MENIT_TIER) if (ms.mm >= m && !ms.mh.includes(m)) { ms.mh.push(m); dapat += p; }
+          if (JAM_KUMPUL.some(([a, b]) => menitWib(kini) >= a && menitWib(kini) < b)) { ms.mk = (ms.mk || 0) + 1; if (ms.mk % 10 === 0 && ms.mk / 10 <= MENIT_KUMPUL_MAKS) dapat += MENIT_KUMPUL_PERMATA; }
+          if (ms.mm % SIRAM_TIAP === 0 && kb.b && kini < kb.t + PANEN_JEDA) { kb.t = Math.max(kb.t - SIRAM_MAJU, kini - PANEN_JEDA); siram = 1; }
+        }
+        ms.dt = kini;
+        if (dapat) { permata += dapat; this.arus("+permata:menit", dapat); }
+        this.sql.exec("UPDATE warga SET permata = ?, misi = ?, kebun = ?, aktif = ? WHERE no = ?", permata, JSON.stringify(ms), JSON.stringify(kb), kini, r.no);
+      }
+      return Response.json({ menit: { m: ms.mm || 0, h: ms.mh || [], k: Math.min(MENIT_KUMPUL_MAKS, Math.floor((ms.mk || 0) / 10)) }, dapat, permata, siram, kebun: this.infoKebun(kb) });
     }
     if (aksi === "panen" || aksi === "tanam" || aksi === "jual") {
       const q = await request.json();
@@ -1528,6 +1569,14 @@ async function apiWarga(request, env, url) {
   const bersihUsulan = (v) => String(v || "").replace(/[\u0000-\u001f<>]/g, " ").trim().slice(0, 140);
   // Dashboard pantau warga (Huda 7 Nov 2026: tanpa kunci). Halaman tidak ditautkan dari game.
   if (aksi === "statistik") return json(await statistikDashboard(env, stub));
+  if (aksi === "jejak") {
+    await stub.fetch("https://do/jejak", { method: "POST", body: JSON.stringify({ m: String(body.m || "").slice(0, 6), d: String(body.d || "").slice(0, 8), p: String(body.p || "").slice(0, 16) }) });
+    return json({ ok: 1 });
+  }
+  if (aksi === "detak") {
+    const r = await stub.fetch("https://do/detak", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64) }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
   if (aksi === "daftar-ig") {
     const d = bacaAkun(body);
     if (d.galat) return json({ galat: d.galat }, 400);

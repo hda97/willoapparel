@@ -77,6 +77,11 @@ th{color:var(--redup);font-weight:600;font-size:12px}
     <section><h2>Ekonomi & kepemilikan</h2><p class="ket">Kondisi semua warga saat ini.</p><div id="ekonomi"></div></section>
   </div>
 
+  <div class="grid">
+    <section><h2>Lama main per warga</h2><p class="ket">Menit main harian dari detak game (target Huda: 60 menit/warga/hari), mulai 10 Nov 2026.</p><div id="menitMain"></div></section>
+    <section><h2>Kapan warga menutup game</h2><p class="ket">Jejak keluar 7 hari: lama layar terbuka & layar yang sedang dibuka saat ditutup, plus lama memuat.</p><div id="jejak"></div></section>
+  </div>
+
   <section><h2>Arus ekonomi</h2><p class="ket">Koin dan permata masuk (sumber) dan keluar (dibelanjakan) per hari, mulai 9 Nov 2026.</p><div class="gulir"><table id="tabelArus"></table></div></section>
 
   <div class="grid">
@@ -151,7 +156,7 @@ function tampil(s) {
 
   // fitur
   const tujuh = new Date(s.waktu + 7 * 3600e3 - 6 * 864e5).toISOString().slice(0, 10), fh = {}, f7 = {};
-  for (const x of s.fitur) { const nm = LABEL_FITUR[x.aksi] || x.aksi; if (x.hari === kini) fh[nm] = (fh[nm] || 0) + x.n; if (x.hari >= tujuh) f7[nm] = (f7[nm] || 0) + x.n; }
+  for (const x of s.fitur) { if (/^(muat|keluar):/.test(x.aksi)) continue; const nm = LABEL_FITUR[x.aksi] || x.aksi; if (x.hari === kini) fh[nm] = (fh[nm] || 0) + x.n; if (x.hari >= tujuh) f7[nm] = (f7[nm] || 0) + x.n; }
   const fit = Object.entries(f7).sort((x, y) => y[1] - x[1]);
   if (fit.length) {
     const max = Math.max(...fit.map((x) => x[1]));
@@ -167,13 +172,22 @@ function tampil(s) {
   ].map(([nm, n]) => `<span class="chip">${nm}: <b>${fmt(n)}</b></span>`).join('');
 
   // Arus ekonomi (audit #3): baris = jenis (+koin:hadir, -permata:profesi, ...), kolom = hari
-  const ar = s.arus || [];
+  const ar = (s.arus || []).filter((x) => x.jenis[0] === '+' || x.jenis[0] === '-');
   if (ar.length) {
     const hr = [...new Set(ar.map((x) => x.hari))].sort().slice(-7), jn = [...new Set(ar.map((x) => x.jenis))].sort((x, y) => (x[0] === y[0] ? x.localeCompare(y) : x[0] === '+' ? -1 : 1));
     const nilai = {}; for (const x of ar) nilai[x.jenis + '|' + x.hari] = x.n;
     const lbl = (j) => (j[0] === '+' ? '⬆️ ' : '⬇️ ') + (j.includes('permata') ? '💎 ' : '🪙 ') + j.slice(1).split(':')[1];
     $('tabelArus').innerHTML = `<tr><th>Jenis</th>${hr.map((h) => `<th>${h.slice(5)}</th>`).join('')}</tr>` + jn.map((j) => `<tr><td>${lbl(j)}</td>${hr.map((h) => `<td>${fmt(nilai[j + '|' + h] || 0)}</td>`).join('')}</tr>`).join('');
   } else $('tabelArus').innerHTML = '<tr><td class="catatan">Pencatat arus baru dipasang. Angka muncul setelah warga main.</td></tr>';
+
+  // Lama main per warga (10 Nov 2026)
+  const mn = s.menit || {}, arM = s.arus || [], hrM = [...new Set(arM.filter((x) => x.jenis === 'menit').map((x) => x.hari))].sort().slice(-7);
+  const nM = (j, h) => (arM.find((x) => x.jenis === j && x.hari === h) || {}).n || 0;
+  $('menitMain').innerHTML = `<div>${[['👥 Main hari ini', mn.warga || 0], ['⏱ Rata-rata', (mn.warga ? Math.round(mn.total / mn.warga) : 0) + ' mnt'], ['15+ mnt', mn.m15 || 0], ['30+ mnt', mn.m30 || 0], ['60+ mnt', mn.m60 || 0]].map(([a, b]) => `<span class="chip">${a}: <b>${b}</b></span>`).join('')}</div>` +
+    (hrM.length ? `<div class="gulir"><table><tr><th>Hari</th><th>Warga</th><th>Total mnt</th><th>Rata/warga</th></tr>${hrM.map((h) => `<tr><td>${h.slice(5)}</td><td>${nM('menit-warga', h)}</td><td>${fmt(nM('menit', h))}</td><td>${nM('menit-warga', h) ? Math.round(nM('menit', h) / nM('menit-warga', h)) : 0} mnt</td></tr>`).join('')}</table></div>` : '<p class="catatan">Angka muncul setelah warga main dengan versi game baru.</p>');
+  const jk = {}, jm = {}; for (const x of s.fitur) { if (x.hari < tujuh) continue; if (x.aksi.startsWith('keluar:')) { const [, d, pn] = x.aksi.split(':'); jk[d] = jk[d] || {}; jk[d][pn] = (jk[d][pn] || 0) + x.n; } if (x.aksi.startsWith('muat:')) jm[x.aksi.slice(5)] = (jm[x.aksi.slice(5)] || 0) + x.n; }
+  const urutD = ['<30d', '30-60d', '1-3m', '3-5m', '5-15m', '15m+'], tot = (o) => Object.values(o || {}).reduce((a, b) => a + b, 0);
+  $('jejak').innerHTML = Object.keys(jk).length || Object.keys(jm).length ? `<table><tr><th>Ditutup setelah</th><th>Jumlah</th><th>Layar terbuka</th></tr>${urutD.filter((d) => jk[d]).map((d) => `<tr><td>${d.replace('d', ' dtk').replace('m', ' mnt')}</td><td>${tot(jk[d])}</td><td>${Object.entries(jk[d]).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, n]) => `${k} ${n}`).join(', ')}</td></tr>`).join('')}</table><p class="catatan">Lama memuat: ${['<3', '3-6', '6-10', '10-20', '20+', 'gagal'].filter((k) => jm[k]).map((k) => `${k}${k === 'gagal' ? '' : ' dtk'}: <b>${jm[k]}</b>`).join(' · ') || '-'}</p>` : '<p class="catatan">Jejak baru dipasang. Angka muncul setelah warga main dengan versi game baru.</p>';
 
   daftarBar($('profesi'), Object.entries(s.profesi).sort((x, y) => y[1] - x[1]).map(([k, n]) => [LABEL_PROFESI[k] || k, n]), 'var(--hijau)');
 
