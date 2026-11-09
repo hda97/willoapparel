@@ -56,8 +56,9 @@ const WARNA_PAGAR = {putih: '#ffffff', kayu: '#a0703c', hitam: '#3a3a40', biru: 
 const WARNA_TOPI = {merah: '#d8443a', biru: '#2f6fd8', hitam: '#24242a', kuning: '#f2c230'};
 const HS = {};
 // Hadiah pendukung Bata (Huda 8 Nov 2026): BT no → total Bata donasi, JR = nomor Juragan Bata (mahkota di atap)
-const BT = {}; let JR = 0, TR = 0;   // TR = rumah juara Lomba Rumah Terindah minggu lalu (piala emas di atas rumah)
-const lencana = no => (TR && TR === no ? '🏡 ' : '') + (JR && JR === no ? '👑 ' : '') + (BT[no] >= 1 ? '🧱 ' : '');   // no → {c: cat, p: pagar} (warga lain, dari /api/warga)
+const BT = {}, AL = {}; let JR = 0, TR = 0;   // AL = lencana Album lengkap (bit 1 🎣 ikan, bit 2 🧺 panen)
+   // TR = rumah juara Lomba Rumah Terindah minggu lalu (piala emas di atas rumah)
+const lencana = no => (AL[no] & 1 ? '🎣 ' : '') + (AL[no] & 2 ? '🧺 ' : '') + (TR && TR === no ? '🏡 ' : '') + (JR && JR === no ? '👑 ' : '') + (BT[no] >= 1 ? '🧱 ' : '');   // no → {c: cat, p: pagar} (warga lain, dari /api/warga)
 function bersihAv(a) {
   a = a && typeof a === 'object' ? a : {};
   const jenis = a.jenis === 'P' ? 'P' : 'L';
@@ -390,7 +391,7 @@ function bangunKulon(buat = kulon) {
   bangunProksi();
 }
 async function bangunDunia() {
-  try { const w = (wargaAwal && await wargaAwal) || await (await fetch('/duniakotak/api/warga')).json(); wargaAwal = null; w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; if (x.hs) HS[x.no] = x.hs; if (x.bt) BT[x.no] = x.bt; if (x.jr) JR = x.no; if (x.tr) TR = x.no; }); } catch (e) {}
+  try { const w = (wargaAwal && await wargaAwal) || await (await fetch('/duniakotak/api/warga')).json(); wargaAwal = null; w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; if (x.hs) HS[x.no] = x.hs; if (x.bt) BT[x.no] = x.bt; if (x.jr) JR = x.no; if (x.tr) TR = x.no; if (x.al) AL[x.no] = x.al; }); } catch (e) {}
   if (S.saya && S.saya.kucing) KC[S.saya.no] = S.saya.kucing;
   if (S.saya && S.saya.ig) NM[S.saya.no] = '@' + S.saya.ig;
   bukaSegara(Math.max(S.saya ? S.saya.no : 0, ...Object.keys(NM).map(Number)));
@@ -1064,7 +1065,7 @@ async function bukaPeringkat(dariTab) {
   let h = d.top.length ? `<div class="pkDaftar" id="pkDaftar">${d.top.map(x => baris(x, S.saya && x.no === S.saya.no)).join('')}</div>` : '<p class="kecil">Belum ada warga yang punya koin. Jadilah yang pertama!</p>';
   if (S.saya && d.saya && !aku) h += `<div class="pkBaris aku pkSaya"><span class="pkNo">${d.saya.r || '–'}</span><span class="pkNama">@${esc(S.saya.ig || '')} (kamu)<small>${d.saya.r ? 'dari ' + d.jml + ' warga berkoin' : 'Belum punya koin'}</small></span><b>🪙 ${d.saya.koin}</b></div>`;
   $('isiPeringkat').innerHTML = h;
-  $('ringkasPeringkat').textContent = `${d.jml} warga sudah punya koin. Geser daftar untuk melihat peringkat 11 dan seterusnya.`;
+  $('ringkasPeringkat').textContent = `${d.jml} warga sudah punya koin. Geser daftar untuk melihat peringkat 6 dan seterusnya.`;
 }
 // ---------- Ajak Tetangga (Huda 9 Nov 2026) ----------
 // Link willoapparel.com/duniakotak/?ajak=<no>. Teman yang daftar lewat link lalu menanam bibit pertama (misi pemula 🌱) →
@@ -1096,7 +1097,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1'};
+const KABAR_LAMA = {ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   const baru = [...document.querySelectorAll('#panelKabar .kbItem[data-k]')].filter(e => !baca(KABAR_LAMA[e.dataset.k]));
@@ -1104,7 +1105,7 @@ function kabarBaru(n = 0) {
   const sibuk = [...document.querySelectorAll('.layarPenuh')].some(e => !e.hidden) || (typeof pemulaKini === 'function' && pemulaKini() && n < 40);
   if (sibuk) { if (n < 120) setTimeout(() => kabarBaru(n + 1), 5000); return; }
   document.querySelectorAll('#panelKabar .kbItem[data-k]').forEach(e => { e.hidden = !baru.includes(e); });
-  $('kbAjakBtn').hidden = !baru.some(e => e.dataset.k === 'ajak'); $('kbRumahBtn').hidden = !baru.some(e => e.dataset.k === 'rumah'); $('kbNpcBtn').hidden = !baru.some(e => e.dataset.k === 'npc') || DI !== 'wetan' || !I.fas?.[11];
+  $('kbAjakBtn').hidden = !baru.some(e => e.dataset.k === 'ajak'); $('kbRumahBtn').hidden = !baru.some(e => e.dataset.k === 'rumah'); $('kbAlbumBtn').hidden = !baru.some(e => e.dataset.k === 'album'); $('kbNpcBtn').hidden = !baru.some(e => e.dataset.k === 'npc') || DI !== 'wetan' || !I.fas?.[11];
   baru.forEach(e => simpan(KABAR_LAMA[e.dataset.k], '1')); bunyi('masuk');
   ambilAjakSingkat();
   $('panelKabar').hidden = false;
@@ -1112,6 +1113,7 @@ function kabarBaru(n = 0) {
   $('kbPialaBtn').onclick = () => { $('panelKabar').hidden = true; bukaPeringkat(); };
   // NPC fasum (Huda 9 Nov 2026): antar ke pintu IGD Rumah Sakit (fas[11])
   $('kbNpcBtn').onclick = () => { $('panelKabar').hidden = true; const f = I.fas[11]; mulaiRute({x: f.x + 6.6 * VS, z: f.z + .6 * VS, nama: 'Rumah Sakit'}, true); };
+  $('kbAlbumBtn').onclick = () => { $('panelKabar').hidden = true; bukaAlbum(); };
   $('kbRumahBtn').onclick = () => { $('panelKabar').hidden = true; $('panelPeringkat').hidden = false; tabPeringkat('rumah'); };
 }
 async function ambilAjakSingkat() { try { const d = await (await fetch('/duniakotak/api/ajak')).json(); if (d.kurang) $('kbAjak').textContent = `Bagikan link ajakmu. Teman daftar & tanam bibit pertama: kamu +${d.hadiah.pengajak} 💎, temanmu +${d.hadiah.baru} 💎. Kurang ${d.kurang} warga lagi, Dusun Segara dibuka!`; } catch (e) {} }
@@ -1316,7 +1318,7 @@ const tas = bacaJ('dk_tas') || {};
 function masukTas(ikon, nama) { tas[nama] = tas[nama] || {ikon, n: 0}; tas[nama].n++; simpan('dk_tas', tas); }
 function aturTas(isi) { for (const k of Object.keys(tas)) delete tas[k]; Object.assign(tas, isi || {}); if (!$('panelProfil').hidden) tulisProfil(); if (!$('panelRakit').hidden) tulisRakit(); }
 async function muatTasServer(s) {
-  aturTas(s.tas);
+  aturTas(s.tas); aturAlbum(s.album);
   const lama = bacaJ('dk_tas');
   if (!s.tasImpor && lama && Object.keys(lama).length) { try { const r = await api('tas', {kunci: S.kunci, op: 'impor', isi: lama}); aturTas(r.tas); } catch (e) {} }
   try { localStorage.removeItem('dk_tas'); } catch (e) {}
@@ -1364,12 +1366,33 @@ function skillMancing() {
   const tunggu = 1800 + Math.random() * 2200;
   setTimeout(() => { if (!mancing.on) return; mancing.teks = '❗ Strike!'; bunyi('pesan');
     setTimeout(() => { if (!mancing.on) return; mancing.on = false; mancing.batal();
-      const dapat = (ik, nm) => { bunyi('masuk'); if (ik !== '👟') misiMaju('mancing'); toast(`${ik} Dapat ${nm}! (punya ${tas[nm]?.n || 1})`, 3000); };
-      if (S.tamu) { let r = Math.random() * 100, hasil = IKAN[0]; for (const x of IKAN) { if ((r -= x[0]) < 0) { hasil = x; break; } } masukTas(hasil[1], hasil[2]); dapat(hasil[1], hasil[2]); }
-      else api('tas', {kunci: S.kunci, op: 'mancing'}).then(r => { aturTas(r.tas); dapat(r.hasil.ikon, r.hasil.nama); }).catch(e => toast(e.message, 3000));
+      const dapat = (ik, nm, baru) => { bunyi('masuk'); if (ik !== '👟') misiMaju('mancing'); toast(`${ik} Dapat ${nm}! (punya ${tas[nm]?.n || 1})` + (baru ? ` 📖 Baru di Album! (${albumHitung().ikan}/${ALBUM_IKAN.length} ikan)` : ''), baru ? 4500 : 3000); if (baru) albumBaru(); };
+      if (S.tamu) { let r = Math.random() * 100, hasil = IKAN[0]; for (const x of IKAN) { if ((r -= x[0]) < 0) { hasil = x; break; } } const baru = !albumPunya(hasil[2]); masukTas(hasil[1], hasil[2]); dapat(hasil[1], hasil[2], baru); }
+      else api('tas', {kunci: S.kunci, op: 'mancing'}).then(r => { aturTas(r.tas); aturAlbum(r.album); dapat(r.hasil.ikon, r.hasil.nama, r.hasil.baru); }).catch(e => toast(e.message, 3000));
     }, 700);
   }, tunggu);
 }
+// ---------- Album Ikan & Panen (Huda 9 Nov 2026) ----------
+// Koleksi: tiap ikan/barang dari sungai & tiap hasil kebun yang pernah didapat (server: tas._al). Lengkap = lencana 🎣 / 🧺 di nama (tampilan saja).
+const ALBUM_IKAN = IKAN.map(x => x[2]);
+const ALBUM_PANEN = () => Object.values(S.saya?.bibit || {tomat: {nama: 'Tomat', ikon: '🍅', harga: 10}, jagung: {nama: 'Jagung', ikon: '🌽', harga: 20}, cabai: {nama: 'Cabai', ikon: '🌶️', harga: 30}});
+let ALBUM = {};
+function aturAlbum(a) { if (a && typeof a === 'object') ALBUM = a; if (!S.tamu && S.saya) { const h = albumHitung(); AL[S.saya.no] = (h.ikan === ALBUM_IKAN.length ? 1 : 0) | (h.panen === ALBUM_PANEN().length ? 2 : 0); } if ($('panelAlbum') && !$('panelAlbum').hidden) tulisAlbum(); }
+const albumPunya = n => !!(ALBUM[n] || (S.tamu && tas[n]));
+function albumHitung() { return {ikan: ALBUM_IKAN.filter(albumPunya).length, panen: ALBUM_PANEN().filter(b => albumPunya(b.nama)).length}; }
+function albumBaru() { bunyi('emosi'); aturAlbum(); }
+const tglAlbum = t => t > 1 ? new Date(t + 7 * 3600e3).toISOString().slice(5, 10).split('-').reverse().join('/') : '';
+function tulisAlbum() {
+  const h = albumHitung(), nI = ALBUM_IKAN.length, nP = ALBUM_PANEN().length, total = h.ikan + h.panen;
+  const kartu = (punya, ikon, nama, info) => `<div class="alKartu${punya ? ' on' : ''}"><i>${punya ? ikon : '❓'}</i><b>${punya ? esc(nama) : '???'}</b><small>${info}</small></div>`;
+  const ikan = IKAN.map(([p, ik, nm]) => kartu(albumPunya(nm), ik, nm, albumPunya(nm) ? (tglAlbum(ALBUM[nm]) ? 'pertama ' + tglAlbum(ALBUM[nm]) : 'sudah dapat') : p >= 28 ? 'umum · mancing di sungai' : p >= 11 ? 'agak jarang' : p >= 5 ? 'kadang nyangkut, he he' : '✨ langka sekali!')).join('');
+  const panen = ALBUM_PANEN().map(b => kartu(albumPunya(b.nama), b.ikon, b.nama, albumPunya(b.nama) ? (tglAlbum(ALBUM[b.nama]) ? 'pertama ' + tglAlbum(ALBUM[b.nama]) : 'sudah panen') : `tanam bibit ${esc(b.nama)} (${b.harga} 🪙), panen 6 jam`)).join('');
+  $('isiAlbum').innerHTML = `<div class="alBar"><span style="width:${Math.round(total / (nI + nP) * 100)}%"></span></div><p class="kecil">Terkumpul <b>${total}/${nI + nP}</b>${S.tamu ? ' · daftar jadi warga supaya albummu tersimpan' : ''}</p>
+    <h3>🎣 Ikan & temuan sungai <small>${h.ikan}/${nI}</small></h3><div class="alGrid">${ikan}</div>
+    <h3>🧺 Hasil kebun <small>${h.panen}/${nP}</small></h3><div class="alGrid">${panen}</div>
+    <p class="kecil">Lengkapi semua ikan → lencana <b>🎣</b> di namamu. Lengkapi semua hasil kebun → lencana <b>🧺</b>. Semua warga bisa melihatnya!</p>`;
+}
+function bukaAlbum() { tulisAlbum(); $('panelAlbum').hidden = false; }
 let makanT = 0;
 function skillMakan() {
   const me = tokoh.saya; if (!me) return; const c = dekatKucing(me);
@@ -1754,10 +1777,10 @@ function segarKebun() {
 }
 setInterval(segarKebun, 30000);
 let panenSibuk = false;
-function hasilKebun(r) { if (r.koin != null) S.saya.koin = r.koin; if (r.permata != null) S.saya.permata = r.permata; if (r.kebun) S.saya.kebun = r.kebun; if (r.tas) aturTas(r.tas); hitungOnline(); segarKebun(); }
+function hasilKebun(r) { aturAlbum(r.album); if (r.koin != null) S.saya.koin = r.koin; if (r.permata != null) S.saya.permata = r.permata; if (r.kebun) S.saya.kebun = r.kebun; if (r.tas) aturTas(r.tas); hitungOnline(); segarKebun(); }
 async function skillPanen() {
   if (panenSibuk || !bisaPanen(tokoh.saya)) return; panenSibuk = true;
-  try { const r = await api('panen', {kunci: S.kunci}); hasilKebun(r); bunyi('masuk'); toast(`🧺 Panen! +${r.hasil.n} ${r.hasil.ikon} ${r.hasil.nama} dan +${r.dapat} 💎. Jual hasilnya di warung depan rumah (💰 Jual).`, 4500); }
+  try { const r = await api('panen', {kunci: S.kunci}); hasilKebun(r); bunyi('masuk'); toast(`🧺 Panen! +${r.hasil.n} ${r.hasil.ikon} ${r.hasil.nama} dan +${r.dapat} 💎.` + (r.hasil.baru ? ` 📖 Baru di Album! (${albumHitung().panen}/${ALBUM_PANEN().length} panen)` : ' Jual hasilnya di warung depan rumah (💰 Jual).'), 4500); if (r.hasil.baru) albumBaru(); }
   catch (e) { toast(e.message, 3000); } finally { panenSibuk = false; }
 }
 async function skillJual() {
@@ -2482,6 +2505,7 @@ function aturHUD() {
   $('bPanduan').onclick = () => { $('panelAtur').hidden = true; panduan(); };
   $('bAtur').onclick = () => { $('jamAtur').textContent = $('jam').textContent.replace(/\s+/g, ' ').trim(); $('panelAtur').hidden = false; }; $('tutupAtur').onclick = () => { $('panelAtur').hidden = true; };
   $('bVoting').onclick = () => { $('panelAtur').hidden = true; bukaVoting(); };
+  $('bAlbum').onclick = () => { $('panelAtur').hidden = true; bukaAlbum(); }; $('tutupAlbum').onclick = () => { $('panelAlbum').hidden = true; };
   $('bAjak').onclick = () => { $('panelAtur').hidden = true; bukaAjak(); }; $('tutupAjak').onclick = () => { $('panelAjak').hidden = true; };
   $('bPendukung').onclick = bukaPendukung; $('tutupPendukung').onclick = () => { $('panelPendukung').hidden = true; };
   siapIklan();
