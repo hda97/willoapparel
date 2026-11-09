@@ -89,6 +89,9 @@ const PK_REKOR_MIN = 240, PK_SKALA_WAKTU = 3.4;
 const PK_MISI_KOIN = 10;
 // Misi harian DESA "Ikut lari Pelari Kalcer" (Huda 8 Nov): tetap tiap hari, selesai otomatis saat finish 1 KM, di luar undian 6 misi & bonus.
 const PK_MISI_DESA = 15;
+// Lintasan (Huda 9 Nov): 7 rute 1 KM, urutan sama dengan pelarikalcer-kotak/src/lintasan.js. Rute ke-n terbuka setelah finish
+// sah rute ke-(n-1); progres disimpan di kolom pelari ($.rb = indeks rute tertinggi yang terbuka).
+const PK_RUTE = ["CFD Kotak Wetan", "Jakarta Sudirman CFD", "Jogja Borobudur", "Bali Sanur", "Siksorogo Lawu", "Bromo Trail", "Dieng & Rinjani"];
 const PK_MISI = { lari1: (p) => p.fh >= 1, lari3: (p) => p.fh >= 3, koin30: (p) => p.km >= 30, top5: (p) => p.pb > 0 && p.pb <= 5, iso: (p) => !!p.iso, mulus: (p) => !!p.mulus, cepat: (p) => p.rh > 0 && p.rh <= 330 };
 function pkMisiHari(hari) { const lain = Object.keys(PK_MISI).slice(1); let h = 0; for (const c of hari) h = (h * 31 + c.charCodeAt(0)) >>> 0;
   const a = lain[h % lain.length], sisa = lain.filter((x) => x !== a); return ["lari1", a, sisa[(h >>> 8) % sisa.length]]; }
@@ -726,7 +729,7 @@ export class Warga extends DurableObject {
       const streak = () => (p.sh === hari || p.sh === kemarin ? p.st || 0 : 0);
       const misi = () => pkMisiHari(hari).map((id) => ({ id, ok: PK_MISI[id](p), klaim: p.mk.includes(id) }));
       let misiDesa = null;
-      const info = {}, jawab = (x = {}, st = 200) => Response.json({ no: r.no, ig: this.nm(r), koin, permata, punya: p.punya, sisaHari: PK_MAKS_HARI - p.dapat, rekor: p.r || 0, avatar: (() => { try { return r.avatar ? JSON.parse(r.avatar) : null; } catch (e) { return null; } })(), streak: streak(), lariHariIni: p.sh === hari, misi: misi(), ...info, ...x }, { status: st });
+      const info = {}, jawab = (x = {}, st = 200) => Response.json({ no: r.no, ig: this.nm(r), koin, permata, punya: p.punya, sisaHari: PK_MAKS_HARI - p.dapat, rekor: p.r || 0, avatar: (() => { try { return r.avatar ? JSON.parse(r.avatar) : null; } catch (e) { return null; } })(), streak: streak(), lariHariIni: p.sh === hari, ruteBuka: p.rb || 0, misi: misi(), ...info, ...x }, { status: st });
       if (q.op === "mulai") p.m = kini;
       else if (q.op === "selesai") {
         const lama = p.m ? kini - p.m : 0; delete p.m;
@@ -741,6 +744,8 @@ export class Warga extends DurableObject {
           p.fh = (p.fh || 0) + 1; p.km = Math.max(p.km || 0, Math.min(PK_MAKS_LARI, Math.floor(+q.koin || 0)));
           const pos = Math.floor(+q.pos || 0); if (pos > 0) p.pb = p.pb ? Math.min(p.pb, pos) : pos;
           if (q.iso) p.iso = 1; if (q.mulus) p.mulus = 1;
+          const ri = Math.max(0, Math.min(PK_RUTE.length - 1, Math.floor(+q.rute || 0)));
+          if (ri === (p.rb || 0) && ri < PK_RUTE.length - 1) { p.rb = ri + 1; info.ruteBaru = PK_RUTE[ri + 1]; }
           const t = Math.round(w * 10) / 10; info.rekorBaru = !p.r || t < p.r; info.rekorHariBaru = !p.rh || t < p.rh;
           if (info.rekorBaru) p.r = t; if (info.rekorHariBaru) p.rh = t;
           if (p.sh !== hari) { p.st = p.sh === kemarin ? (p.st || 0) + 1 : 1; p.sh = hari; info.streakNaik = true; }
@@ -748,7 +753,7 @@ export class Warga extends DurableObject {
           if (!mm.s.includes("pelari")) { mm.s.push("pelari"); koin += PK_MISI_DESA; koinTotal += PK_MISI_DESA; info.misiDesa = PK_MISI_DESA; misiDesa = JSON.stringify(mm); this.arus("+koin:misi-lari", PK_MISI_DESA); }
           // kabar ke Chat Desa: finish pertama hari ini atau rekor baru (worker yang meneruskan ke ruang dusun)
           if (info.streakNaik || info.rekorBaru) { const fm = (x) => Math.floor(x / 60) + ":" + String(Math.floor(x % 60)).padStart(2, "0");
-            info.kabar = { no: r.no, ig: r.ig || r.tiktok || "warga" + r.no, m: "🏃 Finish Pelari Kalcer 1 KM CFD " + fm(t) + (pos ? " · posisi #" + pos : "") + (info.rekorBaru ? " · REKOR BARU!" : "") + (p.st > 1 ? " · lari " + p.st + " hari beruntun" : "") }; }
+            info.kabar = { no: r.no, ig: r.ig || r.tiktok || "warga" + r.no, m: "🏃 Finish Pelari Kalcer 1 KM " + PK_RUTE[ri] + " " + fm(t) + (pos ? " · posisi #" + pos : "") + (info.rekorBaru ? " · REKOR BARU!" : "") + (p.st > 1 ? " · lari " + p.st + " hari beruntun" : "") }; }
         }
       } else if (q.op === "misi") {
         const id = String(q.id || "");

@@ -49,13 +49,14 @@ export const PIX = {
   perisai: ['.bbbbbbbb.', '.bBBBBBBb.', '.bBWBBBBb.', '.bBWBBBBb.', '.bBBBBBBb.', '.bBBBBBBb.', '..bBBBBb..', '..bBBBBb..', '...bBBb...', '....bb....'],
   magnet: ['..........', '.EEEEEEEE.', 'EEEEEEEEEE', 'EEe....eEE', 'EEe....eEE', 'EEe....eEE', 'WWw....wWW', 'WWw....wWW', '..........', '..........'],
   angin: ['..........', '.WWWWWW...', '.......W..', '.WWWWWWW..', '..........', '.WWWWWWWW.', '.........W', '.WWWWWWW..', '..........', '..........'],
+  gembok: ['...wwww...', '..w....w..', '..w....w..', '..w....w..', '.YYYYYYYY.', '.YDDDDDDY.', '.YDDKKDDY.', '.YDDKKDDY.', '.YDDDDDDY.', '.YYYYYYYY.'],
   bata: ['RRRrRRRRrR', 'rrrrrrrrrr', 'RrRRRRrRRR', 'rrrrrrrrrr', 'RRRrRRRRrR', 'rrrrrrrrrr', 'RrRRRRrRRR', 'rrrrrrrrrr', 'RRRrRRRRrR', 'rrrrrrrrrr'],
 };
 // emoji lama → nama ikon (teks UI yang masih memuat emoji otomatis diganti ikon)
 const EMO = { '🪙': 'koin', '💎': 'permata', '⭐': 'bintang', '👕': 'kaos', '🛒': 'toko', '🏆': 'piala', '✕': 'tutup', '🍌': 'pisang', '👟': 'sepatu', '⌚': 'jam', '🕶': 'kacamata',
   '🔥': 'api', '⚡': 'petir', '💧': 'tetes', '⇠': 'kiri', '⇢': 'kanan', '⇡': 'atas', '→': 'panah', '👆': 'tap', '🏃': 'lari', '😮‍💨': 'lelah', '📸': 'kamera', '🧃': 'botol', '🧋': 'kopi',
   '🍜': 'mangkok', '🔄': 'ulang', '✓': 'centang', '🏘': 'rumah', '🏙': 'kota', '🛕': 'candi', '🏝': 'pulau', '🌲': 'pohon', '🌋': 'gunungapi', '⛰': 'gunung', '❤': 'hati', '🤍': 'hatiKosong',
-  '🛡': 'perisai', '🧲': 'magnet', '🌬': 'angin', '🧱': 'bata', '🔊': 'suara', '🔇': 'bisu', '👻': 'hantu', '🎯': 'target', '💬': 'chat', '✨': 'kilau' };
+  '🛡': 'perisai', '🧲': 'magnet', '🌬': 'angin', '🧱': 'bata', '🔊': 'suara', '🔇': 'bisu', '👻': 'hantu', '🎯': 'target', '💬': 'chat', '✨': 'kilau', '🔒': 'gembok' };
 const RE = new RegExp('(' + Object.keys(EMO).sort((a, b) => b.length - a.length).map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')(\\u200D[\\u2640\\u2642])?\\uFE0F?', 'gu');
 const cache = {};
 export function svgIkon(n) {
