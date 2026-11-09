@@ -1,7 +1,7 @@
 // PELARI KALCER · DUNIA KOTAK — game lari CFD keliling desa, pakai aset asli Dunia Kotak (avatar warga, rumah, fasum, kucing).
 // Pemain lari ke arah -z. 1 meter lomba = U satuan dunia.
 import * as THREE from 'three';
-import { pasangIkonOtomatis, gambarIkon, namaEmoji } from './ikon.js';
+import { pasangIkonOtomatis, gambarIkon, namaEmoji, svgIkon, PAL } from './ikon.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { warga, pose, KULIT, WARNA_RAMBUT, GAYA_RAMBUT } from '../../public/duniakotak/mabar/js/aset/avatar.js';
 import { rumahMesh, warungMesh } from '../../public/duniakotak/mabar/js/aset/rumah.js';
@@ -557,7 +557,7 @@ function ketukPemanasan() {
 function labelPemanasan() { const i = Math.min(2, Math.floor((pm.n - 1) / 8)); $('pemanasan').classList.toggle('selesai', !!D.warm);
   $('pmNama').textContent = D.warm ? '🔥 Pemanasan selesai · +12% pace' : pm.n ? `🔥 ${DRILL[Math.max(0, i)].nama} ${((pm.n - 1) % 8) + 1}/8` : '🔥 Ketuk avatar untuk pemanasan';
   $('pmBar').style.width = (D.warm ? 100 : pm.n / 24 * 100) + '%'; $('pmInfo').textContent = D.warm ? 'Bonus dipakai di lari berikutnya' : `ABC Drills ${pm.n}/24 · selesai = +12% pace`; }
-function keLobi() { tutupLaci(); isiMenu(); if (!D.warm) pm.n = 0; labelPemanasan(); $('pemanasan').hidden = false; mode = 'lobi'; ['hud', 'gps', 'struk', 'gagal', 'jeda'].forEach((x) => $(x).hidden = true); $('lobi').hidden = false; $('kontrol').hidden = true; isiLobi(); }
+function keLobi() { if (!$('rayakan').hidden) { $('rayakan').hidden = true; document.body.classList.remove('rayakan'); } tutupLaci(); isiMenu(); if (!D.warm) pm.n = 0; labelPemanasan(); $('pemanasan').hidden = false; mode = 'lobi'; ['hud', 'gps', 'struk', 'gagal', 'jeda'].forEach((x) => $(x).hidden = true); $('lobi').hidden = false; $('kontrol').hidden = true; isiLobi(); }
 function mulaiGPS() {
   if (AKUN) apiPk('mulai');
   mode = 'gps'; $('lobi').hidden = true; $('gps').hidden = false; $('gps').classList.remove('kunci'); $('gpsTeks').textContent = 'MENCARI GPS...';
@@ -566,7 +566,7 @@ function mulaiGPS() {
   setTimeout(() => { $('gps').hidden = true; hitungMundur(); }, tunggu + 1000);
 }
 function hitungMundur() { mode = 'hitung'; $('hud').hidden = false; $('kontrol').hidden = false; let n = 3; const t = () => { $('toast').textContent = n > 0 ? n : 'GO!'; $('toast').hidden = false; bunyi(n > 0 ? 520 : 880, .1); if (n-- > 0) setTimeout(t, 650); else { setTimeout(() => $('toast').hidden = true, 600); mode = 'lari'; jamLalu = performance.now(); $('kontrol').classList.remove('pudar'); setTimeout(() => $('kontrol').classList.add('pudar'), 6000); } }; t(); }
-let toastT = 0; function toast(s, ms = 1300) { $('toast').textContent = s; $('toast').hidden = false; clearTimeout(toastT); toastT = setTimeout(() => $('toast').hidden = true, ms); }
+let toastT = 0; function toast(s, ms = 1300) { if (mode === 'rayakan') { RK.toast.push([s, ms]); return; } $('toast').textContent = s; $('toast').hidden = false; clearTimeout(toastT); toastT = setTimeout(() => $('toast').hidden = true, ms); }
 const fmtWaktu = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 function hud() {
   $('hJarak').textContent = (P.d / 1000).toFixed(2).replace('.', ',');
@@ -745,8 +745,45 @@ function selesai() {
   const cap = `Finish 1 KM ${ruteKini().nama} di Pelari Kalcer · Dunia Kotak, pace ${fmtWaktu(pace)}/km, posisi #${peringkat()}. Kalcer dulu, PB kemudian. ${URL_KAMPANYE}`;
   $('fotoMedali').src = fotoMedali();
   STRUK = { rows, caption: cap, img: null }; const fb = fotoMedali(230, 276, 2); if (fb) { const im = new Image(); im.onload = () => { STRUK.img = im; }; im.src = fb; }
-  setTimeout(() => { $('hud').hidden = true; $('struk').hidden = false; }, 1400);
-  if (ruteBaru) { isiRute(); setTimeout(() => { toast('RUTE BARU TERBUKA: ' + ruteBaru.ikon + ' ' + ruteBaru.nama + ' · pilih di menu Maps', 3600); bunyi(990, .12); }, AKUN ? 4800 : 1800); }
+  // lintasan terbuka yang belum pernah dirayakan (juga untuk warga yang sudah membuka sebelum pop up ini ada) → pop up dulu, struk sesudahnya
+  const rk = ruteBuka() > (D.rayakan | 0) ? ruteBuka() : -1; if (ruteBaru) isiRute();
+  setTimeout(() => { $('hud').hidden = true; if (rk > 0 && mode === 'selesai') bukaRayakan(rk); else $('struk').hidden = false; }, 1400);
+}
+
+// ---------------- POP UP "HOREE, LINTASAN BARU TERBUKA!" (Huda 9 Nov 2026) ----------------
+// Muncul saat finish, sekali per lintasan (D.rayakan = lintasan tertinggi yang sudah dirayakan).
+// Dunia langsung diganti ke lintasan baru; kamera drone mengikuti avatar berlari di sana sebagai pratinjau langsung.
+const RK = { t: 0, toast: [], kf: [], kfJalan: false };
+function bukaRayakan(i) {
+  D.rayakan = Math.max(D.rayakan | 0, i); D.rute = i; simpanD();
+  const r = RUTE[i]; bangunDunia(i); resetLari(); isiRute(); RK.t = 0; RK.i = i; RK.snap = true;
+  $('rkLabel').textContent = `LINTASAN ${i + 1} DARI ${RUTE.length} · TERBUKA`;
+  $('rkIkon').innerHTML = svgIkon(namaEmoji(r.ikon)); $('rkNama').textContent = r.nama;
+  $('rkInfo').textContent = `${r.jenis} · ${r.permukaan} · 1 KM · +${r.el} m`; $('rkSorot').textContent = r.sorot || '';
+  $('rkTitik').innerHTML = RUTE.map((x, k) => `<i class="${k < i ? 'ok' : k === i ? 'baru' : ''}" title="${x.nama}"></i>`).join('');
+  mode = 'rayakan'; document.body.classList.add('rayakan'); $('rayakan').hidden = false; $('kontrol').hidden = true;
+  const k = $('rkKartu'); k.classList.remove('muncul'); void k.offsetWidth; k.classList.add('muncul');
+  [523, 659, 784, 1047, 1319].forEach((f, n) => setTimeout(() => bunyi(f, n === 4 ? .35 : .12, 'square', .06), n * 110));
+  setTimeout(() => bunyi(1568, .4, 'triangle', .05), 640);
+  konfeti(); setTimeout(() => $('bRkCoba').focus({ preventScroll: true }), 300);
+}
+function tutupRayakan() { $('rayakan').hidden = true; document.body.classList.remove('rayakan'); RK.kf = []; resetLari(); const q = RK.toast.splice(0); if (q.length) setTimeout(() => toast(q[q.length - 1][0], q[q.length - 1][1]), 400); }
+$('bRkCoba').onclick = () => { tutupRayakan(); bunyi(660, .08); $('pemanasan').hidden = true; $('struk').hidden = true; mulaiGPS(); };
+$('bRkStruk').onclick = () => { tutupRayakan(); mode = 'selesai'; $('struk').hidden = false; };
+// konfeti kotak-kotak piksel warna palet Dunia Kotak
+function konfeti() {
+  const c = $('rkKonfeti'), x = c.getContext('2d'), w = c.width = innerWidth, h = c.height = innerHeight; const kurang = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const warna = [PAL.Y, PAL.R, PAL.H, PAL.B, PAL.E, PAL.V, PAL.W, PAL.L];
+  const tembak = (ox, arah, n) => { for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + arah * (.25 + Math.random() * .55), v = (kurang ? 2 : 9) + Math.random() * (kurang ? 2 : 9);
+    RK.kf.push({ x: ox, y: h + 10, vx: Math.cos(a) * v, vy: Math.sin(a) * v * 1.25, s: 5 + Math.random() * 7, r: Math.random() * 6, vr: (Math.random() - .5) * .4, c: warna[i % warna.length], hidup: 1 }); } };
+  tembak(w * .05, 1, kurang ? 20 : 90); tembak(w * .95, -1, kurang ? 20 : 90);
+  if (!kurang) [600, 1300].forEach((ms) => setTimeout(() => { if (mode === 'rayakan') { tembak(w * .05, 1, 45); tembak(w * .95, -1, 45); } }, ms));
+  if (RK.kfJalan) return; RK.kfJalan = true;
+  const jalan = () => { x.clearRect(0, 0, w, h); RK.kf = RK.kf.filter((p) => p.y < h + 30 && p.hidup > 0);
+    for (const p of RK.kf) { p.vy += .32; p.vx *= .985; p.vy = Math.min(p.vy, 5); p.x += p.vx + Math.sin(p.r) * .6; p.y += p.vy; p.r += p.vr;
+      x.save(); x.translate(p.x, p.y); x.rotate(p.r); x.fillStyle = p.c; x.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * (.55 + Math.abs(Math.cos(p.r * 2)) * .45)); x.restore(); }
+    if (RK.kf.length) requestAnimationFrame(jalan); else { x.clearRect(0, 0, w, h); RK.kfJalan = false; } };
+  requestAnimationFrame(jalan);
 }
 
 let jamLalu = performance.now(); const tmp = new THREE.Vector3();
@@ -794,7 +831,10 @@ function langkah(dt) {
     if (g) { hantuMesh.userData.x = (hantuMesh.userData.x ?? LAJUR[g.l]) + (LAJUR[g.l] - (hantuMesh.userData.x ?? LAJUR[g.l])) * Math.min(1, dt * 8); hantuMesh.position.set(hantuMesh.userData.x, 0, -g.d * U);
       const a = Math.sin(P.waktu * 12) * .85; pose(hantuMesh, { legL: a, legR: -a, armL: -a, armR: a }); P.selisihHantu = P.d - g.d; } }
   // NPC jalan terus selama lomba (juga setelah finish supaya hidup)
-  if (mode === 'lari' || mode === 'selesai' || mode === 'gagal') for (const n of NPC) {
+  if (mode === 'rayakan') { RK.t += dt; if (RK.t > 1.5 && P.d < FINISH - 40) { P.d += dt * Math.min(11, (RK.t - 1.5) * 9); P.waktu += dt;
+    const hal = OBJ.find((o) => !o.habis && RINTANG.has(o.jenis) && o.lajur === P.lajur && o.d - P.d > 0 && o.d - P.d < 9); if (hal) P.lajur = [0, 1, 2].find((l) => l !== P.lajur && !OBJ.some((o) => RINTANG.has(o.jenis) && o.lajur === l && Math.abs(o.d - P.d - 5) < 5)) ?? P.lajur; }
+    P.x += (LAJUR[P.lajur] - P.x) * Math.min(1, dt * 5); }
+  if (mode === 'lari' || mode === 'selesai' || mode === 'gagal' || mode === 'rayakan' && RK.t > 1.5) for (const n of NPC) {
     n.d += n.v * dt * (n.d > FINISH + 20 ? 0 : 1); n.fase += dt * 9;
     if (rnd() < dt * .15) { n.lajur = Math.max(0, Math.min(2, n.lajur + (rnd() < .5 ? -1 : 1))); }
     for (const o of OBJ) if (!o.habis && o.lajur === n.lajur && o.d - n.d > 0 && o.d - n.d < 4 && RINTANG.has(o.jenis)) { n.lajur = (n.lajur + 1) % 3; break; }
@@ -811,22 +851,29 @@ function langkah(dt) {
     if (o.mesh && o.jenis === 'koin' && P.magnet > 0 && !o.habis && o.d - P.d < 25 && o.d > P.d) { o.mesh.position.lerp(tmp.set(P.x, 1.6 + P.y, -o.d * U), dt * 6); }
   }
   // pemain
-  P.fase = (P.fase || 0) + dt * (mode === 'lari' ? 6 + P.v * .9 : 2);
-  pemain.position.set(P.x || 0, (P.y || 0) + (mode === 'lari' ? Math.abs(Math.sin(P.fase)) * .14 : 0), -(P.d || 0) * U);
-  if (mode === 'lari' || mode === 'hitung' && false) {
+  const lariRk = mode === 'rayakan' && RK.t > 1.5;
+  P.fase = (P.fase || 0) + dt * (mode === 'lari' ? 6 + P.v * .9 : lariRk ? 13 : 2);
+  pemain.position.set(P.x || 0, (P.y || 0) + (mode === 'lari' || lariRk ? Math.abs(Math.sin(P.fase)) * .14 : 0), -(P.d || 0) * U);
+  if (lariRk) { const a = Math.sin(P.fase) * 1.05; pose(pemain, { legL: a, legR: -a, armL: -a, armR: a }); pemain.userData.body.rotation.x = .16; pemain.visible = true; }
+  else if (mode === 'lari' || mode === 'hitung' && false) {
     const a = Math.sin(P.fase) * (P.sprintAktif ? 1.1 : .85); const lompatan = P.y > .2;
     pose(pemain, lompatan ? { legL: -.9, legR: .5, armL: -2.4, armR: -2.4, armLz: .3, armRz: -.3 } : { legL: a, legR: -a, armL: -a, armR: a, head: P.wall ? .35 : 0 });
     pemain.userData.body.rotation.x = P.wall ? .35 : P.sprintAktif ? .18 : .06;
     pemain.visible = !(P.kebal > 0 && Math.floor(P.kebal * 12) % 2);
   } else if (mode === 'lobi' && pm.gerak > 0) { pm.gerak = Math.max(0, pm.gerak - dt * 2.4); const fase = (1 - pm.gerak) * Math.PI * 2 * (pm.n % 2 ? 1 : -1); pose(pemain, DRILL[Math.min(2, Math.floor((pm.n - 1) / 8))].pose(fase)); pemain.position.y = Math.sin((1 - pm.gerak) * Math.PI) * .25; pemain.userData.body.rotation.x = 0; pemain.visible = true;
   } else if (mode === 'lobi') { pose(pemain, { armR: -2.6 + Math.sin(performance.now() / 200) * .3, armRz: -.4, headY: Math.sin(performance.now() / 900) * .3 }); pemain.userData.body.rotation.x = 0; pemain.visible = true; }
-  else if (mode === 'selesai') { const t = performance.now() / 160; pose(pemain, { armL: -2.8, armR: -2.8, armLz: .3 + Math.sin(t) * .2, armRz: -.3 - Math.sin(t) * .2 }); pemain.userData.body.rotation.x = 0; pemain.visible = true; }
+  else if (mode === 'selesai' || mode === 'rayakan') { const t = performance.now() / 160; pose(pemain, { armL: -2.8, armR: -2.8, armLz: .3 + Math.sin(t) * .2, armRz: -.3 - Math.sin(t) * .2 }); pemain.userData.body.rotation.x = 0; pemain.visible = true; }
   else { pose(pemain, {}); pemain.userData.body.rotation.x = 0; }
   // penonton bersorak
   const tt = performance.now() / 1000; for (const w of PENONTON) { const s = w.userData.sorak + tt * 5; pose(w, { armR: -2.6 + Math.sin(s) * .4, armRz: -.3, armL: Math.sin(s * .5) > .3 ? -2.6 : 0, armLz: .3 }); }
   // kamera
   const pz = -(P.d || 0) * U;
   if (mode === 'lobi') { const potret = innerWidth < innerHeight; const a = Math.sin(tt * .3) * .35; kam.position.set(Math.sin(a) * 8.5 + (potret ? 0 : 1.5), 3.4, pz - Math.cos(a) * 8.5); kam.lookAt(potret ? 0 : 2.6, potret ? .8 : 2.1, pz); }
+  else if (mode === 'rayakan') { const potret = innerWidth < innerHeight, sw = RK.t > 1.5 ? Math.sin((RK.t - 1.5) * .5) * 3 : 0;
+    // drone di belakang-atas avatar; HP tidur: avatar di kanan (kartu di kiri), HP tegak: avatar di atas (kartu di bawah)
+    const kp = potret ? tmp.set(sw * .5, 9.5, pz + 13) : tmp.set(sw + 3, 7.5, pz + 13);
+    if (RK.snap) { RK.snap = false; kam.position.copy(kp).add(new THREE.Vector3(0, 4, 10)); }
+    kam.position.lerp(kp, Math.min(1, dt * 2)); if (potret) kam.lookAt(0, -7, pz - 10); else kam.lookAt(sw * .4 - 5.5, 1.2, pz - 22); }
   else { const cx = (P.x || 0) * .6; kam.position.lerp(tmp.set(cx, 6.2 + (P.y || 0) * .3, pz + 11), mode === 'gps' || mode === 'hitung' ? 1 : Math.min(1, dt * 6)); kam.lookAt(cx * .8, 2.6, pz - 14); }
   JAUH.position.z = pz; mentari.position.set(25, 50, pz + 30); mentari.target.position.set(0, 0, pz - 15);
   muatDunia(P.d || 0);
