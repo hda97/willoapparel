@@ -154,7 +154,7 @@ async function masukGoogle(credential, isi) {
   } catch (e) { const g2 = $('galatMasuk'); if (g2) g2.textContent = e.message; }
 }
 function selesaiMasuk(s) {
-  if (s) { S.saya = s; S.kunci = s.kunci; S.hias = s.hias || null; muatPemula(s); aturHadir(s.hadir); simpan('dk_warga', {no: s.no, ig: s.ig, kunci: s.kunci}); muatTasServer(s);
+  if (s) { S.saya = s; S.kunci = s.kunci; S.hias = s.hias || null; muatPemula(s); aturHadir(s.hadir); simpan('dk_warga', {no: s.no, ig: s.ig, kunci: s.kunci}); muatTasServer(s); terimaMenit(s.menit);
     // Pulang kampung (audit ekonomi #3): bonus warga yang ≥3 hari tidak main
     if (s.pulang) setTimeout(() => { try { bunyi('masuk'); koinTerbang(`+${s.pulang.koin} 🪙 +${s.pulang.permata} 💎`); } catch (e) {} toast(`🏡 Selamat pulang kampung! ${s.pulang.hari} hari tidak ketemu, Oyen kangen. Bonus +${s.pulang.koin} koin dan +${s.pulang.permata} 💎.`, 6500); }, 4500); }
   $('masuk').hidden = true;
@@ -970,7 +970,7 @@ function tulisMisi() {
   // Misi tetap tiap hari (Huda 8 Nov): ikut lari Pelari Kalcer sampai finish, selesai otomatis di server saat finish.
   const okLari = MS.selesai.has('pelari');
   $('isiMisi').innerHTML += `<div class="misi ${okLari ? 'ok' : ''}"><span class="mi">${okLari ? '✅' : '🏃'}</span><div><b>Ikut lari Pelari Kalcer sampai finish</b><small>${okLari ? 'Selesai' : 'Belum'}</small>${okLari ? '' : '<small class="info">📍 Gapura CFD di belakang gawang timur Stadion Kotak Wetan.</small><button class="antar" data-lari="1">🏃 Ikut lari sekarang</button>'}</div><span class="koin">+15 🪙</span></div>`;
-  $('isiMisi').innerHTML = barisPemula() + barisHadir() + $('isiMisi').innerHTML;
+  $('isiMisi').innerHTML = barisPemula() + barisHadir() + barisMenit() + $('isiMisi').innerHTML;
   const isiTas = Object.entries(tas).map(([n, v]) => `${v.ikon} ${n} ×${v.n}`).join(' · ');
   $('isiMisi').innerHTML += `<div class="misi"><span class="mi">🎒</span><div><b>Tasmu</b><small>${isiTas ? esc(isiTas) : 'Masih kosong. Ambil barang di jalan atau mancing di sungai.'}</small></div><span></span></div>`;
   const buka = jamKumpul();
@@ -1065,6 +1065,58 @@ function koinTerbang(teks) {
   const d = document.createElement('div'); d.className = 'koinTerbang'; d.textContent = teks; document.body.appendChild(d);
   setTimeout(() => d.remove(), 1700);
 }
+// ---------- Lama main (Huda 10 Nov 2026: target warga rata-rata 1 jam main/hari) ----------
+// Detak tiap 1 menit selama layar terbuka & pemain masih menyentuh layar (diam >3 menit = tidak dihitung).
+// Server menghitung menit harian: 15/30/60 menit → +2/+3/+5 💎, Jam Kumpul tiap 10 menit +1 💎 (maks 6),
+// tiap 10 menit main kebun disiram (tumbuh 30 menit lebih cepat). Jejak: kapan & di layar mana game ditutup.
+const MENIT_TIER = [[15, 2], [30, 3], [60, 5]];
+const LM = {siap: 0, gerak: performance.now(), m: 0, h: [], k: 0, kirim: false, jejak: false};
+['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(ev => addEventListener(ev, () => { LM.gerak = performance.now(); }, {passive: true, capture: true}));
+const ember = (v, b, L) => { for (let i = 0; i < b.length; i++) if (v < b[i]) return L[i]; return L[L.length - 1]; };
+function terimaMenit(m) { if (!m) return; LM.m = m.m || 0; LM.h = m.h || []; LM.k = m.k || 0; }
+function panelTerbuka() {
+  const p = [...document.querySelectorAll('.layarPenuh, .popup')].filter(e => !e.hidden && e.id).map(e => e.id);
+  return (p[p.length - 1] || 'main').replace(/^panel/, '').toLowerCase().replace(/[^a-z]/g, '').slice(0, 16) || 'main';
+}
+function kirimJejak() {
+  if (LM.jejak) return; LM.jejak = true;
+  const dt = performance.now() / 1000;
+  const body = {d: ember(dt, [30, 60, 180, 300, 900], ['<30d', '30-60d', '1-3m', '3-5m', '5-15m', '15m+']), p: LM.siap ? panelTerbuka() : 'memuat'};
+  if (!LM.siap) body.m = 'gagal';
+  try { navigator.sendBeacon('/duniakotak/api/jejak', new Blob([JSON.stringify(body)], {type: 'application/json'})); } catch (e) {}
+}
+addEventListener('pagehide', kirimJejak);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') kirimJejak(); });
+function mulaiLamaMain() {
+  LM.siap = performance.now();
+  api('jejak', {m: ember(LM.siap / 1000, [3, 6, 10, 20], ['<3', '3-6', '6-10', '10-20', '20+'])}).catch(() => {});
+  if (S.tamu) return;
+  setInterval(detak, 60e3); setTimeout(detak, 5e3);
+}
+async function detak() {
+  if (S.tamu || !S.kunci || document.hidden || LM.kirim) return;
+  if (performance.now() - LM.gerak > 180e3) return;
+  LM.kirim = true;
+  try {
+    const r = await api('detak', {kunci: S.kunci}); const lama = LM.h.slice();
+    terimaMenit(r.menit);
+    if (r.permata != null && S.saya) S.saya.permata = r.permata;
+    if (r.dapat) {
+      const t = MENIT_TIER.find(([m]) => LM.h.includes(m) && !lama.includes(m));
+      hitungOnline(); bunyi('masuk'); koinTerbang(`+${r.dapat} 💎`);
+      toast(t ? `⏱ Sudah main ${t[0]} menit hari ini! +${r.dapat} 💎` : `🎉 Bonus Jam Kumpul: 10 menit main bareng warga, +${r.dapat} 💎`, 4500);
+    }
+    if (r.siram) { toast('💧 Kebunmu disiram! Tanamanmu tumbuh 30 menit lebih cepat.', 4000); hasilKebun({kebun: r.kebun}); }
+    if (!$('panelMisi').hidden) tulisMisi();
+  } catch (e) {} finally { LM.kirim = false; }
+}
+function barisMenit() {
+  if (S.tamu) return '';
+  const m = LM.m, ok = m >= 60, ki = jamKumpul();
+  const tier = MENIT_TIER.map(([t, p]) => `${LM.h.includes(t) ? '✅' : '○'} ${t} mnt +${p}💎`).join(' · ');
+  return `<div class="misi ${ok ? 'ok' : ''}"><span class="mi">${ok ? '✅' : '⏱'}</span><div><b>Main 15 / 30 / 60 menit hari ini</b>
+    <div class="bar"><i style="width:${Math.min(100, Math.round(100 * m / 60))}%"></i></div><small>${m} menit · ${tier}</small><small class="info">${ki ? `🎉 Jam Kumpul sekarang: tiap 10 menit main +1 💎 (${LM.k}/6)` : `Saat Jam Kumpul Warga: tiap 10 menit main +1 💎 (${LM.k}/6). Tiap 10 menit main, kebunmu disiram otomatis.`}</small></div><span class="koin">+10 💎</span></div>`;
+}
 function pemulaTamat() {
   tulisTujuan(); if (PM.sorot) PM.sorot.classList.remove('sorot');
   const k = S.saya?.kebun, siap = k && k.siap ? jamTeks(((k.siap + 7 * 3600e3) % 864e5) / 3600e3) : '';
@@ -1141,7 +1193,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1'};
+const KABAR_LAMA = {ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', lamamain: 'dk_kabar_lamamain1'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   const baru = [...document.querySelectorAll('#panelKabar .kbItem[data-k]')].filter(e => !baca(KABAR_LAMA[e.dataset.k]));
@@ -1868,7 +1920,7 @@ function infoKumpul() {
   const j = jamWIB(), ki = sesiKini(), be = sesiBerikut();
   let html = '';
   if (ki) {
-    html = `${ki.ikon} <b>${ki.nama}!</b> Misi dibuka · koin 2x · ${Math.ceil((ki.j[1] - j) * 60)} mnt`;
+    html = `${ki.ikon} <b>${ki.nama}!</b> Misi koin 2x · +1💎/10 mnt main · ${Math.ceil((ki.j[1] - j) * 60)} mnt`;
     const kunci = hariIni() + ki.nama; if (kumpulDiumumkan !== kunci) { kumpulDiumumkan = kunci; toast(`${ki.ikon} ${ki.nama} dimulai! Misi koin 2x sampai ${jamTeks(ki.j[1])} WIB.`, 4000); bunyi('masuk'); }
   } else if (be.j[0] - j > 0 && be.j[0] - j <= 1) html = `⏰ <b>${be.nama}</b> ${jamTeks(be.j[0])} · ${Math.ceil((be.j[0] - j) * 60)} mnt lagi`;
   ck.hidden = !html; ck.classList.toggle('mulai', !!ki);
@@ -1978,7 +2030,7 @@ document.addEventListener('click', async e => {
 });
 // ---------- Profesi (audit ekonomi, Huda 6 Nov 2026) ----------
 // Dibuka dengan menukar permata di Kantor Desa (⚙ Atur / Profil). Gaji sama semua profesi: 1 shift = 5 tugas (±6 menit) di
-// fasum tempat kerjanya, maks 2 shift per hari. Seragam dipakai otomatis selama shift. Petani & pedagang = kebun & warung rumah.
+// fasum tempat kerjanya, maks 4 shift per hari (Huda 10 Nov: lebih lama main). Seragam dipakai otomatis selama shift. Petani & pedagang = kebun & warung rumah.
 const TEMPAT_KERJA = {guru: /SD |Sekolah|Kampus/i, perawat: /Rumah Sakit/i, dokter: /Rumah Sakit/i, kasir: /Supermarket|Warung Desa/i, wasit: /Stadion/i, polisi: /Polisi/i, barista: /Kafe/i};
 const TEMPAT_TEKS = {petani: 'kebun rumahmu', pedagang: 'warung depan rumahmu', guru: 'SD atau Kampus', perawat: 'Rumah Sakit', dokter: 'Rumah Sakit (IGD)', kasir: 'Supermarket atau Warung Desa', wasit: 'Stadion', polisi: 'Kantor Polisi', barista: 'Kafe'};
 const TUGAS_TEKS = {petani: 'Tanam, panen, lalu jual hasilnya', pedagang: 'Jual hasil panen di warungmu', guru: 'Jawab pertanyaan murid', perawat: 'Antar kebutuhan pasien', dokter: 'Pilih obat yang cocok', kasir: 'Hitung belanjaan pembeli', wasit: 'Ambil keputusan di lapangan', polisi: 'Atur lalu lintas', barista: 'Racik pesanan minuman'};
@@ -1986,7 +2038,7 @@ const SERAGAM = {guru: {jenis: 'kemeja', warna: '#b89a6a'}, perawat: {jenis: 'se
 const TUGAS_N = 5, TUGAS_JEDA = 90e3;
 let SH = null;   // shift berjalan: {p, t0, n, next}
 const avKerja = av => SH && SERAGAM[SH.p] ? {...av, atasan: SERAGAM[SH.p]} : av;
-const PF = () => S.saya?.profesi || {a: 'petani', punya: ['petani', 'pedagang'], shift: 0, batas: 2, gaji: 50};
+const PF = () => S.saya?.profesi || {a: 'petani', punya: ['petani', 'pedagang'], shift: 0, batas: 4, gaji: 50};
 const DPF = () => S.saya?.daftarProfesi || {};
 function simpanShift() { if (SH) simpan('dk_shift', SH); else { try { localStorage.removeItem('dk_shift'); } catch (e) {} } }
 function pulihShift() {
@@ -2649,6 +2701,7 @@ async function mulai() {
   { const ke = new URLSearchParams(location.search).get('ke'); if (ke === 'gapura') DG.tiba(); else if (ke) setTimeout(() => keTempat(ke), 1500); }
   $('chipKumpul').onclick = keKumpul;
   setTimeout(pasangBenderaPiala, 3000); setTimeout(kabarBaru, 8000);
+  mulaiLamaMain();
 }
 function aturHUD() {
   $('chat').querySelectorAll('.tab button[data-ch]').forEach(b => b.onclick = () => { S.ch = b.dataset.ch; $('chat').querySelectorAll('.tab button[data-ch]').forEach(x => x.classList.toggle('on', x === b)); tulisChat(); });
