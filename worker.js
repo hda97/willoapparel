@@ -1385,7 +1385,7 @@ const PEMULA_BATAS_KOIN = 300;   // warga lama yang sudah kumpul ≥300 koin tid
 const PEMULA_SALDO = 50;   // Huda 7 Nov: warga lama yang saldo koinnya < 50 juga ikut misi pemula
 // Hadiah hadir beruntun hari ke-1..7 (koin), lalu berulang.
 const HADIAH_HADIR = [10, 15, 20, 25, 30, 40, 60];
-const MISI_KOLAM = [["jalan", 10], ["sapa", 10], ["raka", 5], ["tetangga", 10], ["foto", 10], ["ambil", 10], ["mancing", 10], ["sungai", 5], ["lari", 5], ["kucing", 5], ["lompat", 5], ["fasum", 10], ["stadion", 5], ["npc", 10], ["supermarket", 5], ["rs", 5]];
+const MISI_KOLAM = [["jalan", 10], ["sapa", 10], ["raka", 5], ["tetangga", 10], ["foto", 10], ["ambil", 10], ["mancing", 10], ["sungai", 5], ["lari", 5], ["kucing", 5], ["lompat", 5], ["fasum", 10], ["stadion", 5], ["npc", 10], ["supermarket", 5], ["rs", 5], ["dusun", 15], ["khas", 15]];
 function misiHari(hari) {
   let h = 2166136261; for (const c of "dk" + hari) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
   const r = () => { h = (h + 0x6D2B79F5) >>> 0; let t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };

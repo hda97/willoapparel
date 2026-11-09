@@ -10,7 +10,7 @@ import {warga, pose as wpose, KULIT, WARNA_RAMBUT, GAYA_RAMBUT} from './js/aset/
 import {kucingMesh, WARNA_KUCING, DAFTAR_KUCING} from './js/aset/kucing.js';
 import {warungMesh, rumahKucingMesh, WARNA_DINDING, WARNA_ATAP} from './js/aset/rumah.js';
 import * as F from './js/aset/fasum.js';
-import {buatNPC} from './js/npc.js?v=20261109pasar';
+import {buatNPC} from './js/npc.js?v=20261110dusun';
 import {buatWargaNPC} from './js/wargaNpc.js';
 import {kulon, JALAN_KULON, AWAL_KULON} from './js/kulon.js';
 import {curug, JALAN_CURUG, AWAL_CURUG} from './js/curug.js';
@@ -241,22 +241,53 @@ const BARIS = 15;
 const FASUM_WETAN = [[1,0], [0,2], [3,1], [1,5], [3,6], [0,7], [4,9], [0,12], [4,14], [2,11,1], [1,10], [4,4], [2,13], [2,8], [1,15]];
 // Bangunan fasum sama persis dengan video Hari 2 (aset fasum.js): fas[1..8]. fas[0] dekat rumah Raka = Supermarket (voting 3 Nov). fas[9] = terminal; fas[10..12] kampus, RS, stadion; fas[13] Taman Kota; fas[14] lahan voting berikutnya.
 const PASANG_FASUM = [[0, 'supermarket', '🛒 Supermarket Dunia Kotak'], [10, 'kampus', '🎓 Kampus Dunia Kotak'], [11, 'rumahSakit', '🏥 Rumah Sakit'], [12, 'stadion', '🏟️ Stadion Dunia Kotak'], [1, 'sekolah', '🏫 SD Dunia Kotak'], [2, 'warung', '🛒 Warung Desa'], [3, 'masjid', '🕌 Masjid'], [4, 'gereja', '⛪ Gereja'], [5, 'katedral', '⛪ Gereja Katolik'], [6, 'pura', '🛕 Pura'], [7, 'vihara', '☸️ Vihara'], [8, 'klenteng', '🏮 Klenteng']];
+// FASUM TERSEBAR (Huda 9 Nov 2026): beda dusun beda fasum, supaya warga main ke dusun lain. Tiap calon voting sudah punya
+// lahan tetap: [dusun, lahan]. Wetan: lahan = indeks fas; dusun lain: indeks lahanKosong (lahan tanpa aset di kulon/curug/tlaga.js).
+// Curug & Tlaga mulai dari lahan 1 (lahan 0 = tempat main anak NPC). Entri BANGUN_VOTING untuk dusun lain: {dusun, lahan, ...}.
+const LOKASI_FASUM = {kafe: ['kulon', 0], polisi: ['curug', 1], hiburan: ['tlaga', 1], damkar: ['kulon', 1], perpus: ['curug', 0], renang: ['tlaga', 0], bioskop: ['wetan', 14]};
+// aset & nama tiap calon (aset di js/aset/fasum.js). Fasum lain (damkar, perpus, renang, bioskop) asetnya dibuat saat jadi calon.
+const ASET_CALON = {kafe: ['kafe', '☕ Kafe Bukit'], polisi: ['polisi', '👮 Kantor Polisi'], hiburan: ['hiburan', '🎡 Taman Hiburan']};
+// Pemenang voting → entri BANGUN_VOTING di dusun tujuannya, mis. bangunCalon('kafe', Date.parse('2026-11-14T00:00:00+07:00')).
+const bangunCalon = (c, mulai) => { const [dusun, lahan] = LOKASI_FASUM[c], [aset, nama] = ASET_CALON[c];
+  return {dusun, lahan, fas: lahan, aset, nama, judul: 'PEMBANGUNAN ' + nama.replace(/^\S+ /, '').toUpperCase(), mulai, sampai: mulai + 7 * 864e5}; };
 // Fasum pemenang voting yang sedang dibangun (Huda 6 Nov 2026: Taman Kota). Sebelum `sampai` lahannya jadi proyek
 // (pagar seng, perancah, warga offline gotong royong); sesudahnya bangunan jadi otomatis berdiri. Fasum berikutnya: tambah entri baru.
 const BANGUN_VOTING = [{fas: 13, aset: 'tamanKota', nama: '🌳 Taman Kota', judul: 'PEMBANGUNAN TAMAN KOTA', mulai: Date.parse('2026-11-07T00:00:00+07:00'), sampai: Date.parse('2026-11-14T00:00:00+07:00')}];
+// pratinjau: ?uji_fasum=kafe → fasum calon itu sudah jadi di dusun tujuannya (tambah &uji_tahap=0..2 untuk melihat proyeknya)
+{ const u = new URLSearchParams(location.search), c = u.get('uji_fasum'); if (ASET_CALON[c]) BANGUN_VOTING.push(bangunCalon(c, u.get('uji_tahap') != null ? Date.now() - 864e5 : Date.now() - 8 * 864e5)); }
 // tahap visual (Huda 6 Nov): sepertiga awal fondasi, sepertiga kedua pasang bata, sepertiga akhir setengah jadi, lalu jadi
 const tahapBangun = b => { const uji = new URLSearchParams(location.search).get('uji_tahap'); if (uji != null) return +uji; const p = (Date.now() - b.mulai) / (b.sampai - b.mulai); return p < 1 / 3 ? 0 : p < 2 / 3 ? 1 : 2; };
-const bangunAktif = () => DI === 'wetan' ? BANGUN_VOTING.find(b => Date.now() < b.sampai) : null;
-const pasangVoting = () => DI !== 'wetan' ? [] : BANGUN_VOTING.map(b => Date.now() < b.sampai ? [b.fas, 'proyek', '🚧 ' + b.nama.replace(/^\S+ /, '') + ' (' + ['fondasi', 'pasang bata', 'setengah jadi'][tahapBangun(b)] + ')', [b.judul, tahapBangun(b), F[b.aset]]] : [b.fas, b.aset, b.nama]);
+const dusunBangun = b => b.dusun || 'wetan';
+const lahanBangun = b => dusunBangun(b) === 'wetan' ? I.fas?.[b.fas] : (f => f && {x: f.x * VS, y: (f.y || 0) * VS, z: f.z * VS, g: f.g})(I.lahanKosong?.[b.lahan]);
+const bangunAktif = () => BANGUN_VOTING.find(b => dusunBangun(b) === DI && Date.now() < b.sampai) || null;
+const pasangVoting = () => BANGUN_VOTING.filter(b => dusunBangun(b) === DI).map(b => Date.now() < b.sampai ? [b, 'proyek', '🚧 ' + b.nama.replace(/^\S+ /, '') + ' (' + ['fondasi', 'pasang bata', 'setengah jadi'][tahapBangun(b)] + ')', [b.judul, tahapBangun(b), F[b.aset]]] : [b, b.aset, b.nama]);
+// fasum khas yang SUDAH berdiri di tiap dusun (bahan misi "Kunjungi fasum khas", makin banyak fasum makin beragam misinya)
+const FASUM_KHAS = () => [['wetan', 'Supermarket'], ['wetan', 'Kampus'], ['wetan', 'Rumah Sakit'], ['wetan', 'Stadion'],
+  ...BANGUN_VOTING.filter(b => Date.now() >= b.sampai).map(b => [dusunBangun(b), b.nama.replace(/^\S+ /, '')])];
+// bagian berputar (bianglala, komidi putar) dari aset fasum: userData.putar = [{o, ax, v}]
+const PUTAR = [];
+function catatPutar(m) { (m.userData.putar || []).forEach(p => PUTAR.push(p)); }
+function animPutar(dt) { for (const p of PUTAR) { p.o.rotation[p.ax] += p.v * dt; if (p.ax === 'z') p.o.children.forEach(c => { if (c.userData.tegak) c.rotation.z = -p.o.rotation.z; }); } }
+// fasum pemenang voting di dusun selain Wetan (dipanggil bangunKulon sebelum pasangAtasFasum)
+function pasangVotingDusun() {
+  const g = new THREE.Group(); sc.add(g); let ada = false;
+  for (const [b, k, nama, judul] of pasangVoting()) {
+    const f = lahanBangun(b); if (!f || !F[k]) continue;
+    if (f.g) f.g.children.slice(1).forEach(c => f.g.remove(c));
+    const m = Array.isArray(judul) ? F[k](...judul) : F[k](); m.scale.setScalar(VS); m.position.set(f.x, f.y, f.z); g.add(m); catatPutar(m); ada = true;
+    fasumBangun.push({position: new THREE.Vector3(f.x, f.y, f.z), nama, ...F.pisahFasum(m)});
+  }
+  if (ada) { kumpulPijakan(g); bakeGroup(g); } else sc.remove(g);
+}
 const fasumBangun = [];   // {pos, nama, rect}
 function pasangFasum() {
   const g = new THREE.Group(); sc.add(g);
   I.G.updateMatrixWorld(true);
-  for (const [i, k, nama, judul] of [...PASANG_FASUM, ...pasangVoting()]) {
+  for (const [i, k, nama, judul] of [...PASANG_FASUM, ...pasangVoting().map(([b, ...r]) => [b.fas, ...r])]) {
     const f = I.fas && I.fas[i]; if (!f || !F[k]) continue;
     // kosongkan papan "LAHAN FASUM" + patok, sisakan tanahnya (seperti video)
     I.G.traverse(o => { if (o.isGroup && o.parent === I.G && Math.abs(o.position.x * VS - f.x) < 1 && Math.abs(o.position.z * VS - f.z) < 1) o.children.slice(1).forEach(c => o.remove(c)); });
-    const m = Array.isArray(judul) ? F[k](...judul) : F[k](); m.scale.setScalar(VS); m.position.set(f.x, 0, f.z); g.add(m);
+    const m = Array.isArray(judul) ? F[k](...judul) : F[k](); m.scale.setScalar(VS); m.position.set(f.x, 0, f.z); g.add(m); catatPutar(m);
     // tabrakan per dinding (pintu terbuka & ruang dalam bisa dimasuki, 6 Nov 2026); bagian atas disembunyikan saat warga di dalam
     fasumBangun.push({position: new THREE.Vector3(f.x, 0, f.z), nama, ...F.pisahFasum(m)});
   }
@@ -387,6 +418,7 @@ function bangunKulon(buat = kulon) {
   kumpulPijakan(I.G); kumpulPijakan(I.grupFasum);
   pecahInstanced(I.G); bakeGroup(I.G); bakeGroup(I.grupFasum);
   fasumBangun.push(...I.bangunan);
+  pasangVotingDusun();
   pasangAtasFasum(fasumBangun);
   bangunProksi();
 }
@@ -868,16 +900,24 @@ const KOLAM_MISI = [
   {id: 'kucing', ikon: '🐱', judul: 'Rawat kucing: beri makan kucing (tombol 🐟)', t: [1], koin: 5, info: 'Butuh ikan hasil mancing. Oyen ada di rumah Raka (No. 1), atau kucing di depan rumah warga.', antar: 1},
   {id: 'lompat', ikon: '🦘', judul: 'Lompat-lompat (tombol lompat)', t: [10, 20, 30], satuan: 'kali', koin: 5},
   {id: 'fasum', ikon: '🏛️', judul: 'Kunjungi fasilitas umum yang berbeda', t: [2, 3, 4], satuan: 'tempat', koin: 10, info: 'Fasilitas umum ada di baris paling selatan dusun.'},
-  {id: 'stadion', ikon: '🏟️', judul: 'Nonton bola di Stadion Dunia Kotak', t: [1], koin: 5, info: 'Stadion ada di baris fasilitas umum, selatan dusun.'},
+  {id: 'stadion', ikon: '🏟️', judul: 'Nonton bola di Stadion Dunia Kotak', t: [1], koin: 5, info: 'Stadion ada di baris fasilitas umum, selatan Dusun Kotak Wetan.', ke: ['wetan', 'Stadion']},
   {id: 'npc', ikon: '💬', judul: 'Ngobrol dengan warga NPC yang berbeda', t: [2, 3, 4], satuan: 'NPC', koin: 10},
-  {id: 'supermarket', ikon: '🛒', judul: 'Belanja ke Supermarket Dunia Kotak', t: [1], koin: 5, info: 'Supermarket ada di baris fasilitas umum, selatan dusun.'},
-  {id: 'rs', ikon: '🏥', judul: 'Jenguk teman di Rumah Sakit', t: [1], koin: 5, info: 'Rumah Sakit ada di baris fasilitas umum, selatan dusun.'},
+  {id: 'supermarket', ikon: '🛒', judul: 'Belanja ke Supermarket Dunia Kotak', t: [1], koin: 5, info: 'Supermarket ada di Dusun Kotak Wetan, dekat rumah Raka.', ke: ['wetan', 'Supermarket']},
+  {id: 'rs', ikon: '🏥', judul: 'Jenguk teman di Rumah Sakit', t: [1], koin: 5, info: 'Rumah Sakit ada di baris fasilitas umum, selatan Dusun Kotak Wetan.', ke: ['wetan', 'Rumah Sakit']},
+  // FASUM TERSEBAR (Huda 9 Nov 2026): misi lintas dusun. "khas" = satu fasum khas dusun yang berganti tiap hari (FASUM_KHAS),
+  // makin banyak fasum dibangun di dusun-dusun, makin beragam misinya.
+  {id: 'dusun', ikon: '🗺️', judul: 'Jelajah dusun yang berbeda (naik bus di terminal)', t: [2, 3], satuan: 'dusun', koin: 15},
+  {id: 'khas', ikon: '📍', judul: 'Kunjungi fasum khas hari ini', t: [1], koin: 15},
 ];
 function undiMisi(hari) {
   let h = 2166136261; for (const c of 'dk' + hari) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
   const r = () => { h = (h + 0x6D2B79F5) >>> 0; let t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   const a = KOLAM_MISI.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
-  return a.slice(0, 6).map(m => ({...m, target: m.t[Math.floor(r() * m.t.length)]}));
+  const pilih = a.slice(0, 6).map(m => ({...m, target: m.t[Math.floor(r() * m.t.length)]}));
+  const kh = pilih.find(m => m.id === 'khas');
+  if (kh) { const d = FASUM_KHAS(); let h2 = 0; for (const c of hari) h2 = (h2 * 31 + c.charCodeAt(0)) >>> 0; const [dd, nm] = d[h2 % d.length];
+    Object.assign(kh, {judul: `Kunjungi ${nm} di Dusun ${NAMA_DUSUN[dd] || dd}`, info: `Fasum khas Dusun ${NAMA_DUSUN[dd] || dd}. Besok fasum lain!`, ke: [dd, nm]}); }
+  return pilih;
 }
 let MISI = [];
 const BONUS_MISI = 20;
@@ -925,7 +965,7 @@ function tulisMisi() {
   $('isiMisi').innerHTML = MISI.map(m => {
     const p = progresMisi(m), ok = MS.selesai.has(m.id);
     return `<div class="misi ${ok ? 'ok' : ''}"><span class="mi">${ok ? '✅' : m.ikon}</span><div><b>${esc(m.judul)}</b>
-      <div class="bar"><i style="width:${Math.round(100 * (ok ? 1 : p / m.target))}%"></i></div><small>${ok ? 'Selesai' : m.target > 1 ? `${p}/${m.target} ${m.satuan || ''}` : 'Belum'}</small>${!ok && m.info ? `<small class="info">📍 ${esc(m.info)}</small>` : ''}${!ok && m.antar ? `<button class="antar" data-antar="${m.antar}">🧭 Antar ke sana</button>` : ''}</div><span class="koin">+${m.koin * kaliKoin()} 🪙</span></div>`;
+      <div class="bar"><i style="width:${Math.round(100 * (ok ? 1 : p / m.target))}%"></i></div><small>${ok ? 'Selesai' : m.target > 1 ? `${p}/${m.target} ${m.satuan || ''}` : 'Belum'}</small>${!ok && m.info ? `<small class="info">📍 ${esc(m.info)}</small>` : ''}${!ok && m.antar ? `<button class="antar" data-antar="${m.antar}">🧭 Antar ke sana</button>` : ''}${!ok && m.ke ? `<button class="antar" data-ke="${m.ke[0]}" data-kenama="${esc(m.ke[1])}">${m.ke[0] === DI ? '🧭 Antar ke sana' : `🚌 Naik bus ke Dusun ${esc(NAMA_DUSUN[m.ke[0]] || m.ke[0])}`}</button>` : ''}</div><span class="koin">+${m.koin * kaliKoin()} 🪙</span></div>`;
   }).join('') + `<div class="misi bonus ${MS.selesai.has('bonus') ? 'ok' : ''}"><span class="mi">🎁</span><div><b>Bonus: selesaikan semua misi</b><small>${MS.selesai.has('bonus') ? 'Sudah diambil' : `Otomatis masuk setelah ${MISI.length} misi selesai`}</small></div><span class="koin">+${BONUS_MISI * kaliKoin()} 🪙 +3 💎</span></div>`;
   // Misi tetap tiap hari (Huda 8 Nov): ikut lari Pelari Kalcer sampai finish, selesai otomatis di server saat finish.
   const okLari = MS.selesai.has('pelari');
@@ -940,6 +980,10 @@ function tulisMisi() {
 }
 document.addEventListener('click', e => { if (e.target.closest?.('[data-lari]')) ikutLari(); });
 document.addEventListener('click', e => { const b = e.target.closest?.('[data-antar]'); if (!b) return; $('panelMisi').hidden = true; pergiKe(+b.dataset.antar); });
+// misi di dusun lain: naik bus (pindah dusun, misi lanjut di sana) atau diantar ke fasumnya bila sudah di dusun itu
+document.addEventListener('click', e => { const b = e.target.closest?.('[data-ke]'); if (!b) return; $('panelMisi').hidden = true;
+  if (b.dataset.ke !== DI) return pindahDusun(b.dataset.ke);
+  const f = fasumBangun.find(x => x.nama && x.nama.includes(b.dataset.kenama)); if (f) mulaiRute({x: f.position.x, z: f.position.z, nama: b.dataset.kenama}, true); });
 // ---------- Lima menit pertama (7 Nov 2026): misi pemula berurutan + hadiah hadir beruntun ----------
 // Satu tujuan saja di layar (chip 🎯), tiap langkah langsung dapat koin. Urutan & koin HARUS sama dengan PEMULA di worker.js.
 const PEMULA = [
@@ -1097,7 +1141,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1'};
+const KABAR_LAMA = {ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   const baru = [...document.querySelectorAll('#panelKabar .kbItem[data-k]')].filter(e => !baca(KABAR_LAMA[e.dataset.k]));
@@ -1105,7 +1149,7 @@ function kabarBaru(n = 0) {
   const sibuk = [...document.querySelectorAll('.layarPenuh')].some(e => !e.hidden) || (typeof pemulaKini === 'function' && pemulaKini() && n < 40);
   if (sibuk) { if (n < 120) setTimeout(() => kabarBaru(n + 1), 5000); return; }
   document.querySelectorAll('#panelKabar .kbItem[data-k]').forEach(e => { e.hidden = !baru.includes(e); });
-  $('kbAjakBtn').hidden = !baru.some(e => e.dataset.k === 'ajak'); $('kbRumahBtn').hidden = !baru.some(e => e.dataset.k === 'rumah'); $('kbAlbumBtn').hidden = !baru.some(e => e.dataset.k === 'album'); $('kbPasarBtn').hidden = !baru.some(e => e.dataset.k === 'pasar'); $('kbNpcBtn').hidden = !baru.some(e => e.dataset.k === 'npc') || DI !== 'wetan' || !I.fas?.[11];
+  $('kbAjakBtn').hidden = !baru.some(e => e.dataset.k === 'ajak'); $('kbRumahBtn').hidden = !baru.some(e => e.dataset.k === 'rumah'); $('kbAlbumBtn').hidden = !baru.some(e => e.dataset.k === 'album'); $('kbPasarBtn').hidden = !baru.some(e => e.dataset.k === 'pasar'); $('kbVotingBtn').hidden = !baru.some(e => e.dataset.k === 'tersebar'); $('kbNpcBtn').hidden = !baru.some(e => e.dataset.k === 'npc') || DI !== 'wetan' || !I.fas?.[11];
   baru.forEach(e => simpan(KABAR_LAMA[e.dataset.k], '1')); bunyi('masuk');
   ambilAjakSingkat();
   $('panelKabar').hidden = false;
@@ -1114,6 +1158,7 @@ function kabarBaru(n = 0) {
   // NPC fasum (Huda 9 Nov 2026): antar ke pintu IGD Rumah Sakit (fas[11])
   $('kbNpcBtn').onclick = () => { $('panelKabar').hidden = true; const f = I.fas[11]; mulaiRute({x: f.x + 6.6 * VS, z: f.z + .6 * VS, nama: 'Rumah Sakit'}, true); };
   $('kbPasarBtn').onclick = () => { $('panelKabar').hidden = true; bukaPasar(); };
+  $('kbVotingBtn').onclick = () => { $('panelKabar').hidden = true; bukaVoting(); };
   $('kbAlbumBtn').onclick = () => { $('panelKabar').hidden = true; bukaAlbum(); };
   $('kbRumahBtn').onclick = () => { $('panelKabar').hidden = true; $('panelPeringkat').hidden = false; tabPeringkat('rumah'); };
 }
@@ -1214,13 +1259,13 @@ function tulisVoting() {
   $('vtSaldo').hidden = !!S.tamu; $('vtSaldo').innerHTML = `Bintangmu <b>⭐ ${saldo}</b>`;
   let h = S.tamu ? '<p class="kecil">Daftar jadi warga dulu supaya bisa ikut voting.</p>' : '';
   h += '<div class="vtDaftar">' + urut.map(c => { const [ik, nm] = CALON[c] || ['🏗️', c], n = d.hasil[c] || 0, sy = d.saya?.[c] || 0;
-    return `<div class="vtBaris"><span class="vtBar" style="width:${(n / maks * 100).toFixed(1)}%"></span><span class="vtIkon">${ik}</span><span class="vtNama">${esc(nm)}${sy ? `<small title="Bintangmu di sini">kamu ${sy}</small>` : ''}</span><span class="vtJml">⭐ ${n}</span>`
+    return `<div class="vtBaris"><span class="vtBar" style="width:${(n / maks * 100).toFixed(1)}%"></span><span class="vtIkon">${ik}</span><span class="vtNama">${esc(nm)}${LOKASI_FASUM[c] ? `<small class="vtLok" title="Dibangun di Dusun ${NAMA_DUSUN[LOKASI_FASUM[c][0]] || ''}">📍${(NAMA_DUSUN[LOKASI_FASUM[c][0]] || '').replace('Kotak ', '')}</small>` : ''}${sy ? `<small title="Bintangmu di sini">kamu ${sy}</small>` : ''}</span><span class="vtJml">⭐ ${n}</span>`
       + (S.tamu ? '' : `<button data-vt="${c}" data-n="1" ${saldo < 1 ? 'disabled' : ''}>+1</button>${saldo >= 5 ? `<button data-vt="${c}" data-n="${saldo}">+${saldo}</button>` : ''}`) + '</div>'; }).join('') + '</div>';
   $('isiVoting').innerHTML = h; tulisDana();
   // Siklus mingguan (Huda 8 Nov 2026): voting 1 minggu, pemenang langsung dibangun, lalu voting fasum lain.
   const sisa = d.tutup ? d.tutup - Date.now() : 0, tgl = d.tutup ? new Date(d.tutup).toLocaleDateString('id-ID', {weekday: 'long', day: 'numeric', month: 'short', timeZone: 'Asia/Jakarta'}) : '';
   const waktu = !d.tutup ? '' : sisa <= 0 ? 'Voting minggu ini sudah ditutup, pemenangnya mulai dibangun. ' : `Ditutup ${tgl}, 00.00 WIB (${sisa > 864e5 ? 'sisa ' + Math.floor(sisa / 864e5) + ' hari' : 'kurang dari sehari'}). `;
-  $('ringkasVoting').textContent = waktu + `Terbanyak langsung dibangun. ${d.pemilih} warga sudah memilih` + (S.tamu ? '.' : ', 1 bintang gratis tiap hari.');
+  $('ringkasVoting').textContent = waktu + `Terbanyak langsung dibangun di dusun 📍 tujuannya, tiap dusun punya fasum berbeda. ${d.pemilih} warga sudah memilih` + (S.tamu ? '.' : ', 1 bintang gratis tiap hari.');
   if (sisa < 0 || d.ditutup) $('isiVoting').querySelectorAll('button[data-vt]').forEach(b => b.disabled = true);
   if (!S.tamu && d.no) {
     $('vtDonasiLipat').hidden = false;
@@ -1295,6 +1340,7 @@ let cekMisiT = 0;
 function cekMisiDekat(me) {
   const now = performance.now(); if (now - cekMisiT < 700 || S.tamu || !I) return; cekMisiT = now;
   if (tokoh.raka && me.position.distanceTo(tokoh.raka.position) < 4 * VS) misiMaju('raka');
+  misiMaju('dusun', 1, DI);   // jelajah dusun: tiap dusun yang dimainkan hari ini dihitung sekali
   for (const [ns, rt] of lotRuntime) {
     const n = +ns, L = I.lots[n]; if (!L) continue;
     const dg = Math.hypot(me.position.x - L.gate.x, me.position.z - L.gate.z);
@@ -1305,7 +1351,8 @@ function cekMisiDekat(me) {
     const x = me.position.x, z = me.position.z, k = f.rect, d = 3 * VS;
     const dekat = k ? x > k[0] - d && x < k[1] + d && z > k[2] - d && z < k[3] + d : Math.hypot(x - f.position.x, z - f.position.z) < 6 * VS;
     if (!dekat) continue;
-    misiMaju('fasum', 1, f.nama);
+    misiMaju('fasum', 1, DI + ':' + f.nama);   // fasum bernama sama di dusun lain dihitung tempat berbeda
+    const kh = MISI.find(m => m.id === 'khas'); if (kh && kh.ke && kh.ke[0] === DI && f.nama.includes(kh.ke[1]) && !/^🚧/.test(f.nama)) misiMaju('khas');
     if (/Stadion/.test(f.nama)) misiMaju('stadion'); else if (/Supermarket/.test(f.nama)) misiMaju('supermarket'); else if (/Rumah Sakit/.test(f.nama)) misiMaju('rs');
   }
 }
@@ -1540,7 +1587,7 @@ function beriMakan(me, c, nama, ikon) {
 }
 function animSkill(dt, me) {
   const now = performance.now();
-  animPasar(dt, me);
+  animPasar(dt, me); animPutar(dt);
   if (now - itemT > 1500) { itemT = now; isiItem(me); }
   for (const it of itemDunia) { const u = it.userData; u.ph += dt; it.position.y = (u.y0 || 0) + 1.4 + Math.sin(u.ph * 2) * .4; it.rotation.y += dt * 1.2; }
   for (const c of [tokoh.oyen, ...kucingHidup]) if (c && c.userData.senang > now) c.position.y = Math.abs(Math.sin(now / 90)) * .6;
@@ -2115,16 +2162,17 @@ async function muatWargaNPC() {
 function aturProyek() {
   if (!wnpc) return;
   const uji = +new URLSearchParams(location.search).get('uji_bangun');   // pratinjau: ?uji_bangun=13
-  const b = bangunAktif(), k = uji || (b ? b.fas : null), f = k != null ? I.fas?.[k] : null;
+  const b = bangunAktif(), f = uji ? I.fas?.[uji] : b ? lahanBangun(b) : null;
   wnpc.setProyek(f ? {x: f.x, z: f.z} : null);
 }
 function gambarPapan() {
   const c = PAPAN.kanvas; if (!c) return; const x = c.getContext('2d'), d = PAPAN.data || {};
   x.fillStyle = '#f6ecd6'; x.fillRect(0, 0, 640, 400); x.strokeStyle = '#6a4a2a'; x.lineWidth = 14; x.strokeRect(7, 7, 626, 386);
-  x.fillStyle = '#3a2a1a'; x.textAlign = 'center'; x.font = '900 40px Montserrat, sans-serif'; x.fillText('LAHAN FASUM BERIKUTNYA', 320, 70);
+  x.fillStyle = '#3a2a1a'; x.textAlign = 'center'; x.font = '900 40px Montserrat, sans-serif'; x.fillText('VOTING FASUM DESA', 320, 70);
   const hasil = Object.entries(d.hasil || {}).sort((a, b) => b[1] - a[1]), un = hasil[0];
   x.font = '800 34px Montserrat, sans-serif'; x.fillStyle = '#b4532a';
   x.fillText(un && un[1] ? `Unggul: ${(CALON[un[0]] || ['', un[0]])[1]} (${un[1]} bintang)` : 'Voting fasum sedang berjalan', 320, 135);
+  const lk = un && un[1] && LOKASI_FASUM[un[0]]; if (lk) { x.font = '700 22px Montserrat, sans-serif'; x.fillStyle = '#6a5a48'; x.fillText(`Dibangun di Dusun ${NAMA_DUSUN[lk[0]] || lk[0]}`, 320, 168); }
   const dn = d.dana || {total: 0, target: 7000, hari: 7}, pr = Math.min(1, dn.total / dn.target);
   x.fillStyle = '#3a2a1a'; x.font = '700 28px Montserrat, sans-serif'; x.fillText('Dana pembangunan', 320, 200);
   x.fillStyle = '#d9cdb2'; x.fillRect(60, 220, 520, 48); x.fillStyle = '#2a9a5a'; x.fillRect(60, 220, 520 * pr, 48);
