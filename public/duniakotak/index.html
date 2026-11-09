@@ -95,6 +95,8 @@ header img{width:40px;height:40px}header b{font-size:17px}header span{font-size:
 h1{font-size:24px;margin:12px 0 10px;text-shadow:0 3px 0 var(--tinta);-webkit-text-stroke:1.2px var(--tinta)}
 #ajak.kartu{padding:14px 14px 10px;margin-bottom:12px}
 .hitung{font-size:13px}.hitung b{font-size:26px}
+.hitung{flex-wrap:wrap;row-gap:0}.hitung .menuju{flex-basis:100%;font-size:12px;font-weight:800;color:#2f7fd0}
+.diajak{display:inline-block;margin:2px 0 4px;padding:3px 10px;border-radius:99px;background:#fff1b8;color:#5a4300;font-size:12px;font-weight:800}
 .untungRingkas{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0}.untungRingkas span{background:#eef7e6;border:1px solid #cfe5bf;border-radius:999px;padding:4px 9px;font-weight:700;font-size:12px}
 .pintu{margin:12px 0 4px}.pintu button{padding:10px 6px;font-size:13.5px;border-radius:12px}
 .cara{margin-top:8px}.cara button{padding:9px 6px;font-size:14px}
@@ -201,7 +203,8 @@ details.ubah[open]>.isi,details.ubah[open]>#pilihAv{margin-top:10px}
   </section>
 
   <section class="kartu" id="ajak">
-    <div class="hitung"><b id="jumlah">…</b> warga sudah terdaftar</div>
+    <div class="hitung"><b id="jumlah">…</b> warga sudah terdaftar<span id="menuju861" class="menuju" hidden></span></div>
+    <div id="diajak" class="diajak" hidden></div>
     <div class="untungRingkas"><span>🏠 Kavling + rumah</span><span>🪪 Kartu Warga</span><span>🎮 Main game</span></div>
     <div class="pintu" role="tablist">
       <button data-pintu="daftar" class="aktif" role="tab">Daftar warga baru</button>
@@ -393,7 +396,14 @@ async function gambarKavling(nama,no){
   }catch(e){console.error(e)}
 }
 
+// Ajak Tetangga (9 Nov 2026): ?ajak=<no warga pengajak> disimpan di HP (link bisa dibuka ulang lewat Chrome), dikirim saat daftar.
+const AJAK=(()=>{let a=parseInt(new URLSearchParams(location.search).get('ajak')||'0',10)||0;
+  try{if(a>0)localStorage.setItem('dk_ajak',String(a));else a=parseInt(localStorage.getItem('dk_ajak')||'0',10)||0}catch(e){}return a>0&&a<100000?a:0})();
+fetch('/duniakotak/api/ajak'+(AJAK?'?dari='+AJAK:'')).then(r=>r.json()).then(d=>{
+  if(d.kurang){$('menuju861').textContent='· kurang '+d.kurang+' lagi Dusun Segara dibuka!';$('menuju861').hidden=false}
+  if(d.dari&&!bacaLokal()){$('diajak').textContent='🤝 Kamu diajak '+(d.dari.u?'@'+bersih(d.dari.u):'warga No. '+d.dari.no)+'. Daftar & tanam bibit pertama, kalian berdua dapat 💎';$('diajak').hidden=false}}).catch(()=>{});
 async function kirim(path,data){
+  if(AJAK&&(path==='daftar-ig'||path==='google'))data={...data,ajak:AJAK};
   const r=await fetch('/duniakotak/api/'+path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(data)});
   const j=await r.json().catch(()=>({galat:'Server tidak menjawab'}));if(!r.ok)throw new Error(j.galat||'Gagal');return j;
 }
@@ -536,7 +546,7 @@ $('kirimUsul').onclick=async()=>{
   let id='';if(!dalamApp){try{id=(await (await fetch('/duniakotak/api/config')).json()).clientId}catch(e){}}
   // Login Google tidak jalan di dalam app IG/TikTok (atau kalau Google belum siap): tawarkan Buka di Chrome / daftar tanpa Google.
   if(dalamApp||!id){
-    if(/Android/i.test(ua))$('bukaChrome').href='intent://willoapparel.com/duniakotak/#Intent;scheme=https;package=com.android.chrome;end';
+    if(/Android/i.test(ua))$('bukaChrome').href='intent://willoapparel.com/duniakotak/'+(AJAK?'?ajak='+AJAK:'')+'#Intent;scheme=https;package=com.android.chrome;end';
     $('dalamApp').style.display='block';$('gbtn').style.display='none';$('masukDalamApp').style.display='block';$('gbtnMasuk').style.display='none';
     if(/Android/i.test(ua))$('bukaChrome2').href='intent://willoapparel.com/duniakotak/?masuk=1#Intent;scheme=https;package=com.android.chrome;end';return}
   const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;
