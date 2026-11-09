@@ -642,11 +642,19 @@ function gambarPlakat() {
 function tulisPendukung() {
   const d = PD; if (!d) { $('isiPendukung').innerHTML = '<p class="kecil">Memuat…</p>'; return; }
   const no = S.saya?.no, saya = no ? BT[no] || 0 : 0, rp = (d.harga || BATA_RP).toLocaleString('id-ID');
-  let h = `<div class="pdHarga"><b>🧱 Dukung desa pakai Bata</b><small>Traktir sukarela lewat Trakteer; jumlah Bata dihitung otomatis. Tiap Bata juga jadi 5 ⭐ bintang voting + 50 💎 permata.</small></div>`;
+  // Papan Juragan minggu ini paling atas (Huda 9 Nov 2026), baru di bawahnya ajakan Pendukung Desa.
+  const pm = d.papanMinggu || (d.juragan?.mingguIni ? [{no: d.juragan.no, nm: d.juragan.nm, bata: d.juragan.bataMinggu}] : []);
+  const medali = ['👑', '🥈', '🥉'];
+  let h = `<div class="pdPapan">${Array.from({length: Math.max(3, pm.length)}, (_, i) => { const x = pm[i];
+    return x ? `<div class="pdPeringkat p${i + 1}${x.no === no ? ' aku' : ''}"><span class="pdMedali">${medali[i] || i + 1}</span><span class="pkNama">@${esc(x.nm || 'warga ' + x.no)}${x.no === no ? '<small>kamu</small>' : ''}</span><b>🧱 ${x.bata}</b></div>`
+      : `<div class="pdPeringkat p${i + 1} kosong"><span class="pdMedali">${medali[i]}</span><span class="pkNama">${i ? 'Kursi kosong · kamu?' : 'Belum ada. Jadilah yang pertama!'}</span><b>🧱 0</b></div>`; }).join('')}</div>`
+    + '<p class="kecil pdPapanKet">Peringkat Bata minggu ini (Senin–Minggu). Juara 1 dapat mahkota di atap rumahnya.</p>';
+  if (d.riwayat?.length > 1) h += `<p class="kecil pdRiwayat"><b>Riwayat mahkota:</b> ${d.riwayat.map(r => `@${esc(r.nm)} (${new Date(r.sejak).toLocaleDateString('id-ID', {day: 'numeric', month: 'short'})})`).join(' ← ')}</p>`;
+  h += '<h3 class="pdJudul">🧱 Pendukung Desa</h3><p class="kecil">Bantu Dunia Kotak terus dibangun. Tiap dukungan dihitung dalam Bata, dan namamu terlihat oleh seluruh desa.</p>';
+  h += `<div class="pdHarga"><b>🧱 Dukung desa pakai Bata</b><small>Traktir sukarela lewat Trakteer; jumlah Bata dihitung otomatis. Tiap Bata juga jadi 5 ⭐ bintang voting + 50 💎 permata.</small></div>`;
   if (!S.tamu && no) h += `<div class="pdSaya">Bata kamu: <b>🧱 ${saya}</b>${saya < BATA_BENDERA ? ` · ${BATA_BENDERA - saya} Bata lagi untuk Bendera Emas` : saya < BATA_PLAKAT ? ` · ${BATA_PLAKAT - saya} Bata lagi untuk masuk plakat fasum` : ' · namamu ada di plakat fasum'}</div>`;
   h += `<div class="pdHadiah">${[['🧱', '1 Bata', 'Lencana 🧱 di namamu + ucapan terima kasih di video Dunia Kotak'], ['🚩', `${BATA_BENDERA} Bata`, 'Bendera Emas berkibar di rumahmu, selamanya'], ['👑', 'Juragan Bata', 'Pendukung terbesar minggu ini (Senin–Minggu) dapat mahkota di atap. Disalip? Mahkota pindah!'], ['🪧', `${BATA_PLAKAT} Bata`, 'Namamu terpasang di plakat fasum yang sedang dibangun'], ['🏗️', 'Gratis', 'Pengusul pertama fasum yang menang voting jadi Bos fasum itu']].map(([i, j, k]) => `<div><i>${i}</i><span><b>${j}</b><small>${k}</small></span></div>`).join('')}</div>`;
-  const jr = d.juragan; h += `<div class="pdJuragan"><i>👑</i><span><small>Juragan Bata ${jr && jr.mingguIni ? 'minggu ini' : 'saat ini'}</small><b>${jr ? '@' + esc(jr.nm) : 'Belum ada. Jadilah yang pertama!'}</b>${jr && jr.mingguIni ? `<small>${jr.bataMinggu} Bata minggu ini</small>` : ''}</span></div>`;
-  if (d.riwayat?.length > 1) h += `<p class="kecil pdRiwayat"><b>Riwayat mahkota:</b> ${d.riwayat.map(r => `@${esc(r.nm)} (${new Date(r.sejak).toLocaleDateString('id-ID', {day: 'numeric', month: 'short'})})`).join(' ← ')}</p>`;
+  h += '<p class="kecil pdSemua"><b>Semua pendukung</b> (total Bata sejak awal)</p>';
   if (d.pendukung?.length) h += `<div class="pkDaftar pdDaftar">${d.pendukung.map((x, i) => `<div class="pkBaris${x.no === no ? ' aku' : ''}"><span class="pkNo">${i + 1}</span><span class="pkNama">${d.juragan?.no === x.no ? '👑 ' : ''}@${esc(x.nm)}</span><b>🧱 ${x.bata}</b></div>`).join('')}</div>`;
   else h += '<p class="kecil">Belum ada pendukung. Jadilah yang pertama memasang Bata di desa ini!</p>';
   const kode = no ? 'DK' + no : '';

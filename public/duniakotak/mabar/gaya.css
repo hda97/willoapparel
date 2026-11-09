@@ -387,3 +387,17 @@ a.barisAtur{text-decoration:none}.barisAtur span{display:flex;flex-direction:col
 .pdJuragan{background:rgba(255,201,40,.1);border-color:rgba(255,201,40,.4);margin-bottom:8px}.pdJuragan b{font:900 16px Montserrat,sans-serif;color:#ffd23a}
 .pdRiwayat{text-align:left}.pdDaftar{max-height:min(230px,calc(34*var(--vh,1vh)))}
 a.pdSaweria{display:block;text-align:center;text-decoration:none;margin-top:6px}
+/* Papan Juragan minggu ini di atas pop up Pendukung Desa (Huda 9 Nov 2026) */
+.pdPapan{display:grid;gap:6px;margin:4px 0 6px}
+.pdPeringkat{display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 12px;border-radius:12px;border:1px solid var(--garis);background:rgba(255,255,255,.05);font:800 14px Montserrat,sans-serif;color:#fff;text-align:left}
+.pdPeringkat .pdMedali{width:28px;flex:none;text-align:center;font-size:22px;line-height:1;font-weight:900}
+.pdPeringkat b{flex:none;font:900 15px Montserrat,sans-serif}
+.pdPeringkat .pkNama small{margin-left:8px;padding:1px 6px;border-radius:8px;background:rgba(90,190,120,.35);font:800 10px Montserrat,sans-serif;vertical-align:middle}
+.pdPeringkat.p1{min-height:54px;background:linear-gradient(90deg,rgba(255,201,40,.22),rgba(255,201,40,.06));border-color:rgba(255,201,40,.6);font-size:16px}
+.pdPeringkat.p1 .pdMedali{font-size:28px}.pdPeringkat.p1 b,.pdPeringkat.p1 .pkNama{color:#ffd23a}
+.pdPeringkat.p2{border-color:rgba(205,215,230,.45)}.pdPeringkat.p3{border-color:rgba(214,140,80,.5)}
+.pdPeringkat.kosong{opacity:.6;border-style:dashed}.pdPeringkat.kosong .pkNama{font-weight:600;color:#cdd}
+.pdPeringkat.aku{box-shadow:inset 0 0 0 2px rgba(90,190,120,.7)}
+.pdPapanKet{margin:0 0 6px}
+.pdJudul{margin:14px 0 4px;font:900 18px Montserrat,sans-serif;color:#fff}
+.pdSemua{text-align:left;margin:10px 0 4px}
