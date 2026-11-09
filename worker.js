@@ -336,7 +336,10 @@ export class Warga extends DurableObject {
         if (re.test(r.usulan)) { bos[id] = { no: r.no, nm: r.ig || r.tiktok }; break; }
       }
     }
-    return { harga: BATA_RP, bendera: BATA_BENDERA, plakatTiap: BATA_PLAKAT, dibangun: this.fasumDibangun(kini), minggu: mg,
+    // Papan "Juragan minggu ini" (Huda 9 Nov 2026): peringkat Bata minggu ini (Senin–Minggu WIB); seri → pemegang mahkota dulu.
+    const papanMinggu = Object.entries(mgIni).map(([no, s]) => ({ no: +no, nm: nmNo[no] || "", bata: Math.floor(s / BATA_RP), s })).filter((x) => x.bata >= 1)
+      .sort((a, b) => b.s - a.s || (jr && jr.mg === mg ? (b.no === jr.no) - (a.no === jr.no) : 0) || a.no - b.no).slice(0, 10).map(({ no, nm, bata }) => ({ no, nm, bata }));
+    return { harga: BATA_RP, bendera: BATA_BENDERA, plakatTiap: BATA_PLAKAT, dibangun: this.fasumDibangun(kini), minggu: mg, papanMinggu,
       juragan: jr ? { no: jr.no, nm: nmNo[jr.no] || "", sejak: jr.t, bataMinggu: Math.floor((mgIni[jr.no] || 0) / BATA_RP), mingguIni: jr.mg === mg ? 1 : 0 } : null,
       riwayat, plakat, bos, pendukung: daftar.slice(0, 50), jumlah: daftar.length, terbaru };
   }
