@@ -10,7 +10,7 @@ Aplikasi Google Play untuk game Dunia Kotak. Rencana lengkap: `/mnt/project-file
 
 ## Build
 
-APK uji otomatis lewat GitHub Actions (`.github/workflows/aplikasi-android.yml`): tab Actions → run terbaru → Artifacts → `dunia-kotak-apk-debug`.
+APK uji otomatis lewat GitHub Actions (`.github/workflows/aplikasi-android.yml`). Setelah merge ke main, file siap pasang ada di Release **apk-uji**: https://github.com/hda97/willoapparel/releases/tag/apk-uji (`dunia-kotak-uji.apk`). Di PR: tab Actions → run → Artifacts.
 
 Lokal (butuh JDK 21 + Android SDK):
 
@@ -26,4 +26,10 @@ npm run aab     # AAB rilis untuk Play (butuh kunci unggah; JANGAN commit keysto
 - Login Google native (butuh OAuth client Android + sidik jari SHA-1 dari Play Console).
 - Google Play Billing untuk 💎.
 - Tanda tangan rilis + Play App Signing.
-- Laporkan/Blokir di chat, Hapus akun di ⚙, pembaruan privasi.html (syarat Play).
+
+## Halaman kebijakan (untuk Play Console)
+
+- Kebijakan privasi: https://willoapparel.com/duniakotak/privasi.html
+- Syarat penggunaan: https://willoapparel.com/duniakotak/syarat.html
+- Hapus akun (URL wajib di formulir Keamanan Data): https://willoapparel.com/duniakotak/hapus-akun.html — juga dari game: ⚙ Atur → Privasi & hapus akun.
+- Chat: ketuk nama warga → 🔇 Bisukan / 🚩 Laporkan (3 laporan = bisu 1 jam).
