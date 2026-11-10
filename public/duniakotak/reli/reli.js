@@ -10,6 +10,7 @@
 import '../mabar/js/putar.js'; // HP tegak -> tampil mendatar, sama seperti game desa
 import * as THREE from 'three';
 import {warga} from '../mabar/js/aset/avatar.js';
+import {buatMobil, MODEL_MOBIL} from '../mabar/js/aset/mobil.js?v=20261111mobil';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
@@ -238,81 +239,24 @@ for (let i = 20; i < NS - 20; i += 1) if (Math.abs(T[i].k) > .03 && i % 37 === 0
 jerami(I_START + 2, 1, 4); jerami(IG[GERBANG - 1] + 3, 1, 4); jerami(IG[GERBANG - 1] + 3, -1, 4);
 
 // =====================================================================
-// 2. MOBIL: hatchback kotak reli 80-an (original), detail dari bedah video
+// 2. MOBIL: desain ulang 11 Nov 2026 (Huda: "harus yang keren detailnya") -> 3 model di mabar/js/aset/mobil.js
+//    Hatch Reli, Kotak GT, Jip Garuk. Pilihan model & warna disimpan di HP (dk_reli_mobil, dk_reli_warna).
 // =====================================================================
 const WARNA_MOBIL = [['merah', 0xb8252c], ['biru', 0x2f6fd8], ['kuning', 0xf2b62a], ['hijau', 0x2f9a54], ['putih', 0xeeeee8], ['hitam', 0x2a2b33]];
 let warnaPilih = Math.max(0, WARNA_MOBIL.findIndex(w => w[0] === baca('dk_reli_warna')));
-function platTex(teks) { const c = document.createElement('canvas'); c.width = 256; c.height = 64; const g = c.getContext('2d'); g.fillStyle = '#f4f4f0'; g.fillRect(0, 0, 256, 64);
-  g.strokeStyle = '#1b1c21'; g.lineWidth = 6; g.strokeRect(3, 3, 250, 58); g.fillStyle = '#1b1c21'; g.font = '900 40px Montserrat, system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(teks, 128, 34);
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; }
-function nomorTex(n) { const c = document.createElement('canvas'); c.width = 128; c.height = 128; const g = c.getContext('2d');
-  g.fillStyle = '#ffffff'; g.beginPath(); g.arc(64, 64, 60, 0, 7); g.fill(); g.fillStyle = '#1b1c21'; g.font = '900 64px Montserrat, system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(n), 64, 68);
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; }
-const GARIS = new THREE.MeshBasicMaterial({color: 0x15161c, side: THREE.BackSide});   // garis tepi hitam gaya kartun (inverted hull)
-function garisTepi(m, t = .045) { const o = new THREE.Mesh(m.geometry, GARIS); o.position.copy(m.position); o.rotation.copy(m.rotation);
-  m.geometry.computeBoundingBox(); const b = m.geometry.boundingBox, s = new THREE.Vector3(); b.getSize(s); o.scale.set(1 + 2 * t / s.x, 1 + 2 * t / s.y, 1 + 2 * t / s.z); o.scale.multiply(m.scale); return o; }
-function buatMobil(warna, no) {
-  const mobil = new THREE.Group(), bodi = new THREE.Group(); mobil.add(bodi);   // bodi = bagian yang oleng (ban tetap di tanah)
-  const cat = matS(warna, {roughness: .55, metalness: .05}), hitam = matS(0x1d1e24, {roughness: .7}), kaca = new THREE.MeshStandardMaterial({color: 0x23324a, roughness: .2, metalness: .3, transparent: true, opacity: .78});
-  const tepi = [], bx = (w, h, d, m, x, y, z, garis = true) => { const o = kotak(w, h, d, 0, x, y, z, m); bodi.add(o); if (garis) tepi.push(garisTepi(o)); return o; };
-  // badan bawah (kotak, panjang 4 m), kap pendek, buritan tegak
-  bx(1.78, .56, 3.9, cat, 0, .74, 0);
-  bx(1.7, .1, 1.25, cat, 0, 1.06, 1.3);                      // kap mesin
-  bx(1.84, .24, .2, hitam, 0, .52, 2.02); bx(1.84, .26, .22, hitam, 0, .52, -2.02);   // bumper depan & belakang hitam
-  bx(1.82, .14, 3.5, hitam, 0, .44, 0, false);              // list bawah hitam (side skirt)
-  // kabin hatchback: atap panjang sampai buritan, pilar warna bodi + kaca gelap (kaca depan & belakang miring)
-  bx(1.56, .52, 2.05, cat, 0, 1.3, -.62);
-  const kd = kotak(1.48, .5, .07, 0, 0, 0, 0, kaca); kd.rotation.x = -.5; kd.position.set(0, 1.29, .5); bodi.add(kd);
-  const kb = kotak(1.48, .5, .07, 0, 0, 0, 0, kaca); kb.rotation.x = .62; kb.position.set(0, 1.27, -1.72); bodi.add(kb);
-  [-1, 1].forEach(s => { bodi.add(kotak(.06, .34, .8, 0, s * .79, 1.34, .02, kaca)); bodi.add(kotak(.06, .32, .8, 0, s * .79, 1.34, -.98, kaca)); });   // kaca samping (pintu & belakang)
-  bx(1.5, .08, 1.7, cat, 0, 1.59, -.55);                     // atap
-  // spakbor lebar (overfender) di atas tiap ban
-  for (const [x, z] of [[-.9, 1.25], [.9, 1.25], [-.9, -1.25], [.9, -1.25]]) bx(.16, .3, 1.05, cat, x, .9, z);
-  // sayap belakang (spoiler) lebar
-  [-.6, .6].forEach(x => bx(.08, .26, .12, hitam, x, 1.17, -1.82, false)); bx(1.86, .06, .42, cat, 0, 1.31, -1.86);
-  // lampu belakang kotak (menyala terang saat rem) & lampu depan + 4 lampu reli bulat di bumper
-  const lampuRem = new THREE.MeshStandardMaterial({color: 0x8a1010, emissive: 0xff2a1a, emissiveIntensity: .5, roughness: .4});
-  [-1, 1].forEach(s => { bodi.add(kotak(.46, .17, .05, 0, s * .6, .86, -1.97, lampuRem)); bodi.add(kotak(.14, .17, .05, 0, s * .3, .86, -1.97, matS(0xf2a23a, {emissive: 0x6a3a00}))); });
-  [-1, 1].forEach(s => bodi.add(kotak(.42, .16, .05, 0, s * .6, .86, 1.97, matS(0xfff4c8, {emissive: 0xfff0b0, emissiveIntensity: .35}))));
-  [-.54, -.18, .18, .54].forEach(x => { const l = new THREE.Mesh(new THREE.CylinderGeometry(.11, .11, .08, 12), matS(0xfff6c0, {emissive: 0xffe680, emissiveIntensity: .45})); l.rotation.x = Math.PI / 2; l.position.set(x, .62, 2.14); bodi.add(l); });
-  // panel belakang bertulisan, plat nomor DK, gantungan derek
-  const panel = new THREE.Mesh(new THREE.PlaneGeometry(.8, .16), new THREE.MeshBasicMaterial({map: teksTex(256, 48, 'RELI KOTAK 4WD', '#1d1e24', '#f4f2ff', 800)})); panel.rotation.y = Math.PI; panel.position.set(0, .86, -1.976); bodi.add(panel);
-  const plat = new THREE.Mesh(new THREE.PlaneGeometry(.62, .16), new THREE.MeshBasicMaterial({map: platTex('DK ' + (no || 'TAMU'))})); plat.rotation.y = Math.PI; plat.position.set(0, .58, -2.14); bodi.add(plat);
-  const derek = new THREE.Mesh(new THREE.TorusGeometry(.07, .025, 6, 12), matS(0xd8d8de, {metalness: .6})); derek.position.set(.35, .36, -2.12); bodi.add(derek);
-  // strip sponsor di atas kaca depan, nomor start di pintu, knalpot
-  const strip = new THREE.Mesh(new THREE.PlaneGeometry(1.48, .13), new THREE.MeshBasicMaterial({map: teksTex(512, 44, 'WILLOAPPAREL.COM', '#f2c14a', '#1d1e24', 900)})); strip.rotation.x = -.5; strip.position.set(0, 1.46, .43); bodi.add(strip);
-  const nt = nomorTex((no || 7) % 100);
-  [-1, 1].forEach(s => { const r = new THREE.Mesh(new THREE.CircleGeometry(.24, 20), new THREE.MeshBasicMaterial({map: nt})); r.position.set(s * .9, .78, .1); r.rotation.y = s * Math.PI / 2; bodi.add(r); });
-  const knalpot = new THREE.Mesh(new THREE.CylinderGeometry(.06, .06, .22, 8), matS(0x777777, {metalness: .7})); knalpot.rotation.x = Math.PI / 2; knalpot.position.set(-.55, .38, -2.08); bodi.add(knalpot);
-  tepi.forEach(o => bodi.add(o));
-  // api knalpot (muncul sebentar saat ganti gigi)
-  const api = new THREE.Mesh(new THREE.ConeGeometry(.16, .7, 8), new THREE.MeshBasicMaterial({color: 0xffa020, transparent: true, opacity: .9}));
-  api.rotation.x = -Math.PI / 2; api.position.set(-.55, .38, -2.5); api.visible = false; bodi.add(api);
-  // ban besar menonjol + pelindung lumpur (mud flap)
-  const roda = [], gRoda = new THREE.CylinderGeometry(.4, .4, .34, 14), mRoda = matS(0x1b1c21, {roughness: .9}), mVelg = matS(0xd8d8de, {metalness: .5, roughness: .4});
-  for (const [x, z, depan] of [[-.92, 1.25, 1], [.92, 1.25, 1], [-.92, -1.25, 0], [.92, -1.25, 0]]) {
-    const piv = new THREE.Group(); piv.position.set(x, .4, z); const putar = new THREE.Group(); piv.add(putar);
-    const b = new THREE.Mesh(gRoda, mRoda); b.rotation.z = Math.PI / 2; b.castShadow = true; putar.add(b);
-    const v = new THREE.Mesh(new THREE.CylinderGeometry(.22, .22, .36, 8), mVelg); v.rotation.z = Math.PI / 2; putar.add(v); const jr = new THREE.Mesh(new THREE.BoxGeometry(.37, .08, .3), mRoda); putar.add(jr);
-    mobil.add(piv); roda.push({piv, putar, depan});
-    if (!depan) bodi.add(kotak(.34, .32, .04, 0, x * 1.02, .42, z - .5, hitam));
-  }
-  // pengemudi: avatar asli warga + helm reli (kelihatan dari kaca)
-  const supir = new THREE.Group(); bodi.add(supir);
-  mobil.userData = {bodi, roda, lampuRem, api, supir};
-  mobil.traverse(m => { if (m.isMesh && m.material !== GARIS) m.castShadow = true; });
-  return mobil;
-}
-function pasangSupir(av) {
-  const s = MOBIL.userData.supir; s.clear();
-  try { const o = warga(av || {}); const b = new THREE.Box3().setFromObject(o), h = b.max.y - b.min.y || 1, k = 1.25 / h;
-    o.scale.setScalar(k); o.position.set(.36, 1.62 - 1.25 - b.min.y * k + .02, -.35); s.add(o);
+let modelPilih = Math.max(0, MODEL_MOBIL.findIndex(m => m.id === baca('dk_reli_mobil')));
+function pasangSupir(av) {   // pengemudi: avatar asli warga + helm reli (kelihatan dari kaca); tinggi & letak kursi per model
+  const s = MOBIL.userData.supir, k0 = MOBIL.userData.kursi; s.clear();
+  try { const o = warga(av || {}); const b = new THREE.Box3().setFromObject(o), h = b.max.y - b.min.y || 1, k = k0.tinggi / h;
+    o.scale.setScalar(k); o.position.set(k0.x, k0.atap - k0.tinggi - b.min.y * k + .02, k0.z); s.add(o);
     const d = o.userData; if (d && d.head) { const helm = new THREE.Group(); helm.add(kotak(1.22, .62, 1.22, 0xf4f2ff, 0, .95, 0), kotak(1.24, .2, 1.24, 0xe0503a, 0, .72, 0), kotak(1.0, .3, .12, 0x1d1e24, 0, .62, .62)); d.head.add(helm); }
   } catch (e) {}
 }
-let MOBIL = buatMobil(WARNA_MOBIL[warnaPilih][1], AKUN && AKUN.no); sc.add(MOBIL); pasangSupir(LOKAL.av);
-function gantiWarna(i) { warnaPilih = i; simpan('dk_reli_warna', WARNA_MOBIL[i][0]); const p = MOBIL.position.clone(), r = MOBIL.rotation.y; sc.remove(MOBIL);
-  MOBIL = buatMobil(WARNA_MOBIL[i][1], AKUN && AKUN.no); MOBIL.position.copy(p); MOBIL.rotation.y = r; sc.add(MOBIL); pasangSupir(LOKAL.av); }
+const bangunMobil = () => buatMobil(MODEL_MOBIL[modelPilih].id, WARNA_MOBIL[warnaPilih][1], AKUN && AKUN.no);
+let MOBIL = bangunMobil(); sc.add(MOBIL); pasangSupir(LOKAL.av);
+function gantiMobil() { simpan('dk_reli_warna', WARNA_MOBIL[warnaPilih][0]); simpan('dk_reli_mobil', MODEL_MOBIL[modelPilih].id);
+  const p = MOBIL.position.clone(), r = MOBIL.quaternion.clone(); sc.remove(MOBIL);
+  MOBIL = bangunMobil(); MOBIL.position.copy(p); MOBIL.quaternion.copy(r); sc.add(MOBIL); pasangSupir(LOKAL.av); }
 
 // ---------- bekas ban & debu (pool instanced) ----------
 const BEKAS_N = 1400, bekas = new THREE.InstancedMesh(new THREE.PlaneGeometry(.3, .7), new THREE.MeshBasicMaterial({color: 0x5a4632, transparent: true, opacity: .42, depthWrite: false}), BEKAS_N);
@@ -378,7 +322,7 @@ function fisika(dt) {
   b.rotation.x += (Math.max(-.05, Math.min(.05, -ak * .004)) - b.rotation.x) * Math.min(1, dt * 6);
   b.position.y = Math.sin(performance.now() / 70) * .012 * Math.min(1, Math.abs(vf2) / 10) * (diJalan ? 1 : 3);
   MOBIL.position.set(K.x, K.y, K.z); MOBIL.rotation.set(0, 0, 0); MOBIL.rotateY(K.h); MOBIL.rotateZ(K.roll); MOBIL.rotateX(K.pitch);
-  for (const r of MOBIL.userData.roda) { r.putar.rotation.x += vf2 * dt / .38; if (r.depan) r.piv.rotation.y = -K.setir * .45; }
+  for (const r of MOBIL.userData.roda) { r.putar.rotation.x += vf2 * dt / MOBIL.userData.jari; if (r.depan) r.piv.rotation.y = -K.setir * .45; }
   // gigi, putaran mesin, api knalpot saat naik gigi
   const v = Math.abs(vf2); let g = 1; while (g < 5 && v > GIGI[g]) g++;
   if (g > K.gigi && aktif) { K.apiT = .14; letup(); }
@@ -474,8 +418,11 @@ function tulisLobi(top) {
   if (top) { const L = (top.top || []).slice(0, 3); $('lTop').innerHTML = L.length ? L.map((x, n) => `<span class="kaca ${AKUN && x.no === AKUN.no ? 'saya' : ''}">${['🥇', '🥈', '🥉'][n]} ${esc(x.u ? '@' + x.u : 'Warga ' + x.no)} ${jamTeks(x.t)}</span>`).join('') : '<span class="kaca">Belum ada rekor. Jadi yang pertama!</span>'; }
   $('lAturan').textContent = AKUN ? `Lewati ${GERBANG} gerbang secepatnya · Finish = +${KOIN_FINISH} 🪙 (3x sehari)` : 'Mode tamu: latihan. Masuk desa sebagai warga untuk rekor & 🪙';
 }
-WARNA_MOBIL.forEach(([n, c], i) => { const b = document.createElement('button'); b.style.background = '#' + c.toString(16).padStart(6, '0'); b.title = 'Mobil ' + n; b.setAttribute('aria-label', 'Warna mobil ' + n);
-  if (i === warnaPilih) b.classList.add('pilih'); b.onclick = () => { document.querySelectorAll('#lWarna button').forEach(x => x.classList.remove('pilih')); b.classList.add('pilih'); gantiWarna(i); bunyi(880, .05); }; $('lWarna').append(b); });
+// pilih model (◀ nama ▶) & warna mobil; mobil di lobi langsung berganti
+function tulisModel() { const m = MODEL_MOBIL[modelPilih]; $('lModel').innerHTML = `<i>${m.ikon}</i>${esc(m.nama)}`; $('lModel').setAttribute('aria-label', 'Ganti model mobil, sekarang ' + m.nama); }
+$('lModel').onclick = () => { modelPilih = (modelPilih + 1) % MODEL_MOBIL.length; tulisModel(); gantiMobil(); bunyi(660, .06); }; tulisModel();
+WARNA_MOBIL.forEach(([n, c], i) => { const b = document.createElement('button'); b.className = 'titik'; b.style.background = '#' + c.toString(16).padStart(6, '0'); b.title = 'Mobil ' + n; b.setAttribute('aria-label', 'Warna mobil ' + n);
+  if (i === warnaPilih) b.classList.add('pilih'); b.onclick = () => { document.querySelectorAll('#lWarna .titik').forEach(x => x.classList.remove('pilih')); b.classList.add('pilih'); warnaPilih = i; gantiMobil(); bunyi(880, .05); }; $('lWarna').append(b); });
 tulisLobi(null);
 apiR(null).then(j => { if (j && !j.galat) tulisLobi(j); });
 let idBalap = 0;

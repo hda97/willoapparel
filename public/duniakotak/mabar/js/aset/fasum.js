@@ -1,5 +1,6 @@
 // Aset fasum Dunia Kotak (gaya kotak besar membulat, satuan kavling; skala VS di pemanggil)
 import {THREE,box} from '../lib.js';
+import {buatMobil} from './mobil.js?v=20261111mobil';
 function roof(w,h,d,c){const s=new THREE.Shape();s.moveTo(-w/2,0);s.lineTo(w/2,0);s.lineTo(0,h);s.lineTo(-w/2,0);const g=new THREE.ExtrudeGeometry(s,{depth:d,bevelEnabled:false});g.translate(0,0,-d/2);return new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:c,roughness:.8}))}
 function G(){const g=new THREE.Group();g.ad=(m,x,y,z,ry=0)=>{m.position.set(x,y,z);m.rotation.y=ry;g.add(m);return m};return g}
 function fin(g){g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});return g}
@@ -273,7 +274,7 @@ export function arenaLari(){const g=G();const RUMPUT=0x6fbf5a,RUMPUT2=0x5fae4c,T
  g.userData.zona=[];return fin(g)}
 // Sirkuit Reli Kotak (Huda 10 Nov 2026: game mobil reli versi Dunia Kotak). Berdiri di depan kaki gunung Dusun Kotak Curug, dekat
 // jalan kaki gunung. Pintu masuk ke game reli terpisah (/duniakotak/reli/): gerbang START, lintasan tanah mini, mobil reli kotak
-// (hatchback 80-an + sayap belakang, original), paddock beratap oranye, tumpukan ban, jerami, rambu panah kuning, bendera finish.
+// (3 model: Hatch Reli, Kotak GT, Jip Garuk; original), paddock beratap oranye, tumpukan ban, jerami, rambu panah kuning, bendera finish.
 // Warga yang masuk area sirkuit dapat tombol 🏁 Reli.
 export function sirkuitReli(){const g=G();const RUMPUT=0x6fbf5a,TANAH=0xc9a77a,ALUR=0xa88660,O=0xe0803a,N=0x2c3150,M=0xb8252c,H=0x1d1e24;lantai(g,19,17,RUMPUT);
  const datar=(geo,c,y)=>{const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:c,roughness:.95}));m.rotation.x=-Math.PI/2;m.receiveShadow=true;g.ad(m,0,y,0);m.rotation.x=-Math.PI/2;return m};
@@ -286,16 +287,10 @@ export function sirkuitReli(){const g=G();const RUMPUT=0x6fbf5a,TANAH=0xc9a77a,A
  // gapura START melintang di lintasan depan
  [RI-.3,RO+.3].forEach(z=>{g.ad(box(.4,3.4,.4,N,.03),0,2.05,z);g.ad(box(.55,.3,.55,O,.03),0,.5,z)});g.ad(box(.35,.9,RO-RI+1,N,.04),0,3.55,(RI+RO)/2);
  [1,-1].forEach(s=>{const p=papanTeks(3.1,.62,'START · RELI',s>0?'#e0803a':'#2c3150','#ffffff');p.rotation.y=s*Math.PI/2;p.position.set(s*.19,3.55,(RI+RO)/2);g.add(p)});
- // mobil reli kotak di garis start (hatchback merah, bumper hitam, sayap belakang, lampu reli)
- const mb=new THREE.Group();mb.add(box(1.8,.56,3.9,M,.08));mb.children[0].position.y=.74;
- const tb=(w,h,d,c,x,y,z,r=.04)=>{const o=box(w,h,d,c,r);o.position.set(x,y,z);mb.add(o);return o};
- tb(1.56,.52,2.05,M,0,1.28,-.62);tb(1.5,.08,1.7,M,0,1.57,-.55);tb(1.6,.36,.12,0x23324a,0,1.3,.46,.02);tb(1.6,.36,.12,0x23324a,0,1.3,-1.68,.02);[-1,1].forEach(s=>tb(.08,.32,1.7,0x23324a,s*.79,1.33,-.5,.02));
- tb(1.86,.24,.22,H,0,.5,2.0);tb(1.86,.24,.22,H,0,.5,-2.0);[-.6,.6].forEach(x=>tb(.08,.26,.12,H,x,1.17,-1.82,.02));tb(1.9,.07,.42,M,0,1.32,-1.86,.02);
- [-1,1].forEach(s=>{tb(.42,.16,.06,0xff3a2a,s*.6,.86,-1.98,.02);tb(.42,.16,.06,0xfff2c0,s*.6,.86,1.98,.02)});[-.5,-.17,.17,.5].forEach(x=>tb(.2,.2,.08,0xfff6c0,x,.62,2.12,.04));
- for(const [x,z] of [[-.92,1.25],[.92,1.25],[-.92,-1.25],[.92,-1.25]]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.4,.4,.34,14),new THREE.MeshStandardMaterial({color:0x1b1c21,roughness:.9}));w.rotation.z=Math.PI/2;w.position.set(x,.4,z);mb.add(w);tb(.16,.3,1.05,M,x,.9,z)}
- const pl=papanTeks(.62,.16,'DK RELI','#f4f4f0','#1b1c21');pl.rotation.y=Math.PI;pl.position.set(0,.55,-2.12);mb.add(pl);
- const st=papanTeks(1.48,.13,'WILLOAPPAREL.COM','#f2c14a','#1d1e24');st.position.set(0,1.5,.53);st.rotation.x=-.3;mb.add(st);
- mb.position.set(-1.6,.35,(RI+RO)/2+.1);mb.rotation.y=Math.PI/2;mb.scale.setScalar(.95);g.add(mb);
+ // mobil reli di garis start & di lintasan belakang (desain ulang 11 Nov 2026: model sama persis dengan di game Reli Kotak, aset mobil.js)
+ const mb=buatMobil('hatch',M,1);mb.position.set(-1.6,.35,(RI+RO)/2+.1);mb.rotation.y=Math.PI/2;mb.scale.setScalar(.95);g.add(mb);
+ const m2=buatMobil('gt',0x2f6fd8,2);m2.position.set(1.4,.35,-(RI+RO)/2);m2.rotation.y=-Math.PI/2;m2.scale.setScalar(.95);g.add(m2);
+ const m3=buatMobil('jip',0xf2b62a,3);m3.position.set(-3.9,.35,.4);m3.rotation.y=1.2;m3.scale.setScalar(.95);g.add(m3);
  // paddock beratap oranye di belakang + papan nama
  [[-7.6,-6.6],[-2.6,-6.6],[-7.6,-3.6],[-2.6,-3.6]].forEach(([x,z])=>g.ad(box(.2,2.8,.2,0xdddddd,.02),x,1.75,z));g.ad(box(5.6,.35,3.8,O,.05),-5.1,3.25,-5.1);g.ad(box(5.7,.55,.12,N,.02),-5.1,2.85,-3.2);
  const pd=papanTeks(5.2,.5,'PADDOCK RELI','#2c3150','#f2c14a');pd.position.set(-5.1,2.85,-3.13);g.add(pd);

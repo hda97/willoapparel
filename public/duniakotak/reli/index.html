@@ -37,8 +37,12 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
 .lintas button.kunci{opacity:.6}
 .warna{display:flex;gap:6px;align-items:center;padding:6px 10px}
 .warna small{font-size:10px;font-weight:800;color:var(--redup);margin-right:auto}
-.warna button{width:26px;height:26px;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
-.warna button.pilih{box-shadow:0 0 0 3px #fff}
+.warna{gap:5px;padding:5px 8px}
+.warna .titik{flex:0 0 auto;width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
+.warna .titik.pilih{box-shadow:0 0 0 3px #fff}
+/* model mobil (desain ulang 11 Nov 2026): satu tombol, ketuk = ganti model berikutnya */
+#lModel{margin-right:auto;min-width:0;flex:1 1 auto;display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:9px;background:rgba(255,255,255,.14);font-size:11.5px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#lModel i{font-style:normal;font-size:14px}#lModel::after{content:'▸';margin-left:auto;padding-left:4px;color:var(--kuning)}
 .aksi{display:grid;grid-template-columns:1fr auto;gap:7px}
 .aksi .kedua{width:auto;padding:0 12px;display:flex;align-items:center}
 .aturan{font-size:10.5px;font-weight:700;color:#fff;padding:6px 10px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -100,7 +104,7 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
  <div class="judul"><small id="lJudul">🏁 SIRKUIT LERENG CURUG</small><h1>Reli <span>Kotak</span></h1></div>
  <div class="lintas" id="lLintas"></div>
  <div class="kaca status"><div><small>REKORMU</small><b id="lRekor">–</b></div><div><small>POSISI</small><b id="lPos">–</b></div></div>
- <div class="kaca warna" id="lWarna"><small>Warna mobil</small></div>
+ <div class="kaca warna" id="lWarna"><button id="lModel" type="button"></button></div>
  <div class="aksi"><button class="utama" id="bMulai">🏁 MULAI BALAP</button><a class="kedua tombol kaca" id="bDesa" href="/duniakotak/mabar/?dusun=curug&amp;ke=reli">← Desa</a></div>
  <div class="kaca aturan" id="lAturan">Lewati 20 gerbang secepatnya · Finish = +10 🪙</div>
  <div class="teladan" id="lTop"></div>
@@ -125,6 +129,6 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
   <div class="dua"><a class="kedua tombol" id="bDesa2" href="/duniakotak/mabar/?dusun=curug&amp;ke=reli">Ke desa</a><button class="utama" id="bLagi">🏁 BALAP LAGI</button></div>
  </div>
 </div>
-<script type="module" src="reli.js?v=20261110c"></script>
+<script type="module" src="reli.js?v=20261111mobil"></script>
 </body>
 </html>
