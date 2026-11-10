@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Reli Kotak · Dunia Kotak</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#13141f">
+<link rel="icon" href="/duniakotak/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap">
+<style>
+/* Reli Kotak (Huda 10 Nov 2026): balap reli jalan tanah lereng Curug. Kanvas 3D penuh layar, panel kaca navy seperti Tukang Kotak. */
+:root{--navy:#2c3150;--kaca:rgba(30,33,56,.8);--teks:#f4f2ff;--redup:rgba(244,242,255,.68);--kuning:#f2c14a;--hijau:#3aa860;--merah:#e0503a;--f:"Montserrat",system-ui,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:#9fd3f5;color:var(--teks);font-family:var(--f);overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:none;-webkit-touch-callout:none}
+#kanvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+[hidden]{display:none!important}
+button,a.tombol{font-family:var(--f);cursor:pointer;border:0;color:inherit;text-decoration:none}
+button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
+.kaca{background:var(--kaca);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:16px}
+.utama{display:block;width:100%;text-align:center;background:var(--kuning);color:#1d1d22;font-weight:900;font-size:17px;padding:13px;border-radius:14px;box-shadow:0 4px 0 #b88a1e}
+.utama:active{transform:translateY(3px);box-shadow:0 1px 0 #b88a1e}
+.kedua{display:block;width:100%;text-align:center;background:rgba(255,255,255,.12);font-weight:800;font-size:13px;padding:10px;border-radius:12px}
+/* LOBI: ringkas, muat satu layar HP mendatar tanpa geser (aturan Huda 10 Nov) */
+#lobi{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:max(12px,env(safe-area-inset-left,0px));width:min(290px,calc(100vw - 24px));display:flex;flex-direction:column;gap:7px;overflow:hidden}
+.judul small{display:block;font-size:9.5px;font-weight:800;letter-spacing:.16em;color:var(--kuning)}
+.judul h1{margin:1px 0 0;font-size:28px;font-weight:900;line-height:1;color:#fff;text-shadow:0 2px 0 rgba(19,20,31,.35)}
+.judul h1 span{color:var(--kuning)}
+.status{padding:8px 11px;display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}
+.status div{min-width:0}.status small{display:block;font-size:9px;font-weight:800;color:var(--redup);letter-spacing:.05em}
+.status b{display:block;font-size:15px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.warna{display:flex;gap:6px;align-items:center;padding:6px 10px}
+.warna small{font-size:10px;font-weight:800;color:var(--redup);margin-right:auto}
+.warna button{width:26px;height:26px;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
+.warna button.pilih{box-shadow:0 0 0 3px #fff}
+.aksi{display:grid;grid-template-columns:1fr auto;gap:7px}
+.aksi .kedua{width:auto;padding:0 12px;display:flex;align-items:center}
+.aturan{font-size:10.5px;font-weight:700;color:#fff;padding:6px 10px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.teladan{display:flex;gap:5px;overflow:hidden}
+.teladan span{flex:0 1 auto;min-width:0;font-size:10.5px;font-weight:800;padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.teladan span.saya{background:rgba(242,193,74,.55);color:#1d1d22}
+#dompet{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:max(14px,env(safe-area-inset-right,0px));padding:8px 13px;font-weight:900;font-size:15px}
+/* HUD BALAPAN (mengikuti video referensi: stopwatch & gerbang di atas, peta mini, speedometer kanan bawah) */
+#jam{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);padding:5px 16px 6px;text-align:center;border-radius:10px;background:rgba(19,20,31,.82)}
+#jam b{display:block;font-size:24px;font-weight:900;letter-spacing:.02em;font-variant-numeric:tabular-nums;line-height:1.05}
+#jam small{display:block;font-size:9px;font-weight:900;letter-spacing:.12em;color:var(--redup)}
+#split{position:fixed;top:calc(88px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);padding:3px 10px;font-size:11px;font-weight:900;border-radius:6px;background:#e0803a;color:#fff;white-space:nowrap}
+#split.cepat{background:#2f9a54}
+#peta{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));right:max(10px,env(safe-area-inset-right,0px));width:118px;height:88px;border-radius:12px;background:rgba(19,20,31,.6)}
+#keluar{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:max(10px,env(safe-area-inset-left,0px));padding:8px 12px;font-size:12px;font-weight:800}
+#spido{position:fixed;right:max(132px,calc(env(safe-area-inset-right,0px) + 122px));bottom:calc(10px + env(safe-area-inset-bottom,0px));width:112px;text-align:center;pointer-events:none}
+#spido canvas{display:block;width:112px;height:62px}
+#spido b{display:block;margin-top:-6px;font-size:34px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 2px 4px rgba(0,0,0,.45)}
+#spido small{display:block;font-size:9px;font-weight:900;letter-spacing:.14em;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+#jarak{position:fixed;left:50%;transform:translateX(-50%);top:calc(62px + env(safe-area-inset-top,0px));padding:2px 9px;font-size:10px;font-weight:900;border-radius:7px;background:rgba(19,20,31,.6);white-space:nowrap}
+/* tombol kemudi: kiri ◀ ▶, kanan REM & NGEPOT. Gas otomatis supaya santai dimainkan di HP */
+.kemudi{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:10px}
+#kiriKanan{left:max(14px,env(safe-area-inset-left,0px))}
+#pedal{right:max(14px,env(safe-area-inset-right,0px));flex-direction:column;align-items:flex-end;gap:8px}
+.kemudi button{width:78px;height:78px;border-radius:20px;background:rgba(30,33,56,.5);border:2px solid rgba(255,255,255,.4);font-size:30px;font-weight:900;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;touch-action:none}
+.kemudi button small{font-size:9.5px;font-weight:900;letter-spacing:.08em;margin-top:3px}
+.kemudi button.tekan{background:rgba(242,193,74,.75);color:#1d1d22;transform:scale(.96)}
+#bRem{width:96px;height:64px;font-size:16px}
+#bPot{width:96px;height:48px;font-size:14px}
+#hitung{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+#hitung b{font-size:84px;font-weight:900;color:#fff;text-shadow:0 4px 0 rgba(19,20,31,.5);animation:dentum .9s ease-out}
+@keyframes dentum{0%{transform:scale(1.7);opacity:0}25%{transform:scale(1);opacity:1}100%{opacity:.85}}
+#kabar{position:fixed;left:50%;top:120px;transform:translateX(-50%);display:grid;gap:6px;justify-items:center;pointer-events:none}
+#kabar div{padding:7px 14px;font-size:13px;font-weight:900;animation:muncul 2.2s forwards;white-space:nowrap}
+@keyframes muncul{0%{opacity:0;transform:translateY(8px) scale(.9)}10%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
+/* HASIL: pop up ringkas tanpa geser, muat layar HP */
+.popup{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,12,24,.45);padding:10px}
+.popup .isi{width:min(370px,100%);max-height:calc(100% - 8px);padding:12px 14px;display:grid;gap:8px;overflow:hidden}
+.popup h2{margin:0;font-size:19px;font-weight:900;text-align:center}
+.angka{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.angka div{background:rgba(255,255,255,.08);border-radius:10px;padding:6px 2px;text-align:center;min-width:0}
+.angka b{display:block;font-size:15px;font-weight:900;white-space:nowrap}.angka small{display:block;font-size:9px;font-weight:800;color:var(--redup)}
+.angka div.utamaA{background:rgba(242,193,74,.25)}
+.hadiah{text-align:center;font-weight:800;font-size:11.5px;color:var(--redup)}
+.dua{display:grid;grid-template-columns:1fr 1.6fr;gap:8px}
+.dua .utama{padding:10px;font-size:15px}.dua .kedua{display:flex;align-items:center;justify-content:center}
+@media (max-height:330px){#lobi{gap:5px}.judul h1{font-size:22px}.status{padding:5px 10px}.utama{padding:9px;font-size:15px}.warna{padding:4px 10px}
+ .kemudi button{width:64px;height:64px;font-size:24px}#bRem{width:84px;height:54px}#bPot{width:84px;height:40px}#spido{right:max(112px,calc(env(safe-area-inset-right,0px) + 104px));transform:scale(.85);transform-origin:bottom right}#peta{width:96px;height:72px}#jam b{font-size:20px}#jarak{top:54px}#split{top:76px}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js","three/addons/geometries/RoundedBoxGeometry.js":"/duniakotak/mabar/js/kotakBulat.js?v=20261108r","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
+</head>
+<body>
+<canvas id="kanvas"></canvas>
+<div id="lobi">
+ <div class="judul"><small>🏁 SIRKUIT LERENG CURUG</small><h1>Reli <span>Kotak</span></h1></div>
+ <div class="kaca status"><div><small>REKORMU</small><b id="lRekor">–</b></div><div><small>POSISI</small><b id="lPos">–</b></div></div>
+ <div class="kaca warna" id="lWarna"><small>Warna mobil</small></div>
+ <div class="aksi"><button class="utama" id="bMulai">🏁 MULAI BALAP</button><a class="kedua tombol kaca" id="bDesa" href="/duniakotak/mabar/?dusun=curug&amp;ke=reli">← Desa</a></div>
+ <div class="kaca aturan" id="lAturan">Lewati 20 gerbang secepatnya · Finish = +10 🪙</div>
+ <div class="teladan" id="lTop"></div>
+</div>
+<div id="dompet" class="kaca" hidden></div>
+
+<button id="keluar" class="kaca" hidden>✕ Keluar</button>
+<div id="jam" hidden><b id="jWaktu">0:00.00</b><small id="jGerbang">GERBANG 0 DARI 20</small></div>
+<div id="split" hidden></div>
+<canvas id="peta" width="236" height="176" hidden></canvas>
+<div id="spido" hidden><canvas id="spidoK" width="224" height="124"></canvas><b id="sAngka">0</b><small>KM/JAM</small></div>
+<div id="jarak" hidden>0,00 KM</div>
+<div id="kiriKanan" class="kemudi" hidden><button id="bKiri" aria-label="Belok kiri">◀</button><button id="bKanan" aria-label="Belok kanan">▶</button></div>
+<div id="pedal" class="kemudi" hidden><button id="bPot" aria-label="Rem tangan, ngepot">NGEPOT</button><button id="bRem" aria-label="Rem">REM</button></div>
+<div id="hitung" hidden></div>
+<div id="kabar"></div>
+<div id="hasil" class="popup" hidden>
+ <div class="isi kaca">
+  <h2 id="hsJudul">FINISH! 🏁</h2>
+  <div class="angka" id="hsRinci"></div>
+  <div class="hadiah" id="hsHadiah"></div>
+  <div class="dua"><a class="kedua tombol" id="bDesa2" href="/duniakotak/mabar/?dusun=curug&amp;ke=reli">Ke desa</a><button class="utama" id="bLagi">🏁 BALAP LAGI</button></div>
+ </div>
+</div>
+<script type="module" src="reli.js?v=20261110a"></script>
+</body>
+</html>
