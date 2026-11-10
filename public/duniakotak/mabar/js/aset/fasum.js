@@ -337,7 +337,53 @@ export function polisi(){const g=G();const W=0xf4f6f8,B=0x1f3f8a,B2=0x2f5fba,K=0
  g.ad(box(6,.3,2.4,0x7cc46a,.05),-2.4,.5,5.2);[[-8.3,-1],[8.3,-1.4]].forEach(([x,z])=>{g.ad(box(.6,2.4,.6,0x6a4426,.04),x,1.55,z);g.ad(box(2.4,2.2,2.4,0x3a8a5a,.3),x,3.6,z)});
  [-4.5,2].forEach(x=>{g.ad(box(.2,3.6,.2,0x555555,.02),x,2.2,3.2);g.ad(box(.8,.3,.5,0xfff2c0,.05),x,4.1,3.2)});
  pagar(g,19,17,B,3);return fin(g)}
-export const SEMUA={masjid,gereja,katedral,pura,vihara,klenteng,sekolah,warung,supermarket,rumahSakit,stadion,kampus,tamanKota,kafe,hiburan,polisi};
+// Toko Willo Apparel (Huda 10 Nov 2026): toko kaos ASLI di lahan fasum setengah blok Kotak Wetan (fas[9], 21×9 petak).
+// Warga masuk lewat pintu kaca depan (+z), di dalam ada rak kaos gantung, rak lipat, manekin, cermin, meja kasir & meja sablon.
+function sablonTeks(w,h,baris,bg,fg){const c=document.createElement('canvas');c.width=256;c.height=Math.round(256*h/w);const x=c.getContext('2d');x.fillStyle=bg;x.fillRect(0,0,c.width,c.height);x.fillStyle=fg;x.textAlign='center';x.textBaseline='middle';
+ baris.forEach(([t,u,y])=>{x.font='900 '+u+'px Montserrat, sans-serif';while(x.measureText(t).width>c.width*.9&&u>8){u-=2;x.font='900 '+u+'px Montserrat, sans-serif'}x.fillText(t,c.width/2,c.height*y)});const tx=new THREE.CanvasTexture(c);tx.colorSpace=THREE.SRGBColorSpace;return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({map:tx,roughness:.8}))}
+// kaos (badan + 2 lengan) menghadap +z; cetak = tulisan WILLO di dada
+function kaos(g,x,y,z,col,sk=1,cetak=false,ry=0){const k=new THREE.Group();k.position.set(x,y,z);k.rotation.y=ry;k.scale.setScalar(sk);
+ const b=box(.62,.78,.08,col,.02);k.add(b);[-1,1].forEach(s=>{const l=box(.26,.24,.08,col,.02);l.position.set(s*.4,.24,0);l.rotation.z=s*-.5;k.add(l)});
+ if(cetak){const t=sablonTeks(.42,.2,[['WILLO',150,.55]],'rgba(0,0,0,0)',col===0xf4f4f0||col===0xf2c14e?'#1d1d22':'#ffffff');t.material.transparent=true;t.position.set(0,.12,.045);k.add(t)}
+ k.traverse(o=>{if(o.isMesh){o.userData.bukanPijakan=true;o.userData.perabot=true}});g.add(k);return k}
+export function tokoWillo(){const g=G();const W=0xf6f6f2,H=0x1d1d22,BIRU=0x2f5bff,K=0x9fd2ee;const WARNA=[0x1d1d22,0xf4f4f0,0x2f5bff,0xd0442f,0x2a9a5a,0xf2c14e,0x2f3a52,0x8a8a90];
+ lantai(g,20,8.6,0xd6d2ca);
+ ruang(g,{x:0,z:-1.2,w:16,d:5.8,h:4.2,c:W,bukaan:[{s:'d',p:0,w:2.6,h:2.7}],lantaiC:0xd9b98c});
+ // atap datar hitam + list biru, kaca etalase kiri-kanan pintu, kusen hitam
+ g.ad(box(16.6,.4,6.4,H,.04),0,4.75,-1.2);g.ad(box(16.7,.16,6.5,BIRU,.03),0,4.5,-1.2);
+ for(const s of [-1,1]){g.ad(box(5.2,2.3,.12,K,.02),s*4.6,1.85,1.76);g.ad(box(5.5,.16,.2,H,.02),s*4.6,.78,1.8);g.ad(box(5.5,.16,.2,H,.02),s*4.6,3.06,1.8);g.ad(box(.16,2.4,.2,H,.02),s*1.95,1.9,1.8);g.ad(box(.16,2.4,.2,H,.02),s*7.25,1.9,1.8)}
+ // kaos pajangan di balik etalase, menghadap ke dalam toko
+ [-6.4,-5.3,-4.2,-3.1].forEach((x,i)=>kaos(g,x,1.9,1.2,WARNA[i],1,i%2===0,Math.PI));[3.1,4.2,5.3,6.4].forEach((x,i)=>kaos(g,x,1.9,1.2,WARNA[i+4],1,i%2===1,Math.PI));
+ // tenda garis hitam-putih di atas etalase + papan nama besar WILLO APPAREL
+ for(let i=0;i<12;i++){const a=box(1.3,.12,1.3,i%2?0xffffff:H,.02);a.rotation.x=.35;g.ad(a,-7.15+i*1.3,3.5,2.25)}
+ g.ad(box(11,1.5,.3,H,.05),0,5.75,1.35);const pn=sablonTeks(10.4,1.2,[['WILLO APPAREL',150,.42],['KAOS CUSTOM · SABLON NGAWI',46,.86]],'#1d1d22','#ffffff');pn.position.set(0,5.75,1.51);g.add(pn);
+ // kaos raksasa biru di atap (ikon toko, terlihat dari jauh)
+ const kr=kaos(g,5.6,6.6,-2.2,BIRU,3.2,true);kr.traverse(o=>{if(o.isMesh){o.userData.perabot=false;o.castShadow=true}});
+ // ---- isi toko ----
+ // rak gantung kaos di dinding belakang kiri
+ perabot(g,box(5.6,.06,.06,0x9a9a9a,.02),-4.6,2.75,-3.55);[-7.2,-2].forEach(x=>perabot(g,box(.08,2.4,.08,0x9a9a9a,.02),x,1.55,-3.55));
+ for(let i=0;i<9;i++)kaos(g,-6.95+i*.6,2.25,-3.5,WARNA[i%WARNA.length],.95,false,0);
+ // rak kaos lipat di dinding belakang kanan
+ rak(g,4.9,-3.72,4.6,.4,1.9,WARNA);
+ // meja pajang tengah kiri: tumpukan kaos lipat
+ meja(g,-3.6,-.9,2.4,1.2,0xc8a070,.5);for(let i=0;i<4;i++)for(let j=0;j<3;j++)perabot(g,box(.48,.1,.38,WARNA[(i+j*2)%WARNA.length],.02),-4.45+i*.57,.94+j*.11,-.9);
+ // meja kasir (tengah belakang) + mesin kasir + papan KASIR
+ perabot(g,box(3.2,1,.7,H,.04),0,.85,-2.85).userData.dinding=true;perabot(g,box(3.4,.08,.9,0xffffff,.02),0,1.39,-2.85);
+ perabot(g,box(.6,.35,.45,0x3a3a40,.03),.8,1.6,-2.85);perabot(g,box(.5,.3,.05,0x5aa8d8,.01),.8,1.86,-3.05);
+ const pk=sablonTeks(1.6,.45,[['KASIR · PESAN DI SINI',34,.55]],'#2f5bff','#ffffff');pk.position.set(0,1.0,-2.49);perabot(g,pk,0,1.0,-2.49);
+ // manekin pakai kaos Willo (kanan depan)
+ [[3.4,BIRU],[5.2,H],[7,0xf4f4f0]].forEach(([x,c])=>{perabot(g,box(.6,.08,.6,0x9a9a9a,.02),x,.41,-.4);perabot(g,box(.08,1.1,.08,0x9a9a9a,.01),x,.95,-.4);perabot(g,box(.5,.3,.3,0xe8dcc8,.04),x,1.55,-.4);kaos(g,x,2.05,-.4,c,1.05,true);perabot(g,box(.3,.34,.3,0xe8dcc8,.1),x,2.75,-.4)});
+ // cermin coba kaos (dinding kanan) + meja sablon (pojok kiri depan)
+ perabot(g,box(.1,2.2,1.2,0xc0c0c8,.02),7.6,1.6,-2.4);perabot(g,box(.04,2,1,0xdff0ff,.01),7.53,1.6,-2.4);
+ perabot(g,box(1.2,.8,.9,0x3a3a40,.04),-6.6,.75,.5).userData.dinding=true;perabot(g,box(.9,.06,.7,0x2a2a2a,.01),-6.6,1.18,.5);perabot(g,box(1,.08,.8,0xb0b0b8,.01),-6.6,1.32,.5);kaos(g,-6.6,1.24,.5,0xf4f4f0,.9,true).rotation.x=-Math.PI/2;
+ [-1,1].forEach(s=>perabot(g,box(.08,.9,.08,0x777777,.01),-6.6+s*.45,1.7,.1));perabot(g,box(1,.08,.08,0x777777,.01),-6.6,2.15,.1);
+ lampuGantung(g,-3.6,4.2,-1.2);lampuGantung(g,3.6,4.2,-1.2);lampuGantung(g,0,4.2,-1.6);
+ // teras: pot tanaman, bangku tunggu, papan berdiri "PESAN KAOS"
+ [[-8.6,2.4],[8.6,2.4]].forEach(([x,z])=>{g.ad(box(.8,.7,.8,H,.1),x,.7,z);g.ad(box(1,1,1,0x3a8a3a,.35),x,1.45,z)});
+ bangku(g,-5.5,3.2,2.2,H);
+ const ab=sablonTeks(1.1,1.3,[['PESAN',58,.3],['KAOS',58,.55],['SABLON',34,.82]],'#2f5bff','#ffffff');ab.position.set(2.6,1.2,3.1);ab.rotation.x=-.12;g.add(ab);g.ad(box(1.2,1.4,.06,H,.02),2.6,1.2,3.05).rotation.x=-.12;
+ pagar(g,20,8.6,H,2);return fin(g)}
+export const SEMUA={masjid,gereja,katedral,pura,vihara,klenteng,sekolah,warung,supermarket,rumahSakit,stadion,kampus,tamanKota,kafe,hiburan,polisi,tokoWillo};
 // Dipakai game: pisahkan bagian "atas" (dinding atas, atap, lantai 2) supaya bisa disembunyikan saat warga di dalam,
 // dan hitung kotak tabrakan per dinding (pintu & ruang dalam bisa dilewati). m sudah diskalakan & diposisikan.
 export function pisahFasum(m){

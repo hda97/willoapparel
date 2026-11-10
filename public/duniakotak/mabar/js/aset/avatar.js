@@ -20,9 +20,21 @@ function wajah(o){const {kulit,jenis,ekspresi='normal',mata='#1a1a1a',kacamata=f
  if(ekspresi==='senang'){x.fillStyle='#5a2420';x.beginPath();x.moveTo(98,176);x.quadraticCurveTo(128,222,158,176);x.closePath();x.fill();x.fillStyle='#fff';x.fillRect(106,176,44,9)}
  else{x.beginPath();x.moveTo(108,186);x.quadraticCurveTo(128,196,150,186);x.stroke()}
  if(kacamata){x.strokeStyle='#1a1a1a';x.lineWidth=7;x.fillStyle='rgba(200,230,255,.25)';[[88],[168]].forEach(([cx])=>{x.beginPath();x.roundRect(cx-30,98,60,50,10);x.fill();x.stroke()});x.beginPath();x.moveTo(118,116);x.lineTo(138,116);x.stroke()}})}
-function dada(jenis,warna){ // tekstur sisi depan atasan
+// Sablon kaos Willo (Toko Willo Apparel di game, 10 Nov 2026): sb = willo | polos | dk | dusun | tulisan; teks = nama dusun / tulisan warga.
+// Dipakai tekstur avatar (128 px) dan pratinjau di toko (ukuran bebas). sisi 'b' = punggung (tulisan besar ala kaos kelas).
+export const SABLON=['willo','polos','dk','dusun','tulisan'];
+export function lukisSablon(x,w,h,warna,sb='willo',teks='',sisi='d'){const k=w/128,tinta=['#f4f4f4','#f4f4f0','#f2c14e','#ffffff'].includes(String(warna).toLowerCase())?'#1d1d22':'#ffffff';
+ x.fillStyle=tinta;x.strokeStyle=tinta;x.textAlign='center';x.textBaseline='alphabetic';const f=(u,t,y,b=900)=>{let z=u*k;x.font=b+' '+z+'px Montserrat, sans-serif';while(x.measureText(t).width>w*.84&&z>6){z-=1;x.font=b+' '+z+'px Montserrat, sans-serif'}x.fillText(t,w/2,y*k)};
+ teks=String(teks||'').toUpperCase().replace(/[^A-Z0-9 ]/g,'').slice(0,10);
+ if(sisi==='b'){if(sb==='tulisan'&&teks){f(13,'WILLO',30,800);f(34,teks,74)}else if(sb==='dusun'&&teks){f(12,'DUNIA KOTAK',40,800);f(28,teks,76)}return}
+ if(sb==='polos')return;
+ if(sb==='dk'){x.lineWidth=4*k;x.strokeRect(50*k,22*k,28*k,24*k);x.fillRect(57*k,32*k,14*k,14*k);f(22,'DUNIA',72);f(22,'KOTAK',96);return}
+ if(sb==='dusun'){f(11,'KOTAK',46,800);f(26,teks||'WETAN',74);x.fillRect(34*k,82*k,60*k,3*k);return}
+ if(sb==='tulisan'){x.font='900 '+(12*k)+'px Montserrat, sans-serif';x.textAlign='left';x.fillText('WILLO',22*k,44*k);x.fillRect(22*k,48*k,30*k,2*k);return}
+ f(30,'WILLO',62);f(12,'APPAREL',80,800)}
+function dada(jenis,warna,sb,teks,sisi='d'){ // tekstur sisi depan atasan
  return tex(128,128,(x,w,h)=>{x.fillStyle=warna;x.fillRect(0,0,w,h);
-  if(jenis==='kaos-willo'){x.fillStyle='#fff';x.font='900 30px Montserrat, sans-serif';x.textAlign='center';x.fillText('WILLO',64,62);x.font='800 12px Montserrat, sans-serif';x.fillText('APPAREL',64,80)}
+  if(jenis==='kaos-willo')lukisSablon(x,w,h,warna,sb,teks,sisi);
   if(jenis==='kemeja'||jenis==='seragam'){x.fillStyle='rgba(0,0,0,.25)';for(let i=0;i<4;i++)x.fillRect(62,24+i*24,5,5);x.fillStyle=jenis==='seragam'?'#8a1a1a':'rgba(0,0,0,.12)';if(jenis==='seragam'){x.fillRect(58,6,12,46)}
    x.fillStyle='rgba(255,255,255,.6)';x.beginPath();x.moveTo(40,0);x.lineTo(64,18);x.lineTo(88,0);x.fill()}
   if(jenis==='jaket'){x.fillStyle='rgba(0,0,0,.35)';x.fillRect(62,0,4,128);x.fillStyle='rgba(255,255,255,.15)';x.fillRect(14,70,36,24);x.fillRect(78,70,36,24)}
@@ -52,7 +64,7 @@ export function warga(o={}){const d={jenis:'L',kulit:KULIT[1],ekspresi:'normal',
  if(bj==='rok-panjang'){const r=box(1.22,1.42,.78,bot,.12);r.position.y=.8;g.add(r);const k=box(1.3,.12,.86,bot,.05);k.position.y=.1;g.add(k)}
  if(bj==='sarung'){const s=box(1.2,1.25,.72,bot,.1);s.position.y=.82;g.add(s);const p=new THREE.Mesh(new THREE.PlaneGeometry(1.1,1.15),new THREE.MeshStandardMaterial({map:tex(64,64,(x)=>{x.fillStyle=bot;x.fillRect(0,0,64,64);x.fillStyle='rgba(255,255,255,.25)';for(let i=0;i<64;i+=16){x.fillRect(i,0,5,64);x.fillRect(0,i,64,5)}}),roughness:.85}));p.position.set(0,.82,.365);g.add(p)}
  const body=new THREE.Group();body.position.y=1.37;g.add(body);
- const tm=Array.from({length:6},()=>new THREE.MeshStandardMaterial({color:top,roughness:.8}));tm[4]=new THREE.MeshStandardMaterial({map:dada(d.atasan.jenis,top),roughness:.8});
+ const tm=Array.from({length:6},()=>new THREE.MeshStandardMaterial({color:top,roughness:.8}));tm[4]=new THREE.MeshStandardMaterial({map:dada(d.atasan.jenis,top,d.atasan.sablon,d.atasan.teks),roughness:.8});if(d.atasan.jenis==='kaos-willo'&&['tulisan','dusun'].includes(d.atasan.sablon)&&d.atasan.teks)tm[5]=new THREE.MeshStandardMaterial({map:dada('kaos-willo',top,d.atasan.sablon,d.atasan.teks,'b'),roughness:.8});
  if(d.atasan.jenis==='batik')tm.forEach((m,i)=>{if(i!==4){m.map=dada('batik',top);m.color.set(0xffffff)}});
  const torso=new THREE.Mesh(new RoundedBoxGeometry(1.1,1.2,.6,2,.06),tm);torso.position.y=.6;torso.castShadow=true;body.add(torso);
  if(d.jenis==='P'&&!['jaket'].includes(d.atasan.jenis)){}
