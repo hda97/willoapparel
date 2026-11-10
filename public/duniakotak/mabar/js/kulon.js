@@ -30,6 +30,15 @@ export function kulon(sc, o = {}) {
   const mat = (c, r = .9) => new THREE.MeshStandardMaterial({color: c, roughness: r});
   const slab = (x, y, z, w, h, dd, c, ry = 0, r = .9) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, dd), mat(c, r)); m.position.set(x, y, z); m.rotation.y = ry; m.receiveShadow = true; m.castShadow = h > .6; G.add(m); return m; };
   const road = (x, z, w, dd, y = 0) => slab(x, y + .08, z, w, .16, dd, 0xd8c49c);
+  // tanjakan padat (Huda 11 Nov 2026: jalan rata, tidak melayang): permukaan jalan miring persis rumus info.tanah (+.16 tebal jalan),
+  // di bawahnya badan tanah sampai lantai teras bawah, ujung atas/bawah tepat setinggi jalan teras.
+  const MJ = new THREE.MeshStandardMaterial({color: 0xd8c49c, roughness: .9}), MT = new THREE.MeshStandardMaterial({color: 0xa98a5c, roughness: .9});
+  const tanjakan = (x, za, zb, ya, yb, w) => {
+    const a = [x - w / 2, ya + .16, za], b = [x + w / 2, ya + .16, za], c = [x + w / 2, yb + .16, zb], d = [x - w / 2, yb + .16, zb];
+    const top = new THREE.BufferGeometry(); top.setAttribute('position', new THREE.Float32BufferAttribute([...a, ...b, ...c, ...a, ...c, ...d], 3)); top.computeVertexNormals();
+    const q = (p, y0) => [p[0], y0, p[2]], A = q(a, ya), B = q(b, ya), C = q(c, ya), D = q(d, ya);
+    const sisi = new THREE.BufferGeometry(); sisi.setAttribute('position', new THREE.Float32BufferAttribute([...A, ...a, ...d, ...A, ...d, ...D, ...B, ...C, ...c, ...B, ...c, ...b, ...D, ...d, ...c, ...D, ...c, ...C], 3)); sisi.computeVertexNormals();
+    const m1 = new THREE.Mesh(top, MJ), m2 = new THREE.Mesh(sisi, MT); MJ.side = MT.side = THREE.DoubleSide; m1.receiveShadow = m2.receiveShadow = true; G.add(m1, m2); };
   const fas = [];
   const fasum = (x, z, w, dd, y = 0) => { const k = G.children.length; fasum2(G, x, z, w, dd); const g = G.children[k]; g.position.y = y; fas.push({p: V3(x * VS, y * VS, z * VS), g}); return g; };
   const tree = (x, z, s = 1, y = 0) => { const k = G.children.length; vTree(G, x, z, s); G.children[k].position.y += y; };
@@ -42,22 +51,23 @@ export function kulon(sc, o = {}) {
   const LOTS = [], lahanTeras = [];
   for (let j = 0; j < 10; j++) {
     const y = j * STEP, z = -j * DEP, xo = (j % 2 ? 3 : -3);
-    if (j > 0) slab(xo, y / 2, z - (DEP / 2 - 2.5), L + 12, y, DEP + .2, 0x8aa860);
-    road(xo, z + .5, L + 12, 4, y);
+    // Huda 11 Nov 2026 ("sambungan jalan presisi & rata"): tanah teras & jalan teras dibuat simetris selebar sampai sisi luar
+    // tanjakan samping (±(L/2+12)), jadi tiap jalan teras menyambung pas ke kedua tanjakan (dulu selang-seling bergeser ±3 → celah).
+    if (j > 0) slab(0, y / 2, z - (DEP / 2 - 2.5), L + 24, y, DEP + .2, 0x8aa860);
+    road(0, z + .5, L + 24, 4, y);
     const s0 = FASUM_TERAS[j][0];
     for (let i = 0; i < NK; i++) { if (i === s0 || i === s0 + 1) continue; LOTS.push({n: LOTS.length + 1, cx: xo - L / 2 + SP / 2 + i * SP, cz: z - 6.5, y, rot: 0}); }
     lahanTeras.push({x: xo - L / 2 + SP * (s0 + 1), z: z - 10.6, y, j});
-    slab(xo, y + STEP / 2, z - BK - .6, L + 12, STEP, 1.2, 0x9a8a6a);
-    for (let k = 0; k < 2; k++) slab(xo, y + STEP + .45, z - BK - 1.6 - k * 1.3, L, .9, 1, new THREE.Color().setHSL(.3, .5, .31 + k * .03));
-    if (j < 9) [-1, 1].forEach(sd => { const r = slab(sd * (L / 2 + 9), y + STEP / 2 + .1, z - (DEP / 2 - .5), 6, .3, Math.hypot(DEP, STEP) + 1, 0xd8c49c); r.rotation.x = Math.atan2(STEP, DEP); });
+    slab(0, y + STEP / 2, z - BK - .6, L + 12, STEP, 1.2, 0x9a8a6a);   // dinding penahan tidak menutup tanjakan samping
+    for (let k = 0; k < 2; k++) slab(0, y + STEP + .45, z - BK - 1.6 - k * 1.3, L, .9, 1, new THREE.Color().setHSL(.3, .5, .31 + k * .03));
+    if (j < 9) [-1, 1].forEach(sd => tanjakan(sd * (L / 2 + 9), z + .6, -(j + 1) * DEP + .4, y, y + STEP, 6));
   }
   [-1, 1].forEach(sd => {
     for (let j = 0; j < 10; j++) for (let k = 0; k < Math.floor((BK + 1) / 2.2); k++) slab(sd * (L / 2 + 66), j * STEP + .5, -j * DEP - 2 - k * 2.2, 88, 1, 1.1, new THREE.Color().setHSL(.29, .5, .3 + (k % 2) * .03));
     for (let j = 0; j < 10; j++) slab(sd * (L / 2 + 66), j * STEP / 2, -j * DEP - (DEP / 2 - 2.5), 90, j * STEP + .1, DEP, 0x6aa848);
   });
   slab(0, yt / 2, zt, L + 30, yt, 52, 0x7aa850);   // puncak jadi padang rumput (fasum sudah pindah ke teras)
-  { const z9 = -9 * DEP + .5, ze = zt + 26; const r = slab(0, (9 * STEP + yt) / 2 + .1, (z9 + ze) / 2, 8, .3, Math.hypot(z9 - ze, yt - 9 * STEP) + 2, 0xd8c49c); r.rotation.x = Math.atan2(yt - 9 * STEP, z9 - ze);
-    [-1, 1].forEach(sd => { const q = slab(sd * (L / 2 + 9), (9 * STEP + yt) / 2 + .1, (z9 + ze) / 2, 6, .3, Math.hypot(z9 - ze, yt - 9 * STEP) + 2, 0xd8c49c); q.rotation.x = Math.atan2(yt - 9 * STEP, z9 - ze); }); }
+  { const z9 = -9 * DEP + .5, ze = zt + 26; tanjakan(0, z9, ze, 9 * STEP, yt, 8); [-1, 1].forEach(sd => tanjakan(sd * (L / 2 + 9), z9, ze, 9 * STEP, yt, 6)); }
   road(0, 200, 8, 300); road(0, 29.5, 8, 5); slab(0, .5, 40, 10, .5, 18, 0x9a6a3a);
   const tw = new THREE.Group(); [[-1.5, -1.5], [1.5, -1.5], [-1.5, 1.5], [1.5, 1.5]].forEach(([a, b]) => { const p = box(.4, 10, .4, 0x6a4426, .04); p.position.set(a, 5, b); tw.add(p); });
   const fl = box(5, .4, 5, 0x8a5a2a, .04); fl.position.y = 10; tw.add(fl); const rf = box(6, 1.4, 6, 0xc8553d, .2); rf.position.y = 12.4; tw.add(rf); tw.position.set(L / 2 + 6, yt, zt); G.add(tw);

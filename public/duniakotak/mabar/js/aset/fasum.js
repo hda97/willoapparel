@@ -1,6 +1,6 @@
 // Aset fasum Dunia Kotak (gaya kotak besar membulat, satuan kavling; skala VS di pemanggil)
 import {THREE,box} from '../lib.js';
-import {buatMobil} from './mobil.js?v=20261111mobil';
+import {buatMobil,SKALA_FASUM} from './mobil.js?v=20261111kend';
 function roof(w,h,d,c){const s=new THREE.Shape();s.moveTo(-w/2,0);s.lineTo(w/2,0);s.lineTo(0,h);s.lineTo(-w/2,0);const g=new THREE.ExtrudeGeometry(s,{depth:d,bevelEnabled:false});g.translate(0,0,-d/2);return new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:c,roughness:.8}))}
 function G(){const g=new THREE.Group();g.ad=(m,x,y,z,ry=0)=>{m.position.set(x,y,z);m.rotation.y=ry;g.add(m);return m};return g}
 function fin(g){g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});return g}
@@ -117,7 +117,7 @@ export function supermarket(){const g=G();const W=0xf3efe6,A=0x2f6fb8,O=0xf0a020
  // parkir: garis + mobil kecil + troli
  g.ad(box(15,.1,5.4,0x8a8a8a,.02),0,.42,4.6);for(let i=0;i<6;i++)g.ad(box(.14,.03,2.4,0xffffff,.01),-6+i*2.4,.49,5.6);
  // mobil warga parkir mundur (desain ulang 11 Nov 2026, aset mobil.js): sedan merah, jip biru, sedan kuning
- [['sedan',0xd8402a,-3.6,.62],['jip',0x3a8ad8,1.2,.56],['sedan',0xf2c14a,6,.62]].forEach(([md,c,x,k],i)=>{const m=buatMobil(md,c,11+i);m.position.set(x,.47,5.6);m.rotation.y=Math.PI;m.scale.setScalar(k);g.add(m)});
+ [['sedan',0xd8402a,-4.8],['jip',0x3a8ad8,0],['sedan',0xf2c14a,4.8]].forEach(([md,c,x],i)=>{const m=buatMobil(md,c,11+i);m.position.set(x,.47,5.6);m.rotation.y=Math.PI;m.scale.setScalar(SKALA_FASUM);g.add(m)});
  [-1.2,-.4].forEach(x=>{g.ad(box(.7,.5,.9,0xc8c8c8,.05),x-6.2,1,1.8);g.ad(box(.06,.5,.06,0x999999,.01),x-6.2,.6,2.2)});
  // pohon & lampu
  [[-8.3,-1],[8.3,-1],[-8.3,7],[8.3,7]].forEach(([x,z])=>{g.ad(box(.6,2.4,.6,0x6a4426,.04),x,1.55,z);g.ad(box(2.4,2.2,2.4,0x3a8a5a,.3),x,3.6,z)});
@@ -137,7 +137,7 @@ export function rumahSakit(){const g=G();const W=0xf7f7f4,H=0x2fa58a,M=0xe0303a;
  [-1,1].forEach(s=>g.ad(box(.8,1.5,.12,0x9fd6f2,.02),6.6+s*1.9,1.2,-1.4));g.ad(box(5.6,.35,3.2,M,.05),6.6,3.1,-.4);[4.2,9].forEach(x=>g.ad(box(.25,2.7,.25,0xdddddd,.02),x,1.7,1));
  const ig=papanTeks(2.6,.8,'IGD','#e0303a','#ffffff');ig.position.set(6.6,4.4,-1.48);g.add(ig);
  // ambulans
- {const m=buatMobil('ambulans',0xf6f6f2,'RS');m.position.set(6.6,.35,3.3);m.scale.setScalar(.88);g.add(m)}   // desain ulang 11 Nov 2026 (aset mobil.js)
+ {const m=buatMobil('ambulans',0xf6f6f2,'RS');m.position.set(6.6,.35,3.6);m.scale.setScalar(SKALA_FASUM);g.add(m)}   // desain ulang 11 Nov 2026 (aset mobil.js)
  // taman depan + bangku
  g.ad(box(9,.3,4,0x7cc46a,.05),-3,.5,3.6);[[-6,4.6],[-1,4.6]].forEach(([x,z])=>g.ad(box(2,.4,.7,0x9a6a3a,.04),x,.9,z));
  [[-8.3,-1],[-8.3,6.8],[1.6,6.8]].forEach(([x,z])=>{g.ad(box(.6,2.4,.6,0x6a4426,.04),x,1.55,z);g.ad(box(2.4,2.2,2.4,0x3a8a5a,.3),x,3.6,z)});
@@ -288,9 +288,9 @@ export function sirkuitReli(){const g=G();const RUMPUT=0x6fbf5a,TANAH=0xc9a77a,A
  [RI-.3,RO+.3].forEach(z=>{g.ad(box(.4,3.4,.4,N,.03),0,2.05,z);g.ad(box(.55,.3,.55,O,.03),0,.5,z)});g.ad(box(.35,.9,RO-RI+1,N,.04),0,3.55,(RI+RO)/2);
  [1,-1].forEach(s=>{const p=papanTeks(3.1,.62,'START · RELI',s>0?'#e0803a':'#2c3150','#ffffff');p.rotation.y=s*Math.PI/2;p.position.set(s*.19,3.55,(RI+RO)/2);g.add(p)});
  // mobil reli di garis start & di lintasan belakang (desain ulang 11 Nov 2026: model sama persis dengan di game Reli Kotak, aset mobil.js)
- const mb=buatMobil('hatch',M,1);mb.position.set(-1.6,.35,(RI+RO)/2+.1);mb.rotation.y=Math.PI/2;mb.scale.setScalar(.95);g.add(mb);
- const m2=buatMobil('gt',0x2f6fd8,2);m2.position.set(1.4,.35,-(RI+RO)/2);m2.rotation.y=-Math.PI/2;m2.scale.setScalar(.95);g.add(m2);
- const m3=buatMobil('jip',0xf2b62a,3);m3.position.set(-3.9,.35,.4);m3.rotation.y=1.2;m3.scale.setScalar(.95);g.add(m3);
+ const mb=buatMobil('hatch',M,1);mb.position.set(-1.6,.35,(RI+RO)/2+.1);mb.rotation.y=Math.PI/2;mb.scale.setScalar(SKALA_FASUM);g.add(mb);
+ const m2=buatMobil('gt',0x2f6fd8,2);m2.position.set(1.4,.35,-(RI+RO)/2);m2.rotation.y=-Math.PI/2;m2.scale.setScalar(SKALA_FASUM);g.add(m2);
+ const m3=buatMobil('jip',0xf2b62a,3);m3.position.set(-3.9,.35,.4);m3.rotation.y=1.2;m3.scale.setScalar(SKALA_FASUM);g.add(m3);
  // paddock beratap oranye di belakang + papan nama
  [[-7.6,-6.6],[-2.6,-6.6],[-7.6,-3.6],[-2.6,-3.6]].forEach(([x,z])=>g.ad(box(.2,2.8,.2,0xdddddd,.02),x,1.75,z));g.ad(box(5.6,.35,3.8,O,.05),-5.1,3.25,-5.1);g.ad(box(5.7,.55,.12,N,.02),-5.1,2.85,-3.2);
  const pd=papanTeks(5.2,.5,'PADDOCK RELI','#2c3150','#f2c14a');pd.position.set(-5.1,2.85,-3.13);g.add(pd);
@@ -413,7 +413,7 @@ export function polisi(){const g=G();const W=0xf4f6f8,B=0x1f3f8a,B2=0x2f5fba,K=0
  perabot(g,box(5,1,.7,B2,.04),-1,.85,-5.4).userData.dinding=true;perabot(g,box(5.2,.08,.9,0xffffff,.02),-1,1.39,-5.4);[-2.6,-1,.6].forEach(x=>{perabot(g,box(.5,.35,.08,0x222222,.02),x,1.62,-5.6);kursi(g,x,-6.4,B)});
  for(let i=0;i<4;i++)kursi(g,-6.2+i*.8,-2,0x8a8a8a);rak(g,4.2,-7.5,2.6,.5,1.8,[0x8a8a8a,0x6a6a6a,0xb8b8b8]);
  // mobil patroli (kanan depan)
- [[5.5,4.3],[7.7,4.3]].forEach(([x,z],i)=>{const m=buatMobil('patroli',0xf6f6f2,i+1);m.position.set(x,.35,z);m.scale.setScalar(.76);g.add(m)});   // desain ulang 11 Nov 2026 (aset mobil.js)
+ [[5.5,4.3],[7.7,4.3]].forEach(([x,z],i)=>{const m=buatMobil('patroli',0xf6f6f2,i+1);m.position.set(x,.35,z);m.scale.setScalar(SKALA_FASUM);g.add(m)});   // desain ulang 11 Nov 2026 (aset mobil.js)
  // tiang bendera, taman kecil, lampu
  g.ad(box(.18,7.5,.18,0xdddddd,.02),-7,4.1,4.4);g.ad(box(1.8,.6,.06,0xd8202a,.01),-6.05,7.4,4.4);g.ad(box(1.8,.6,.06,0xffffff,.01),-6.05,6.8,4.4);
  g.ad(box(6,.3,2.4,0x7cc46a,.05),-2.4,.5,5.2);[[-8.3,-1],[8.3,-1.4]].forEach(([x,z])=>{g.ad(box(.6,2.4,.6,0x6a4426,.04),x,1.55,z);g.ad(box(2.4,2.2,2.4,0x3a8a5a,.3),x,3.6,z)});
@@ -465,7 +465,41 @@ export function tokoWillo(){const g=G();const W=0xf6f6f2,H=0x1d1d22,BIRU=0x2f5bf
  bangku(g,-5.5,3.2,2.2,H);
  const ab=sablonTeks(1.1,1.3,[['PESAN',58,.3],['KAOS',58,.55],['SABLON',34,.82]],'#2f5bff','#ffffff');ab.position.set(2.6,1.2,3.1);ab.rotation.x=-.12;g.add(ab);g.ad(box(1.2,1.4,.06,H,.02),2.6,1.2,3.05).rotation.x=-.12;
  pagar(g,20,8.6,H,2);return fin(g)}
-export const SEMUA={masjid,gereja,katedral,pura,vihara,klenteng,sekolah,warung,supermarket,rumahSakit,stadion,kampus,tamanKota,kafe,hiburan,polisi,tokoWillo,arenaLari,sirkuitReli};
+// Dealer Kendaraan Dunia Kotak (Huda 11 Nov 2026: "Bangunkan dealer kendaraan", jual pakai koin). Di Dusun Kotak Curug, sebelah Sirkuit Reli.
+// Showroom kaca dengan panggung putar (Kotak GT), motor & sepeda pajangan, meja sales; halaman depan berisi mobil dijual berlabel harga,
+// bendera umbul-umbul, tiang nama tinggi. Semua kendaraan ukuran proporsional (SKALA_FASUM) dari aset mobil.js.
+export function dealer(){const g=G();const W=0xf4f4f2,N=0x1d2a44,O=0xe0803a,K=0x8fd0ec,AS=0x5a5e66;lantai(g,19,17,0xd8d8d4);g.userData.putar=[];
+ const mob=(md,c,x,z,ry=0,no=1)=>{const m=buatMobil(md,c,no);m.position.set(x,.35,z);m.rotation.y=ry;m.scale.setScalar(SKALA_FASUM);g.add(m);return m};
+ // showroom: dinding kiri-kanan-belakang putih, depan kaca penuh, atap navy + papan nama
+ ruang(g,{x:-1.5,z:-4.2,w:14,d:7.6,h:4.6,c:W,tanpa:['d'],lantaiC:0xeeeef0});
+ for(let i=0;i<6;i++){const x=-7.7+i*2.48;if(Math.abs(x+1.5)<1.3)continue;g.ad(box(2.3,4.2,.1,K,.02,{transparent:true,opacity:.45,roughness:.1}),x+.04,2.45,-.46)}
+ [-8.5,-2.8,-.2,5.5].forEach(x=>g.ad(box(.22,4.6,.22,N,.02),x,2.65,-.42));
+ g.ad(box(14.6,.7,8.2,N,.05),-1.5,5.3,-4.2);
+ const pn=papanTeks(10,1.1,'DEALER KENDARAAN','#1d2a44','#ffffff');pn.position.set(-1.5,5.3,-.08);g.add(pn);
+ g.ad(box(1.6,1.1,.2,O,.2),-7.6,5.3,-.12);const pk=papanTeks(1.3,.8,'DK','#e0803a','#ffffff');pk.position.set(-7.6,5.3,.0);g.add(pk);
+ // panggung putar + Kotak GT (berputar pelan)
+ const pg=new THREE.Group();pg.position.set(-1.5,.35,-4.3);g.add(pg);const pl=box(3.4,.2,3.4,0xdfe3ea,.6,{metalness:.5,roughness:.25});pl.position.y=.1;pg.add(pl);
+ const gt=buatMobil('gt',0xd8322a,1);gt.scale.setScalar(SKALA_FASUM);gt.position.y=.2;pg.add(gt);g.userData.putar.push({o:pg,ax:'y',v:.35});
+ g.ad(box(3.8,.08,3.8,O,.03),-1.5,.37,-4.3);
+ // motor & sepeda pajangan, meja sales & kursi, poster harga
+ [0x2f6fd8,0x2a2b33,0xd8322a,0xf2b62a].forEach((c,i)=>{mob('motor',c,-7.2+i*.85,-6.4,0,20+i);g.ad(box(.7,.06,1.4,0xdfe3ea,.02),-7.2+i*.85,.38,-6.4)});
+ mob('jip',0x2a2b33,-6,-3.2,.5,6);
+ [0x2f9a54,0xf2b62a,0x2f6fd8,0xe0503a].forEach((c,i)=>mob('sepeda',c,2.6+i*.75,-6.9,0,30+i));
+ mob('sedan',0xeeeee8,4,-4.4,-.4,7);
+ meja(g,3.8,-1.9,1.8,.8,0xf4f1e8,.5);kursi(g,3.4,-2.6,N);kursi(g,4.2,-2.6,N);kursi(g,3.8,-1.2,O);
+ [['MOTOR',-6],['MOBIL',-1.5],['SEPEDA',3.7]].forEach(([t,x])=>{const p=papanTeks(1.6,.5,t,'#e0803a','#ffffff');p.position.set(x,3.2,-7.86);g.add(p)});
+ // halaman: mobil dijual berlabel harga (koin), garis parkir, umbul-umbul, tiang nama
+ g.ad(box(19,.04,6.8,0x8a8e96,.01),0,.38,4.4);for(let i=0;i<6;i++)g.ad(box(.1,.03,2.2,0xffffff,.01),-7.5+i*3,.41,4.6);
+ [['sedan',0x3a8ad8,-6,'350'],['jip',0xf2b62a,-3,'500'],['hatch',0xb8252c,0,'400'],['sedan',0xeeeee8,3,'350'],['jip',0x2f9a54,6,'500']].forEach(([md,c,x,h],i)=>{
+  mob(md,c,x,4.6,Math.PI,10+i);const t=papanTeks(.9,.32,h+' KOIN','#f2c14a','#1d1e24');t.position.set(x,1.25,5.95);g.add(t);g.ad(box(.06,.9,.06,AS,.01),x,.8,5.92)});
+ const tg=papanTeks(2.6,.7,'DEALER','#e0803a','#ffffff');g.ad(box(.3,6.4,.3,N,.03),8.4,3.55,7.4);tg.position.set(8.4,6.3,7.58);g.add(tg);g.ad(box(2.8,.9,.2,N,.04),8.4,6.3,7.44);
+ const tg2=papanTeks(2.6,.42,'KENDARAAN','#1d2a44','#f2c14a');tg2.position.set(8.4,5.55,7.58);g.add(tg2);
+ for(let i=0;i<9;i++){const x=-8+i*2;g.ad(box(.06,2.2,.06,0xdddddd,.01),x,1.45,8.0);[0xe0303a,0xf2c14a,0x2f6fd8][i%3]&&g.ad(box(.04,.9,.32,[0xe0303a,0xf2c14a,0x2f6fd8][i%3],.01),x,2.1,7.82)}
+ // pohon & lampu
+ [[-8.4,-1.4],[8.4,-1.6]].forEach(([x,z])=>pohonT(g,x,z,.75,0x3a8a5a));
+ [-4.5,1.5].forEach(x=>{g.ad(box(.18,3.4,.18,0x555555,.02),x,2.05,1.4);g.ad(box(.7,.25,.45,0xfff2c0,.05),x,3.85,1.4)});
+ pagar(g,19,17,N,3);g.userData.putar.forEach(p=>p.o.traverse(o=>{o.userData.jangan=true}));return fin(g)}
+export const SEMUA={masjid,gereja,katedral,pura,vihara,klenteng,sekolah,warung,supermarket,rumahSakit,stadion,kampus,tamanKota,kafe,hiburan,polisi,tokoWillo,arenaLari,sirkuitReli,dealer};
 // Dipakai game: pisahkan bagian "atas" (dinding atas, atap, lantai 2) supaya bisa disembunyikan saat warga di dalam,
 // dan hitung kotak tabrakan per dinding (pintu & ruang dalam bisa dilewati). m sudah diskalakan & diposisikan.
 export function pisahFasum(m){

@@ -10,7 +10,7 @@
 import '../mabar/js/putar.js'; // HP tegak -> tampil mendatar, sama seperti game desa
 import * as THREE from 'three';
 import {warga} from '../mabar/js/aset/avatar.js';
-import {buatMobil, MODEL_MOBIL} from '../mabar/js/aset/mobil.js?v=20261111mobil';
+import {buatMobil, MODEL_MOBIL} from '../mabar/js/aset/mobil.js?v=20261111kend';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));

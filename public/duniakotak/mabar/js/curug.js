@@ -27,6 +27,22 @@ export function curug(sc, o = {}) {
   const mat = (c, r = .9) => new THREE.MeshStandardMaterial({color: c, roughness: r});
   const slab = (x, y, z, w, h, dd, c, ry = 0, r = .9) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, dd), mat(c, r)); m.position.set(x, y, z); m.rotation.y = ry; m.receiveShadow = true; m.castShadow = h > .6; G.add(m); return m; };
   const road = (x, z, w, dd, y = 0, ry = 0) => slab(x, y + .08, z, w, .16, dd, 0xd8c49c, ry);
+  // tikungan tanjakan setengah lingkaran di ujung teras (Huda 11 Nov 2026: "sambungan jalan presisi & rata"): satu pita jalan mulus
+  // (dulu 25 petak kotak bertangga). Tinggi tiap titik = rumus info.tanah, lebar 4 = lebar jalan teras, ujungnya tepat di ujung jalan teras.
+  const MAT_JALAN = new THREE.MeshStandardMaterial({color: 0xd8c49c, roughness: .9, side: THREE.DoubleSide}), MAT_TEBING = new THREE.MeshStandardMaterial({color: 0xa98a5c, roughness: .9, side: THREE.DoubleSide});
+  const tikungan = (sd, y, z) => {
+    const cx = sd * (L / 2 + 7), cz = z - DEP / 2, R = DEP / 2, n = 48, top = [], kulit = [];
+    const tinggi = zz => zz <= cz ? y + STEP : y + STEP * (1 - (Math.min(z, zz) - cz) / R);
+    const titik = (t, r) => { const x = cx + sd * Math.cos(t) * r, zz = cz + Math.sin(t) * r; return [x, tinggi(zz) + .16, zz]; };
+    for (let a = 0; a < n; a++) {
+      const t0 = -Math.PI / 2 + a / n * Math.PI, t1 = -Math.PI / 2 + (a + 1) / n * Math.PI;
+      const i0 = titik(t0, R - 2), o0 = titik(t0, R + 2), i1 = titik(t1, R - 2), o1 = titik(t1, R + 2);
+      top.push(...i0, ...o0, ...o1, ...i0, ...o1, ...i1);
+      for (const [p, q] of [[i0, i1], [o0, o1]]) { const b0 = [p[0], y - .02, p[2]], b1 = [q[0], y - .02, q[2]]; if (p[1] - y > .2 || q[1] - y > .2) kulit.push(...p, ...b0, ...b1, ...p, ...b1, ...q); }
+    }
+    for (const [arr, m] of [[top, MAT_JALAN], [kulit, MAT_TEBING]]) { if (!arr.length) continue; const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3)); g.computeVertexNormals();
+      const me = new THREE.Mesh(g, m); me.receiveShadow = true; G.add(me); }
+  };
   const fas = [];
   const fasum = (x, z, w, dd, y = 0) => { const k = G.children.length; fasum2(G, x, z, w, dd); const g = G.children[k]; g.position.y = y; fas.push({p: V3(x * VS, y * VS, z * VS), g}); return g; };
   const pine = (x, z, s = 1, y = 0) => { const g = new THREE.Group(); const t = box(.5, 1.6, .5, 0x6a4426, .04); t.position.y = .8; g.add(t); [[3, 1.6], [2.3, 2.8], [1.5, 3.9], [.8, 4.8]].forEach(([w, h], i) => { const c = box(w, 1.2, w, new THREE.Color().setHSL(.36, .5, .22 + i * .03), .12); c.position.y = h; g.add(c); }); g.scale.setScalar(s); g.position.set(x, y, z); g.traverse(m => { if (m.isMesh) m.castShadow = true; }); G.add(g); };
@@ -43,7 +59,7 @@ export function curug(sc, o = {}) {
     road(0, z, L + 14, 4, y);
     const sB = FASUM_TERAS.find(f => f[0] === j && f[1] === -1)[2], sD = FASUM_TERAS.find(f => f[0] === j && f[1] === 1)[2];
     for (let i = 0; i < NK; i++) { const x = -L / 2 + SP / 2 + i * SP; if (i !== sB && i !== sB + 1) LOTS.push({n: LOTS.length + 1, cx: x, cz: z - 7, y, rot: 0}); if (i !== sD && i !== sD + 1) LOTS.push({n: LOTS.length + 1, cx: x, cz: z + 7, y, rot: Math.PI}); }
-    if (j < 4) { const sd = j % 2 ? -1 : 1; const cx = sd * (L / 2 + 7), cz = z - DEP / 2; for (let a = 0; a <= 24; a++) { const t = -Math.PI / 2 + a / 24 * Math.PI; const x = cx + sd * Math.cos(t) * DEP / 2, zz = cz + Math.sin(t) * DEP / 2; const up = zz <= z - DEP / 2; const base = up ? y + STEP : y; const h = up ? y + STEP : y + STEP * (1 - (zz - (z - DEP / 2)) / (DEP / 2)); if (h - base > .2) slab(x, (base + h) / 2, zz, 6.2, h - base, 6.2, 0xa98a5c); road(x, zz, 6, 6, h); } }
+    if (j < 4) tikungan(j % 2 ? -1 : 1, y, z);
     for (let k = 0; k < (j < 4 ? 18 : 0); k++) pine(-L / 2 + rnd() * L, z - DEP / 2 + (rnd() - .5) * 3, 1.1 + rnd() * .5, y + STEP * .5);
   }
   for (let k = 0; k < 160; k++) { const sd = rnd() < .5 ? -1 : 1; const x = sd * (L / 2 + 30 + rnd() * 110), z = 40 - rnd() * 200; if ((sd > 0 && z > -12) || (sd > 0 && Math.abs(x - L / 2 - 40) < 12) || (sd > 0 && z > zb && z < zb + 30)) continue; if (o.hemat && k % 2) continue; pine(x, z, 1.3 + rnd() * .9, Math.max(0, -z / DEP) * STEP * .9); }
@@ -70,6 +86,11 @@ export function curug(sc, o = {}) {
   { const x = -72, z = ZR + 11.6, f = fasum(x, z, 21, 17.4, 0); f.children.slice(1).forEach(c => f.remove(c)); road(x, ZR + 2, 5, 3);
     const m = F.sirkuitReli(); m.scale.setScalar(VS); m.rotation.y = Math.PI; m.position.set(x * VS, 0, z * VS); gF.add(m);
     bangunan.push({position: new THREE.Vector3(m.position.x, 0, m.position.z), nama: '🏁 Sirkuit Reli Kotak', ...F.pisahFasum(m)}); }
+  // Dealer Kendaraan (Huda 11 Nov 2026): lahan sendiri di sebelah kiri Sirkuit Reli, menghadap jalan kaki gunung. Warga di dalam
+  // area dapat tombol 🚗 Dealer → katalog mobil, motor & sepeda yang dibeli pakai koin (diparkir di depan rumah).
+  { const x = -96, z = ZR + 11.6, f = fasum(x, z, 21, 17.4, 0); f.children.slice(1).forEach(c => f.remove(c)); road(x, ZR + 2, 5, 3);
+    const m = F.dealer(); m.scale.setScalar(VS); m.rotation.y = Math.PI; m.position.set(x * VS, 0, z * VS); gF.add(m);
+    bangunan.push({position: new THREE.Vector3(m.position.x, 0, m.position.z), nama: '🚗 Dealer Kendaraan', ...F.pisahFasum(m)}); }
   bangunan.push({position: V3(30 * VS, yb * VS, (zb + 20) * VS), nama: '💦 Air Terjun Curug', tinggi: 14 * VS, rect: null});
   bangunan.push({position: V3(195 * VS, 0, (30 + dF) * VS), nama: '🚌 Terminal & Gapura Kotak Curug', tinggi: 3 * VS, rect: null});
 
