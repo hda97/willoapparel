@@ -140,6 +140,8 @@ h1{font-size:21px;margin:10px 0 8px}
 .layarMain iframe{flex:1;width:100%;max-width:1100px;margin:0 auto;border:0;border-radius:14px;background:#cfeaff}
 header{margin-bottom:12px}
 .pulau{margin:4px -16px 18px}
+.pulauRingan{display:block;position:relative;width:100%;padding:0;border:0;background:#8cc6f2;cursor:pointer}.pulauRingan img{display:block;width:100%;height:clamp(220px,40vh,360px);object-fit:cover}.pulauRingan b{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:#fff;border:3px solid #1d2a1d;border-radius:6px;box-shadow:0 4px 0 #1d2a1d;padding:8px 14px;font:800 15px system-ui;color:#1d2a1d;white-space:nowrap}
+.pulau iframe[hidden]{display:none}
 .pulau iframe{display:block;width:100%;height:clamp(380px,62vh,540px);border:0;background:#8cc6f2}
 .pulau p{margin:10px 16px 0;font-size:13px;font-weight:600;line-height:1.45}
 @media (min-width:552px){.pulau{margin:4px 0 18px}.pulau iframe{border-radius:18px;box-shadow:0 6px 0 rgba(29,42,29,.18)}.pulau p{margin:10px 2px 0}}
@@ -200,7 +202,11 @@ details.ubah[open]>.isi,details.ubah[open]>#pilihAv{margin-top:10px}
   </header>
 
   <section class="pulau" aria-label="Desa Dunia Kotak 3D: cari avatarmu">
-    <iframe src="/duniakotak/pulau/?embed=1" title="Desa Dunia Kotak, pulau melayang 3D. Cari avatarmu dan lihat lagi ngapain." loading="eager" allow="fullscreen; web-share; clipboard-write"></iframe>
+    <iframe id="pulau3d" data-src="/duniakotak/pulau/?embed=1" title="Desa Dunia Kotak, pulau melayang 3D. Cari avatarmu dan lihat lagi ngapain." loading="eager" allow="fullscreen; web-share; clipboard-write"></iframe>
+    <script>/* Aplikasi Android (Huda 10 Nov 2026: "pembukaan terlalu berat"): pulau 3D tidak dimuat otomatis; gambar + tombol. Web tetap langsung. */
+    (function(){var f=document.getElementById('pulau3d');if(!/DuniaKotakAndroid/.test(navigator.userAgent)){f.src=f.dataset.src;return}
+    var b=document.createElement('button');b.type='button';b.className='pulauRingan';b.innerHTML='<img src="/duniakotak/pulau/og.jpg" alt="Desa Dunia Kotak"><b>🏝️ Lihat pulau 3D</b>';
+    f.hidden=true;f.parentNode.insertBefore(b,f);b.onclick=function(){f.src=f.dataset.src;f.hidden=false;b.remove()}})();</script>
     <p>🔎 Sudah jadi warga? Ketik nomor wargamu atau @username di kolom <b>Cari</b> untuk melihat avatarmu lagi ngapain.</p>
   </section>
 
