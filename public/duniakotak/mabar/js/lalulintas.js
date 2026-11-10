@@ -167,5 +167,18 @@ export function buatLaluLintas({sc, I, VS, tanah, warga, pose, siapAv, buatMobil
       if (me) c.o.visible = Math.abs(c.o.position.x - me.position.x) + Math.abs(c.o.position.z - me.position.z) < 520;
     }
   }
-  return {update, armada, grup: g, jumlahSimpang: simpang.size};
+  // jalan tempat (x, z) berada, untuk kendaraan pemain agar pas di lajur kiri (Huda 11 Nov: "navigasi kendaraan tidak loncat & pas jalurnya").
+  // Di dalam simpang (dua jalan bertemu) dikembalikan null supaya pemain bebas belok.
+  let BATAS = null;
+  function jalurDi(x, z, dua) {
+    let hasil = null, n = 0;
+    if (!BATAS) BATAS = [Math.min(...xs) - 2 * VS, Math.max(...xs) + 2 * VS, Math.min(...zs) - 2 * VS, Math.max(...zs) + 2 * VS];
+    if (x < BATAS[0] || x > BATAS[1] || z < BATAS[2] || z > BATAS[3]) return null;
+    for (let j = 0; j < NJ; j++) if (Math.abs(z - zs[j]) < rwZ[j]) { hasil = {vert: false, c: zs[j], rw: rwZ[j]}; n++; }
+    for (let i = 0; i < NI; i++) if (bolehNaik(i) && Math.abs(x - xs[i]) < rwX[i]) { hasil = {vert: true, c: xs[i], rw: rwX[i]}; n++; }
+    if (n !== 1) return null;
+    hasil.lajur = Math.min(hasil.rw * .5, (dua ? .9 : 1.6) * M) + (dua ? hasil.rw * .25 : 0);
+    return hasil;
+  }
+  return {update, armada, grup: g, jumlahSimpang: simpang.size, jalurDi};
 }
