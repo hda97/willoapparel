@@ -123,7 +123,7 @@ function siapAvatar(av) {
   if (d.body) d.body.add(kotak(1.18, .95, .76, 0xff7a1a, 0, .62, 0));
   return o;
 }
-const SAYA = {o: siapAvatar(null), x: 0, z: 62, arah: Math.PI, ph: 0, bawa: [], ambilT: 0, setorT: 0};
+const SAYA = {o: siapAvatar(null), x: -17, z: 62, arah: -Math.PI / 2, ph: 0, bawa: [], ambilT: 0, setorT: 0};
 sc.add(SAYA.o);
 // penanda "KAMU": lingkaran biru di kaki + label di atas kepala, supaya pemain langsung tahu avatarnya (Huda 10 Nov)
 const tandaKaki = new THREE.Mesh(new THREE.RingGeometry(1.5, 2.1, 32), new THREE.MeshBasicMaterial({color: 0x3fa9ff, transparent: true, opacity: .9, side: THREE.DoubleSide}));
@@ -316,7 +316,7 @@ function mulaiKerja() {
   if (MAIN) return; MAIN = true; bunyi(660, .08);
   Object.assign(KERJA, {setor: 0, sesiBahan: 0, mendarat: 0, tutup: false, sesi: 0, koin: 0, maju: 0, piala: 0, galat: '', jadi: false});
   pasangBangunan(INFO, true); for (const f of TERBANG) sc.remove(f.m); TERBANG = [];
-  SAYA.x = 0; SAYA.z = 62; SAYA.arah = Math.PI; SAYA.bawa = []; susunPunggung();
+  SAYA.x = -17; SAYA.z = 62; SAYA.arah = -Math.PI / 2;   // mulai di samping tumpukan bata (Huda 10 Nov) SAYA.bawa = []; susunPunggung();
   for (const id of ['lobi', 'dompet', 'hasil']) $(id).hidden = true;
   for (const id of ['hud', 'tas', 'stik', 'petunjuk']) $(id).hidden = false;
   tulisHud(); petunjuk();
