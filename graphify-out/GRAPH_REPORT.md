@@ -1,7 +1,7 @@
 # Graph Report - willoapparel  (2026-11-10)
 
 ## Corpus Check
-- 103 files · ~813,018 words
+- 103 files · ~813,051 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 16 file(s) not represented in the graph (top: .glb 5, (none) 4, .css 4)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ebf92eac`
+- Built from commit: `d6dc6507`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -565,7 +565,7 @@ Nodes (7): box(), DAFTAR_KUCING, gc, kucingMesh(), prism(), wajah(), WARNA_KUCIN
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `lepas()` connect `bangun.js` to `hitung-rpg/game.js`, `src/game.js`, `$`?**
-  _High betweenness centrality (0.074) - this node is a cross-community bridge._
+  _High betweenness centrality (0.077) - this node is a cross-community bridge._
 - **Are the 9 inferred relationships involving `mulai()` (e.g. with `ambilHadir()` and `bersihAv()`) actually correct?**
   _`mulai()` has 9 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `kelasduniakotak` to the rest of the system?**
@@ -573,8 +573,8 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `duniakotak/js/desa.js` be split into smaller, more focused modules?**
   _Cohesion score 0.06289506953223767 - nodes in this community are weakly interconnected._
 - **Why does `warga()` connect `avatar.js` to `mabar/game.js`, `kotak`, `pose`, `ktp.js`, `main.js`, `smp/src/inti.js`, `toast`, `rnd`, `bangun.js`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+  _High betweenness centrality (0.025) - this node is a cross-community bridge._
 - **Should `mabar/game.js` be split into smaller, more focused modules?**
   _Cohesion score 0.015055323780155994 - nodes in this community are weakly interconnected._
 - **Why does `KULIT` connect `avatar.js` to `ktp.js`, `mabar/game.js`, `main.js`, `smp/src/inti.js`?**
-  _High betweenness centrality (0.013) - this node is a cross-community bridge._
+  _High betweenness centrality (0.012) - this node is a cross-community bridge._

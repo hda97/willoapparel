@@ -1352,7 +1352,8 @@ async function bukaVoting(wajib) {
     if (VT.gratis) toast('⭐ Bintang gratis hari ini masuk!', 3000);
     tulisVoting();
     // wajib hanya bila hak pilih hari ini belum dipakai (dicek server, jadi berlaku di semua HP)
-    if (wajib) { if (!S.tamu && !VT.sudahPilih && (VT.saldo || 0) >= 1) { const buka = (n = 0) => { if (sedangJalan() && n < 60) return setTimeout(() => buka(n + 1), 4000); if ([...document.querySelectorAll('.layarPenuh')].some(e => !e.hidden)) return; $('panelVoting').hidden = false; simpan('dk_vt', hariIni()); }; buka(); } else simpan('dk_vt', hariIni()); }
+    // Voting tetap WAJIB (Huda 10 Nov 2026): tunggu warga berhenti jalan, lalu pop up terkunci sampai warga memilih.
+    if (wajib) { if (!S.tamu && !VT.sudahPilih && (VT.saldo || 0) >= 1) { const buka = (n = 0) => { if (n > 200) return; if (sedangJalan() && n < 60) return setTimeout(() => buka(n + 1), 4000); if ([...document.querySelectorAll('.layarPenuh')].some(e => !e.hidden && e.id !== 'panelVoting')) return setTimeout(() => buka(n + 1), 4000); kunciVoting(true); $('panelVoting').hidden = false; }; buka(); } else simpan('dk_vt', hariIni()); }
   } catch (e) { $('isiVoting').innerHTML = '<p class="kecil">Voting belum bisa dimuat. Coba lagi sebentar.</p>'; }
 }
 document.addEventListener('click', async e => {
