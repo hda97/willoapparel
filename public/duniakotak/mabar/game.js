@@ -29,6 +29,66 @@ const bacaJ = k => { try { return JSON.parse(baca(k) || 'null'); } catch (e) { r
 const toast = (m, ms = 2600) => { const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), ms); };
 const api = async (p, data) => { const r = await fetch('/duniakotak/api/' + p, {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(data)}); const j = await r.json().catch(() => ({galat: 'Server tidak menjawab'})); if (!r.ok) throw new Error(j.galat || 'Gagal'); return j; };
 
+// ---------- Notifikasi HP (Huda 11 Nov 2026: tambah pemain harian) ----------
+// Warga menyalakan sendiri di ⚙ Atur → 🔔 Pengingat di HP (atau ajakan sekali setelah menanam). Server mengirim maks 1 kabar
+// sehari, jam 07–21 WIB: panen siap, Pasar Malam buka, voting tutup, pulang kampung. Tidak tersedia di aplikasi Android (WebView).
+const NT = {sub: null};
+const kunciBiner = s => { const t = s.replace(/-/g, '+').replace(/_/g, '/'); return Uint8Array.from(atob(t + '==='.slice((t.length + 3) % 4)), c => c.charCodeAt(0)); };
+function ntCara() {
+  if (window.DK_APP) return 'app';
+  const ua = navigator.userAgent || '';
+  if (/Instagram|FBAN|FBAV|FB_IAB|Line\/|TikTok|musical_ly|BytedanceWebview/i.test(ua)) return 'iab';
+  const ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const pwa = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return ios && !pwa ? 'ios' : 'tidak';
+  return 'ok';
+}
+function tulisNotif() {
+  const c = ntCara(), b = $('bNotif'); if (!b) return; b.hidden = c === 'app';
+  $('notifStatus').textContent = NT.sub ? '✅ Nyala · ketuk untuk mematikan' : c === 'ok' ? (Notification.permission === 'denied' ? 'Diblokir browser · izinkan lewat pengaturan situs' : 'Dikabari saat panen siap, Pasar Malam buka & voting tutup')
+    : c === 'ios' ? 'iPhone: Tambah ke Layar Utama dulu' : c === 'iab' ? 'Buka di Chrome dulu' : 'Browser ini belum mendukung';
+}
+async function cekNotif() {
+  if (ntCara() === 'ok' && !S.tamu && S.kunci) {
+    try { const reg = await navigator.serviceWorker.getRegistration('/duniakotak/mabar/'); NT.sub = reg ? await reg.pushManager.getSubscription() : null;
+      // Sinkron sekali sehari: HP yang sama bisa dipakai warga lain, dan browser kadang memperbarui alamat langganan.
+      const tanda = new Date().toDateString() + S.kunci;
+      if (NT.sub && Notification.permission === 'granted' && baca('dk_notif_sinkron') !== tanda) { await api('notif', {kunci: S.kunci, sub: NT.sub.toJSON()}); simpan('dk_notif_sinkron', tanda); }
+    } catch (e) {}
+  }
+  tulisNotif();
+}
+const PETUNJUK_NOTIF = {ios: 'Di iPhone: ketuk tombol Bagikan ⬆️ di Safari, pilih "Tambah ke Layar Utama", buka Dunia Kotak dari ikon itu, lalu nyalakan pengingat di ⚙️ Atur.',
+  iab: 'Buka game ini di Chrome dulu (ketuk ⋮ lalu "Buka di browser"), lalu nyalakan pengingat di ⚙️ Atur → 🔔 Pengingat di HP.', tidak: 'Browser ini belum bisa menerima notifikasi. Coba buka game di Chrome.'};
+async function nyalakanNotif() {
+  const c = ntCara(); if (c === 'app') return;
+  if (c !== 'ok') { $('isiNotif').textContent = PETUNJUK_NOTIF[c]; $('notifYa').hidden = true; $('panelNotif').hidden = false; return; }
+  if (S.tamu || !S.kunci) return toast('Masuk sebagai warga dulu ya.');
+  try {
+    const izin = await Notification.requestPermission();
+    if (izin !== 'granted') { toast('Notifikasi belum diizinkan. Bisa diizinkan lagi lewat pengaturan situs di browser.', 4000); return tulisNotif(); }
+    const reg = await navigator.serviceWorker.register('/duniakotak/mabar/sw.js', {scope: '/duniakotak/mabar/'}); await navigator.serviceWorker.ready;
+    const {kunci} = await (await fetch('/duniakotak/api/notif-kunci')).json();
+    NT.sub = await reg.pushManager.getSubscription() || await reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: kunciBiner(kunci)});
+    await api('notif', {kunci: S.kunci, sub: NT.sub.toJSON()}); simpan('dk_notif_sinkron', new Date().toDateString() + S.kunci);
+    toast('🔔 Pengingat nyala! Desa akan mengabarimu.', 3000); bunyi('emosi');
+  } catch (e) { toast('Pengingat belum bisa dinyalakan. Coba lagi nanti.', 3500); }
+  tulisNotif();
+}
+async function matikanNotif() {
+  try { await api('notif', {kunci: S.kunci, op: 'hapus'}); if (NT.sub) await NT.sub.unsubscribe(); NT.sub = null; toast('🔕 Pengingat dimatikan.'); } catch (e) { toast(e.message, 3000); }
+  tulisNotif();
+}
+// Ajakan sekali setelah menanam ("kabari aku kalau sudah siap panen"), maks 1x per 3 hari, tidak muncul saat warga sedang jalan.
+function tawarNotif() {
+  if (ntCara() !== 'ok' || NT.sub || S.tamu || Notification.permission !== 'default') return;
+  if (Date.now() - (+baca('dk_notif_tawar') || 0) < 3 * 864e5) return;
+  setTimeout(() => { if (sedangJalan() || [...document.querySelectorAll('.layarPenuh')].some(e => !e.hidden)) return;
+    simpan('dk_notif_tawar', String(Date.now()));
+    $('isiNotif').textContent = 'Tanamanmu siap dipanen 6 jam lagi. Mau dikabari lewat notifikasi HP saat sudah siap? Maks 1 kabar sehari, tidak bunyi malam hari.';
+    $('notifYa').hidden = false; $('panelNotif').hidden = false; }, 1800);
+}
+
 // ---------- alamat (rumus Kotak Wetan) ----------
 const JALAN = ['Melati','Mawar','Kenanga','Anggrek','Mangga','Rambutan','Durian','Salak','Jambu','Manggis','Sawo','Nangka','Belimbing','Kelengkeng','Sirsak'];
 // Dusun: Kotak Wetan = warga No. 1–260, Kotak Kulon = No. 261–460 (3 Nov 2026), Kotak Curug = No. 461–660 (6 Nov 2026, saat Kulon penuh),
@@ -156,7 +216,7 @@ async function masukGoogle(credential, isi) {
   } catch (e) { const g2 = $('galatMasuk'); if (g2) g2.textContent = e.message; }
 }
 function selesaiMasuk(s) {
-  if (s) { S.saya = s; S.kunci = s.kunci; S.hias = s.hias || null; muatPemula(s); aturHadir(s.hadir); simpan('dk_warga', {no: s.no, ig: s.ig, kunci: s.kunci}); muatTasServer(s); terimaMenit(s.menit);
+  if (s) { S.saya = s; S.kunci = s.kunci; S.hias = s.hias || null; muatPemula(s); aturHadir(s.hadir); simpan('dk_warga', {no: s.no, ig: s.ig, kunci: s.kunci}); muatTasServer(s); terimaMenit(s.menit); cekNotif();
     // Pulang kampung (audit ekonomi #3): bonus warga yang ≥3 hari tidak main
     if (s.pulang) setTimeout(() => { try { bunyi('masuk'); koinTerbang(`+${s.pulang.koin} 🪙 +${s.pulang.permata} 💎`); } catch (e) {} toast(`🏡 Selamat pulang kampung! ${s.pulang.hari} hari tidak ketemu, Oyen kangen. Bonus +${s.pulang.koin} koin dan +${s.pulang.permata} 💎.`, 6500); }, 4500); }
   $('masuk').hidden = true;
@@ -1210,15 +1270,16 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1'};
+const KABAR_LAMA = {willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
+  if (window.DK_APP) simpan(KABAR_LAMA.notif, '1');   // aplikasi Android belum bisa notifikasi web
   const baru = [...document.querySelectorAll('#panelKabar .kbItem[data-k]')].filter(e => !baca(KABAR_LAMA[e.dataset.k]));
   if (!baru.length) return;
   const sibuk = sedangJalan() || [...document.querySelectorAll('.layarPenuh')].some(e => !e.hidden) || (typeof pemulaKini === 'function' && pemulaKini() && n < 40);
   if (sibuk) { if (n < 120) setTimeout(() => kabarBaru(n + 1), 5000); return; }
   document.querySelectorAll('#panelKabar .kbItem[data-k]').forEach(e => { e.hidden = !baru.includes(e); });
-  $('kbReliBtn').hidden = !baru.some(e => e.dataset.k === 'reli'); $('kbArenaBtn').hidden = !baru.some(e => e.dataset.k === 'arena'); $('kbTukangBtn').hidden = !baru.some(e => e.dataset.k === 'tukang'); $('kbAjakBtn').hidden = !baru.some(e => e.dataset.k === 'ajak'); $('kbRumahBtn').hidden = !baru.some(e => e.dataset.k === 'rumah'); $('kbAlbumBtn').hidden = !baru.some(e => e.dataset.k === 'album'); $('kbPasarBtn').hidden = !baru.some(e => e.dataset.k === 'pasar'); $('kbVotingBtn').hidden = !baru.some(e => e.dataset.k === 'tersebar'); $('kbNpcBtn').hidden = !baru.some(e => e.dataset.k === 'npc') || DI !== 'wetan' || !I.fas?.[11];
+  $('kbNotifBtn').hidden = !baru.some(e => e.dataset.k === 'notif'); $('kbReliBtn').hidden = !baru.some(e => e.dataset.k === 'reli'); $('kbArenaBtn').hidden = !baru.some(e => e.dataset.k === 'arena'); $('kbTukangBtn').hidden = !baru.some(e => e.dataset.k === 'tukang'); $('kbAjakBtn').hidden = !baru.some(e => e.dataset.k === 'ajak'); $('kbRumahBtn').hidden = !baru.some(e => e.dataset.k === 'rumah'); $('kbAlbumBtn').hidden = !baru.some(e => e.dataset.k === 'album'); $('kbPasarBtn').hidden = !baru.some(e => e.dataset.k === 'pasar'); $('kbVotingBtn').hidden = !baru.some(e => e.dataset.k === 'tersebar'); $('kbNpcBtn').hidden = !baru.some(e => e.dataset.k === 'npc') || DI !== 'wetan' || !I.fas?.[11];
   baru.forEach(e => simpan(KABAR_LAMA[e.dataset.k], '1')); bunyi('masuk');
   ambilAjakSingkat();
   $('panelKabar').hidden = false;
@@ -1230,6 +1291,7 @@ function kabarBaru(n = 0) {
   $('kbTukangBtn').onclick = () => { $('panelKabar').hidden = true; ikutBangun(); };
   $('kbArenaBtn').onclick = () => { $('panelKabar').hidden = true; keArenaLari(); };
   $('kbReliBtn').onclick = () => { $('panelKabar').hidden = true; keSirkuitReli(); };
+  $('kbNotifBtn').onclick = () => { $('panelKabar').hidden = true; nyalakanNotif(); };
   $('kbVotingBtn').onclick = () => { $('panelKabar').hidden = true; bukaVoting(); };
   $('kbAlbumBtn').onclick = () => { $('panelKabar').hidden = true; bukaAlbum(); };
   $('kbRumahBtn').onclick = () => { $('panelKabar').hidden = true; $('panelPeringkat').hidden = false; tabPeringkat('rumah'); };
@@ -2148,7 +2210,7 @@ function bukaTanam() {
 }
 document.addEventListener('click', async e => {
   const b = e.target.closest?.('[data-tanam]'); if (!b || panenSibuk) return; panenSibuk = true;
-  try { const r = await api('tanam', {kunci: S.kunci, bibit: b.dataset.tanam}); hasilKebun(r); $('panelTanam').hidden = true; bunyi('emosi'); pemulaMaju('tanam'); toast(`🌱 Bibit ${S.saya.bibit[b.dataset.tanam].nama} ditanam. Panen 6 jam lagi.`, 3500); }
+  try { const r = await api('tanam', {kunci: S.kunci, bibit: b.dataset.tanam}); hasilKebun(r); $('panelTanam').hidden = true; bunyi('emosi'); pemulaMaju('tanam'); toast(`🌱 Bibit ${S.saya.bibit[b.dataset.tanam].nama} ditanam. Panen 6 jam lagi.`, 3500); tawarNotif(); }
   catch (er) { toast(er.message, 3500); } finally { panenSibuk = false; }
 });
 // ---------- Profesi (audit ekonomi, Huda 6 Nov 2026) ----------
@@ -2900,6 +2962,9 @@ function aturHUD() {
   $('bPanduan').onclick = () => { $('panelAtur').hidden = true; panduan(); };
   $('bAtur').onclick = () => { $('jamAtur').textContent = $('jam').textContent.replace(/\s+/g, ' ').trim(); $('panelAtur').hidden = false; }; $('tutupAtur').onclick = () => { $('panelAtur').hidden = true; };
   $('bVoting').onclick = () => { $('panelAtur').hidden = true; bukaVoting(); };
+  $('bNotif').onclick = () => { $('panelAtur').hidden = true; if (NT.sub) { if (confirm('Matikan pengingat di HP ini?')) matikanNotif(); } else nyalakanNotif(); };
+  $('notifYa').onclick = () => { $('panelNotif').hidden = true; nyalakanNotif(); }; $('notifNanti').onclick = () => { $('panelNotif').hidden = true; };
+  tulisNotif();
   $('bAlbum').onclick = () => { $('panelAtur').hidden = true; bukaAlbum(); }; $('tutupAlbum').onclick = () => { $('panelAlbum').hidden = true; };
   $('bAjak').onclick = () => { $('panelAtur').hidden = true; bukaAjak(); }; $('tutupAjak').onclick = () => { $('panelAjak').hidden = true; };
   $('bPendukung').onclick = bukaPendukung; $('tutupPendukung').onclick = () => { $('panelPendukung').hidden = true; };
