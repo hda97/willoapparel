@@ -8,6 +8,7 @@
 // RINGAN DI HP: semua bagian diam digabung per bahan (mergeGeometries) -> ±15 draw call untuk bodi + 3 per ban,
 // padahal bagiannya ±150 kotak. Hadap +z (depan), ban di y = jari-jari.
 // Pakai: import {buatMobil, MODEL_MOBIL} from '.../aset/mobil.js'; const m = buatMobil('gt', 0xb8252c, 123);
+// Model fasum: 'sedan' (warga), 'patroli' (Kantor Polisi, cat putih), 'ambulans' (RS, cat putih).
 // m.userData = {bodi, roda:[{piv, putar, depan}], lampuRem, api, supir, kursi:{x, z, atap, tinggi}, jari}
 import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
@@ -260,10 +261,84 @@ function jip(bodi, cat, aksen, no, lampuRem) {
   return {api: apiKnalpot(bodi, -.58, .5, -2.4), kursi: {x: .38, z: -.32, atap: 2.08, tinggi: 1.28}};
 }
 
+// ---------- MOBIL FASUM (11 Nov 2026, Huda: "Semua mobil fasum juga") ----------
+// sedan warga (parkir Supermarket) & mobil patroli Kantor Polisi: sedan 4 pintu, bagasi, kisi krom, spion, gagang, plat DK.
+const silangTex = () => kanvas('silang', 128, 128, (g, w, h) => { g.fillStyle = '#ffffff'; g.beginPath(); g.arc(64, 64, 60, 0, 7); g.fill(); g.fillStyle = '#e0303a'; g.fillRect(48, 18, 32, 92); g.fillRect(18, 48, 92, 32); });
+function sedan(bodi, cat, aksen, no, lampuRem, patroli) {
+  const p = pembuat(bodi), BIRU = mat(0x1f4fa8, {roughness: .35, metalness: .15});
+  p(1.8, .5, 4.2, cat, 0, .66, 0, {r: .14, garis: 1});
+  p(1.74, .14, 1.3, cat, 0, .92, 1.42, {r: .06, garis: 1, rx: .05}); p(1.76, .16, .95, cat, 0, .94, -1.64, {r: .06, garis: 1});
+  p(1.56, .46, 2.0, KACA, 0, 1.14, -.24, {r: .08});
+  p(1.5, .5, .06, KACA, 0, 1.12, .83, {r: .02, rx: -.75}); p(1.5, .46, .06, KACA, 0, 1.12, -1.29, {r: .02, rx: .7});
+  p(1.6, .08, 1.5, cat, 0, 1.4, -.24, {r: .04, garis: 1, t: .03});
+  [-1, 1].forEach(s => { p(.08, .5, .1, cat, s * .76, 1.12, .78, {rx: -.75, r: .03}); p(.08, .46, .12, cat, s * .79, 1.15, -.2, {r: .02}); p(.08, .46, .14, cat, s * .76, 1.12, -1.2, {rx: .7, r: .03});
+    p(.02, .05, 2.0, HITAM, s * .79, .9, -.24, {r: 0});
+    p(.012, .44, .02, HITAM, s * .903, .7, .78, {r: 0}); p(.012, .44, .02, HITAM, s * .903, .7, -.2, {r: 0}); p(.012, .44, .02, HITAM, s * .903, .7, -1.16, {r: 0});
+    p(.03, .035, .15, KROM, s * .91, .82, .5, {r: .01}); p(.03, .035, .15, KROM, s * .91, .82, -.46, {r: .01});
+    p(.1, .12, .18, patroli ? HITAM : cat, s * .9, 1.0, .78, {r: .04, garis: 1, t: .02}); p(.06, .14, 1.0, KROM, s * .905, .5, 0, {r: 0}); });
+  for (const [x, z] of [[-.88, 1.32], [.88, 1.32], [-.88, -1.32], [.88, -1.32]]) p(.14, .26, 1.0, cat, x, .78, z, {r: .06});
+  // depan: kisi krom, lampu, sen, bumper; belakang: lampu, bumper, plat, knalpot
+  p(.9, .2, .05, HITAM, 0, .76, 2.1, {r: .02}); for (let i = 0; i < 3; i++) p(.86, .025, .03, KROM, 0, .69 + i * .07, 2.13, {r: 0});
+  [-1, 1].forEach(s => { p(.4, .14, .06, KROM, s * .62, .8, 2.08, {r: .03}); p(.34, .1, .03, LAMPU, s * .62, .8, 2.115, {r: .02}); p(.14, .07, .04, SEN, s * .82, .64, 2.14, {r: .02});
+    p(.44, .14, .06, KROM, s * .6, .84, -2.08, {r: .03}); p(.3, .1, .03, lampuRem, s * .64, .84, -2.115, {r: .02}); p(.1, .1, .03, MUNDUR, s * .38, .84, -2.115, {r: .02}); });
+  p(1.86, .2, .24, patroli ? HITAM : KARBON, 0, .5, 2.06, {r: .08, garis: 1, t: .02}); p(1.86, .2, .24, patroli ? HITAM : KARBON, 0, .5, -2.06, {r: .08, garis: 1, t: .02});
+  p.bidang(.6, .15, mat(0xffffff, {map: platTex('DK ' + (no || 1))}), 0, .56, -2.184, PI); p.bidang(.6, .15, mat(0xffffff, {map: platTex('DK ' + (no || 1))}), 0, .5, 2.184);
+  p.silinder(.05, .2, KROM, -.6, .4, -2.14, {rx: PI / 2, n: 10});
+  if (patroli) {   // pita biru di pintu + tulisan, light bar merah-biru, pelindung tabrak depan
+    [-1, 1].forEach(s => { p(.02, .2, 3.0, BIRU, s * .905, .62, 0, {r: 0});
+      p.bidang(1.2, .17, mat(0xffffff, {map: teksTex('POLISI DESA', '#1f4fa8', '#ffffff', 512, 72)}), s * .917, .62, .2, s * PI / 2); });
+    p(1.0, .06, .3, HITAM, 0, 1.47, -.1, {r: .02}); p(.44, .13, .26, mat(0xff2a2a, {emissive: 0xff2a2a, emissiveIntensity: .8}), -.24, 1.55, -.1, {r: .04}); p(.44, .13, .26, mat(0x2a6aff, {emissive: 0x2a6aff, emissiveIntensity: .8}), .24, 1.55, -.1, {r: .04});
+    p(1.1, .06, .06, HITAM, 0, .62, 2.26, {r: .01}); p(1.1, .06, .06, HITAM, 0, .4, 2.26, {r: .01}); [-.45, .45].forEach(x => p(.06, .32, .06, HITAM, x, .52, 2.24, {r: .01}));
+    p.bidang(1.0, .16, mat(0xffffff, {map: teksTex('POLISI', '#1f4fa8', '#ffffff', 256, 48)}), 0, .945, -2.115, PI);
+    p(.12, .06, .12, HITAM, .5, 1.47, -.9, {r: 0}); p.silinder(.012, .5, HITAM, .5, 1.72, -.9, {n: 5});   // antena radio
+  } else [-1, 1].forEach(s => { p(.05, .06, 1.3, ABU, s * .66, 1.47, -.24, {r: .01}); [-.7, .2].forEach(z => p(.05, .08, .05, ABU, s * .66, 1.44, z, {r: 0})); });   // rel atap
+  p.selesai();
+  return {api: apiKnalpot(bodi, -.6, .4, -2.5), kursi: {x: .36, z: -.1, atap: 1.38, tinggi: 1.05}};
+}
+// ambulans RS: van tinggi putih, pita merah, palang merah di samping/belakang, tulisan AMBULANS, lampu sirene, pintu belakang ganda.
+function ambulans(bodi, cat, aksen, no, lampuRem) {
+  const p = pembuat(bodi), PUTIH = cat, MERAH = mat(0xe0303a, {roughness: .4}), SIL = mat(0xffffff, {map: silangTex(), transparent: true, roughness: .5, polygonOffset: true, polygonOffsetFactor: -2});
+  p(1.92, 1.74, 3.1, PUTIH, 0, 1.42, -.72, {r: .12, garis: 1});   // ruang pasien
+  p(1.88, 1.0, 1.5, PUTIH, 0, 1.0, 1.55, {r: .12, garis: 1});      // kabin & kap
+  p(1.84, .62, .9, KACA, 0, 1.72, 1.12, {r: .08}); p(1.76, .7, .06, KACA, 0, 1.75, 1.6, {r: .02, rx: -.55});
+  p(1.88, .1, .9, PUTIH, 0, 2.08, 1.08, {r: .04});
+  [-1, 1].forEach(s => { p(.1, .7, .1, PUTIH, s * .9, 1.75, 1.56, {rx: -.55, r: .03}); p(.1, .66, .14, PUTIH, s * .92, 1.72, .7, {r: .03});
+    p(.02, .24, 4.6, MERAH, s * .965, 1.06, -.02, {r: 0}); p(.02, .06, 4.6, mat(0x1f4fa8), s * .966, .9, -.02, {r: 0});
+    p.bidang(.62, .62, SIL, s * .966, 1.5, -.15, s * PI / 2);
+    p.bidang(1.2, .2, mat(0xffffff, {map: teksTex('AMBULANS', '#ffffff', '#e0303a', 512, 72)}), s * .966, 1.62, -1.5, s * PI / 2);
+    p(.012, 1.2, .02, HITAM, s * .962, 1.36, .3, {r: 0}); p(.012, .02, .9, HITAM, s * .962, 1.96, -.15, {r: 0}); p(.012, 1.2, .02, HITAM, s * .962, 1.36, -.6, {r: 0});
+    p(.03, .035, .16, KROM, s * .965, 1.3, .2, {r: .01}); p(.03, .035, .16, KROM, s * .965, 1.3, -.5, {r: .01});
+    p(.05, .05, .14, HITAM, s * .96, 1.62, 1.28, {r: .01}); p(.1, .3, .16, HITAM, s * 1.03, 1.58, 1.28, {r: .04});
+    p(.18, .1, .4, mat(0xdfe3ea), s * .92, .48, .6, {r: .02}); });   // pijakan
+  for (const [x, z] of [[-.94, 1.5], [.94, 1.5], [-.94, -1.45], [.94, -1.45]]) p(.12, .26, 1.0, PUTIH, x, .92, z, {r: .06});
+  // atap: sirene merah-biru + lampu sorot belakang
+  p(1.3, .08, .34, HITAM, 0, 2.15, 1.1, {r: .02}); p(.6, .16, .3, mat(0xff2a2a, {emissive: 0xff2a2a, emissiveIntensity: .9}), -.32, 2.26, 1.1, {r: .05}); p(.6, .16, .3, mat(0x2a6aff, {emissive: 0x2a6aff, emissiveIntensity: .9}), .32, 2.26, 1.1, {r: .05});
+  [-1, 1].forEach(s => p(.16, .16, .1, mat(0xff2a2a, {emissive: 0xff2a2a, emissiveIntensity: .8}), s * .8, 2.22, -2.24, {r: .04}));
+  // depan: kisi, lampu, tulisan cermin, bumper
+  p(1.0, .24, .05, HITAM, 0, .86, 2.31, {r: .02}); for (let i = 0; i < 3; i++) p(.96, .03, .03, KROM, 0, .78 + i * .08, 2.34, {r: 0});
+  [-1, 1].forEach(s => { p(.36, .2, .06, KROM, s * .66, .9, 2.29, {r: .03}); p(.3, .15, .03, LAMPU, s * .66, .9, 2.325, {r: .02}); p(.12, .08, .04, SEN, s * .66, .74, 2.32, {r: .02}); });
+  p.bidang(1.2, .17, mat(0xffffff, {map: kanvas('ambCermin', 512, 72, (g, w, h) => { g.fillStyle = '#ffffff'; g.fillRect(0, 0, w, h); g.translate(w, 0); g.scale(-1, 1); g.fillStyle = '#e0303a'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = FONT(46); g.fillText('AMBULANS', w / 2, h / 2 + 2); })}), 0, 1.28, 2.31);
+  p(1.94, .22, .26, mat(0xc8ccd2, {roughness: .5}), 0, .56, 2.3, {r: .07, garis: 1, t: .02});
+  p.bidang(.6, .15, mat(0xffffff, {map: platTex('DK ' + (no || 'RS'))}), 0, .56, 2.432);
+  // belakang: pintu ganda berjendela, palang merah, lampu, pijakan, plat
+  p(.012, 1.4, .02, HITAM, 0, 1.4, -2.272, {r: 0, ry: PI / 2});
+  [-1, 1].forEach(s => { p(.66, .42, .03, KACA, s * .42, 1.86, -2.27, {r: .01}); p(.1, .5, .04, lampuRem, s * .86, 1.1, -2.28, {r: .02}); p(.1, .14, .04, SEN, s * .86, .78, -2.28, {r: .02});
+    p(.03, .16, .04, KROM, s * .1, 1.36, -2.29, {r: .01}); });
+  p.bidang(.5, .5, SIL, 0, 1.32, -2.3, PI);
+  p(1.94, .2, .4, mat(0xc8ccd2, {roughness: .5}), 0, .56, -2.3, {r: .05, garis: 1, t: .02});
+  p.bidang(.6, .15, mat(0xffffff, {map: platTex('DK ' + (no || 'RS'))}), 0, .82, -2.29, PI);
+  p.selesai();
+  return {api: apiKnalpot(bodi, -.6, .4, -2.7), kursi: {x: .4, z: 1.3, atap: 2.02, tinggi: 1.15}};
+}
+
 const SPEK = {
   hatch: {f: hatch, jari: .4, lebar: .34, bx: .92, bz: 1.25, bzb: 1.25, velgGaya: 'palang', velg: 0xd8dbe0, kaliper: 0xd8322a},
   gt: {f: gt, jari: .4, lebar: .38, bx: .95, bz: 1.35, bzb: 1.35, velgGaya: 'bintang', velg: 0xd4a838, kaliper: 0xf2c14a},
   jip: {f: jip, jari: .5, lebar: .44, bx: .98, bz: 1.3, bzb: 1.3, velgGaya: 'baja', velg: 0xeeeeea, kaliper: 0x5b5e66, kasar: 1},
+  // mobil fasum (tidak muncul di pilihan Reli)
+  sedan: {f: (...a) => sedan(...a, false), jari: .36, lebar: .3, bx: .88, bz: 1.32, bzb: 1.32, velgGaya: 'palang', velg: 0xc8ccd2, kaliper: 0x5b5e66},
+  patroli: {f: (...a) => sedan(...a, true), jari: .36, lebar: .3, bx: .88, bz: 1.32, bzb: 1.32, velgGaya: 'baja', velg: 0xdfe3ea, kaliper: 0x5b5e66},
+  ambulans: {f: ambulans, jari: .4, lebar: .32, bx: .94, bz: 1.5, bzb: 1.45, velgGaya: 'baja', velg: 0xdfe3ea, kaliper: 0x5b5e66},
 };
 
 export function buatMobil(model, warna, no) {
