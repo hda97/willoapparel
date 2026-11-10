@@ -1,0 +1,46 @@
+name: Aplikasi Android Dunia Kotak (APK uji)
+
+# Build APK debug Dunia Kotak (Capacitor) untuk dicoba di HP Android.
+# Hasil: tab Actions > run ini > Artifacts > dunia-kotak-apk-debug.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "aplikasi-android/**"
+      - ".github/workflows/aplikasi-android.yml"
+  push:
+    branches: [main]
+    paths:
+      - "aplikasi-android/**"
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: aplikasi-android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Pasang paket Capacitor
+        run: npm ci
+      - name: Sinkronkan Capacitor
+        run: npx cap sync android
+      - name: Build APK debug
+        working-directory: aplikasi-android/android
+        run: ./gradlew assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dunia-kotak-apk-debug
+          path: aplikasi-android/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14

@@ -1,0 +1,19 @@
+{
+  "appId": "com.willoapparel.duniakotak",
+  "appName": "Dunia Kotak",
+  "webDir": "www",
+  "server": {
+    "url": "https://willoapparel.com/duniakotak/mabar/?app=android",
+    "androidScheme": "https",
+    "allowNavigation": ["willoapparel.com", "www.willoapparel.com"],
+    "errorPath": "offline.html"
+  },
+  "appendUserAgent": "DuniaKotakAndroid/1.0",
+  "android": {
+    "backgroundColor": "#13141f",
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "AdMob": {}
+  }
+}

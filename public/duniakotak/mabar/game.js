@@ -682,7 +682,7 @@ function gambarPlakat() {
   x.fillStyle = '#ffe39a'; x.font = '700 22px Montserrat, sans-serif'; x.fillText('Didukung oleh', 320, 150);
   const nama = (d.plakat || []).filter(p => p.fasum === 'taman').map(p => '@' + p.nm);
   x.fillStyle = '#fff'; x.font = '800 24px Montserrat, sans-serif';
-  if (!nama.length) { x.fillStyle = '#b8bcd0'; x.font = '700 21px Montserrat, sans-serif'; x.fillText(`Namamu bisa di sini: dukung ${BATA_PLAKAT} Bata`, 320, 190); x.fillText('lewat Trakteer (⚙ Atur > Pendukung Desa)', 320, 220); }
+  if (!nama.length) { x.fillStyle = '#b8bcd0'; x.font = '700 21px Montserrat, sans-serif'; if (window.DK_APP) x.fillText('Belum ada nama pendukung', 320, 190); else { x.fillText(`Namamu bisa di sini: dukung ${BATA_PLAKAT} Bata`, 320, 190); x.fillText('lewat Trakteer (⚙ Atur > Pendukung Desa)', 320, 220); } }
   else { const baris = []; let b = ''; for (const n of nama.slice(0, 18)) { if ((b + '  ' + n).length > 34) { baris.push(b); b = n; } else b = b ? b + '  ' + n : n; } if (b) baris.push(b);
     baris.slice(0, 5).forEach((t, i) => x.fillText(t, 320, 190 + i * 32)); }
   const jr = d.juragan; x.fillStyle = '#ffc928'; x.font = '900 24px Montserrat, sans-serif';
@@ -2208,7 +2208,46 @@ let kerjaSibuk = false, soalKini = null;
 // Tombol tampil bila server menyalakan IKLAN_H5; ?ujiiklan=1 = mode uji Google (iklan contoh, tanpa hadiah).
 const IKLAN_PUB = 'ca-pub-1933161577421164';
 const IK = {aktif: false, uji: new URLSearchParams(location.search).has('ujiiklan'), sibuk: false};
+// Aplikasi Android (Capacitor, Huda 10 Nov 2026): iklan lewat AdMob, BUKAN AdSense (AdSense dilarang di WebView).
+// Reward = unit "Tonton iklan diamond", Banner = "Banner menu" (hanya saat panel ⚙ Atur terbuka, tidak saat main).
+// Hadiah 💎 hanya bila server menyalakan IKLAN_APP; sebelum itu iklan uji Google tanpa hadiah.
+const ADMOB = {reward: 'ca-app-pub-1933161577421164/9096453825', banner: 'ca-app-pub-1933161577421164/8953158604'};
+async function siapIklanApp() {
+  const AM = window.Capacitor?.Plugins?.AdMob; if (!AM || S.tamu) return;
+  try { IK.aktif = !!(await (await fetch('/duniakotak/api/config')).json()).iklanApp; } catch (e) {}
+  IK.uji = !IK.aktif;
+  try { await AM.initialize({initializeForTesting: IK.uji, tagForChildDirectedTreatment: false, tagForUnderAgeOfConsent: false}); } catch (e) { return; }
+  $('bIklan').hidden = false; $('bIklan').onclick = () => tontonIklanApp(AM);
+  if (IK.aktif) try { tulisIklan(await api('iklan', {kunci: S.kunci, app: 'android'})); } catch (e) {}
+  // banner hanya di panel ⚙ Atur (menu), hilang begitu panel ditutup
+  const pa = $('panelAtur'); let tampil = false;
+  new MutationObserver(async () => {
+    const buka = !pa.hidden; if (buka === tampil) return; tampil = buka;
+    document.documentElement.classList.toggle('adBanner', buka);
+    try { if (buka) await AM.showBanner({adId: ADMOB.banner, adSize: 'ADAPTIVE_BANNER', position: 'BOTTOM_CENTER', margin: 0, isTesting: IK.uji, npa: true}); else await AM.removeBanner(); } catch (e) {}
+  }).observe(pa, {attributes: true, attributeFilter: ['hidden']});
+}
+async function tontonIklanApp(AM) {
+  if (IK.sibuk) return; IK.sibuk = true;
+  const ls = [], lepas = () => { IK.sibuk = false; ls.forEach(h => h.then(x => x.remove()).catch(() => {})); try { M.ctx && M.ctx.resume(); } catch (e) {} };
+  let dapat = false;
+  try {
+    if (IK.aktif) await api('iklan', {kunci: S.kunci, op: 'mulai', app: 'android'});
+    ls.push(AM.addListener('onRewardedVideoAdReward', () => { dapat = true; }));
+    ls.push(AM.addListener('onRewardedVideoAdDismissed', async () => {
+      if (!dapat) toast('Iklan ditutup sebelum selesai, jadi belum dapat 💎.');
+      else if (!IK.aktif) toast('Mode uji: iklan selesai (tanpa hadiah).');
+      else try { const r = await api('iklan', {kunci: S.kunci, op: 'selesai', app: 'android'}); tulisIklan(r); toast(`Terima kasih sudah menonton! +${r.hadiah} 💎`, 3500); bunyi('emosi'); } catch (e) { toast(e.message); }
+      lepas();
+    }));
+    ls.push(AM.addListener('onRewardedVideoAdFailedToShow', () => { toast('Iklan gagal tampil. Coba lagi nanti ya.'); lepas(); }));
+    await AM.prepareRewardVideoAd({adId: ADMOB.reward, isTesting: IK.uji, npa: true});
+    $('panelAtur').hidden = true; try { M.ctx && M.ctx.suspend(); } catch (e) {}
+    await AM.showRewardVideoAd();
+  } catch (e) { toast(e && e.message && !/load|ad/i.test(e.message) ? e.message : 'Belum ada iklan yang siap. Coba lagi sebentar lagi ya.'); lepas(); }
+}
 async function siapIklan() {
+  if (window.DK_APP) return siapIklanApp();
   try { IK.aktif = !!(await (await fetch('/duniakotak/api/config')).json()).iklan; } catch (e) {}
   if ((!IK.aktif && !IK.uji) || S.tamu) return;
   const sc = document.createElement('script'); sc.async = true; sc.crossOrigin = 'anonymous';

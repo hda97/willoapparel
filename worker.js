@@ -145,6 +145,7 @@ const pkPermata = (id) => ["trail_sandstone", "solomate_carbon", "nyx_hyperfoam"
 const PK_HARGA = {"isotonik": 15, "gel": 20, "pisang": 10, "kopi": 25, "bakmi": 30, "daily_oat": 50, "trail_sandstone": 85, "solomate_carbon": 140, "nyx_hyperfoam": 240, "willo_sport": 45, "coro_pro": 95, "titanium_ultra": 220, "waist_bag": 15, "sunglasses_matte": 35, "handuk": 40, "ransel": 50, "hydration_vest": 75, "grail_trail_pack": 260, "kaos-3": 30, "kaos-4": 30, "kaos-5": 30, "kaos-6": 30, "kaos-11": 45, "kaos-12": 50, "kaos-13": 50, "kaos-14": 35, "kaos-15": 35, "kaos-16": 35, "kaos-17": 35, "kaos-18": 35, "kaos-19": 45, "kaos-20": 45, "bawah-9": 35, "bawah-10": 35, "bawah-11": 25, "bawah-12": 25, "bawah-13": 35, "bawah-14": 40, "bawah-15": 40, "bawah-16": 40, "topi-7": 20, "topi-8": 20, "topi-9": 20};
 // Iklan berhadiah Google H5 Games Ads (Huda 6 Nov 2026): warga MEMILIH sendiri menonton iklan → +3 permata, maks 3x/hari WIB.
 // Hanya permata (bukan koin). Menyala bila variabel IKLAN_H5 = "1" (setelah Google menyetujui H5 Games Ads).
+// Aplikasi Android (AdMob, Huda 10 Nov 2026): menyala bila IKLAN_APP = "1" dan klien mengirim app:"android".
 const IKLAN_PERMATA = 3, IKLAN_BATAS = 3, IKLAN_MIN = 8000;
 // Panen kebun sendiri (Huda 6 Nov 2026): permata juga didapat dari panen, tiap 6 jam sekali, +5 permata.
 const PANEN_JEDA = 6 * 3600e3, PANEN_PERMATA = 2;
@@ -1673,7 +1674,7 @@ async function apiWarga(request, env, url, ctx) {
 async function apiWargaInti(request, env, url) {
   const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   const aksi = url.pathname.replace("/duniakotak/api/", "");
-  if (aksi === "config") return json({ clientId: env.GOOGLE_CLIENT_ID || "", iklan: env.IKLAN_H5 === "1" ? 1 : 0 });
+  if (aksi === "config") return json({ clientId: env.GOOGLE_CLIENT_ID || "", iklan: env.IKLAN_H5 === "1" ? 1 : 0, iklanApp: env.IKLAN_APP === "1" ? 1 : 0 });
   if (!env.WARGA) return json({ galat: "Database warga belum aktif" }, 503);
   const stub = env.WARGA.get(env.WARGA.idFromName("desa"));
   if (aksi === "warga" && request.method === "GET") {
@@ -1827,7 +1828,7 @@ async function apiWargaInti(request, env, url) {
     return Response.json(j, { status: r.status, headers: { "cache-control": "no-store" } });
   }
   if (aksi === "iklan") {
-    const r = await stub.fetch("https://do/iklan", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), aktif: env.IKLAN_H5 === "1" }) });
+    const r = await stub.fetch("https://do/iklan", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), aktif: env.IKLAN_H5 === "1" || (body.app === "android" && env.IKLAN_APP === "1") }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "profesi") {

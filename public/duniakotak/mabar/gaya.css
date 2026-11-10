@@ -507,3 +507,6 @@ a.pdSaweria{display:block;text-align:center;text-decoration:none;margin-top:6px}
 .wlLemari{display:flex;gap:6px;flex-wrap:wrap}.wlLemari button{padding:2px;border-radius:12px;border:2px solid var(--garis);background:rgba(255,255,255,.05);cursor:pointer}.wlLemari button.on{border-color:#ffd23a}.wlLemari canvas{width:44px;height:44px;display:block}
 #bWillo i{filter:drop-shadow(0 0 4px rgba(47,91,255,.6))}
 @media (max-width:520px){.wlPaket{grid-template-columns:repeat(3,1fr)}}
+
+/* Aplikasi Android: ruang untuk banner AdMob di bawah panel ⚙ Atur */
+.adBanner #panelAtur{padding-bottom:64px}
