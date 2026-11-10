@@ -116,7 +116,8 @@ export function supermarket(){const g=G();const W=0xf3efe6,A=0x2f6fb8,O=0xf0a020
  g.ad(box(1.6,1.6,.3,O,.3),-6.6,7.05,-.95);g.ad(box(1.6,1.6,.3,O,.3),6.6,7.05,-.95);
  // parkir: garis + mobil kecil + troli
  g.ad(box(15,.1,5.4,0x8a8a8a,.02),0,.42,4.6);for(let i=0;i<6;i++)g.ad(box(.14,.03,2.4,0xffffff,.01),-6+i*2.4,.49,5.6);
- [[-4.8,0xd8402a],[-.0,0x3a8ad8],[4.8,0xf2c14a]].forEach(([x,c])=>{g.ad(box(1.7,.8,2.4,c,.25),x+1.2,.95,5.6);g.ad(box(1.4,.6,1.3,0xbfe2f2,.2),x+1.2,1.6,5.4);[[-.8,-.8],[.8,-.8],[-.8,.8],[.8,.8]].forEach(([a,b])=>g.ad(box(.2,.5,.5,0x222222,.1),x+1.2+a,.65,5.6+b))});
+ // mobil warga parkir mundur (desain ulang 11 Nov 2026, aset mobil.js): sedan merah, jip biru, sedan kuning
+ [['sedan',0xd8402a,-3.6,.62],['jip',0x3a8ad8,1.2,.56],['sedan',0xf2c14a,6,.62]].forEach(([md,c,x,k],i)=>{const m=buatMobil(md,c,11+i);m.position.set(x,.47,5.6);m.rotation.y=Math.PI;m.scale.setScalar(k);g.add(m)});
  [-1.2,-.4].forEach(x=>{g.ad(box(.7,.5,.9,0xc8c8c8,.05),x-6.2,1,1.8);g.ad(box(.06,.5,.06,0x999999,.01),x-6.2,.6,2.2)});
  // pohon & lampu
  [[-8.3,-1],[8.3,-1],[-8.3,7],[8.3,7]].forEach(([x,z])=>{g.ad(box(.6,2.4,.6,0x6a4426,.04),x,1.55,z);g.ad(box(2.4,2.2,2.4,0x3a8a5a,.3),x,3.6,z)});
@@ -136,8 +137,7 @@ export function rumahSakit(){const g=G();const W=0xf7f7f4,H=0x2fa58a,M=0xe0303a;
  [-1,1].forEach(s=>g.ad(box(.8,1.5,.12,0x9fd6f2,.02),6.6+s*1.9,1.2,-1.4));g.ad(box(5.6,.35,3.2,M,.05),6.6,3.1,-.4);[4.2,9].forEach(x=>g.ad(box(.25,2.7,.25,0xdddddd,.02),x,1.7,1));
  const ig=papanTeks(2.6,.8,'IGD','#e0303a','#ffffff');ig.position.set(6.6,4.4,-1.48);g.add(ig);
  // ambulans
- g.ad(box(2,1.5,3.4,0xffffff,.2),6.6,1.2,3.4);g.ad(box(1.8,.8,1.1,0xbfe2f2,.15),6.6,1.6,5.05);g.ad(box(2.02,.3,3.42,M,.05),6.6,1.1,3.4);g.ad(box(.6,.25,.3,0x3a8ad8,.05),6.6,2.05,3.6);
- [[-.9,-1.1],[.9,-1.1],[-.9,1.1],[.9,1.1]].forEach(([a,b])=>g.ad(box(.25,.6,.6,0x222222,.1),6.6+a,.7,3.4+b));
+ {const m=buatMobil('ambulans',0xf6f6f2,'RS');m.position.set(6.6,.35,3.3);m.scale.setScalar(.88);g.add(m)}   // desain ulang 11 Nov 2026 (aset mobil.js)
  // taman depan + bangku
  g.ad(box(9,.3,4,0x7cc46a,.05),-3,.5,3.6);[[-6,4.6],[-1,4.6]].forEach(([x,z])=>g.ad(box(2,.4,.7,0x9a6a3a,.04),x,.9,z));
  [[-8.3,-1],[-8.3,6.8],[1.6,6.8]].forEach(([x,z])=>{g.ad(box(.6,2.4,.6,0x6a4426,.04),x,1.55,z);g.ad(box(2.4,2.2,2.4,0x3a8a5a,.3),x,3.6,z)});
@@ -413,8 +413,7 @@ export function polisi(){const g=G();const W=0xf4f6f8,B=0x1f3f8a,B2=0x2f5fba,K=0
  perabot(g,box(5,1,.7,B2,.04),-1,.85,-5.4).userData.dinding=true;perabot(g,box(5.2,.08,.9,0xffffff,.02),-1,1.39,-5.4);[-2.6,-1,.6].forEach(x=>{perabot(g,box(.5,.35,.08,0x222222,.02),x,1.62,-5.6);kursi(g,x,-6.4,B)});
  for(let i=0;i<4;i++)kursi(g,-6.2+i*.8,-2,0x8a8a8a);rak(g,4.2,-7.5,2.6,.5,1.8,[0x8a8a8a,0x6a6a6a,0xb8b8b8]);
  // mobil patroli (kanan depan)
- [[6.6,2.6],[6.6,6]].forEach(([x,z])=>{g.ad(box(2,.8,3.2,0xffffff,.25),x,.95,z);g.ad(box(2.02,.3,3.22,B,.05),x,1.05,z);g.ad(box(1.6,.6,1.6,0xbfe2f2,.2),x,1.6,z-.2);g.ad(box(.9,.22,.3,0xff2a2a,.05,{emissive:0xff2a2a,emissiveIntensity:.6}),x-.25,2.02,z-.2);g.ad(box(.9,.22,.3,0x2a6aff,.05,{emissive:0x2a6aff,emissiveIntensity:.6}),x+.25,2.02,z-.2);
-  [[-.9,-1],[.9,-1],[-.9,1],[.9,1]].forEach(([a,b])=>g.ad(box(.22,.55,.55,0x222222,.1),x+a,.65,z+b))});
+ [[5.5,4.3],[7.7,4.3]].forEach(([x,z],i)=>{const m=buatMobil('patroli',0xf6f6f2,i+1);m.position.set(x,.35,z);m.scale.setScalar(.76);g.add(m)});   // desain ulang 11 Nov 2026 (aset mobil.js)
  // tiang bendera, taman kecil, lampu
  g.ad(box(.18,7.5,.18,0xdddddd,.02),-7,4.1,4.4);g.ad(box(1.8,.6,.06,0xd8202a,.01),-6.05,7.4,4.4);g.ad(box(1.8,.6,.06,0xffffff,.01),-6.05,6.8,4.4);
  g.ad(box(6,.3,2.4,0x7cc46a,.05),-2.4,.5,5.2);[[-8.3,-1],[8.3,-1.4]].forEach(([x,z])=>{g.ad(box(.6,2.4,.6,0x6a4426,.04),x,1.55,z);g.ad(box(2.4,2.2,2.4,0x3a8a5a,.3),x,3.6,z)});
