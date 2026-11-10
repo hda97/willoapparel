@@ -1,0 +1,15 @@
+{
+  "name": "Dunia Kotak",
+  "short_name": "Dunia Kotak",
+  "description": "Dunia sesuai kemauan warganya",
+  "start_url": "/duniakotak/mabar/",
+  "scope": "/duniakotak/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#13141f",
+  "theme_color": "#13141f",
+  "icons": [
+    {"src": "/duniakotak/ikon/ikon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "/duniakotak/ikon/ikon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}
