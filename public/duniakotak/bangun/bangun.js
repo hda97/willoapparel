@@ -103,15 +103,17 @@ for (const b of BAHAN) {
   const c = document.createElement('canvas'); c.width = 256; c.height = 96; const x = c.getContext('2d'); x.fillStyle = '#2c3150'; x.fillRect(0, 0, 256, 96);
   x.fillStyle = '#fff'; x.font = '900 46px Montserrat, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(b.nama.toUpperCase(), 128, 50);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
-  const p = new THREE.Mesh(new THREE.PlaneGeometry(6.4, 2.4), new THREE.MeshBasicMaterial({map: t})); p.position.set(b.x, 6.2, b.z + 3.4); sc.add(p);
-  sc.add(kotak(.3, 5, .3, 0x6a4a2a, b.x - 2.6, 2.5, b.z + 3.3), kotak(.3, 5, .3, 0x6a4a2a, b.x + 2.6, 2.5, b.z + 3.3));
+  const p = new THREE.Mesh(new THREE.PlaneGeometry(6.4, 2.4), new THREE.MeshBasicMaterial({map: t})); p.position.set(b.x, 6.2, b.z - 3.4); sc.add(p);   // papan di sisi belakang tumpukan supaya tidak menutupi avatar
+  const t1 = kotak(.3, 5, .3, 0x6a4a2a, b.x - 2.6, 2.5, b.z - 3.5), t2 = kotak(.3, 5, .3, 0x6a4a2a, b.x + 2.6, 2.5, b.z - 3.5); sc.add(t1, t2); b.papan = [p, t1, t2];
 }
 const SETOR = {x: 0, z: 48};
 const cincin = new THREE.Mesh(new THREE.RingGeometry(4.2, 5.4, 40), new THREE.MeshBasicMaterial({color: 0xf2c14a, transparent: true, opacity: .85, side: THREE.DoubleSide}));
 cincin.rotation.x = -Math.PI / 2; cincin.position.set(SETOR.x, .12, SETOR.z); sc.add(cincin);
 const cakram = new THREE.Mesh(new THREE.CircleGeometry(4.2, 40), new THREE.MeshBasicMaterial({color: 0xf2c14a, transparent: true, opacity: .25})); cakram.rotation.x = -Math.PI / 2; cakram.position.set(SETOR.x, .1, SETOR.z); sc.add(cakram);
 // panah penunjuk arah tujuan berikutnya (memantul)
-const panah = new THREE.Mesh(new THREE.ConeGeometry(1.3, 2.6, 4), new THREE.MeshBasicMaterial({color: 0xf2c14a})); panah.rotation.x = Math.PI; sc.add(panah); panah.visible = false;
+const panah = new THREE.Mesh(new THREE.ConeGeometry(1, 2, 4), new THREE.MeshBasicMaterial({color: 0xf2c14a})); panah.rotation.x = Math.PI; sc.add(panah); panah.visible = false;
+// panah kecil di tanah dekat kaki avatar, menunjuk ke tujuan (kamera orang ketiga)
+const panahKaki = new THREE.Group(); { const k = new THREE.Mesh(new THREE.ConeGeometry(.75, 1.8, 3), new THREE.MeshBasicMaterial({color: 0xf2c14a})); k.rotation.x = Math.PI / 2; k.scale.y = .35; panahKaki.add(k); } sc.add(panahKaki); panahKaki.visible = false;
 
 // ---------- avatar + perlengkapan tukang ----------
 function siapAvatar(av) {
@@ -123,6 +125,15 @@ function siapAvatar(av) {
 }
 const SAYA = {o: siapAvatar(null), x: 0, z: 62, arah: Math.PI, ph: 0, bawa: [], ambilT: 0, setorT: 0};
 sc.add(SAYA.o);
+// penanda "KAMU": lingkaran biru di kaki + label di atas kepala, supaya pemain langsung tahu avatarnya (Huda 10 Nov)
+const tandaKaki = new THREE.Mesh(new THREE.RingGeometry(1.5, 2.1, 32), new THREE.MeshBasicMaterial({color: 0x3fa9ff, transparent: true, opacity: .9, side: THREE.DoubleSide}));
+tandaKaki.rotation.x = -Math.PI / 2; sc.add(tandaKaki);
+const tandaNama = (() => { const c = document.createElement('canvas'); c.width = 256; c.height = 96; const g = c.getContext('2d');
+  g.fillStyle = '#3fa9ff'; g.beginPath(); g.roundRect(28, 8, 200, 62, 31); g.fill(); g.beginPath(); g.moveTo(112, 68); g.lineTo(144, 68); g.lineTo(128, 90); g.fill();
+  g.fillStyle = '#fff'; g.font = '900 40px Montserrat, system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('KAMU', 128, 41);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({map: t, depthTest: false})); s.scale.set(3.6, 1.35, 1); s.renderOrder = 9; sc.add(s); return s; })();
+function pasangTanda() { tandaKaki.position.set(SAYA.x, .14, SAYA.z); tandaNama.position.set(SAYA.x, 6, SAYA.z); }
 function gantiAvatar(av) { sc.remove(SAYA.o); SAYA.o = siapAvatar(av); sc.add(SAYA.o); }
 // tumpukan bahan di punggung (ikut avatar)
 const punggung = new THREE.Group(); sc.add(punggung);
@@ -187,7 +198,7 @@ async function catatSesi() {
 }
 // Misi = setor TK_BAHAN bahan. Begitu tercapai, permainan berhenti sendiri dan upah langsung dibagikan (Huda 10 Nov).
 async function misiSelesai() {
-  MAIN = false; panah.visible = false; STIK.x = STIK.y = 0;
+  MAIN = false; panah.visible = false; panahKaki.visible = false; for (const b of BAHAN) for (const m of b.papan) m.visible = true; STIK.x = STIK.y = 0;
   for (const id of ['hud', 'tas', 'stik', 'petunjuk']) $(id).hidden = true;
   bunyi(660, .1); setTimeout(() => bunyi(990, .16), 120); setTimeout(() => bunyi(1320, .2), 260);
   $('hsJudul').textContent = 'Misi selesai! Menghitung upah…'; $('hsRinci').innerHTML = ''; $('hsHadiah').textContent = ''; $('bLagi').disabled = true; $('hasil').hidden = false;
@@ -201,7 +212,7 @@ function loop(t) {
   const dt = Math.min(.05, (t - tLalu) / 1000); tLalu = t;
   if (MAIN) langkah(dt, t);
   else { const a = Math.sin(t / 14000) * .5, sempit = innerWidth < 700; KAM.tPos.set(Math.sin(a) * 140 - (sempit ? 0 : 30), 66, Math.cos(a) * 140 + 30); KAM.tLihat.set(sempit ? 0 : -24, 4, 16);
-    SAYA.o.position.set(SAYA.x, 0, SAYA.z); SAYA.o.rotation.y = SAYA.arah; pose(SAYA.o, {armR: Math.sin(t / 300) * .3, armL: -Math.sin(t / 300) * .2}); }
+    SAYA.o.position.set(SAYA.x, 0, SAYA.z); SAYA.o.rotation.y = SAYA.arah; pasangTanda(); pose(SAYA.o, {armR: Math.sin(t / 300) * .3, armL: -Math.sin(t / 300) * .2}); }
   // NPC gotong royong
   for (const n of NPC) {
     n.t += dt / 7; const f = n.t % 1, pergi = f < .5, s = pergi ? f * 2 : (f - .5) * 2, k = s * s * (3 - 2 * s);
@@ -223,7 +234,7 @@ function loop(t) {
   for (const d of DEBU) { d.t += dt; d.m.position.addScaledVector(d.v, dt); d.v.y -= dt * 6; d.m.material.opacity = Math.max(0, .8 - d.t * 1.2); d.m.scale.setScalar(1 + d.t * 1.5); }
   for (let i = DEBU.length - 1; i >= 0; i--) if (DEBU[i].t > .7) { sc.remove(DEBU[i].m); DEBU.splice(i, 1); }
   cincin.material.opacity = .55 + Math.sin(t / 200) * .3; cincin.scale.setScalar(1 + Math.sin(t / 300) * .04);
-  KAM.pos.lerp(KAM.tPos, 1 - Math.pow(.015, dt)); KAM.lihat.lerp(KAM.tLihat, 1 - Math.pow(.015, dt)); cam.position.copy(KAM.pos); cam.lookAt(KAM.lihat);
+  const ikut = MAIN ? .0004 : .015; KAM.pos.lerp(KAM.tPos, 1 - Math.pow(ikut, dt)); KAM.lihat.lerp(KAM.tLihat, 1 - Math.pow(ikut, dt)); cam.position.copy(KAM.pos); cam.lookAt(KAM.lihat);
   R.render(sc, cam); requestAnimationFrame(loop);
 }
 function langkah(dt, t) {
@@ -232,6 +243,10 @@ function langkah(dt, t) {
   const d = Math.hypot(mx, mz), lari = d > .1;
   if (lari) { const v = 18 * Math.min(1, d) * (SAYA.bawa.length >= MUAT ? .85 : 1); SAYA.x += mx / Math.max(1, d) * v * dt; SAYA.z += mz / Math.max(1, d) * v * dt; SAYA.arah = Math.atan2(mx, mz); }
   SAYA.x = Math.max(-36, Math.min(36, SAYA.x)); SAYA.z = Math.max(46, Math.min(80, SAYA.z));
+  // tumpukan bahan padat: avatar tidak bisa masuk ke dalamnya
+  for (const b of BAHAN) { const dx = SAYA.x - b.x, dz = SAYA.z - b.z, hx = 6.6, hz = 4.4;
+    if (Math.abs(dx) < hx && Math.abs(dz) < hz) { if (hx - Math.abs(dx) < hz - Math.abs(dz)) SAYA.x = b.x + Math.sign(dx || 1) * hx; else SAYA.z = b.z + Math.sign(dz || 1) * hz; }
+    for (const m of b.papan) m.visible = m.position.z < SAYA.z + 1; }   // papan di antara kamera & avatar disembunyikan
   SAYA.ph += dt * (lari ? 11 : 0);
   const o = SAYA.o; o.position.set(SAYA.x, 0, SAYA.z); o.rotation.y = SAYA.arah;
   const bawa = SAYA.bawa.length > 0;
@@ -254,10 +269,12 @@ function langkah(dt, t) {
   }
   // panah: ke tumpukan terdekat bila kosong, ke lingkaran setor bila membawa bahan
   const tuju = SAYA.bawa.length >= MUAT || (SAYA.bawa.length && !dekat) ? SETOR : BAHAN.reduce((p, b) => Math.hypot(b.x - SAYA.x, b.z - SAYA.z) < Math.hypot(p.x - SAYA.x, p.z - SAYA.z) ? b : p);
-  panah.visible = true; panah.position.set(tuju.x, 9 + Math.sin(t / 180) * 1.2, tuju.z - (tuju === SETOR ? 0 : 3));
+  const tz = tuju.z - (tuju === SETOR ? 0 : 3), jx = tuju.x - SAYA.x, jz = tz - SAYA.z, jd = Math.hypot(jx, jz);
+  panah.visible = tz < SAYA.z + 2; panah.position.set(tuju.x, 8 + Math.sin(t / 180) * 1, tz);   // panah atas hanya bila tujuan di depan (tidak menutupi kamera)
+  panahKaki.visible = jd > 6; if (jd > 6) { panahKaki.position.set(SAYA.x + jx / jd * 3.4, .5, SAYA.z + jz / jd * 3.4); panahKaki.rotation.y = Math.atan2(jx, jz); }
   petunjuk();
   // kamera di belakang avatar, menghadap bangunan
-  KAM.tPos.set(SAYA.x * .6, 25, SAYA.z + 30); KAM.tLihat.set(SAYA.x * .45, 5, SAYA.z - 16);
+  KAM.tPos.set(SAYA.x, 11.5, SAYA.z + 16); KAM.tLihat.set(SAYA.x, 2.5, SAYA.z - 8); pasangTanda();   // kamera orang ketiga di belakang avatar
 }
 requestAnimationFrame(loop);
 
