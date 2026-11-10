@@ -116,14 +116,14 @@ const panah = new THREE.Mesh(new THREE.ConeGeometry(1, 2, 4), new THREE.MeshBasi
 const panahKaki = new THREE.Group(); { const k = new THREE.Mesh(new THREE.ConeGeometry(.75, 1.8, 3), new THREE.MeshBasicMaterial({color: 0xf2c14a})); k.rotation.x = Math.PI / 2; k.scale.y = .35; panahKaki.add(k); } sc.add(panahKaki); panahKaki.visible = false;
 
 // ---------- avatar + perlengkapan tukang ----------
-function siapAvatar(av, alat = true) {   // alat = helm & rompi (hanya tukang NPC; avatar warga tampil asli)
+function siapAvatar(av, alat = true) {   // alat = helm & rompi tukang (dipakai avatar asli warga dan NPC)
   const o = warga(av || {}); o.traverse(m => { if (m.isMesh) m.castShadow = true; });
   const d = o.userData;
   if (alat && d.head) { const h = new THREE.Group(); h.add(kotak(1.16, .34, 1.16, 0xf2c230, 0, 1.16, 0), kotak(1, .07, .45, 0xf2c230, 0, 1, .72)); d.head.add(h); }
   if (alat && d.body) d.body.add(kotak(1.18, .95, .76, 0xff7a1a, 0, .62, 0));
   return o;
 }
-const SAYA = {o: siapAvatar(null, false), x: -17, z: 62, arah: -Math.PI / 2, ph: 0, bawa: [], ambilT: 0, setorT: 0};
+const SAYA = {o: siapAvatar(null), x: -17, z: 62, arah: -Math.PI / 2, ph: 0, bawa: [], ambilT: 0, setorT: 0};
 sc.add(SAYA.o);
 // penanda "KAMU": lingkaran biru di kaki + label di atas kepala, supaya pemain langsung tahu avatarnya (Huda 10 Nov)
 const tandaKaki = new THREE.Mesh(new THREE.RingGeometry(1.5, 2.1, 32), new THREE.MeshBasicMaterial({color: 0x3fa9ff, transparent: true, opacity: .9, side: THREE.DoubleSide}));
@@ -134,7 +134,7 @@ const tandaNama = (() => { const c = document.createElement('canvas'); c.width =
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
   const s = new THREE.Sprite(new THREE.SpriteMaterial({map: t, depthTest: false})); s.scale.set(3.6, 1.35, 1); s.renderOrder = 9; sc.add(s); return s; })();
 function pasangTanda() { tandaKaki.position.set(SAYA.x, .14, SAYA.z); tandaNama.position.set(SAYA.x, 6, SAYA.z); }
-function gantiAvatar(av) { sc.remove(SAYA.o); SAYA.o = siapAvatar(av, false); sc.add(SAYA.o); }   // avatar asli warga dari server
+function gantiAvatar(av) { sc.remove(SAYA.o); SAYA.o = siapAvatar(av); sc.add(SAYA.o); }   // avatar asli warga dari server + helm & rompi tukang
 // tumpukan bahan di punggung (ikut avatar)
 const punggung = new THREE.Group(); sc.add(punggung);
 function susunPunggung() {
