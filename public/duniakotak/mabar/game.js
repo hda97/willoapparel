@@ -6,11 +6,11 @@ import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {raka, pose as rpose, reseed} from './js/lib.js';
 import * as D from './js/desa.js';
-import {warga, pose as wpose, KULIT, WARNA_RAMBUT, GAYA_RAMBUT} from './js/aset/avatar.js';
+import {warga, pose as wpose, KULIT, WARNA_RAMBUT, GAYA_RAMBUT, SABLON, lukisSablon} from './js/aset/avatar.js';
 import {kucingMesh, WARNA_KUCING, DAFTAR_KUCING} from './js/aset/kucing.js';
 import {warungMesh, rumahKucingMesh, WARNA_DINDING, WARNA_ATAP} from './js/aset/rumah.js';
 import * as F from './js/aset/fasum.js';
-import {buatNPC} from './js/npc.js?v=20261110dusun';
+import {buatNPC} from './js/npc.js?v=20261110willo';
 import {buatWargaNPC} from './js/wargaNpc.js';
 import {kulon, JALAN_KULON, AWAL_KULON} from './js/kulon.js';
 import {curug, JALAN_CURUG, AWAL_CURUG} from './js/curug.js';
@@ -66,7 +66,9 @@ function bersihAv(a) {
   return {
     jenis, kulit: KULIT.includes(a.kulit) ? a.kulit : KULIT[1],
     rambut: {gaya, warna: hexOk(a.rambut && a.rambut.warna) ? a.rambut.warna : WARNA_RAMBUT[0]},
-    atasan: {jenis: ATASAN.includes(a.atasan && a.atasan.jenis) ? a.atasan.jenis : 'kaos', warna: hexOk(a.atasan && a.atasan.warna) ? a.atasan.warna : '#3a7bd5'},
+    atasan: {jenis: ATASAN.includes(a.atasan && a.atasan.jenis) ? a.atasan.jenis : 'kaos', warna: hexOk(a.atasan && a.atasan.warna) ? a.atasan.warna : '#3a7bd5',
+      // sablon kaos dari Toko Willo (hanya untuk kaos-willo); teks huruf/angka saja, maks 10
+      ...(a.atasan && a.atasan.jenis === 'kaos-willo' && SABLON.includes(a.atasan.sablon) ? {sablon: a.atasan.sablon, teks: String(a.atasan.teks || '').toUpperCase().replace(/[^A-Z0-9 ]/g, '').slice(0, 10)} : {})},
     bawahan: {jenis: BAWAHAN[jenis].includes(a.bawahan && a.bawahan.jenis) ? a.bawahan.jenis : 'celana', warna: hexOk(a.bawahan && a.bawahan.warna) ? a.bawahan.warna : '#2f3a52'},
     ...(Object.values(WARNA_TOPI).includes(a.topi) ? {topi: a.topi} : {}),
   };
@@ -240,7 +242,8 @@ const BARIS = 15;
 // Blok [kolom, baris] (5 kolom × 16 baris), urutan = indeks fas yang dipakai game (PASANG_FASUM, BANGUN_VOTING, npc.js). Nomor rumah tetap urut.
 const FASUM_WETAN = [[1,0], [0,2], [3,1], [1,5], [3,6], [0,7], [4,9], [0,12], [4,14], [2,11,1], [1,10], [4,4], [2,13], [2,8], [1,15]];
 // Bangunan fasum sama persis dengan video Hari 2 (aset fasum.js): fas[1..8]. fas[0] dekat rumah Raka = Supermarket (voting 3 Nov). fas[9] = terminal; fas[10..12] kampus, RS, stadion; fas[13] Taman Kota; fas[14] lahan voting berikutnya.
-const PASANG_FASUM = [[0, 'supermarket', '🛒 Supermarket Dunia Kotak'], [10, 'kampus', '🎓 Kampus Dunia Kotak'], [11, 'rumahSakit', '🏥 Rumah Sakit'], [12, 'stadion', '🏟️ Stadion Dunia Kotak'], [1, 'sekolah', '🏫 SD Dunia Kotak'], [2, 'warung', '🛒 Warung Desa'], [3, 'masjid', '🕌 Masjid'], [4, 'gereja', '⛪ Gereja'], [5, 'katedral', '⛪ Gereja Katolik'], [6, 'pura', '🛕 Pura'], [7, 'vihara', '☸️ Vihara'], [8, 'klenteng', '🏮 Klenteng']];
+const PASANG_FASUM = [[0, 'supermarket', '🛒 Supermarket Dunia Kotak'], [10, 'kampus', '🎓 Kampus Dunia Kotak'], [11, 'rumahSakit', '🏥 Rumah Sakit'], [12, 'stadion', '🏟️ Stadion Dunia Kotak'], [1, 'sekolah', '🏫 SD Dunia Kotak'], [2, 'warung', '🛒 Warung Desa'], [3, 'masjid', '🕌 Masjid'], [4, 'gereja', '⛪ Gereja'], [5, 'katedral', '⛪ Gereja Katolik'], [6, 'pura', '🛕 Pura'], [7, 'vihara', '☸️ Vihara'], [8, 'klenteng', '🏮 Klenteng'], [9, 'tokoWillo', '👕 Toko Willo Apparel']];
+// fas[9] (lahan setengah blok, 10 Nov 2026) = Toko Willo Apparel: toko kaos ASLI, warga masuk lalu pesan lewat WhatsApp (bukan skin/koin).
 // FASUM TERSEBAR (Huda 9 Nov 2026): beda dusun beda fasum, supaya warga main ke dusun lain. Tiap calon voting sudah punya
 // lahan tetap: [dusun, lahan]. Wetan: lahan = indeks fas; dusun lain: indeks lahanKosong (lahan tanpa aset di kulon/curug/tlaga.js).
 // Curug & Tlaga mulai dari lahan 1 (lahan 0 = tempat main anak NPC). Entri BANGUN_VOTING untuk dusun lain: {dusun, lahan, ...}.
@@ -286,10 +289,12 @@ function pasangFasum() {
   for (const [i, k, nama, judul] of [...PASANG_FASUM, ...pasangVoting().map(([b, ...r]) => [b.fas, ...r])]) {
     const f = I.fas && I.fas[i]; if (!f || !F[k]) continue;
     // kosongkan papan "LAHAN FASUM" + patok, sisakan tanahnya (seperti video)
-    I.G.traverse(o => { if (o.isGroup && o.parent === I.G && Math.abs(o.position.x * VS - f.x) < 1 && Math.abs(o.position.z * VS - f.z) < 1) o.children.slice(1).forEach(c => o.remove(c)); });
+    // lahan setengah blok (FASUM_WETAN 3 angka) = 2 petak berdampingan, masing-masing ±5,5 petak dari tengah
+    const lebar = (FASUM_WETAN[i] && FASUM_WETAN[i].length === 3 ? 6 : 0) * VS + 1;
+    I.G.traverse(o => { if (o.isGroup && o.parent === I.G && Math.abs(o.position.x * VS - f.x) < lebar && Math.abs(o.position.z * VS - f.z) < 1) o.children.slice(1).forEach(c => o.remove(c)); });
     const m = Array.isArray(judul) ? F[k](...judul) : F[k](); m.scale.setScalar(VS); m.position.set(f.x, 0, f.z); g.add(m); catatPutar(m);
     // tabrakan per dinding (pintu terbuka & ruang dalam bisa dimasuki, 6 Nov 2026); bagian atas disembunyikan saat warga di dalam
-    fasumBangun.push({position: new THREE.Vector3(f.x, 0, f.z), nama, ...F.pisahFasum(m)});
+    fasumBangun.push({position: new THREE.Vector3(f.x, 0, f.z), nama, toko: k === 'tokoWillo', ...F.pisahFasum(m)});
   }
   pasangGapuraCFD(g);
   kumpulPijakan(g);
@@ -378,6 +383,7 @@ function cekDalamFasum(me) {
   if (di && di.atas) di.atas.visible = false;
   fasumDalam = di;
   if (di) me.userData.gel = {m: '🚪 Masuk ' + di.nama, sampai: performance.now() + 2500};
+  if (di && di.toko && !cekDalamFasum.sapa) { cekDalamFasum.sapa = 1; toast('👕 Selamat datang di Toko Willo Apparel! Tekan 👕 Pesan Kaos untuk lihat katalog.', 4000); }
 }
 function bangunProksi() {
   // proksi rumah jauh: 1 kotak dinding + 1 atap per kavling berpenghuni (2 draw call untuk semua)
@@ -1193,7 +1199,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', lamamain: 'dk_kabar_lamamain1'};
+const KABAR_LAMA = {willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', lamamain: 'dk_kabar_lamamain1'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   const baru = [...document.querySelectorAll('#panelKabar .kbItem[data-k]')].filter(e => !baca(KABAR_LAMA[e.dataset.k]));
@@ -1646,7 +1652,7 @@ function animSkill(dt, me) {
   // tombol skill menyala bila bisa dipakai
   const t = now | 0; if (t % 4 === 0 || !animSkill.t || now - animSkill.t > 300) { animSkill.t = now;
     // tombol hanya muncul saat skill bisa dipakai; joran sedang dipakai = tombol Mancing hilang
-    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sSuka: !!rumahTetangga(me), sLari: dekatGapuraCFD(me), sPasar: dekatPasar(me), sLift: !!(I.gedung && I.gedung.dekatLift(me.position.x, me.position.z))};
+    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sSuka: !!rumahTetangga(me), sLari: dekatGapuraCFD(me), sPasar: dekatPasar(me), sWillo: dekatTokoWillo(me), sLift: !!(I.gedung && I.gedung.dekatLift(me.position.x, me.position.z))};
     for (const id in bisa) { const b = $(id); if (b.classList.contains('siap') !== bisa[id] || b.hidden === bisa[id]) { b.classList.toggle('siap', bisa[id]); b.hidden = !bisa[id]; } }
     if (air) misiMaju('sungai'); }
 }
@@ -1935,11 +1941,98 @@ function keTempat(tempat) {
   const me = tokoh.saya; if (!me || !I) return;
   let x, z, ry = Math.PI, nama;
   if (tempat === 'sungai' && I.sungai) { const s = I.sungai; x = s.x0 - 1.5; z = Math.min(I.batas.z1 - 10, Math.max(I.batas.z0 + 10, me.position.z)); ry = Math.PI / 2; nama = 'pinggir Sungai. Tekan 🎣 Mancing'; }
-  else { const T = {supermarket: [0, 'Supermarket Dunia Kotak'], warung: [2, 'Warung Desa'], stadion: [12, 'Stadion Dunia Kotak']}[tempat] || [12, 'Stadion Dunia Kotak']; const f = I.fas && I.fas[T[0]]; if (!f) return; x = f.x; z = f.z + (T[0] === 12 ? 0 : 4 * VS); nama = T[1]; }
+  else { const T = {supermarket: [0, 'Supermarket Dunia Kotak'], warung: [2, 'Warung Desa'], stadion: [12, 'Stadion Dunia Kotak'], tokowillo: [9, 'Toko Willo Apparel. Masuk & tekan 👕 Pesan Kaos']}[tempat] || [12, 'Stadion Dunia Kotak']; const f = I.fas && I.fas[T[0]]; if (!f) return; x = f.x; z = f.z + (T[0] === 12 ? 0 : T[0] === 9 ? 5.6 * VS : 4 * VS); nama = T[1]; }
   $('panelMisi').hidden = true; gerak.tujuan = null;
   me.position.set(x, 0, z); me.position.y = tanah(x, z, 0); me.rotation.y = ry;
   bunyi('masuk'); toast(`🚌 Naik angkot desa… sampai di ${nama}!`, 3500);
 }
+// ---------- Toko Willo Apparel (Huda 10 Nov 2026): toko kaos DI DALAM GAME. Warga masuk toko di Kotak Wetan, pesan kaos sablon
+// untuk avatarnya pakai KOIN (bukan pesanan kaos nyata, tanpa WhatsApp/rupiah). Alur seperti pesan kaos kelas: pilih sablon,
+// warna, tulisan punggung → disablon beberapa menit → ambil di toko → dipakai avatar & masuk lemari (ganti kapan saja gratis).
+// Harga & lama sablon dikirim server (KAOS_WILLO di worker.js).
+const SABLON_WILLO = {willo: ['WILLO APPAREL', 'Logo Willo di dada'], polos: ['Polos', 'Tanpa sablon, warna saja'], dk: ['Dunia Kotak', 'Logo desa di dada'],
+  dusun: ['Kaos Dusun', 'Nama dusunmu, dada & punggung'], tulisan: ['Kaos Kelas', 'Tulisan bebas besar di punggung']};
+const NAMA_WARNA = {'#1d1d22': 'Hitam', '#f4f4f4': 'Putih', '#3a7bd5': 'Biru', '#d0442f': 'Merah', '#2a9a5a': 'Hijau', '#f2c14e': 'Kuning', '#8a5ad8': 'Ungu', '#e06a9a': 'Pink'};
+const PW = {sb: 'willo', w: '#1d1d22', t: '', data: null, sibuk: false};
+function dekatTokoWillo(me) {
+  const f = DI === 'wetan' && fasumBangun.find(b => b.toko); if (!f) return false;
+  return Math.abs(me.position.x - f.position.x) < 10 * VS && Math.abs(me.position.z - f.position.z) < 4.6 * VS;
+}
+const dusunSaya = () => (NAMA_DUSUN[S.saya ? dusunDari(S.saya.no) : 'wetan'] || 'Kotak Wetan').replace(/^Kotak /, '').toUpperCase();
+const teksPW = () => PW.sb === 'dusun' ? dusunSaya() : PW.sb === 'tulisan' ? PW.t.toUpperCase().replace(/[^A-Z0-9 ]/g, '').slice(0, 10) : '';
+// gambar kaos 2D (depan/punggung) untuk pratinjau & kartu katalog
+function gambarKaos(cv, warna, sb, teks, sisi = 'd') {
+  const x = cv.getContext('2d'), W = cv.width, H = cv.height; x.clearRect(0, 0, W, H);
+  x.save(); x.fillStyle = warna; x.strokeStyle = 'rgba(0,0,0,.35)'; x.lineWidth = 2;
+  x.beginPath(); x.moveTo(W * .32, H * .08); x.lineTo(W * .1, H * .2); x.lineTo(W * .02, H * .42); x.lineTo(W * .2, H * .48); x.lineTo(W * .22, H * .95); x.lineTo(W * .78, H * .95); x.lineTo(W * .8, H * .48); x.lineTo(W * .98, H * .42); x.lineTo(W * .9, H * .2); x.lineTo(W * .68, H * .08);
+  x.quadraticCurveTo(W * .5, sisi === 'd' ? H * .22 : H * .12, W * .32, H * .08); x.closePath(); x.fill(); x.stroke();
+  x.translate(W * .22, H * .2); lukisSablon(x, W * .56, W * .56, warna, sb, teks, sisi); x.restore();
+}
+async function muatWillo() {
+  if (S.tamu || !S.kunci) { PW.data = null; return; }
+  try { PW.data = await api('kaos', {kunci: S.kunci}); PW.data.selisih = (PW.data.kini || Date.now()) - Date.now(); if (PW.data.koin != null) { S.saya.koin = PW.data.koin; hitungOnline(); } } catch (e) { toast(e.message); }
+}
+function tulisWillo() {
+  const el = $('isiWillo'), d = PW.data, harga = d?.harga || {willo: 30, polos: 20, dk: 40, dusun: 50, tulisan: 80}, koin = S.saya?.koin || 0;
+  const p = d?.pesan, kini = Date.now() + (d?.selisih || 0);
+  let h = `<p class="kecil">Pesan kaos sablon untuk avatarmu, bayar pakai <b>koin</b>. Pilih desain &amp; warna, tunggu disablon, lalu ambil di sini. Kaos yang sudah jadi masuk lemari dan bisa dipakai kapan saja.</p>`;
+  if (p) {
+    const sisa = Math.max(0, Math.ceil((p.jadi - kini) / 1000)), jadi = sisa === 0;
+    h += `<div class="wlPesanan ${jadi ? 'jadi' : ''}"><canvas width="96" height="96" data-kaos="${p.w}|${p.d}|${esc(p.t || '')}"></canvas><div><b>${jadi ? '✅ Kaosmu sudah jadi!' : '🖨️ Sedang disablon…'}</b><small>${esc(SABLON_WILLO[p.d]?.[0] || '')} · ${NAMA_WARNA[p.w] || ''}${p.t ? ' · ' + esc(p.t) : ''}</small>${jadi ? '<button class="utama" id="wlAmbil">Ambil &amp; pakai</button>' : `<div class="wlBar"><i style="width:${Math.round(100 * (1 - sisa * 1000 / Math.max(1, p.jadi - p.mulai)))}%"></i></div><small id="wlSisa">Siap ${Math.floor(sisa / 60)}:${String(sisa % 60).padStart(2, '0')} lagi. Boleh jalan-jalan dulu.</small>`}</div></div>`;
+  }
+  h += `<div class="wlPaket">${Object.entries(SABLON_WILLO).map(([id, [n, k]]) => `<button data-wsb="${id}" class="${id === PW.sb ? 'on' : ''}"><canvas width="64" height="64" data-kaos="${PW.w}|${id}|${id === 'dusun' ? dusunSaya() : id === 'tulisan' ? 'KELAS' : ''}|${id === 'tulisan' ? 'b' : 'd'}"></canvas><b>${n}</b><small>${k}</small><em>${harga[id]} 🪙</em></button>`).join('')}</div>
+    <div class="wlBaris"><b>Warna</b><div class="wlWarna">${WARNA_BAJU.map(c => `<button data-ww="${c}" class="${c === PW.w ? 'on' : ''}" style="background:${c}" title="${NAMA_WARNA[c]}" aria-label="${NAMA_WARNA[c]}"></button>`).join('')}<span>${NAMA_WARNA[PW.w]}</span></div></div>
+    ${PW.sb === 'tulisan' ? `<div class="wlBaris"><b>Tulisan</b><input id="wlTeks" class="wlCatatan" maxlength="10" placeholder="mis. XII IPA 1, nama geng, nama kamu" value="${esc(PW.t)}"></div>` : ''}
+    <div class="wlPrev"><figure><canvas id="wlDepan" width="120" height="120"></canvas><figcaption>Depan</figcaption></figure><figure><canvas id="wlBelakang" width="120" height="120"></canvas><figcaption>Punggung</figcaption></figure></div>
+    ${S.tamu ? `<p class="kecil">Daftar jadi warga di willoapparel.com/duniakotak untuk memesan kaos.</p>` : p ? `<p class="kecil">Satu pesanan dulu ya. Ambil kaos yang sedang disablon, baru pesan lagi.</p>` : `<button class="wlKirim" id="wlPesan" ${koin < harga[PW.sb] ? 'disabled' : ''}>🖨️ Pesan kaos · ${harga[PW.sb]} 🪙</button>${koin < harga[PW.sb] ? `<p class="kecil">Koinmu ${koin}. Kumpulkan koin dari misi, panen &amp; mancing.</p>` : ''}`}`;
+  const lm = d?.lemari || [];
+  if (lm.length) h += `<div class="wlBaris"><b>Lemari kaosmu</b><small class="kecil">ketuk untuk pakai, gratis</small></div><div class="wlLemari">${lm.map((k, i) => `<button data-wpakai="${i}" class="${k.dipakai ? 'on' : ''}" title="${esc(SABLON_WILLO[k.d]?.[0] || '')}"><canvas width="56" height="56" data-kaos="${k.w}|${k.d}|${esc(k.t || '')}"></canvas></button>`).join('')}</div>`;
+  el.innerHTML = h;
+  el.querySelectorAll('canvas[data-kaos]').forEach(c => { const [w, sb, t, sisi] = c.dataset.kaos.split('|'); gambarKaos(c, w, sb, t, sisi || 'd'); });
+  const t = teksPW(); gambarKaos($('wlDepan'), PW.w, PW.sb, t, 'd'); gambarKaos($('wlBelakang'), PW.w, PW.sb, t, 'b');
+}
+function pakaiKaosAv(av) { if (!av) return; S.av = bersihAv({...av, topi: WARNA_TOPI[S.hias?.topi]}); gantiAvatarSaya(); }
+async function aksiWillo(data, pesan) {
+  if (PW.sibuk) return; PW.sibuk = true;
+  try {
+    const r = await api('kaos', {kunci: S.kunci, ...data}); r.selisih = (r.kini || Date.now()) - Date.now(); PW.data = r;
+    if (r.koin != null) { S.saya.koin = r.koin; hitungOnline(); }
+    if (r.avatar) pakaiKaosAv(r.avatar);
+    if (pesan) { toast(pesan, 3500); bunyi('masuk'); }
+    tulisWillo();
+  } catch (e) { toast(e.message); } finally { PW.sibuk = false; }
+}
+let tWillo = 0;
+async function bukaWillo(dari) {
+  if (DI !== 'wetan' || !fasumBangun.some(b => b.toko)) {
+    if (confirm('Toko Willo Apparel ada di Dusun Kotak Wetan. Naik bus ke sana?')) { const u = new URL(location.href); u.searchParams.set('dusun', 'wetan'); u.searchParams.set('ke', 'tokowillo'); location.href = u.toString(); }
+    return;
+  }
+  if (dari === 'atur' && !dekatTokoWillo(tokoh.saya)) { $('panelAtur').hidden = true; keTempat('tokowillo'); return; }
+  tulisWillo(); $('panelWillo').hidden = false; bunyi('klik');
+  await muatWillo(); tulisWillo();
+  clearInterval(tWillo); tWillo = setInterval(() => {
+    if ($('panelWillo').hidden) { clearInterval(tWillo); return; }
+    const p = PW.data?.pesan; if (p && !$('wlAmbil') && p.jadi <= Date.now() + (PW.data.selisih || 0) + 1000) tulisWillo();
+    else if (p && $('wlSisa')) { const sisa = Math.max(0, Math.ceil((p.jadi - Date.now() - (PW.data.selisih || 0)) / 1000)); $('wlSisa').textContent = `Siap ${Math.floor(sisa / 60)}:${String(sisa % 60).padStart(2, '0')} lagi. Boleh jalan-jalan dulu.`; }
+  }, 1000);
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest?.('#isiWillo button'); if (!b) return;
+  const d = b.dataset;
+  if (d.wsb) { PW.sb = d.wsb; tulisWillo(); bunyi('klik'); return; }
+  if (d.ww) { PW.w = d.ww; tulisWillo(); bunyi('klik'); return; }
+  if (d.wpakai != null) { aksiWillo({op: 'pakai', i: +d.wpakai}, '👕 Kaos dipakai!'); return; }
+  if (b.id === 'wlAmbil') { aksiWillo({op: 'ambil'}, '👕 Kaos baru dipakai! Lihat avatarmu.'); return; }
+  if (b.id === 'wlPesan') {
+    if (PW.sb === 'tulisan' && !teksPW()) { toast('Tulis dulu tulisan punggungnya (huruf/angka, maks 10).'); return; }
+    aksiWillo({op: 'pesan', d: PW.sb, w: PW.w, t: teksPW()}, '🖨️ Pesanan masuk! Kaosmu sedang disablon.');
+  }
+});
+document.addEventListener('input', e => {
+  if (e.target.id !== 'wlTeks') return;
+  PW.t = e.target.value; const t = teksPW(); gambarKaos($('wlDepan'), PW.w, PW.sb, t, 'd'); gambarKaos($('wlBelakang'), PW.w, PW.sb, t, 'b');
+});
 // ---------- Bola di Stadion: bisa ditendang warga & pemain NPC, memantul di dalam lapangan, GOL bila masuk gawang ----------
 const BOLA = {m: null, x: 0, z: 0, y: 0, vx: 0, vz: 0, vy: 0, kirimT: 0, tendangT: 0, golT: 0, aku: false};
 const BOLA_R = 1.5;
@@ -2748,8 +2841,9 @@ function aturHUD() {
   $('bDusun').onclick = pilihDusun;
   musikSiap();
   // pointerdown (bukan click): click tidak terpicu di HP saat jari lain masih menahan joystick -> bisa lompat sambil lari
-  $('sLari').onclick = ikutLari; $('sPasar').onclick = bukaPasar;
+  $('sLari').onclick = ikutLari; $('sPasar').onclick = bukaPasar; $('sWillo').onclick = () => bukaWillo('tombol');
   $('bPasar').onclick = () => { $('panelAtur').hidden = true; bukaPasar(); }; $('tutupPasar').onclick = () => { $('panelPasar').hidden = true; };
+  $('bWillo').onclick = () => bukaWillo('atur'); $('tutupWillo').onclick = () => { $('panelWillo').hidden = true; };
   $('sLift').onclick = () => { const d = I.gedung && I.gedung.dekatLift(tokoh.saya.position.x, tokoh.saya.position.z); if (d) bukaLift(d); };
   $('sLompat').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); mulaiLompat(); }); $('sTendang').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); skillTendang(); }); $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan(); $('sPanen').onclick = () => skillPanen(); $('sTanam').onclick = () => bukaTanam(); $('sJual').onclick = () => skillJual(); $('sKerja').onclick = () => skillKerja(); $('sSuka').onclick = () => sukaRumah(); $('tutupKerja').onclick = () => { $('panelKerja').hidden = true; }; $('tutupTanam').onclick = () => { $('panelTanam').hidden = true; };
   // semua tombol skill bereaksi saat disentuh (pointerdown), jadi tetap jalan walau jari lain menahan joystick

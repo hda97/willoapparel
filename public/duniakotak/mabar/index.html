@@ -9,7 +9,7 @@
 <link rel="icon" href="/duniakotak/logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap">
-<link rel="stylesheet" href="gaya.css?v=20261110dusun">
+<link rel="stylesheet" href="gaya.css?v=20261110willo">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js","three/addons/geometries/RoundedBoxGeometry.js":"/duniakotak/mabar/js/kotakBulat.js?v=20261108r","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
 <body>
@@ -40,7 +40,7 @@
  <button id="chipTujuan" class="chipTujuan" hidden title="Tujuanmu sekarang"></button>
  <button id="chipRute" class="chipRute" hidden title="Buka peta"></button>
  <div id="stik"><div id="kenop"></div></div>
- <div class="zoom skill" id="skill"><button id="sLompat" class="siap" title="Lompat (Spasi)"><i><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2.5l7.5 8.5h-4.7v6.2H9.2V11H4.5z" fill="#fff"/><rect x="5" y="19.6" width="14" height="2.4" rx="1.2" fill="#fff" opacity=".65"/></svg></i>Lompat</button><button id="sLari" title="Ikut lari Pelari Kalcer" hidden><i>🏃</i>Ikut Lari</button><button id="sTendang" title="Tendang bola (T)" hidden><i>⚽</i>Tendang</button><button id="sAmbil" title="Ambil item (F)"><i>✋</i>Ambil</button><button id="sMancing" title="Mancing di sungai (R)"><i>🎣</i>Mancing</button><button id="sMakan" title="Beri makan kucing (G)"><i>🐟</i>Beri makan</button><button id="sTanam" title="Tanam bibit di kebunmu" hidden><i>🌱</i>Tanam</button><button id="sPanen" title="Panen kebun (+2 permata + hasil)" hidden><i>🧺</i>Panen</button><button id="sJual" title="Jual hasil panen di warungmu" hidden><i>💰</i>Jual</button><button id="sPasar" title="Jajan &amp; main di Pasar Malam" hidden><i>🎪</i>Pasar</button><button id="sSuka" title="Beri ❤️ untuk rumah ini (Lomba Rumah Terindah)" hidden><i>❤️</i>Suka</button><button id="sKerja" title="Kerja shift profesimu" hidden><i>💼</i>Kerja</button><button id="sLift" title="Naik lift" hidden><i>🛗</i>Lift</button></div>
+ <div class="zoom skill" id="skill"><button id="sLompat" class="siap" title="Lompat (Spasi)"><i><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2.5l7.5 8.5h-4.7v6.2H9.2V11H4.5z" fill="#fff"/><rect x="5" y="19.6" width="14" height="2.4" rx="1.2" fill="#fff" opacity=".65"/></svg></i>Lompat</button><button id="sLari" title="Ikut lari Pelari Kalcer" hidden><i>🏃</i>Ikut Lari</button><button id="sTendang" title="Tendang bola (T)" hidden><i>⚽</i>Tendang</button><button id="sAmbil" title="Ambil item (F)"><i>✋</i>Ambil</button><button id="sMancing" title="Mancing di sungai (R)"><i>🎣</i>Mancing</button><button id="sMakan" title="Beri makan kucing (G)"><i>🐟</i>Beri makan</button><button id="sTanam" title="Tanam bibit di kebunmu" hidden><i>🌱</i>Tanam</button><button id="sPanen" title="Panen kebun (+2 permata + hasil)" hidden><i>🧺</i>Panen</button><button id="sJual" title="Jual hasil panen di warungmu" hidden><i>💰</i>Jual</button><button id="sPasar" title="Jajan &amp; main di Pasar Malam" hidden><i>🎪</i>Pasar</button><button id="sWillo" title="Pesan kaos sablon untuk avatarmu" hidden><i>👕</i>Pesan Kaos</button><button id="sSuka" title="Beri ❤️ untuk rumah ini (Lomba Rumah Terindah)" hidden><i>❤️</i>Suka</button><button id="sKerja" title="Kerja shift profesimu" hidden><i>💼</i>Kerja</button><button id="sLift" title="Naik lift" hidden><i>🛗</i>Lift</button></div>
 </div>
 
 <div id="panelLift" class="layarPenuh popup" hidden><div class="panel"><button class="popTutup" data-tutup="panelLift" aria-label="Tutup">✕</button><div id="isiLift"></div></div></div>
@@ -69,6 +69,7 @@
   <p class="kecil" id="jamAtur"></p>
   <div class="daftarAtur">
    <button class="barisAtur dukung" id="bPendukung" title="Pendukung Desa: Bata, Bendera Emas, mahkota Juragan"><i>🧱</i><span>Pendukung Desa<small>Kumpulkan Bata lewat Trakteer · Bendera Emas, mahkota Juragan, plakat fasum</small></span></button>
+   <button class="barisAtur willoAtur" id="bWillo" title="Toko Willo Apparel: kaos untuk avatarmu"><i>👕</i><span>Toko Willo Apparel<small>Pesan kaos sablon untuk avatarmu pakai 🪙 koin · tokonya di Kotak Wetan</small></span></button>
    <button class="barisAtur" id="bToko" title="Hias rumah dan avatar"><i>🎨</i><span>Toko Hias<small>Rumah 2 lantai, cat, pagar, topi · 💎 dari panen kebun &amp; donasi</small></span></button>
    <button class="barisAtur" id="bProfesi" title="Kantor Desa: buka dan pilih profesi"><i>🏛️</i><span>Kantor Desa · Profesi<small>Guru, perawat, dokter, kasir, wasit · dibuka pakai 💎</small></span></button>
    <button class="barisAtur ajakAtur" id="bAjak" title="Ajak teman jadi warga"><i>🤝</i><span>Ajak Tetangga<small id="ajakSisa">Ajak teman daftar, kalian berdua dapat 💎 · menuju Dusun Segara</small></span></button>
@@ -87,6 +88,7 @@
 <div id="panelKabar" class="layarPenuh popup" hidden>
  <div class="panel"><button class="popTutup" data-tutup="panelKabar" aria-label="Tutup">✕</button>
   <h2>📣 Baru di Desa!</h2>
+  <div class="kbItem" data-k="willo"><i>👕</i><div><b>Toko Willo Apparel buka!</b><small>Ada toko kaos baru di tengah Dusun Kotak Wetan. Masuk, pilih sablon (logo Willo, Dunia Kotak, kaos dusun, atau kaos kelas dengan tulisan punggungmu sendiri) &amp; warnanya, bayar pakai 🪙 koin, tunggu disablon, lalu pakai di avatarmu. Buka lewat ⚙️ Atur → Toko Willo Apparel.</small></div></div>
   <div class="kbItem" data-k="lamamain"><i>⏱</i><div><b>Main lebih lama, dapat permata</b><small>Main 15 / 30 / 60 menit sehari: +2 / +3 / +5 💎. Saat Jam Kumpul Warga (06, 12, 16, 19–21 WIB) tiap 10 menit main +1 💎 (maks 6). Tiap 10 menit main, kebunmu disiram otomatis (tumbuh 30 menit lebih cepat). Profesi sekarang bisa 4 shift sehari. Lihat di 📋 Misi.</small></div></div>
   <div class="kbItem" data-k="tersebar"><i>🗺️</i><div><b>Tiap dusun punya fasum khas</b><small>Fasum pemenang voting sekarang dibangun di dusun yang berbeda: ☕ Kafe di Kulon, 👮 Kantor Polisi di Curug, 🎡 Taman Hiburan di Tlaga (lihat 📍 di Voting). Misi baru: Jelajah dusun &amp; Kunjungi fasum khas hari ini, +15 koin!</small></div></div>
   <div class="kbItem" data-k="pasar"><i>🎪</i><div><b>Pasar Malam Sabtu</b><small>Tiap Sabtu 19.00–23.00 WIB di lapangan Stadion Kotak Wetan: lapak jajan, bianglala, lampu warna-warni &amp; kembang api. Main Lempar Gelang, dapat suvenir untuk Album!</small></div></div>
@@ -104,6 +106,13 @@
   <h2>🎪 Pasar Malam</h2>
   <div id="isiPasar"></div>
   <button class="utama" id="tutupPasar">Lanjut main</button>
+ </div>
+</div>
+<div id="panelWillo" class="layarPenuh popup" hidden>
+ <div class="panel"><button class="popTutup" data-tutup="panelWillo" aria-label="Tutup">✕</button>
+  <h2>👕 Toko Willo Apparel</h2>
+  <div id="isiWillo"></div>
+  <button class="utama" id="tutupWillo">Lanjut main</button>
  </div>
 </div>
 <div id="panelAlbum" class="layarPenuh popup" hidden>
@@ -253,6 +262,6 @@
 
 <div id="miring" class="layarPenuh" hidden><div class="panel"><div style="font-size:54px">📱↻</div><h2>Miringkan HP-mu</h2><p class="sub">Dunia Kotak dimainkan dengan layar mendatar.</p><button class="tipis" id="tetapTegak">Tetap main tegak</button></div></div>
 
-<script type="module" src="game.js?v=20261110hemat"></script>
+<script type="module" src="game.js?v=20261110willo"></script>
 </body>
 </html>
