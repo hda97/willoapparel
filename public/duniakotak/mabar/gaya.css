@@ -475,11 +475,9 @@ a.pdSaweria{display:block;text-align:center;text-decoration:none;margin-top:6px}
 /* Layar pembuka (logo Dunia Kotak, 10 Nov 2026) */
 .logoPembuka{width:min(250px,64vw);margin:0 auto}
 .logoPembuka svg{display:block;width:100%;height:auto;overflow:visible}
-.logoPembuka .vx{animation:dkJatuh .6s cubic-bezier(.2,1.35,.4,1) both;animation-delay:calc(var(--n)*38ms + .15s)}
-.logoPembuka .ol{animation:dkMuncul .35s ease both;animation-delay:1.6s}
-.logoPembuka .tx{transform-box:fill-box;transform-origin:50% 60%;animation:dkPop .55s cubic-bezier(.2,1.5,.4,1) both;animation-delay:1.9s}
-.logoPembuka .tx+.tx{animation-delay:2.05s}
-.slogan{margin:0;font-weight:800;font-size:14px;color:#fff;animation:dkMuncul .5s ease 2.3s both}
+/* Ringan (Huda 10 Nov 2026: "pembukaan terlalu berat"): logo dianimasikan sebagai SATU lapisan (GPU), bukan 40 balok satu per satu */
+.logoPembuka svg{animation:dkPop .5s cubic-bezier(.2,1.4,.4,1) .05s both;will-change:transform,opacity}
+.slogan{margin:0;font-weight:800;font-size:14px;color:#fff;animation:dkMuncul .4s ease .35s both}
 @keyframes dkJatuh{from{transform:translateY(-3px);opacity:0}to{transform:none;opacity:1}}
 @keyframes dkPop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
 @keyframes dkMuncul{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
