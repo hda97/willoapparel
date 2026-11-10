@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
+<script src="/duniakotak/js/modeapp.js?v=1"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Jadi Warga Dunia Kotak · Daftar Gratis</title>
 <meta name="description" content="Daftar jadi warga resmi Dunia Kotak (@duniakotak.id). Masuk pakai akun Google, langsung dapat satu kavling: rumah, pekarangan, dan namamu diukir di batu.">
@@ -543,7 +544,7 @@ $('kirimUsul').onclick=async()=>{
   const lama=bacaLokal();if(lama&&lama.kunci)kunci=lama.kunci;
   if(new URLSearchParams(location.search).has('masuk'))bukaPintu('masuk');
   if(lama&&lama.no&&lama.kunci){sudahMasuk(true);sorotPulau(lama.no);$('hasil').style.display='block';$('noWarga').textContent='WARGA No. '+lama.no;$('salam').textContent='Halo lagi, '+(lama.nama||(lama.ig?'@'+lama.ig:'warga'))+'!';$('ket').textContent='Ini kavlingmu. Kamu masih bisa kirim usulan bangunan di bawah.';gambarKavling(lama.label||(lama.ig?'@'+lama.ig:'? ? ?'),lama.no);tampilKode()}
-  const ua=navigator.userAgent||'';const dalamApp=/Instagram|FBAN|FBAV|FB_IAB|Line\/|TikTok|musical_ly|BytedanceWebview/i.test(ua);
+  const ua=navigator.userAgent||'';const dalamApp=/Instagram|FBAN|FBAV|FB_IAB|Line\/|TikTok|musical_ly|BytedanceWebview|DuniaKotakAndroid/i.test(ua);
   let id='';if(!dalamApp){try{id=(await (await fetch('/duniakotak/api/config')).json()).clientId}catch(e){}}
   // Login Google tidak jalan di dalam app IG/TikTok (atau kalau Google belum siap): tawarkan Buka di Chrome / daftar tanpa Google.
   if(dalamApp||!id){
