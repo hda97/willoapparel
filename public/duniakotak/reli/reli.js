@@ -285,7 +285,7 @@ function semburDebu(x, y, z, vx, vz, s = 1) { const p = DEBU[debuI]; debuI = (de
 // 3. FISIKA MOBIL ARKADE (ngepot di tikungan) + KAMERA
 // =====================================================================
 const K = {x: 0, z: 0, y: 0, h: 0, vx: 0, vz: 0, setir: 0, gigi: 1, rpm: 0, i: 0, d: 0, apiT: 0, bekasJ: 0, tabrak: 0, mundurT: 0, roll: 0, pitch: 0, vfLama: 0};
-const IN = {kiri: 0, kanan: 0, rem: 0, pot: 0, gas: 1};
+const IN = {kiri: 0, kanan: 0, rem: 0, pot: 0, gas: 1, stik: 0};   // stik = analog setir -1 (kiri) … 1 (kanan)
 let MODE = 'lobi', waktu = 0, gerbangKe = 0, mulaiT = 0, SPLIT = [], kamYaw = 0, autoPilot = false, finishT = 0;
 function taruhDiStart() { const q = T[I_START - 3]; Object.assign(K, {x: q.x, z: q.z, h: Math.atan2(q.tx, q.tz), vx: 0, vz: 0, setir: 0, gigi: 1, rpm: 0, i: I_START - 3, d: 0, roll: 0, pitch: 0});
   K.y = yJalan(K.i, 0); kamYaw = K.h; gerbangKe = 0; waktu = 0; SPLIT = []; bekas.count = 0; bekasI = 0; }
@@ -296,7 +296,7 @@ function fisika(dt) {
   let vf = K.vx * fx + K.vz * fz, vr = K.vx * rx + K.vz * rz;
   const pr = proyeksi(K.x, K.z, K.i); K.i = pr.i; K.d = pr.d;
   const diJalan = Math.abs(K.d) < LEBAR / 2 + .4, vmax = diJalan ? VMAX : VRUMPUT, aktif = MODE === 'balap';
-  let setirMau = (IN.kanan - IN.kiri);
+  let setirMau = Math.max(-1, Math.min(1, IN.stik + IN.kanan - IN.kiri));
   if (autoPilot || MODE === 'selesai') { const q = T[Math.min(NS, K.i + 4 + Math.round(Math.abs(vf) * .22))], dx = q.x - K.x, dz = q.z - K.z, sudut = Math.atan2(dx, dz) - K.h; setirMau = Math.max(-1, Math.min(1, -Math.atan2(Math.sin(sudut), Math.cos(sudut)) * 2.4)); }
   K.setir += (setirMau - K.setir) * Math.min(1, dt * 7);
   // gas otomatis (santai di HP); rem: melambat lalu mundur pelan
@@ -394,13 +394,23 @@ function kabar(t, ms = 2200) { const k = $('kabar'); if (k.childElementCount > 1
 function tampilHUD(on) { for (const id of ['keluar', 'jam', 'peta', 'spido', 'jarak', 'kiriKanan', 'pedal']) $(id).hidden = !on; $('lobi').hidden = on; $('dompet').hidden = on || !$('dompet').textContent; if (!on) $('split').hidden = true; }
 
 // ---------- kontrol: tombol sentuh (multi-jari) + keyboard ----------
-for (const [id, k] of [['bKiri', 'kiri'], ['bKanan', 'kanan'], ['bRem', 'rem'], ['bPot', 'pot']]) { const b = $(id);
+// analog setir: hanya sumbu kiri-kanan dipakai; zona mati kecil di tengah, makin jauh digeser makin tajam beloknya
+{ const el = $('kiriKanan'), kn = el.querySelector('i'); let id = null;
+  const gerak = e => { const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, maks = r.width / 2 - 8;
+    let dx = e.clientX - cx, dy = e.clientY - cy; const d = Math.hypot(dx, dy); if (d > maks) { dx *= maks / d; dy *= maks / d; }
+    const x = dx / maks, m = Math.max(0, Math.abs(x) - .08) / .92; IN.stik = Math.sign(x) * Math.pow(m, 1.25); kn.style.transform = `translate(${dx}px,${dy * .35}px)`; };
+  el.addEventListener('pointerdown', e => { e.preventDefault(); id = e.pointerId; el.setPointerCapture?.(e.pointerId); gerak(e); });
+  el.addEventListener('pointermove', e => { if (e.pointerId === id) gerak(e); });
+  const lepas = e => { if (e && e.pointerId !== id) return; id = null; IN.stik = 0; kn.style.transform = ''; };
+  for (const t of ['pointerup', 'pointercancel', 'lostpointercapture']) el.addEventListener(t, lepas);
+  el.addEventListener('contextmenu', e => e.preventDefault()); }
+for (const [id, k] of [['bRem', 'rem'], ['bPot', 'pot']]) { const b = $(id);
   const on = e => { e.preventDefault(); IN[k] = 1; b.classList.add('tekan'); b.setPointerCapture?.(e.pointerId); }, off = () => { IN[k] = 0; b.classList.remove('tekan'); };
   b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off); b.addEventListener('contextmenu', e => e.preventDefault()); }
 const TOMBOL = {ArrowLeft: 'kiri', KeyA: 'kiri', ArrowRight: 'kanan', KeyD: 'kanan', ArrowDown: 'rem', KeyS: 'rem', Space: 'pot'};
 addEventListener('keydown', e => { const k = TOMBOL[e.code]; if (k) { IN[k] = 1; e.preventDefault(); } if (e.code === 'Enter' && MODE === 'lobi') mulaiBalap(); });
 addEventListener('keyup', e => { const k = TOMBOL[e.code]; if (k) IN[k] = 0; });
-addEventListener('blur', () => { for (const k of ['kiri', 'kanan', 'rem', 'pot']) IN[k] = 0; });
+addEventListener('blur', () => { for (const k of ['kiri', 'kanan', 'rem', 'pot', 'stik']) IN[k] = 0; });
 
 // =====================================================================
 // 5. ALUR: lobi → hitung mundur → balap → finish → hasil

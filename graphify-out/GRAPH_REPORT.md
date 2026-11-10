@@ -1,17 +1,17 @@
 # Graph Report - willoapparel  (2026-11-10)
 
 ## Corpus Check
-- 104 files · ~823,018 words
+- 104 files · ~823,238 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 16 file(s) not represented in the graph (top: .glb 5, (none) 4, .css 4)
 
 ## Summary
-- 2726 nodes · 6383 edges · 118 communities (111 shown, 7 thin omitted)
-- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 185 edges (avg confidence: 0.85)
+- 2726 nodes · 6384 edges · 118 communities (111 shown, 7 thin omitted)
+- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 186 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d144a1dc`
+- Built from commit: `87312e81`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -148,14 +148,14 @@
 ## Surprising Connections (you probably didn't know these)
 - `tulis()` --indirect_call--> `KUNCI()`  [INFERRED]
   pelarikalcer/src/game.js → edukasi/smp/src/inti.js
-- `masjid()` --indirect_call--> `kayu()`  [INFERRED]
-  public/duniakotak/mabar/js/aset/fasum.js → pelarikalcer-kotak/src/main.js
-- `sekolah()` --indirect_call--> `kayu()`  [INFERRED]
-  public/duniakotak/mabar/js/aset/fasum.js → pelarikalcer-kotak/src/main.js
-- `kampus()` --indirect_call--> `kayu()`  [INFERRED]
-  public/duniakotak/mabar/js/aset/fasum.js → pelarikalcer-kotak/src/main.js
-- `tamanKota()` --indirect_call--> `kayu()`  [INFERRED]
-  public/duniakotak/mabar/js/aset/fasum.js → pelarikalcer-kotak/src/main.js
+- `fotoMedali()` --calls--> `pose()`  [EXTRACTED]
+  pelarikalcer-kotak/src/main.js → public/duniakotak/mabar/js/aset/avatar.js
+- `langkah()` --calls--> `pose()`  [EXTRACTED]
+  pelarikalcer-kotak/src/main.js → public/duniakotak/mabar/js/aset/avatar.js
+- `kucing()` --calls--> `kucingMesh()`  [EXTRACTED]
+  pelarikalcer-kotak/src/main.js → public/duniakotak/mabar/js/aset/kucing.js
+- `rumah()` --calls--> `rumahMesh()`  [EXTRACTED]
+  pelarikalcer-kotak/src/main.js → public/duniakotak/mabar/js/aset/rumah.js
 
 ## Import Cycles
 - None detected.
@@ -614,8 +614,8 @@ Nodes (3): gambarPeta(), pX(), pZ()
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `lepas()` connect `src/game.js` to `hitung-rpg/game.js`, `bangun.js`?**
-  _High betweenness centrality (0.053) - this node is a cross-community bridge._
+- **Why does `lepas()` connect `src/game.js` to `hitung-rpg/game.js`, `bangun.js`, `reli.js`?**
+  _High betweenness centrality (0.087) - this node is a cross-community bridge._
 - **Are the 9 inferred relationships involving `mulai()` (e.g. with `ambilHadir()` and `bersihAv()`) actually correct?**
   _`mulai()` has 9 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `kelasduniakotak` to the rest of the system?**
@@ -623,8 +623,8 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `duniakotak/js/desa.js` be split into smaller, more focused modules?**
   _Cohesion score 0.06289506953223767 - nodes in this community are weakly interconnected._
 - **Why does `warga()` connect `warga` to `mabar/game.js`, `kotak`, `ktp.js`, `kotak`, `main.js`, `smp/src/inti.js`, `toast`, `mulaiBalap`, `rnd`, `reli.js`, `bangun.js`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+  _High betweenness centrality (0.029) - this node is a cross-community bridge._
 - **Should `mabar/game.js` be split into smaller, more focused modules?**
   _Cohesion score 0.01627202334193693 - nodes in this community are weakly interconnected._
-- **Why does `pose()` connect `pose` to `mabar/game.js`, `kotak`, `langkah`, `warga`, `ktp.js`, `main.js`, `loop`, `bangun.js`?**
-  _High betweenness centrality (0.011) - this node is a cross-community bridge._
+- **Why does `$` connect `$` to `src/game.js`, `pelari.js`, `ref_three`, `dunia.js`, `mulai`?**
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._

@@ -56,7 +56,11 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
 #jarak{position:fixed;left:50%;transform:translateX(-50%);top:calc(62px + env(safe-area-inset-top,0px));padding:2px 9px;font-size:10px;font-weight:900;border-radius:7px;background:rgba(19,20,31,.6);white-space:nowrap}
 /* tombol kemudi: kiri ◀ ▶, kanan REM & NGEPOT. Gas otomatis supaya santai dimainkan di HP */
 .kemudi{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:10px}
-#kiriKanan{left:max(14px,env(safe-area-inset-left,0px))}
+/* analog setir (Huda 10 Nov: "Analog jangan tombol"): geser kiri-kanan, makin jauh makin tajam beloknya */
+#kiriKanan{left:max(18px,env(safe-area-inset-left,0px));width:136px;height:136px;border-radius:50%;background:rgba(30,33,56,.45);border:2px solid rgba(255,255,255,.4);touch-action:none}
+#kiriKanan::before,#kiriKanan::after{content:'◀';position:absolute;top:50%;left:12px;transform:translateY(-50%);font-size:16px;color:rgba(255,255,255,.55)}
+#kiriKanan::after{content:'▶';left:auto;right:12px}
+#kiriKanan i{position:absolute;left:50%;top:50%;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;background:rgba(255,255,255,.88);box-shadow:0 3px 8px rgba(0,0,0,.3);pointer-events:none}
 #pedal{right:max(14px,env(safe-area-inset-right,0px));flex-direction:column;align-items:flex-end;gap:8px}
 .kemudi button{width:78px;height:78px;border-radius:20px;background:rgba(30,33,56,.5);border:2px solid rgba(255,255,255,.4);font-size:30px;font-weight:900;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;touch-action:none}
 .kemudi button small{font-size:9.5px;font-weight:900;letter-spacing:.08em;margin-top:3px}
@@ -81,7 +85,7 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
 .dua{display:grid;grid-template-columns:1fr 1.6fr;gap:8px}
 .dua .utama{padding:10px;font-size:15px}.dua .kedua{display:flex;align-items:center;justify-content:center}
 @media (max-height:330px){#lobi{gap:5px}.judul h1{font-size:22px}.status{padding:5px 10px}.utama{padding:9px;font-size:15px}.warna{padding:4px 10px}
- .kemudi button{width:64px;height:64px;font-size:24px}#bRem{width:84px;height:54px}#bPot{width:84px;height:40px}#spido{right:max(112px,calc(env(safe-area-inset-right,0px) + 104px));transform:scale(.85);transform-origin:bottom right}#peta{width:96px;height:72px}#jam b{font-size:20px}#jarak{top:54px}#split{top:76px}}
+ .kemudi button{width:64px;height:64px;font-size:24px}#kiriKanan{width:112px;height:112px}#kiriKanan i{width:50px;height:50px;margin:-25px 0 0 -25px}#bRem{width:84px;height:54px}#bPot{width:84px;height:40px}#spido{right:max(112px,calc(env(safe-area-inset-right,0px) + 104px));transform:scale(.85);transform-origin:bottom right}#peta{width:96px;height:72px}#jam b{font-size:20px}#jarak{top:54px}#split{top:76px}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js","three/addons/geometries/RoundedBoxGeometry.js":"/duniakotak/mabar/js/kotakBulat.js?v=20261108r","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
@@ -103,7 +107,7 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
 <canvas id="peta" width="236" height="176" hidden></canvas>
 <div id="spido" hidden><canvas id="spidoK" width="224" height="124"></canvas><b id="sAngka">0</b><small>KM/JAM</small></div>
 <div id="jarak" hidden>0,00 KM</div>
-<div id="kiriKanan" class="kemudi" hidden><button id="bKiri" aria-label="Belok kiri">◀</button><button id="bKanan" aria-label="Belok kanan">▶</button></div>
+<div id="kiriKanan" class="kemudi" role="slider" aria-label="Analog setir" hidden><i></i></div>
 <div id="pedal" class="kemudi" hidden><button id="bPot" aria-label="Rem tangan, ngepot">NGEPOT</button><button id="bRem" aria-label="Rem">REM</button></div>
 <div id="hitung" hidden></div>
 <div id="kabar"></div>
@@ -115,6 +119,6 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
   <div class="dua"><a class="kedua tombol" id="bDesa2" href="/duniakotak/mabar/?dusun=curug&amp;ke=reli">Ke desa</a><button class="utama" id="bLagi">🏁 BALAP LAGI</button></div>
  </div>
 </div>
-<script type="module" src="reli.js?v=20261110a"></script>
+<script type="module" src="reli.js?v=20261110b"></script>
 </body>
 </html>
