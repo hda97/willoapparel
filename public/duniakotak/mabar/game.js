@@ -324,7 +324,7 @@ const dekatGapuraCFD = me => !!GAPURA_CFD && Math.hypot(me.position.x - GAPURA_C
 // Pintu Tukang Kotak: warga yang berdiri di lahan proyek fasum dapat tombol 🔨 Bangun → mini-game membangun (halaman terpisah).
 const dekatProyek = me => !S.tamu && fasumBangun.some(f => {
   if (!/^🚧/.test(f.nama || '')) return false; const x = me.position.x, z = me.position.z, k = f.rect, d = 2 * VS;
-  return k ? x > k[0] - d && x < k[1] + d && z > k[2] - d && z < k[3] + d : Math.hypot(x - f.position.x, z - f.position.z) < 6 * VS; });
+  return k ? x > k[0] - d && x < k[1] + d && z > k[2] - d && z < k[3] + d : Math.hypot(x - f.position.x, z - f.position.z) < 10.5 * VS; });   // seluruh lahan proyek (19×17) + gerbang
 function ikutBangun() { bunyi('masuk'); toast('🔨 Pakai helm dulu, menuju lahan proyek…', 1500); setTimeout(() => { location.href = '/duniakotak/bangun/?dari=desa&dusun=' + DI; }, 500); }
 function ikutLari() { bunyi('masuk'); toast('🏃 Menuju garis start Pelari Kalcer…', 1500); setTimeout(() => { location.href = '/pelarikalcer/?dari=desa'; }, 500); }
 // bagian atas tiap fasum (atap, dinding atas, lantai 2) = grup sendiri supaya bisa disembunyikan saat warga ada di dalam
