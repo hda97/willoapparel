@@ -113,21 +113,21 @@
     "semantic_hash": "16f7aa92d3e9468edf41dd30b4c182d1"
   },
   "public/duniakotak/mabar/game.js": {
-    "mtime": 1794347016.1418176,
-    "seen": 1794347084.3569205,
-    "ast_hash": "bb6f6d1489b94c864a0085fd614e7f6e",
+    "mtime": 1794349121.8740213,
+    "seen": 1794349313.5799768,
+    "ast_hash": "a199711a2d5c1f0bb0ec54aa05fca170",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/avatar.js": {
-    "mtime": 1794345588.7897327,
-    "seen": 1794346313.595059,
+    "mtime": 1794348374.5712168,
+    "seen": 1794349313.5799794,
     "ast_hash": "0eb05872321b791a8f574d778a474617",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/fasum.js": {
-    "mtime": 1794345588.7897327,
-    "seen": 1794346313.59506,
-    "ast_hash": "691800ef5b15c448156c597b78ce9b96",
+    "mtime": 1794349109.9148216,
+    "seen": 1794349313.5799818,
+    "ast_hash": "1af995286f8090a2e6d2b3a31bd04b76",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/kucing.js": {
@@ -149,8 +149,8 @@
     "semantic_hash": "c98a85c16aae898f3ef9279c4283e103"
   },
   "public/duniakotak/mabar/js/curug.js": {
-    "mtime": 1794345588.7897327,
-    "seen": 1794346313.5950656,
+    "mtime": 1794348374.5746293,
+    "seen": 1794349313.5799959,
     "ast_hash": "826b7852e652052eecf6b6f3ae156811",
     "semantic_hash": ""
   },
@@ -161,8 +161,8 @@
     "semantic_hash": "380f619d18d8d6cf482b96b7ed0e94b1"
   },
   "public/duniakotak/mabar/js/kulon.js": {
-    "mtime": 1794345588.7897327,
-    "seen": 1794346313.5950708,
+    "mtime": 1794348374.5746293,
+    "seen": 1794349313.5800025,
     "ast_hash": "5246ffecc302309901a5a0d1ff0e9fbc",
     "semantic_hash": ""
   },
@@ -179,8 +179,8 @@
     "semantic_hash": "bf96d0b155a5cf8f899ef7b7ee42c66c"
   },
   "public/duniakotak/mabar/js/npc.js": {
-    "mtime": 1794345588.7897327,
-    "seen": 1794346313.5950737,
+    "mtime": 1794348374.5746293,
+    "seen": 1794349313.5800085,
     "ast_hash": "333b0bd259367d023ba919caed48900b",
     "semantic_hash": ""
   },
@@ -209,8 +209,8 @@
     "semantic_hash": "bf3f8e495130df0e60287acb7ca38561"
   },
   "worker.js": {
-    "mtime": 1794346269.4275713,
-    "seen": 1794346313.5950885,
+    "mtime": 1794348374.5906293,
+    "seen": 1794349313.5800285,
     "ast_hash": "45827c44e3a596f64530c5598fb2498a",
     "semantic_hash": ""
   },
@@ -521,14 +521,14 @@
     "semantic_hash": ""
   },
   "pelarikalcer-kotak/src/ikon.js": {
-    "mtime": 1794345588.7777326,
-    "seen": 1794346313.5950274,
+    "mtime": 1794348374.5586293,
+    "seen": 1794349313.5799186,
     "ast_hash": "54d629f64dbb5419b31684bfadf3af15",
     "semantic_hash": ""
   },
   "pelarikalcer-kotak/src/main.js": {
-    "mtime": 1794345588.7777326,
-    "seen": 1794346313.5950305,
+    "mtime": 1794348374.5626292,
+    "seen": 1794349313.579922,
     "ast_hash": "35a7c1129e35b67f6904060f0bb77dd4",
     "semantic_hash": ""
   },
@@ -653,8 +653,8 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/tlaga.js": {
-    "mtime": 1794345588.7897327,
-    "seen": 1794346313.5950773,
+    "mtime": 1794348374.5746293,
+    "seen": 1794349313.580013,
     "ast_hash": "d24f7b359c632c3288f5175bf0acb6e9",
     "semantic_hash": ""
   },
@@ -863,8 +863,8 @@
     "semantic_hash": ""
   },
   "pelarikalcer-kotak/src/template.html": {
-    "mtime": 1794345588.7777326,
-    "seen": 1794346313.595128,
+    "mtime": 1794348374.5626292,
+    "seen": 1794349313.5800776,
     "ast_hash": "c0d1b83a18c9573a45eb3935f0d7ae70",
     "semantic_hash": ""
   },
@@ -923,8 +923,8 @@
     "semantic_hash": ""
   },
   "public/bahan-kaos-combed-24s-30s.html": {
-    "mtime": 1794345588.7777326,
-    "seen": 1794346313.595141,
+    "mtime": 1794348374.5626292,
+    "seen": 1794349313.5800908,
     "ast_hash": "1da3c0d350a6bb7e28a6c457d9bf7393",
     "semantic_hash": ""
   },
@@ -935,14 +935,14 @@
     "semantic_hash": ""
   },
   "public/cara-rekap-ukuran-kaos.html": {
-    "mtime": 1794345588.7777326,
-    "seen": 1794346313.595143,
+    "mtime": 1794348374.5626292,
+    "seen": 1794349313.5800934,
     "ast_hash": "b80a6179e3675f338f114ba51eb5cb7b",
     "semantic_hash": ""
   },
   "public/cara-siapkan-file-desain-sablon.html": {
-    "mtime": 1794345588.7777326,
-    "seen": 1794346313.5951443,
+    "mtime": 1794348374.5626292,
+    "seen": 1794349313.580095,
     "ast_hash": "d22a6c8d7e2d3dd1190808900cbb863f",
     "semantic_hash": ""
   },
@@ -959,38 +959,38 @@
     "semantic_hash": ""
   },
   "public/duniakotak/belajar/index.html": {
-    "mtime": 1794345588.7860343,
-    "seen": 1794346313.5951486,
+    "mtime": 1794348374.5695078,
+    "seen": 1794349313.5800998,
     "ast_hash": "71763b3f3a89f77ecf0ace0a9a28fad1",
     "semantic_hash": ""
   },
   "public/duniakotak/dashboard/index.html": {
-    "mtime": 1794345588.7860343,
-    "seen": 1794346313.5951493,
+    "mtime": 1794348374.5695078,
+    "seen": 1794349313.5801008,
     "ast_hash": "3f42c36b4a708104b0173559878ae60e",
     "semantic_hash": ""
   },
   "public/duniakotak/index.html": {
-    "mtime": 1794345588.7879937,
-    "seen": 1794346313.5951514,
-    "ast_hash": "1534aaabdbf7d007979f57267fe44765",
+    "mtime": 1794348374.5712168,
+    "seen": 1794349313.5801036,
+    "ast_hash": "372e85d6657ac330e65cc73d2c9f8f15",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/index.html": {
-    "mtime": 1794346572.653402,
-    "seen": 1794347084.3570352,
-    "ast_hash": "669fb9ceefdb9f4bc1a75e799024ca3a",
+    "mtime": 1794349121.8749804,
+    "seen": 1794349313.5801046,
+    "ast_hash": "6694075d5f7accb12ef330813e89666c",
     "semantic_hash": ""
   },
   "public/duniakotak/privasi.html": {
-    "mtime": 1794345588.7897327,
-    "seen": 1794346313.595153,
+    "mtime": 1794348374.5746293,
+    "seen": 1794349313.580106,
     "ast_hash": "2282ef3e14fee78e38a919dddc82187b",
     "semantic_hash": ""
   },
   "public/duniakotak/pulau/index.html": {
-    "mtime": 1794345588.7897327,
-    "seen": 1794346313.5951545,
+    "mtime": 1794348374.5746293,
+    "seen": 1794349313.5801072,
     "ast_hash": "63744d2739c260aac65371b4e1125ea6",
     "semantic_hash": ""
   },
@@ -1091,8 +1091,8 @@
     "semantic_hash": ""
   },
   "public/faktor-harga-sablon-kaos.html": {
-    "mtime": 1794345588.7971015,
-    "seen": 1794346313.5951734,
+    "mtime": 1794348374.5800607,
+    "seen": 1794349313.580133,
     "ast_hash": "f6885c17712e76fd992560b19f118061",
     "semantic_hash": ""
   },
@@ -1109,8 +1109,8 @@
     "semantic_hash": ""
   },
   "public/index.html": {
-    "mtime": 1794345588.7971015,
-    "seen": 1794346313.595176,
+    "mtime": 1794348374.5800607,
+    "seen": 1794349313.5801368,
     "ast_hash": "fd89ce018504eae3e46c12f4ca720e72",
     "semantic_hash": ""
   },
@@ -1121,104 +1121,104 @@
     "semantic_hash": ""
   },
   "public/kaos-custom-kado-ngawi.html": {
-    "mtime": 1794345588.7971015,
-    "seen": 1794346313.5951777,
+    "mtime": 1794348374.5800607,
+    "seen": 1794349313.5801392,
     "ast_hash": "317d5ace950547a207a0d9d9649dd4fa",
     "semantic_hash": ""
   },
   "public/kaos-gathering-outing-kantor.html": {
-    "mtime": 1794345588.7971015,
-    "seen": 1794346313.5951786,
+    "mtime": 1794348374.5800607,
+    "seen": 1794349313.5801406,
     "ast_hash": "21595a93158a9f09147b54e416fcb247",
     "semantic_hash": ""
   },
   "public/kaos-guru-hari-guru-ngawi.html": {
-    "mtime": 1794345588.7971015,
-    "seen": 1794346313.5951793,
+    "mtime": 1794348374.5800607,
+    "seen": 1794349313.5801413,
     "ast_hash": "205e15dc074a42d31ee47a8d164c1559",
     "semantic_hash": ""
   },
   "public/kaos-jalan-sehat-fun-run-ngawi.html": {
-    "mtime": 1794345588.7971015,
-    "seen": 1794346313.5951803,
+    "mtime": 1794348374.5800607,
+    "seen": 1794349313.5801425,
     "ast_hash": "6e0d0eda1e19dc49799bd50363b3abd0",
     "semantic_hash": ""
   },
   "public/kaos-karang-taruna-desa-ngawi.html": {
-    "mtime": 1794345588.7971015,
-    "seen": 1794346313.595182,
+    "mtime": 1794348374.5800607,
+    "seen": 1794349313.5801442,
     "ast_hash": "47feb4b8b39c80e6f8db5b32319fe0b9",
     "semantic_hash": ""
   },
   "public/kaos-kelas.html": {
-    "mtime": 1794345588.7971015,
-    "seen": 1794346313.595183,
+    "mtime": 1794348374.5800607,
+    "seen": 1794349313.5801454,
     "ast_hash": "9ff477947afed1c949c3ca9adfecb27b",
     "semantic_hash": ""
   },
   "public/kaos-keluarga-custom-ngawi.html": {
-    "mtime": 1794345588.7971015,
-    "seen": 1794346313.595184,
+    "mtime": 1794348374.5800607,
+    "seen": 1794349313.580147,
     "ast_hash": "7b3fc462733cdf47314e945d27ba02e2",
     "semantic_hash": ""
   },
   "public/kaos-kkn-organisasi-kampus.html": {
-    "mtime": 1794345588.7977328,
-    "seen": 1794346313.5951855,
+    "mtime": 1794348374.5800607,
+    "seen": 1794349313.580148,
     "ast_hash": "1926d22f896bda883284101eedef8eef",
     "semantic_hash": ""
   },
   "public/kaos-komunitas.html": {
-    "mtime": 1794345588.7977328,
-    "seen": 1794346313.5951877,
+    "mtime": 1794348374.5800607,
+    "seen": 1794349313.5801516,
     "ast_hash": "611b50bc9679fd05be5ad77757a84fd7",
     "semantic_hash": ""
   },
   "public/kaos-panitia-event-ngawi.html": {
-    "mtime": 1794345588.7977328,
-    "seen": 1794346313.5951886,
+    "mtime": 1794348374.5800607,
+    "seen": 1794349313.580153,
     "ast_hash": "d7f0c728feabda4e1c10ccb191a9ace6",
     "semantic_hash": ""
   },
   "public/kaos-pengajian-remaja-masjid.html": {
-    "mtime": 1794345588.7977328,
-    "seen": 1794346313.5951898,
+    "mtime": 1794348374.5826294,
+    "seen": 1794349313.580155,
     "ast_hash": "ed71ca84626e5e03f002f345533555e9",
     "semantic_hash": ""
   },
   "public/kaos-pkk-posyandu-kader-ngawi.html": {
-    "mtime": 1794345588.7977328,
-    "seen": 1794346313.5951905,
+    "mtime": 1794348374.5826294,
+    "seen": 1794349313.580156,
     "ast_hash": "107f752ac1a8b5ad18628af9f04f0a13",
     "semantic_hash": ""
   },
   "public/kaos-promosi-merchandise-usaha.html": {
-    "mtime": 1794345588.7977328,
-    "seen": 1794346313.5951915,
+    "mtime": 1794348374.5826294,
+    "seen": 1794349313.5801578,
     "ast_hash": "91b47522fc18bc69991dd16876258d2e",
     "semantic_hash": ""
   },
   "public/kaos-reuni-alumni-ngawi.html": {
-    "mtime": 1794345588.7977328,
-    "seen": 1794346313.5951948,
+    "mtime": 1794348374.5826294,
+    "seen": 1794349313.5801606,
     "ast_hash": "b7fba90c0d3c62ff5a358556426a378e",
     "semantic_hash": ""
   },
   "public/kaos-seragam-usaha-ngawi.html": {
-    "mtime": 1794345588.7977328,
-    "seen": 1794346313.5951955,
+    "mtime": 1794348374.5826294,
+    "seen": 1794349313.5801616,
     "ast_hash": "f29525d2b799e10faced3ade2a31ede7",
     "semantic_hash": ""
   },
   "public/kaos-study-tour-wisata-rombongan.html": {
-    "mtime": 1794345588.7977328,
-    "seen": 1794346313.5951965,
+    "mtime": 1794348374.5826294,
+    "seen": 1794349313.580163,
     "ast_hash": "f0fa37cf6f17c98cf1797d58aa964623",
     "semantic_hash": ""
   },
   "public/kaos-tim-futsal-voli-ngawi.html": {
-    "mtime": 1794345588.7977328,
-    "seen": 1794346313.5951972,
+    "mtime": 1794348374.5866294,
+    "seen": 1794349313.5801644,
     "ast_hash": "d03fa87082ff5389f2cfbf5118cd2d87",
     "semantic_hash": ""
   },
@@ -1235,14 +1235,14 @@
     "semantic_hash": ""
   },
   "public/mulai-brand-kaos-sendiri.html": {
-    "mtime": 1794345588.7977328,
-    "seen": 1794346313.5952,
+    "mtime": 1794348374.5866294,
+    "seen": 1794349313.580168,
     "ast_hash": "da290253bd5be877c624a2113c1ec56f",
     "semantic_hash": ""
   },
   "public/panduan-jenis-sablon-kaos.html": {
-    "mtime": 1794345588.8017328,
-    "seen": 1794346313.5952008,
+    "mtime": 1794348374.5866294,
+    "seen": 1794349313.5801692,
     "ast_hash": "9260105ace55a87526cfff41e6f8de13",
     "semantic_hash": ""
   },
@@ -1253,8 +1253,8 @@
     "semantic_hash": ""
   },
   "public/pelarikalcer/index.html": {
-    "mtime": 1794345588.8017328,
-    "seen": 1794346313.595203,
+    "mtime": 1794348374.5866294,
+    "seen": 1794349313.580172,
     "ast_hash": "8dc2a0e8b0d252615984b054c49b1422",
     "semantic_hash": ""
   },
@@ -1283,44 +1283,44 @@
     "semantic_hash": ""
   },
   "public/sablon-kaos-blora.html": {
-    "mtime": 1794345588.8017328,
-    "seen": 1794346313.5952075,
+    "mtime": 1794348374.5866294,
+    "seen": 1794349313.5801861,
     "ast_hash": "158d67fe2b9fa7279b4c2647dc4474a0",
     "semantic_hash": ""
   },
   "public/sablon-kaos-bojonegoro.html": {
-    "mtime": 1794345588.8017328,
-    "seen": 1794346313.5952084,
+    "mtime": 1794348374.5866294,
+    "seen": 1794349313.5801878,
     "ast_hash": "31c439f0ad1cc54f89574b6506e2b011",
     "semantic_hash": ""
   },
   "public/sablon-kaos-madiun.html": {
-    "mtime": 1794345588.8017328,
-    "seen": 1794346313.5952098,
+    "mtime": 1794348374.5866294,
+    "seen": 1794349313.580189,
     "ast_hash": "584f7439703f86ae5430554e86ea4420",
     "semantic_hash": ""
   },
   "public/sablon-kaos-magetan.html": {
-    "mtime": 1794345588.8017328,
-    "seen": 1794346313.5952108,
+    "mtime": 1794348374.5866294,
+    "seen": 1794349313.5801904,
     "ast_hash": "5e28956de6e8b8ea36fe6fc5ad94646b",
     "semantic_hash": ""
   },
   "public/sablon-kaos-ponorogo.html": {
-    "mtime": 1794345588.8017328,
-    "seen": 1794346313.5952117,
+    "mtime": 1794348374.5906293,
+    "seen": 1794349313.5801923,
     "ast_hash": "6695b4b1dcaba20543f19ec1961af954",
     "semantic_hash": ""
   },
   "public/sablon-kaos-satuan-ngawi.html": {
-    "mtime": 1794345588.8017328,
-    "seen": 1794346313.5952127,
+    "mtime": 1794348374.5906293,
+    "seen": 1794349313.580194,
     "ast_hash": "ca8440ce84a51bb943f59fcc81685f11",
     "semantic_hash": ""
   },
   "public/sablon-kaos-sragen.html": {
-    "mtime": 1794345588.8017328,
-    "seen": 1794346313.595214,
+    "mtime": 1794348374.5906293,
+    "seen": 1794349313.5801957,
     "ast_hash": "ccd5498eade8671a76bfe66017dfc782",
     "semantic_hash": ""
   },
@@ -2849,8 +2849,8 @@
     "semantic_hash": ""
   },
   "public/duniakotak/apple-touch-icon.png": {
-    "mtime": 1794345588.7817328,
-    "seen": 1794346313.5954893,
+    "mtime": 1794348374.5626292,
+    "seen": 1794349313.58056,
     "ast_hash": "7a07922f4b4a892ab5ad536a4d45d725",
     "semantic_hash": ""
   },
@@ -3203,368 +3203,374 @@
     "semantic_hash": ""
   },
   "public/kaos-relawan-bakti-sosial-ngawi.html": {
-    "mtime": 1794345588.7977328,
-    "seen": 1794346313.5951931,
+    "mtime": 1794348374.5826294,
+    "seen": 1794349313.5801592,
     "ast_hash": "d8a0fb4bdb1d007c06cf3ca4c8b2843d",
     "semantic_hash": ""
   },
   "pelarikalcer-kotak/src/lintasan.js": {
-    "mtime": 1794345588.7777326,
-    "seen": 1794346313.5950296,
+    "mtime": 1794348374.5586293,
+    "seen": 1794349313.5799203,
     "ast_hash": "588f512e20f8ffabd46e10c975709b53",
     "semantic_hash": ""
   },
   "public/kaos-komunitas-gowes-sepeda-ngawi.html": {
-    "mtime": 1794345588.7977328,
-    "seen": 1794346313.595187,
+    "mtime": 1794348374.5800607,
+    "seen": 1794349313.5801504,
     "ast_hash": "9bb7a84a31c41d15305fd87483a53d48",
     "semantic_hash": ""
   },
   "public/duniakotak/bangun/bangun.js": {
-    "mtime": 1794345588.7817328,
-    "seen": 1794346313.5950496,
+    "mtime": 1794348374.5626292,
+    "seen": 1794349313.5799477,
     "ast_hash": "e72cbbb6735def5e253b78dd1dd2b2d5",
     "semantic_hash": ""
   },
   "public/duniakotak/bangun/index.html": {
-    "mtime": 1794345588.7860343,
-    "seen": 1794346313.5951476,
+    "mtime": 1794348374.5695078,
+    "seen": 1794349313.5800984,
     "ast_hash": "8506504ec4d240760d2b3be8778a411d",
     "semantic_hash": ""
   },
   "public/duniakotak/ikon/favicon-48.png": {
-    "mtime": 1794345588.7860343,
-    "seen": 1794346313.5955067,
+    "mtime": 1794348374.5695078,
+    "seen": 1794349313.5805817,
     "ast_hash": "13d70fc5ad98d440445c80472f32c499",
     "semantic_hash": ""
   },
   "public/duniakotak/ikon/ikon-192.png": {
-    "mtime": 1794345588.7879937,
-    "seen": 1794346313.5955076,
+    "mtime": 1794348374.5712168,
+    "seen": 1794349313.5805829,
     "ast_hash": "5ce047959f2a316a0c889b843cf2ee6b",
     "semantic_hash": ""
   },
   "public/duniakotak/ikon/ikon-512.png": {
-    "mtime": 1794345588.7879937,
-    "seen": 1794346313.5955088,
+    "mtime": 1794348374.5712168,
+    "seen": 1794349313.5805845,
     "ast_hash": "6c08abd1655ee89b3568b9ac7034e189",
     "semantic_hash": ""
   },
   "public/duniakotak/ikon/ikon.svg": {
-    "mtime": 1794345588.7879937,
-    "seen": 1794346313.5955095,
+    "mtime": 1794348374.5712168,
+    "seen": 1794349313.5805855,
     "ast_hash": "237b7a215c5be22aab7b23a0c543be64",
     "semantic_hash": ""
   },
   "public/duniakotak/ikon/logo-bulat-256.png": {
-    "mtime": 1794345588.7879937,
-    "seen": 1794346313.5955105,
+    "mtime": 1794348374.5712168,
+    "seen": 1794349313.5805867,
     "ast_hash": "1fab7cd758e5b14646a6dac69fb030a8",
     "semantic_hash": ""
   },
   "public/duniakotak/ikon/logo-utama.svg": {
-    "mtime": 1794345588.7879937,
-    "seen": 1794346313.5955176,
+    "mtime": 1794348374.5712168,
+    "seen": 1794349313.5805879,
     "ast_hash": "e7d9515309bf6c9eb0667b45d8fa7daa",
     "semantic_hash": ""
   },
   "public/duniakotak/reli/reli.js": {
-    "mtime": 1794345588.7971015,
-    "seen": 1794346313.595085,
-    "ast_hash": "a776058d10c0eaafecdaa209d8223a6d",
+    "mtime": 1794348946.1707082,
+    "seen": 1794349313.5800238,
+    "ast_hash": "32518e5f545aa9b7b9f44236922caf2a",
     "semantic_hash": ""
   },
   "public/duniakotak/reli/index.html": {
-    "mtime": 1794345588.7937326,
-    "seen": 1794346313.595156,
-    "ast_hash": "928e1722e5132b5151e5eacf4a584dab",
+    "mtime": 1794348946.1712065,
+    "seen": 1794349313.580109,
+    "ast_hash": "43a846943712b270bc456d7ddb4446d2",
     "semantic_hash": ""
   },
   ".github/workflows/aplikasi-android.yml": {
-    "mtime": 1794345588.7297328,
-    "seen": 1794346313.5949209,
+    "mtime": 1794348374.5226293,
+    "seen": 1794349313.5798075,
     "ast_hash": "7c2ed885f749bf0a6d7b5de3f3ede4e2",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/build.gradle": {
-    "mtime": 1794345588.7350633,
-    "seen": 1794346313.594932,
+    "mtime": 1794348374.527669,
+    "seen": 1794349313.5798194,
     "ast_hash": "5d35b981c3fbfed0ce8250badb19f65b",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/capacitor.build.gradle": {
-    "mtime": 1794345588.7350633,
-    "seen": 1794346313.5949342,
+    "mtime": 1794348374.527669,
+    "seen": 1794349313.5798218,
     "ast_hash": "149b9c4b59587f30e6d6ffee16336a15",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/androidTest/java/com/getcapacitor/myapp/ExampleInstrumentedTest.java": {
-    "mtime": 1794345588.73517,
-    "seen": 1794346313.5949368,
+    "mtime": 1794348374.527778,
+    "seen": 1794349313.5798233,
     "ast_hash": "fbaf7cc870c663eb52dcf218531c439d",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/java/com/willoapparel/duniakotak/MainActivity.java": {
-    "mtime": 1794345588.7352948,
-    "seen": 1794346313.5949397,
+    "mtime": 1794348374.527865,
+    "seen": 1794349313.5798256,
     "ast_hash": "c792a69151102d0a46ec8f7391e9e812",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/test/java/com/getcapacitor/myapp/ExampleUnitTest.java": {
-    "mtime": 1794345588.7399282,
-    "seen": 1794346313.5949419,
+    "mtime": 1794348374.5326157,
+    "seen": 1794349313.5798283,
     "ast_hash": "e91b4501c14da821682fa5c26a16d616",
     "semantic_hash": ""
   },
   "aplikasi-android/android/build.gradle": {
-    "mtime": 1794345588.7399282,
-    "seen": 1794346313.594944,
+    "mtime": 1794348374.5326157,
+    "seen": 1794349313.5798302,
     "ast_hash": "682315a426653617c6a74fc12bef55b6",
     "semantic_hash": ""
   },
   "aplikasi-android/android/capacitor.settings.gradle": {
-    "mtime": 1794345588.7399282,
-    "seen": 1794346313.5949461,
+    "mtime": 1794348374.5326157,
+    "seen": 1794349313.5798323,
     "ast_hash": "54bd1eeb9b12f2b206f6312e1804f98c",
     "semantic_hash": ""
   },
   "aplikasi-android/android/gradlew": {
-    "mtime": 1794345588.7402587,
-    "seen": 1794346313.5949485,
+    "mtime": 1794348374.533009,
+    "seen": 1794349313.5798347,
     "ast_hash": "794669d78aef1dd5c7d889ef618b311a",
     "semantic_hash": ""
   },
   "aplikasi-android/android/settings.gradle": {
-    "mtime": 1794345588.7402587,
-    "seen": 1794346313.5949502,
+    "mtime": 1794348374.533009,
+    "seen": 1794349313.5798366,
     "ast_hash": "f6cd925b3f859e23c3d819fe2459e0e4",
     "semantic_hash": ""
   },
   "aplikasi-android/android/variables.gradle": {
-    "mtime": 1794345588.7402587,
-    "seen": 1794346313.5949514,
+    "mtime": 1794348374.533009,
+    "seen": 1794349313.5798383,
     "ast_hash": "4b3fce8ea2a515a9d2e47e74757172ec",
     "semantic_hash": ""
   },
   "aplikasi-android/capacitor.config.json": {
-    "mtime": 1794345588.7402587,
-    "seen": 1794346313.5949533,
+    "mtime": 1794348374.533009,
+    "seen": 1794349313.5798397,
     "ast_hash": "c37d5bc807f746a007c8113816c77026",
     "semantic_hash": ""
   },
   "aplikasi-android/package.json": {
-    "mtime": 1794345588.7402587,
-    "seen": 1794346313.594955,
+    "mtime": 1794348374.533009,
+    "seen": 1794349313.5798414,
     "ast_hash": "c411e24dfd575569d41ea1799fd89c9c",
     "semantic_hash": ""
   },
   "public/duniakotak/js/modeapp.js": {
-    "mtime": 1794345588.7879937,
-    "seen": 1794346313.595056,
+    "mtime": 1794348374.5712168,
+    "seen": 1794349313.579972,
     "ast_hash": "f7fc5f98765dd2f59d4d47caf4dacfd3",
     "semantic_hash": ""
   },
   "aplikasi-android/README.md": {
-    "mtime": 1794345588.7349453,
-    "seen": 1794346313.5951202,
+    "mtime": 1794348374.527572,
+    "seen": 1794349313.580069,
     "ast_hash": "a7d95f25000473b101d67455b72497ec",
     "semantic_hash": ""
   },
   "aplikasi-android/www/index.html": {
-    "mtime": 1794345588.7402587,
-    "seen": 1794346313.5951214,
+    "mtime": 1794348374.533009,
+    "seen": 1794349313.580071,
     "ast_hash": "9207bc4629e68a4d886da5f257777385",
     "semantic_hash": ""
   },
   "aplikasi-android/www/offline.html": {
-    "mtime": 1794345588.7406378,
-    "seen": 1794346313.5951226,
+    "mtime": 1794348374.5333686,
+    "seen": 1794349313.5800724,
     "ast_hash": "ebf7d9f420140eb5aa0131cc47c08525",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/drawable-land-hdpi/splash.png": {
-    "mtime": 1794345588.7353477,
-    "seen": 1794346313.5952158,
+    "mtime": 1794348374.527931,
+    "seen": 1794349313.580199,
     "ast_hash": "22147cd9b91e410f6ebff26a2eea805d",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/drawable-land-mdpi/splash.png": {
-    "mtime": 1794345588.7353477,
-    "seen": 1794346313.5952172,
+    "mtime": 1794348374.527931,
+    "seen": 1794349313.5802004,
     "ast_hash": "a52921c72871af1a081ba5b22c460ca1",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/drawable-land-xhdpi/splash.png": {
-    "mtime": 1794345588.7353477,
-    "seen": 1794346313.5952187,
+    "mtime": 1794348374.527931,
+    "seen": 1794349313.580202,
     "ast_hash": "4febce6b96060667636cb9ad4d4b3dc0",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/drawable-land-xxhdpi/splash.png": {
-    "mtime": 1794345588.7353477,
-    "seen": 1794346313.5952196,
+    "mtime": 1794348374.527931,
+    "seen": 1794349313.5802038,
     "ast_hash": "8f121e36d2480675dcc5035771b1d692",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/drawable-land-xxxhdpi/splash.png": {
-    "mtime": 1794345588.7353477,
-    "seen": 1794346313.5952208,
+    "mtime": 1794348374.527931,
+    "seen": 1794349313.580206,
     "ast_hash": "47051f3505c6f17b83050ba809e146c7",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/drawable-port-hdpi/splash.png": {
-    "mtime": 1794345588.7353477,
-    "seen": 1794346313.5952215,
+    "mtime": 1794348374.527931,
+    "seen": 1794349313.5802073,
     "ast_hash": "73f80947f70cd9dc4e68c4735cc8e859",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/drawable-port-mdpi/splash.png": {
-    "mtime": 1794345588.7353477,
-    "seen": 1794346313.595223,
+    "mtime": 1794348374.527931,
+    "seen": 1794349313.5802088,
     "ast_hash": "7207c9d0229950cef90d9a48186c17ff",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/drawable-port-xhdpi/splash.png": {
-    "mtime": 1794345588.7353477,
-    "seen": 1794346313.5952241,
+    "mtime": 1794348374.527931,
+    "seen": 1794349313.5802104,
     "ast_hash": "1b26cdf92a84fd21f1dbfa1732a04b0c",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/drawable-port-xxhdpi/splash.png": {
-    "mtime": 1794345588.7353477,
-    "seen": 1794346313.595225,
+    "mtime": 1794348374.527931,
+    "seen": 1794349313.580212,
     "ast_hash": "87065798ac737b2d8225377bc2a24fef",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/drawable-port-xxxhdpi/splash.png": {
-    "mtime": 1794345588.7353477,
-    "seen": 1794346313.595226,
+    "mtime": 1794348374.527931,
+    "seen": 1794349313.5802138,
     "ast_hash": "b989470fd88f7aee24422d2163beb972",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/drawable/splash.png": {
-    "mtime": 1794345588.7385871,
-    "seen": 1794346313.5952272,
+    "mtime": 1794348374.531318,
+    "seen": 1794349313.580215,
     "ast_hash": "a52921c72871af1a081ba5b22c460ca1",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/mipmap-hdpi/ic_launcher.png": {
-    "mtime": 1794345588.7387118,
-    "seen": 1794346313.5952284,
+    "mtime": 1794348374.5314536,
+    "seen": 1794349313.5802164,
     "ast_hash": "bd74f963219e8f9479fa091f62152caf",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png": {
-    "mtime": 1794345588.7387488,
-    "seen": 1794346313.5952294,
+    "mtime": 1794348374.531491,
+    "seen": 1794349313.5802183,
     "ast_hash": "c0403999855151bf8c45acb6542fb0e8",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png": {
-    "mtime": 1794345588.7387488,
-    "seen": 1794346313.5952308,
+    "mtime": 1794348374.531491,
+    "seen": 1794349313.58022,
     "ast_hash": "9268d986ee0ff8febb50b13649ec9b4c",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/mipmap-mdpi/ic_launcher.png": {
-    "mtime": 1794345588.7387488,
-    "seen": 1794346313.5952318,
+    "mtime": 1794348374.531491,
+    "seen": 1794349313.5802212,
     "ast_hash": "d5ef7bfcd691f029a42aeb540f021f4c",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png": {
-    "mtime": 1794345588.7388659,
-    "seen": 1794346313.5952327,
+    "mtime": 1794348374.5315988,
+    "seen": 1794349313.5802226,
     "ast_hash": "2bd5f6a19165d466ad14febc8e501b68",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png": {
-    "mtime": 1794345588.7388659,
-    "seen": 1794346313.5952344,
+    "mtime": 1794348374.5315988,
+    "seen": 1794349313.580224,
     "ast_hash": "a9d977133dc486831f37d1e00af003cf",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png": {
-    "mtime": 1794345588.7388659,
-    "seen": 1794346313.5952356,
+    "mtime": 1794348374.5315988,
+    "seen": 1794349313.5802252,
     "ast_hash": "091a5910b920565c90cc4598a8df40d9",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png": {
-    "mtime": 1794345588.7389452,
-    "seen": 1794346313.5952365,
+    "mtime": 1794348374.5316534,
+    "seen": 1794349313.5802267,
     "ast_hash": "0dfbd0a1230b3e03655581c90c2d52ff",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png": {
-    "mtime": 1794345588.7389452,
-    "seen": 1794346313.5952375,
+    "mtime": 1794348374.5316534,
+    "seen": 1794349313.5802279,
     "ast_hash": "4f1f8b0dcd7e39ab104afb8296db9714",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png": {
-    "mtime": 1794345588.7389452,
-    "seen": 1794346313.5952384,
+    "mtime": 1794348374.5316534,
+    "seen": 1794349313.5802293,
     "ast_hash": "86256ac0e4999d0d98ddabe54c95e17b",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png": {
-    "mtime": 1794345588.7391133,
-    "seen": 1794346313.5952394,
+    "mtime": 1794348374.5318248,
+    "seen": 1794349313.5802312,
     "ast_hash": "12ed58aab7010fed746dc3171a2c7ea6",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png": {
-    "mtime": 1794345588.7391133,
-    "seen": 1794346313.59524,
+    "mtime": 1794348374.5318248,
+    "seen": 1794349313.5802326,
     "ast_hash": "3c14b6b3eb82d68801dc26cb45dc776f",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png": {
-    "mtime": 1794345588.7391133,
-    "seen": 1794346313.5952415,
+    "mtime": 1794348374.5318248,
+    "seen": 1794349313.580234,
     "ast_hash": "7b7b6fca0a1902b6c59d185616aa8b98",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png": {
-    "mtime": 1794345588.7393813,
-    "seen": 1794346313.5952425,
+    "mtime": 1794348374.532138,
+    "seen": 1794349313.5802352,
     "ast_hash": "9c35877ecd91264b35666e1eb2bc7a32",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png": {
-    "mtime": 1794345588.7393813,
-    "seen": 1794346313.5952435,
+    "mtime": 1794348374.532138,
+    "seen": 1794349313.5802364,
     "ast_hash": "354c2ff70ebd3a1c815589335e5f9f15",
     "semantic_hash": ""
   },
   "public/duniakotak/hapus-akun.html": {
-    "mtime": 1794345588.7860343,
-    "seen": 1794346313.5951507,
+    "mtime": 1794348374.5695078,
+    "seen": 1794349313.5801024,
     "ast_hash": "6699e83de2abd3bb96097c5e394152f9",
     "semantic_hash": ""
   },
   "public/duniakotak/syarat.html": {
-    "mtime": 1794345588.7971015,
-    "seen": 1794346313.595157,
+    "mtime": 1794348374.5800607,
+    "seen": 1794349313.58011,
     "ast_hash": "4ead8d335dec334418bb3536fefa8fc6",
     "semantic_hash": ""
   },
   "notif.js": {
-    "mtime": 1794346269.425499,
-    "seen": 1794346313.5950248,
+    "mtime": 1794348374.5466294,
+    "seen": 1794349313.5799153,
     "ast_hash": "4e8859b2c4de9a1685f69b9b5f42de3a",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/sw.js": {
-    "mtime": 1794346144.2577658,
-    "seen": 1794346313.59508,
+    "mtime": 1794348374.5746293,
+    "seen": 1794349313.5800161,
     "ast_hash": "d5055d2d846df536589b3e75225dd2f3",
     "semantic_hash": ""
   },
+  "public/duniakotak/mabar/js/aset/mobil.js": {
+    "mtime": 1794348914.6639414,
+    "seen": 1794349313.5799885,
+    "ast_hash": "ce31967b0a7d127f5f4d5c7d9cca2875",
+    "semantic_hash": ""
+  },
   "aplikasi-android/package-lock.json": {
-    "mtime": 1794345588.7402587,
-    "seen": 1794346313.5955768,
+    "mtime": 1794348374.533009,
+    "seen": 1794349313.580657,
     "ast_hash": "441ce7625529717e5e22e021a7fb65c6",
     "semantic_hash": ""
   },
