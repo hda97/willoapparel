@@ -1,17 +1,17 @@
 # Graph Report - willoapparel  (2026-11-10)
 
 ## Corpus Check
-- 103 files · ~801,680 words
+- 103 files · ~801,617 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 15 file(s) not represented in the graph (top: .glb 5, (none) 4, .css 4)
 
 ## Summary
-- 2604 nodes · 6103 edges · 106 communities (98 shown, 8 thin omitted)
+- 2604 nodes · 6102 edges · 107 communities (99 shown, 8 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 179 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c5071317`
+- Built from commit: `e08b544f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -119,6 +119,7 @@
 - cekSalip
 - bigYard
 - soalMisi
+- kotak
 
 ## God Nodes (most connected - your core abstractions)
 1. `box()` - 63 edges
@@ -127,27 +128,27 @@
 4. `mulai()` - 43 edges
 5. `Warga` - 41 edges
 6. `V3()` - 39 edges
-7. `aturHUD()` - 38 edges
-8. `rnd()` - 38 edges
+7. `rnd()` - 38 edges
+8. `aturHUD()` - 38 edges
 9. `bunyi()` - 35 edges
 10. `box()` - 31 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `tulis()` --indirect_call--> `KUNCI()`  [INFERRED]
   pelarikalcer/src/game.js → edukasi/smp/src/inti.js
-- `fotoMedali()` --calls--> `pose()`  [EXTRACTED]
-  pelarikalcer-kotak/src/main.js → public/duniakotak/mabar/js/aset/avatar.js
-- `langkah()` --calls--> `pose()`  [EXTRACTED]
-  pelarikalcer-kotak/src/main.js → public/duniakotak/mabar/js/aset/avatar.js
 - `kucing()` --calls--> `kucingMesh()`  [EXTRACTED]
   pelarikalcer-kotak/src/main.js → public/duniakotak/mabar/js/aset/kucing.js
 - `buatSiswa()` --calls--> `warga()`  [EXTRACTED]
   edukasi/smp/src/inti.js → public/duniakotak/mabar/js/aset/avatar.js
+- `langkah()` --calls--> `pose()`  [EXTRACTED]
+  pelarikalcer-kotak/src/main.js → public/duniakotak/mabar/js/aset/avatar.js
+- `buatPemain()` --calls--> `warga()`  [EXTRACTED]
+  pelarikalcer-kotak/src/main.js → public/duniakotak/mabar/js/aset/avatar.js
 
 ## Import Cycles
 - None detected.
 
-## Communities (106 total, 8 thin omitted)
+## Communities (107 total, 8 thin omitted)
 
 ### Community 0 - "duniakotak/js/desa.js"
 Cohesion: 0.06
@@ -263,7 +264,7 @@ Nodes (13): runs-on, steps, jobs, indexnow, name, on, push, workflow_dispatch (+
 
 ### Community 28 - "bangun.js"
 Cohesion: 0.07
-Nodes (32): apiB(), BAHAN, BLN, cakram, cam, cincin, DEBU, dusunNo() (+24 more)
+Nodes (30): apiB(), BAHAN, BLN, cakram, cam, cincin, DEBU, esc() (+22 more)
 
 ### Community 29 - "acak"
 Cohesion: 0.21
@@ -490,8 +491,8 @@ Cohesion: 0.22
 Nodes (3): dusunNo(), mingguWib(), Warga
 
 ### Community 89 - "langkah"
-Cohesion: 0.26
-Nodes (14): bunyi(), catatSesi(), debu(), kabar(), kotak(), langkah(), loop(), mulaiKerja() (+6 more)
+Cohesion: 0.33
+Nodes (11): bunyi(), catatSesi(), debu(), kabar(), langkah(), loop(), mulaiKerja(), munculBagian() (+3 more)
 
 ### Community 90 - "jalankan"
 Cohesion: 0.15
@@ -541,25 +542,29 @@ Nodes (11): bigYard(), cropField(), fruitTree(), fullHouse(), kandang(), lot(), 
 Cohesion: 0.25
 Nodes (8): ambilSoal(), catatJawab(), opsiAngka(), soalAcak(), soalMisi(), soalPilihan(), tampilSoal3(), ubahSoal()
 
+### Community 106 - "kotak"
+Cohesion: 0.67
+Nodes (4): kotak(), NPC, selesaiKerja(), siapAvatar()
+
 ## Knowledge Gaps
 - **1 isolated node(s):** `kelasduniakotak`
-  These have ≤1 connection - possible missing edges. (Counts symbols only; 847 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+  These have ≤1 connection - possible missing edges. (Counts symbols only; 848 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `lepas()` connect `$` to `hitung-rpg/game.js`, `src/game.js`, `bangun.js`?**
-  _High betweenness centrality (0.071) - this node is a cross-community bridge._
+  _High betweenness centrality (0.080) - this node is a cross-community bridge._
 - **Are the 9 inferred relationships involving `mulai()` (e.g. with `ambilHadir()` and `bersihAv()`) actually correct?**
   _`mulai()` has 9 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `kelasduniakotak` to the rest of the system?**
   _1 weakly-connected nodes found - possible missing edges._
 - **Should `duniakotak/js/desa.js` be split into smaller, more focused modules?**
   _Cohesion score 0.06289506953223767 - nodes in this community are weakly interconnected._
-- **Why does `warga()` connect `warga` to `mabar/game.js`, `rnd`, `ktp.js`, `main.js`, `smp/src/inti.js`, `mulai`, `kotak`, `langkah`, `bangun.js`?**
-  _High betweenness centrality (0.032) - this node is a cross-community bridge._
+- **Why does `warga()` connect `warga` to `mabar/game.js`, `rnd`, `ktp.js`, `kotak`, `main.js`, `smp/src/inti.js`, `mulai`, `kotak`, `bangun.js`?**
+  _High betweenness centrality (0.028) - this node is a cross-community bridge._
 - **Should `mabar/game.js` be split into smaller, more focused modules?**
   _Cohesion score 0.015724563206577596 - nodes in this community are weakly interconnected._
-- **Why does `WARNA_RAMBUT` connect `warga` to `ktp.js`, `mabar/game.js`, `main.js`, `smp/src/inti.js`?**
-  _High betweenness centrality (0.014) - this node is a cross-community bridge._
+- **Why does `pose()` connect `ktp.js` to `mabar/game.js`, `main.js`, `langkah`, `kotak`, `langkah`, `bangun.js`, `warga`, `loop`?**
+  _High betweenness centrality (0.017) - this node is a cross-community bridge._
