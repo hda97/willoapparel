@@ -249,12 +249,16 @@ const LOKASI_FASUM = {kafe: ['kulon', 0], polisi: ['curug', 1], hiburan: ['tlaga
 const ASET_CALON = {kafe: ['kafe', '☕ Kafe Bukit'], polisi: ['polisi', '👮 Kantor Polisi'], hiburan: ['hiburan', '🎡 Taman Hiburan']};
 // Pemenang voting → entri BANGUN_VOTING di dusun tujuannya, mis. bangunCalon('kafe', Date.parse('2026-11-14T00:00:00+07:00')).
 const bangunCalon = (c, mulai) => { const [dusun, lahan] = LOKASI_FASUM[c], [aset, nama] = ASET_CALON[c];
-  return {dusun, lahan, fas: lahan, aset, nama, judul: 'PEMBANGUNAN ' + nama.replace(/^\S+ /, '').toUpperCase(), mulai, sampai: mulai + 7 * 864e5}; };
+  return {id: c, dusun, lahan, fas: lahan, aset, nama, judul: 'PEMBANGUNAN ' + nama.replace(/^\S+ /, '').toUpperCase(), mulai, sampai: mulai + 7 * 864e5}; };
 // Fasum pemenang voting yang sedang dibangun (Huda 6 Nov 2026: Taman Kota). Sebelum `sampai` lahannya jadi proyek
 // (pagar seng, perancah, warga offline gotong royong); sesudahnya bangunan jadi otomatis berdiri. Fasum berikutnya: tambah entri baru.
-const BANGUN_VOTING = [{fas: 13, aset: 'tamanKota', nama: '🌳 Taman Kota', judul: 'PEMBANGUNAN TAMAN KOTA', mulai: Date.parse('2026-11-07T00:00:00+07:00'), sampai: Date.parse('2026-11-14T00:00:00+07:00')}];
+const BANGUN_VOTING = [{id: 'taman', fas: 13, aset: 'tamanKota', nama: '🌳 Taman Kota', judul: 'PEMBANGUNAN TAMAN KOTA', mulai: Date.parse('2026-11-07T00:00:00+07:00'), sampai: Date.parse('2026-11-14T00:00:00+07:00')}];
 // pratinjau: ?uji_fasum=kafe → fasum calon itu sudah jadi di dusun tujuannya (tambah &uji_tahap=0..2 untuk melihat proyeknya)
 { const u = new URLSearchParams(location.search), c = u.get('uji_fasum'); if (ASET_CALON[c]) BANGUN_VOTING.push(bangunCalon(c, u.get('uji_tahap') != null ? Date.now() - 864e5 : Date.now() - 8 * 864e5)); }
+// Tukang Kotak (Huda 10 Nov 2026): warga yang ikut membangun lewat /duniakotak/bangun/ mempercepat fasum, jadi tanggal jadi
+// diambil dari server (GET /api/bangun, di-cache 30 dtk). Gagal/lambat (>2,5 dtk) = pakai jadwal asli di atas.
+try { const j = await (await fetch('/duniakotak/api/bangun', {signal: AbortSignal.timeout(2500)})).json();
+  for (const b of BANGUN_VOTING) { const x = (j.proyek || []).find(p => p.id === b.id); if (x && x.sampai > b.mulai && x.sampai <= b.sampai) b.sampai = x.sampai; } } catch (e) {}
 // tahap visual (Huda 6 Nov): sepertiga awal fondasi, sepertiga kedua pasang bata, sepertiga akhir setengah jadi, lalu jadi
 const tahapBangun = b => { const uji = new URLSearchParams(location.search).get('uji_tahap'); if (uji != null) return +uji; const p = (Date.now() - b.mulai) / (b.sampai - b.mulai); return p < 1 / 3 ? 0 : p < 2 / 3 ? 1 : 2; };
 const dusunBangun = b => b.dusun || 'wetan';
@@ -317,6 +321,11 @@ function pasangGapuraCFD(g) {
   GAPURA_CFD = {x: f.x + 8.4 * VS, z: f.z};
 }
 const dekatGapuraCFD = me => !!GAPURA_CFD && Math.hypot(me.position.x - GAPURA_CFD.x, me.position.z - GAPURA_CFD.z) < 4 * VS;
+// Pintu Tukang Kotak: warga yang berdiri di lahan proyek fasum dapat tombol 🔨 Bangun → mini-game membangun (halaman terpisah).
+const dekatProyek = me => !S.tamu && fasumBangun.some(f => {
+  if (!/^🚧/.test(f.nama || '')) return false; const x = me.position.x, z = me.position.z, k = f.rect, d = 2 * VS;
+  return k ? x > k[0] - d && x < k[1] + d && z > k[2] - d && z < k[3] + d : Math.hypot(x - f.position.x, z - f.position.z) < 6 * VS; });
+function ikutBangun() { bunyi('masuk'); toast('🔨 Pakai helm dulu, menuju lahan proyek…', 1500); setTimeout(() => { location.href = '/duniakotak/bangun/?dari=desa&dusun=' + DI; }, 500); }
 function ikutLari() { bunyi('masuk'); toast('🏃 Menuju garis start Pelari Kalcer…', 1500); setTimeout(() => { location.href = '/pelarikalcer/?dari=desa'; }, 500); }
 // bagian atas tiap fasum (atap, dinding atas, lantai 2) = grup sendiri supaya bisa disembunyikan saat warga ada di dalam
 function pasangAtasFasum(daftar) {
@@ -1193,7 +1202,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', lamamain: 'dk_kabar_lamamain1'};
+const KABAR_LAMA = {ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   const baru = [...document.querySelectorAll('#panelKabar .kbItem[data-k]')].filter(e => !baca(KABAR_LAMA[e.dataset.k]));
@@ -1201,7 +1210,7 @@ function kabarBaru(n = 0) {
   const sibuk = [...document.querySelectorAll('.layarPenuh')].some(e => !e.hidden) || (typeof pemulaKini === 'function' && pemulaKini() && n < 40);
   if (sibuk) { if (n < 120) setTimeout(() => kabarBaru(n + 1), 5000); return; }
   document.querySelectorAll('#panelKabar .kbItem[data-k]').forEach(e => { e.hidden = !baru.includes(e); });
-  $('kbAjakBtn').hidden = !baru.some(e => e.dataset.k === 'ajak'); $('kbRumahBtn').hidden = !baru.some(e => e.dataset.k === 'rumah'); $('kbAlbumBtn').hidden = !baru.some(e => e.dataset.k === 'album'); $('kbPasarBtn').hidden = !baru.some(e => e.dataset.k === 'pasar'); $('kbVotingBtn').hidden = !baru.some(e => e.dataset.k === 'tersebar'); $('kbNpcBtn').hidden = !baru.some(e => e.dataset.k === 'npc') || DI !== 'wetan' || !I.fas?.[11];
+  $('kbTukangBtn').hidden = !baru.some(e => e.dataset.k === 'tukang'); $('kbAjakBtn').hidden = !baru.some(e => e.dataset.k === 'ajak'); $('kbRumahBtn').hidden = !baru.some(e => e.dataset.k === 'rumah'); $('kbAlbumBtn').hidden = !baru.some(e => e.dataset.k === 'album'); $('kbPasarBtn').hidden = !baru.some(e => e.dataset.k === 'pasar'); $('kbVotingBtn').hidden = !baru.some(e => e.dataset.k === 'tersebar'); $('kbNpcBtn').hidden = !baru.some(e => e.dataset.k === 'npc') || DI !== 'wetan' || !I.fas?.[11];
   baru.forEach(e => simpan(KABAR_LAMA[e.dataset.k], '1')); bunyi('masuk');
   ambilAjakSingkat();
   $('panelKabar').hidden = false;
@@ -1210,6 +1219,7 @@ function kabarBaru(n = 0) {
   // NPC fasum (Huda 9 Nov 2026): antar ke pintu IGD Rumah Sakit (fas[11])
   $('kbNpcBtn').onclick = () => { $('panelKabar').hidden = true; const f = I.fas[11]; mulaiRute({x: f.x + 6.6 * VS, z: f.z + .6 * VS, nama: 'Rumah Sakit'}, true); };
   $('kbPasarBtn').onclick = () => { $('panelKabar').hidden = true; bukaPasar(); };
+  $('kbTukangBtn').onclick = () => { $('panelKabar').hidden = true; ikutBangun(); };
   $('kbVotingBtn').onclick = () => { $('panelKabar').hidden = true; bukaVoting(); };
   $('kbAlbumBtn').onclick = () => { $('panelKabar').hidden = true; bukaAlbum(); };
   $('kbRumahBtn').onclick = () => { $('panelKabar').hidden = true; $('panelPeringkat').hidden = false; tabPeringkat('rumah'); };
@@ -1646,7 +1656,7 @@ function animSkill(dt, me) {
   // tombol skill menyala bila bisa dipakai
   const t = now | 0; if (t % 4 === 0 || !animSkill.t || now - animSkill.t > 300) { animSkill.t = now;
     // tombol hanya muncul saat skill bisa dipakai; joran sedang dipakai = tombol Mancing hilang
-    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sSuka: !!rumahTetangga(me), sLari: dekatGapuraCFD(me), sPasar: dekatPasar(me), sLift: !!(I.gedung && I.gedung.dekatLift(me.position.x, me.position.z))};
+    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sSuka: !!rumahTetangga(me), sLari: dekatGapuraCFD(me), sBangun: dekatProyek(me), sPasar: dekatPasar(me), sLift: !!(I.gedung && I.gedung.dekatLift(me.position.x, me.position.z))};
     for (const id in bisa) { const b = $(id); if (b.classList.contains('siap') !== bisa[id] || b.hidden === bisa[id]) { b.classList.toggle('siap', bisa[id]); b.hidden = !bisa[id]; } }
     if (air) misiMaju('sungai'); }
 }
@@ -2748,7 +2758,7 @@ function aturHUD() {
   $('bDusun').onclick = pilihDusun;
   musikSiap();
   // pointerdown (bukan click): click tidak terpicu di HP saat jari lain masih menahan joystick -> bisa lompat sambil lari
-  $('sLari').onclick = ikutLari; $('sPasar').onclick = bukaPasar;
+  $('sLari').onclick = ikutLari; $('sBangun').onclick = ikutBangun; $('sPasar').onclick = bukaPasar;
   $('bPasar').onclick = () => { $('panelAtur').hidden = true; bukaPasar(); }; $('tutupPasar').onclick = () => { $('panelPasar').hidden = true; };
   $('sLift').onclick = () => { const d = I.gedung && I.gedung.dekatLift(tokoh.saya.position.x, tokoh.saya.position.z); if (d) bukaLift(d); };
   $('sLompat').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); mulaiLompat(); }); $('sTendang').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); skillTendang(); }); $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan(); $('sPanen').onclick = () => skillPanen(); $('sTanam').onclick = () => bukaTanam(); $('sJual').onclick = () => skillJual(); $('sKerja').onclick = () => skillKerja(); $('sSuka').onclick = () => sukaRumah(); $('tutupKerja').onclick = () => { $('panelKerja').hidden = true; }; $('tutupTanam').onclick = () => { $('panelTanam').hidden = true; };

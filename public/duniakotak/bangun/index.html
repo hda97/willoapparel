@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Tukang Kotak · Dunia Kotak</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#13141f">
+<link rel="icon" href="/duniakotak/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap">
+<style>
+/* Tukang Kotak (Huda 10 Nov 2026): mini-game membangun fasum pemenang voting. Kanvas 3D penuh layar, panel kaca navy. */
+:root{--navy:#2c3150;--kaca:rgba(30,33,56,.82);--teks:#f4f2ff;--redup:rgba(244,242,255,.68);--kuning:#f2c14a;--hijau:#3aa860;--merah:#e0503a;--f:"Montserrat",system-ui,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:#bfe4ff;color:var(--teks);font-family:var(--f);overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:none}
+#kanvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+[hidden]{display:none!important}
+button,a.tombol{font-family:var(--f);cursor:pointer;border:0;color:inherit;text-decoration:none}
+button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
+.kaca{background:var(--kaca);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:16px}
+.utama{display:block;width:100%;text-align:center;background:var(--kuning);color:#1d1d22;font-weight:900;font-size:17px;padding:13px;border-radius:14px;box-shadow:0 4px 0 #b88a1e}
+.utama:active{transform:translateY(3px);box-shadow:0 1px 0 #b88a1e}
+.utama:disabled{opacity:.5}
+.kedua{display:block;width:100%;text-align:center;background:rgba(255,255,255,.12);font-weight:800;font-size:13px;padding:10px;border-radius:12px}
+.kecil{font-size:11px;line-height:1.45;color:var(--redup);margin:0}
+/* LOBI */
+#lobi{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));left:max(14px,env(safe-area-inset-left,0px));width:min(340px,calc(100vw - 28px));display:flex;flex-direction:column;gap:9px;overflow-y:auto;padding:2px;scrollbar-width:none}
+#lobi::-webkit-scrollbar{display:none}
+.judul small{display:block;font-size:10px;font-weight:800;letter-spacing:.18em;color:var(--kuning)}
+.judul h1{margin:2px 0 0;font-size:34px;font-weight:900;line-height:.95;color:#fff;text-shadow:0 3px 0 rgba(19,20,31,.35)}
+.judul h1 span{color:var(--kuning)}
+.status{padding:11px 13px;display:grid;gap:6px}
+.status b{font-size:14px}
+.bar{position:relative;height:14px;border-radius:999px;background:rgba(255,255,255,.15);overflow:hidden}
+.bar span{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--hijau),#7ad06a);border-radius:999px}
+.bar em{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:9.5px;font-weight:900;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.cepat{font-size:11.5px;font-weight:800;color:#9ef0a0}
+.tahap{display:flex;gap:4px}.tahap i{flex:1;font-style:normal;text-align:center;font-size:9.5px;font-weight:800;padding:4px 2px;border-radius:8px;background:rgba(255,255,255,.08);color:var(--redup)}
+.tahap i.on{background:var(--kuning);color:#1d1d22}.tahap i.lewat{background:rgba(58,168,96,.45);color:#fff}
+.papan{padding:10px 12px}
+.papan h2{margin:0 0 6px;font-size:12px;font-weight:900;letter-spacing:.04em}
+.daftar{display:grid;gap:3px;max-height:150px;overflow-y:auto}
+.daftar div{display:flex;gap:8px;align-items:center;font-size:12px;font-weight:700;padding:4px 6px;border-radius:8px;background:rgba(255,255,255,.06)}
+.daftar div.saya{background:rgba(242,193,74,.25)}
+.daftar span{width:18px;text-align:center;font-weight:900;color:var(--kuning)}.daftar b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.daftar em{font-style:normal;font-size:11px;color:var(--redup)}
+#dompet{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:max(14px,env(safe-area-inset-right,0px));padding:8px 13px;font-weight:900;font-size:15px}
+/* HUD KERJA */
+#hud{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);padding:8px 16px;text-align:center;min-width:220px}
+#hud small{display:block;font-size:9.5px;font-weight:800;letter-spacing:.16em;color:var(--kuning)}
+#hud b{display:block;font-size:17px;font-weight:900}
+#hud .titik{display:flex;gap:5px;justify-content:center;margin-top:5px}#hud .titik i{width:26px;height:5px;border-radius:9px;background:rgba(255,255,255,.2)}#hud .titik i.on{background:var(--kuning)}#hud .titik i.ok{background:var(--hijau)}
+#info{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:max(14px,env(safe-area-inset-right,0px));padding:8px 13px;font-weight:900;font-size:15px;text-align:right}
+#info small{display:block;font-size:9.5px;color:var(--redup);font-weight:800}
+#kabur{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:max(14px,env(safe-area-inset-left,0px));padding:9px 13px;font-size:12px;font-weight:800}
+#petunjuk{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:9px 16px;font-size:13px;font-weight:800;text-align:center;max-width:calc(100vw - 28px)}
+/* aduk semen: meter ritme */
+#meter{position:fixed;left:50%;bottom:calc(64px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(420px,calc(100vw - 40px));padding:12px}
+#meter .jalur{position:relative;height:30px;border-radius:12px;background:rgba(255,255,255,.14);overflow:hidden}
+#zona{position:absolute;top:0;bottom:0;background:rgba(58,168,96,.75);border-radius:8px}
+#zona::after{content:"";position:absolute;top:0;bottom:0;left:35%;right:35%;background:rgba(158,240,160,.9);border-radius:6px}
+#jarum{position:absolute;top:-3px;bottom:-3px;width:6px;margin-left:-3px;background:#fff;border-radius:4px;box-shadow:0 0 0 2px #1d1d22}
+/* cat dinding */
+#cat{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+#tembok{width:min(560px,calc(100vw - 40px));height:min(300px,calc(100vh - 150px));border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.35);pointer-events:auto;touch-action:none;background:#c9c3b6}
+/* banner tugas & hitung mundur */
+#banner{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);padding:16px 24px;text-align:center;min-width:240px}
+#banner i{display:block;font-style:normal;font-size:40px}
+#banner b{display:block;font-size:22px;font-weight:900}
+#banner small{display:block;font-size:12px;color:var(--redup);margin-top:4px;max-width:300px}
+#nilai{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);font-size:30px;font-weight:900;color:#fff;text-shadow:0 3px 0 rgba(19,20,31,.5);pointer-events:none;transition:opacity .4s,transform .4s}
+/* HASIL (pop up muat layar HP) */
+.popup{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,12,24,.45);padding:12px}
+.popup .isi{width:min(380px,100%);max-height:calc(100vh - 24px);overflow-y:auto;padding:16px;display:grid;gap:9px}
+.popup h2{margin:0;font-size:22px;font-weight:900;text-align:center}
+.baris{display:flex;justify-content:space-between;font-size:13px;font-weight:700;padding:6px 10px;border-radius:9px;background:rgba(255,255,255,.07)}
+.baris.besar{font-size:15px;font-weight:900;background:rgba(242,193,74,.2)}
+.hadiah{display:grid;gap:4px;text-align:center;font-weight:800;font-size:13px}
+.hadiah .cepat{font-size:13px}
+.dua{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}
+@media (max-height:430px){#lobi{gap:6px}.judul h1{font-size:24px}.papan{padding:7px 10px}.papan h2{margin-bottom:4px}#lAturan{font-size:10.5px;padding:6px 10px!important}.kedua{padding:8px}.status{padding:8px 11px;gap:4px}.utama{padding:10px;font-size:15px}.daftar{max-height:84px}#meter{bottom:54px}#petunjuk{bottom:8px;font-size:12px;padding:7px 12px}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js","three/addons/geometries/RoundedBoxGeometry.js":"/duniakotak/mabar/js/kotakBulat.js?v=20261108r","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
+</head>
+<body>
+<canvas id="kanvas"></canvas>
+
+<div id="lobi">
+ <div class="judul"><small>🔨 TUKANG KOTAK</small><h1>Bangun <span id="lNama">fasum</span></h1></div>
+ <div class="kaca status" id="lStatus"><b>Memuat proyek…</b></div>
+ <button class="utama" id="bMulai" disabled>🔨 MULAI KERJA</button>
+ <p class="kecil kaca" style="padding:8px 11px" id="lAturan">1 sesi = 3 tugas: aduk semen, susun batako, cat dinding. Tiap sesi membuat fasum jadi lebih cepat.</p>
+ <div class="kaca papan"><h2>👷 Tukang teladan proyek ini</h2><div class="daftar" id="lTop"><div><b>Belum ada tukang. Jadilah yang pertama!</b></div></div></div>
+ <a class="kedua tombol" id="bDesa" href="/duniakotak/mabar/">← Kembali ke desa</a>
+</div>
+<div id="dompet" class="kaca" hidden></div>
+
+<button id="kabur" class="kaca" hidden>✕ Berhenti</button>
+<div id="hud" class="kaca" hidden><small id="hTahap">TUGAS 1 DARI 3</small><b id="hJudul">Aduk semen</b><div class="titik"><i></i><i></i><i></i></div></div>
+<div id="info" class="kaca" hidden><span id="iAngka">0</span><small id="iLabel">skor</small></div>
+<div id="petunjuk" class="kaca" hidden></div>
+<div id="meter" class="kaca" hidden><div class="jalur"><div id="zona"></div><div id="jarum"></div></div></div>
+<div id="cat" hidden><canvas id="tembok"></canvas></div>
+<div id="banner" class="kaca" hidden><i id="bIkon">🪣</i><b id="bJudul">Aduk semen</b><small id="bKet"></small></div>
+<div id="nilai" style="opacity:0"></div>
+
+<div id="hasil" class="popup" hidden>
+ <div class="isi kaca">
+  <h2 id="hsJudul">Kerja bagus! 💪</h2>
+  <div id="hsRinci"></div>
+  <div class="hadiah" id="hsHadiah"></div>
+  <div class="dua"><a class="kedua tombol" id="bDesa2" href="/duniakotak/mabar/">Ke desa</a><button class="utama" id="bLagi">🔨 KERJA LAGI</button></div>
+ </div>
+</div>
+<script type="module" src="bangun.js?v=20261110a"></script>
+</body>
+</html>
