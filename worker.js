@@ -618,7 +618,9 @@ export class Warga extends DurableObject {
     const fitur = q("SELECT hari, aksi, n FROM fitur WHERE hari >= ? ORDER BY hari", hariWib(now - 14 * 864e5));
     const donasi = q("SELECT date((t + 25200000) / 1000, 'unixepoch') AS h, COUNT(*) AS n, SUM(rp) AS rp FROM donasi GROUP BY h ORDER BY h");
     const arus = q("SELECT hari, jenis, n FROM arus WHERE hari >= ? ORDER BY hari", hariWib(now - 14 * 864e5));
-    return { waktu: now, warga: rows.length, daftar, aktif: a, ekonomi: { koin, koinTotal, permata, bintang }, kebun, kucing, rumah2, bagi, misiHariIni, misiPenuh, menit, profesi, fitur, donasi, arus, voting: this.hasilVoting(), baru: this.statistikFiturBaru(rows, hari), mainHariIni: mainHariIni.sort((x, y) => y.m - x.m).slice(0, 10) };
+    return { waktu: now, warga: rows.length, daftar, aktif: a, ekonomi: { koin, koinTotal, permata, bintang }, kebun, kucing, rumah2, bagi, misiHariIni, misiPenuh, menit, profesi, fitur, donasi, arus, voting: this.hasilVoting(), baru: this.statistikFiturBaru(rows, hari), mainHariIni: mainHariIni.sort((x, y) => y.m - x.m).slice(0, 10),
+      // Donasi terbaru (Huda 10 Nov: "donasi 15000 itu dari siapa"): nama pengirim di Trakteer + warga dari kode DK. Pesan tidak ikut.
+      donasiTerbaru: q("SELECT d.t, d.no, d.rp, d.nama, w.ig, w.tiktok FROM donasi d LEFT JOIN warga w ON w.no = d.no ORDER BY d.t DESC LIMIT 10").map((x) => ({ t: x.t, no: x.no || 0, rp: x.rp || 0, nama: String(x.nama || "").slice(0, 40), u: x.ig || x.tiktok || "" })) };
   }
   // Laporan fitur baru 9-10 Nov 2026 (Tukang Kotak, Toko Willo, Piala, Lomba Rumah, Ajak) untuk dashboard Huda.
   // Hanya membaca tabel yang sudah ada (tanpa tulis), angka agregat tanpa nama.
