@@ -573,6 +573,12 @@ export class Warga extends DurableObject {
   async fetch(request) {
     const aksi = new URL(request.url).pathname.slice(1);
     if (aksi === "statistik") return Response.json(this.statistik());
+    // Nama warga untuk papan "main paling lama" di dashboard Huda (hanya dipanggil statistikDashboard, maks 20 nomor).
+    if (aksi === "nama-dash") {
+      const nos = (new URL(request.url).searchParams.get("no") || "").split(",").map((x) => Math.floor(+x)).filter((x) => x > 0).slice(0, 20), out = {};
+      for (const no of nos) { const r = this.sql.exec("SELECT no, ig, tiktok, nama FROM warga WHERE no = ?", no).toArray()[0]; if (r) out[no] = this.nm(r) || r.nama || ""; }
+      return Response.json(out);
+    }
     // Jejak keluar (Huda 10 Nov 2026): kapan & di layar mana warga menutup game, lama layar memuat. Angka saja, tanpa nama.
     if (aksi === "jejak") {
       const q = await request.json().catch(() => ({})), hari = hariWib();
@@ -591,7 +597,8 @@ export class Warga extends DurableObject {
   // Ringkasan untuk dashboard Huda (/duniakotak/dashboard/). Angka agregat saja, tanpa email.
   statistik() {
     const now = Date.now(), q = (sql, ...a) => this.sql.exec(sql, ...a).toArray();
-    const rows = q("SELECT no, dibuat, aktif, koin, koinTotal, permata, kebun, profesi, kucing, hias, bagi, misi, bintang FROM warga");
+    const rows = q("SELECT no, ig, tiktok, nama, dibuat, aktif, koin, koinTotal, permata, kebun, profesi, kucing, hias, bagi, misi, bintang FROM warga");
+    const mainHariIni = [];
     const hari = hariWib(), daftar = {}, aktifHari = {};
     const menit = { warga: 0, total: 0, m15: 0, m30: 0, m60: 0 };
     let koin = 0, koinTotal = 0, permata = 0, kebun = 0, kucing = 0, rumah2 = 0, bagi = 0, misiHariIni = 0, misiPenuh = 0, bintang = 0;
@@ -606,12 +613,34 @@ export class Warga extends DurableObject {
       if (this.bacaHias(r).rumah === "dua") rumah2++;
       if (r.profesi) { const p = this.bacaProfesi(r); if (p.p.length) for (const x of p.p) { const nm = PROFESI[x].ikon + " " + PROFESI[x].nama; profesi[nm] = (profesi[nm] || 0) + 1; } }
       try { const m = r.misi ? JSON.parse(r.misi) : null; if (m && m.t === hari && m.s && m.s.length) { misiHariIni++; if (m.s.includes("bonus")) misiPenuh++; }
-        if (m && m.t === hari && m.mm) { menit.warga++; menit.total += m.mm; if (m.mm >= 15) menit.m15++; if (m.mm >= 30) menit.m30++; if (m.mm >= 60) menit.m60++; } } catch (e) {}
+        if (m && m.t === hari && m.mm) { mainHariIni.push({ no: r.no, u: this.nm(r) || r.nama || "", m: m.mm }); menit.warga++; menit.total += m.mm; if (m.mm >= 15) menit.m15++; if (m.mm >= 30) menit.m30++; if (m.mm >= 60) menit.m60++; } } catch (e) {}
     }
     const fitur = q("SELECT hari, aksi, n FROM fitur WHERE hari >= ? ORDER BY hari", hariWib(now - 14 * 864e5));
     const donasi = q("SELECT date((t + 25200000) / 1000, 'unixepoch') AS h, COUNT(*) AS n, SUM(rp) AS rp FROM donasi GROUP BY h ORDER BY h");
     const arus = q("SELECT hari, jenis, n FROM arus WHERE hari >= ? ORDER BY hari", hariWib(now - 14 * 864e5));
-    return { waktu: now, warga: rows.length, daftar, aktif: a, ekonomi: { koin, koinTotal, permata, bintang }, kebun, kucing, rumah2, bagi, misiHariIni, misiPenuh, menit, profesi, fitur, donasi, arus, voting: this.hasilVoting() };
+    return { waktu: now, warga: rows.length, daftar, aktif: a, ekonomi: { koin, koinTotal, permata, bintang }, kebun, kucing, rumah2, bagi, misiHariIni, misiPenuh, menit, profesi, fitur, donasi, arus, voting: this.hasilVoting(), baru: this.statistikFiturBaru(rows, hari), mainHariIni: mainHariIni.sort((x, y) => y.m - x.m).slice(0, 10) };
+  }
+  // Laporan fitur baru 9-10 Nov 2026 (Tukang Kotak, Toko Willo, Piala, Lomba Rumah, Ajak) untuk dashboard Huda.
+  // Hanya membaca tabel yang sudah ada (tanpa tulis), angka agregat tanpa nama.
+  statistikFiturBaru(rows, hari) {
+    const q = (sql, ...a) => { try { return this.sql.exec(sql, ...a).toArray(); } catch (e) { return []; } }, mg = mingguWib();
+    const kaos = { punya: 0, lemari: 0, disablon: 0, sablon: {} };
+    for (const r of rows) {
+      const K = this.bacaHias(r).kaos; if (!K || typeof K !== "object") continue;
+      const L = Array.isArray(K.lemari) ? K.lemari : [];
+      if (L.length) kaos.punya++; kaos.lemari += L.length; if (K.pesan) kaos.disablon++;
+      for (const k of L) if (k && k.d) kaos.sablon[k.d] = (kaos.sablon[k.d] || 0) + 1;
+    }
+    let tukang = null;
+    try {
+      const b = this.infoBangun().aktif;
+      if (b) { const h = q("SELECT COUNT(*) AS w, COALESCE(SUM(sh), 0) AS s FROM tukang WHERE fas = ? AND hari = ? AND sh > 0", b.id, hari)[0] || {};
+        tukang = { nama: b.nama, mulai: b.mulai, sampai: b.sampai, sampaiAsli: b.sampaiAsli, maju: b.maju, sesi: b.sesi, tukang: b.tukang, sesiHariIni: h.s || 0, tukangHariIni: h.w || 0 }; }
+    } catch (e) {}
+    const rumah = q("SELECT COUNT(*) AS suka, COUNT(DISTINCT dari) AS pemberi, COUNT(DISTINCT ke) AS rumah FROM rumahSuka WHERE mg = ?", mg)[0] || {};
+    const ajak = q("SELECT COUNT(ajak) AS daftar, COUNT(ajakOk) AS main FROM warga")[0] || {};
+    const jr = this.juraganKini();
+    return { mg, kaos, tukang, piala: this.klasemenPiala(mg), rumah, ajak, juragan: jr && jr.mg === mg ? 1 : 0 };
   }
   async layani(request) {
     const u = new URL(request.url);
@@ -1605,8 +1634,14 @@ async function statistikDashboard(env, stub) {
   });
   const b = [[0, 1], [1, 5], [5, 15], [15, 30], [30, 60], [60, 1e9]];
   const sebaran = b.map(([x, y]) => ({ dari: x, sampai: y, n: lama.filter((m) => m >= x && m < y).length }));
+  // Warga main paling lama 7 hari (dari sesi dusun), 10 teratas + nama.
+  const batas7 = Date.parse(hariWibT(now - 6 * 864e5) + "T00:00:00+07:00"), perW = new Map();
+  for (const s of sesi) { if (s.masuk < batas7) continue; const p = perW.get(s.no) || { no: s.no, m: 0, sesi: 0, hari: new Set(), terlama: 0 };
+    const mnt = (s.akhir - s.masuk) / 60000; p.m += mnt; p.sesi++; p.hari.add(hariWibT(s.masuk)); p.terlama = Math.max(p.terlama, mnt); perW.set(s.no, p); }
+  const top7 = [...perW.values()].sort((a, b) => b.m - a.m).slice(0, 10).map((p) => ({ no: p.no, m: Math.round(p.m), sesi: p.sesi, hari: p.hari.size, terlama: Math.round(p.terlama) }));
+  if (top7.length) { try { const nm = await (await stub.fetch("https://do/nama-dash?no=" + top7.map((x) => x.no).join(","))).json(); for (const x of top7) x.u = nm[x.no] || ""; } catch (e) {} }
   const pemain = hariWarga.size, balik = [...hariWarga.values()].filter((s) => s.size >= 2).length;
-  return { ...w, online, hari, jam, sebaran, ringkas: { sesi: sesi.length, pemain, balik, rata: lama.length ? +(lama.reduce((a, b) => a + b, 0) / lama.length).toFixed(1) : 0, median: +median(lama).toFixed(1), sesiPerPemain: pemain ? +(sesi.length / pemain).toFixed(2) : 0, mulaiCatat: mentah.length ? Math.min(...mentah.map((x) => x.masuk)) : 0 } };
+  return { ...w, online, hari, jam, sebaran, mainTerlama: top7, ringkas: { sesi: sesi.length, pemain, balik, rata: lama.length ? +(lama.reduce((a, b) => a + b, 0) / lama.length).toFixed(1) : 0, median: +median(lama).toFixed(1), sesiPerPemain: pemain ? +(sesi.length / pemain).toFixed(2) : 0, mulaiCatat: mentah.length ? Math.min(...mentah.map((x) => x.masuk)) : 0 } };
 }
 
 // Hemat kuota Durable Objects (10 Nov 2026: semua API warga sempat mati, dugaan batas harian Cloudflare habis).
@@ -1693,7 +1728,14 @@ async function apiWargaInti(request, env, url) {
   try { body = await request.json(); } catch (e) { return json({ galat: "Data tidak terbaca" }, 400); }
   const bersihUsulan = (v) => String(v || "").replace(/[\u0000-\u001f<>]/g, " ").trim().slice(0, 140);
   // Dashboard pantau warga (Huda 7 Nov 2026: tanpa kunci). Halaman tidak ditautkan dari game.
-  if (aksi === "statistik") return json(await statistikDashboard(env, stub));
+  // Hemat kuota: satu laporan (±11 panggilan database) dipakai bersama selama 60 detik oleh semua tab/HP yang membuka dashboard.
+  if (aksi === "statistik") {
+    const kunci = new Request(url.origin + "/duniakotak/api/statistik-cache", { method: "GET" }), cache = typeof caches !== "undefined" ? caches.default : null;
+    if (cache && !body.segar) { try { const ada = await cache.match(kunci); if (ada) return ada; } catch (e) {} }
+    const res = json(await statistikDashboard(env, stub));
+    if (cache) { try { const h = new Headers(res.headers); h.set("cache-control", "public, max-age=60"); await cache.put(kunci, new Response(res.clone().body, { headers: h })); } catch (e) {} }
+    return res;
+  }
   if (aksi === "jejak") {
     await stub.fetch("https://do/jejak", { method: "POST", body: JSON.stringify({ m: String(body.m || "").slice(0, 6), d: String(body.d || "").slice(0, 8), p: String(body.p || "").slice(0, 16) }) });
     return json({ ok: 1 });
