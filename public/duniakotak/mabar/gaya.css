@@ -126,11 +126,12 @@ canvas#layar{touch-action:none}
 #petaInfo{margin-top:8px;min-height:20px}
 
 /* NPC warga desa, bangunan fasum, jejak warga asli */
-.nm.npc{background:rgba(70,58,40,.86);font-size:11px;cursor:pointer}
-.nm.npc::after{content:" 💬"}
+.nm.npc{background:rgba(70,58,40,.78);font-size:8.5px;padding:1px 6px;cursor:pointer}
+.nm.npc::after{content:" 💬";font-size:7.5px}
 .nm.fasum{background:rgba(255,255,255,.92);color:#2a2418;font-size:12px;pointer-events:none}
 .nm.jejak{background:rgba(255,255,255,.85);color:#3a3428;font-size:10.5px;padding:2px 7px;pointer-events:none}
-.nm.npcw{background:rgba(70,74,96,.72);color:#e6e8f2;font-size:11px;pointer-events:none}
+.nm.npcw{background:rgba(70,74,96,.62);color:#e6e8f2;font-size:8.5px;padding:1px 6px;pointer-events:none}
+.nm.npcl{background:rgba(19,20,31,.6);font-size:8.5px;padding:1px 6px;pointer-events:none}
 #ngobrol{position:fixed;left:50%;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom));width:min(520px,calc(calc(100*var(--vw,1vw)) - 340px));min-width:260px;padding:12px 16px;z-index:21}
 #ngobrol .siapa{font-weight:900;color:#ffcf7a;font-size:13px}
 #ngobrol p{margin:4px 0 10px;font-weight:700;font-size:14px;line-height:1.4}
