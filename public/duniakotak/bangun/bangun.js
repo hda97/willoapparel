@@ -159,7 +159,7 @@ function tulisHud() {
   $('hNama').textContent = '🚧 ' + (a ? a.nama.replace(/^\S+ /, '') : 'Latihan');
   $('hPersen').textContent = Math.round(p * 100) + '%'; $('hBar').style.width = (p * 100).toFixed(1) + '%';
   const sisa = TK_BAHAN - KERJA.sesiBahan;
-  $('hSesi').innerHTML = AKUN && a ? `Setor <b>${sisa}</b> bahan lagi → fasum ⚡ 20 menit lebih cepat + 🪙` : 'Latihan: masuk sebagai warga supaya kerjamu tercatat';
+  $('hSesi').innerHTML = AKUN && a ? `<b>${sisa}</b> bahan lagi → ⚡ 20 menit lebih cepat` : 'Latihan: masuk sebagai warga supaya kerjamu tercatat';
   $('tAngka').textContent = `${SAYA.bawa.length}/${MUAT}`; $('tas').classList.toggle('penuh', SAYA.bawa.length >= MUAT);
 }
 function petunjuk() {
@@ -262,22 +262,21 @@ function tulisLobi() {
   const d = INFO || {}, a = d.aktif, s = d.saya, at = d.aturan || {};
   $('lNama').textContent = a ? a.nama.replace(/^\S+ /, '') : 'fasum';
   if (!a) {
-    $('lStatus').innerHTML = `<b>🎉 Semua fasum sudah jadi!</b><p class="kecil">Proyek berikutnya dimulai begitu voting fasum ditutup. Taruh ⭐ bintangmu di menu ⚙ Atur → Voting di desa.</p>`;
-    $('bMulai').textContent = '🔨 MAIN LATIHAN';
+    $('lStatus').innerHTML = `<b>🎉 Semua fasum sudah jadi!</b><div class="cepat">Proyek berikutnya mulai setelah voting ditutup.</div>`;
+    $('bMulai').textContent = '🔨 LATIHAN';
   } else {
     const kini = Date.now(), p = tahapDari(a);
     $('lStatus').innerHTML = `<div class="bar"><span style="width:${(p * 100).toFixed(1)}%"></span><em>${Math.round(p * 100)}% · jadi ${lama(a.sampai - kini)} lagi</em></div>
-      <p class="kecil">📍 ${NAMA_DUSUN[a.dusun] || 'Dunia Kotak'} · jadi <b style="color:#fff">${tglWib(a.sampai)}</b></p>
-      ${a.maju > 0 ? `<div class="cepat">⚡ ${lama(a.maju)} lebih cepat berkat ${a.tukang} tukang</div>` : '<div class="cepat">⚡ Belum ada yang ikut kerja. Ayo jadi tukang pertama!</div>'}`;
-    $('bMulai').textContent = AKUN ? '🔨 MULAI KERJA' : '🔨 MAIN LATIHAN';
+      <div class="cepat">${a.maju > 0 ? `⚡ ${lama(a.maju)} lebih cepat berkat ${a.tukang} tukang` : '⚡ Ayo jadi tukang pertama!'}</div>`;
+    $('bMulai').textContent = AKUN ? '🔨 MULAI KERJA' : '🔨 LATIHAN';
   }
   $('bMulai').disabled = false;
   const ms = at.maju ? Math.round(at.maju / 60e3) : 20;
-  $('lAturan').innerHTML = AKUN && s
-    ? `Angkut bata, kayu, semen ke gerbang proyek. Tiap <b>${TK_BAHAN} bahan</b> = fasum <b>${ms} menit lebih cepat</b>${s.sisaMaju ? '' : ' (jatah hari ini habis)'} + koin & poin Piala ${NAMA_DUSUN[dusunNo(s.no)] || ''} (sisa <b>${s.sisaKoin}/${at.sesiKoin || 3}</b> hari ini).`
-    : `Kamu main sebagai tamu, jadi ini latihan. <a href="/duniakotak/mabar/" style="color:var(--kuning)">Masuk sebagai warga</a> supaya kerjamu mempercepat fasum dan dapat koin.`;
-  const top = a?.top || [];
-  $('lTop').innerHTML = top.length ? top.map((x, i) => `<div class="${s && x.no === s.no ? 'saya' : ''}"><span>${i + 1}</span><b>@${esc(x.u)}</b><em>${x.sesi * TK_BAHAN} bahan</em></div>`).join('') : '<div><b>Belum ada tukang. Jadilah yang pertama!</b></div>';
+  $('lAturan').textContent = AKUN && s
+    ? (s.sisaMaju ? `${TK_BAHAN} bahan = fasum ⚡ ${ms} menit lebih cepat${s.sisaKoin ? ' + 🪙' : ''}` : 'Jatah hari ini habis, tetap boleh bantu 💪')
+    : 'Tamu = latihan. Masuk sebagai warga agar tercatat.';
+  const top = (a?.top || []).slice(0, 3);
+  $('lTop').innerHTML = top.map((x, i) => `<span class="kaca${s && x.no === s.no ? ' saya' : ''}">${['🥇', '🥈', '🥉'][i]} @${esc(x.u)}</span>`).join('');
   if (s) { $('dompet').hidden = false; $('dompet').textContent = `🪙 ${s.koin} · 💎 ${s.permata}`; }
 }
 async function muat() {
@@ -301,11 +300,13 @@ function selesaiKerja() {
   for (const id of ['kabur', 'hud', 'tas', 'stik', 'petunjuk']) $(id).hidden = true;
   const sisa = TK_BAHAN - KERJA.sesiBahan;
   $('hsJudul').textContent = KERJA.setor >= 40 ? 'Tukang jempolan! 🏆' : KERJA.setor ? 'Kerja bagus, tukang! 💪' : 'Istirahat dulu ya 🙂';
-  $('hsRinci').innerHTML = `<div class="baris besar"><span>📦 Bahan disetor</span><b>${KERJA.setor}</b></div>`
-    + (AKUN && INFO?.aktif ? `<div class="baris"><span>⚡ Fasum lebih cepat</span><b>${Math.round(KERJA.maju / 60e3)} menit</b></div><div class="baris"><span>🪙 Koin</span><b>+${KERJA.koin}</b></div><div class="baris"><span>🏆 Poin Piala dusun</span><b>+${KERJA.piala}</b></div>` : '');
-  $('hsHadiah').innerHTML = AKUN && INFO?.aktif
-    ? (KERJA.sesiBahan ? `<p class="kecil">Kurang ${sisa} bahan lagi untuk ⚡ 20 menit berikutnya. Lanjut?</p>` : '<p class="kecil">Terima kasih sudah gotong royong! 🙏</p>')
-    : `<p class="kecil">Ini latihan. <a href="/duniakotak/mabar/" style="color:var(--kuning)">Masuk sebagai warga</a> supaya kerjamu tercatat dan dapat koin.</p>`;
+  const resmi = AKUN && INFO?.aktif, kotak = (b, s, k = '') => `<div class="${k}"><b>${b}</b><small>${s}</small></div>`;
+  $('hsRinci').innerHTML = kotak(KERJA.setor, '📦 bahan', 'utamaA')
+    + (resmi ? kotak(Math.round(KERJA.maju / 60e3) + "'", '⚡ lebih cepat') + kotak('+' + KERJA.koin, '🪙 koin') + kotak('+' + KERJA.piala, '🏆 Piala') : '');
+  $('hsRinci').style.gridTemplateColumns = resmi ? '' : '1fr';
+  $('hsHadiah').innerHTML = resmi
+    ? (KERJA.sesiBahan ? `Kurang ${sisa} bahan lagi untuk ⚡ ${Math.round((INFO.aturan?.maju || 12e5) / 60e3)} menit berikutnya` : 'Terima kasih sudah gotong royong! 🙏')
+    : `Latihan saja. <a href="/duniakotak/mabar/">Masuk sebagai warga</a> agar tercatat.`;
   $('hasil').hidden = false;
 }
 

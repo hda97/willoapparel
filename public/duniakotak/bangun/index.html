@@ -24,26 +24,23 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
 .utama:disabled{opacity:.5}
 .kedua{display:block;width:100%;text-align:center;background:rgba(255,255,255,.12);font-weight:800;font-size:13px;padding:10px;border-radius:12px}
 .kecil{font-size:11px;line-height:1.45;color:var(--redup);margin:0}
-/* LOBI */
-#lobi{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));left:max(14px,env(safe-area-inset-left,0px));width:min(340px,calc(100vw - 28px));display:flex;flex-direction:column;gap:9px;overflow-y:auto;padding:2px;scrollbar-width:none}
-#lobi::-webkit-scrollbar{display:none}
-.judul small{display:block;font-size:10px;font-weight:800;letter-spacing:.18em;color:var(--kuning)}
-.judul h1{margin:2px 0 0;font-size:34px;font-weight:900;line-height:.95;color:#fff;text-shadow:0 3px 0 rgba(19,20,31,.35)}
+/* LOBI: ringkas, muat satu layar HP mendatar tanpa geser (Huda 10 Nov) */
+#lobi{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:max(12px,env(safe-area-inset-left,0px));width:min(300px,calc(100vw - 24px));display:flex;flex-direction:column;gap:7px;overflow:hidden}
+.judul small{display:block;font-size:9.5px;font-weight:800;letter-spacing:.16em;color:var(--kuning)}
+.judul h1{margin:1px 0 0;font-size:26px;font-weight:900;line-height:1;color:#fff;text-shadow:0 2px 0 rgba(19,20,31,.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .judul h1 span{color:var(--kuning)}
-.status{padding:11px 13px;display:grid;gap:6px}
-.status b{font-size:14px}
+.status{padding:8px 11px;display:grid;gap:4px}
+.status b{font-size:13px}
 .bar{position:relative;height:14px;border-radius:999px;background:rgba(255,255,255,.15);overflow:hidden}
 .bar span{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--hijau),#7ad06a);border-radius:999px}
 .bar em{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:9.5px;font-weight:900;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6)}
-.cepat{font-size:11.5px;font-weight:800;color:#9ef0a0}
-.tahap{display:flex;gap:4px}.tahap i{flex:1;font-style:normal;text-align:center;font-size:9.5px;font-weight:800;padding:4px 2px;border-radius:8px;background:rgba(255,255,255,.08);color:var(--redup)}
-.tahap i.on{background:var(--kuning);color:#1d1d22}.tahap i.lewat{background:rgba(58,168,96,.45);color:#fff}
-.papan{padding:10px 12px}
-.papan h2{margin:0 0 6px;font-size:12px;font-weight:900;letter-spacing:.04em}
-.daftar{display:grid;gap:3px;max-height:150px;overflow-y:auto}
-.daftar div{display:flex;gap:8px;align-items:center;font-size:12px;font-weight:700;padding:4px 6px;border-radius:8px;background:rgba(255,255,255,.06)}
-.daftar div.saya{background:rgba(242,193,74,.25)}
-.daftar span{width:18px;text-align:center;font-weight:900;color:var(--kuning)}.daftar b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.daftar em{font-style:normal;font-size:11px;color:var(--redup)}
+.cepat{font-size:11px;font-weight:800;color:#9ef0a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aksi{display:grid;grid-template-columns:1fr auto;gap:7px}
+.aksi .kedua{width:auto;padding:0 12px;display:flex;align-items:center}
+.aturan{font-size:11px;font-weight:700;color:#fff;padding:6px 10px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.teladan{display:flex;gap:5px;overflow:hidden}
+.teladan span{flex:0 1 auto;min-width:0;font-size:10.5px;font-weight:800;padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.teladan span.saya{background:rgba(242,193,74,.55);color:#1d1d22}
 #dompet{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:max(14px,env(safe-area-inset-right,0px));padding:8px 13px;font-weight:900;font-size:15px}
 /* HUD KERJA (Angkut & Bangun) */
 #hud{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);padding:8px 14px;width:min(360px,calc(100vw - 220px));min-width:220px}
@@ -62,16 +59,19 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
 #kabar{position:fixed;left:50%;top:84px;transform:translateX(-50%);display:grid;gap:6px;justify-items:center;pointer-events:none}
 #kabar div{padding:8px 14px;font-size:13.5px;font-weight:900;animation:muncul 2.6s forwards}
 @keyframes muncul{0%{opacity:0;transform:translateY(8px) scale(.9)}10%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
-/* HASIL (pop up muat layar HP) */
-.popup{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,12,24,.45);padding:12px}
-.popup .isi{width:min(380px,100%);max-height:calc(100vh - 24px);overflow-y:auto;padding:16px;display:grid;gap:9px}
-.popup h2{margin:0;font-size:22px;font-weight:900;text-align:center}
-.baris{display:flex;justify-content:space-between;font-size:13px;font-weight:700;padding:6px 10px;border-radius:9px;background:rgba(255,255,255,.07)}
-.baris.besar{font-size:15px;font-weight:900;background:rgba(242,193,74,.2)}
-.hadiah{display:grid;gap:4px;text-align:center;font-weight:800;font-size:13px}
-.hadiah .cepat{font-size:13px}
-.dua{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}
-@media (max-height:430px){#lobi{gap:6px}.judul h1{font-size:24px}.papan{padding:7px 10px}.papan h2{margin-bottom:4px}#lAturan{font-size:10.5px;padding:6px 10px!important}.kedua{padding:8px}.status{padding:8px 11px;gap:4px}.utama{padding:10px;font-size:15px}.daftar{max-height:84px}#petunjuk{bottom:8px;font-size:12px;padding:7px 12px}#stik{width:112px;height:112px}#kabar{top:74px}}
+/* HASIL: pop up ringkas tanpa geser */
+.popup{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,12,24,.45);padding:10px}
+.popup .isi{width:min(360px,100%);padding:12px 14px;display:grid;gap:8px;overflow:hidden}
+.popup h2{margin:0;font-size:19px;font-weight:900;text-align:center}
+.angka{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.angka div{background:rgba(255,255,255,.08);border-radius:10px;padding:6px 2px;text-align:center}
+.angka b{display:block;font-size:16px;font-weight:900}.angka small{display:block;font-size:9px;font-weight:800;color:var(--redup)}
+.angka div.utamaA{background:rgba(242,193,74,.25)}
+.hadiah{text-align:center;font-weight:800;font-size:11.5px;color:var(--redup)}
+.hadiah a{color:var(--kuning)}
+.dua{display:grid;grid-template-columns:1fr 1.6fr;gap:8px}
+.dua .utama{padding:10px;font-size:15px}.dua .kedua{display:flex;align-items:center;justify-content:center}
+@media (max-height:330px){#lobi{gap:5px}.judul h1{font-size:21px}.status{padding:6px 10px}.utama{padding:9px;font-size:15px}#stik{width:104px;height:104px}#petunjuk{bottom:8px;font-size:11.5px;padding:6px 12px}#kabar{top:66px}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js","three/addons/geometries/RoundedBoxGeometry.js":"/duniakotak/mabar/js/kotakBulat.js?v=20261108r","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
@@ -81,10 +81,9 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
 <div id="lobi">
  <div class="judul"><small>🔨 TUKANG KOTAK</small><h1>Bangun <span id="lNama">fasum</span></h1></div>
  <div class="kaca status" id="lStatus"><b>Memuat proyek…</b></div>
- <button class="utama" id="bMulai" disabled>🔨 MULAI KERJA</button>
- <p class="kecil kaca" style="padding:8px 11px" id="lAturan">Angkut bata, kayu, dan semen ke gerbang proyek. Tiap bahan yang kamu setor membuat fasum tumbuh di depan mata!</p>
- <div class="kaca papan"><h2>👷 Tukang teladan proyek ini</h2><div class="daftar" id="lTop"><div><b>Belum ada tukang. Jadilah yang pertama!</b></div></div></div>
- <a class="kedua tombol" id="bDesa" href="/duniakotak/mabar/">← Kembali ke desa</a>
+ <div class="aksi"><button class="utama" id="bMulai" disabled>🔨 MULAI KERJA</button><a class="kedua tombol kaca" id="bDesa" href="/duniakotak/mabar/">← Desa</a></div>
+ <div class="kaca aturan" id="lAturan">20 bahan = fasum ⚡ 20 menit lebih cepat + 🪙</div>
+ <div class="teladan" id="lTop"></div>
 </div>
 <div id="dompet" class="kaca" hidden></div>
 
@@ -97,11 +96,11 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
 <div id="hasil" class="popup" hidden>
  <div class="isi kaca">
   <h2 id="hsJudul">Kerja bagus, tukang! 💪</h2>
-  <div id="hsRinci"></div>
+  <div class="angka" id="hsRinci"></div>
   <div class="hadiah" id="hsHadiah"></div>
-  <div class="dua"><a class="kedua tombol" id="bDesa2" href="/duniakotak/mabar/">Ke desa</a><button class="utama" id="bLagi">🔨 LANJUT KERJA</button></div>
+  <div class="dua"><a class="kedua tombol" id="bDesa2" href="/duniakotak/mabar/">Ke desa</a><button class="utama" id="bLagi">🔨 LANJUT</button></div>
  </div>
 </div>
-<script type="module" src="bangun.js?v=20261110b"></script>
+<script type="module" src="bangun.js?v=20261110c"></script>
 </body>
 </html>
