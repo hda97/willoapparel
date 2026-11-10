@@ -209,9 +209,9 @@
     "semantic_hash": "bf3f8e495130df0e60287acb7ca38561"
   },
   "worker.js": {
-    "mtime": 1794308308.3852496,
-    "seen": 1794308604.73159,
-    "ast_hash": "c24dea1907a7cb2292345bc7e4cb1d43",
+    "mtime": 1794312189.942291,
+    "seen": 1794312376.8654373,
+    "ast_hash": "f9754a0923aac5a24ec3bb4aec012d6d",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/musik.mp3": {
@@ -977,9 +977,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/index.html": {
-    "mtime": 1794308308.3858016,
-    "seen": 1794308604.7316797,
-    "ast_hash": "8e3f765d476546b4bd022abb4cb0c4b9",
+    "mtime": 1794312189.9426134,
+    "seen": 1794312376.8654914,
+    "ast_hash": "fbe73d34e995085234c662ba0febf82b",
     "semantic_hash": ""
   },
   "public/duniakotak/privasi.html": {
@@ -3221,15 +3221,15 @@
     "semantic_hash": ""
   },
   "public/duniakotak/bangun/bangun.js": {
-    "mtime": 1794311967.1410937,
-    "seen": 1794312059.6059344,
-    "ast_hash": "2279f6323238fb4917c63994597300af",
+    "mtime": 1794312189.9401646,
+    "seen": 1794312376.8654037,
+    "ast_hash": "6606aad798e2712e52b9b082e4cb83cf",
     "semantic_hash": ""
   },
   "public/duniakotak/bangun/index.html": {
-    "mtime": 1794311711.397503,
-    "seen": 1794311793.817785,
-    "ast_hash": "74f9289a34388cb22c0875a635544b8a",
+    "mtime": 1794312189.9405081,
+    "seen": 1794312376.8654878,
+    "ast_hash": "437937f4180db940a2d150ed40a66c0c",
     "semantic_hash": ""
   },
   "edukasi/paud/package-lock.json": {
