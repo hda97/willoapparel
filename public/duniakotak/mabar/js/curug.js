@@ -70,6 +70,11 @@ export function curug(sc, o = {}) {
   { const x = -72, z = ZR + 11.6, f = fasum(x, z, 21, 17.4, 0); f.children.slice(1).forEach(c => f.remove(c)); road(x, ZR + 2, 5, 3);
     const m = F.sirkuitReli(); m.scale.setScalar(VS); m.rotation.y = Math.PI; m.position.set(x * VS, 0, z * VS); gF.add(m);
     bangunan.push({position: new THREE.Vector3(m.position.x, 0, m.position.z), nama: '🏁 Sirkuit Reli Kotak', ...F.pisahFasum(m)}); }
+  // Dealer Kendaraan (Huda 11 Nov 2026): lahan sendiri di sebelah kiri Sirkuit Reli, menghadap jalan kaki gunung. Warga di dalam
+  // area dapat tombol 🚗 Dealer → katalog mobil, motor & sepeda yang dibeli pakai koin (diparkir di depan rumah).
+  { const x = -96, z = ZR + 11.6, f = fasum(x, z, 21, 17.4, 0); f.children.slice(1).forEach(c => f.remove(c)); road(x, ZR + 2, 5, 3);
+    const m = F.dealer(); m.scale.setScalar(VS); m.rotation.y = Math.PI; m.position.set(x * VS, 0, z * VS); gF.add(m);
+    bangunan.push({position: new THREE.Vector3(m.position.x, 0, m.position.z), nama: '🚗 Dealer Kendaraan', ...F.pisahFasum(m)}); }
   bangunan.push({position: V3(30 * VS, yb * VS, (zb + 20) * VS), nama: '💦 Air Terjun Curug', tinggi: 14 * VS, rect: null});
   bangunan.push({position: V3(195 * VS, 0, (30 + dF) * VS), nama: '🚌 Terminal & Gapura Kotak Curug', tinggi: 3 * VS, rect: null});
 

@@ -8,11 +8,16 @@
 // RINGAN DI HP: semua bagian diam digabung per bahan (mergeGeometries) -> ±15 draw call untuk bodi + 3 per ban,
 // padahal bagiannya ±150 kotak. Hadap +z (depan), ban di y = jari-jari.
 // Pakai: import {buatMobil, MODEL_MOBIL} from '.../aset/mobil.js'; const m = buatMobil('gt', 0xb8252c, 123);
-// Model fasum: 'sedan' (warga), 'patroli' (Kantor Polisi, cat putih), 'ambulans' (RS, cat putih).
+// Roda dua: 'sepeda', 'motor'. Model fasum: 'sedan' (warga), 'patroli' (Kantor Polisi, cat putih), 'ambulans' (RS, cat putih).
 // m.userData = {bodi, roda:[{piv, putar, depan}], lampuRem, api, supir, kursi:{x, z, atap, tinggi}, jari}
 import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
+
+// UKURAN PROPORSIONAL (Huda 11 Nov 2026: "Semua mobil di Dunia Kotak ukuran proporsional"): model mobil dibuat dalam meter.
+// Avatar warga tingginya 4,12 satuan dunia (= orang 1,7 m) dan fasum diskalakan VS = 5, jadi 1 m = 4,12 / 1,7 / 5 = 0,485 satuan fasum.
+// Semua mobil di aset fasum memakai skala ini, sehingga sedan ±2,5× tinggi badan warga (seperti aslinya: 4,2 m vs 1,7 m).
+export const SKALA_FASUM = 4.12 / 1.7 / 5;
 
 export const MODEL_MOBIL = [
   {id: 'hatch', nama: 'Hatch Reli', ikon: '🚗'},
@@ -67,6 +72,8 @@ function pembuat(g) {
   const p = (w, h, d, m, x, y, z, o = {}) => { const me = new THREE.Mesh(kb(w, h, d, o.r ?? .05), m); me.position.set(x, y, z); me.rotation.set(o.rx || 0, o.ry || 0, o.rz || 0); g.add(me); if (o.garis) tepi.push(garisTepi(me, o.t)); return me; };
   p.silinder = (r, h, m, x, y, z, o = {}) => { const me = new THREE.Mesh(tb(r, o.r2 ?? r, h, o.n || 14), m); me.position.set(x, y, z); me.rotation.set(o.rx || 0, o.ry || 0, o.rz || 0); g.add(me); return me; };
   p.bidang = (w, h, m, x, y, z, ry = 0, rx = 0) => { const me = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); me.position.set(x, y, z); me.rotation.set(rx, ry, 0, 'YXZ'); g.add(me); return me; };
+  p.pipa = (a, b, r, m, n = 8) => { const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), d = B.clone().sub(A), me = new THREE.Mesh(tb(r, r, d.length(), n), m);
+    me.position.copy(A).add(B).multiplyScalar(.5); me.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()); g.add(me); return me; };
   p.selesai = () => tepi.forEach(o => g.add(o));
   return p;
 }
@@ -86,6 +93,11 @@ function gabung(grup) {
 // ---------- BAN: dinding ban, tapak, pelek palang, bibir krom, dop. gaya: 'palang' | 'bintang' | 'baja' ----------
 function buatBan(r, lebar, gaya, velg, kasar) {
   const putar = new THREE.Group(), p = pembuat(putar), tapak = mat(0xffffff, {map: tapakTex(), roughness: .95});
+  if (gaya === 'jari') {   // ban sepeda: ban tipis, pelek, 16 jari-jari, as
+    const ban = new THREE.Mesh(new THREE.TorusGeometry(r - .035, .035, 6, 24), KARET); ban.rotation.y = PI / 2; putar.add(ban);
+    const pel = new THREE.Mesh(new THREE.TorusGeometry(r - .08, .014, 4, 24), KROM); pel.rotation.y = PI / 2; putar.add(pel);
+    for (let i = 0; i < 8; i++) p(.008, (r - .08) * 2, .008, mat(0xc8ccd2, {metalness: .6, roughness: .3}), 0, 0, 0, {rx: i * PI / 8, r: 0});
+    p.silinder(.035, lebar + .06, ABU, 0, 0, 0, {rz: PI / 2, n: 8}); gabung(putar); return putar; }
   p.silinder(r, lebar, tapak, 0, 0, 0, {rz: PI / 2, n: 20});
   for (const s of [-1, 1]) {
     const dinding = new THREE.Mesh(new THREE.TorusGeometry(r * .8, r * .15, 6, 20), KARET); dinding.rotation.y = PI / 2; dinding.position.x = s * (lebar / 2 - .02); putar.add(dinding);
@@ -104,9 +116,10 @@ function buatBan(r, lebar, gaya, velg, kasar) {
 
 function pasangBan(mobil, bodi, d) {
   const roda = [];
-  for (const [x, z, depan] of [[-d.bx, d.bz, 1], [d.bx, d.bz, 1], [-d.bx, -d.bzb, 0], [d.bx, -d.bzb, 0]]) {
+  for (const [x, z, depan] of d.dua ? [[0, d.bz, 1], [0, -d.bzb, 0]] : [[-d.bx, d.bz, 1], [d.bx, d.bz, 1], [-d.bx, -d.bzb, 0], [d.bx, -d.bzb, 0]]) {
     const piv = new THREE.Group(); piv.position.set(x, d.jari, z); const putar = buatBan(d.jari, d.lebar, d.velgGaya, d.velg, d.kasar); piv.add(putar);
     // kaliper rem (diam, tidak ikut berputar) mengintip dari balik pelek
+    if (d.dua) { mobil.add(piv); roda.push({piv, putar, depan}); continue; }
     const kal = new THREE.Mesh(kb(.06, d.jari * .36, d.jari * .3, .02), mat(d.kaliper || 0xd8322a, {roughness: .4})); kal.position.set(Math.sign(x) * (d.lebar / 2 - .05), d.jari * .28, -d.jari * .18); piv.add(kal);
     mobil.add(piv); roda.push({piv, putar, depan});
   }
@@ -331,6 +344,48 @@ function ambulans(bodi, cat, aksen, no, lampuRem) {
   return {api: apiKnalpot(bodi, -.6, .4, -2.7), kursi: {x: .4, z: 1.3, atap: 2.02, tinggi: 1.15}};
 }
 
+// ---------- KENDARAAN RODA DUA (11 Nov 2026, Huda: "Desainkan sepeda, motor juga") ----------
+// sepeda gunung: rangka berwarna, garpu suspensi, setang lebar, sadel, gir & engkol, lampu depan, reflektor belakang.
+function sepeda(bodi, cat, aksen, no, lampuRem) {
+  const p = pembuat(bodi), R = .034, SB = [0, .34, 0], SD = [0, .9, -.17], HD = [0, .92, .36], HB = [0, .76, .42], RA = [0, .34, -.54], FA = [0, .34, .55];
+  p.pipa(HD, SD, R, cat); p.pipa(HB, SB, R * 1.25, cat); p.pipa(SB, SD, R, cat);
+  [-1, 1].forEach(s => { p.pipa([s * .05, SB[1], SB[2]], [s * .06, RA[1], RA[2]], R * .6, cat); p.pipa([s * .03, SD[1] - .05, SD[2] + .02], [s * .06, RA[1], RA[2]], R * .6, cat);
+    p.pipa([s * .06, .7, .44], [s * .05, FA[1], FA[2]], R * .7, KROM); p.pipa([s * .06, .92, .37], [s * .06, .68, .44], R * 1.1, HITAM); });   // garpu suspensi
+  p.pipa(HB, HD, R * 1.3, cat); p.pipa(HD, [0, 1.06, .33], R, HITAM);
+  p.pipa([-.32, 1.07, .32], [.32, 1.07, .32], .018, HITAM); [-1, 1].forEach(s => p.pipa([s * .24, 1.07, .32], [s * .33, 1.07, .32], .028, KARET));
+  p.pipa(SD, [0, 1.0, -.21], .022, ABU); p(.14, .05, .28, KARET, 0, 1.03, -.23, {r: .02, garis: 1, t: .015});
+  // gir, rantai, engkol & pedal
+  p.silinder(.11, .015, KROM, .07, SB[1], 0, {rz: PI / 2, n: 16}); p.pipa([.07, .43, 0], [.07, .4, -.54], .008, HITAM); p.pipa([.07, .25, 0], [.07, .3, -.54], .008, HITAM);
+  [-1, 1].forEach(s => { p.pipa([s * .09, .34, 0], [s * .09, .34 - s * .16, s * .02], .016, ABU); p(.1, .025, .06, HITAM, s * .14, .34 - s * .16, s * .02, {r: 0}); });
+  p(.08, .06, .07, LAMPU, 0, 1.0, .42, {r: .02}); p(.06, .04, .02, lampuRem, 0, .92, -.26, {r: 0});
+  p.bidang(.16, .05, mat(0xffffff, {map: teksTex('WILLO', '#1d1e24', '#f2c14a', 128, 40)}), .036, .66, .2, PI / 2, 0);
+  p.selesai();
+  return {api: apiKnalpot(bodi, 0, -9, 0), kursi: {x: 0, z: -.15, atap: 1.6, tinggi: 1.35}};
+}
+// motor bebek-sport: tangki & bodi berwarna, jok hitam, mesin, knalpot krom, lampu depan & belakang, sein, spion, plat DK.
+function motor(bodi, cat, aksen, no, lampuRem) {
+  const p = pembuat(bodi), A = mat(aksen, {roughness: .45});
+  p(.34, .22, .52, cat, 0, .86, .14, {r: .08, garis: 1, t: .02});                      // tangki
+  p(.06, .02, .44, A, 0, .975, .14, {r: 0});                                           // garis tangki
+  p(.3, .1, .62, HITAM, 0, .86, -.34, {r: .04, garis: 1, t: .015});                     // jok
+  p(.3, .16, .42, cat, 0, .78, -.66, {r: .06, garis: 1, t: .02});                       // buntut
+  p(.34, .26, .6, cat, 0, .62, -.3, {r: .06, garis: 1, t: .02});                        // bodi samping
+  p(.28, .3, .38, ABU, 0, .44, .06, {r: .05}); for (let i = 0; i < 4; i++) p(.3, .02, .3, HITAM, 0, .36 + i * .07, .06, {r: 0});   // mesin bersirip
+  p.pipa([.16, .38, .12], [.18, .4, -.45], .035, KROM); p.pipa([.18, .4, -.45], [.18, .52, -.85], .05, KROM, 10); p.silinder(.045, .03, HITAM, .18, .52, -.87, {rx: PI / 2 - .3, n: 10});
+  // garpu depan, setang, spion, lampu & sein
+  [-1, 1].forEach(s => { p.pipa([s * .09, 1.0, .42], [s * .09, .3, .66], .028, KROM); p.pipa([s * .09, 1.05, .4], [s * .38, 1.1, .36], .018, HITAM); p.pipa([s * .3, 1.1, .37], [s * .4, 1.1, .36], .03, KARET);
+    p.pipa([s * .24, 1.1, .38], [s * .3, 1.32, .36], .01, HITAM); p(.1, .06, .02, KROM, s * .31, 1.34, .36, {r: 0});
+    p(.06, .04, .05, SEN, s * .16, .98, .54, {r: .01}); p(.06, .04, .05, SEN, s * .14, .8, -.86, {r: .01});
+    p(.04, .06, .5, HITAM, s * .12, .36, -.38, {r: 0, rx: .05}); p(.12, .025, .04, HITAM, s * .2, .36, -.12, {r: 0}); });   // lengan ayun & pijakan
+  p(.38, .32, .14, cat, 0, .96, .52, {r: .06, garis: 1, t: .02, rx: -.3}); p.silinder(.09, .06, KROM, 0, .92, .6, {rx: PI / 2 - .3, n: 14}); p.silinder(.075, .02, LAMPU, 0, .91, .635, {rx: PI / 2 - .3, n: 14});
+  p(.24, .1, .03, KACA, 0, 1.12, .5, {r: .01, rx: -.4});                               // kaca depan kecil
+  p(.12, .04, .5, cat, 0, .66, .66, {r: .02, rx: .1}); p(.12, .04, .4, cat, 0, .62, -.92, {r: .02, rx: -.4});   // spakbor
+  p(.18, .07, .04, lampuRem, 0, .8, -.89, {r: .01}); p.bidang(.18, .08, mat(0xffffff, {map: platTex('DK ' + (no || 1))}), 0, .64, -.97, PI, .3);
+  [-1, 1].forEach(s => p.bidang(.4, .12, mat(0xffffff, {map: teksTex('WILLO', '#00000000', '#f6f6f2', 256, 64), transparent: true}), s * .172, .64, -.3, s * PI / 2));
+  p.selesai();
+  return {api: apiKnalpot(bodi, .18, .52, -1.1), kursi: {x: 0, z: -.3, atap: 1.65, tinggi: 1.3}};
+}
+
 const SPEK = {
   hatch: {f: hatch, jari: .4, lebar: .34, bx: .92, bz: 1.25, bzb: 1.25, velgGaya: 'palang', velg: 0xd8dbe0, kaliper: 0xd8322a},
   gt: {f: gt, jari: .4, lebar: .38, bx: .95, bz: 1.35, bzb: 1.35, velgGaya: 'bintang', velg: 0xd4a838, kaliper: 0xf2c14a},
@@ -338,6 +393,8 @@ const SPEK = {
   // mobil fasum (tidak muncul di pilihan Reli)
   sedan: {f: (...a) => sedan(...a, false), jari: .36, lebar: .3, bx: .88, bz: 1.32, bzb: 1.32, velgGaya: 'palang', velg: 0xc8ccd2, kaliper: 0x5b5e66},
   patroli: {f: (...a) => sedan(...a, true), jari: .36, lebar: .3, bx: .88, bz: 1.32, bzb: 1.32, velgGaya: 'baja', velg: 0xdfe3ea, kaliper: 0x5b5e66},
+  sepeda: {f: sepeda, jari: .34, lebar: .05, bz: .55, bzb: .54, velgGaya: 'jari', dua: 1},
+  motor: {f: motor, jari: .3, lebar: .13, bz: .66, bzb: .62, velgGaya: 'bintang', velg: 0x2a2b31, dua: 1},
   ambulans: {f: ambulans, jari: .4, lebar: .32, bx: .94, bz: 1.5, bzb: 1.45, velgGaya: 'baja', velg: 0xdfe3ea, kaliper: 0x5b5e66},
 };
 

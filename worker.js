@@ -102,6 +102,11 @@ const KOIN_PER_PERMATA = 10;
 // lama disablon, isi lemari maks. Warna = palet atasan avatar (WARNA_BAJU di mabar/game.js). Disimpan di kolom hias (hias.kaos).
 const KAOS_WILLO = { willo: 30, polos: 20, dk: 40, dusun: 50, tulisan: 80 };
 const KAOS_TUNGGU = 3 * 60e3, KAOS_LEMARI = 12;
+// Dealer Kendaraan di Kotak Curug (Huda 11 Nov 2026: "Bangunkan dealer kendaraan", dijual pakai koin). Kendaraan diparkir
+// di pekarangan rumah & bisa dikendarai keliling desa. Mobil di game Reli tetap GRATIS (Reli = misi harian), tidak lewat sini.
+// Disimpan di kolom hias: hias.kendaraan = { g: [{ m, w }], p: indeks dipakai / -1 }. Warna = indeks WARNA_KENDARAAN di game.js.
+const KENDARAAN = { sepeda: 150, motor: 400, sedan: 800, hatch: 900, jip: 1000, gt: 1200 };
+const KENDARAAN_WARNA = 6;
 const KAOS_WARNA = ["#1d1d22", "#f4f4f4", "#3a7bd5", "#d0442f", "#2a9a5a", "#f2c14e", "#8a5ad8", "#e06a9a"];
 // tulisan sablon: huruf/angka/spasi maks 10, tanpa kata kasar (dipakai juga saat avatar disimpan)
 function teksKaos(t) { const s = String(t || "").toUpperCase().replace(/[^A-Z0-9 ]/g, "").replace(/\s+/g, " ").trim().slice(0, 10); return s && !s.split(" ").some((w) => kataKasar(rapatKata(w))) && !kataKasar(rapatKata(s)) ? s : ""; }
@@ -531,7 +536,7 @@ export class Warga extends DurableObject {
     // Daftar lewat Google tanpa username: nama yang ditulis warga jadi ukiran batu (label).
     let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
     const hs = this.hiasPakai(r), bt = this.bataWarga(r.no), jr = this.juraganKini(), tr = this.juaraRumah();
-    return { ...(bt ? { bt } : {}), ...(r.alb ? { al: r.alb } : {}), ...(jr && jr.no === r.no ? { jr: 1 } : {}), ...(tr && tr.no === r.no ? { tr: 1 } : {}), ...(hs.cat !== "krem" || hs.pagar !== "putih" || hs.rumah === "dua" || hs.dekor.length ? { hs: { c: hs.cat, p: hs.pagar, ...(hs.rumah === "dua" ? { l: 2 } : {}), ...(hs.dekor.length ? { d: hs.dekor } : {}) } } : {}), no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
+    return { ...(bt ? { bt } : {}), ...(r.alb ? { al: r.alb } : {}), ...(jr && jr.no === r.no ? { jr: 1 } : {}), ...(tr && tr.no === r.no ? { tr: 1 } : {}), ...(hs.cat !== "krem" || hs.pagar !== "putih" || hs.rumah === "dua" || hs.dekor.length || hs.kend ? { hs: { c: hs.cat, p: hs.pagar, ...(hs.rumah === "dua" ? { l: 2 } : {}), ...(hs.dekor.length ? { d: hs.dekor } : {}), ...(hs.kend ? { k: hs.kend } : {}) } } : {}), no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
   }
   // Hias: {punya:{cat:[...],pagar:[...],topi:[...]}, cat, pagar, topi}
   bacaHias(r) { let h = {}; try { h = r.hias ? JSON.parse(r.hias) : {}; } catch (e) {} h.punya = h.punya || {}; for (const j of Object.keys(TOKO_HIAS)) h.punya[j] = h.punya[j] || []; return h; }
@@ -545,7 +550,8 @@ export class Warga extends DurableObject {
     t._al = t._al && typeof t._al === "object" ? t._al : {};
     for (const n of Object.keys(t.isi)) if (!t._al[n] && (ALBUM_IKAN.includes(n) || SUVENIR.some((x) => x[1] === n) || Object.values(BIBIT).some((b) => b.nama === n))) t._al[n] = 1;
     t._alb = albumBit(t._al); return t; }
-  hiasPakai(r) { const h = this.bacaHias(r); return { cat: h.cat || "krem", pagar: h.pagar || "putih", topi: h.topi || "tanpa", rumah: h.rumah || "satu", dekor: (h.dekor || []).filter(x => DEKOR.includes(x)) }; }
+  hiasPakai(r) { const h = this.bacaHias(r); return { cat: h.cat || "krem", pagar: h.pagar || "putih", topi: h.topi || "tanpa", rumah: h.rumah || "satu", dekor: (h.dekor || []).filter(x => DEKOR.includes(x)), kend: this.kendPakai(h) }; }
+  kendPakai(h) { const K = h.kendaraan, k = K && Array.isArray(K.g) && K.g[K.p]; return k && k.m in KENDARAAN ? k.m + ":" + (k.w | 0) : ""; }
   // sablon kaos avatar hanya boleh yang ada di katalog; tulisan disaring (cegah kata kasar lewat API avatar)
   saringKaosAv(js) { let a; try { a = JSON.parse(js); } catch (e) { return js; } const t = a && a.atasan; if (!t || typeof t !== "object") return js;
     if (t.jenis !== "kaos-willo" || !(t.sablon in KAOS_WILLO)) { delete t.sablon; delete t.teks; } else t.teks = teksKaos(t.teks); return JSON.stringify(a); }
@@ -1326,6 +1332,30 @@ export class Warga extends DurableObject {
       let av = null; try { av = avBaru ? JSON.parse(avBaru) : null; } catch (e) {}
       return Response.json({ koin, harga: KAOS_WILLO, tunggu: KAOS_TUNGGU, pesan: K.pesan, lemari: K.lemari, avatar: av, selisih: 0, kini });
     }
+    if (aksi === "dealer") {
+      const q = await request.json();
+      const r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Masuk dulu sebagai warga." }, { status: 401 });
+      const h = this.bacaHias(r); let koin = r.koin || 0;
+      const K = h.kendaraan && typeof h.kendaraan === "object" ? h.kendaraan : (h.kendaraan = { g: [], p: -1 });
+      if (!Array.isArray(K.g)) K.g = []; K.g = K.g.filter((x) => x && x.m in KENDARAAN); if (!(K.p >= 0 && K.p < K.g.length)) K.p = -1;
+      if (q.op === "beli") {
+        const m = String(q.m || ""), w = Math.floor(+q.w);
+        if (!(m in KENDARAAN) || !(w >= 0 && w < KENDARAAN_WARNA)) return Response.json({ galat: "Kendaraan tidak ada." }, { status: 400 });
+        if (K.g.some((x) => x.m === m)) return Response.json({ galat: "Kamu sudah punya kendaraan ini." }, { status: 400 });
+        const harga = KENDARAAN[m]; if (koin < harga) return Response.json({ galat: "Koinmu kurang (" + harga + " koin)." }, { status: 400 });
+        koin -= harga; this.arus("-koin:dealer", harga);
+        K.g.push({ m, w }); K.p = K.g.length - 1;
+      } else if (q.op === "pakai") {
+        const i = Math.floor(+q.i); if (i !== -1 && !K.g[i]) return Response.json({ galat: "Kendaraan tidak ada di garasi." }, { status: 400 }); K.p = i;
+      } else if (q.op === "cat") {   // cat ulang 50 koin
+        const k = K.g[Math.floor(+q.i)], w = Math.floor(+q.w); if (!k || !(w >= 0 && w < KENDARAAN_WARNA)) return Response.json({ galat: "Pilihan tidak ada." }, { status: 400 });
+        if (koin < 50) return Response.json({ galat: "Koinmu kurang (50 koin)." }, { status: 400 });
+        koin -= 50; this.arus("-koin:dealer", 50); k.w = w;
+      }
+      if (q.op) this.sql.exec("UPDATE warga SET koin = ?, hias = ? WHERE no = ?", koin, JSON.stringify(h), r.no);
+      return Response.json({ koin, harga: KENDARAAN, garasi: K.g, pakai: K.p, k: this.kendPakai(h) });
+    }
     if (aksi === "toko") {
       const q = await request.json();
       const r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
@@ -1578,7 +1608,7 @@ export class Ruang extends DurableObject {
     if (!a.no) return;
     const now = Date.now();
     if (q.t === "p") {
-      const p = { x: +q.x || 0, z: +q.z || 0, r: +q.r || 0, a: q.a ? 1 : 0 };
+      const p = { x: +q.x || 0, z: +q.z || 0, r: +q.r || 0, a: q.a ? 1 : 0, n: q.n ? 1 : 0 };   // n = sedang naik kendaraan
       if (![p.x, p.z, p.r].every(Number.isFinite)) return;
       this.pos.set(a.no, p);
       if (now - (a.simpan || 0) > 5000) {
@@ -1589,7 +1619,7 @@ export class Ruang extends DurableObject {
       }
       if (now - this.kirimTerakhir > 120) {
         this.kirimTerakhir = now;
-        const daftar = []; for (const [no, v] of this.pos) daftar.push([no, Math.round(v.x * 10) / 10, Math.round(v.z * 10) / 10, Math.round(v.r * 100) / 100, v.a]);
+        const daftar = []; for (const [no, v] of this.pos) daftar.push([no, Math.round(v.x * 10) / 10, Math.round(v.z * 10) / 10, Math.round(v.r * 100) / 100, v.a, v.n]);
         this.pos.clear();
         this.siar({ t: "p", d: daftar });
       }
@@ -1622,6 +1652,9 @@ export class Ruang extends DurableObject {
       if (now - (a.bola || 0) > 250) { ws.serializeAttachment({ ...a, bola: now }); this.siar(b, ws); }
       return;
     }
+    if (q.t === "k") {   // kendaraan dipakai berganti: kabari warga lain (dibaca dari server, bukan dari pesan)
+      const r = this.sql.exec("SELECT hias FROM warga WHERE no = ?", a.no).toArray()[0]; if (!r) return;
+      this.siar({ t: "k", no: a.no, k: this.kendPakai(this.bacaHias(r)) }, ws); return; }
     if (q.t === "av") { const av = q.av && typeof q.av === "object" ? q.av : null; ws.serializeAttachment({ ...a, av }); this.siar({ t: "av", no: a.no, av }, ws); return; }
     if (q.t === "lapor") {
       const t = Math.floor(+q.no); if (!t || t === a.no) return;
@@ -1957,6 +1990,11 @@ async function apiWargaInti(request, env, url) {
   if (aksi === "kaos") {
     const q = { kunci: String(body.kunci || "").slice(0, 64), op: ["pesan", "ambil", "pakai"].includes(body.op) ? body.op : "", d: String(body.d || "").slice(0, 10), w: String(body.w || "").slice(0, 7), t: String(body.t || "").slice(0, 20), i: Math.floor(+body.i || 0) };
     const r = await stub.fetch("https://do/kaos", { method: "POST", body: JSON.stringify(q) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "dealer") {
+    const q = { kunci: String(body.kunci || "").slice(0, 64), op: ["beli", "pakai", "cat"].includes(body.op) ? body.op : "", m: String(body.m || "").slice(0, 10), w: Math.floor(+body.w || 0), i: Math.floor(+body.i || 0) };
+    const r = await stub.fetch("https://do/dealer", { method: "POST", body: JSON.stringify(q) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "toko") {
