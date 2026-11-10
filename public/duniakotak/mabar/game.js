@@ -83,7 +83,8 @@ async function matikanNotif() {
 function tawarNotif() {
   if (ntCara() !== 'ok' || NT.sub || S.tamu || Notification.permission !== 'default') return;
   if (Date.now() - (+baca('dk_notif_tawar') || 0) < 3 * 864e5) return;
-  setTimeout(() => { if (sedangJalan() || [...document.querySelectorAll('.layarPenuh')].some(e => !e.hidden)) return;
+  if (pemulaKini()) return setelahPemula(() => setTimeout(tawarNotif, 20000));   // jangan sela misi warga baru
+  setTimeout(() => { if (sedangJalan() || [...document.querySelectorAll('.layarPenuh, #dialog')].some(e => !e.hidden)) return;
     simpan('dk_notif_tawar', String(Date.now()));
     $('isiNotif').textContent = 'Tanamanmu siap dipanen 6 jam lagi. Mau dikabari lewat notifikasi HP saat sudah siap? Maks 1 kabar sehari, tidak bunyi malam hari.';
     $('notifYa').hidden = false; $('panelNotif').hidden = false; }, 1800);
@@ -1064,7 +1065,7 @@ document.addEventListener('click', e => { const b = e.target.closest?.('[data-ke
 // ---------- Lima menit pertama (7 Nov 2026): misi pemula berurutan + hadiah hadir beruntun ----------
 // Satu tujuan saja di layar (chip 🎯), tiap langkah langsung dapat koin. Urutan & koin HARUS sama dengan PEMULA di worker.js.
 const PEMULA = [
-  {id: 'jalan', ikon: '👣', judul: 'Jalan masuk ke pekaranganmu', petunjuk: 'Dorong joystick kiri bawah · laptop: WASD', target: 20, satuan: 'langkah', koin: 10},
+  {id: 'jalan', ikon: '👣', judul: 'Jalan masuk ke pekaranganmu', petunjuk: 'Ketuk di sini, kamu diantar · atau geser joystick kiri bawah', target: 20, satuan: 'langkah', koin: 10},
   {id: 'tanam', ikon: '🌱', judul: 'Tanam tomat di kebunmu', petunjuk: 'Dekat rumah, tekan 🌱 Tanam (gratis) · ketuk untuk diantar', target: 1, koin: 15},
   {id: 'ambil', ikon: '✋', judul: 'Ambil kotak bercahaya', petunjuk: 'Dekati kotak yang menyala, tekan ✋ Ambil', target: 1, koin: 15},
   {id: 'sapa', ikon: '👋', judul: 'Sapa warga', petunjuk: 'Ketuk 👋 di kotak chat', target: 1, koin: 10},
@@ -1129,8 +1130,24 @@ function klikTujuan() {
   else if (m.id === 'tanam') { if (bisaTanam(tokoh.saya)) bukaTanam(); else keKebun(); }
   else if (m.id === 'ambil') { taruhItemDekat(); const it = PM.item && itemDunia.includes(PM.item) ? PM.item : itemDunia[0]; if (it) mulaiRute({x: it.position.x, z: it.position.z, nama: 'kotak bercahaya'}, true); }
   else if (m.id === 'sapa') siapkanLangkah();
+  else if (m.id === 'jalan') keKebun();   // 1 menit pertama (Huda 11 Nov 2026): langkah pertama cukup diketuk, langkah dihitung saat diantar
   else toast(m.petunjuk, 3000);
 }
+// ---------- 1 menit pertama (Huda 11 Nov 2026) ----------
+// 26% sesi selesai < 1 menit. Warga baru yang diam 6 detik: chip 🎯 berdenyut + tangan "Geser" di joystick (langkah jalan),
+// lalu sekali toast "ketuk 🎯". Pop up wajib (voting) & pengingat koin ditunda sampai misi warga baru selesai (maks 10 menit).
+const BP = {diam: 0, x: 0, z: 0, toast: false};
+function bantuPemula() {
+  const m = pemulaKini(), c = $('chipTujuan'), t = $('tanganStik'), me = tokoh.saya;
+  const popup = [...document.querySelectorAll('.layarPenuh, #dialog')].some(e => !e.hidden);
+  if (!m || S.tamu || !me || popup || sedangJalan() || rute.titik) { BP.diam = 0; c.classList.remove('denyut'); t.hidden = true; if (me) { BP.x = me.position.x; BP.z = me.position.z; } return; }
+  if (Math.hypot(me.position.x - BP.x, me.position.z - BP.z) > .05) { BP.diam = 0; BP.x = me.position.x; BP.z = me.position.z; }
+  BP.diam++;
+  c.classList.toggle('denyut', BP.diam >= 6);
+  t.hidden = !(m.id === 'jalan' && BP.diam >= 4);
+  if (BP.diam >= 12 && !BP.toast) { BP.toast = true; toast('Bingung? Ketuk 🎯 di atas, kamu langsung diantar.', 4000); }
+}
+function setelahPemula(fn, n = 0) { if (pemulaKini() && n < 120) return setTimeout(() => setelahPemula(fn, n + 1), 5000); fn(); }
 // Antar ke dalam pekarangan sendiri (cukup dekat untuk 🌱 Tanam).
 function keKebun() {
   const L = I && S.saya && I.lots[S.saya.no]; if (!L) return pergiKe(S.saya.no);
@@ -1894,7 +1911,13 @@ function jalanRute(t) {
   let bi = rute.idx, bd = 1e9; for (let i = rute.idx; i < Math.min(P.length, rute.idx + 45); i++) { const d = Math.hypot(P[i][0] - x, P[i][1] - z); if (d < bd) { bd = d; bi = i; } }
   if (bi !== rute.idx) { rute.idx = bi; for (const g of rute.garis) g.geometry.setDrawRange(bi * 6, Infinity); }
   const [ex, ez] = P[P.length - 1], sisa = rute.kum[rute.kum.length - 1] - rute.kum[bi] + bd;
-  if (Math.hypot(ex - x, ez - z) < 2.2 * VS || bi >= P.length - 2) { const nm = rute.tujuan.nama; hapusRute(); bunyi('masuk'); toast(`📍 Sampai di ${nm}!`, 3000); return; }
+  if (Math.hypot(ex - x, ez - z) < 2.2 * VS || bi >= P.length - 2) { const nm = rute.tujuan.nama; hapusRute(); bunyi('masuk'); toast(`📍 Sampai di ${nm}!`, 3000);
+    // 1 menit pertama: warga baru sering muncul sudah di depan rumah → sampai di kebun = langkah 🎯 1 selesai (tidak perlu hitung 20 langkah)
+    if (nm === 'kebunmu' && pemulaKini()?.id === 'jalan') pemulaMaju('jalan', 99);
+    // langkah tanam: begitu sampai, panel 🌱 Tanam langsung dibuka; kalau masih di luar jangkauan, diantar masuk ke tengah pekarangan
+    if ((nm === 'kebunmu' || nm === 'tengah kebunmu') && pemulaKini()?.id === 'tanam') setTimeout(() => { if (bisaTanam(tokoh.saya)) bukaTanam();
+      else if (nm === 'kebunmu') { const L = I.lots[S.saya.no]; if (L) mulaiRute({x: L.c.x, z: L.c.z, nama: 'tengah kebunmu', kav: S.saya.no}, true); } }, 400);
+    return; }
   if (bd > 7 * VS && t - rute.ulangT > 1500) { rute.ulangT = t; rute.ulang = 1; mulaiRute(rute.tujuan, rute.antar); rute.ulang = 0; return; }   // keluar jalur → hitung ulang rute
   if (rute.antar) {
     const j = Math.min(P.length - 1, bi + 3); gerak.tujuan = new THREE.Vector3(P[j][0], 0, P[j][1]);
@@ -2729,7 +2752,7 @@ addEventListener('keydown', e => { if (document.activeElement && document.active
 addEventListener('keyup', e => { gerak.kunci[e.key.toLowerCase()] = false; });
 addEventListener('blur', () => { gerak.kunci = {}; });
 const stik = $('stik'), kenop = $('kenop');
-stik.addEventListener('pointerdown', e => { stik.setPointerCapture(e.pointerId); gerak.stik = {id: e.pointerId, x: 0, y: 0}; gerak.tujuan = null; geserStik(e); });
+stik.addEventListener('pointerdown', e => { $('tanganStik').hidden = true; stik.setPointerCapture(e.pointerId); gerak.stik = {id: e.pointerId, x: 0, y: 0}; gerak.tujuan = null; geserStik(e); });
 stik.addEventListener('pointermove', e => { if (gerak.stik && gerak.stik.id === e.pointerId) geserStik(e); });
 const lepasStik = e => { if (gerak.stik && gerak.stik.id === e.pointerId) { gerak.stik = null; kenop.style.transform = ''; stik.classList.remove('lari'); } };
 stik.addEventListener('pointerup', lepasStik); stik.addEventListener('pointercancel', lepasStik);
@@ -2918,10 +2941,10 @@ async function mulai() {
   if (!baca('dk_panduan')) pemulaKini() ? panduanBaru() : panduan();
   // Voting Fasum muncul sebagai pop up saat masuk game, sekali per hari (Huda 6 Nov 2026), sekalian ambil bintang gratis harian.
   // Wajib pilih (Huda 6 Nov): tanda dk_vt baru disimpan setelah menaruh bintang, jadi muat ulang tidak melewati voting.
-  else if (!S.tamu && baca('dk_vt') !== hariIni()) setTimeout(() => bukaVoting(true), 1200);
-  if (!S.tamu && baca('dk_ingat') !== hariIni()) setTimeout(ingatKoin, 45e3);
+  else if (!S.tamu && baca('dk_vt') !== hariIni()) setTimeout(() => setelahPemula(() => bukaVoting(true)), 1200);
+  if (!S.tamu && baca('dk_ingat') !== hariIni()) setTimeout(() => setelahPemula(ingatKoin), 45e3);
   onResize(); requestAnimationFrame(loop);
-  $('chipTujuan').onclick = klikTujuan; tulisTujuan(); siapkanLangkah(); setTimeout(ambilHadir, 2500);
+  $('chipTujuan').onclick = klikTujuan; tulisTujuan(); siapkanLangkah(); setTimeout(ambilHadir, 2500); setInterval(bantuPemula, 1000);
   DG = pasangDesaGabung({DI, NAMA: NAMA_DUSUN, VS, tokoh, tanah, toast, bunyi, pindahBus: d => { const u = new URL(location.href); u.searchParams.set('dusun', d); u.searchParams.delete('ke'); location.href = u.toString(); }});
   { const ke = new URLSearchParams(location.search).get('ke'); if (ke === 'gapura') DG.tiba(); else if (ke) setTimeout(() => keTempat(ke), 1500); }
   $('chipKumpul').onclick = keKumpul;
@@ -2987,15 +3010,15 @@ function aturHUD() {
 }
 // Pemain baru: sambutan singkat (2 kalimat), sisanya diajarkan lewat tujuan 🎯 satu per satu. Panduan lengkap tetap di ⚙ Atur.
 function panduanBaru() {
+  // 1 menit pertama (Huda 11 Nov 2026): satu kalimat saja, tombolnya langsung mengantar ke rumah (langkah 🎯 1 selesai sambil jalan).
   dialogRaka([
-    `Halo @${S.saya.ig}! Aku Raka, ini Oyen. Selamat datang di rumah barumu: ${alamat(S.saya.no)}.`,
-    `Ikuti 🎯 tujuan di atas layar. Tiap tujuan selesai langsung dapat koin, total 100 🪙 + 10 💎 buat hias rumahmu. Pertama: pakai joystick, jalan masuk ke pekaranganmu.`,
-  ], () => simpan('dk_panduan', '1'));
+    `Halo @${S.saya.ig}! Aku Raka. Rumahmu sudah jadi di ${alamat(S.saya.no)}. Ikuti 🎯 di atas layar, tiap tujuan dapat koin!`,
+  ], () => { simpan('dk_panduan', '1'); if (pemulaKini()?.id === 'jalan') keKebun(); }, '🏡 Antar ke rumahku');
 }
-function dialogRaka(L, akhir) {
+function dialogRaka(L, akhir, labelAkhir) {
   let i = 0; const d = $('dialog');
   const tutup = () => { d.hidden = true; akhir && akhir(); };
-  const tampil = () => { $('dialogTeks').textContent = L[i]; $('dLanjut').textContent = i === L.length - 1 ? 'Siap!' : 'Lanjut'; $('dLewati').hidden = L.length < 2 || i === L.length - 1; gelembung('raka', '👋', true); };
+  const tampil = () => { $('dialogTeks').textContent = L[i]; $('dLanjut').textContent = i === L.length - 1 ? labelAkhir || 'Siap!' : 'Lanjut'; $('dLewati').hidden = L.length < 2 || i === L.length - 1; gelembung('raka', '👋', true); };
   d.hidden = false; tampil();
   $('dLanjut').onclick = () => { i++; if (i >= L.length) tutup(); else tampil(); };
   $('dLewati').onclick = tutup;
