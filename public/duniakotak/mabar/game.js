@@ -409,11 +409,11 @@ const kendSaya = () => { const K = S.hias && S.hias.kendaraan, k = K && Array.is
 const kendKavling = n => S.saya && n === S.saya.no ? kendSaya() : (HS[n] && HS[n].k) || '';
 function modelKend(k, no) { const [m, w] = k.split(':'); const o = buatMobil(m, (WARNA_KENDARAAN[w | 0] || WARNA_KENDARAAN[0])[1], no); o.scale.setScalar(M_KEND); return o; }
 // parkir di pekarangan (kanan rumah, menghadap jalan); kendaraan yang sedang dikendarai pemiliknya tidak tampil di rumah
-const PARKIR = [.55, 1.75];
+const PARKIR = [1.7, 2.05];   // di antara pagar halaman rumah, kebun, pohon & warung (Huda 11 Nov: jangan menabrak pagar), melintang
 function pasangParkir(n, L, extra, rects) {
   const k = kendKavling(n); if (!k || (S.saya && n === S.saya.no && NAIK)) return;
-  const v = modelKend(k, n); v.position.set(L.c.x + L.dir * PARKIR[0] * VS, 0, L.c.z + L.dir * PARKIR[1] * VS); v.rotation.y = L.dir === 1 ? 0 : Math.PI; extra.add(v);
-  const m = k.split(':')[0], dua = m === 'sepeda' || m === 'motor', rx = dua ? .1 : .45, rz = dua ? .45 : 1.0;
+  const v = modelKend(k, n); v.position.set(L.c.x + L.dir * PARKIR[0] * VS, 0, L.c.z + L.dir * PARKIR[1] * VS); v.rotation.y = L.dir === 1 ? -Math.PI / 2 : Math.PI / 2; extra.add(v);
+  const m = k.split(':')[0], dua = m === 'sepeda' || m === 'motor', rx = dua ? .5 : 1.05, rz = dua ? .12 : .46;
   rects.push(rectLot(L, PARKIR[0] - rx, PARKIR[0] + rx, PARKIR[1] - rz, PARKIR[1] + rz));
 }
 // naik: model kendaraan jadi anak avatar, bagian badan avatar diangkat ke kursi & dipose duduk
@@ -425,6 +425,10 @@ function naikkan(obj, k, no) {
   obj.userData.naik = {k, v, angkat, badan, pose: {legL: s.kaki, legR: s.kaki, armL: s.tangan, armR: s.tangan, armLz: .12, armRz: -.12}};
 }
 function turunkan(obj) { const n = obj.userData.naik; if (!n) return; n.badan.forEach(c => { c.position.y -= n.angkat; }); obj.remove(n.v); obj.userData.naik = null; }
+// roda kendaraan yang dikendarai selalu menapak jalan: di tanjakan kendaraan miring & diangkat seperlunya (tidak tenggelam)
+function kendMenapak(obj) { const n = obj.userData.naik; if (!n) return; const m = n.k.split(':')[0], sb = ({sepeda: .55, motor: .7}[m] || 1.35) * M_KEND, p = obj.position;
+  const hx = Math.sin(obj.rotation.y), hz = Math.cos(obj.rotation.y), yD = tanah(p.x + hx * sb, p.z + hz * sb, p.y), yB = tanah(p.x - hx * sb, p.z - hz * sb, p.y);
+  n.v.position.y = Math.max(0, (yD + yB) / 2 - p.y); n.v.rotation.x = -Math.atan2(yD - yB, 2 * sb) * .9; }
 function putarRoda(obj, jarak) { const n = obj.userData.naik; if (!n) return; for (const r of n.v.userData.roda) r.putar.rotation.x += jarak / (n.v.userData.jari * M_KEND); }
 let lalin = null;   // lalu lintas desa (js/lalulintas.js)
 let NAIK = null;   // kendaraan yang sedang dikendarai pemain
@@ -3239,7 +3243,7 @@ function loop(t) {
     const x0 = me.position.x, z0 = me.position.z;
     if (bebas(nx, me.position.z)) { me.position.x = nx; maju = true; }
     if (bebas(me.position.x, nz)) { me.position.z = nz; maju = true; }
-    if (NAIK) putarRoda(me, Math.hypot(me.position.x - x0, me.position.z - z0));
+    if (NAIK) putarRoda(me, Math.hypot(me.position.x - x0, me.position.z - z0)); 
     if (!maju) gerak.tujuan = null;
     const tr = Math.atan2(vx, vz); let dr = tr - me.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); me.rotation.y += dr * Math.min(1, dt * 12);
     const lk = Math.floor(ph / Math.PI); ph += dt * (lari ? 17 : 11); if (Math.floor(ph / Math.PI) !== lk) { if (!NAIK) bunyi('langkah'); misiMaju('jalan'); if (lari) misiMaju('lari'); } jalanAnim(me, ph, lari ? 1.05 : .7);
@@ -3248,13 +3252,14 @@ function loop(t) {
     if (lompat.diTanah) { me.position.y += (g - me.position.y) * Math.min(1, dt * 18); }
     else { lompat.vy -= 95 * dt; me.position.y += lompat.vy * dt; if (me.position.y <= g) { me.position.y = g; lompat.vy = 0; lompat.diTanah = true; } }
     if (!lompat.diTanah && !NAIK) { const a = Math.min(1, me.position.y / 6); wpose(me, {legL: -.5 * a, legR: .4 * a, armL: -2.4 * a, armR: -2.4 * a}); } }
+  if (NAIK) kendMenapak(me);
   cekMisiDekat(me); cekDalamFasum(me); cekDalamRumah(me); jalanRute(t);
   // warga lain: interpolasi
   for (const o of S.others.values()) {
     const p = o.obj.position; const a = Math.min(1, dt * 8); if (Math.abs(o.tx - p.x) + Math.abs(o.tz - p.z) > 300) { p.x = o.tx; p.z = o.tz; } p.x += (o.tx - p.x) * a; p.z += (o.tz - p.z) * a;
     if (o.lompat) { o.lompat.vy -= 95 * dt; o.lompat.y += o.lompat.vy * dt; if (o.lompat.y <= 0) o.lompat = null; }
     p.y += (tanah(p.x, p.z, p.y - (o.lompat ? o.lompat.y : 0)) + (o.lompat ? o.lompat.y : 0) - p.y) * (o.lompat ? 1 : a);
-    let dr = o.tr - o.obj.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); o.obj.rotation.y += dr * a;
+    let dr = o.tr - o.obj.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); o.obj.rotation.y += dr * a; if (o.obj.userData.naik) kendMenapak(o.obj);
     const jalan = o.a && performance.now() - (o.akhir || 0) < 600; if (jalan) { o.ph += dt * 11; jalanAnim(o.obj, o.ph, .7); } else jalanAnim(o.obj, 0, 0);
   }
   // Raka menghadap pemain bila dekat, Oyen mengibas

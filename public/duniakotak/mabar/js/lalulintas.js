@@ -126,11 +126,16 @@ export function buatLaluLintas({sc, I, VS, tanah, warga, pose, siapAv, buatMobil
   const _d = new THREE.Vector3();
   function letak(c, langsung) {
     const ax = nx(c.a), az = nz(c.a), L = panjangRuas(c) || 1, dx = (nx(c.b) - ax) / L, dz = (nz(c.b) - az) / L, ln = lajur(c);
-    const x = ax + dx * c.s + dz * ln, z = az + dz * c.s - dx * ln, y = tanah(x, z, c.o.position.y);   // lajur kiri: normal kiri (dz, -dx)
+    const x = ax + dx * c.s + dz * ln, z = az + dz * c.s - dx * ln;   // lajur kiri: normal kiri (dz, -dx)
     const ry = Math.atan2(dx, dz), o = c.o;
-    if (langsung) { o.position.set(x, y, z); o.rotation.y = ry; return; }
-    const a = Math.min(1, c.dt * 7); o.position.x += (x - o.position.x) * a; o.position.z += (z - o.position.z) * a; o.position.y += (y - o.position.y) * Math.min(1, c.dt * 10);
-    let dr = ry - o.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); o.rotation.y += dr * Math.min(1, c.dt * 6);
+    if (langsung) { o.position.set(x, tanah(x, z, 0), z); o.rotation.y = ry; }
+    else { const a = Math.min(1, c.dt * 7); o.position.x += (x - o.position.x) * a; o.position.z += (z - o.position.z) * a;
+      let dr = ry - o.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); o.rotation.y += dr * Math.min(1, c.dt * 6); }
+    // roda selalu menapak permukaan jalan (Huda 11 Nov: "jangan terlihat tenggelam di jalan"): tinggi diambil langsung (tanpa
+    // tunda) dari titik tengah, roda depan & roda belakang; di tanjakan bodi ikut miring mengikuti jalan.
+    const hx = Math.sin(o.rotation.y), hz = Math.cos(o.rotation.y), sb = c.pj * .38, px = o.position.x, pz = o.position.z, ref = o.position.y;
+    const yT = tanah(px, pz, ref), yD = tanah(px + hx * sb, pz + hz * sb, ref), yB = tanah(px - hx * sb, pz - hz * sb, ref);
+    o.position.y = Math.max(yT, (yD + yB) / 2); o.rotation.x = -Math.atan2(yD - yB, 2 * sb) * .9; o.rotation.order = 'YXZ';
   }
   function halangan(c, ox, oz, jauh) {   // ada benda di depan pada lajur sendiri?
     const L = panjangRuas(c) || 1, dx = (nx(c.b) - nx(c.a)) / L, dz = (nz(c.b) - nz(c.a)) / L, p = c.o.position;

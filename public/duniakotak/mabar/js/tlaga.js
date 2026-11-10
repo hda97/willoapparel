@@ -74,7 +74,7 @@ export function tlaga(sc, o = {}) {
     if (dz < AZ + MG) { const xi = (AX + 5.5) * Math.sqrt(Math.max(0, 1 - (dz / (AZ + 5.5)) ** 2)); [-1, 1].forEach(sd => road(sd * (XS + xi) / 2, z, XS - xi + 4, 4)); }
     else road(0, z, 2 * XS + 4, 4);
   }
-  [-1, 1].forEach(sd => road(sd * XS, ZU / 2 + 2, 4, -ZU + 8));
+  [-1, 1].forEach(sd => road(sd * XS, ZU / 2, 4, 4 - ZU));   // pas dari tepi jalan teratas sampai tepi jalan terbawah (tanpa sisa ujung)
   fasum(0, ZT, 40, 22); road(0, ZT / 2 - 2, 8, ZT - 6); road(0, ZT + 11 + 170, 8, 340);
 
   // ---- petak: tiap jalan, tiap kolom, sisi utara (rot 0) lalu sisi selatan (rot π); petak di air/jalan dilewati ----

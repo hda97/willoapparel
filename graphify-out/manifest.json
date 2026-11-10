@@ -113,9 +113,9 @@
     "semantic_hash": "16f7aa92d3e9468edf41dd30b4c182d1"
   },
   "public/duniakotak/mabar/game.js": {
-    "mtime": 1794351971.9355152,
-    "seen": 1794352124.4996834,
-    "ast_hash": "7ed9ffd03f9b9f3a4f26a172c74983ca",
+    "mtime": 1794352778.4349582,
+    "seen": 1794353281.9300876,
+    "ast_hash": "0a4c5f2972c95fdd75658f2078a0abc2",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/avatar.js": {
@@ -149,9 +149,9 @@
     "semantic_hash": "c98a85c16aae898f3ef9279c4283e103"
   },
   "public/duniakotak/mabar/js/curug.js": {
-    "mtime": 1794351735.6863782,
-    "seen": 1794351766.1085494,
-    "ast_hash": "e7b930ddcc0fd4ee695ea02d9fe67a6d",
+    "mtime": 1794353113.88314,
+    "seen": 1794353281.9301074,
+    "ast_hash": "a5df35a3487d92283a3924b20c9ec3ec",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/desa.js": {
@@ -161,9 +161,9 @@
     "semantic_hash": "380f619d18d8d6cf482b96b7ed0e94b1"
   },
   "public/duniakotak/mabar/js/kulon.js": {
-    "mtime": 1794348374.5746293,
-    "seen": 1794349313.5800025,
-    "ast_hash": "5246ffecc302309901a5a0d1ff0e9fbc",
+    "mtime": 1794353113.883595,
+    "seen": 1794353281.930113,
+    "ast_hash": "70a9666cd8782e470bdfeddc408049c1",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/lib.js": {
@@ -653,9 +653,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/tlaga.js": {
-    "mtime": 1794348374.5746293,
-    "seen": 1794349313.580013,
-    "ast_hash": "d24f7b359c632c3288f5175bf0acb6e9",
+    "mtime": 1794353181.2729464,
+    "seen": 1794353281.9301233,
+    "ast_hash": "f7ea9e21dbbe20b7fc98d972c487d53d",
     "semantic_hash": ""
   },
   "public/duniakotak/pulau/data.json": {
@@ -977,9 +977,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/index.html": {
-    "mtime": 1794351735.6849115,
-    "seen": 1794351766.1086624,
-    "ast_hash": "bdfc01334a6c61a15b20ad696d6046e5",
+    "mtime": 1794352133.526616,
+    "seen": 1794353281.9302144,
+    "ast_hash": "85a6b3b499da702acfeb4981ed6a14e5",
     "semantic_hash": ""
   },
   "public/duniakotak/privasi.html": {
@@ -3593,9 +3593,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/lalulintas.js": {
-    "mtime": 1794351961.0229712,
-    "seen": 1794352124.4997022,
-    "ast_hash": "917b36e9eea0533e8dd82829bf763568",
+    "mtime": 1794352652.1528647,
+    "seen": 1794353281.9301145,
+    "ast_hash": "2bc7bf8c74db329e39fd8f1e610cc060",
     "semantic_hash": ""
   },
   "aplikasi-android/package-lock.json": {
