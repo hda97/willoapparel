@@ -470,3 +470,18 @@ a.pdSaweria{display:block;text-align:center;text-decoration:none;margin-top:6px}
 .psGelang{display:grid;gap:6px}.psBar{position:relative;height:22px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
 .psZona{position:absolute;left:40%;width:20%;top:0;bottom:0;background:rgba(255,210,58,.55)}.psJarum{position:absolute;left:0;top:-2px;bottom:-2px;width:5px;margin-left:-2px;background:#fff;border-radius:3px;box-shadow:0 0 6px #fff}
 .psGelang .ok,#psInfo .ok{color:#7be39b}
+
+/* Layar pembuka (logo Dunia Kotak, 10 Nov 2026) */
+.logoPembuka{width:min(250px,64vw);margin:0 auto}
+.logoPembuka svg{display:block;width:100%;height:auto;overflow:visible}
+.logoPembuka .vx{animation:dkJatuh .6s cubic-bezier(.2,1.35,.4,1) both;animation-delay:calc(var(--n)*38ms + .15s)}
+.logoPembuka .ol{animation:dkMuncul .35s ease both;animation-delay:1.6s}
+.logoPembuka .tx{transform-box:fill-box;transform-origin:50% 60%;animation:dkPop .55s cubic-bezier(.2,1.5,.4,1) both;animation-delay:1.9s}
+.logoPembuka .tx+.tx{animation-delay:2.05s}
+.slogan{margin:0;font-weight:800;font-size:14px;color:#fff;animation:dkMuncul .5s ease 2.3s both}
+@keyframes dkJatuh{from{transform:translateY(-3px);opacity:0}to{transform:none;opacity:1}}
+@keyframes dkPop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+@keyframes dkMuncul{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.muat::after{content:"";display:block;width:min(220px,60%);height:10px;margin:10px auto 0;border:3px solid #14152a;border-radius:4px;background:repeating-linear-gradient(90deg,#a6e35f 0 14px,#6fbf3c 14px 16px) #14152a;background-size:200% 100%;animation:dkBar 1.2s linear infinite}
+@keyframes dkBar{to{background-position:-32px 0}}
+@media (prefers-reduced-motion:reduce){.logoPembuka *,.slogan,.muat::after{animation:none!important}}
