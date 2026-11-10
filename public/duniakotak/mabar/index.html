@@ -42,7 +42,7 @@
  <button id="chipKumpul" class="chipKumpul" hidden title="Antar ke Stadion"></button>
  <button id="chipTujuan" class="chipTujuan" hidden title="Tujuanmu sekarang"></button>
  <button id="chipRute" class="chipRute" hidden title="Buka peta"></button>
- <div id="stik"><div id="kenop"></div></div>
+ <div id="stik"><div id="kenop"></div><div id="tanganStik" hidden aria-hidden="true">👆<b>Geser</b></div></div>
  <div class="zoom skill" id="skill"><button id="sLompat" class="siap" title="Lompat (Spasi)"><i><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2.5l7.5 8.5h-4.7v6.2H9.2V11H4.5z" fill="#fff"/><rect x="5" y="19.6" width="14" height="2.4" rx="1.2" fill="#fff" opacity=".65"/></svg></i>Lompat</button><button id="sLari" title="Ikut lari Pelari Kalcer" hidden><i>🏃</i>Ikut Lari</button><button id="sReli" title="Balap mobil Reli Kotak" hidden><i>🏁</i>Reli</button><button id="sBangun" title="Ikut membangun fasum (Tukang Kotak)" hidden><i>🔨</i>Bangun</button><button id="sTendang" title="Tendang bola (T)" hidden><i>⚽</i>Tendang</button><button id="sAmbil" title="Ambil item (F)"><i>✋</i>Ambil</button><button id="sMancing" title="Mancing di sungai (R)"><i>🎣</i>Mancing</button><button id="sMakan" title="Beri makan kucing (G)"><i>🐟</i>Beri makan</button><button id="sTanam" title="Tanam bibit di kebunmu" hidden><i>🌱</i>Tanam</button><button id="sPanen" title="Panen kebun (+2 permata + hasil)" hidden><i>🧺</i>Panen</button><button id="sJual" title="Jual hasil panen di warungmu" hidden><i>💰</i>Jual</button><button id="sPasar" title="Jajan &amp; main di Pasar Malam" hidden><i>🎪</i>Pasar</button><button id="sWillo" title="Pesan kaos sablon untuk avatarmu" hidden><i>👕</i>Pesan Kaos</button><button id="sSuka" title="Beri ❤️ untuk rumah ini (Lomba Rumah Terindah)" hidden><i>❤️</i>Suka</button><button id="sKerja" title="Kerja shift profesimu" hidden><i>💼</i>Kerja</button><button id="sLift" title="Naik lift" hidden><i>🛗</i>Lift</button></div>
 </div>
 
@@ -76,6 +76,7 @@
    <button class="barisAtur" id="bToko" title="Hias rumah dan avatar"><i>🎨</i><span>Toko Hias<small>Rumah 2 lantai, cat, pagar, topi · 💎 dari panen kebun &amp; donasi</small></span></button>
    <button class="barisAtur" id="bProfesi" title="Kantor Desa: buka dan pilih profesi"><i>🏛️</i><span>Kantor Desa · Profesi<small>Guru, perawat, dokter, kasir, wasit · dibuka pakai 💎</small></span></button>
    <button class="barisAtur ajakAtur" id="bAjak" title="Ajak teman jadi warga"><i>🤝</i><span>Ajak Tetangga<small id="ajakSisa">Ajak teman daftar, kalian berdua dapat 💎 · menuju Dusun Segara</small></span></button>
+   <button class="barisAtur" id="bNotif" hidden title="Pengingat di HP"><i>🔔</i><span>Pengingat di HP<small id="notifStatus">Dikabari saat panen siap, Pasar Malam buka &amp; voting tutup</small></span></button>
    <button class="barisAtur" id="bVoting" title="Voting fasum berikutnya"><i>⭐</i><span>Voting Fasum<small>1 bintang gratis tiap hari</small></span></button>
    <button class="barisAtur" id="bPasar" title="Pasar Malam Sabtu"><i>🎪</i><span>Pasar Malam<small>Tiap Sabtu 19.00–23.00 WIB di Stadion · jajan, bianglala, lempar gelang</small></span></button>
    <button class="barisAtur" id="bAlbum" title="Album Ikan &amp; Panen"><i>📖</i><span>Album Ikan &amp; Panen<small>Kumpulkan semua ikan &amp; hasil kebun · dapat lencana 🎣 🧺</small></span></button>
@@ -92,6 +93,7 @@
 <div id="panelKabar" class="layarPenuh popup" hidden>
  <div class="panel"><button class="popTutup" data-tutup="panelKabar" aria-label="Tutup">✕</button>
   <h2>📣 Baru di Desa!</h2>
+  <div class="kbItem" data-k="notif"><i>🔔</i><div><b>Pengingat di HP</b><small>Desa bisa mengabarimu lewat notifikasi HP: tanaman siap panen, Pasar Malam buka &amp; voting mau tutup. Maks 1 kabar sehari, tidak bunyi malam hari. Nyalakan di ⚙️ Atur → 🔔 Pengingat di HP.</small></div></div>
   <div class="kbItem" data-k="reli"><i>🏁</i><div><b>Reli Kotak: balap mobil!</b><small>Sirkuit Reli Kotak sudah buka di Dusun Kotak Curug, di depan kaki gunung. Masuk gerbangnya, tekan 🏁 Reli, lalu ngebut lewat 20 gerbang di jalan tanah hutan pinus. Pilih warna mobilmu, kejar rekor tercepat desa! Finish = +10 🪙 (3x sehari).</small></div></div>
   <div class="kbItem" data-k="arena"><i>🏃</i><div><b>Arena Pelari Kalcer sudah berdiri!</b><small>Pelari Kalcer pindah ke tempatnya sendiri, tidak lagi di Stadion. Ada lintasan lari, gapura start, tribun &amp; podium juara di Dusun Kotak Kulon. Masuk gerbangnya, tekan 🏃 Ikut Lari. Finish = +15 🪙 misi harian &amp; poin Piala dusunmu!</small></div></div>
   <div class="kbItem" data-k="tukang"><i>🔨</i><div><b>Tukang Kotak: ikut bangun fasum!</b><small>Masuk ke lahan proyek 🚧 (sekarang Taman Kota di Kotak Wetan), tekan 🔨 Bangun. Angkut bata, kayu &amp; semen ke gerbang proyek, lihat fasumnya tumbuh di depan mata! Bangun sampai 100%: fasum 20 menit lebih cepat + koin &amp; poin Piala dusunmu.</small></div></div>
@@ -104,8 +106,16 @@
   <div class="kbItem" data-k="rumah"><i>🏡</i><div><b>Lomba Rumah Terindah</b><small>Hias rumahmu! Tiap hari kamu punya 3 ❤️ gratis untuk rumah tetangga (dekati rumahnya, tekan ❤️ Suka). Rumah dengan ❤️ terbanyak minggu ini dapat piala emas di atas rumah + dikunjungi Raka di vlog!</small></div></div>
   <div class="kbItem" data-k="ajak"><i>🤝</i><div><b>Ajak Tetangga</b><small id="kbAjak">Bagikan link ajakmu. Teman daftar &amp; tanam bibit pertama: kamu +10 💎, temanmu +5 💎. Ayo penuhi warga ke-861, Dusun Segara dibuka!</small></div></div>
   <div class="kbItem" data-k="piala"><i>🏆</i><div><b>Piala Antardusun Mingguan</b><small>Finish Pelari Kalcer +10 poin &amp; gol di stadion +2 poin untuk dusunmu. Dusun juara dapat bendera emas di gapura!</small></div></div>
-  <div class="kbTombol"><button class="utama" id="kbReliBtn">🧭 Antar ke Sirkuit</button><button class="utama" id="kbArenaBtn">🧭 Antar ke Arena</button><button class="utama" id="kbTukangBtn">🔨 Ikut bangun sekarang</button><button class="utama" id="kbVotingBtn">⭐ Lihat voting fasum</button><button class="utama" id="kbPasarBtn">🎪 Lihat Pasar Malam</button><button class="utama" id="kbAlbumBtn">📖 Buka album</button><button class="utama" id="kbNpcBtn">🧭 Antar ke Rumah Sakit</button><button class="utama" id="kbRumahBtn">🏡 Lihat lomba</button><button class="utama" id="kbAjakBtn">🤝 Ajak teman sekarang</button><button id="kbPialaBtn">🏆 Lihat klasemen</button></div>
+  <div class="kbTombol"><button class="utama" id="kbNotifBtn">🔔 Nyalakan pengingat</button><button class="utama" id="kbReliBtn">🧭 Antar ke Sirkuit</button><button class="utama" id="kbArenaBtn">🧭 Antar ke Arena</button><button class="utama" id="kbTukangBtn">🔨 Ikut bangun sekarang</button><button class="utama" id="kbVotingBtn">⭐ Lihat voting fasum</button><button class="utama" id="kbPasarBtn">🎪 Lihat Pasar Malam</button><button class="utama" id="kbAlbumBtn">📖 Buka album</button><button class="utama" id="kbNpcBtn">🧭 Antar ke Rumah Sakit</button><button class="utama" id="kbRumahBtn">🏡 Lihat lomba</button><button class="utama" id="kbAjakBtn">🤝 Ajak teman sekarang</button><button id="kbPialaBtn">🏆 Lihat klasemen</button></div>
   <p class="kecil">Semuanya ada di ⚙️ Atur dan tombol 🏆 Peringkat.</p>
+ </div>
+</div>
+<div id="panelNotif" class="layarPenuh popup" hidden>
+ <div class="panel"><button class="popTutup" data-tutup="panelNotif" aria-label="Tutup">✕</button>
+  <h2>🔔 Mau dikabari?</h2>
+  <p id="isiNotif">Desa akan mengabarimu lewat notifikasi HP saat tanamanmu siap panen, Pasar Malam buka, atau voting mau tutup. Maks 1 kabar sehari, tidak bunyi malam hari.</p>
+  <button class="utama" id="notifYa">🔔 Nyalakan pengingat</button>
+  <button id="notifNanti">Nanti saja</button>
  </div>
 </div>
 <div id="panelPasar" class="layarPenuh popup" hidden>
@@ -270,6 +280,6 @@
 
 <div id="miring" class="layarPenuh" hidden><div class="panel"><div style="font-size:54px">📱↻</div><h2>Miringkan HP-mu</h2><p class="sub">Dunia Kotak dimainkan dengan layar mendatar.</p><button class="tipis" id="tetapTegak">Tetap main tegak</button></div></div>
 
-<script type="module" src="game.js?v=20261110app"></script>
+<script type="module" src="game.js?v=20261111notif"></script>
 </body>
 </html>

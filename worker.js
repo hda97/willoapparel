@@ -2,6 +2,7 @@
 // Satu Durable Object per halaman. Menyimpan jumlah harian (WIB) dan kunjungan 30 menit terakhir
 // berupa kota (dari Cloudflare) + id acak browser. Tanpa nama, email, atau IP.
 import { DurableObject } from "cloudflare:workers";
+import { buatVapid, kirimPush, endpointSah } from "./notif.js";
 export class Pengunjung extends DurableObject {
   async fetch(request) {
     const u = new URL(request.url);
@@ -336,6 +337,9 @@ export class Warga extends DurableObject {
     this.sql.exec("CREATE TABLE IF NOT EXISTS plakat (no INTEGER, ke INTEGER, fasum TEXT, t INTEGER, PRIMARY KEY (no, ke))");
     // Hitungan pemakaian fitur per hari WIB (dashboard Huda, 7 Nov 2026). Hanya angka, tidak tampil ke warga.
     this.sql.exec("CREATE TABLE IF NOT EXISTS fitur (hari TEXT, aksi TEXT, n INTEGER DEFAULT 0, PRIMARY KEY (hari, aksi))");
+    // Notifikasi HP (Huda 11 Nov 2026): satu langganan Web Push per warga (HP terakhir yang menyalakan pengingat).
+    // hari = tanggal WIB notifikasi terakhir (maks 1/hari), pt = waktu tanam yang sudah dikabari, kg = kabar "kangen" terakhir, pv = putaran voting dikabari.
+    this.sql.exec("CREATE TABLE IF NOT EXISTS notif (no INTEGER PRIMARY KEY, ep TEXT, p256dh TEXT, auth TEXT, t INTEGER, hari TEXT, pt INTEGER, kg INTEGER, pv TEXT, pasar TEXT, gagal INTEGER DEFAULT 0)");
     // Koreksi salah ketik username: pindahkan ke username & kavling yang benar (sekali jalan, aman diulang).
     for (const [salah, benar] of Object.entries(KOREKSI_IG)) {
       const r = this.sql.exec("SELECT no FROM warga WHERE ig = ?", salah).toArray()[0];
@@ -595,6 +599,7 @@ export class Warga extends DurableObject {
       for (const no of nos) { const r = this.sql.exec("SELECT no, ig, tiktok, nama FROM warga WHERE no = ?", no).toArray()[0]; if (r) out[no] = this.nm(r) || r.nama || ""; }
       return Response.json(out);
     }
+    if (aksi.startsWith("notif")) return this.layaniNotif(aksi, request);
     // Jejak keluar (Huda 10 Nov 2026): kapan & di layar mana warga menutup game, lama layar memuat. Angka saja, tanpa nama.
     if (aksi === "jejak") {
       const q = await request.json().catch(() => ({})), hari = hariWib();
@@ -609,6 +614,74 @@ export class Warga extends DurableObject {
       try { this.sql.exec("INSERT INTO fitur (hari, aksi, n) VALUES (?, ?, 1) ON CONFLICT (hari, aksi) DO UPDATE SET n = n + 1", hariWib(), aksi); } catch (e) {}
     }
     return res;
+  }
+  // ---------- Notifikasi HP (Web Push), Huda 11 Nov 2026 ----------
+  async vapid() {
+    if (this._vapid) return this._vapid;
+    const baca = () => { const r = this.sql.exec("SELECT v FROM rahasia WHERE k = 'vapid'").toArray()[0]; return r ? JSON.parse(r.v) : null; };
+    let v = baca();
+    if (!v) { this.sql.exec("INSERT OR IGNORE INTO rahasia (k, v, t) VALUES ('vapid', ?, ?)", JSON.stringify(await buatVapid()), Date.now()); v = baca(); }
+    return (this._vapid = v);
+  }
+  hitungFitur(k, n = 1) { try { this.sql.exec("INSERT INTO fitur (hari, aksi, n) VALUES (?, ?, ?) ON CONFLICT (hari, aksi) DO UPDATE SET n = n + excluded.n", hariWib(), k, n); } catch (e) {} }
+  async layaniNotif(aksi, request) {
+    if (aksi === "notif-kunci") return Response.json({ kunci: (await this.vapid()).pub });
+    if (aksi === "notif") {
+      const q = await request.json().catch(() => ({}));
+      const r = this.sql.exec("SELECT no FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Masuk dulu sebagai warga." }, { status: 401 });
+      if (q.op === "hapus") { this.sql.exec("DELETE FROM notif WHERE no = ?", r.no); this.hitungFitur("notif:mati"); return Response.json({ ok: 1, nyala: 0 }); }
+      const sub = q.sub || {}, ep = String(sub.endpoint || ""), k = sub.keys || {};
+      if (!endpointSah(ep) || !/^[A-Za-z0-9_-]{80,100}$/.test(k.p256dh || "") || !/^[A-Za-z0-9_-]{16,32}$/.test(k.auth || "")) return Response.json({ galat: "Browser ini belum bisa menerima notifikasi." }, { status: 400 });
+      const lama = this.sql.exec("SELECT ep FROM notif WHERE no = ?", r.no).toArray()[0];
+      // HP yang sama dipakai warga lain → langganan lama dilepas dulu (satu HP = satu warga).
+      this.sql.exec("DELETE FROM notif WHERE ep = ? AND no != ?", ep, r.no);
+      this.sql.exec("INSERT INTO notif (no, ep, p256dh, auth, t, gagal) VALUES (?, ?, ?, ?, ?, 0) ON CONFLICT (no) DO UPDATE SET ep = excluded.ep, p256dh = excluded.p256dh, auth = excluded.auth, t = excluded.t, gagal = 0", r.no, ep, k.p256dh, k.auth, Date.now());
+      if (!lama) this.hitungFitur("notif:nyala");
+      return Response.json({ ok: 1, nyala: 1 });
+    }
+    if (aksi === "notif-klik") { const q = await request.json().catch(() => ({})); const j = String(q.jenis || ""); if (/^[a-z]{2,10}$/.test(j)) this.hitungFitur("notif-klik:" + j); return Response.json({ ok: 1 }); }
+    if (aksi === "notif-giliran") return Response.json(await this.giliranNotif(new URL(request.url).searchParams.get("uji")));
+    return Response.json({ galat: "?" }, { status: 404 });
+  }
+  // Dipanggil cron tiap 10 menit. Maks 1 notifikasi per warga per hari, jam tenang 21.00–07.00 WIB, maks 40 kiriman per giliran.
+  pesanNotif(w, kini, mw, sabtu) {
+    if (sabtu && mw >= 18 * 60 + 30 && mw < 19 * 60 + 30 && w.pasar !== hariWib(kini))
+      return { jenis: "pasar", judul: "🎪 Pasar Malam sudah buka!", isi: "Jajan sate, naik bianglala & lempar gelang di Stadion Kotak Wetan. Cuma malam ini sampai 23.00 WIB." };
+    const sisaVoting = VOTING_TUTUP - kini;
+    if (sisaVoting > 0 && sisaVoting < 30 * 3600e3 && mw >= 17 * 60 && w.pv !== PUTARAN_VOTING && w.vhari !== hariWib(kini))
+      return { jenis: "voting", judul: "⭐ Voting fasum ditutup malam ini", isi: "Taruh bintang gratismu sekarang. Fasum pilihan warga langsung dibangun di desa." };
+    let kb = {}; try { kb = w.kebun ? JSON.parse(w.kebun) : {}; } catch (e) {}
+    const lama = kini - (w.aktif || 0);
+    if (kb.b && kb.t && kini >= kb.t + PANEN_JEDA && w.pt !== kb.t && lama > 30 * 60e3) {
+      const bb = BIBIT[kb.b] || BIBIT.tomat;
+      return { jenis: "panen", judul: `${bb.ikon} ${bb.nama}mu siap dipanen!`, isi: `Panen sekarang dapat +${PANEN_PERMATA} 💎, lalu jual di warung depan rumahmu.`, pt: kb.t };
+    }
+    if (w.aktif && lama >= 2 * 864e5 && mw >= 18 * 60 && mw < 20 * 60 + 30 && (!w.kg || kini - w.kg >= 3 * 864e5)) {
+      const bonus = lama >= PULANG_HARI * 864e5 && (!w.pulang || kini - w.pulang >= PULANG_JEDA_HARI * 864e5);
+      return bonus ? { jenis: "pulang", judul: "🏡 Pulang kampung yuk!", isi: `Sudah ${Math.floor(lama / 864e5)} hari kamu tidak di desa. Pulang sekarang dapat +${PULANG_KOIN} koin & +${PULANG_PERMATA} 💎.` }
+        : { jenis: "kangen", judul: "🏡 Desamu kangen kamu", isi: "Ambil koin hadir hari ini & lihat yang baru di desa. Tetangga sudah menunggu!" };
+    }
+    return null;
+  }
+  async giliranNotif(uji) {
+    const kini = Date.now() + (uji ? Math.max(0, Math.min(30 * 864e5, +uji || 0)) : 0), mw = menitWib(kini), hari = hariWib(kini);
+    if (mw < 7 * 60 || mw >= 21 * 60) return { kirim: 0, tenang: 1 };
+    const sabtu = new Date(kini + 7 * 3600e3).getUTCDay() === 6;
+    const rows = this.sql.exec("SELECT n.no, n.ep, n.p256dh, n.auth, n.pt, n.kg, n.pv, n.pasar, w.kebun, w.aktif, w.pulang, w.vhari FROM notif n JOIN warga w ON w.no = n.no WHERE n.gagal < 5 AND (n.hari IS NULL OR n.hari != ?) LIMIT 2000", hari).toArray();
+    const antre = [];
+    for (const w of rows) { const p = this.pesanNotif(w, kini, mw, sabtu); if (p) antre.push([w, p]); if (antre.length >= 40) break; }
+    if (!antre.length) return { kirim: 0, langganan: rows.length };
+    const vapid = await this.vapid(); let kirim = 0, mati = 0;
+    await Promise.all(antre.map(async ([w, p]) => {
+      let st = 0; try { st = await kirimPush(w, { judul: p.judul, isi: p.isi, tag: "dk-" + p.jenis, url: "/duniakotak/mabar/?dari=notif-" + p.jenis, jenis: p.jenis }, vapid); } catch (e) { st = 0; }
+      if (st === 404 || st === 410) { this.sql.exec("DELETE FROM notif WHERE no = ?", w.no); mati++; return; }
+      if (st < 200 || st >= 300) { this.sql.exec("UPDATE notif SET gagal = gagal + 1 WHERE no = ?", w.no); return; }
+      kirim++; this.hitungFitur("notif-kirim:" + p.jenis);
+      this.sql.exec("UPDATE notif SET hari = ?, gagal = 0, pt = COALESCE(?, pt), kg = CASE WHEN ? THEN ? ELSE kg END, pv = CASE WHEN ? THEN ? ELSE pv END, pasar = CASE WHEN ? THEN ? ELSE pasar END WHERE no = ?",
+        hari, p.pt || null, p.jenis === "kangen" || p.jenis === "pulang" ? 1 : 0, kini, p.jenis === "voting" ? 1 : 0, PUTARAN_VOTING, p.jenis === "pasar" ? 1 : 0, hari, w.no);
+    }));
+    return { kirim, mati, antre: antre.length, langganan: rows.length };
   }
   // Ringkasan untuk dashboard Huda (/duniakotak/dashboard/). Angka agregat saja, tanpa email.
   statistik() {
@@ -636,6 +709,7 @@ export class Warga extends DurableObject {
     const arus = q("SELECT hari, jenis, n FROM arus WHERE hari >= ? ORDER BY hari", hariWib(now - 14 * 864e5));
     return { waktu: now, warga: rows.length, daftar, aktif: a, ekonomi: { koin, koinTotal, permata, bintang }, kebun, kucing, rumah2, bagi, misiHariIni, misiPenuh, menit, profesi, fitur, donasi, arus, voting: this.hasilVoting(), baru: this.statistikFiturBaru(rows, hari), mainHariIni: mainHariIni.sort((x, y) => y.m - x.m).slice(0, 10),
       // Donasi terbaru (Huda 10 Nov: "donasi 15000 itu dari siapa"): nama pengirim di Trakteer + warga dari kode DK. Pesan tidak ikut.
+      notif: { langganan: q("SELECT COUNT(*) AS n FROM notif")[0].n },
       donasiTerbaru: q("SELECT d.t, d.no, d.rp, d.nama, w.ig, w.tiktok FROM donasi d LEFT JOIN warga w ON w.no = d.no ORDER BY d.t DESC LIMIT 10").map((x) => ({ t: x.t, no: x.no || 0, rp: x.rp || 0, nama: String(x.nama || "").slice(0, 40), u: x.ig || x.tiktok || "" })) };
   }
   // Laporan fitur baru 9-10 Nov 2026 (Tukang Kotak, Toko Willo, Piala, Lomba Rumah, Ajak) untuk dashboard Huda.
@@ -1752,6 +1826,10 @@ async function apiWargaInti(request, env, url) {
   if (aksi === "voting" && request.method === "GET") {
     return new Response((await stub.fetch("https://do/voting-publik")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=20" } });
   }
+  // Notifikasi HP (Huda 11 Nov 2026): kunci publik VAPID untuk pushManager.subscribe di game.
+  if (aksi === "notif-kunci" && request.method === "GET") {
+    return new Response((await stub.fetch("https://do/notif-kunci")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=3600" } });
+  }
   if (request.method !== "POST") return json({ galat: "Metode salah" }, 405);
   let body;
   try { body = await request.json(); } catch (e) { return json({ galat: "Data tidak terbaca" }, 400); }
@@ -1845,6 +1923,12 @@ async function apiWargaInti(request, env, url) {
       await Promise.all(DUSUN_RUANG.map((d) => env.RUANG.get(env.RUANG.idFromName(d)).fetch("https://ruang/desa", { method: "POST", body: isi }).catch(() => {}))); j.diumumkan = true; }
     delete j.kabar;
     return Response.json(j, { status: r.status, headers: { "cache-control": "no-store" } });
+  }
+  if (aksi === "notif" || aksi === "notif-klik") {
+    const q = aksi === "notif" ? { kunci: String(body.kunci || "").slice(0, 64), op: body.op === "hapus" ? "hapus" : "daftar", sub: body.sub && typeof body.sub === "object" ? { endpoint: String(body.sub.endpoint || "").slice(0, 900), keys: { p256dh: String(body.sub.keys?.p256dh || "").slice(0, 120), auth: String(body.sub.keys?.auth || "").slice(0, 40) } } : null }
+      : { jenis: String(body.jenis || "").slice(0, 10) };
+    const r = await stub.fetch("https://do/" + aksi, { method: "POST", body: JSON.stringify(q) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "iklan") {
     const r = await stub.fetch("https://do/iklan", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), aktif: env.IKLAN_H5 === "1" || (body.app === "android" && env.IKLAN_APP === "1") }) });
@@ -2030,6 +2114,11 @@ function log(env, request, kind, path, ref) {
 }
 
 export default {
+  // Cron tiap 10 menit (wrangler.jsonc triggers): kirim notifikasi HP Dunia Kotak yang jatuh tempo (panen siap, Pasar Malam, voting, pulang kampung).
+  async scheduled(event, env, ctx) {
+    if (!env.WARGA) return;
+    ctx.waitUntil(env.WARGA.get(env.WARGA.idFromName("desa")).fetch("https://do/notif-giliran", { method: "POST" }).catch(() => {}));
+  },
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.hostname.startsWith("www.")) {

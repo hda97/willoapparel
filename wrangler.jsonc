@@ -10,6 +10,8 @@
     { "pattern": "*.willoapparel.com/*", "zone_name": "willoapparel.com" }
   ],
   "workers_dev": true,
+  // Notifikasi HP Dunia Kotak (Huda 11 Nov 2026): cek pengingat yang jatuh tempo tiap 10 menit (lihat scheduled() di worker.js).
+  "triggers": { "crons": ["*/10 * * * *"] },
   // Penghitung pengunjung asli untuk pop up halaman produk (lihat class Pengunjung di worker.js).
   "durable_objects": {
     "bindings": [
