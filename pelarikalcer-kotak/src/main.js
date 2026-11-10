@@ -882,7 +882,7 @@ function ukur() { const w = innerWidth, h = innerHeight; R.setSize(w, h, false);
 addEventListener('resize', ukur); ukur();
 function putar(now) { const dt = Math.min(.05, (now - jamLalu) / 1000); jamLalu = now; if (mode !== 'jeda') langkah(dt); R.render(sc, kam); requestAnimationFrame(putar); }
 bangunDunia(Math.min(D.rute | 0, ruteBuka())); isiRute(); resetLari(); keLobi(); requestAnimationFrame((t) => { jamLalu = t; putar(t); });
-// datang dari gapura CFD di Stadion Kotak Wetan → tampilkan jalan pulang ke desa
+// datang dari Arena Pelari Kalcer (Dusun Kotak Kulon) → tampilkan jalan pulang ke desa
 if (/[?&]dari=desa/.test(location.search) || AKUN) { $('bDesa').hidden = false; $('bDesa2').hidden = false; }
 function aturWarga() { const w = !!(AKUN && AV_DESA); $('mAvatar').hidden = w; const t = document.querySelector('#tabToko [data-tab=outfit]'); if (t) t.hidden = w; if (w && tabToko === 'outfit') tabToko = 'bekal'; }
 aturWarga();

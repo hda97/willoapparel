@@ -15,7 +15,8 @@ const N = 20, NK = N + 2, SP = 11, L = NK * SP, STEP = 2.6, DEP = 26;
 const BK = DEP - 6;   // batas belakang teras (depan dinding penahan); asli DEP 17 → 11
 // [petak awal lahan fasum per teras (0..20), aset, nama]; aset null = lahan kosong untuk voting
 const FASUM_TERAS = [[9, 'warung', '🛒 Warung Desa'], [16, 'sekolah', '🏫 SD Kotak Kulon'], [3, 'masjid', '🕌 Masjid'], [12, null], [6, 'gereja', '⛪ Gereja'],
-  [17, 'katedral', '⛪ Gereja Katolik'], [2, 'pura', '🛕 Pura'], [10, 'vihara', '☸️ Vihara'], [15, null], [5, 'klenteng', '🏮 Klenteng']];
+  [17, 'katedral', '⛪ Gereja Katolik'], [2, 'pura', '🛕 Pura'], [10, 'vihara', '☸️ Vihara'], [15, 'arenaLari', '🏃 Arena Pelari Kalcer'], [5, 'klenteng', '🏮 Klenteng']];
+// Teras 9 (lahan voting cadangan) dipakai Arena Pelari Kalcer (Huda 10 Nov 2026: Pelari Kalcer punya tempat sendiri, tidak di Stadion).
 const yt = 10 * STEP, zt = -10 * DEP - 26;
 
 export function kulon(sc, o = {}) {

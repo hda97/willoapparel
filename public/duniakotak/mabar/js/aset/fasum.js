@@ -230,6 +230,47 @@ g.ad(box(.18,2.6,.18,0xe04a3a,.02),px-2.6,1.65,pz-1.6);g.ad(box(.18,2.6,.18,0xe0
  // pagar tanaman pendek keliling (gerbang terbuka di depan)
  for(const [x,z,w,d] of [[0,-8.35,19,.4],[-9.35,0,.4,17],[9.35,0,.4,17],[-5.6,8.35,7.8,.4],[5.6,8.35,7.8,.4]])g.ad(box(w,.7,d,0x3f9a4a,.15),x,.7,z);
  g.userData.zona=[];return fin(g)}
+// Arena Pelari Kalcer (Huda 10 Nov 2026: "Pelari kalcer buatkan tempat sendiri jangan di stadion"). Berdiri di Dusun Kotak Kulon.
+// Lintasan lari oval (2 lajur) + gapura START/FINISH, gerbang depan "PELARI KALCER", tribun belakang, meja water station, podium juara.
+// Warna gapura sama dengan gapura CFD lama (oranye-navy) supaya warga langsung kenal. Warga di dalam arena dapat tombol 🏃 Ikut Lari.
+export function arenaLari(){const g=G();const RUMPUT=0x6fbf5a,RUMPUT2=0x5fae4c,TRACK=0xb5532e,L=0xffffff,O=0xe0803a,N=0x2c3150;lantai(g,19,17,RUMPUT);
+ const datar=(geo,c,y)=>{const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:c,roughness:.85}));m.rotation.x=-Math.PI/2;m.receiveShadow=true;g.ad(m,0,y,0);m.rotation.x=-Math.PI/2;return m};
+ const XS=3.6,RI=3.1,RO=5.3,RM=4.2;
+ // lapangan dalam (rumput bergaris) + lintasan oval: dua lurus + dua setengah lingkaran
+ for(let i=0;i<5;i++)g.ad(box(1.44,.04,6.2,i%2?RUMPUT:RUMPUT2,.01),-2.88+i*1.44,.37,0);
+ [-1,1].forEach(s=>{g.ad(box(XS*2,.05,RO-RI,TRACK,.01),0,.38,s*RM);
+  const r=datar(new THREE.RingGeometry(RI,RO,28,1,s>0?-Math.PI/2:Math.PI/2,Math.PI),TRACK,.385);r.position.x=s*XS;
+  const ln=datar(new THREE.RingGeometry(RM-.04,RM+.04,28,1,s>0?-Math.PI/2:Math.PI/2,Math.PI),L,.41);ln.position.x=s*XS;
+  [RI+.06,RO-.06].forEach(rr=>{const e=datar(new THREE.RingGeometry(rr-.05,rr+.05,28,1,s>0?-Math.PI/2:Math.PI/2,Math.PI),L,.41);e.position.x=s*XS});
+  [RI+.06,RM,RO-.06].forEach(zz=>g.ad(box(XS*2,.03,.09,L,.005),0,.41,s*zz))});
+ // garis START/FINISH kotak-kotak di lintasan depan
+ for(let a=0;a<2;a++)for(let b=0;b<6;b++)g.ad(box(.3,.03,.36,(a+b)%2?0x1b1c21:L,.005),-.15+a*.3,.42,RI+.2+b*.36);
+ // gapura START/FINISH melintang di lintasan depan
+ [RI-.35,RO+.35].forEach(z=>{g.ad(box(.4,3.4,.4,N,.03),0,2.05,z);g.ad(box(.55,.3,.55,O,.03),0,.5,z)});
+ g.ad(box(.35,.9,RO-RI+1.1,N,.04),0,3.55,RM);
+ [1,-1].forEach(s=>{const p=papanTeks(2.9,.62,'START · FINISH',s>0?'#e0803a':'#2c3150','#ffffff');p.rotation.y=s*Math.PI/2;p.position.set(s*.19,3.55,RM);g.add(p)});
+ // jam race di atas gapura start
+ g.ad(box(.3,.5,1.4,0x1b1c21,.04),0,4.25,RM);[1,-1].forEach(s=>{const j=papanTeks(1.2,.36,'00:00','#1b1c21','#ffd23a');j.rotation.y=s*Math.PI/2;j.position.set(s*.16,4.25,RM);g.add(j)});
+ // kerucut pembatas di tikungan
+ [[-XS-RM,0],[XS+RM,0],[-XS-2.97,2.97],[XS+2.97,2.97],[-XS-2.97,-2.97],[XS+2.97,-2.97]].forEach(([x,z])=>{const k=new THREE.Mesh(new THREE.ConeGeometry(.2,.55,10),new THREE.MeshStandardMaterial({color:O,roughness:.7}));k.castShadow=true;g.ad(k,x,.65,z);g.ad(box(.42,.06,.42,L,.01),x,.4,z)});
+ // podium juara 1-2-3 di tengah lapangan
+ [[0,.9,0xf2c14a],[-1.1,.6,0xc8ccd2],[1.1,.4,0xc8875a]].forEach(([x,h,c])=>g.ad(box(1.05,h,1,c,.05),x,.35+h/2,-.6));
+ [['1',0,.9],['2',-1.1,.6],['3',1.1,.4]].forEach(([t,x,h])=>{const p=papanTeks(.6,.4,t,'#2c3150','#ffffff');p.position.set(x,.35+h/2,-.09);g.add(p)});
+ // tribun bertingkat di belakang lintasan
+ for(let k=0;k<3;k++){g.ad(box(13,.5,.8,0xcfcac0,.03),0,.6+k*.5,-6.2-k*.8);for(let x=-5.7;x<=5.7;x+=1.27)g.ad(box(.9,.22,.5,[O,N,0xf4f1e8][(k+Math.round((x+5.7)/1.27))%3],.05),x,.97+k*.5,-6.2-k*.8)}
+ const pb=papanTeks(6,.8,'PELARI KALCER · 1 KM','#2c3150','#ffffff');pb.position.set(0,2.95,-7.6);g.add(pb);g.ad(box(6.2,.95,.2,N,.04),0,2.95,-7.75);
+ // water station (meja + gelas) di tepi lintasan depan kiri
+ meja(g,-7.2,6.8,2.2,.8,0xf4f1e8,.55);for(let i=0;i<6;i++)perabot(g,box(.16,.22,.16,i%2?0x3a8ad8:0x8fd0ec,.03),-7.95+i*.3,1.03,6.8);
+ const ws=papanTeks(2,.4,'WATER STATION','#3a8ad8','#ffffff');ws.position.set(-7.2,1.55,7.25);g.add(ws);
+ // lampu sorot di 4 sudut
+ [[-8.6,-7.9],[8.6,-7.9],[-8.6,7.9],[8.6,7.9]].forEach(([x,z])=>{g.ad(box(.26,6.5,.26,0x777777,.02),x,3.6,z);g.ad(box(1.3,.7,.35,0xfff6c8,.05),x,7,z)});
+ // gerbang depan "PELARI KALCER" (menghadap jalan) + pagar tanaman keliling, gerbang terbuka di depan
+ [-2.3,2.3].forEach(x=>{g.ad(box(.5,4.4,.5,N,.04),x,2.55,8.3);g.ad(box(.65,.3,.65,O,.03),x,.5,8.3)});g.ad(box(5.3,1.1,.5,O,.04),0,4.6,8.3);
+ const pn=papanTeks(4.7,.9,'PELARI KALCER','#e0803a','#ffffff');pn.position.set(0,4.6,8.56);g.add(pn);
+ const sub=papanTeks(4.2,.45,'ARENA LARI · START DI SINI','#2c3150','#ffffff');sub.position.set(0,3.8,8.56);g.add(sub);g.ad(box(4.4,.55,.3,N,.03),0,3.8,8.38);
+ for(const [x,z,w,d] of [[0,-8.35,19,.4],[-9.35,0,.4,17],[9.35,0,.4,17],[-5.95,8.35,7.1,.4],[5.95,8.35,7.1,.4]])g.ad(box(w,.7,d,0x3f9a4a,.15),x,.7,z);
+ [[-8.5,-3.5,.8],[8.5,-3.5,.8],[8.4,4.4,.75]].forEach(([x,z,s])=>pohonT(g,x,z,s,0x3a8a5a));
+ g.userData.zona=[];return fin(g)}
 // ---- Lahan proyek pembangunan (selama 7 hari setelah voting ditutup): pagar seng, fondasi, perancah, bahan, molen, papan proyek ----
 // tahap (Huda 6 Nov 2026): 0 fondasi, 1 pasang bata (seperempat), 2 setengah jadi. jadi = fungsi aset bangunan jadi (untuk tahap 1-2
 // bagian bawah bangunan aslinya ikut tampil, terpotong setinggi tahapnya, supaya bentuk akhirnya mulai kelihatan).
@@ -383,7 +424,7 @@ export function tokoWillo(){const g=G();const W=0xf6f6f2,H=0x1d1d22,BIRU=0x2f5bf
  bangku(g,-5.5,3.2,2.2,H);
  const ab=sablonTeks(1.1,1.3,[['PESAN',58,.3],['KAOS',58,.55],['SABLON',34,.82]],'#2f5bff','#ffffff');ab.position.set(2.6,1.2,3.1);ab.rotation.x=-.12;g.add(ab);g.ad(box(1.2,1.4,.06,H,.02),2.6,1.2,3.05).rotation.x=-.12;
  pagar(g,20,8.6,H,2);return fin(g)}
-export const SEMUA={masjid,gereja,katedral,pura,vihara,klenteng,sekolah,warung,supermarket,rumahSakit,stadion,kampus,tamanKota,kafe,hiburan,polisi,tokoWillo};
+export const SEMUA={masjid,gereja,katedral,pura,vihara,klenteng,sekolah,warung,supermarket,rumahSakit,stadion,kampus,tamanKota,kafe,hiburan,polisi,tokoWillo,arenaLari};
 // Dipakai game: pisahkan bagian "atas" (dinding atas, atap, lantai 2) supaya bisa disembunyikan saat warga di dalam,
 // dan hitung kotak tabrakan per dinding (pintu & ruang dalam bisa dilewati). m sudah diskalakan & diposisikan.
 export function pisahFasum(m){
