@@ -74,12 +74,18 @@ function pasangBangunan(info) {
   BANG = {g, bagian, tampak: 0, pop: []};
   const awal = a ? Math.floor(tahapDari(a) * bagian.length * .9) : bagian.length;   // bagian yang sudah jadi menurut jadwal server
   for (let i = 0; i < awal; i++) bagian[i].m.visible = true;
-  BANG.tampak = awal;
+  BANG.tampak = BANG.awal = awal;
 }
-// satu bagian berikutnya muncul (pop + debu). Disisakan 1 bagian terakhir: peresmian tetap mengikuti jadwal server.
+// bagian berikutnya muncul (pop + debu). Dalam satu misi, bangunan tumbuh dari kondisi jadwal server sampai 100%
+// tepat di bahan ke-TK_BAHAN (Huda 10 Nov: "misi berhenti saat 100%").
 function munculBagian() {
-  if (!BANG || BANG.tampak >= BANG.bagian.length - 1) return null;
+  if (!BANG || BANG.tampak >= BANG.bagian.length) return null;
   const b = BANG.bagian[BANG.tampak++]; b.m.visible = true; b.m.scale.setScalar(.001); BANG.pop.push({b, t: 0}); debu(b.c); return b;
+}
+function tumbuhSampai(k) {
+  if (!BANG) return; const N = BANG.bagian.length, awal = BANG.awal || 0;
+  const target = k >= TK_BAHAN ? N : awal + Math.round((N - awal) * k / TK_BAHAN);
+  while (BANG.tampak < target) munculBagian();
 }
 const DEBU = [];
 function debu(p) { for (let i = 0; i < 5; i++) { const m = kotak(1.2, 1.2, 1.2, 0xe8dcc0, p.x + (Math.random() - .5) * 4, Math.max(1, p.y), p.z + (Math.random() - .5) * 4, {transparent: true, opacity: .8}); m.castShadow = false; sc.add(m); DEBU.push({m, t: 0, v: new THREE.Vector3((Math.random() - .5) * 6, 4 + Math.random() * 3, (Math.random() - .5) * 6)}); } }
@@ -152,14 +158,14 @@ addEventListener('keydown', e => { KEY[e.code] = true; }); addEventListener('key
 
 // ---------- status kerja ----------
 let MAIN = false, TERBANG = [];
-const KERJA = {setor: 0, sesiBahan: 0, sesi: 0, koin: 0, maju: 0, piala: 0, sibuk: false};
+const KERJA = {setor: 0, sesiBahan: 0, mendarat: 0, tutup: false, sesi: 0, koin: 0, maju: 0, piala: 0, sibuk: false};
 function kabar(teks) { const d = document.createElement('div'); d.className = 'kaca'; d.innerHTML = teks; $('kabar').appendChild(d); setTimeout(() => d.remove(), 2700); }
 function tulisHud() {
   const a = INFO && INFO.aktif, n = BANG ? BANG.bagian.length : 1, p = BANG ? BANG.tampak / n : 0;
   $('hNama').textContent = '🚧 ' + (a ? a.nama.replace(/^\S+ /, '') : 'Latihan');
   $('hPersen').textContent = Math.round(p * 100) + '%'; $('hBar').style.width = (p * 100).toFixed(1) + '%';
   const sisa = TK_BAHAN - KERJA.sesiBahan;
-  $('hSesi').innerHTML = AKUN && a ? `Misi: setor <b>${sisa}</b> bahan lagi → dapat upah 🪙` : `Latihan: setor <b>${sisa}</b> bahan lagi`;
+  $('hSesi').innerHTML = sisa ? `Setor <b>${sisa}</b> bahan lagi sampai 100%${AKUN && a ? ' → upah 🪙' : ''}` : 'Hampir jadi… 🏗️';
   $('tAngka').textContent = `${SAYA.bawa.length}/${MUAT}`; $('tas').classList.toggle('penuh', SAYA.bawa.length >= MUAT);
 }
 function petunjuk() {
@@ -209,7 +215,8 @@ function loop(t) {
   TERBANG = TERBANG.filter(f => {
     f.t += dt / .55; const k = Math.min(1, f.t);
     f.m.position.lerpVectors(f.a, f.b, k); f.m.position.y += Math.sin(k * Math.PI) * 14; f.m.rotation.x += dt * 8; f.m.rotation.z += dt * 6;
-    if (k >= 1) { sc.remove(f.m); const b = munculBagian(); bunyi(520 + Math.random() * 300, .07, 'triangle', .06); if (!b) debu(f.b); tulisHud(); return false; }
+    if (k >= 1) { sc.remove(f.m); KERJA.mendarat++; tumbuhSampai(KERJA.mendarat); debu(f.b); bunyi(520 + Math.random() * 300, .07, 'triangle', .06); tulisHud();
+      if (KERJA.mendarat >= TK_BAHAN && !KERJA.tutup) { KERJA.tutup = true; kabar(`🎉 ${esc((INFO?.aktif?.nama || 'Fasum').replace(/^\S+ /, ''))} 100%!`); setTimeout(misiSelesai, 1300); } return false; }
     return true; });
   // pop bagian bangunan + debu
   if (BANG) BANG.pop = BANG.pop.filter(p => { p.t += dt / .35; const k = Math.min(1, p.t), s = k < .7 ? k / .7 * 1.15 : 1.15 - (k - .7) / .3 * .15; p.b.m.scale.copy(p.b.s).multiplyScalar(Math.max(.001, s)); return k < 1; });
@@ -237,13 +244,12 @@ function langkah(dt, t) {
     if (SAYA.bawa.length === MUAT) kabar('🎒 Penuh! Bawa ke gerbang proyek'); }
   // setor di lingkaran kuning: bahan satu per satu terbang ke bagian bangunan berikutnya
   SAYA.setorT -= dt;
-  if (Math.hypot(SAYA.x - SETOR.x, SAYA.z - SETOR.z) < 5.6 && SAYA.bawa.length && SAYA.setorT <= 0) {
+  if (Math.hypot(SAYA.x - SETOR.x, SAYA.z - SETOR.z) < 5.6 && SAYA.bawa.length && SAYA.setorT <= 0 && KERJA.sesiBahan < TK_BAHAN) {
     SAYA.setorT = .13; const id = SAYA.bawa.pop(); susunPunggung();
     const m = kotak(1.6, .7, 1.1, BAHAN.find(x => x.id === id).w); const a = new THREE.Vector3(SAYA.x, 2.6 + SAYA.bawa.length * .74, SAYA.z);
-    const target = BANG && BANG.bagian[Math.min(BANG.bagian.length - 1, BANG.tampak + TERBANG.length)]; const b = target ? target.c.clone() : new THREE.Vector3(0, 4, 20);
+    const target = BANG && BANG.bagian[Math.min(BANG.bagian.length - 1, BANG.tampak)]; const b = target ? target.c.clone() : new THREE.Vector3(0, 4, 20);
     m.position.copy(a); sc.add(m); TERBANG.push({m, a, b, t: 0});
     KERJA.setor++; KERJA.sesiBahan++;
-    if (KERJA.sesiBahan >= TK_BAHAN && MAIN) { misiSelesai(); return; }
     tulisHud();
   }
   // panah: ke tumpukan terdekat bila kosong, ke lingkaran setor bila membawa bahan
@@ -291,7 +297,8 @@ async function muat() {
 // ---------- mulai / selesai kerja ----------
 function mulaiKerja() {
   if (MAIN) return; MAIN = true; bunyi(660, .08);
-  Object.assign(KERJA, {setor: 0, sesiBahan: 0, sesi: 0, koin: 0, maju: 0, piala: 0, galat: '', jadi: false});
+  Object.assign(KERJA, {setor: 0, sesiBahan: 0, mendarat: 0, tutup: false, sesi: 0, koin: 0, maju: 0, piala: 0, galat: '', jadi: false});
+  pasangBangunan(INFO); for (const f of TERBANG) sc.remove(f.m); TERBANG = [];
   SAYA.x = 0; SAYA.z = 62; SAYA.arah = Math.PI; SAYA.bawa = []; susunPunggung();
   for (const id of ['lobi', 'dompet', 'hasil']) $(id).hidden = true;
   for (const id of ['hud', 'tas', 'stik', 'petunjuk']) $(id).hidden = false;
