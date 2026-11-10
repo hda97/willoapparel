@@ -15,6 +15,7 @@ const AX = 90, AZ = 48, ZC = -3.5 * P;                     // danau elips, pusat
 const MG = 8;                                             // tepi pasir + jalan lingkar danau
 const XS = W / 2 + 8;                                     // jalan tepi kiri/kanan (penghubung antarjalan)
 const ZT = 30;                                            // terminal & gapura di selatan
+const BANDARA = {x: -32, z: 96};                           // pusat kawasan bandara (lokal), di luar hutan selatan
 const ZU = -(NJ - 1) * P;                                 // jalan paling utara
 // lahan fasum (2 petak, satu sisi jalan): [jalan, sisi (-1 utara jalan, 1 selatan jalan), petak awal, aset, nama]; aset null = kosong untuk voting
 const FASUM = [[0, 1, 16, 'warung', '🛒 Warung Desa'], [0, -1, 4, 'sekolah', '🏫 SD Kotak Tlaga'], [1, 1, 10, 'masjid', '🕌 Masjid'], [1, -1, 19, null],
@@ -98,7 +99,7 @@ export function tlaga(sc, o = {}) {
   // hutan pembatas (celah: jalan gapura di selatan, sungai di utara & timur)
   const hx0 = -XS - 10, hx1 = XS + 10, hz0 = ZU - 22, hz1 = ZT + 18;
   hutan(G, hutanPts({x0: hx0, x1: hx1, z0: hz0, z1: hz1, W: o.hemat ? 120 : 240, st: 8,
-    skip: (x, z) => (z > hz1 - 4 && Math.abs(x) < 16) || (z < hz0 + 4 && Math.abs(x) < 16) || (x > hx1 - 4 && Math.abs(z - ZC) < 16)}));
+    skip: (x, z) => (z > hz1 - 4 && Math.abs(x) < 16) || (Math.abs(x - BANDARA.x) < 44 && Math.abs(z - BANDARA.z) < 48) || (z < hz0 + 4 && Math.abs(x) < 16) || (x > hx1 - 4 && Math.abs(z - ZC) < 16)}));
 
   // ---- fasum TERSEBAR (Huda 6 Nov 2026), menghadap jalan; lahan tanpa aset = kosong untuk voting ----
   const gF = new THREE.Group(); sc.add(gF); const bangunan = [], lahanKosong = [];
@@ -109,6 +110,10 @@ export function tlaga(sc, o = {}) {
     const m = F[k](); m.scale.setScalar(VS); if (sd > 0) m.rotation.y = Math.PI; m.position.set(x * VS, 0, z * VS); gF.add(m);
     bangunan.push({position: new THREE.Vector3(m.position.x, 0, m.position.z), nama, ...F.pisahFasum(m)});
   }
+  // KAWASAN BANDARA (Huda 11 Nov 2026: "Bandara dengan 5 terminal", ditaruh di kawasan baru di luar Tlaga): lahan besar ±5 kali
+  // lahan fasum di selatan hutan, sebelah barat jalan gapura. lahanKosong[2]; aset F.bandaraBesar diputar −90° (gedung menghadap jalan).
+  { const f = fasum(BANDARA.x, BANDARA.z, 46, 66); lahanKosong.push({x: BANDARA.x, z: BANDARA.z, y: 0, g: f, ry: -Math.PI / 2, besar: 3.2});
+    road(BANDARA.x + 26, BANDARA.z, 4, 66); road((BANDARA.x + 26 + 0) / 2, BANDARA.z, -BANDARA.x - 26, 4); }
   bangunan.push({position: V3(0, 0, (ZC - 4) * VS), nama: '🛶 Danau Tlaga', tinggi: 4 * VS, rect: null});
   bangunan.push({position: V3(19 * VS, 0, (DERMAGA.z0 + 4) * VS), nama: '⚓ Dermaga', tinggi: 3 * VS, rect: null});
   bangunan.push({position: V3(0, 0, ZT * VS), nama: '🚌 Terminal & Gapura Kotak Tlaga', tinggi: 3 * VS, rect: null});
@@ -128,7 +133,7 @@ export function tlaga(sc, o = {}) {
     info.lots[no] = {c: V3(l.cx * VS, 0, l.cz * VS), gate: V3((l.cx - 2 * dir) * VS, 0, (l.cz + hd * dir) * VS), stone: V3((l.cx - 2 * dir) * VS, 0, (l.cz + (hd - 1.3) * dir) * VS), dir, lokal: l.n};
   });
   info.buildLot = no => { const l = LOTS[no - AWAL_TLAGA - 1]; return l ? bl(l) : null; };
-  info.batas = {x0: -(XS + 4) * VS, x1: (XS + 4) * VS, z0: (ZU - 14) * VS, z1: (ZT + 14) * VS};
+  info.batas = {x0: -(XS + 4) * VS, x1: (XS + 4) * VS, z0: (ZU - 14) * VS, z1: (BANDARA.z + 36) * VS};   // sampai kawasan bandara
   info.spawn = V3(0, 0, (ZT - 14) * VS);
   // air tidak bisa diinjak (kecuali dermaga & jembatan) — dipakai bebas() dan navigasi di game.js
   info.air = (x, z) => {

@@ -526,7 +526,66 @@ export function bandara(){const g=G();const W=0xf2f4f6,B=0x2f6fb8,K=0x8fd0ec,AS=
  for(let x=-8.5;x<=8.6;x+=3.4)[3,7.8].forEach(z=>g.ad(box(.18,.18,.18,0xffe08a,.05,{emissive:0xffe08a,emissiveIntensity:.8}),x,.48,z));
  [[-8.4,-1.6]].forEach(([x,z])=>{g.ad(box(.6,2.4,.6,0x6a4426,.04),x,1.55,z);g.ad(box(2.4,2.2,2.4,0x3a8a5a,.3),x,3.6,z)});
  pagar(g,19,17,B,3);return fin(g)}
-export const SEMUA={masjid,gereja,katedral,pura,vihara,klenteng,sekolah,warung,supermarket,rumahSakit,stadion,kampus,tamanKota,kafe,hiburan,polisi,tokoWillo,arenaLari,sirkuitReli,damkar,bandara};
+// Bandara Besar 5 terminal (Huda 11 Nov 2026: "Bandaranya kurang besar" → "Bandara dengan 5 terminal"). Kawasan sendiri ±64×44
+// (bukan lahan fasum biasa): gedung utama kaca memanjang, 5 dermaga gerbang T1–T5 dengan garbarata & jet di tiap gerbang,
+// landasan pacu penuh lebar di depan dengan 1 jet siap lepas landas, menara kontrol tinggi, area antar-jemput & taksi di belakang.
+function jet(g,x,z,ry=0,s=1,warna=0x2f6fb8){const t=new THREE.Group();t.position.set(x,0,z);t.rotation.y=ry;t.scale.setScalar(s);const W=0xf6f7f9,KC=0x26313d,AB=0xc9ced6;
+ const a=(m,px,py,pz)=>{m.position.set(px,py,pz);t.add(m);return m};
+ a(box(10.4,1.9,1.9,W,.7),0,2.75,0);a(box(10.42,.4,1.92,warna,.1),0,2.0,0);a(box(10.4,.12,1.93,0xf2c14a,.03),0,2.27,0);
+ a(box(1.4,1.66,1.74,W,.6),5.6,2.68,0);a(box(.9,1.2,1.3,W,.5),6.5,2.55,0);a(box(.45,.7,.8,W,.3),7.05,2.45,0);
+ a(box(.7,.42,1.5,KC,.12),5.75,3.28,0);
+ a(box(1.6,1.6,1.6,W,.6),-6,2.95,0);a(box(1.2,1.1,1.1,W,.4),-7.2,3.25,0);a(box(.6,.6,.6,AB,.2),-7.9,3.4,0);
+ for(let i=0;i<14;i++)[-1,1].forEach(q=>a(box(.32,.38,.04,KC,.08),-4.4+i*.66,3.08,q*.96));
+ [[3.9],[-4.9]].forEach(([u])=>[-1,1].forEach(q=>{a(box(.62,1.2,.05,AB,.05),u,2.6,q*.97)}));
+ a(box(2.4,3.2,.24,warna,.08),-6.7,5.2,0);a(box(1.2,.5,.26,0xf2c14a,.05),-7.1,6.55,0);
+ a(box(1.5,.16,5,W,.06),-7,3.6,0);[-1,1].forEach(q=>a(box(.6,.17,.5,warna,.03),-7.2,3.61,q*2.3));
+ a(box(2.6,.24,13.2,W,.12),-.6,2.05,0);[-1,1].forEach(q=>{a(box(1,.26,.8,warna,.05),-1.1,2.06,q*6.3);a(box(.6,1.1,.14,warna,.05),-1.5,2.65,q*6.65)});
+ [-1,1].forEach(q=>{const zz=q*3.2;a(box(2.4,1.25,1.25,0xdfe3e8,.5),.6,1.35,zz);a(box(.08,1.05,1.05,0x1b1f25,.4),1.82,1.35,zz);a(box(.5,.5,.5,0x9aa2ac,.2),-.75,1.35,zz);a(box(.9,.6,.2,AB,.05),.2,1.95,zz)});
+ const roda=(u,v)=>{a(box(.12,1.1,.12,0x666a70,.02),u,1.25,v);a(box(.5,.5,.3,0x1e1e1e,.15),u,.6,v)};
+ roda(5.4,0);[[-.8,-.9],[-.8,.9]].forEach(([u,v])=>{roda(u,v);roda(u-.6,v)});
+ a(box(.16,.16,.16,0xff2a2a,.05,{emissive:0xff2a2a,emissiveIntensity:.9}),-1.1,2.1,-6.7);a(box(.16,.16,.16,0x2aff6a,.05,{emissive:0x2aff6a,emissiveIntensity:.9}),-1.1,2.1,6.7);
+ g.add(t);return t}
+export function bandaraBesar(){const g=G();const W=0xf2f4f6,B=0x2f6fb8,K=0x8fd0ec,AS=0x3e434a,AP=0x9aa0a8,KN=0xf2c14a;
+ g.ad(box(64,.35,44,0xc9ccd0,.03),0,.18,0);
+ // gedung utama (belakang): kaca memanjang, atap biru melengkung bertingkat
+ ruang(g,{x:0,z:-16.5,w:58,d:8,h:7,c:W,bukaan:[-24,-12,0,12,24].map(p=>({s:'d',p,w:3,h:3})).concat([{s:'b',p:0,w:6,h:3.2}]),lantaiC:0xe6e8ea});
+ g.ad(box(59,.5,9,B,.08),0,7.6,-16.5);g.ad(box(40,.6,6,0x3a80c8,.15),0,8.2,-16.5);g.ad(box(22,.6,4,0x4a90d8,.2),0,8.8,-16.5);
+ for(let i=0;i<24;i++){const x=-27.6+i*2.4;if([-24,-12,0,12,24].some(p=>Math.abs(x-p)<1.8))continue;g.ad(box(2,2.4,.12,K,.02),x,2.3,-12.47)}
+ for(let i=0;i<24;i++)g.ad(box(2,2,.12,K,.02),-27.6+i*2.4,5.4,-12.47);
+ const pn=papanTeks(18,1.6,'BANDARA DUNIA KOTAK','#2f6fb8','#ffffff');pn.position.set(0,9.9,-12.9);g.add(pn);
+ for(let i=0;i<10;i++)kursi(g,-6+i*1.3,-17.5,0x3a6ab8);perabot(g,box(6,1,.8,B,.04),-18,.85,-19.5).userData.dinding=true;perabot(g,box(6,1,.8,B,.04),18,.85,-19.5).userData.dinding=true;
+ perabot(g,box(5,1.6,.1,0x1d1d22,.02,{emissive:0x2a4a2a,emissiveIntensity:.35}),0,4.2,-20.2);
+ // 5 dermaga gerbang T1–T5 + garbarata + jet
+ const WJ=[0x2f6fb8,0xd6322a,0x2fa58a,0xe0a020,0x8a4ad8];
+ [-24,-12,0,12,24].forEach((x,i)=>{
+  ruang(g,{x,z:-10,w:7,d:4.4,h:4.2,c:W,bukaan:[{s:'d',p:0,w:2.2,h:2.6},{s:'b',p:0,w:3,h:3}],lantaiC:0xe6e8ea,zona:true});
+  g.ad(box(7.6,.4,5,B,.05),x,4.75,-10);g.ad(box(5.6,1.4,.12,K,.02),x,2.8,-7.78).position.x=x;
+  const tp=papanTeks(2.6,1.3,'T'+(i+1),'#f2c14a','#1d2a3a');tp.position.set(x,5.6,-7.6);g.add(tp);
+  g.ad(box(1.6,1.6,4.4,0xdfe3e8,.1),x+2.2,3.2,-5.6);g.ad(box(1.7,.3,4.5,AS,.03),x+2.2,4.1,-5.6);for(let k=0;k<3;k++)g.ad(box(.06,.6,.6,K,.01),x+3.02,3.3,-7.2+k*1.4);
+  g.ad(box(.4,2.4,.4,0x777b82,.02),x+2.2,1.55,-4);g.ad(box(1.4,.5,.8,0x333333,.1),x+2.2,.6,-4);
+  jet(g,x,2.6,Math.PI/2,.88,WJ[i]);
+  for(let k=0;k<6;k++)g.ad(box(.18,.05,.9,KN,.01),x,.4,-2+k*1.6);
+ });
+ // apron, landasan pacu, taxiway
+ g.ad(box(64,.04,13,AP,.01),0,.37,1.5);g.ad(box(64,.05,9,AS,.01),0,.38,15.5);g.ad(box(64,.04,2.4,0x6e747c,.01),0,.37,9.4);
+ [11.2,19.8].forEach(z=>g.ad(box(64,.06,.16,0xffffff,.01),0,.42,z));for(let x=-28;x<=28;x+=4)g.ad(box(2,.06,.3,0xffffff,.01),x,.42,15.5);
+ [-30.5,30.5].forEach(x=>{for(let i=0;i<8;i++)g.ad(box(1.6,.06,.4,0xffffff,.01),x,.42,12+i*1)});
+ g.ad(box(64,.05,.16,KN,.01),0,.41,9.4);
+ for(let x=-31;x<=31.1;x+=3.1)[11,20].forEach(z=>g.ad(box(.2,.2,.2,0xffe08a,.05,{emissive:0xffe08a,emissiveIntensity:.8}),x,.48,z));
+ const pl=papanTeks(5,1.6,'09','#3e434a','#ffffff');pl.rotation.x=-Math.PI/2;pl.position.set(-26.5,.43,15.5);g.add(pl);
+ jet(g,-14,15.5,0,1.15,0x2f6fb8);
+ // menara kontrol (kanan)
+ g.ad(box(2.6,15,2.6,W,.06),29,7.85,-3);g.ad(box(3.4,.5,3.4,B,.05),29,10,-3);g.ad(box(5.2,2.2,5.2,K,.12),29,16.5,-3);g.ad(box(5.8,.4,5.8,AS,.03),29,15.2,-3);g.ad(box(5.8,.4,5.8,AS,.03),29,17.8,-3);
+ g.ad(box(.15,2,.15,0x888888,.01),29,19,-3);g.ad(box(.4,.4,.4,0xff2a2a,.1,{emissive:0xff2a2a,emissiveIntensity:.9}),29,20.1,-3);g.ad(box(1.2,.8,1.2,0xdddddd,.3),27.6,18.4,-1.6);
+ // kantong angin, truk BBM, mobil bagasi
+ g.ad(box(.14,3.6,.14,0xdddddd,.02),30.5,2.15,7.6);g.ad(box(1.3,.5,.5,0xff7a1a,.15),31.1,3.7,7.6);g.ad(box(.35,.52,.52,0xffffff,.1),31.4,3.7,7.6);
+ g.ad(box(4,1.6,1.6,0xe8e8e8,.4),-28.5,1.3,4);g.ad(box(1.6,1.8,1.7,0xd6322a,.15),-26,1.35,4);[-29.8,-27.3,-26].forEach(x=>[-1,1].forEach(q=>g.ad(box(.6,.6,.25,0x1e1e1e,.1),x,.66,4+q*.85)));
+ [[-6,-4],[18,-4]].forEach(([x,z])=>{g.ad(box(1.4,.8,.9,0xf2c14a,.1),x,.8,z);[1,2,3].forEach(k=>g.ad(box(1.4,.5,.9,0x9a7a5a,.05),x-k*1.7,.7,z));});
+ // antar-jemput & taksi (belakang gedung)
+ g.ad(box(64,.05,1.6,0xf4f4f0,.01),0,.4,-21.2);[-20,-8,8,20].forEach((x,i)=>{g.ad(box(2.4,.8,1.2,[0xf2c14a,0x3a8ad8,0xf2c14a,0xe8e8e8][i],.3),x,.9,-21.2);g.ad(box(1.4,.55,1.1,0x26313d,.2),x-.1,1.5,-21.2)});
+ [-31,31].forEach(x=>[-8,-20].forEach(z=>{g.ad(box(.8,2.8,.8,0x6a4426,.04),x,1.75,z);g.ad(box(3,2.6,3,0x3a8a5a,.3),x,4.2,z)}));
+ pagar(g,64,44,B,4);return fin(g)}
+export const SEMUA={masjid,gereja,katedral,pura,vihara,klenteng,sekolah,warung,supermarket,rumahSakit,stadion,kampus,tamanKota,kafe,hiburan,polisi,tokoWillo,arenaLari,sirkuitReli,damkar,bandara,bandaraBesar};
 // Dipakai game: pisahkan bagian "atas" (dinding atas, atap, lantai 2) supaya bisa disembunyikan saat warga di dalam,
 // dan hitung kotak tabrakan per dinding (pintu & ruang dalam bisa dilewati). m sudah diskalakan & diposisikan.
 export function pisahFasum(m){
