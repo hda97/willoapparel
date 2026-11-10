@@ -11,11 +11,11 @@ import {kucingMesh, WARNA_KUCING, DAFTAR_KUCING} from './js/aset/kucing.js';
 import {warungMesh, rumahKucingMesh, WARNA_DINDING, WARNA_ATAP} from './js/aset/rumah.js';
 import * as F from './js/aset/fasum.js';
 import {buatMobil} from './js/aset/mobil.js?v=20261111kend';
-import {buatLaluLintas} from './js/lalulintas.js?v=20261111kend';
+import {buatLaluLintas} from './js/lalulintas.js?v=20261111nav';
 import {buatNPC} from './js/npc.js?v=20261110willo';
 import {buatWargaNPC} from './js/wargaNpc.js';
-import {kulon, JALAN_KULON, AWAL_KULON} from './js/kulon.js';
-import {curug, JALAN_CURUG, AWAL_CURUG} from './js/curug.js';
+import {kulon, JALAN_KULON, AWAL_KULON} from './js/kulon.js?v=20261111nav';
+import {curug, JALAN_CURUG, AWAL_CURUG} from './js/curug.js?v=20261111nav';
 import {tlaga, JALAN_TLAGA, AWAL_TLAGA} from './js/tlaga.js';
 import {segara, AWAL_SEGARA, kodeUnit} from './js/segara.js';
 import {buatNav, pecahRute} from './js/navigasi.js';
@@ -429,6 +429,20 @@ function turunkan(obj) { const n = obj.userData.naik; if (!n) return; n.badan.fo
 function kendMenapak(obj) { const n = obj.userData.naik; if (!n) return; const m = n.k.split(':')[0], sb = ({sepeda: .55, motor: .7}[m] || 1.35) * M_KEND, p = obj.position;
   const hx = Math.sin(obj.rotation.y), hz = Math.cos(obj.rotation.y), yD = tanah(p.x + hx * sb, p.z + hz * sb, p.y), yB = tanah(p.x - hx * sb, p.z - hz * sb, p.y);
   n.v.position.y = Math.max(0, (yD + yB) / 2 - p.y); n.v.rotation.x = -Math.atan2(yD - yB, 2 * sb) * .9; }
+// Huda 11 Nov: "navigasi kendaraan seharusnya tidak loncat & pas jalurnya".
+// 1) kendaraan tidak bisa naik ke bangku/trotoar/benda tinggi (pejalan kaki boleh naik sampai NAIK_MAKS) -> tidak meloncat.
+const NAIK_KEND = .2 * VS;
+const bisaDilalui = (me, x, z) => !NAIK || tanah(x, z, me.position.y) - me.position.y <= NAIK_KEND;
+// 2) di ruas jalan, arah joystick yang kira-kira searah jalan dikunci lurus sejajar jalan dan kendaraan ditarik pelan ke lajur kiri.
+function bantuLajur(me, vx, vz, set) {
+  const r = lalin.jalurDi(me.position.x, me.position.z, /^(sepeda|motor):/.test(kendSaya() || '')); if (!r) return;
+  const l = Math.hypot(vx, vz), ux = vx / l, uz = vz / l, sej = r.vert ? uz : ux;
+  if (Math.abs(sej) < .77) return;   // > ±40° dari arah jalan: pemain sedang belok, biarkan bebas
+  const arah = Math.sign(sej), p = r.vert ? me.position.x : me.position.z;
+  const tujuan = r.vert ? r.c + arah * r.lajur : r.c - arah * r.lajur;   // lajur kiri (sama dengan NPC)
+  const geser = Math.max(-.35, Math.min(.35, (tujuan - p) * .12));
+  if (r.vert) set(geser * l, arah * l); else set(arah * l, geser * l);
+}
 function putarRoda(obj, jarak) { const n = obj.userData.naik; if (!n) return; for (const r of n.v.userData.roda) r.putar.rotation.x += jarak / (n.v.userData.jari * M_KEND); }
 let lalin = null;   // lalu lintas desa (js/lalulintas.js)
 let NAIK = null;   // kendaraan yang sedang dikendarai pemain
@@ -1862,7 +1876,7 @@ function animSkill(dt, me) {
   // tombol skill menyala bila bisa dipakai
   const t = now | 0; if (t % 4 === 0 || !animSkill.t || now - animSkill.t > 300) { animSkill.t = now;
     // tombol hanya muncul saat skill bisa dipakai; joran sedang dipakai = tombol Mancing hilang
-    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sSuka: !!rumahTetangga(me), sLari: dekatGapuraCFD(me), sReli: dekatReli(me), sBangun: dekatProyek(me), sPasar: dekatPasar(me), sWillo: dekatTokoWillo(me), sDealer: dekatDealer(me), sNaik: dekatParkiranSaya(me), sTurun: !!NAIK, sLift: !!(I.gedung && I.gedung.dekatLift(me.position.x, me.position.z))};
+    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sSuka: !!rumahTetangga(me), sLari: dekatGapuraCFD(me), sReli: dekatReli(me), sBangun: dekatProyek(me), sPasar: dekatPasar(me), sWillo: dekatTokoWillo(me), sDealer: dekatDealer(me), sNaik: dekatParkiranSaya(me), sTurun: !!NAIK, sLompat: !NAIK, sLift: !!(I.gedung && I.gedung.dekatLift(me.position.x, me.position.z))};
     for (const id in bisa) { const b = $(id); if (b.classList.contains('siap') !== bisa[id] || b.hidden === bisa[id]) { b.classList.toggle('siap', bisa[id]); b.hidden = !bisa[id]; } }
     if (air) misiMaju('sungai'); }
 }
@@ -3193,7 +3207,8 @@ const tanah = (x, z, ref) => {
   return best;
 };
 const lompat = {vy: 0, diTanah: true};
-function mulaiLompat() { if (!lompat.diTanah || !tokoh.saya) return; lompat.vy = gerak.lari && gerak.jalan ? 38 : 34; lompat.diTanah = false; bunyi('langkah'); misiMaju('lompat'); if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify({t: 'e', e: 'lompat'})); }   // satuan dunia per detik (avatar setinggi pintu ≈ 4,1)
+function mulaiLompat() { if (!lompat.diTanah || !tokoh.saya || NAIK) return;   // naik kendaraan tidak bisa lompat
+  lompat.vy = gerak.lari && gerak.jalan ? 38 : 34; lompat.diTanah = false; bunyi('langkah'); misiMaju('lompat'); if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify({t: 'e', e: 'lompat'})); }   // satuan dunia per detik (avatar setinggi pintu ≈ 4,1)
 let tAkhir = performance.now(), tKav = 0, ph = 0, camY = 0;
 const bebas = (x, z) => {
   const b = I.batas; if (x < b.x0 || x > b.x1 || z < b.z0 || z > b.z1) return false;
@@ -3235,21 +3250,22 @@ function loop(t) {
   if (vx || vz) { const sn = Math.sin(yawNow), cs = Math.cos(yawNow); const ax = vx * cs + vz * sn, az = -vx * sn + vz * cs; vx = ax; vz = az; }
   if (vx || vz) { gerak.tujuan = null; rute.antar = false; }
   else if (gerak.tujuan) { const dx = gerak.tujuan.x - me.position.x, dz = gerak.tujuan.z - me.position.z, l = Math.hypot(dx, dz); if (l < 1.5) gerak.tujuan = null; else { vx = dx / l; vz = dz / l; } }
+  if (NAIK && lalin && lalin.jalurDi && (vx || vz)) bantuLajur(me, vx, vz, (ax, az) => { vx = ax; vz = az; });
   const l = Math.hypot(vx, vz); gerak.jalan = l > .15;
   if (gerak.jalan) {
     const lari = (gerak.stik && gerak.stik.lari) || k['shift']; gerak.lari = lari;
     const s = Math.min(1, l) * KEC * (NAIK ? NAIK.kec * (lari ? 1.2 : 1) : lari ? 1.75 : 1) * dt / l; if (mancing.on) { mancing.on = false; mancing.batal(); } const nx = me.position.x + vx * s, nz = me.position.z + vz * s;
     let maju = false;
     const x0 = me.position.x, z0 = me.position.z;
-    if (bebas(nx, me.position.z)) { me.position.x = nx; maju = true; }
-    if (bebas(me.position.x, nz)) { me.position.z = nz; maju = true; }
+    if (bebas(nx, me.position.z) && bisaDilalui(me, nx, me.position.z)) { me.position.x = nx; maju = true; }
+    if (bebas(me.position.x, nz) && bisaDilalui(me, me.position.x, nz)) { me.position.z = nz; maju = true; }
     if (NAIK) putarRoda(me, Math.hypot(me.position.x - x0, me.position.z - z0)); 
     if (!maju) gerak.tujuan = null;
     const tr = Math.atan2(vx, vz); let dr = tr - me.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); me.rotation.y += dr * Math.min(1, dt * 12);
     const lk = Math.floor(ph / Math.PI); ph += dt * (lari ? 17 : 11); if (Math.floor(ph / Math.PI) !== lk) { if (!NAIK) bunyi('langkah'); misiMaju('jalan'); if (lari) misiMaju('lari'); } jalanAnim(me, ph, lari ? 1.05 : .7);
   } else jalanAnim(me, 0, 0);
   { const g = tanah(me.position.x, me.position.z, me.position.y);
-    if (lompat.diTanah) { me.position.y += (g - me.position.y) * Math.min(1, dt * 18); }
+    if (lompat.diTanah) { me.position.y += (g - me.position.y) * Math.min(1, dt * (NAIK ? 12 : 18)); }
     else { lompat.vy -= 95 * dt; me.position.y += lompat.vy * dt; if (me.position.y <= g) { me.position.y = g; lompat.vy = 0; lompat.diTanah = true; } }
     if (!lompat.diTanah && !NAIK) { const a = Math.min(1, me.position.y / 6); wpose(me, {legL: -.5 * a, legR: .4 * a, armL: -2.4 * a, armR: -2.4 * a}); } }
   if (NAIK) kendMenapak(me);

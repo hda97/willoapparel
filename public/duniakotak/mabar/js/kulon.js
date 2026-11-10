@@ -38,7 +38,7 @@ export function kulon(sc, o = {}) {
     const top = new THREE.BufferGeometry(); top.setAttribute('position', new THREE.Float32BufferAttribute([...a, ...b, ...c, ...a, ...c, ...d], 3)); top.computeVertexNormals();
     const q = (p, y0) => [p[0], y0, p[2]], A = q(a, ya), B = q(b, ya), C = q(c, ya), D = q(d, ya);
     const sisi = new THREE.BufferGeometry(); sisi.setAttribute('position', new THREE.Float32BufferAttribute([...A, ...a, ...d, ...A, ...d, ...D, ...B, ...C, ...c, ...B, ...c, ...b, ...D, ...d, ...c, ...D, ...c, ...C], 3)); sisi.computeVertexNormals();
-    const m1 = new THREE.Mesh(top, MJ), m2 = new THREE.Mesh(sisi, MT); MJ.side = MT.side = THREE.DoubleSide; m1.receiveShadow = m2.receiveShadow = true; G.add(m1, m2); };
+    const m1 = new THREE.Mesh(top, MJ), m2 = new THREE.Mesh(sisi, MT); m1.userData.bukanPijakan = m2.userData.bukanPijakan = true; /* tinggi dari info.tanah (kotak pembatasnya bikin loncat) */ MJ.side = MT.side = THREE.DoubleSide; m1.receiveShadow = m2.receiveShadow = true; G.add(m1, m2); };
   const fas = [];
   const fasum = (x, z, w, dd, y = 0) => { const k = G.children.length; fasum2(G, x, z, w, dd); const g = G.children[k]; g.position.y = y; fas.push({p: V3(x * VS, y * VS, z * VS), g}); return g; };
   const tree = (x, z, s = 1, y = 0) => { const k = G.children.length; vTree(G, x, z, s); G.children[k].position.y += y; };
@@ -110,10 +110,10 @@ export function kulon(sc, o = {}) {
   info.tanah = (x, z) => {
     const lx = x / VS, lz = z / VS;
     if (Math.abs(Math.abs(lx) - (L / 2 + 9)) < 3.2) {          // tanjakan samping
-      for (let j = 0; j < 10; j++) { const z0 = -j * DEP + .6, z1 = -(j + 1) * DEP + .4; if (lz <= z0 && lz >= z1) return (j * STEP + (z0 - lz) / (z0 - z1) * STEP) * VS; }
+      for (let j = 0; j < 10; j++) { const z0 = -j * DEP + .6, z1 = -(j + 1) * DEP + .4; if (lz <= z0 && lz >= z1) return (j * STEP + (z0 - lz) / (z0 - z1) * STEP + .16) * VS; }
     }
     if (Math.abs(lx) < 4.2 || Math.abs(Math.abs(lx) - (L / 2 + 9)) < 3.2) {   // tanjakan ke puncak
-      const z0 = -9 * DEP + .5, z1 = zt + 26; if (lz <= z0 && lz >= z1) return (9 * STEP + (z0 - lz) / (z0 - z1) * (yt - 9 * STEP)) * VS;
+      const z0 = -9 * DEP + .5, z1 = zt + 26; if (lz <= z0 && lz >= z1) return (9 * STEP + (z0 - lz) / (z0 - z1) * (yt - 9 * STEP) + .16) * VS;
     }
     if (lz < -9 * DEP - BK) return Math.abs(lx) < L / 2 + 15 ? yt * VS : 9 * STEP * VS;
     const j = Math.max(0, Math.min(9, Math.ceil((-lz - BK) / DEP)));

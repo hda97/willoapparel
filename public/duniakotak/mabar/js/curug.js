@@ -41,7 +41,7 @@ export function curug(sc, o = {}) {
       for (const [p, q] of [[i0, i1], [o0, o1]]) { const b0 = [p[0], y - .02, p[2]], b1 = [q[0], y - .02, q[2]]; if (p[1] - y > .2 || q[1] - y > .2) kulit.push(...p, ...b0, ...b1, ...p, ...b1, ...q); }
     }
     for (const [arr, m] of [[top, MAT_JALAN], [kulit, MAT_TEBING]]) { if (!arr.length) continue; const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3)); g.computeVertexNormals();
-      const me = new THREE.Mesh(g, m); me.receiveShadow = true; G.add(me); }
+      const me = new THREE.Mesh(g, m); me.receiveShadow = true; me.userData.bukanPijakan = true; G.add(me); }   // tinggi dari info.tanah (kotak pembatas pita bikin loncat)
   };
   const fas = [];
   const fasum = (x, z, w, dd, y = 0) => { const k = G.children.length; fasum2(G, x, z, w, dd); const g = G.children[k]; g.position.y = y; fas.push({p: V3(x * VS, y * VS, z * VS), g}); return g; };
@@ -119,7 +119,7 @@ export function curug(sc, o = {}) {
     for (let j = 0; j < 4; j++) {
       const sd = j % 2 ? -1 : 1, cx = sd * (L / 2 + 7), z0 = -j * DEP, cz = z0 - DEP / 2, r = Math.hypot(lx - cx, lz - cz);
       if (sd * (lx - cx) > -1 && Math.abs(r - DEP / 2) < 3.4 && lz <= z0 + 3 && lz >= z0 - DEP - 3) {
-        const y = j * STEP; return (lz <= cz ? y + STEP : y + STEP * (1 - (Math.min(z0, lz) - cz) / (DEP / 2))) * VS;
+        const y = j * STEP; return ((lz <= cz ? y + STEP : y + STEP * (1 - (Math.min(z0, lz) - cz) / (DEP / 2))) + .16) * VS;
       }
     }
     const j = Math.max(0, Math.min(4, Math.round(-lz / DEP)));
