@@ -159,7 +159,7 @@ function tulisHud() {
   $('hNama').textContent = '🚧 ' + (a ? a.nama.replace(/^\S+ /, '') : 'Latihan');
   $('hPersen').textContent = Math.round(p * 100) + '%'; $('hBar').style.width = (p * 100).toFixed(1) + '%';
   const sisa = TK_BAHAN - KERJA.sesiBahan;
-  $('hSesi').innerHTML = AKUN && a ? `<b>${sisa}</b> bahan lagi → ⚡ 20 menit lebih cepat` : 'Latihan: masuk sebagai warga supaya kerjamu tercatat';
+  $('hSesi').innerHTML = AKUN && a ? `Misi: setor <b>${sisa}</b> bahan lagi → dapat upah 🪙` : `Latihan: setor <b>${sisa}</b> bahan lagi`;
   $('tAngka').textContent = `${SAYA.bawa.length}/${MUAT}`; $('tas').classList.toggle('penuh', SAYA.bawa.length >= MUAT);
 }
 function petunjuk() {
@@ -169,21 +169,24 @@ function petunjuk() {
 
 // sesi server: tiap TK_BAHAN bahan disetor = 1 sesi tercatat (mempercepat fasum, koin, poin Piala)
 async function catatSesi() {
-  if (!AKUN || !(INFO && INFO.aktif) || KERJA.sibuk) return;
-  KERJA.sibuk = true;
+  if (!AKUN || !(INFO && INFO.aktif)) return;
   const r = await apiB('selesai', {skor: 100});
-  if (r.galat) kabar('⚠️ ' + esc(r.galat));
-  else {
-    const nm = (r.aktif?.nama || INFO.aktif.nama).replace(/^\S+ /, '');
-    KERJA.sesi++;
-    if (r.maju) { KERJA.maju += r.maju; kabar(`⚡ ${esc(nm)} jadi ${Math.round(r.maju / 60e3)} menit lebih cepat!`); }
-    if (r.dapat) { KERJA.koin += r.dapat; setTimeout(() => kabar(`+${r.dapat} 🪙 koin`), 400); }
-    if (r.piala) { KERJA.piala += r.piala.dapat; setTimeout(() => kabar(`🏆 +${r.piala.dapat} poin Piala ${NAMA_DUSUN[r.piala.d] || ''}`), 800); }
-    if (!r.aktif) setTimeout(() => kabar(`🎉 ${esc(nm)} JADI! Terima kasih, tukang!`), 1200);
-    INFO = r; bunyi(660, .1); setTimeout(() => bunyi(990, .16), 120);
-  }
-  if (INFO && INFO.aktif) await apiB('mulai');
-  KERJA.sibuk = false;
+  if (r.galat) { KERJA.galat = r.galat; return; }
+  KERJA.sesi++;
+  if (r.maju) KERJA.maju += r.maju;
+  if (r.dapat) KERJA.koin += r.dapat;
+  if (r.piala) KERJA.piala += r.piala.dapat;
+  if (!r.aktif) KERJA.jadi = true;
+  INFO = r;
+}
+// Misi = setor TK_BAHAN bahan. Begitu tercapai, permainan berhenti sendiri dan upah langsung dibagikan (Huda 10 Nov).
+async function misiSelesai() {
+  MAIN = false; panah.visible = false; STIK.x = STIK.y = 0;
+  for (const id of ['hud', 'tas', 'stik', 'petunjuk']) $(id).hidden = true;
+  bunyi(660, .1); setTimeout(() => bunyi(990, .16), 120); setTimeout(() => bunyi(1320, .2), 260);
+  $('hsJudul').textContent = 'Misi selesai! Menghitung upah…'; $('hsRinci').innerHTML = ''; $('hsHadiah').textContent = ''; $('bLagi').disabled = true; $('hasil').hidden = false;
+  await catatSesi();
+  tulisUpah();
 }
 
 // ---------- loop ----------
@@ -240,7 +243,7 @@ function langkah(dt, t) {
     const target = BANG && BANG.bagian[Math.min(BANG.bagian.length - 1, BANG.tampak + TERBANG.length)]; const b = target ? target.c.clone() : new THREE.Vector3(0, 4, 20);
     m.position.copy(a); sc.add(m); TERBANG.push({m, a, b, t: 0});
     KERJA.setor++; KERJA.sesiBahan++;
-    if (KERJA.sesiBahan >= TK_BAHAN) { KERJA.sesiBahan = 0; catatSesi(); }
+    if (KERJA.sesiBahan >= TK_BAHAN && MAIN) { misiSelesai(); return; }
     tulisHud();
   }
   // panah: ke tumpukan terdekat bila kosong, ke lingkaran setor bila membawa bahan
@@ -288,32 +291,30 @@ async function muat() {
 // ---------- mulai / selesai kerja ----------
 function mulaiKerja() {
   if (MAIN) return; MAIN = true; bunyi(660, .08);
-  Object.assign(KERJA, {setor: 0, sesiBahan: 0, sesi: 0, koin: 0, maju: 0, piala: 0});
+  Object.assign(KERJA, {setor: 0, sesiBahan: 0, sesi: 0, koin: 0, maju: 0, piala: 0, galat: '', jadi: false});
   SAYA.x = 0; SAYA.z = 62; SAYA.arah = Math.PI; SAYA.bawa = []; susunPunggung();
   for (const id of ['lobi', 'dompet', 'hasil']) $(id).hidden = true;
-  for (const id of ['kabur', 'hud', 'tas', 'stik', 'petunjuk']) $(id).hidden = false;
+  for (const id of ['hud', 'tas', 'stik', 'petunjuk']) $(id).hidden = false;
   tulisHud(); petunjuk();
   if (AKUN && INFO?.aktif) apiB('mulai');
 }
-function selesaiKerja() {
-  if (!MAIN) return; MAIN = false; panah.visible = false;
-  for (const id of ['kabur', 'hud', 'tas', 'stik', 'petunjuk']) $(id).hidden = true;
-  const sisa = TK_BAHAN - KERJA.sesiBahan;
-  $('hsJudul').textContent = KERJA.setor >= 40 ? 'Tukang jempolan! 🏆' : KERJA.setor ? 'Kerja bagus, tukang! 💪' : 'Istirahat dulu ya 🙂';
-  const resmi = AKUN && INFO?.aktif, kotak = (b, s, k = '') => `<div class="${k}"><b>${b}</b><small>${s}</small></div>`;
+function tulisUpah() {
+  const resmi = AKUN && (KERJA.sesi > 0), kotak = (b, s, k = '') => `<div class="${k}"><b>${b}</b><small>${s}</small></div>`;
+  $('hsJudul').textContent = KERJA.jadi ? '🎉 Fasum JADI! Upah tukang' : 'Misi selesai! 💪 Upah tukang';
   $('hsRinci').innerHTML = kotak(KERJA.setor, '📦 bahan', 'utamaA')
     + (resmi ? kotak(Math.round(KERJA.maju / 60e3) + "'", '⚡ lebih cepat') + kotak('+' + KERJA.koin, '🪙 koin') + kotak('+' + KERJA.piala, '🏆 Piala') : '');
   $('hsRinci').style.gridTemplateColumns = resmi ? '' : '1fr';
-  $('hsHadiah').innerHTML = resmi
-    ? (KERJA.sesiBahan ? `Kurang ${sisa} bahan lagi untuk ⚡ ${Math.round((INFO.aturan?.maju || 12e5) / 60e3)} menit berikutnya` : 'Terima kasih sudah gotong royong! 🙏')
-    : `Latihan saja. <a href="/duniakotak/mabar/">Masuk sebagai warga</a> agar tercatat.`;
-  $('hasil').hidden = false;
+  const s = INFO?.saya;
+  $('hsHadiah').innerHTML = KERJA.galat ? '⚠️ ' + esc(KERJA.galat)
+    : !AKUN ? `Latihan saja. <a href="/duniakotak/mabar/">Masuk sebagai warga</a> agar dapat upah.`
+    : !KERJA.koin && resmi ? 'Jatah koin hari ini habis, fasum tetap makin cepat 🙏'
+    : s ? `Sisa misi berupah hari ini: ${s.sisaKoin}/${INFO.aturan?.sesiKoin || 3}` : 'Terima kasih sudah gotong royong! 🙏';
+  $('bLagi').disabled = false; $('bLagi').textContent = INFO?.aktif ? '🔨 MISI LAGI' : '🔨 LATIHAN';
 }
 
 // ---------- tombol ----------
 $('bMulai').onclick = mulaiKerja;
 $('bLagi').onclick = () => { $('hasil').hidden = true; mulaiKerja(); };
-$('kabur').onclick = e => { e.stopPropagation(); selesaiKerja(); };
 $('hasil').addEventListener('click', e => { if (e.target === $('hasil')) { $('hasil').hidden = true; $('lobi').hidden = false; muat(); } });
 muat();
-window.__tk = {INFO: () => INFO, mulai: mulaiKerja, selesai: selesaiKerja, saya: SAYA, KERJA, BANG: () => BANG, stik: (x, y) => { STIK.x = x; STIK.y = y; }};
+window.__tk = {INFO: () => INFO, mulai: mulaiKerja, selesai: misiSelesai, saya: SAYA, KERJA, BANG: () => BANG, stik: (x, y) => { STIK.x = x; STIK.y = y; }};
