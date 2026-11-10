@@ -1,17 +1,17 @@
 # Graph Report - willoapparel  (2026-11-10)
 
 ## Corpus Check
-- 103 files · ~802,119 words
+- 103 files · ~802,380 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 15 file(s) not represented in the graph (top: .glb 5, (none) 4, .css 4)
 
 ## Summary
-- 2610 nodes · 6114 edges · 106 communities (98 shown, 8 thin omitted)
+- 2610 nodes · 6115 edges · 106 communities (98 shown, 8 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 180 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c27c08d2`
+- Built from commit: `2d1d0fc6`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -127,8 +127,8 @@
 4. `mulai()` - 43 edges
 5. `Warga` - 41 edges
 6. `V3()` - 39 edges
-7. `rnd()` - 38 edges
-8. `aturHUD()` - 38 edges
+7. `aturHUD()` - 38 edges
+8. `rnd()` - 38 edges
 9. `bunyi()` - 35 edges
 10. `box()` - 31 edges
 
@@ -550,7 +550,7 @@ Nodes (6): fmtWaktu(), hud(), isiPapan(), muatPapan(), peringkat(), siapkanHantu
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `lepas()` connect `bangun.js` to `hitung-rpg/game.js`, `$`, `src/game.js`?**
-  _High betweenness centrality (0.076) - this node is a cross-community bridge._
+  _High betweenness centrality (0.103) - this node is a cross-community bridge._
 - **Are the 9 inferred relationships involving `mulai()` (e.g. with `ambilHadir()` and `bersihAv()`) actually correct?**
   _`mulai()` has 9 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `kelasduniakotak` to the rest of the system?**
@@ -558,8 +558,8 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `duniakotak/js/desa.js` be split into smaller, more focused modules?**
   _Cohesion score 0.06289506953223767 - nodes in this community are weakly interconnected._
 - **Why does `warga()` connect `warga` to `mabar/game.js`, `rnd`, `ktp.js`, `main.js`, `smp/src/inti.js`, `kotak`, `mulai`, `kotak`, `bangun.js`?**
-  _High betweenness centrality (0.025) - this node is a cross-community bridge._
+  _High betweenness centrality (0.028) - this node is a cross-community bridge._
 - **Should `mabar/game.js` be split into smaller, more focused modules?**
   _Cohesion score 0.015827338129496403 - nodes in this community are weakly interconnected._
-- **Why does `pose()` connect `pose` to `mabar/game.js`, `toast`, `ktp.js`, `main.js`, `langkah`, `kotak`, `bangun.js`, `warga`, `loop`?**
-  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+- **Why does `buatNPC()` connect `ref_three` to `mulai`, `mabar/game.js`?**
+  _High betweenness centrality (0.017) - this node is a cross-community bridge._
