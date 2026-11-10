@@ -11,6 +11,7 @@ import {kucingMesh, WARNA_KUCING, DAFTAR_KUCING} from './js/aset/kucing.js';
 import {warungMesh, rumahKucingMesh, WARNA_DINDING, WARNA_ATAP} from './js/aset/rumah.js';
 import * as F from './js/aset/fasum.js';
 import {buatMobil} from './js/aset/mobil.js?v=20261111kend';
+import {buatLaluLintas} from './js/lalulintas.js?v=20261111kend';
 import {buatNPC} from './js/npc.js?v=20261110willo';
 import {buatWargaNPC} from './js/wargaNpc.js';
 import {kulon, JALAN_KULON, AWAL_KULON} from './js/kulon.js';
@@ -425,6 +426,7 @@ function naikkan(obj, k, no) {
 }
 function turunkan(obj) { const n = obj.userData.naik; if (!n) return; n.badan.forEach(c => { c.position.y -= n.angkat; }); obj.remove(n.v); obj.userData.naik = null; }
 function putarRoda(obj, jarak) { const n = obj.userData.naik; if (!n) return; for (const r of n.v.userData.roda) r.putar.rotation.x += jarak / (n.v.userData.jari * M_KEND); }
+let lalin = null;   // lalu lintas desa (js/lalulintas.js)
 let NAIK = null;   // kendaraan yang sedang dikendarai pemain
 const dekatParkiranSaya = me => { if (S.tamu || !S.saya || NAIK || !kendSaya()) return false; const L = I.lots && I.lots[S.saya.no]; if (!L || I.gedung) return false;
   return Math.hypot(me.position.x - (L.c.x + L.dir * PARKIR[0] * VS), me.position.z - (L.c.z + L.dir * PARKIR[1] * VS)) < 2.6 * VS; };
@@ -3043,6 +3045,8 @@ async function mulai() {
   // warga offline jadi NPC (Huda 6 Nov 2026), dimuat di belakang supaya tidak menunda layar masuk
   wnpc = buatWargaNPC({sc, I, VS, warga, pose: wpose, siapAv: bersihAv, bayangan: false, tinggi: (x, z, r) => tanah(x, z, r)});
   muatWargaNPC();
+  // lalu lintas desa: rambu + kendaraan NPC (Huda 11 Nov 2026)
+  try { lalin = buatLaluLintas({sc, I, VS, tanah: (x, z, r) => tanah(x, z, r), warga, pose: wpose, siapAv: bersihAv, buatMobil, hemat, KEC}); } catch (e) { console.warn('lalu lintas', e); }
   // kavling di sekitar pemain dibangun dulu sebelum layar dibuka
   for (let i = 0; i < 40; i++) aturKavling(tokoh.saya.position.x, tokoh.saya.position.z);
   $('masuk').hidden = true; $('hud').hidden = false;
@@ -3263,6 +3267,7 @@ function loop(t) {
   if (wnpc) wnpc.update(dt, me, new Set(S.others.keys()), S.saya?.no, KEC);
   if (npc) { const L = BOLA.m && BOLA.m.visible ? bolaLapangan() : null; npc.update(dt, me, jamWIB(), KEC, L ? {L, x: BOLA.x, z: BOLA.z, vx: BOLA.vx, vz: BOLA.vz, golT: BOLA.golT} : null); sapaNPC(t, me); }
   bolaUpdate(dt, me);
+  if (lalin) lalin.update(dt, me, performance.now() / 1000, [...S.others.values()].map(o => o.obj.position));
   tokoh.oyen.userData.ph += dt; tokoh.oyen.position.y = Math.abs(Math.sin(tokoh.oyen.userData.ph * 1.3)) * .15;
   // kamera ikut pemain (dikunci di dalam hutan pembatas)
   const tx = me.position.x, tz = me.position.z, ty = me.position.y; camY += (ty - camY) * Math.min(1, dt * 5);
@@ -3409,4 +3414,4 @@ var tegakSesi = false; try { localStorage.removeItem('dk_tegak'); } catch (e) {}
 $('tetapTegak').onclick = () => { tegakSesi = true; $('miring').hidden = true; };
 onResize();
 layarMasuk();
-window.__dk = {S, HS, segara: () => ({I, tokoh, bukaLift, pindahZona}), peta: () => peta, voting: w => bukaVoting(w), wnpc: () => wnpc, avAcak: n => avAcak(n), proyek: aturProyek, iklan: siapIklan, tonton: tontonIklan, rectLot: (n, a, b, c, d) => rectLot(I.lots[n], a, b, c, d), mancing: () => skillMancing(), dekatAir: () => dekatAir(tokoh.saya), tulisDana, VT: v => { VT = v; tulisVoting(); $('panelVoting').hidden = false; }, segarKebun, kebunSiap: () => { kebunTahap = null; segarKebun(); }, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }, kend: {naikkan, turunkan, bukaDealer, DLR, set: v => { NAIK = v; }}};
+window.__dk = {S, HS, segara: () => ({I, tokoh, bukaLift, pindahZona}), peta: () => peta, voting: w => bukaVoting(w), wnpc: () => wnpc, avAcak: n => avAcak(n), proyek: aturProyek, iklan: siapIklan, tonton: tontonIklan, rectLot: (n, a, b, c, d) => rectLot(I.lots[n], a, b, c, d), mancing: () => skillMancing(), dekatAir: () => dekatAir(tokoh.saya), tulisDana, VT: v => { VT = v; tulisVoting(); $('panelVoting').hidden = false; }, segarKebun, kebunSiap: () => { kebunTahap = null; segarKebun(); }, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }, lalin: () => lalin, kend: {naikkan, turunkan, bukaDealer, DLR, set: v => { NAIK = v; }}};
