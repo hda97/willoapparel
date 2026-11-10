@@ -47,6 +47,21 @@ th{color:var(--redup);font-weight:600;font-size:12px}
 .chip{display:inline-block;background:var(--bg);border:1px solid var(--garis);border-radius:20px;padding:3px 9px;margin:3px 4px 0 0;font-size:12.5px}
 .galat{color:var(--merah);font-size:13px;min-height:18px}
 .catatan{color:var(--redup);font-size:12px;margin-top:6px}
+.lap{background:var(--kartu);border:1px solid var(--garis);border-radius:14px;padding:12px 14px;margin-bottom:14px}
+.lap .atas{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.lap h2{font-size:16px;margin:0;flex:1}
+.lap h2 small{display:block;color:var(--redup);font-weight:400;font-size:12px}
+.lr{display:flex;align-items:baseline;gap:8px;padding:6px 0;border-top:1px solid var(--garis);font-size:13.5px}
+.lr:first-of-type{border-top:0}
+.lr .ik{width:22px;text-align:center;flex:none}
+.lr .nm{flex:1;min-width:0}
+.lr .nm small{display:block;color:var(--redup);font-size:11.5px}
+.lr b{font-size:17px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tgt{height:8px;background:var(--garis);border-radius:4px;overflow:hidden;margin-top:4px}
+.tgt u{display:block;height:100%;background:var(--hijau)}
+.awas{margin:8px 0 0;padding:8px 10px;border-radius:10px;background:var(--bg);font-size:12.5px;line-height:1.5}
+.awas div::before{content:"• "}
+.ok{color:var(--hijau)}.jelek{color:var(--merah)}
 @media (max-width:520px){.k b{font-size:22px}.baris .nm{width:96px}}
 </style>
 </head>
@@ -58,6 +73,10 @@ th{color:var(--redup);font-weight:600;font-size:12px}
   <button id="segar">↻ Segarkan</button>
 </header>
 <main>
+  <section class="lap" id="laporan"><div class="atas"><h2>Laporan hari ini<small id="lapTgl"></small></h2><button id="salin" class="utama">📋 Salin</button></div><div id="lapIsi"><p class="catatan">Memuat…</p></div></section>
+
+  <section><div class="lap atas" style="border:0;padding:0;margin:0 0 6px;background:none;display:flex;align-items:center;gap:8px"><h2 style="flex:1;margin:0">🏅 Warga main paling lama</h2><button id="tbHari" class="utama">Hari ini</button><button id="tb7">7 hari</button></div><p class="ket" id="ketTerlama"></p><div id="terlama"></div></section>
+
   <div class="kpi" id="kpi"></div>
 
   <div class="grid">
@@ -84,6 +103,8 @@ th{color:var(--redup);font-weight:600;font-size:12px}
 
   <section><h2>Arus ekonomi</h2><p class="ket">Koin dan permata masuk (sumber) dan keluar (dibelanjakan) per hari, mulai 9 Nov 2026.</p><div class="gulir"><table id="tabelArus"></table></div></section>
 
+  <section><h2>Fitur baru</h2><p class="ket">Tukang Kotak, Toko Willo Apparel, Piala Antardusun, Lomba Rumah, Ajak Tetangga (minggu ini).</p><div class="grid" id="fiturBaru" style="gap:10px"></div></section>
+
   <div class="grid">
     <section><h2>Profesi</h2><p class="ket">Warga yang sudah membuka tiap profesi.</p><div id="profesi"></div></section>
     <section><h2>Voting & dana</h2><p class="ket">Putaran voting fasum yang sedang jalan, iuran, dan donasi (Trakteer).</p><div id="voting"></div></section>
@@ -101,7 +122,9 @@ const LABEL_FITUR = {
   misi: '✅ Misi harian', gol: '⚽ Gol', bagikan: '📣 Bagikan', tanam: '🌱 Tanam', panen: '🧺 Panen', jual: '💰 Jual',
   toko: '🛍️ Toko hias', dekor: '🪑 Rakit hiasan', tas: '🎒 Tas', profesi: '💼 Profesi', iuran: '🏗️ Iuran fasum',
   voting: '⭐ Voting', iklan: '📺 Iklan', usulan: '💡 Usulan', 'usulan-kunci': '💡 Usulan', 'daftar-ig': '📝 Daftar (IG/TikTok)',
-  google: '📝 Daftar (Google)', daftar: '📝 Daftar', ig: '📷 Isi IG', saweria: '💝 Donasi Saweria', trakteer: '🧱 Traktir Trakteer', mancing: '🎣 Mancing'
+  google: '📝 Daftar (Google)', daftar: '📝 Daftar', ig: '📷 Isi IG', saweria: '💝 Donasi Saweria', trakteer: '🧱 Traktir Trakteer', mancing: '🎣 Mancing',
+  pelari: '🏃 Pelari Kalcer', hadir: '📅 Absen harian', pemula: '🐣 Misi pemula', 'rumah-suka': '❤️ Lomba Rumah',
+  bangun: '🔨 Tukang Kotak', kaos: '👕 Toko Willo', pasar: '🎡 Pasar Malam', piala: '🏆 Piala', ajak: '🤝 Ajak Tetangga', detak: '⏱ Detak main'
 };
 const LABEL_PROFESI = { petani: '🌾 Petani', nelayan: '🎣 Nelayan', pedagang: '🛒 Pedagang', tukang: '🔨 Tukang', guru: '📚 Guru', dokter: '🩺 Dokter', koki: '🍳 Koki', polisi: '👮 Polisi' };
 const LABEL_CALON = { kafe: '☕ Kafe', hiburan: '🎡 Taman Hiburan', polisi: '🚓 Kantor Polisi', taman: '🌳 Taman Kota' };
@@ -120,11 +143,80 @@ function daftarBar(el, items, warna) {
   el.innerHTML = items.length ? items.map(([nm, n]) => `<div class="baris"><span class="nm" title="${nm}">${nm}</span><span class="bar"><u style="width:${n / max * 100}%;${warna ? 'background:' + warna : ''}"></u></span><span class="n">${fmt(n)}</span></div>`).join('') : '<p class="catatan">Belum ada data.</p>';
 }
 
+let teksLaporan = '';
+const LABEL_KAOS = { willo: 'Logo Willo', polos: 'Polos', dk: 'Dunia Kotak', dusun: 'Dusun', tulisan: 'Tulisan sendiri' };
+const DUSUN_NM = { wetan: 'Kotak Wetan', kulon: 'Kotak Kulon', curug: 'Curug', tlaga: 'Tlaga', segara: 'Segara' };
+const jamWib = (t) => new Date(t + 7 * 3600e3).toISOString().slice(11, 16).replace(':', '.');
+function laporan(s) {
+  const kini = new Date(s.waktu + 7 * 3600e3).toISOString().slice(0, 10), kmrn = new Date(s.waktu + 7 * 3600e3 - 864e5).toISOString().slice(0, 10);
+  const hr = Object.fromEntries((s.hari || []).map((d) => [d.h, d])), hi = hr[kini] || {}, hk = hr[kmrn] || {};
+  const ar = s.arus || [], jum = (h, f) => ar.filter((x) => x.hari === h && f(x.jenis)).reduce((t, x) => t + x.n, 0);
+  const koinMasuk = jum(kini, (j) => j.startsWith('+koin')), koinKeluar = jum(kini, (j) => j.startsWith('-koin'));
+  const mn = s.menit || {}, rataMnt = mn.warga ? Math.round(mn.total / mn.warga) : 0;
+  const mk = jum(kmrn, (j) => j === 'menit'), wk = jum(kmrn, (j) => j === 'menit-warga'), rataK = wk ? Math.round(mk / wk) : null;
+  const dn = s.donasi || [], dHari = dn.find((x) => x.h === kini) || { n: 0, rp: 0 }, dTot = dn.reduce((t, x) => t + (x.rp || 0), 0);
+  const B = s.baru || {}, tk = B.tukang, ks = B.kaos || { punya: 0, lemari: 0, sablon: {} }, kaosKoin = jum(kini, (j) => j === '-koin:toko-willo');
+  const pl = (B.piala || [])[0], pasarKoin = jum(kini, (j) => j === '-koin:pasar');
+  const fh = (a) => (s.fitur || []).filter((x) => x.hari === kini && x.aksi === a).reduce((t, x) => t + x.n, 0);
+  const banding = (v, k) => (k == null ? '' : ` · kemarin ${fmt(k)}`);
+  const baris = [
+    ['🆕', 'Warga baru', fmt(s.daftar[kini] || 0), `total ${fmt(s.warga)} akun${banding(0, s.daftar[kmrn] || 0)}`],
+    ['🎮', 'Pemain hari ini', fmt(hi.warga || 0), `${hi.kembali || 0} pemain lama · ${hi.sesi || 0} sesi${banding(0, hk.warga || 0)}`],
+    ['⏱', 'Lama main per warga', rataMnt + ' mnt', `target 60 mnt · ${mn.m60 || 0} warga sudah 60+ mnt${rataK != null ? ' · kemarin ' + rataK + ' mnt' : ''}`, Math.min(100, rataMnt / 60 * 100)],
+    ['🏅', 'Main paling lama', (s.mainHariIni || [])[0] ? (s.mainHariIni[0].u ? '@' + s.mainHariIni[0].u : '#' + s.mainHariIni[0].no) : '-', (s.mainHariIni || [])[0] ? `${s.mainHariIni[0].m} mnt hari ini` + ((s.mainTerlama || [])[0] ? ` · 7 hari: ${s.mainTerlama[0].u ? '@' + s.mainTerlama[0].u : '#' + s.mainTerlama[0].no} ${s.mainTerlama[0].m} mnt` : '') : 'belum ada yang main hari ini'],
+    ['🟢', 'Online sekarang', fmt(s.online.total), `aktif 24 jam ${fmt(s.aktif.j24)} · 7 hari ${fmt(s.aktif.h7)}`],
+    ['🪙', 'Koin masuk / keluar', `+${fmt(koinMasuk)} / −${fmt(koinKeluar)}`, `bersih ${koinMasuk - koinKeluar >= 0 ? '+' : '−'}${fmt(Math.abs(koinMasuk - koinKeluar))} · beredar ${fmt(s.ekonomi.koin)}`],
+    ['🧱', 'Bata / donasi hari ini', `${dHari.n}×`, `Rp${(dHari.rp || 0).toLocaleString('id-ID')} hari ini · total Rp${dTot.toLocaleString('id-ID')}`],
+    ['🔨', 'Tukang Kotak', tk ? fmt(tk.sesiHariIni) + ' sesi' : '-', tk ? `${tk.tukangHariIni} tukang hari ini · ${tk.nama} ${tk.sesi} sesi, ${tk.tukang} tukang, jadi ${new Date(tk.sampai).toLocaleString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })} WIB` : 'tidak ada fasum yang sedang dibangun'],
+    ['👕', 'Toko Willo', fmt(kaosKoin) + ' koin', `belanja kaos hari ini · ${ks.punya} warga punya ${ks.lemari} kaos`],
+    ...(pasarKoin || fh('pasar') ? [['🎡', 'Pasar Malam', fmt(pasarKoin) + ' koin', `${fh('pasar')} transaksi hari ini`]] : []),
+    ['🏆', 'Piala Antardusun', pl && pl.poin ? DUSUN_NM[pl.d] || pl.d : '-', pl && pl.poin ? `memimpin ${fmt(pl.poin)} poin minggu ini` : 'belum ada poin minggu ini'],
+  ];
+  $('lapTgl').textContent = new Date(s.waktu).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Asia/Jakarta' }) + ' · ' + jamWib(s.waktu) + ' WIB';
+  // Catatan otomatis: hal yang perlu perhatian Huda
+  const awas = [];
+  if (rataMnt < 60) awas.push(`Lama main rata-rata ${rataMnt} mnt, masih ${60 - rataMnt} mnt dari target 1 jam.`);
+  else awas.push('Target 1 jam main per warga tercapai hari ini 🎉');
+  const muat = (s.fitur || []).filter((x) => x.hari === kini && x.aksi.startsWith('muat:')), mTot = muat.reduce((t, x) => t + x.n, 0), mGagal = muat.filter((x) => x.aksi === 'muat:gagal' || x.aksi === 'muat:20+').reduce((t, x) => t + x.n, 0);
+  if (mTot && mGagal / mTot >= 0.05) awas.push(`${mGagal} dari ${mTot} warga gagal atau lama sekali (20+ dtk) saat memuat game.`);
+  const cepat = (s.fitur || []).filter((x) => x.hari === kini && /^keluar:(<30d|30-60d):/.test(x.aksi)).reduce((t, x) => t + x.n, 0), kTot = (s.fitur || []).filter((x) => x.hari === kini && x.aksi.startsWith('keluar:')).reduce((t, x) => t + x.n, 0);
+  if (kTot >= 5 && cepat / kTot >= 0.3) awas.push(`${Math.round(cepat / kTot * 100)}% warga menutup game dalam 1 menit pertama.`);
+  if (koinMasuk && koinKeluar < koinMasuk * 0.3) awas.push(`Koin keluar hanya ${Math.round(koinKeluar / koinMasuk * 100)}% dari koin masuk: koin menumpuk, perlu tempat belanja.`);
+  if ((hi.warga || 0) && (s.daftar[kini] || 0) > (hi.warga || 0)) awas.push('Pendaftar baru lebih banyak dari pemain: banyak yang daftar tapi belum main.');
+  $('lapIsi').innerHTML = baris.map(([ik, nm, v, ket, tgt]) => `<div class="lr"><span class="ik">${ik}</span><span class="nm">${nm}<small>${ket}</small>${tgt != null ? `<div class="tgt"><u style="width:${tgt}%"></u></div>` : ''}</span><b>${v}</b></div>`).join('') +
+    `<div class="awas">${awas.map((x) => `<div>${x}</div>`).join('')}</div>`;
+  teksLaporan = `*Laporan Dunia Kotak* ${$('lapTgl').textContent}\n` + baris.map(([ik, nm, v, ket]) => `${ik} ${nm}: *${v}* (${ket})`).join('\n') + '\n\nCatatan:\n' + awas.map((x) => '- ' + x).join('\n');
+
+  // Kartu fitur baru
+  const kartu = (judul, isi) => `<div class="k"><span style="font-weight:600;color:var(--teks);font-size:13.5px">${judul}</span><div style="margin-top:6px;font-size:13px">${isi}</div></div>`;
+  const kl = B.piala || [], maxP = Math.max(1, ...kl.map((x) => x.poin));
+  const sab = Object.entries(ks.sablon || {}).sort((a, b) => b[1] - a[1]);
+  const rm = B.rumah || {}, aj = B.ajak || {};
+  $('fiturBaru').innerHTML = [
+    kartu('🔨 Tukang Kotak', tk ? `<b>${tk.nama}</b><br>${tk.sesi} sesi oleh ${tk.tukang} tukang · hari ini ${tk.sesiHariIni} sesi (${tk.tukangHariIni} tukang)<br>Lebih cepat ${fmt(tk.maju / 60000)} mnt dari jadwal · jadi ${new Date(tk.sampai).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Jakarta' })} WIB` : 'Tidak ada fasum yang sedang dibangun.'),
+    kartu('👕 Toko Willo Apparel', `${ks.punya} warga punya kaos · ${ks.lemari} kaos di lemari · ${ks.disablon} sedang disablon<br>Koin belanja kaos hari ini: <b>${fmt(kaosKoin)}</b>` + (sab.length ? '<br>' + sab.map(([d, n]) => `<span class="chip">${LABEL_KAOS[d] || d}: <b>${n}</b></span>`).join('') : '')),
+    kartu('🏆 Piala Antardusun', kl.map((x) => `<div class="baris"><span class="nm">${DUSUN_NM[x.d] || x.d}</span><span class="bar"><u style="width:${x.poin / maxP * 100}%;background:var(--kuning)"></u></span><span class="n">${fmt(x.poin)}</span></div>`).join('') || 'Belum ada poin.'),
+    kartu('❤️ Lomba Rumah & 🤝 Ajak', `Minggu ini: <b>${rm.suka || 0}</b> ❤️ dari ${rm.pemberi || 0} warga ke ${rm.rumah || 0} rumah<br>Ajak Tetangga: <b>${aj.daftar || 0}</b> warga daftar lewat ajakan, ${aj.main || 0} sudah main`),
+  ].join('');
+}
+
+let modeTerlama = 'hari', dataTerakhir = null;
+function terlama(s) {
+  const hari = modeTerlama === 'hari', L = hari ? (s.mainHariIni || []) : (s.mainTerlama || []);
+  $('tbHari').className = hari ? 'utama' : ''; $('tb7').className = hari ? '' : 'utama';
+  $('ketTerlama').textContent = hari ? 'Menit main hari ini (WIB) dari detak game tiap 1 menit; diam lebih dari 3 menit tidak dihitung.' : 'Total menit main 7 hari terakhir dari sesi di dusun (masuk sampai detak terakhir).';
+  const max = Math.max(1, ...L.map((x) => x.m));
+  $('terlama').innerHTML = L.length ? L.map((x, i) => `<div class="baris"><span class="n" style="width:22px">${i + 1}.</span><span class="nm" style="width:150px" title="No. ${x.no}">${x.u ? '@' + x.u : 'Warga'} <small style="color:var(--redup)">#${x.no}</small></span><span class="bar"><u style="width:${x.m / max * 100}%;background:var(--hijau)"></u></span><span class="n" style="width:auto;min-width:64px">${x.m >= 60 ? Math.floor(x.m / 60) + ' j ' + (x.m % 60) + ' m' : x.m + ' mnt'}</span></div>` + (hari ? '' : `<div class="catatan" style="margin:-2px 0 4px 30px">${x.sesi} sesi · ${x.hari} hari · sesi terlama ${x.terlama} mnt</div>`)).join('') : '<p class="catatan">Belum ada yang main.</p>';
+}
+$('tbHari').onclick = () => { modeTerlama = 'hari'; if (dataTerakhir) terlama(dataTerakhir); };
+$('tb7').onclick = () => { modeTerlama = '7'; if (dataTerakhir) terlama(dataTerakhir); };
+
 function tampil(s) {
+  dataTerakhir = s; laporan(s); terlama(s);
   const r = s.ringkas, a = s.aktif, hariIni = s.hari.length ? s.hari[s.hari.length - 1] : null;
   const kini = new Date(s.waktu + 7 * 3600e3).toISOString().slice(0, 10);
   const hi = hariIni && hariIni.h === kini ? hariIni : { warga: 0, sesi: 0, rata: 0, median: 0, puncak: 0, kembali: 0 };
-  $('waktu').textContent = 'Diperbarui ' + new Date(s.waktu).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' · otomatis tiap 1 menit';
+  $('waktu').textContent = 'Diperbarui ' + new Date(s.waktu).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' }) + ' WIB' + ' · otomatis tiap 5 menit';
   const kpi = [
     ['online', s.online.total, 'Online sekarang · ' + Object.entries(s.online.per).map(([d, n]) => d[0].toUpperCase() + d.slice(1) + ' ' + n).join(', ')],
     ['', s.warga, 'Total warga terdaftar'],
@@ -201,19 +293,26 @@ function tampil(s) {
   $('catatanMulai').textContent = r.mulaiCatat ? 'Lama main tercatat sejak ' + new Date(r.mulaiCatat).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) + '. Sesi = sejak warga masuk dusun sampai detak terakhir saat game terbuka di layar; pindah dusun dihitung satu sesi.' : 'Pencatat lama main baru dipasang, angka sesi muncul setelah ada warga yang main.';
 }
 
-async function muat() {
-  const r = await fetch('/duniakotak/api/statistik', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
+async function muat(segar) {
+  const r = await fetch('/duniakotak/api/statistik', { method: 'POST', headers: { 'content-type': 'application/json' }, body: segar ? '{"segar":1}' : '{}' });
   const j = await r.json().catch(() => ({ galat: 'Server tidak menjawab' }));
   if (!r.ok) throw new Error(j.galat || 'Gagal memuat');
   return j;
 }
-async function mulai() {
-  try { tampil(await muat()); }
+async function mulai(segar) {
+  try { tampil(await muat(segar)); }
   catch (e) { $('waktu').textContent = 'Gagal memuat: ' + e.message + '. Coba Segarkan.'; }
 }
-$('segar').onclick = () => mulai();
+$('segar').onclick = () => mulai(true);
+$('salin').onclick = async () => {
+  if (!teksLaporan) return;
+  try { await navigator.clipboard.writeText(teksLaporan); }
+  catch (e) { const t = document.createElement('textarea'); t.value = teksLaporan; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); } catch (x) {} t.remove(); }
+  $('salin').textContent = '✓ Tersalin'; setTimeout(() => { $('salin').textContent = '📋 Salin'; }, 2000);
+};
 mulai();
-setInterval(() => { if (!document.hidden) mulai(); }, 60000);
+// Hemat kuota paket gratis: segarkan otomatis tiap 5 menit (dulu 1 menit), hanya saat halaman sedang dilihat.
+setInterval(() => { if (!document.hidden) mulai(); }, 300000);
 </script>
 </body>
 </html>
