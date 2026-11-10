@@ -45,30 +45,23 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
 .daftar div.saya{background:rgba(242,193,74,.25)}
 .daftar span{width:18px;text-align:center;font-weight:900;color:var(--kuning)}.daftar b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.daftar em{font-style:normal;font-size:11px;color:var(--redup)}
 #dompet{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:max(14px,env(safe-area-inset-right,0px));padding:8px 13px;font-weight:900;font-size:15px}
-/* HUD KERJA */
-#hud{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);padding:8px 16px;text-align:center;min-width:220px}
-#hud small{display:block;font-size:9.5px;font-weight:800;letter-spacing:.16em;color:var(--kuning)}
-#hud b{display:block;font-size:17px;font-weight:900}
-#hud .titik{display:flex;gap:5px;justify-content:center;margin-top:5px}#hud .titik i{width:26px;height:5px;border-radius:9px;background:rgba(255,255,255,.2)}#hud .titik i.on{background:var(--kuning)}#hud .titik i.ok{background:var(--hijau)}
-#info{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:max(14px,env(safe-area-inset-right,0px));padding:8px 13px;font-weight:900;font-size:15px;text-align:right}
-#info small{display:block;font-size:9.5px;color:var(--redup);font-weight:800}
+/* HUD KERJA (Angkut & Bangun) */
+#hud{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);padding:8px 14px;width:min(360px,calc(100vw - 220px));min-width:220px}
+#hud .atas{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12px;font-weight:900}
+#hud .atas em{font-style:normal;color:var(--kuning)}
+#hud .bar{height:11px;margin:5px 0 4px}
+#hud small{display:block;font-size:10.5px;font-weight:800;color:var(--redup);text-align:center}
+#hud small b{color:#9ef0a0}
+#tas{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:max(14px,env(safe-area-inset-right,0px));padding:8px 13px;font-weight:900;font-size:16px;text-align:center}
+#tas small{display:block;font-size:9.5px;color:var(--redup);font-weight:800}
+#tas.penuh{background:rgba(224,80,58,.85)}
 #kabur{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:max(14px,env(safe-area-inset-left,0px));padding:9px 13px;font-size:12px;font-weight:800}
-#petunjuk{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:9px 16px;font-size:13px;font-weight:800;text-align:center;max-width:calc(100vw - 28px)}
-/* aduk semen: meter ritme */
-#meter{position:fixed;left:50%;bottom:calc(64px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(420px,calc(100vw - 40px));padding:12px}
-#meter .jalur{position:relative;height:30px;border-radius:12px;background:rgba(255,255,255,.14);overflow:hidden}
-#zona{position:absolute;top:0;bottom:0;background:rgba(58,168,96,.75);border-radius:8px}
-#zona::after{content:"";position:absolute;top:0;bottom:0;left:35%;right:35%;background:rgba(158,240,160,.9);border-radius:6px}
-#jarum{position:absolute;top:-3px;bottom:-3px;width:6px;margin-left:-3px;background:#fff;border-radius:4px;box-shadow:0 0 0 2px #1d1d22}
-/* cat dinding */
-#cat{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
-#tembok{width:min(560px,calc(100vw - 40px));height:min(300px,calc(100vh - 150px));border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.35);pointer-events:auto;touch-action:none;background:#c9c3b6}
-/* banner tugas & hitung mundur */
-#banner{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);padding:16px 24px;text-align:center;min-width:240px}
-#banner i{display:block;font-style:normal;font-size:40px}
-#banner b{display:block;font-size:22px;font-weight:900}
-#banner small{display:block;font-size:12px;color:var(--redup);margin-top:4px;max-width:300px}
-#nilai{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);font-size:30px;font-weight:900;color:#fff;text-shadow:0 3px 0 rgba(19,20,31,.5);pointer-events:none;transition:opacity .4s,transform .4s}
+#petunjuk{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:8px 16px;font-size:13px;font-weight:800;text-align:center;max-width:calc(100vw - 300px);min-width:200px}
+#stik{position:fixed;left:max(22px,env(safe-area-inset-left,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));width:132px;height:132px;border-radius:50%;background:rgba(30,33,56,.45);border:2px solid rgba(255,255,255,.35);touch-action:none}
+#stik i{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;background:rgba(255,255,255,.85);box-shadow:0 3px 8px rgba(0,0,0,.3)}
+#kabar{position:fixed;left:50%;top:84px;transform:translateX(-50%);display:grid;gap:6px;justify-items:center;pointer-events:none}
+#kabar div{padding:8px 14px;font-size:13.5px;font-weight:900;animation:muncul 2.6s forwards}
+@keyframes muncul{0%{opacity:0;transform:translateY(8px) scale(.9)}10%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
 /* HASIL (pop up muat layar HP) */
 .popup{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,12,24,.45);padding:12px}
 .popup .isi{width:min(380px,100%);max-height:calc(100vh - 24px);overflow-y:auto;padding:16px;display:grid;gap:9px}
@@ -78,7 +71,7 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
 .hadiah{display:grid;gap:4px;text-align:center;font-weight:800;font-size:13px}
 .hadiah .cepat{font-size:13px}
 .dua{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}
-@media (max-height:430px){#lobi{gap:6px}.judul h1{font-size:24px}.papan{padding:7px 10px}.papan h2{margin-bottom:4px}#lAturan{font-size:10.5px;padding:6px 10px!important}.kedua{padding:8px}.status{padding:8px 11px;gap:4px}.utama{padding:10px;font-size:15px}.daftar{max-height:84px}#meter{bottom:54px}#petunjuk{bottom:8px;font-size:12px;padding:7px 12px}}
+@media (max-height:430px){#lobi{gap:6px}.judul h1{font-size:24px}.papan{padding:7px 10px}.papan h2{margin-bottom:4px}#lAturan{font-size:10.5px;padding:6px 10px!important}.kedua{padding:8px}.status{padding:8px 11px;gap:4px}.utama{padding:10px;font-size:15px}.daftar{max-height:84px}#petunjuk{bottom:8px;font-size:12px;padding:7px 12px}#stik{width:112px;height:112px}#kabar{top:74px}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js","three/addons/geometries/RoundedBoxGeometry.js":"/duniakotak/mabar/js/kotakBulat.js?v=20261108r","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 </head>
@@ -89,29 +82,26 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
  <div class="judul"><small>🔨 TUKANG KOTAK</small><h1>Bangun <span id="lNama">fasum</span></h1></div>
  <div class="kaca status" id="lStatus"><b>Memuat proyek…</b></div>
  <button class="utama" id="bMulai" disabled>🔨 MULAI KERJA</button>
- <p class="kecil kaca" style="padding:8px 11px" id="lAturan">1 sesi = 3 tugas: aduk semen, susun batako, cat dinding. Tiap sesi membuat fasum jadi lebih cepat.</p>
+ <p class="kecil kaca" style="padding:8px 11px" id="lAturan">Angkut bata, kayu, dan semen ke gerbang proyek. Tiap bahan yang kamu setor membuat fasum tumbuh di depan mata!</p>
  <div class="kaca papan"><h2>👷 Tukang teladan proyek ini</h2><div class="daftar" id="lTop"><div><b>Belum ada tukang. Jadilah yang pertama!</b></div></div></div>
  <a class="kedua tombol" id="bDesa" href="/duniakotak/mabar/">← Kembali ke desa</a>
 </div>
 <div id="dompet" class="kaca" hidden></div>
 
-<button id="kabur" class="kaca" hidden>✕ Berhenti</button>
-<div id="hud" class="kaca" hidden><small id="hTahap">TUGAS 1 DARI 3</small><b id="hJudul">Aduk semen</b><div class="titik"><i></i><i></i><i></i></div></div>
-<div id="info" class="kaca" hidden><span id="iAngka">0</span><small id="iLabel">skor</small></div>
+<button id="kabur" class="kaca" hidden>✕ Selesai</button>
+<div id="hud" class="kaca" hidden><div class="atas"><span id="hNama">Taman Kota</span><em id="hPersen">0%</em></div><div class="bar"><span id="hBar" style="width:0%"></span></div><small id="hSesi">Setor 20 bahan = fasum ⚡ 20 menit lebih cepat</small></div>
+<div id="tas" class="kaca" hidden><span id="tAngka">0/8</span><small>🎒 bahan</small></div>
+<div id="stik" hidden><i></i></div>
 <div id="petunjuk" class="kaca" hidden></div>
-<div id="meter" class="kaca" hidden><div class="jalur"><div id="zona"></div><div id="jarum"></div></div></div>
-<div id="cat" hidden><canvas id="tembok"></canvas></div>
-<div id="banner" class="kaca" hidden><i id="bIkon">🪣</i><b id="bJudul">Aduk semen</b><small id="bKet"></small></div>
-<div id="nilai" style="opacity:0"></div>
-
+<div id="kabar"></div>
 <div id="hasil" class="popup" hidden>
  <div class="isi kaca">
-  <h2 id="hsJudul">Kerja bagus! 💪</h2>
+  <h2 id="hsJudul">Kerja bagus, tukang! 💪</h2>
   <div id="hsRinci"></div>
   <div class="hadiah" id="hsHadiah"></div>
-  <div class="dua"><a class="kedua tombol" id="bDesa2" href="/duniakotak/mabar/">Ke desa</a><button class="utama" id="bLagi">🔨 KERJA LAGI</button></div>
+  <div class="dua"><a class="kedua tombol" id="bDesa2" href="/duniakotak/mabar/">Ke desa</a><button class="utama" id="bLagi">🔨 LANJUT KERJA</button></div>
  </div>
 </div>
-<script type="module" src="bangun.js?v=20261110a"></script>
+<script type="module" src="bangun.js?v=20261110b"></script>
 </body>
 </html>

@@ -57,11 +57,12 @@ const BATA_RP = 5000, BATA_BENDERA = 2, BATA_PLAKAT = 20;
 // Fasum yang sedang dibangun (samakan dengan BANGUN_VOTING di game.js). Setelah `sampai`, plakat baru masuk ke fasum berikutnya.
 const BANGUN_SEKARANG = [{ id: "taman", nama: "🌳 Taman Kota", aset: "tamanKota", dusun: "wetan", mulai: Date.parse("2026-11-07T00:00:00+07:00"), sampai: Date.parse("2026-11-14T00:00:00+07:00") }];
 // Tukang Kotak (Huda 10 Nov 2026): warga ikut MEMBANGUN fasum pemenang voting lewat mini-game /duniakotak/bangun/
-// (masuk dari lahan proyek, seperti gapura Pelari Kalcer). 1 sesi = 3 tugas (aduk semen, susun batako, cat/genteng).
+// (masuk dari lahan proyek, seperti gapura Pelari Kalcer). Gaya "Angkut & Bangun": warga mengangkut bahan ke gerbang proyek,
+// 1 sesi = TK_BAHAN (20) bahan disetor (dihitung di HP, server membatasi lewat jeda minimal TK_MIN antar sesi).
 // Tiap sesi selesai: fasum jadi TK_MAJU lebih cepat (maks TK_MAJU_MAKS per fasum, maks TK_SESI_MAJU sesi/warga/hari),
-// koin sesuai skor (maks TK_KOIN_MAKS, hanya TK_SESI_KOIN sesi pertama tiap hari) + PIALA_BANGUN poin Piala dusun (ikut jatah sesi koin).
+// koin (maks TK_KOIN_MAKS, hanya TK_SESI_KOIN sesi pertama tiap hari) + PIALA_BANGUN poin Piala dusun (ikut jatah sesi koin).
 // `sampai` di atas = jadwal asli; jadwal sebenarnya = sampai - percepatan tukang (lihat sampaiBangun). game.js membaca GET /api/bangun.
-const TK_MAJU = 20 * 60e3, TK_MAJU_MAKS = 3 * 864e5, TK_SESI_MAJU = 10, TK_SESI_KOIN = 3, TK_KOIN_MAKS = 40, TK_MIN = 30e3, PIALA_BANGUN = 5;
+const TK_MAJU = 20 * 60e3, TK_MAJU_MAKS = 3 * 864e5, TK_SESI_MAJU = 10, TK_SESI_KOIN = 3, TK_KOIN_MAKS = 30, TK_MIN = 15e3, PIALA_BANGUN = 5;
 // Kata kunci usulan warga (kolom usulan saat daftar) untuk mencari pengusul pertama tiap fasum pemenang/calon.
 // Bisa ditimpa manual lewat BOS_TETAP (mis. { taman: 48 }) bila pengusul yang ditemukan otomatis kurang tepat.
 const BOS_TETAP = {};
