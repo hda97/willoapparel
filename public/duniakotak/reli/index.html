@@ -30,6 +30,11 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
 .status{padding:8px 11px;display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}
 .status div{min-width:0}.status small{display:block;font-size:9px;font-weight:800;color:var(--redup);letter-spacing:.05em}
 .status b{display:block;font-size:15px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lintas{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.lintas button{padding:4px 0;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:3px;border-radius:10px}
+.lintas button i{font-style:normal;font-size:13px}
+.lintas button.pilih{background:var(--kuning);color:#1d1d22}
+.lintas button.kunci{opacity:.6}
 .warna{display:flex;gap:6px;align-items:center;padding:6px 10px}
 .warna small{font-size:10px;font-weight:800;color:var(--redup);margin-right:auto}
 .warna button{width:26px;height:26px;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
@@ -84,7 +89,7 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
 .hadiah{text-align:center;font-weight:800;font-size:11.5px;color:var(--redup)}
 .dua{display:grid;grid-template-columns:1fr 1.6fr;gap:8px}
 .dua .utama{padding:10px;font-size:15px}.dua .kedua{display:flex;align-items:center;justify-content:center}
-@media (max-height:330px){#lobi{gap:5px}.judul h1{font-size:22px}.status{padding:5px 10px}.utama{padding:9px;font-size:15px}.warna{padding:4px 10px}
+@media (max-height:330px){#lobi{gap:5px}.judul h1{font-size:22px}.status{padding:5px 10px}.utama{padding:9px;font-size:15px}.warna{padding:4px 10px}.lintas button{padding:2px 0}
  .kemudi button{width:64px;height:64px;font-size:24px}#kiriKanan{width:112px;height:112px}#kiriKanan i{width:50px;height:50px;margin:-25px 0 0 -25px}#bRem{width:84px;height:54px}#bPot{width:84px;height:40px}#spido{right:max(112px,calc(env(safe-area-inset-right,0px) + 104px));transform:scale(.85);transform-origin:bottom right}#peta{width:96px;height:72px}#jam b{font-size:20px}#jarak{top:54px}#split{top:76px}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js","three/addons/geometries/RoundedBoxGeometry.js":"/duniakotak/mabar/js/kotakBulat.js?v=20261108r","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
@@ -92,7 +97,8 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
 <body>
 <canvas id="kanvas"></canvas>
 <div id="lobi">
- <div class="judul"><small>🏁 SIRKUIT LERENG CURUG</small><h1>Reli <span>Kotak</span></h1></div>
+ <div class="judul"><small id="lJudul">🏁 SIRKUIT LERENG CURUG</small><h1>Reli <span>Kotak</span></h1></div>
+ <div class="lintas" id="lLintas"></div>
  <div class="kaca status"><div><small>REKORMU</small><b id="lRekor">–</b></div><div><small>POSISI</small><b id="lPos">–</b></div></div>
  <div class="kaca warna" id="lWarna"><small>Warna mobil</small></div>
  <div class="aksi"><button class="utama" id="bMulai">🏁 MULAI BALAP</button><a class="kedua tombol kaca" id="bDesa" href="/duniakotak/mabar/?dusun=curug&amp;ke=reli">← Desa</a></div>
@@ -119,6 +125,6 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
   <div class="dua"><a class="kedua tombol" id="bDesa2" href="/duniakotak/mabar/?dusun=curug&amp;ke=reli">Ke desa</a><button class="utama" id="bLagi">🏁 BALAP LAGI</button></div>
  </div>
 </div>
-<script type="module" src="reli.js?v=20261110b"></script>
+<script type="module" src="reli.js?v=20261110c"></script>
 </body>
 </html>

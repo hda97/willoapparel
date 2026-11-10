@@ -63,9 +63,10 @@ const BANGUN_SEKARANG = [{ id: "taman", nama: "🌳 Taman Kota", aset: "tamanKot
 // koin (maks TK_KOIN_MAKS, hanya TK_SESI_KOIN sesi pertama tiap hari) + PIALA_BANGUN poin Piala dusun (ikut jatah sesi koin).
 // `sampai` di atas = jadwal asli; jadwal sebenarnya = sampai - percepatan tukang (lihat sampaiBangun). game.js membaca GET /api/bangun.
 // Reli Kotak (Huda 10 Nov 2026): balap reli di Sirkuit Reli Kotak, Dusun Kotak Curug (/duniakotak/reli/). Rekor = waktu tercepat (ms).
-// Tiap finish sah: RL_KOIN koin, hanya RL_SESI_KOIN finish pertama tiap hari WIB. Finish sah bila jarak POST "mulai" ke "selesai"
-// lebih lama dari waktunya dan waktunya >= RL_MIN_MS (lintasan 1,21 km; autopilot uji ±46 dtk, batas fisika ±36 dtk).
-const RL_KOIN = 10, RL_SESI_KOIN = 3, RL_MIN_MS = 33e3;
+// 5 lintasan (Huda 10 Nov): rekor & papan peringkat per lintasan; lintasan 2-5 terbuka (buka = 5) setelah finish sah lintasan 1.
+// Tiap finish sah: RL_KOIN koin, hanya RL_SESI_KOIN finish pertama tiap hari WIB (semua lintasan). Finish sah bila jarak POST "mulai"
+// ke "selesai" lebih lama dari waktunya dan waktunya >= RL_MIN_MS[lintasan] (± panjang lintasan / 36 m/dtk, batas fisika mobil).
+const RL_KOIN = 10, RL_SESI_KOIN = 3, RL_MIN_MS = [0, 33e3, 29e3, 24e3, 27e3, 27e3], RL_LINTASAN = 5;
 const TK_MAJU = 20 * 60e3, TK_MAJU_MAKS = 3 * 864e5, TK_SESI_MAJU = 10, TK_SESI_KOIN = 3, TK_KOIN_MAKS = 30, TK_MIN = 45e3, PIALA_BANGUN = 5, TK_MISI_DESA = 15;
 // Kata kunci usulan warga (kolom usulan saat daftar) untuk mencari pengusul pertama tiap fasum pemenang/calon.
 // Bisa ditimpa manual lewat BOS_TETAP (mis. { taman: 48 }) bila pengusul yang ditemukan otomatis kurang tepat.
@@ -310,8 +311,10 @@ export class Warga extends DurableObject {
     this.sql.exec("CREATE TABLE IF NOT EXISTS arus (hari TEXT, jenis TEXT, n INTEGER DEFAULT 0, PRIMARY KEY (hari, jenis))");
     // Tukang Kotak: jumlah sesi bangun tiap warga per fasum (sesi = total sah, hari/sh = sesi hari ini, poin = skor total, m = waktu mulai sesi)
     this.sql.exec("CREATE TABLE IF NOT EXISTS tukang (fas TEXT, no INTEGER, sesi INTEGER DEFAULT 0, poin INTEGER DEFAULT 0, hari TEXT, sh INTEGER DEFAULT 0, m INTEGER, PRIMARY KEY (fas, no))");
-    // Reli Kotak: r = rekor (ms), rh = rekor hari ini, h = hari WIB, n = finish hari ini, m = waktu POST mulai
-    this.sql.exec("CREATE TABLE IF NOT EXISTS reli (no INTEGER PRIMARY KEY, r INTEGER DEFAULT 0, rh INTEGER DEFAULT 0, h TEXT, n INTEGER DEFAULT 0, m INTEGER)");
+    // Reli Kotak: h = hari WIB, n = finish hari ini, m = waktu POST mulai, ml = lintasan yang dimulai, buka = lintasan terbuka (1 atau 5)
+    this.sql.exec("CREATE TABLE IF NOT EXISTS reli (no INTEGER PRIMARY KEY, h TEXT, n INTEGER DEFAULT 0, m INTEGER, ml INTEGER DEFAULT 1, buka INTEGER DEFAULT 1)");
+    // rekor tercepat (ms) tiap warga per lintasan
+    this.sql.exec("CREATE TABLE IF NOT EXISTS reliRekor (no INTEGER, l INTEGER, r INTEGER, PRIMARY KEY (no, l))");
     this.sql.exec("CREATE TABLE IF NOT EXISTS iuran (put TEXT, no INTEGER, koin INTEGER DEFAULT 0, permata INTEGER DEFAULT 0, mg TEXT, mgn INTEGER DEFAULT 0, PRIMARY KEY (put, no))");
     // suara = bintang yang sudah ditaruh warga ke calon fasum; donasi = catatan webhook Saweria (id unik, tidak dobel)
     this.sql.exec("CREATE TABLE IF NOT EXISTS suara (put TEXT, calon TEXT, no INTEGER, n INTEGER, PRIMARY KEY (put, calon, no))");
@@ -460,10 +463,10 @@ export class Warga extends DurableObject {
   proyekBangun(t = Date.now()) { return BANGUN_SEKARANG.find((x) => t >= x.mulai && t < this.sampaiBangun(x)) || null; }
   // Data publik: jadwal jadi tiap fasum (dibaca game.js saat dimuat) + proyek yang sedang dikerjakan & 5 tukang teratas.
   // Reli Kotak: papan rekor publik (5 tercepat sepanjang masa) + jumlah pembalap
-  infoReli() {
-    const top = this.sql.exec("SELECT x.no, x.r, w.ig, w.tiktok, w.nama FROM reli x LEFT JOIN warga w ON w.no = x.no WHERE x.r > 0 ORDER BY x.r ASC, x.no ASC LIMIT 5").toArray()
+  infoReli(l = 1) {
+    const top = this.sql.exec("SELECT x.no, x.r, w.ig, w.tiktok, w.nama FROM reliRekor x LEFT JOIN warga w ON w.no = x.no WHERE x.l = ? AND x.r > 0 ORDER BY x.r ASC, x.no ASC LIMIT 5", l).toArray()
       .map((x) => ({ no: x.no, u: this.nm(x), t: x.r }));
-    return { top, pembalap: this.sql.exec("SELECT COUNT(*) AS n FROM reli WHERE r > 0").toArray()[0].n };
+    return { l, top, pembalap: this.sql.exec("SELECT COUNT(*) AS n FROM reliRekor WHERE l = ? AND r > 0", l).toArray()[0].n };
   }
   infoBangun() {
     const kini = Date.now(), b = this.proyekBangun(kini);
@@ -888,66 +891,34 @@ export class Warga extends DurableObject {
     if (aksi === "ajak") return Response.json(this.infoAjak(Math.max(0, Math.floor(+u.searchParams.get("no") || 0)), Math.max(0, Math.floor(+u.searchParams.get("dari") || 0))));
     if (aksi === "piala") return Response.json(this.piala(Math.max(0, Math.floor(+u.searchParams.get("no") || 0))));
     if (aksi === "bangun-publik") return Response.json(this.infoBangun());
-    if (aksi === "reli-publik") return Response.json(this.infoReli());
+    const lintasReli = (v) => Math.max(1, Math.min(RL_LINTASAN, Math.floor(+v || 1)));
+    if (aksi === "reli-publik") return Response.json(this.infoReli(lintasReli(u.searchParams.get("l"))));
     if (aksi === "reli") {
       // Reli Kotak: op mulai | selesai {ms}. Lobi memakai GET publik ber-cache, jadi tiap balapan hanya 2 panggilan ke sini.
-      const q = await request.json(), kini = Date.now(), hari = hariWib(kini);
+      const q = await request.json(), kini = Date.now(), hari = hariWib(kini), l = lintasReli(q.l);
       const r = this.sql.exec("SELECT no, ig, tiktok, nama, koin, permata, avatar FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
-      if (!r) return Response.json({ ...this.infoReli(), galat: "Masuk dulu sebagai warga Dunia Kotak." }, { status: 401 });
-      const t = this.sql.exec("SELECT r, rh, h, n, m FROM reli WHERE no = ?", r.no).toArray()[0] || { r: 0, rh: 0, h: hari, n: 0, m: null };
-      if (t.h !== hari) { t.h = hari; t.n = 0; t.rh = 0; }
-      const tulis = () => this.sql.exec("INSERT INTO reli (no, r, rh, h, n, m) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (no) DO UPDATE SET r = excluded.r, rh = excluded.rh, h = excluded.h, n = excluded.n, m = excluded.m", r.no, t.r || 0, t.rh || 0, t.h, t.n || 0, t.m);
+      if (!r) return Response.json({ ...this.infoReli(l), galat: "Masuk dulu sebagai warga Dunia Kotak." }, { status: 401 });
+      const t = this.sql.exec("SELECT h, n, m, ml, buka FROM reli WHERE no = ?", r.no).toArray()[0] || { h: hari, n: 0, m: null, ml: 1, buka: 1 };
+      if (t.h !== hari) { t.h = hari; t.n = 0; }
+      const tulis = () => this.sql.exec("INSERT INTO reli (no, h, n, m, ml, buka) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (no) DO UPDATE SET h = excluded.h, n = excluded.n, m = excluded.m, ml = excluded.ml, buka = excluded.buka", r.no, t.h, t.n || 0, t.m, t.ml || 1, t.buka || 1);
+      const rekor = () => (this.sql.exec("SELECT r FROM reliRekor WHERE no = ? AND l = ?", r.no, l).toArray()[0] || { r: 0 }).r;
       const info = {};
-      if (q.op === "mulai") { t.m = kini; tulis(); }
+      if (q.op === "mulai") { t.m = kini; t.ml = l; tulis(); }
       else if (q.op === "selesai") {
         const lama = t.m ? kini - t.m : 0, ms = Math.floor(+q.ms || 0); t.m = null;
-        if (!lama || ms < RL_MIN_MS || ms > lama + 3000 || ms > 30 * 60e3) { tulis(); return Response.json({ ...this.infoReli(), galat: "Waktu balapan tidak tercatat. Coba balapan lagi dari start ya." }, { status: 400 }); }
-        info.rekorBaru = !t.r || ms < t.r; if (info.rekorBaru) t.r = ms; if (!t.rh || ms < t.rh) t.rh = ms;
+        if (!lama || t.ml !== l || ms < RL_MIN_MS[l] || ms > lama + 3000 || ms > 30 * 60e3) { tulis(); return Response.json({ ...this.infoReli(l), galat: "Waktu balapan tidak tercatat. Coba balapan lagi dari start ya." }, { status: 400 }); }
+        const lamaR = rekor(); info.rekorBaru = !lamaR || ms < lamaR;
+        if (info.rekorBaru) this.sql.exec("INSERT INTO reliRekor (no, l, r) VALUES (?, ?, ?) ON CONFLICT (no, l) DO UPDATE SET r = excluded.r", r.no, l, ms);
+        if (l === 1 && (t.buka || 1) < RL_LINTASAN) { t.buka = RL_LINTASAN; info.bukaBaru = 1; }   // finish lintasan 1 membuka lintasan 2-5
         if (t.n < RL_SESI_KOIN) {
           this.sql.exec("UPDATE warga SET koin = COALESCE(koin, 0) + ?, koinTotal = COALESCE(koinTotal, 0) + ? WHERE no = ?", RL_KOIN, RL_KOIN, r.no);
           r.koin = (r.koin || 0) + RL_KOIN; info.dapat = RL_KOIN; this.arus("+koin:reli", RL_KOIN);
         }
         t.n += 1; tulis();
       }
-      const pos = t.r > 0 ? 1 + this.sql.exec("SELECT COUNT(*) AS n FROM reli WHERE r > 0 AND r < ?", t.r).toArray()[0].n : 0;
+      const rk = rekor(), pos = rk > 0 ? 1 + this.sql.exec("SELECT COUNT(*) AS n FROM reliRekor WHERE l = ? AND r > 0 AND r < ?", l, rk).toArray()[0].n : 0;
       let avatar = null; try { avatar = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
-      return Response.json({ ...this.infoReli(), ...info, saya: { no: r.no, u: this.nm(r), koin: r.koin || 0, permata: r.permata || 0, avatar, rekor: t.r || 0, rekorHari: t.rh || 0, pos, finishHari: t.n, sisaKoin: Math.max(0, RL_SESI_KOIN - t.n) } });
-    }
-    if (aksi === "bangun") {
-      // Tukang Kotak: op info | mulai | selesai {skor 0-100}
-      const q = await request.json(), kini = Date.now(), hari = hariWib(kini);
-      const r = this.sql.exec("SELECT no, ig, tiktok, nama, koin, koinTotal, permata, avatar, misi FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
-      if (!r) return Response.json({ ...this.infoBangun(), galat: q.op === "info" ? undefined : "Masuk dulu sebagai warga Dunia Kotak." }, { status: q.op === "info" ? 200 : 401 });
-      const b = this.proyekBangun(kini);
-      const baris = () => (b && this.sql.exec("SELECT sesi, poin, hari, sh, m FROM tukang WHERE fas = ? AND no = ?", b.id, r.no).toArray()[0]) || { sesi: 0, poin: 0, hari, sh: 0, m: null };
-      let t = baris(); if (t.hari !== hari) { t.hari = hari; t.sh = 0; }
-      const tulis = () => this.sql.exec("INSERT INTO tukang (fas, no, sesi, poin, hari, sh, m) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (fas, no) DO UPDATE SET sesi = excluded.sesi, poin = excluded.poin, hari = excluded.hari, sh = excluded.sh, m = excluded.m", b.id, r.no, t.sesi, t.poin, t.hari, t.sh, t.m);
-      const info = {};
-      if (q.op === "mulai" && b) { t.m = kini; tulis(); }
-      else if (q.op === "selesai") {
-        if (!b) return Response.json({ ...this.infoBangun(), galat: "Fasumnya sudah jadi! Tunggu pemenang voting berikutnya." }, { status: 400 });
-        const lama = t.m ? kini - t.m : 0; t.m = null;
-        if (lama < TK_MIN) { tulis(); return Response.json({ ...this.infoBangun(), galat: "Kerjanya tidak tercatat. Mulai lagi dari awal ya." }, { status: 400 }); }
-        const skor = Math.max(0, Math.min(100, Math.floor(+q.skor || 0)));
-        if (t.sh < TK_SESI_MAJU) { t.sesi += 1; t.poin += skor; info.maju = this.majuBangun(b) < TK_MAJU_MAKS ? TK_MAJU : 0; this._tks = null; }
-        if (t.sh < TK_SESI_KOIN) {
-          const k = Math.max(5, Math.min(TK_KOIN_MAKS, Math.round(skor * TK_KOIN_MAKS / 100)));
-          this.sql.exec("UPDATE warga SET koin = COALESCE(koin, 0) + ?, koinTotal = COALESCE(koinTotal, 0) + ? WHERE no = ?", k, k, r.no);
-          r.koin = (r.koin || 0) + k; info.dapat = k; this.arus("+koin:bangun", k);
-          const pl = this.tambahPiala(r.no, "bangun"); if (pl) info.piala = pl;
-        }
-        // Misi harian DESA "Ikut bangun fasum" (Huda 10 Nov): tetap tiap hari seperti Pelari Kalcer, selesai otomatis di misi bangun pertama.
-        let mm = { t: hari, s: [] }; try { const m0 = r.misi ? JSON.parse(r.misi) : null; if (m0 && m0.t === hari && Array.isArray(m0.s)) mm = m0; } catch (e) {}
-        if (!mm.s.includes("tukang")) {
-          mm.s.push("tukang"); r.koin = (r.koin || 0) + TK_MISI_DESA; info.misiDesa = TK_MISI_DESA;
-          this.sql.exec("UPDATE warga SET koin = COALESCE(koin, 0) + ?, koinTotal = COALESCE(koinTotal, 0) + ?, misi = ? WHERE no = ?", TK_MISI_DESA, TK_MISI_DESA, JSON.stringify(mm), r.no);
-          this.arus("+koin:misi-bangun", TK_MISI_DESA);
-        }
-        t.sh += 1; tulis();
-      }
-      t = baris(); const sh = t.hari === hari ? t.sh : 0;
-      let avatar = null; try { avatar = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
-      return Response.json({ ...this.infoBangun(), ...info, saya: { no: r.no, u: this.nm(r), koin: r.koin || 0, permata: r.permata || 0, avatar, sesi: t.sesi, sesiHari: sh, sisaKoin: Math.max(0, TK_SESI_KOIN - sh), sisaMaju: Math.max(0, TK_SESI_MAJU - sh) } });
+      return Response.json({ ...this.infoReli(l), ...info, saya: { no: r.no, u: this.nm(r), koin: r.koin || 0, permata: r.permata || 0, avatar, rekor: rk, pos, buka: t.buka || 1, finishHari: t.n, sisaKoin: Math.max(0, RL_SESI_KOIN - t.n) } });
     }
     if (aksi === "iuran") {
       const q = await request.json();
@@ -1753,7 +1724,8 @@ async function apiWargaInti(request, env, url) {
     return new Response((await stub.fetch("https://do/bangun-publik")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=30" } });
   }
   if (aksi === "reli" && request.method === "GET") {
-    return new Response((await stub.fetch("https://do/reli-publik")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=60" } });
+    const l = Math.max(1, Math.min(5, parseInt(url.searchParams.get("l") || "1", 10) || 1));
+    return new Response((await stub.fetch("https://do/reli-publik?l=" + l)).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=60" } });
   }
   if (aksi === "piala" && request.method === "GET") {
     const no = Math.max(0, Math.min(99999, parseInt(url.searchParams.get("no") || "0", 10) || 0));
@@ -1840,7 +1812,7 @@ async function apiWargaInti(request, env, url) {
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "reli") {
-    const r = await stub.fetch("https://do/reli", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), ms: +body.ms || 0 }) });
+    const r = await stub.fetch("https://do/reli", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), ms: +body.ms || 0, l: +body.l || 1 }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "pelari") {

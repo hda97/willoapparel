@@ -17,7 +17,9 @@ const baca = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); 
 const simpan = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 const jamTeks = ms => { if (!(ms > 0)) return '–'; const t = ms / 1000, m = Math.floor(t / 60), s = t - m * 60; return m + ':' + (s < 10 ? '0' : '') + s.toFixed(2); };
 let AKUN = null; { const w = baca('dk_warga'); if (w && w.kunci) AKUN = {no: w.no, kunci: w.kunci, ig: w.ig}; }
-const LOKAL = Object.assign({rekor: 0, pos: 0, av: null, split: null}, baca('dk_reli') || {});   // cache di HP: rekor, posisi, avatar, split rekor
+const LOKAL = Object.assign({rk: {}, pos: {}, split: {}, av: null, buka: 1}, baca('dk_reli') || {});   // cache di HP per lintasan: rekor, posisi, split rekor; avatar; lintasan terbuka
+if (LOKAL.rekor) { LOKAL.rk = {1: LOKAL.rekor}; LOKAL.pos = {1: LOKAL.pos || 0}; LOKAL.split = {1: LOKAL.split}; delete LOKAL.rekor; }   // data versi 1 lintasan
+for (const k of ['rk', 'pos', 'split']) if (!LOKAL[k] || typeof LOKAL[k] !== 'object') LOKAL[k] = {};
 const GERBANG = 20, LEBAR = 9, SEMAK = LEBAR / 2 + 5;   // jalan sempit 9 m; semak pembatas 5 m dari tepi jalan
 const VMAX = 34, VRUMPUT = 17;                           // ±122 km/j di jalan tanah, ±60 km/j di rumput
 const KOIN_FINISH = 10;
@@ -45,8 +47,8 @@ function letup(v = .09) {   // "dor" knalpot saat ganti gigi
 // ---------- API (hemat: lobi pakai GET publik yang di-cache server; POST hanya saat mulai & selesai) ----------
 async function apiR(op, data = {}) {
   try {
-    if (!op) { const r = await fetch('/duniakotak/api/reli'); return await r.json(); }
-    const r = await fetch('/duniakotak/api/reli', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({kunci: AKUN.kunci, op, ...data})});
+    if (!op) { const r = await fetch('/duniakotak/api/reli?l=' + L_NO); return await r.json(); }
+    const r = await fetch('/duniakotak/api/reli', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({kunci: AKUN.kunci, op, l: L_NO, ...data})});
     const j = await r.json(); if (r.status === 401) { AKUN = null; } return j;
   } catch (e) { return {galat: 'Sinyal putus. Coba lagi sebentar.'}; }
 }
@@ -54,14 +56,36 @@ async function apiR(op, data = {}) {
 // =====================================================================
 // 1. LINTASAN: jalan tanah berkelok (spline), tikungan miring, 20 gerbang
 // =====================================================================
-const TITIK = [[0, 30], [0, -40], [8, -105], [42, -152], [95, -168], [142, -150], [168, -108], [205, -88], [248, -104], [268, -150], [252, -200], [206, -232],
-  [152, -248], [112, -288], [106, -342], [140, -384], [196, -394], [242, -372], [282, -332], [332, -318], [372, -348], [384, -400], [362, -452], [312, -476], [262, -478]];
+// 5 lintasan (Huda 10 Nov 2026: "Buat 5 lintasan dan terbuka saat finish lintasan pertama"). Lintasan 2–5 terkunci sampai
+// warga finish lintasan 1. Tiap lintasan beda suasana desa: hutan pinus, sawah, danau, tanjakan Curug, pantai Segara.
+// naik = tinggi naik-turun jalan, bukit = tinggi bukit di kejauhan, pohon = peluang [pinus, bulat, kelapa], padat = kerapatan pohon.
+const elips = (cx, cz, rx, rz, a0, a1, n, gel = 0) => Array.from({length: n + 1}, (_, i) => { const a = a0 + (a1 - a0) * i / n, w = 1 + gel * Math.sin(a * 5); return [cx + Math.cos(a) * rx * w, cz + Math.sin(a) * rz * w]; });
+const pantaiX = z => 272 + 18 * Math.sin(z / 70);   // garis pantai lintasan 5 (laut di sisi x lebih besar)
+const LINTASAN = [
+  {nama: 'Hutan Pinus', ikon: '🌲', naik: 1, bukit: 1, pohon: [.7, .3, 0], padat: 1, langit: 0x9fd3f5, kabut: 0xb6dcf2,
+    titik: [[0, 30], [0, -40], [8, -105], [42, -152], [95, -168], [142, -150], [168, -108], [205, -88], [248, -104], [268, -150], [252, -200], [206, -232],
+      [152, -248], [112, -288], [106, -342], [140, -384], [196, -394], [242, -372], [282, -332], [332, -318], [372, -348], [384, -400], [362, -452], [312, -476], [262, -478]]},
+  {nama: 'Sawah Wetan', ikon: '🌾', naik: .25, bukit: .35, pohon: [0, 1, .15], padat: .3, langit: 0xa8dcff, kabut: 0xc4e6f8, sawah: true,
+    titik: [[0, 30], [0, -110], [8, -138], [40, -150], [170, -150], [196, -160], [205, -190], [202, -300], [214, -322], [250, -328], [330, -322], [350, -302],
+      [352, -205], [362, -182], [418, -176], [440, -192], [446, -262], [442, -390], [424, -412], [380, -420]]},
+  {nama: 'Tepi Danau Tlaga', ikon: '🏞️', naik: .55, bukit: .8, pohon: [.25, .75, 0], padat: .8, langit: 0x96d0f2, kabut: 0xb2daf0,
+    danau: {x: 0, z: -175, rx: 122, rz: 88}, titik: [[60, 32], [56, -28], ...elips(0, -175, 160, 122, Math.PI / 2 - .38, Math.PI * 2 + .15, 30, .05), [208, -120], [262, -112]]},
+  {nama: 'Tanjakan Curug', ikon: '⛰️', naik: 2.6, bukit: 2, pohon: [.9, .1, 0], padat: 1.2, langit: 0x9ccff0, kabut: 0xb0d4ec,
+    titik: [[0, 30], [0, -40], [30, -82], [88, -92], [120, -62], [154, -70], [166, -120], [126, -152], [64, -162], [40, -204], [70, -244], [140, -250],
+      [192, -232], [224, -262], [212, -314], [152, -334], [100, -364], [110, -414], [170, -434], [242, -424]]},
+  {nama: 'Pantai Segara', ikon: '🏖️', naik: .4, bukit: .5, pohon: [0, .2, .8], padat: .6, langit: 0x8fd4ff, kabut: 0xbfe6fa, laut: true,
+    titik: [[150, 30], [150, -40], [170, -90], [210, -122], [215, -172], [180, -212], [140, -232], [150, -282], [200, -312], [222, -362], [200, -412],
+      [150, -432], [130, -482], [160, -532], [206, -560], [214, -604], [182, -644], [152, -692], [168, -742], [212, -772], [222, -822]]},
+];
+const NL = Math.max(1, Math.min(LINTASAN.length, Math.floor(+new URLSearchParams(location.search).get('l') || baca('dk_reli_l') || 1)));
+const L_NO = NL <= (LOKAL.buka >= 5 ? 5 : 1) ? NL : 1, LT = LINTASAN[L_NO - 1];   // lintasan terkunci → kembali ke lintasan 1
+const TITIK = LT.titik;
 const kurva = new THREE.CatmullRomCurve3(TITIK.map(([x, z]) => new THREE.Vector3(x, 0, z)), false, 'centripetal');
 const PANJANG = kurva.getLength(), DS = 2, NS = Math.round(PANJANG / DS), dsAsli = PANJANG / NS;
 const T = [];   // sampel lintasan tiap ±2 m: posisi, arah, kanan, tinggi, kemiringan tikungan
 for (let i = 0; i <= NS; i++) {
   const u = i / NS, p = kurva.getPointAt(u), t = kurva.getTangentAt(u), s = i * dsAsli;
-  const y = 3.2 * Math.sin(s / 95) + 1.6 * Math.sin(s / 41 + 1.3) - 3.2 * Math.sin(0) - 1.6 * Math.sin(1.3);   // naik turun bukit pelan, start di y 0
+  const y = LT.naik * (3.2 * Math.sin(s / 95) + 1.6 * Math.sin(s / 41 + 1.3) - 1.6 * Math.sin(1.3));   // naik turun bukit, start di y 0
   T.push({x: p.x, z: p.z, y, tx: t.x, tz: t.z, nx: -t.z, nz: t.x, s, k: 0, bk: 0});
 }
 for (let i = 0; i <= NS; i++) { const a = T[Math.max(0, i - 2)], b = T[Math.min(NS, i + 2)]; T[i].k0 = (a.tz * b.tx - a.tx * b.tz) / (4 * dsAsli); }
@@ -81,7 +105,7 @@ const I_START = Math.round(30 / dsAsli);   // garis start 30 m dari ujung lintas
 // ---------- 3D dasar ----------
 const R = new THREE.WebGLRenderer({canvas: $('kanvas'), antialias: true, powerPreference: 'high-performance'});
 R.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5)); R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap; R.outputColorSpace = THREE.SRGBColorSpace;
-const sc = new THREE.Scene(); sc.background = new THREE.Color(0x9fd3f5); sc.fog = new THREE.Fog(0xb6dcf2, 140, 330);
+const sc = new THREE.Scene(); sc.background = new THREE.Color(LT.langit); sc.fog = new THREE.Fog(LT.kabut, 140, 330);
 const cam = new THREE.PerspectiveCamera(60, 1, .3, 900);
 sc.add(new THREE.HemisphereLight(0xffffff, 0x7a9a5a, 1.2));
 const MATAHARI = new THREE.DirectionalLight(0xfff0d0, 2.1); MATAHARI.castShadow = true; MATAHARI.shadow.mapSize.set(1024, 1024);
@@ -101,17 +125,34 @@ const kotakKotak = (g, w, h, n = 8) => { const s = h / 2; for (let x = 0; x * s 
 // ---------- tanah (mengikuti tinggi lintasan, bukit di kejauhan) ----------
 let BX0 = 1e9, BX1 = -1e9, BZ0 = 1e9, BZ1 = -1e9; for (const q of T) { BX0 = Math.min(BX0, q.x); BX1 = Math.max(BX1, q.x); BZ0 = Math.min(BZ0, q.z); BZ1 = Math.max(BZ1, q.z); }
 const PINGGIR = 170, X0 = BX0 - PINGGIR, X1 = BX1 + PINGGIR, Z0 = BZ0 - PINGGIR, Z1 = BZ1 + PINGGIR;
-const bukit = (x, z) => 4 * Math.sin(x / 47) * Math.cos(z / 61) + 2.5 * Math.sin((x + z) / 29);
+const bukit = (x, z) => LT.bukit * (4 * Math.sin(x / 47) * Math.cos(z / 61) + 2.5 * Math.sin((x + z) / 29));
+// air (danau lintasan 3, laut lintasan 5): 0 = darat, 1 = di dalam air; di antaranya pantai/tepi landai
+const Y_AIR = Math.min(...T.map(q => q.y)) - 1.1;
+function basah(x, z) {
+  if (LT.danau) { const a = LT.danau, e = ((x - a.x) / a.rx) ** 2 + ((z - a.z) / a.rz) ** 2; return Math.max(0, Math.min(1, (1.25 - e) / .35)); }
+  if (LT.laut) return Math.max(0, Math.min(1, (x - pantaiX(z) + 14) / 28));
+  return 0;
+}
 function yTanah(x, z) { const n = terdekat(x, z, 2), q = T[n.i]; const jauh = Math.max(0, Math.min(1, (n.d - LEBAR / 2 - 4) / 40));
-  return q.y - .22 - (n.d < LEBAR / 2 + 2 ? 0 : .1) + jauh * jauh * (bukit(x, z) + 1.5 + Math.max(0, n.d - 120) * .35); }
+  const y = q.y - .22 - (n.d < LEBAR / 2 + 2 ? 0 : .1) + jauh * jauh * (bukit(x, z) + 1.5 * Math.min(1, LT.bukit * 2) + Math.max(0, n.d - 120) * .35 * Math.min(1, LT.bukit * 1.5));
+  const b = basah(x, z); return b ? y + (Y_AIR - 2.6 - y) * b * b * (3 - 2 * b) : y; }
 {
-  const SX = Math.ceil((X1 - X0) / 5), SZ = Math.ceil((Z1 - Z0) / 5), geo = new THREE.PlaneGeometry(X1 - X0, Z1 - Z0, SX, SZ); geo.rotateX(-Math.PI / 2);
+  const GR = LT.sawah ? 3 : 5, SX = Math.ceil((X1 - X0) / GR), SZ = Math.ceil((Z1 - Z0) / GR), geo = new THREE.PlaneGeometry(X1 - X0, Z1 - Z0, SX, SZ); geo.rotateX(-Math.PI / 2);
   const pos = geo.attributes.position, warnaT = [], c = new THREE.Color();
   for (let k = 0; k < pos.count; k++) { const x = pos.getX(k) + (X0 + X1) / 2, z = pos.getZ(k) + (Z0 + Z1) / 2; pos.setY(k, yTanah(x, z));
-    const r = Math.sin(x * .37 + z * .11) * .5 + Math.sin(x * .07 - z * .19) * .5; c.setHSL(.27 + r * .02, .42, .42 + r * .05); warnaT.push(c.r, c.g, c.b); }
+    const r = Math.sin(x * .37 + z * .11) * .5 + Math.sin(x * .07 - z * .19) * .5; c.setHSL(.27 + r * .02, .42, .42 + r * .05);
+    if (LT.sawah && terdekat(x, z, 3).d > LEBAR / 2 + 7) {   // petak sawah: padi hijau, menguning, tergenang; pematang lebih gelap
+      const px = Math.floor(x / 15), pz = Math.floor(z / 11), h = Math.abs(Math.sin(px * 12.9898 + pz * 78.233) * 43758.5453) % 1;
+      if ((((x % 15) + 15) % 15) < 2.2 || (((z % 11) + 11) % 11) < 2.2) c.setHSL(.24, .4, .3); else if (h < .5) c.setHSL(.27, .7, .4 + ((Math.floor(x / 3) % 2) ? .04 : 0)); else if (h < .8) c.setHSL(.13, .75, .52); else c.setHSL(.53, .4, .6); }
+    const b = basah(x, z); if (b > 0) c.lerp(new THREE.Color().setHSL(.11, .45, .74), Math.min(1, b * 2.5));   // pasir pantai / tepi danau
+    warnaT.push(c.r, c.g, c.b); }
   geo.setAttribute('color', new THREE.Float32BufferAttribute(warnaT, 3)); geo.computeVertexNormals();
   const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({vertexColors: true})); m.position.set((X0 + X1) / 2, 0, (Z0 + Z1) / 2); m.receiveShadow = true; sc.add(m);
 }
+// permukaan air: danau (lintasan 3) atau laut (lintasan 5)
+if (LT.danau || LT.laut) { const a = LT.danau, geo = a ? new THREE.CircleGeometry(1, 48) : new THREE.PlaneGeometry(1400, X1 - X0 + 900);
+  const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({color: 0x3f9be0, roughness: .2, metalness: .1, transparent: true, opacity: .9}));
+  m.rotation.x = -Math.PI / 2; if (a) { m.scale.set(a.rx * 1.17, a.rz * 1.17, 1); m.position.set(a.x, Y_AIR, a.z); } else m.position.set(pantaiX(0) + 700, Y_AIR, (Z0 + Z1) / 2); sc.add(m); }
 // ---------- jalan tanah: pita dengan bahu rumput-tanah, dua alur ban, tikungan miring ----------
 {
   const PROF = [[-LEBAR / 2 - 2.6, 'r'], [-LEBAR / 2, 't'], [-2.4, 'a'], [-1.5, 't'], [0, 'p'], [1.5, 't'], [2.4, 'a'], [LEBAR / 2, 't'], [LEBAR / 2 + 2.6, 'r']];
@@ -127,17 +168,20 @@ function yTanah(x, z) { const n = terdekat(x, z, 2), q = T[n.i]; const jauh = Ma
 {
   const TT = [], acak = (() => { let s = 7; return () => (s = (s * 16807) % 2147483647) / 2147483647; })();
   const aman = (x, z, r) => terdekat(x, z, 2).d > r;
+  const tepiDanau = (x, z) => { const a = LT.danau; return a && ((x - a.x) / a.rx) ** 2 + ((z - a.z) / a.rz) ** 2 < 1.9; };   // tepi danau dibiarkan terbuka supaya danaunya terlihat dari jalan
+  const jenis = () => { const r = acak() * (LT.pohon[0] + LT.pohon[1] + LT.pohon[2]); return r < LT.pohon[0] ? 0 : r < LT.pohon[0] + LT.pohon[1] ? 1 : 2; };
   for (let i = 0; i <= NS; i += 3) for (const sd of [-1, 1]) { if (acak() < .25) continue; const q = T[i], d = sd * (SEMAK + 3.5 + acak() * 22), x = q.x + q.nx * d + (acak() - .5) * 4, z = q.z + q.nz * d + (acak() - .5) * 4;
-    if (aman(x, z, SEMAK + 3)) TT.push([x, z, .8 + acak() * .6, acak() < .7 ? 0 : 1]); }
-  for (let k = 0; k < 900; k++) { const x = X0 + 20 + acak() * (X1 - X0 - 40), z = Z0 + 20 + acak() * (Z1 - Z0 - 40); if (aman(x, z, SEMAK + 4)) TT.push([x, z, 1 + acak() * .8, acak() < .6 ? 0 : 1]); }
+    if (acak() < LT.padat && !basah(x, z) && !tepiDanau(x, z) && aman(x, z, SEMAK + 3)) TT.push([x, z, .8 + acak() * .6, jenis()]); }
+  for (let k = 0; k < 900 * LT.padat; k++) { const x = X0 + 20 + acak() * (X1 - X0 - 40), z = Z0 + 20 + acak() * (Z1 - Z0 - 40); if (!basah(x, z) && !tepiDanau(x, z) && aman(x, z, SEMAK + 4)) TT.push([x, z, 1 + acak() * .8, jenis()]); }
   const BAG = [[.5, 1.8, .5, 0, .9, 0x6a4426], [3.2, 1.3, 3.2, 1, 2.1, 0], [2.4, 1.3, 2.4, 1, 3.3, 0], [1.5, 1.2, 1.5, 1, 4.4, 0], [.8, 1, .8, 1, 5.3, 0]];   // pinus: batang + 4 susun daun
   const BULAT = [[.55, 2.2, .55, 0, 1.1, 0x6a4426], [3.4, 2.8, 3.4, 1, 3.4, 0], [2.4, 1.2, 2.4, 1, 5.2, 0]];
+  const KELAPA = [[.45, 7, .45, 0, 3.5, 0x9a7a4a], [5.2, .22, 1.1, 1, 7.1, 0, 0], [5.2, .22, 1.1, 1, 7.1, 0, Math.PI / 2], [3.6, .22, .9, 1, 7.25, 0, Math.PI / 4], [3.6, .22, .9, 1, 7.25, 0, -Math.PI / 4], [.9, .7, .9, 0, 6.6, 0x6a5a2a]];   // pohon kelapa pantai
   const pasang = (daftar, bag) => { if (!daftar.length) return; const M = new THREE.Matrix4(), Q = new THREE.Quaternion(), S = new THREE.Vector3(), P = new THREE.Vector3(), c = new THREE.Color();
-    bag.forEach(([w, h, d, daun, y, warna]) => { const im = new THREE.InstancedMesh(new THREE.BoxGeometry(w, h, d), matS(0xffffff), daftar.length); im.castShadow = true; im.receiveShadow = true;
-      daftar.forEach(([x, z, s], n) => { Q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), (x * 13 + z * 7) % 6.28); P.set(x, yTanah(x, z) + y * s, z); S.setScalar(s); M.compose(P, Q, S); im.setMatrixAt(n, M);
+    bag.forEach(([w, h, d, daun, y, warna, ry = 0]) => { const im = new THREE.InstancedMesh(new THREE.BoxGeometry(w, h, d), matS(0xffffff), daftar.length); im.castShadow = true; im.receiveShadow = true;
+      daftar.forEach(([x, z, s], n) => { Q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), (x * 13 + z * 7) % 6.28 + ry); P.set(x, yTanah(x, z) + y * s, z); S.setScalar(s); M.compose(P, Q, S); im.setMatrixAt(n, M);
         if (daun) c.setHSL(.33 + ((x * 3 + z) % 7) * .006, .45, .24 + ((x + z * 5) % 5) * .02 + y * .01); else c.setHex(warna); im.setColorAt(n, c); });
       sc.add(im); }); };
-  pasang(TT.filter(t => !t[3]), BAG); pasang(TT.filter(t => t[3]), BULAT);
+  pasang(TT.filter(t => t[3] === 0), BAG); pasang(TT.filter(t => t[3] === 1), BULAT); pasang(TT.filter(t => t[3] === 2), KELAPA);
 }
 // semak pendek di tepi lintasan (penanda batas, mobil memantul di sini)
 {
@@ -147,6 +191,7 @@ function yTanah(x, z) { const n = terdekat(x, z, 2), q = T[n.i]; const jauh = Ma
 }
 // gunung di kejauhan (Kotak Curug) + sawah berundak di pinggir
 for (let k = 0; k < 16; k++) { const a = k / 16 * Math.PI * 2, r = 470 + (k % 3) * 60, x = (BX0 + BX1) / 2 + Math.cos(a) * r, z = (BZ0 + BZ1) / 2 + Math.sin(a) * r * .9, h = 70 + (k * 37 % 50);
+  if (LT.laut && x > pantaiX(z) - 60) continue;
   const g = new THREE.Group(); [[1, 0], [.7, .45], [.42, .8]].forEach(([s, y]) => { const m = new THREE.Mesh(new THREE.BoxGeometry(150 * s, h * .5, 150 * s), new THREE.MeshLambertMaterial({color: new THREE.Color().setHSL(.32, .32, .3 + y * .08)})); m.position.y = h * y; g.add(m); });
   g.position.set(x, -10, z); g.rotation.y = a; sc.add(g); }
 
@@ -415,8 +460,17 @@ addEventListener('blur', () => { for (const k of ['kiri', 'kanan', 'rem', 'pot',
 // =====================================================================
 // 5. ALUR: lobi → hitung mundur → balap → finish → hasil
 // =====================================================================
+const terbuka = n => n === 1 || LOKAL.buka >= 5;
+function tulisLintasan() {   // 5 tombol lintasan; 2–5 bergembok sampai finish lintasan 1. Ganti lintasan = muat ulang halaman dengan ?l=
+  $('lJudul').textContent = `🏁 LINTASAN ${L_NO} · ${LT.nama.toUpperCase()}`;
+  $('lLintas').innerHTML = LINTASAN.map((x, i) => { const n = i + 1, b = terbuka(n); return `<button class="kaca ${n === L_NO ? 'pilih' : ''} ${b ? '' : 'kunci'}" data-l="${n}" aria-label="Lintasan ${n} ${esc(x.nama)}${b ? '' : ', terkunci'}"><i>${b ? x.ikon : '🔒'}</i>${n}</button>`; }).join('');
+}
+$('lLintas').addEventListener('click', e => { const b = e.target.closest('[data-l]'); if (!b) return; const n = +b.dataset.l;
+  if (!terbuka(n)) { kabar('🔒 Finish Lintasan 1 dulu untuk membuka lintasan ini'); bunyi(220, .12); return; }
+  if (n === L_NO) return; simpan('dk_reli_l', n); const u = new URL(location.href); u.searchParams.set('l', n); location.href = u.toString(); });
 function tulisLobi(top) {
-  $('lRekor').textContent = jamTeks(LOKAL.rekor); $('lPos').textContent = LOKAL.pos ? '#' + LOKAL.pos : AKUN ? '–' : 'Tamu';
+  tulisLintasan();
+  $('lRekor').textContent = jamTeks(LOKAL.rk[L_NO]); $('lPos').textContent = LOKAL.pos[L_NO] ? '#' + LOKAL.pos[L_NO] : AKUN ? '–' : 'Tamu';
   if (top) { const L = (top.top || []).slice(0, 3); $('lTop').innerHTML = L.length ? L.map((x, n) => `<span class="kaca ${AKUN && x.no === AKUN.no ? 'saya' : ''}">${['🥇', '🥈', '🥉'][n]} ${esc(x.u ? '@' + x.u : 'Warga ' + x.no)} ${jamTeks(x.t)}</span>`).join('') : '<span class="kaca">Belum ada rekor. Jadi yang pertama!</span>'; }
   $('lAturan').textContent = AKUN ? `Lewati ${GERBANG} gerbang secepatnya · Finish = +${KOIN_FINISH} 🪙 (3x sehari)` : 'Mode tamu: latihan. Masuk desa sebagai warga untuk rekor & 🪙';
 }
@@ -429,7 +483,7 @@ async function mulaiBalap() {
   if (MODE !== 'lobi' && MODE !== 'selesai') return; siapSuara();
   $('hasil').hidden = true; taruhDiStart(); MODE = 'hitung'; tampilHUD(true); const id = ++idBalap;
   $('jWaktu').textContent = '0:00.00'; $('jGerbang').textContent = `GERBANG 0 DARI ${GERBANG}`; $('jarak').textContent = '0,00 KM';
-  if (AKUN) apiR('mulai').then(j => { if (j && j.saya) { if (j.saya.avatar && JSON.stringify(j.saya.avatar) !== JSON.stringify(LOKAL.av)) { LOKAL.av = j.saya.avatar; simpan('dk_reli', LOKAL); pasangSupir(LOKAL.av); } } });
+  if (AKUN) apiR('mulai').then(j => { if (j && j.saya) { if (j.saya.buka > LOKAL.buka) { LOKAL.buka = j.saya.buka; simpan('dk_reli', LOKAL); } if (j.saya.avatar && JSON.stringify(j.saya.avatar) !== JSON.stringify(LOKAL.av)) { LOKAL.av = j.saya.avatar; simpan('dk_reli', LOKAL); pasangSupir(LOKAL.av); } } });
   for (const t of ['3', '2', '1']) { if (id !== idBalap) return; $('hitung').hidden = false; $('hitung').innerHTML = `<b>${t}</b>`; bunyi(440, .18, 'square', .07); await new Promise(r => setTimeout(r, 800)); }
   if (id !== idBalap) return; $('hitung').innerHTML = '<b style="color:#9ef0a0">GAS!</b>'; bunyi(880, .35, 'square', .08); setTimeout(() => { if (id === idBalap) $('hitung').hidden = true; }, 700);
   MODE = 'balap'; mulaiT = performance.now(); waktu = 0;
@@ -437,7 +491,7 @@ async function mulaiBalap() {
 $('bMulai').onclick = mulaiBalap; $('bLagi').onclick = mulaiBalap;
 $('keluar').onclick = () => { idBalap++; MODE = 'lobi'; $('hitung').hidden = true; taruhDiStart(); tampilHUD(false); };
 function lewatGerbang() {
-  const n = gerbangKe; gerbangKe++; SPLIT[n] = waktu; const rek = LOKAL.split && LOKAL.split[n];
+  const n = gerbangKe; gerbangKe++; SPLIT[n] = waktu; const rek = LOKAL.split[L_NO] && LOKAL.split[L_NO][n];
   $('jGerbang').textContent = `GERBANG ${Math.min(gerbangKe, GERBANG)} DARI ${GERBANG}`;
   const sp = $('split'); sp.hidden = false; const beda = rek ? (waktu - rek) / 1000 : null;
   sp.textContent = (n === GERBANG - 1 ? 'FINISH ' : 'GERBANG ' + (n + 1) + ' · ') + jamTeks(waktu) + (beda != null ? `  ${beda < 0 ? '−' : '+'}${Math.abs(beda).toFixed(2)}` : '');
@@ -447,19 +501,22 @@ function lewatGerbang() {
 }
 async function finish() {
   MODE = 'selesai'; finishT = performance.now(); const ms = Math.round(waktu), id = idBalap; bunyi(1318, .5, 'triangle', .08); kabar('🏁 FINISH! ' + jamTeks(ms), 1800);
-  const rekorLama = LOKAL.rekor, baruLokal = !rekorLama || ms < rekorLama;
-  if (baruLokal) { LOKAL.rekor = ms; LOKAL.split = SPLIT.slice(); }
+  const rekorLama = LOKAL.rk[L_NO], baruLokal = !rekorLama || ms < rekorLama, bukaBaru = L_NO === 1 && LOKAL.buka < 5;
+  if (baruLokal) { LOKAL.rk[L_NO] = ms; LOKAL.split[L_NO] = SPLIT.slice(); }
+  if (bukaBaru) LOKAL.buka = 5;   // finish lintasan 1 = lintasan 2–5 terbuka
   let j = null; if (AKUN) j = await apiR('selesai', {ms});
   await new Promise(r => setTimeout(r, Math.max(0, 1400 - (performance.now() - finishT))));
   if (id !== idBalap) return;
-  if (j && j.saya) { if (j.saya.rekor) LOKAL.rekor = j.saya.rekor; LOKAL.pos = j.saya.pos || LOKAL.pos; if (j.saya.avatar) LOKAL.av = j.saya.avatar;
+  if (j && j.saya) { if (j.saya.rekor) LOKAL.rk[L_NO] = j.saya.rekor; LOKAL.pos[L_NO] = j.saya.pos || LOKAL.pos[L_NO]; if (j.saya.buka > LOKAL.buka) LOKAL.buka = j.saya.buka; if (j.saya.avatar) LOKAL.av = j.saya.avatar;
     $('dompet').textContent = `🪙 ${j.saya.koin ?? 0}  💎 ${j.saya.permata ?? 0}`; }
   simpan('dk_reli', LOKAL);
   $('hsJudul').textContent = baruLokal && rekorLama ? 'REKOR BARU! 🏁🎉' : 'FINISH! 🏁';
-  $('hsRinci').innerHTML = `<div class="utamaA"><b>${jamTeks(ms)}</b><small>WAKTU</small></div><div><b>${jamTeks(LOKAL.rekor)}</b><small>REKORMU</small></div>` +
+  $('hsRinci').innerHTML = `<div class="utamaA"><b>${jamTeks(ms)}</b><small>WAKTU</small></div><div><b>${jamTeks(LOKAL.rk[L_NO])}</b><small>REKORMU</small></div>` +
     `<div><b>${j && j.saya && j.saya.pos ? '#' + j.saya.pos : '–'}</b><small>POSISI</small></div><div><b>${j && j.dapat ? '+' + j.dapat + ' 🪙' : '0 🪙'}</b><small>KOIN</small></div>`;
   $('hsHadiah').textContent = !AKUN ? 'Main sebagai tamu: rekor hanya di HP ini. Masuk sebagai warga di desa supaya rekor & koin tercatat.'
     : j && j.galat ? j.galat : j && j.dapat ? `Finish ke-${j.saya.finishHari} hari ini. Koin finish tinggal ${j.saya.sisaKoin}x lagi hari ini.` : 'Jatah koin finish hari ini habis. Rekor tetap dicatat, kejar posisi #1!';
+  if (bukaBaru) { $('hsJudul').textContent = '🔓 4 LINTASAN BARU TERBUKA!'; $('hsHadiah').innerHTML = esc($('hsHadiah').textContent) + ' <button class="kedua" id="bLanjut" style="display:inline-block;width:auto;padding:5px 10px;margin-top:4px;color:#f2c14a">🌾 Coba Lintasan 2: Sawah Wetan →</button>';
+    $('bLanjut').onclick = () => { simpan('dk_reli_l', 2); const u = new URL(location.href); u.searchParams.set('l', 2); location.href = u.toString(); }; }
   $('hasil').hidden = false; $('kiriKanan').hidden = $('pedal').hidden = true; tulisLobi(j);
 }
 
@@ -482,6 +539,6 @@ function loop(t) {
 }
 requestAnimationFrame(loop);
 // untuk uji otomatis (Playwright): autopilot menyetir mengikuti lintasan
-window.__rk = {K, T, IG, IN, PANJANG, mode: () => MODE, waktu: () => waktu, gerbang: () => gerbangKe, auto: v => { autoPilot = !!v; }, mulai: mulaiBalap, cam,
+window.__rk = {K, T, IG, IN, PANJANG, L_NO, LOKAL, mode: () => MODE, waktu: () => waktu, gerbang: () => gerbangKe, auto: v => { autoPilot = !!v; }, mulai: mulaiBalap, cam,
   sim: detik => { let maks = 0, rumput = 0; for (let k = 0; k < detik * 60 && MODE === 'balap'; k++) { fisika(1 / 120); const h = fisika(1 / 120); maks = Math.max(maks, h.v); if (Math.abs(K.d) > LEBAR / 2) rumput++; mulaiT -= 1000 / 60; waktu = performance.now() - mulaiT; if (gerbangKe < GERBANG && K.i >= IG[gerbangKe]) lewatGerbang(); }
     return {mode: MODE, waktu: Math.round(waktu), gerbang: gerbangKe, maks: +(maks * 3.6).toFixed(0), rumput}; }};
