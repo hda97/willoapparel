@@ -115,6 +115,7 @@ th{color:var(--redup);font-weight:600;font-size:12px}
 
 <script>
 const $ = (id) => document.getElementById(id);
+const esc = (t) => String(t || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fmt = (n) => (Math.round(n * 10) / 10).toLocaleString('id-ID');
 const tglPendek = (h) => { const [y, m, d] = h.split('-'); return +d + '/' + +m; };
 const LABEL_FITUR = {
@@ -288,7 +289,8 @@ function tampil(s) {
   $('voting').innerHTML = `<div class="catatan" style="margin:0 0 6px">Putaran ${v.putaran} · ${v.pemilih} pemilih</div>` +
     Object.entries(v.hasil).sort((x, y) => y[1] - x[1]).map(([c, n]) => `<div class="baris"><span class="nm">${LABEL_CALON[c] || c}</span><span class="bar"><u style="width:${n / Math.max(1, ...Object.values(v.hasil)) * 100}%;background:var(--kuning)"></u></span><span class="n">${n}⭐</span></div>`).join('') +
     `<p style="margin:10px 0 0;font-size:13px">🏗️ Iuran fasum: <b>${fmt(v.dana.total)}</b> / ${fmt(v.dana.target)} koin dari ${v.dana.penyumbang} warga (hemat ${v.dana.hemat} hari)</p>` +
-    `<p style="margin:6px 0 0;font-size:13px">💝 Donasi: <b>${nDon}</b> kali, total <b>Rp${totDon.toLocaleString('id-ID')}</b></p>`;
+    `<p style="margin:6px 0 0;font-size:13px">💝 Donasi: <b>${nDon}</b> kali, total <b>Rp${totDon.toLocaleString('id-ID')}</b></p>` +
+    ((s.donasiTerbaru || []).length ? '<table style="margin-top:6px"><tr><th>Waktu (WIB)</th><th>Dari (Trakteer)</th><th>Warga</th><th>Rp</th></tr>' + s.donasiTerbaru.map((x) => `<tr><td>${new Date(x.t).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })}</td><td style="text-align:left">${esc(x.nama) || '-'}</td><td style="text-align:left">${x.no ? (x.u ? '@' + esc(x.u) : '') + ' #' + x.no : 'tanpa kode DK'}</td><td>${x.rp.toLocaleString('id-ID')}</td></tr>`).join('') + '</table>' : '');
 
   $('catatanMulai').textContent = r.mulaiCatat ? 'Lama main tercatat sejak ' + new Date(r.mulaiCatat).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) + '. Sesi = sejak warga masuk dusun sampai detak terakhir saat game terbuka di layar; pindah dusun dihitung satu sesi.' : 'Pencatat lama main baru dipasang, angka sesi muncul setelah ada warga yang main.';
 }

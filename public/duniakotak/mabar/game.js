@@ -1206,7 +1206,7 @@ function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   const baru = [...document.querySelectorAll('#panelKabar .kbItem[data-k]')].filter(e => !baca(KABAR_LAMA[e.dataset.k]));
   if (!baru.length) return;
-  const sibuk = [...document.querySelectorAll('.layarPenuh')].some(e => !e.hidden) || (typeof pemulaKini === 'function' && pemulaKini() && n < 40);
+  const sibuk = sedangJalan() || [...document.querySelectorAll('.layarPenuh')].some(e => !e.hidden) || (typeof pemulaKini === 'function' && pemulaKini() && n < 40);
   if (sibuk) { if (n < 120) setTimeout(() => kabarBaru(n + 1), 5000); return; }
   document.querySelectorAll('#panelKabar .kbItem[data-k]').forEach(e => { e.hidden = !baru.includes(e); });
   $('kbArenaBtn').hidden = !baru.some(e => e.dataset.k === 'arena'); $('kbTukangBtn').hidden = !baru.some(e => e.dataset.k === 'tukang'); $('kbAjakBtn').hidden = !baru.some(e => e.dataset.k === 'ajak'); $('kbRumahBtn').hidden = !baru.some(e => e.dataset.k === 'rumah'); $('kbAlbumBtn').hidden = !baru.some(e => e.dataset.k === 'album'); $('kbPasarBtn').hidden = !baru.some(e => e.dataset.k === 'pasar'); $('kbVotingBtn').hidden = !baru.some(e => e.dataset.k === 'tersebar'); $('kbNpcBtn').hidden = !baru.some(e => e.dataset.k === 'npc') || DI !== 'wetan' || !I.fas?.[11];
@@ -1342,7 +1342,8 @@ async function bukaVoting(wajib) {
     if (VT.gratis) toast('⭐ Bintang gratis hari ini masuk!', 3000);
     tulisVoting();
     // wajib hanya bila hak pilih hari ini belum dipakai (dicek server, jadi berlaku di semua HP)
-    if (wajib) { if (!S.tamu && !VT.sudahPilih && (VT.saldo || 0) >= 1) { kunciVoting(true); $('panelVoting').hidden = false; } else simpan('dk_vt', hariIni()); }
+    // Voting tetap WAJIB (Huda 10 Nov 2026): tunggu warga berhenti jalan, lalu pop up terkunci sampai warga memilih.
+    if (wajib) { if (!S.tamu && !VT.sudahPilih && (VT.saldo || 0) >= 1) { const buka = (n = 0) => { if (n > 200) return; if (sedangJalan() && n < 60) return setTimeout(() => buka(n + 1), 4000); if ([...document.querySelectorAll('.layarPenuh')].some(e => !e.hidden && e.id !== 'panelVoting')) return setTimeout(() => buka(n + 1), 4000); kunciVoting(true); $('panelVoting').hidden = false; }; buka(); } else simpan('dk_vt', hariIni()); }
   } catch (e) { $('isiVoting').innerHTML = '<p class="kecil">Voting belum bisa dimuat. Coba lagi sebentar.</p>'; }
 }
 document.addEventListener('click', async e => {
@@ -1924,12 +1925,25 @@ const sesiKini = () => { const j = jamWIB(); return sesiPasar(SESI.find(x => j >
 const sesiBerikut = () => { const j = jamWIB(); return sesiPasar(SESI.find(x => j < x.j[0]) || SESI[0]); };
 const jamKumpul = () => !!sesiKini();
 const daftarSesi = () => SESI.map(x => `${jamTeks(x.j[0])}–${jamTeks(x.j[1])}`).join(', ');
-let kumpulDiumumkan = '';
+let kumpulDiumumkan = '', kumpulSampai = '';
+// Huda 10 Nov 2026: setelah warga sampai di tempat event (mis. stadion), pemberitahuan event langsung hilang dari layar.
+function diTempatSesi(ki) {
+  const me = tokoh.saya; if (!me || !I) return false;
+  if (ki.tempat === 'sungai') return typeof dekatAir === 'function' && dekatAir(me);
+  if (DI !== 'wetan') return false;
+  const i = {supermarket: 0, warung: 2, stadion: 12}[ki.tempat], f = I.fas && I.fas[i]; if (!f) return false;
+  return Math.hypot(me.position.x - f.x, me.position.z - f.z) < (i === 12 ? 26 : 12) * VS;
+}
+// Pop up otomatis tidak boleh mengganggu: tunggu warga berhenti jalan dulu.
+const sedangJalan = () => !!(gerak.stik || gerak.tujuan || Object.values(gerak.kunci).some(Boolean));
 function infoKumpul() {
   const ck = document.getElementById('chipKumpul'); if (!ck) return;
   const j = jamWIB(), ki = sesiKini(), be = sesiBerikut();
   let html = '';
-  if (ki) {
+  const kunciKi = ki ? hariIni() + ki.nama : '';
+  if (ki && kumpulSampai !== kunciKi && diTempatSesi(ki)) { kumpulSampai = kunciKi; kumpulDiumumkan = kunciKi; const t = $('toast'); if (t.textContent.includes(ki.nama)) t.classList.remove('on'); }
+  if (ki && kumpulSampai === kunciKi) html = '';
+  else if (ki) {
     html = `${ki.ikon} <b>${ki.nama}!</b> Misi koin 2x · +1💎/10 mnt main · ${Math.ceil((ki.j[1] - j) * 60)} mnt`;
     const kunci = hariIni() + ki.nama; if (kumpulDiumumkan !== kunci) { kumpulDiumumkan = kunci; toast(`${ki.ikon} ${ki.nama} dimulai! Misi koin 2x sampai ${jamTeks(ki.j[1])} WIB.`, 4000); bunyi('masuk'); }
   } else if (be.j[0] - j > 0 && be.j[0] - j <= 1) html = `⏰ <b>${be.nama}</b> ${jamTeks(be.j[0])} · ${Math.ceil((be.j[0] - j) * 60)} mnt lagi`;
@@ -1949,7 +1963,7 @@ function keTempat(tempat) {
   else { const T = {supermarket: [0, 'Supermarket Dunia Kotak'], warung: [2, 'Warung Desa'], stadion: [12, 'Stadion Dunia Kotak'], tokowillo: [9, 'Toko Willo Apparel. Masuk & tekan 👕 Pesan Kaos']}[tempat] || [12, 'Stadion Dunia Kotak']; const f = I.fas && I.fas[T[0]]; if (!f) return; x = f.x; z = f.z + (T[0] === 12 ? 0 : T[0] === 9 ? 5.6 * VS : 4 * VS); nama = T[1]; }
   $('panelMisi').hidden = true; gerak.tujuan = null;
   me.position.set(x, 0, z); me.position.y = tanah(x, z, 0); me.rotation.y = ry;
-  bunyi('masuk'); toast(`🚌 Naik angkot desa… sampai di ${nama}!`, 3500);
+  bunyi('masuk'); toast(`🚌 Sampai di ${nama}!`, 2000);
 }
 // ---------- Toko Willo Apparel (Huda 10 Nov 2026): toko kaos DI DALAM GAME. Warga masuk toko di Kotak Wetan, pesan kaos sablon
 // untuk avatarnya pakai KOIN (bukan pesanan kaos nyata, tanpa WhatsApp/rupiah). Alur seperti pesan kaos kelas: pilih sablon,
@@ -3020,7 +3034,7 @@ function loop(t) {
   if (mancing.on) tempel(me, 6.6, mancing.teks, 'gel emo', -4);
   for (const c of kucingHidup) if (c.userData.nama && c.position.distanceTo(me.position) < 60) lbl(c, 2.6, c.userData.nama, 'nm kucing');
   for (const [no, o] of S.others) if (o.obj.position.distanceTo(me.position) < 220) lbl(o.obj, 5.2, (S.bisu.has(no) ? '🔇 ' : '') + lencana(no) + '@' + o.ig, 'nm', no);
-  if (npc) for (const n of npc.daftar) if (n.obj.visible && n.jauh < 130) { const lap = n.kerja === 'bola' || n.kerja === 'main' || n.wasit; lbl(n.obj, n.tinggi, n.nama + ' · ' + n.peran, lap ? 'nm' : 'nm npc', '', lap ? '' : n.id); }   // pemain & wasit sedang bertanding: tidak bisa diajak ngobrol
+  if (npc) for (const n of npc.daftar) if (n.obj.visible && n.jauh < 130) { const lap = n.kerja === 'bola' || n.kerja === 'main' || n.wasit; lbl(n.obj, n.tinggi, n.nama + ' · ' + n.peran, lap ? 'nm npcl' : 'nm npc', '', lap ? '' : n.id); }   // pemain & wasit sedang bertanding: tidak bisa diajak ngobrol
   if (wnpc) for (const n of wnpc.daftar) if (n.obj.visible && n.jauh < 110) lbl(n.obj, 5.2, (n.gotong >= 0 ? '🔨 ' : '') + '@' + n.u, 'nm npcw');
   for (const f of fasumBangun) { const d = Math.hypot(f.position.x - me.position.x, f.position.z - me.position.z); if (d < 170) lbl(f, f.tinggi, f.nama, 'nm fasum'); }
   jejakWarga(me);
