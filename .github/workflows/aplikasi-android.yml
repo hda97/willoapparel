@@ -2,6 +2,8 @@ name: Aplikasi Android Dunia Kotak (APK uji)
 
 # Build APK debug Dunia Kotak (Capacitor) untuk dicoba di HP Android.
 # Hasil: tab Actions > run ini > Artifacts > dunia-kotak-apk-debug.
+# Setelah merge ke main, APK juga diunggah sebagai satu file .apk di Release "apk-uji"
+# (https://github.com/hda97/willoapparel/releases/tag/apk-uji) supaya bisa diunduh & dipasang langsung dari HP.
 on:
   workflow_dispatch:
   pull_request:
@@ -12,9 +14,10 @@ on:
     branches: [main]
     paths:
       - "aplikasi-android/**"
+      - ".github/workflows/aplikasi-android.yml"
 
 permissions:
-  contents: read
+  contents: write   # unggah APK ke Release "apk-uji" (hanya saat push ke main)
 
 jobs:
   apk:
@@ -44,3 +47,19 @@ jobs:
           name: dunia-kotak-apk-debug
           path: aplikasi-android/android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
+      - name: Siapkan file APK
+        if: github.event_name != 'pull_request'
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk dunia-kotak-uji.apk
+      - name: Unggah ke Release apk-uji
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-uji
+          name: Dunia Kotak APK uji (terbaru)
+          prerelease: true
+          make_latest: false
+          body: |
+            APK uji Dunia Kotak (debug, bukan versi Play Store). Unduh **dunia-kotak-uji.apk** di bawah dari HP Android, ketuk, izinkan "instal dari sumber tidak dikenal", lalu Instal.
+            Dibangun otomatis dari commit ${{ github.sha }}.
+          files: aplikasi-android/dunia-kotak-uji.apk
+          overwrite_files: true

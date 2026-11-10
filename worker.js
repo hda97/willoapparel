@@ -1308,6 +1308,20 @@ export class Warga extends DurableObject {
       }
       return Response.json({ donasi: this.sql.exec("SELECT id, t, rp, nama, pesan FROM donasi WHERE no IS NULL ORDER BY t DESC LIMIT 50").toArray() });
     }
+    // Hapus akun warga (syarat Google Play, Huda 10 Nov 2026). Nomor kavling TIDAK dihapus (denah & nomor warga lain tetap),
+    // tapi semua data pribadi dikosongkan: nama, email, akun Google, username IG/TikTok, usulan, avatar, kucing, rumah, saldo.
+    // Kunci & kode diganti acak → semua HP yang masih login otomatis keluar. Catatan donasi (Trakteer) tetap untuk pembukuan.
+    if (aksi === "hapus-akun") {
+      const q = await request.json();
+      const r = this.sql.exec("SELECT no FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r || !q.kunci) return Response.json({ galat: "Data warga tidak ditemukan di HP ini. Masuk dulu, lalu coba lagi." }, { status: 401 });
+      this.sql.exec(`UPDATE warga SET sub = ?, email = NULL, nama = NULL, ig = NULL, tiktok = NULL, usulan = NULL, kunci = ?, kode = NULL,
+        avatar = NULL, kucing = NULL, kerja = NULL, hias = NULL, tas = NULL, kebun = NULL, profesi = NULL, pelari = NULL, misi = NULL,
+        koin = 0, koinTotal = 0, permata = 0, bintang = 0, aktif = NULL WHERE no = ?`, "hapus:" + r.no + ":" + crypto.randomUUID(), crypto.randomUUID(), r.no);
+      for (const t of ["reli", "reliRekor", "tukang", "piala", "iuran", "plakat"]) try { this.sql.exec(`DELETE FROM ${t} WHERE no = ?`, r.no); } catch (e) {}
+      try { this.sql.exec("DELETE FROM rumahSuka WHERE dari = ? OR ke = ?", r.no, r.no); } catch (e) {}
+      return Response.json({ ok: 1, no: r.no });
+    }
     if (aksi === "usulan-kunci") {
       const { kunci, usulan } = await request.json();
       const r0 = this.sql.exec("SELECT no FROM warga WHERE kunci = ?", kunci).toArray()[0];
@@ -1764,6 +1778,11 @@ async function apiWargaInti(request, env, url) {
     if (d.galat) return json({ galat: d.galat }, 400);
     if (!d.ig && !d.tiktok) return json({ galat: "Isi username Instagram atau TikTok (salah satu cukup)." }, 400);
     const r = await stub.fetch("https://do/daftar-ig", { method: "POST", body: JSON.stringify(d) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "hapus-akun") {
+    if (String(body.konfirmasi || "").trim().toUpperCase() !== "HAPUS") return json({ galat: "Ketik HAPUS untuk konfirmasi." }, 400);
+    const r = await stub.fetch("https://do/hapus-akun", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64) }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "profil") {

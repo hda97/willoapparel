@@ -209,9 +209,9 @@
     "semantic_hash": "bf3f8e495130df0e60287acb7ca38561"
   },
   "worker.js": {
-    "mtime": 1794342635.1843958,
-    "seen": 1794342733.6485653,
-    "ast_hash": "790497d05d24e42a4e958ec8059d79ed",
+    "mtime": 1794343769.552463,
+    "seen": 1794343912.5373785,
+    "ast_hash": "544eaf6210fb815c01cb010858387df2",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/musik.mp3": {
@@ -971,21 +971,21 @@
     "semantic_hash": ""
   },
   "public/duniakotak/index.html": {
-    "mtime": 1794342595.905417,
-    "seen": 1794342733.6487043,
-    "ast_hash": "605a9895314485b993265566fbad54e1",
+    "mtime": 1794343830.3670313,
+    "seen": 1794343912.5374486,
+    "ast_hash": "1534aaabdbf7d007979f57267fe44765",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/index.html": {
-    "mtime": 1794342635.161767,
-    "seen": 1794342733.6487057,
-    "ast_hash": "7ce7cc04dbe0682c0443e8cee29a1adc",
+    "mtime": 1794343830.3663497,
+    "seen": 1794343912.5374503,
+    "ast_hash": "c34f29f165e61052022abcc408827210",
     "semantic_hash": ""
   },
   "public/duniakotak/privasi.html": {
-    "mtime": 1794341193.5814722,
-    "seen": 1794342733.6487079,
-    "ast_hash": "275e5245d8923121a3d7974ab03944b2",
+    "mtime": 1794343830.347079,
+    "seen": 1794343912.5374513,
+    "ast_hash": "2282ef3e14fee78e38a919dddc82187b",
     "semantic_hash": ""
   },
   "public/duniakotak/pulau/index.html": {
@@ -3281,9 +3281,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/aplikasi-android.yml": {
-    "mtime": 1794342658.822686,
-    "seen": 1794342733.6483505,
-    "ast_hash": "b23e550fe181fe4f733b67bcbbe51e62",
+    "mtime": 1794343876.6718087,
+    "seen": 1794343912.5371659,
+    "ast_hash": "7c2ed885f749bf0a6d7b5de3f3ede4e2",
     "semantic_hash": ""
   },
   "aplikasi-android/android/app/build.gradle": {
@@ -3365,9 +3365,9 @@
     "semantic_hash": ""
   },
   "aplikasi-android/README.md": {
-    "mtime": 1794342658.827125,
-    "seen": 1794342733.648657,
-    "ast_hash": "a10f0ba3def2c8dfbe38a543c0912d7b",
+    "mtime": 1794343876.6723864,
+    "seen": 1794343912.5374143,
+    "ast_hash": "a7d95f25000473b101d67455b72497ec",
     "semantic_hash": ""
   },
   "aplikasi-android/www/index.html": {
@@ -3536,6 +3536,18 @@
     "mtime": 1794342532.9666786,
     "seen": 1794342733.648864,
     "ast_hash": "354c2ff70ebd3a1c815589335e5f9f15",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/hapus-akun.html": {
+    "mtime": 1794343830.3473468,
+    "seen": 1794343912.537447,
+    "ast_hash": "6699e83de2abd3bb96097c5e394152f9",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/syarat.html": {
+    "mtime": 1794343830.3472784,
+    "seen": 1794343912.5374553,
+    "ast_hash": "4ead8d335dec334418bb3536fefa8fc6",
     "semantic_hash": ""
   },
   "aplikasi-android/package-lock.json": {

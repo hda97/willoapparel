@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hapus Akun Dunia Kotak</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" sizes="48x48" href="/duniakotak/ikon/favicon-48.png">
+<style>
+:root{--tinta:#1d2a1d}
+body{margin:0;font:16px/1.6 system-ui,sans-serif;color:var(--tinta);background:#f6f1e4}
+main{max-width:640px;margin:0 auto;padding:28px 16px 56px}
+h1{font-size:26px;line-height:1.2}h2{font-size:18px;margin-top:28px}
+a{color:#2f6b28}
+li{margin:4px 0}
+.kotak{background:#fff;border:3px solid #1d2a1d;border-radius:6px;box-shadow:0 5px 0 #1d2a1d;padding:16px;margin:18px 0}
+input{font:16px system-ui;padding:10px;border:2px solid #1d2a1d;border-radius:6px;width:100%;box-sizing:border-box}
+button{font:700 16px system-ui;padding:12px 20px;border:3px solid #1d2a1d;border-radius:6px;background:#d9412b;color:#fff;box-shadow:0 5px 0 #1d2a1d;margin-top:12px;cursor:pointer}
+button:disabled{opacity:.5}
+.galat{color:#b3261e;font-weight:700}.ok{color:#2f6b28;font-weight:700}
+</style>
+</head>
+<body>
+<main>
+<h1>Hapus Akun Dunia Kotak</h1>
+<p>Kamu bisa menghapus akun warga Dunia Kotak beserta data pribadimu kapan saja, dari situs ini maupun dari aplikasi Android (⚙ Atur → Hapus akun warga).</p>
+<h2>Yang dihapus</h2>
+<ul><li>Nama, email, akun Google, username Instagram/TikTok, dan pekerjaan</li><li>Usulan, avatar, rumah dan pekarangan, kucing, isi tas, kebun, profesi</li><li>Koin, permata, bintang, rekor lari dan reli, poin Piala</li></ul>
+<h2>Yang tetap</h2>
+<ul><li>Nomor kavlingmu tetap ada sebagai <b>kavling kosong tanpa nama</b>, supaya nomor dan alamat warga lain tidak bergeser.</li><li>Pesan chat lama terhapus otomatis paling lama 7 hari kemudian.</li><li>Catatan dukungan Trakteer disimpan untuk pembukuan.</li></ul>
+<p><b>Penghapusan tidak bisa dibatalkan.</b> Kalau mau main lagi, kamu harus mendaftar ulang dan mendapat kavling baru.</p>
+<div class="kotak" id="kotak"><p>Memeriksa akun di HP ini…</p></div>
+<p>Tidak bisa masuk? Kirim pesan ke Instagram <a href="https://www.instagram.com/duniakotak.id/">@duniakotak.id</a> atau WhatsApp <a href="https://wa.me/6285816900722">0858-1690-0722</a> dengan menyebut nomor kavlingmu. Kami hapus datamu dalam 7 hari.</p>
+<script>
+(function(){
+  var k=document.getElementById('kotak'),w=null;
+  try{w=JSON.parse(localStorage.getItem('dk_warga')||'null')}catch(e){}
+  if(!w||!w.kunci){k.innerHTML='<p>Kamu belum masuk sebagai warga di HP/browser ini.</p><p><a href="/duniakotak/?masuk=1">Masuk dulu</a>, lalu buka lagi halaman ini.</p>';return}
+  k.innerHTML='<p>Kamu masuk sebagai <b>warga No. '+(+w.no||'?')+'</b>'+(w.ig?' (@'+String(w.ig).replace(/[<>&"]/g,'')+')':'')+'.</p>'
+    +'<label for="konf">Ketik <b>HAPUS</b> untuk menghapus akun ini selamanya:</label><input id="konf" autocomplete="off" autocapitalize="characters">'
+    +'<button id="bHapus" disabled>Hapus akun saya</button><p id="pesan"></p>';
+  var i=document.getElementById('konf'),b=document.getElementById('bHapus'),p=document.getElementById('pesan');
+  i.oninput=function(){b.disabled=i.value.trim().toUpperCase()!=='HAPUS'};
+  b.onclick=async function(){
+    b.disabled=true;p.className='';p.textContent='Menghapus…';
+    try{
+      var r=await fetch('/duniakotak/api/hapus-akun',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({kunci:w.kunci,konfirmasi:i.value})});
+      var j=await r.json().catch(function(){return{galat:'Server tidak menjawab'}});
+      if(!r.ok)throw new Error(j.galat||'Gagal');
+      try{Object.keys(localStorage).filter(function(x){return/^dk_/.test(x)}).forEach(function(x){localStorage.removeItem(x)})}catch(e){}
+      k.innerHTML='<p class="ok">Akunmu sudah dihapus. Terima kasih sudah pernah jadi warga Dunia Kotak. 👋</p><p><a href="/duniakotak/">Kembali ke halaman warga</a></p>';
+    }catch(e){p.className='galat';p.textContent=e.message;b.disabled=false}
+  };
+})();
+</script>
+<p><a href="/duniakotak/privasi.html">Kebijakan privasi</a> · <a href="/duniakotak/syarat.html">Syarat penggunaan</a> · <a href="/duniakotak/hapus-akun.html">Hapus akun</a> · <a href="/duniakotak/">Halaman warga</a></p>
+</main>
+</body>
+</html>
