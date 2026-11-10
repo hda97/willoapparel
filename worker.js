@@ -62,7 +62,7 @@ const BANGUN_SEKARANG = [{ id: "taman", nama: "🌳 Taman Kota", aset: "tamanKot
 // Tiap sesi selesai: fasum jadi TK_MAJU lebih cepat (maks TK_MAJU_MAKS per fasum, maks TK_SESI_MAJU sesi/warga/hari),
 // koin (maks TK_KOIN_MAKS, hanya TK_SESI_KOIN sesi pertama tiap hari) + PIALA_BANGUN poin Piala dusun (ikut jatah sesi koin).
 // `sampai` di atas = jadwal asli; jadwal sebenarnya = sampai - percepatan tukang (lihat sampaiBangun). game.js membaca GET /api/bangun.
-const TK_MAJU = 20 * 60e3, TK_MAJU_MAKS = 3 * 864e5, TK_SESI_MAJU = 10, TK_SESI_KOIN = 3, TK_KOIN_MAKS = 30, TK_MIN = 45e3, PIALA_BANGUN = 5;
+const TK_MAJU = 20 * 60e3, TK_MAJU_MAKS = 3 * 864e5, TK_SESI_MAJU = 10, TK_SESI_KOIN = 3, TK_KOIN_MAKS = 30, TK_MIN = 45e3, PIALA_BANGUN = 5, TK_MISI_DESA = 15;
 // Kata kunci usulan warga (kolom usulan saat daftar) untuk mencari pengusul pertama tiap fasum pemenang/calon.
 // Bisa ditimpa manual lewat BOS_TETAP (mis. { taman: 48 }) bila pengusul yang ditemukan otomatis kurang tepat.
 const BOS_TETAP = {};
@@ -838,7 +838,7 @@ export class Warga extends DurableObject {
     if (aksi === "bangun") {
       // Tukang Kotak: op info | mulai | selesai {skor 0-100}
       const q = await request.json(), kini = Date.now(), hari = hariWib(kini);
-      const r = this.sql.exec("SELECT no, ig, tiktok, nama, koin, koinTotal, permata, avatar FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      const r = this.sql.exec("SELECT no, ig, tiktok, nama, koin, koinTotal, permata, avatar, misi FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
       if (!r) return Response.json({ ...this.infoBangun(), galat: q.op === "info" ? undefined : "Masuk dulu sebagai warga Dunia Kotak." }, { status: q.op === "info" ? 200 : 401 });
       const b = this.proyekBangun(kini);
       const baris = () => (b && this.sql.exec("SELECT sesi, poin, hari, sh, m FROM tukang WHERE fas = ? AND no = ?", b.id, r.no).toArray()[0]) || { sesi: 0, poin: 0, hari, sh: 0, m: null };
@@ -857,6 +857,13 @@ export class Warga extends DurableObject {
           this.sql.exec("UPDATE warga SET koin = COALESCE(koin, 0) + ?, koinTotal = COALESCE(koinTotal, 0) + ? WHERE no = ?", k, k, r.no);
           r.koin = (r.koin || 0) + k; info.dapat = k; this.arus("+koin:bangun", k);
           const pl = this.tambahPiala(r.no, "bangun"); if (pl) info.piala = pl;
+        }
+        // Misi harian DESA "Ikut bangun fasum" (Huda 10 Nov): tetap tiap hari seperti Pelari Kalcer, selesai otomatis di misi bangun pertama.
+        let mm = { t: hari, s: [] }; try { const m0 = r.misi ? JSON.parse(r.misi) : null; if (m0 && m0.t === hari && Array.isArray(m0.s)) mm = m0; } catch (e) {}
+        if (!mm.s.includes("tukang")) {
+          mm.s.push("tukang"); r.koin = (r.koin || 0) + TK_MISI_DESA; info.misiDesa = TK_MISI_DESA;
+          this.sql.exec("UPDATE warga SET koin = COALESCE(koin, 0) + ?, koinTotal = COALESCE(koinTotal, 0) + ?, misi = ? WHERE no = ?", TK_MISI_DESA, TK_MISI_DESA, JSON.stringify(mm), r.no);
+          this.arus("+koin:misi-bangun", TK_MISI_DESA);
         }
         t.sh += 1; tulis();
       }

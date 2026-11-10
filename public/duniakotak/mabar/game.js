@@ -979,6 +979,9 @@ function tulisMisi() {
   // Misi tetap tiap hari (Huda 8 Nov): ikut lari Pelari Kalcer sampai finish, selesai otomatis di server saat finish.
   const okLari = MS.selesai.has('pelari');
   $('isiMisi').innerHTML += `<div class="misi ${okLari ? 'ok' : ''}"><span class="mi">${okLari ? '✅' : '🏃'}</span><div><b>Ikut lari Pelari Kalcer sampai finish</b><small>${okLari ? 'Selesai' : 'Belum'}</small>${okLari ? '' : '<small class="info">📍 Gapura CFD di belakang gawang timur Stadion Kotak Wetan.</small><button class="antar" data-lari="1">🏃 Ikut lari sekarang</button>'}</div><span class="koin">+15 🪙</span></div>`;
+  // Misi tetap tiap hari (Huda 10 Nov): ikut bangun fasum di Tukang Kotak sampai 100%, selesai otomatis di server. Tampil bila ada proyek 🚧.
+  const okBangun = MS.selesai.has('tukang'), pb = BANGUN_VOTING.find(b => Date.now() >= b.mulai && Date.now() < b.sampai);
+  if (pb || okBangun) $('isiMisi').innerHTML += `<div class="misi ${okBangun ? 'ok' : ''}"><span class="mi">${okBangun ? '✅' : '🔨'}</span><div><b>Ikut bangun fasum sampai 100% (Tukang Kotak)</b><small>${okBangun ? 'Selesai' : 'Belum'}</small>${okBangun || !pb ? '' : `<small class="info">📍 Lahan proyek 🚧 ${esc(pb.nama || 'fasum')} di Dusun ${esc(NAMA_DUSUN[dusunBangun(pb)] || '')}.</small><button class="antar" data-bangun="1">🔨 Ikut bangun sekarang</button>`}</div><span class="koin">+15 🪙</span></div>`;
   $('isiMisi').innerHTML = barisPemula() + barisHadir() + barisMenit() + $('isiMisi').innerHTML;
   const isiTas = Object.entries(tas).map(([n, v]) => `${v.ikon} ${n} ×${v.n}`).join(' · ');
   $('isiMisi').innerHTML += `<div class="misi"><span class="mi">🎒</span><div><b>Tasmu</b><small>${isiTas ? esc(isiTas) : 'Masih kosong. Ambil barang di jalan atau mancing di sungai.'}</small></div><span></span></div>`;
@@ -988,6 +991,7 @@ function tulisMisi() {
     : `🔒 Misi hanya bisa dikerjakan saat Jam Kumpul Warga (${daftarSesi()} WIB), bareng warga lain, koin 2x. Berikutnya: ${sesiBerikut().ikon} ${sesiBerikut().nama} ${jamTeks(sesiBerikut().j[0])}. Koinmu: 🪙 ${S.saya?.koin || 0}.`;
 }
 document.addEventListener('click', e => { if (e.target.closest?.('[data-lari]')) ikutLari(); });
+document.addEventListener('click', e => { if (e.target.closest?.('[data-bangun]')) ikutBangun(); });
 document.addEventListener('click', e => { const b = e.target.closest?.('[data-antar]'); if (!b) return; $('panelMisi').hidden = true; pergiKe(+b.dataset.antar); });
 // misi di dusun lain: naik bus (pindah dusun, misi lanjut di sana) atau diantar ke fasumnya bila sudah di dusun itu
 document.addEventListener('click', e => { const b = e.target.closest?.('[data-ke]'); if (!b) return; $('panelMisi').hidden = true;

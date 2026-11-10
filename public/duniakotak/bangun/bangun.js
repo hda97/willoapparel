@@ -193,6 +193,7 @@ async function catatSesi() {
   if (r.maju) KERJA.maju += r.maju;
   if (r.dapat) KERJA.koin += r.dapat;
   if (r.piala) KERJA.piala += r.piala.dapat;
+  if (r.misiDesa) { KERJA.misiDesa = r.misiDesa; KERJA.koin += r.misiDesa; }
   if (!r.aktif) KERJA.jadi = true;
   INFO = r;
 }
@@ -314,7 +315,7 @@ async function muat() {
 // ---------- mulai / selesai kerja ----------
 function mulaiKerja() {
   if (MAIN) return; MAIN = true; bunyi(660, .08);
-  Object.assign(KERJA, {setor: 0, sesiBahan: 0, mendarat: 0, tutup: false, sesi: 0, koin: 0, maju: 0, piala: 0, galat: '', jadi: false});
+  Object.assign(KERJA, {setor: 0, sesiBahan: 0, mendarat: 0, tutup: false, sesi: 0, koin: 0, maju: 0, piala: 0, galat: '', jadi: false, misiDesa: 0});
   pasangBangunan(INFO, true); for (const f of TERBANG) sc.remove(f.m); TERBANG = [];
   SAYA.x = -17; SAYA.z = 62; SAYA.arah = -Math.PI / 2;   // mulai di samping tumpukan bata (Huda 10 Nov) SAYA.bawa = []; susunPunggung();
   for (const id of ['lobi', 'dompet', 'hasil']) $(id).hidden = true;
@@ -332,6 +333,7 @@ function tulisUpah() {
   $('hsHadiah').innerHTML = KERJA.galat ? '⚠️ ' + esc(KERJA.galat)
     : !AKUN ? `Latihan saja. <a href="/duniakotak/mabar/">Masuk sebagai warga</a> agar dapat upah.`
     : !KERJA.koin && resmi ? 'Jatah koin hari ini habis, fasum tetap makin cepat 🙏'
+    : KERJA.misiDesa ? `✅ Misi harian desa selesai: +${KERJA.misiDesa} 🪙 (sudah termasuk di koin)`
     : s ? `Sisa misi berupah hari ini: ${s.sisaKoin}/${INFO.aturan?.sesiKoin || 3}` : 'Terima kasih sudah gotong royong! 🙏';
   $('bLagi').disabled = false; $('bLagi').textContent = INFO?.aktif ? '🔨 MISI LAGI' : '🔨 LATIHAN';
 }
