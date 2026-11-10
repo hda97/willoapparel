@@ -10,7 +10,7 @@ import {warga, pose} from '../mabar/js/aset/avatar.js';
 
 const $ = id => document.getElementById(id);
 const VS = 5;            // skala fasum di game desa
-const TK_BAHAN = 20;     // bahan per sesi (samakan dengan worker.js TK_BAHAN)
+const TK_BAHAN = 60;     // bahan per misi ±2–3 menit (Huda 10 Nov: 20 terlalu cepat; samakan dengan worker.js)
 const MUAT = 8;          // kapasitas angkut di punggung
 const u = new URLSearchParams(location.search);
 const DUSUN = /^(wetan|kulon|curug|tlaga|segara)$/.test(u.get('dusun') || '') ? u.get('dusun') : 'wetan';
@@ -63,7 +63,7 @@ const kotak = (w, h, d, c, x = 0, y = 0, z = 0, m = {}) => { const o = new THREE
 // ---------- bangunan fasum yang tumbuh bagian demi bagian ----------
 let BANG = null;   // {g, bagian: [{m, c, s}], tampak: n, pop: []}
 const tahapDari = a => Math.max(0, Math.min(1, (Date.now() - a.mulai) / (a.sampai - a.mulai)));
-function pasangBangunan(info) {
+function pasangBangunan(info, kosong = false) {
   if (BANG) sc.remove(BANG.g);
   const a = info && info.aktif, buat = (a && F[a.aset]) || F.tamanKota;
   const g = buat(); g.scale.setScalar(VS); g.updateMatrixWorld(true); sc.add(g);
@@ -72,7 +72,7 @@ function pasangBangunan(info) {
     .sort((p, q) => p.y - q.y || p.z - q.z);
   for (const b of bagian) { b.m.visible = false; b.s = b.m.scale.clone(); }
   BANG = {g, bagian, tampak: 0, pop: []};
-  const awal = a ? Math.floor(tahapDari(a) * bagian.length * .9) : bagian.length;   // bagian yang sudah jadi menurut jadwal server
+  const awal = kosong ? 0 : a ? Math.floor(tahapDari(a) * bagian.length * .9) : bagian.length;   // misi: mulai dari lahan kosong   // bagian yang sudah jadi menurut jadwal server
   for (let i = 0; i < awal; i++) bagian[i].m.visible = true;
   BANG.tampak = BANG.awal = awal;
 }
@@ -298,7 +298,7 @@ async function muat() {
 function mulaiKerja() {
   if (MAIN) return; MAIN = true; bunyi(660, .08);
   Object.assign(KERJA, {setor: 0, sesiBahan: 0, mendarat: 0, tutup: false, sesi: 0, koin: 0, maju: 0, piala: 0, galat: '', jadi: false});
-  pasangBangunan(INFO); for (const f of TERBANG) sc.remove(f.m); TERBANG = [];
+  pasangBangunan(INFO, true); for (const f of TERBANG) sc.remove(f.m); TERBANG = [];
   SAYA.x = 0; SAYA.z = 62; SAYA.arah = Math.PI; SAYA.bawa = []; susunPunggung();
   for (const id of ['lobi', 'dompet', 'hasil']) $(id).hidden = true;
   for (const id of ['hud', 'tas', 'stik', 'petunjuk']) $(id).hidden = false;
