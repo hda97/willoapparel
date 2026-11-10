@@ -247,7 +247,8 @@ const PASANG_FASUM = [[0, 'supermarket', '🛒 Supermarket Dunia Kotak'], [10, '
 // FASUM TERSEBAR (Huda 9 Nov 2026): beda dusun beda fasum, supaya warga main ke dusun lain. Tiap calon voting sudah punya
 // lahan tetap: [dusun, lahan]. Wetan: lahan = indeks fas; dusun lain: indeks lahanKosong (lahan tanpa aset di kulon/curug/tlaga.js).
 // Curug & Tlaga mulai dari lahan 1 (lahan 0 = tempat main anak NPC). Entri BANGUN_VOTING untuk dusun lain: {dusun, lahan, ...}.
-const LOKASI_FASUM = {kafe: ['kulon', 0], polisi: ['curug', 1], hiburan: ['tlaga', 1], damkar: ['kulon', 1], perpus: ['curug', 0], renang: ['tlaga', 0], bioskop: ['wetan', 14]};
+// (10 Nov 2026) lahan cadangan Kulon 1 (dulu untuk Damkar) dipakai Arena Pelari Kalcer; Damkar dapat lahan baru saat jadi calon.
+const LOKASI_FASUM = {kafe: ['kulon', 0], polisi: ['curug', 1], hiburan: ['tlaga', 1], perpus: ['curug', 0], renang: ['tlaga', 0], bioskop: ['wetan', 14]};
 // aset & nama tiap calon (aset di js/aset/fasum.js). Fasum lain (damkar, perpus, renang, bioskop) asetnya dibuat saat jadi calon.
 const ASET_CALON = {kafe: ['kafe', '☕ Kafe Bukit'], polisi: ['polisi', '👮 Kantor Polisi'], hiburan: ['hiburan', '🎡 Taman Hiburan']};
 // Pemenang voting → entri BANGUN_VOTING di dusun tujuannya, mis. bangunCalon('kafe', Date.parse('2026-11-14T00:00:00+07:00')).
@@ -300,32 +301,19 @@ function pasangFasum() {
     // tabrakan per dinding (pintu terbuka & ruang dalam bisa dimasuki, 6 Nov 2026); bagian atas disembunyikan saat warga di dalam
     fasumBangun.push({position: new THREE.Vector3(f.x, 0, f.z), nama, toko: k === 'tokoWillo', ...F.pisahFasum(m)});
   }
-  pasangGapuraCFD(g);
   kumpulPijakan(g);
   bakeGroup(g);
   pasangAtasFasum(fasumBangun);
 }
-// ---------- Gapura CFD Pelari Kalcer (Huda 8 Nov 2026): game lari terpisah (/pelarikalcer/), pintunya di Stadion Kotak Wetan ----------
-// Gapura berdiri di ujung timur lapangan stadion (belakang gawang). Warga yang mendekat dapat tombol "Ikut Lari".
-let GAPURA_CFD = null;
-function pasangGapuraCFD(g) {
-  const f = DI === 'wetan' && I.fas && I.fas[12]; if (!f) return;
-  const gp = new THREE.Group(), O = 0xe0803a, N = 0x2c3150;
-  for (const s of [-1, 1]) { gp.add(kotakD(.55, 3.6, .55, N, 0, 1.8, s * 2.1)); gp.add(kotakD(.7, .3, .7, O, 0, .15, s * 2.1)); gp.add(kotakD(.7, .3, .7, O, 0, 3.55, s * 2.1)); }
-  const c = document.createElement('canvas'); c.width = 1024; c.height = 256; const x = c.getContext('2d');
-  x.fillStyle = '#e0803a'; x.fillRect(0, 0, 1024, 256); x.fillStyle = '#2c3150'; x.fillRect(0, 196, 1024, 60);
-  // ukuran huruf disesuaikan lebar papan supaya tidak terpotong di tepi (Huda 8 Nov 2026: tulisan kebesaran, terbaca "ELARI KALCE")
-  x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle';
-  const pas = (t, w, maks, tebal) => { let u = maks; x.font = `${tebal} ${u}px Montserrat, sans-serif`; while (x.measureText(t).width > w && u > 20) { u -= 2; x.font = `${tebal} ${u}px Montserrat, sans-serif`; } };
-  pas('PELARI KALCER', 680, 84, 900); x.fillText('PELARI KALCER', 512, 100);
-  pas('CFD 1 KM · START DI SINI', 680, 34, 800); x.fillText('CFD 1 KM · START DI SINI', 512, 226);
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
-  const papan = new THREE.Mesh(new THREE.BoxGeometry(.35, 1.15, 4.8), [0, 1, 2, 3, 4, 5].map(i => new THREE.MeshStandardMaterial(i < 2 ? {map: t, roughness: .8} : {color: N, roughness: .8})));
-  papan.position.set(0, 3.05, 0); gp.add(papan);
-  gp.scale.setScalar(VS); gp.position.set(f.x + 8.4 * VS, 0, f.z); sc.add(gp);   // tidak ikut bakeGroup supaya tulisan papan tetap ada
-  GAPURA_CFD = {x: f.x + 8.4 * VS, z: f.z};
-}
-const dekatGapuraCFD = me => !!GAPURA_CFD && Math.hypot(me.position.x - GAPURA_CFD.x, me.position.z - GAPURA_CFD.z) < 4 * VS;
+// ---------- Arena Pelari Kalcer (Huda 10 Nov 2026: "Pelari kalcer buatkan tempat sendiri jangan di stadion") ----------
+// Dulu pintunya gapura CFD di Stadion Kotak Wetan (8 Nov). Sekarang bangunan sendiri di Dusun Kotak Kulon (teras 9, aset F.arenaLari,
+// dipasang kulon.js). Warga yang masuk arena (lintasan, gerbang, tribun) dapat tombol 🏃 Ikut Lari → game lari terpisah /pelarikalcer/.
+const DUSUN_LARI = 'kulon', NAMA_ARENA = 'Arena Pelari Kalcer';
+const arenaLari = () => fasumBangun.find(f => f.nama && f.nama.includes(NAMA_ARENA));
+const dekatGapuraCFD = me => { if (DI !== DUSUN_LARI) return false; const f = arenaLari(); if (!f) return false;
+  return Math.abs(me.position.x - f.position.x) < 10.5 * VS && Math.abs(me.position.z - f.position.z) < 11 * VS && Math.abs(me.position.y - f.position.y) < 3 * VS; };
+// antar ke gerbang arena (naik bus dulu bila di dusun lain)
+function keArenaLari() { if (DI !== DUSUN_LARI) { if (confirm(`${NAMA_ARENA} ada di Dusun ${NAMA_DUSUN[DUSUN_LARI]}. Naik bus ke sana?`)) { const u = new URL(location.href); u.searchParams.set('dusun', DUSUN_LARI); u.searchParams.set('ke', 'pelari'); location.href = u.toString(); } return; } keTempat('pelari'); }
 // Pintu Tukang Kotak: warga yang berdiri di lahan proyek fasum dapat tombol 🔨 Bangun → mini-game membangun (halaman terpisah).
 const dekatProyek = me => !S.tamu && fasumBangun.some(f => {
   if (!/^🚧/.test(f.nama || '')) return false; const x = me.position.x, z = me.position.z, k = f.rect, d = 2 * VS;
@@ -984,7 +972,7 @@ function tulisMisi() {
   }).join('') + `<div class="misi bonus ${MS.selesai.has('bonus') ? 'ok' : ''}"><span class="mi">🎁</span><div><b>Bonus: selesaikan semua misi</b><small>${MS.selesai.has('bonus') ? 'Sudah diambil' : `Otomatis masuk setelah ${MISI.length} misi selesai`}</small></div><span class="koin">+${BONUS_MISI * kaliKoin()} 🪙 +3 💎</span></div>`;
   // Misi tetap tiap hari (Huda 8 Nov): ikut lari Pelari Kalcer sampai finish, selesai otomatis di server saat finish.
   const okLari = MS.selesai.has('pelari');
-  $('isiMisi').innerHTML += `<div class="misi ${okLari ? 'ok' : ''}"><span class="mi">${okLari ? '✅' : '🏃'}</span><div><b>Ikut lari Pelari Kalcer sampai finish</b><small>${okLari ? 'Selesai' : 'Belum'}</small>${okLari ? '' : '<small class="info">📍 Gapura CFD di belakang gawang timur Stadion Kotak Wetan.</small><button class="antar" data-lari="1">🏃 Ikut lari sekarang</button>'}</div><span class="koin">+15 🪙</span></div>`;
+  $('isiMisi').innerHTML += `<div class="misi ${okLari ? 'ok' : ''}"><span class="mi">${okLari ? '✅' : '🏃'}</span><div><b>Ikut lari Pelari Kalcer sampai finish</b><small>${okLari ? 'Selesai' : 'Belum'}</small>${okLari ? '' : '<small class="info">📍 Arena Pelari Kalcer di Dusun Kotak Kulon.</small><button class="antar" data-arena="1">🧭 Antar ke Arena</button><button class="antar" data-lari="1">🏃 Ikut lari sekarang</button>'}</div><span class="koin">+15 🪙</span></div>`;
   // Misi tetap tiap hari (Huda 10 Nov): ikut bangun fasum di Tukang Kotak sampai 100%, selesai otomatis di server. Tampil bila ada proyek 🚧.
   const okBangun = MS.selesai.has('tukang'), pb = BANGUN_VOTING.find(b => Date.now() >= b.mulai && Date.now() < b.sampai);
   if (pb || okBangun) $('isiMisi').innerHTML += `<div class="misi ${okBangun ? 'ok' : ''}"><span class="mi">${okBangun ? '✅' : '🔨'}</span><div><b>Ikut bangun fasum sampai 100% (Tukang Kotak)</b><small>${okBangun ? 'Selesai' : 'Belum'}</small>${okBangun || !pb ? '' : `<small class="info">📍 Lahan proyek 🚧 ${esc(pb.nama || 'fasum')} di Dusun ${esc(NAMA_DUSUN[dusunBangun(pb)] || '')}.</small><button class="antar" data-bangun="1">🔨 Ikut bangun sekarang</button>`}</div><span class="koin">+15 🪙</span></div>`;
@@ -997,6 +985,7 @@ function tulisMisi() {
     : `🔒 Misi hanya bisa dikerjakan saat Jam Kumpul Warga (${daftarSesi()} WIB), bareng warga lain, koin 2x. Berikutnya: ${sesiBerikut().ikon} ${sesiBerikut().nama} ${jamTeks(sesiBerikut().j[0])}. Koinmu: 🪙 ${S.saya?.koin || 0}.`;
 }
 document.addEventListener('click', e => { if (e.target.closest?.('[data-lari]')) ikutLari(); });
+document.addEventListener('click', e => { if (e.target.closest?.('[data-arena]')) { $('panelMisi').hidden = true; keArenaLari(); } });
 document.addEventListener('click', e => { if (e.target.closest?.('[data-bangun]')) ikutBangun(); });
 document.addEventListener('click', e => { const b = e.target.closest?.('[data-antar]'); if (!b) return; $('panelMisi').hidden = true; pergiKe(+b.dataset.antar); });
 // misi di dusun lain: naik bus (pindah dusun, misi lanjut di sana) atau diantar ke fasumnya bila sudah di dusun itu
@@ -1212,7 +1201,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1'};
+const KABAR_LAMA = {willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   const baru = [...document.querySelectorAll('#panelKabar .kbItem[data-k]')].filter(e => !baca(KABAR_LAMA[e.dataset.k]));
@@ -1220,7 +1209,7 @@ function kabarBaru(n = 0) {
   const sibuk = [...document.querySelectorAll('.layarPenuh')].some(e => !e.hidden) || (typeof pemulaKini === 'function' && pemulaKini() && n < 40);
   if (sibuk) { if (n < 120) setTimeout(() => kabarBaru(n + 1), 5000); return; }
   document.querySelectorAll('#panelKabar .kbItem[data-k]').forEach(e => { e.hidden = !baru.includes(e); });
-  $('kbTukangBtn').hidden = !baru.some(e => e.dataset.k === 'tukang'); $('kbAjakBtn').hidden = !baru.some(e => e.dataset.k === 'ajak'); $('kbRumahBtn').hidden = !baru.some(e => e.dataset.k === 'rumah'); $('kbAlbumBtn').hidden = !baru.some(e => e.dataset.k === 'album'); $('kbPasarBtn').hidden = !baru.some(e => e.dataset.k === 'pasar'); $('kbVotingBtn').hidden = !baru.some(e => e.dataset.k === 'tersebar'); $('kbNpcBtn').hidden = !baru.some(e => e.dataset.k === 'npc') || DI !== 'wetan' || !I.fas?.[11];
+  $('kbArenaBtn').hidden = !baru.some(e => e.dataset.k === 'arena'); $('kbTukangBtn').hidden = !baru.some(e => e.dataset.k === 'tukang'); $('kbAjakBtn').hidden = !baru.some(e => e.dataset.k === 'ajak'); $('kbRumahBtn').hidden = !baru.some(e => e.dataset.k === 'rumah'); $('kbAlbumBtn').hidden = !baru.some(e => e.dataset.k === 'album'); $('kbPasarBtn').hidden = !baru.some(e => e.dataset.k === 'pasar'); $('kbVotingBtn').hidden = !baru.some(e => e.dataset.k === 'tersebar'); $('kbNpcBtn').hidden = !baru.some(e => e.dataset.k === 'npc') || DI !== 'wetan' || !I.fas?.[11];
   baru.forEach(e => simpan(KABAR_LAMA[e.dataset.k], '1')); bunyi('masuk');
   ambilAjakSingkat();
   $('panelKabar').hidden = false;
@@ -1230,6 +1219,7 @@ function kabarBaru(n = 0) {
   $('kbNpcBtn').onclick = () => { $('panelKabar').hidden = true; const f = I.fas[11]; mulaiRute({x: f.x + 6.6 * VS, z: f.z + .6 * VS, nama: 'Rumah Sakit'}, true); };
   $('kbPasarBtn').onclick = () => { $('panelKabar').hidden = true; bukaPasar(); };
   $('kbTukangBtn').onclick = () => { $('panelKabar').hidden = true; ikutBangun(); };
+  $('kbArenaBtn').onclick = () => { $('panelKabar').hidden = true; keArenaLari(); };
   $('kbVotingBtn').onclick = () => { $('panelKabar').hidden = true; bukaVoting(); };
   $('kbAlbumBtn').onclick = () => { $('panelKabar').hidden = true; bukaAlbum(); };
   $('kbRumahBtn').onclick = () => { $('panelKabar').hidden = true; $('panelPeringkat').hidden = false; tabPeringkat('rumah'); };
@@ -1954,7 +1944,8 @@ function keKumpul() {
 function keTempat(tempat) {
   const me = tokoh.saya; if (!me || !I) return;
   let x, z, ry = Math.PI, nama;
-  if (tempat === 'sungai' && I.sungai) { const s = I.sungai; x = s.x0 - 1.5; z = Math.min(I.batas.z1 - 10, Math.max(I.batas.z0 + 10, me.position.z)); ry = Math.PI / 2; nama = 'pinggir Sungai. Tekan 🎣 Mancing'; }
+  if (tempat === 'pelari') { const f = arenaLari(); if (!f) return; x = f.position.x; z = f.position.z + 10.2 * VS; nama = 'Arena Pelari Kalcer. Masuk gerbang & tekan 🏃 Ikut Lari'; }
+  else if (tempat === 'sungai' && I.sungai) { const s = I.sungai; x = s.x0 - 1.5; z = Math.min(I.batas.z1 - 10, Math.max(I.batas.z0 + 10, me.position.z)); ry = Math.PI / 2; nama = 'pinggir Sungai. Tekan 🎣 Mancing'; }
   else { const T = {supermarket: [0, 'Supermarket Dunia Kotak'], warung: [2, 'Warung Desa'], stadion: [12, 'Stadion Dunia Kotak'], tokowillo: [9, 'Toko Willo Apparel. Masuk & tekan 👕 Pesan Kaos']}[tempat] || [12, 'Stadion Dunia Kotak']; const f = I.fas && I.fas[T[0]]; if (!f) return; x = f.x; z = f.z + (T[0] === 12 ? 0 : T[0] === 9 ? 5.6 * VS : 4 * VS); nama = T[1]; }
   $('panelMisi').hidden = true; gerak.tujuan = null;
   me.position.set(x, 0, z); me.position.y = tanah(x, z, 0); me.rotation.y = ry;
