@@ -56,6 +56,11 @@ CONFIG_DEFAULT = {
     "maks_posisi_terbuka": 3,
     "biaya_dan_slippage_persen": 2.0,
     "jeda_putaran_detik": 60,
+    # 0 = posisi hanya dicek tiap putaran. Isi mis. 15 supaya posisi terbuka
+    # dicek lebih sering (stop loss tidak terlalu meleset saat harga jatuh cepat).
+    "jeda_posisi_detik": 0,
+    # True = ikut memantau token dengan boost teratas (biasanya lebih matang).
+    "pakai_boost_teratas": False,
 
     "filter": {
         "likuiditas_min_usd": 20000,
@@ -67,7 +72,13 @@ CONFIG_DEFAULT = {
         "kenaikan_1jam_maks_persen": 300,
         "kenaikan_6jam_maks_persen": 100000,
         "kenaikan_5menit_maks_persen": 50,
+        "kenaikan_5menit_min_persen": -100,
         "pakai_rugcheck": True,
+        # Umur TOKEN (sejak pertama terdeteksi RugCheck), bukan umur pool.
+        # Pool hasil migrasi pump.fun terlihat "baru" padahal tokennya tidak,
+        # dan sebaliknya token berumur < 1 jam paling sering berakhir rugi.
+        "umur_token_min_jam": 0,
+        "pemegang_min": 0,
         "rugcheck_skor_maks": 50,
         "top10_pemegang_maks_persen": 35,
         "lp_terkunci_min_persen": 80,
@@ -87,6 +98,7 @@ CONFIG_DEFAULT = {
     "pengaman": {
         "batas_rugi_harian_usd": 20,
         "maks_beli_per_hari": 10,
+        "jeda_antar_beli_menit": 0,
         "jeda_beli_ulang_token_jam": 24
     }
 }
@@ -206,10 +218,13 @@ def catat_riwayat(baris):
 
 # ---------------------------------------------------------------- data pasar
 
-def kandidat_token():
+def kandidat_token(cfg=None):
     """Alamat token Solana dari profil terbaru dan boost terbaru DexScreener."""
     alamat = []
-    for jalur in ("/token-profiles/latest/v1", "/token-boosts/latest/v1"):
+    jalur_semua = ["/token-profiles/latest/v1", "/token-boosts/latest/v1"]
+    if cfg and cfg.get("pakai_boost_teratas"):
+        jalur_semua.append("/token-boosts/top/v1")
+    for jalur in jalur_semua:
         data = ambil_json(DEX + jalur)
         if isinstance(data, dict):
             data = [data]
@@ -277,6 +292,28 @@ def ringkas_pasangan(p):
     }
 
 
+def umur_token_jam(detected_at):
+    """Jam sejak token pertama terdeteksi RugCheck. None jika tidak terbaca."""
+    try:
+        teks = str(detected_at).replace("Z", "+00:00")
+        # Python 3.9/3.10 hanya menerima pecahan detik 3 atau 6 digit.
+        if "." in teks:
+            kepala, ekor = teks.split(".", 1)
+            zona = ""
+            for tanda in ("+", "-"):
+                if tanda in ekor:
+                    ekor, z = ekor.split(tanda, 1)
+                    zona = tanda + z
+                    break
+            teks = f"{kepala}.{(ekor + '000000')[:6]}{zona}"
+        waktu = datetime.fromisoformat(teks)
+        if waktu.tzinfo is None:
+            waktu = waktu.replace(tzinfo=timezone.utc)
+        return (datetime.now(timezone.utc) - waktu).total_seconds() / 3600
+    except (TypeError, ValueError):
+        return None
+
+
 def cek_rugcheck(token, f):
     """Mengembalikan (lolos, alasan). Jika lolos, alasan berisi ringkasan data."""
     r = ambil_json(f"{RUGCHECK}/tokens/{token}/report")
@@ -288,6 +325,16 @@ def cek_rugcheck(token, f):
         return False, "mint authority aktif (pembuat bisa cetak koin baru)"
     if f["tolak_jika_freeze_authority_aktif"] and r.get("freezeAuthority"):
         return False, "freeze authority aktif (koin bisa dibekukan = honeypot)"
+    umur_min = f.get("umur_token_min_jam", 0)
+    if umur_min:
+        umur = umur_token_jam(r.get("detectedAt"))
+        if umur is None:
+            return False, "umur token tidak diketahui (anggap terlalu baru)"
+        if umur < umur_min:
+            return False, f"token baru berumur {umur:.1f} jam (min {umur_min} jam)"
+    pemegang = int(angka(r.get("totalHolders")))
+    if pemegang < f.get("pemegang_min", 0):
+        return False, f"pemegang cuma {pemegang} (min {f['pemegang_min']})"
     skor = r.get("score_normalised", r.get("score"))
     if skor is not None and angka(skor) > f["rugcheck_skor_maks"]:
         return False, f"skor risiko rugcheck {angka(skor):.0f}/100 > {f['rugcheck_skor_maks']}"
@@ -350,6 +397,8 @@ def saring(info, f):
         return False, f"sudah terbang {info['naik_1jam']:.0f}% (telat masuk)"
     if info["naik_6jam"] > f.get("kenaikan_6jam_maks_persen", 100000):
         return False, f"sudah naik {info['naik_6jam']:.0f}% dalam 6 jam (beli di pucuk)"
+    if info["naik_5m"] < f.get("kenaikan_5menit_min_persen", -100):
+        return False, f"sedang jatuh {info['naik_5m']:.0f}% dalam 5 menit"
     if info["naik_5m"] > f["kenaikan_5menit_maks_persen"]:
         return False, f"lonjakan 5 menit {info['naik_5m']:.0f}% (rawan dump)"
     return True, "lolos filter pasar"
@@ -376,6 +425,7 @@ def beli(state, cfg, token, info, hari, catatan=""):
         "link": info["link"],
     }
     state["terakhir_dibeli"][token] = time.time()
+    state["waktu_beli_terakhir"] = time.time()
     hari["jumlah_beli"] += 1
     # Kondisi saat beli, supaya hasilnya bisa diaudit belakangan.
     konteks = (f"lik=${info['likuiditas']:,.0f} vol1j=${info['volume_1jam']:,.0f} "
@@ -399,7 +449,7 @@ def jual(state, cfg, token, harga, alasan, hari):
                    f"{harga:.10g}", f"{hasil:.2f}", f"{laba:.2f}", f"{persen:.1f}", alasan, pos["link"]])
 
 
-def kelola_posisi(state, cfg, hari):
+def kelola_posisi(state, cfg, hari, senyap=False):
     if not state["posisi"]:
         return
     k = cfg["keluar"]
@@ -417,8 +467,11 @@ def kelola_posisi(state, cfg, hari):
         if info is None or info["harga"] <= 0:
             if not lengkap:
                 # API gagal, BUKAN tanda rug: jangan jual di harga nol.
-                log(f"  ? {pos['simbol']} data harga gagal diambil, posisi ditahan")
+                if not senyap:
+                    log(f"  ? {pos['simbol']} data harga gagal diambil, posisi ditahan")
                 continue
+            if senyap:
+                continue  # hitungan "hilang" hanya dilakukan di putaran penuh
             # API menjawab tapi pasangan/harga tidak ada. Baru dianggap rug
             # setelah 3 putaran berturut-turut dan posisi berumur > 10 menit.
             pos["hilang"] = pos.get("hilang", 0) + 1
@@ -449,7 +502,7 @@ def kelola_posisi(state, cfg, hari):
 
         if alasan:
             jual(state, cfg, token, harga, alasan, hari)
-        else:
+        elif not senyap:
             log(f"  = tahan {pos['simbol']} {naik:+.1f}% ({menit:.0f} menit)")
 
 
@@ -470,6 +523,9 @@ def boleh_beli(state, cfg, hari):
         return False, "jumlah beli harian maksimal tercapai"
     if len(state["posisi"]) >= cfg["maks_posisi_terbuka"]:
         return False, "posisi terbuka penuh"
+    jeda = p.get("jeda_antar_beli_menit", 0) * 60
+    if jeda and time.time() - state.get("waktu_beli_terakhir", 0) < jeda:
+        return False, f"jeda {p['jeda_antar_beli_menit']} menit antar pembelian belum lewat"
     if state["saldo_usd"] < cfg["ukuran_beli_usd"] * 0.5:
         return False, "saldo bohongan habis"
     return True, ""
@@ -484,7 +540,7 @@ def cari_dan_beli(state, cfg, hari):
     jeda = cfg["pengaman"]["jeda_beli_ulang_token_jam"] * 3600
     for a in [a for a, t in state["terakhir_dibeli"].items() if time.time() - t > jeda]:
         del state["terakhir_dibeli"][a]
-    alamat = [a for a in kandidat_token()
+    alamat = [a for a in kandidat_token(cfg)
               if a not in state["posisi"]
               and time.time() - state["terakhir_dibeli"].get(a, 0) > jeda]
     if not alamat:
@@ -562,6 +618,28 @@ def satu_putaran(cfg):
     simpan_state(state)
 
 
+def tunggu_sambil_jaga_posisi(cfg, detik):
+    """Menunggu putaran berikutnya. Bila diatur, posisi terbuka dicek lebih sering."""
+    cepat = cfg.get("jeda_posisi_detik", 0)
+    if not cepat or cepat >= detik:
+        time.sleep(detik)
+        return
+    selesai = time.time() + detik
+    while True:
+        sisa = selesai - time.time()
+        if sisa <= cepat:
+            time.sleep(max(sisa, 0))
+            return
+        time.sleep(cepat)
+        try:
+            state = muat_state(cfg)
+            if state["posisi"]:
+                kelola_posisi(state, cfg, data_hari_ini(state), senyap=True)
+                simpan_state(state)
+        except Exception as e:
+            log(f"  ! Error cek posisi: {e!r}")
+
+
 def main():
     ap = argparse.ArgumentParser(description="Bot meme coin Solana, mode paper trading")
     ap.add_argument("--sekali", action="store_true", help="jalankan satu putaran saja")
@@ -600,7 +678,7 @@ def main():
         if batas and time.time() + cfg["jeda_putaran_detik"] > batas:
             log("Durasi habis, bot berhenti (akan dilanjutkan jadwal berikutnya).")
             break
-        time.sleep(cfg["jeda_putaran_detik"])
+        tunggu_sambil_jaga_posisi(cfg, cfg["jeda_putaran_detik"])
 
 
 if __name__ == "__main__":

@@ -63,7 +63,7 @@ Bot juga dijalankan otomatis oleh workflow `.github/workflows/bot-meme-coin.yml`
 - Hentikan: tab Actions > workflow itu > tombol "..." > **Disable workflow**.
 - Jadwal GitHub kadang telat beberapa menit, jadi ada jeda kecil antar run; hasil paper trading tetap tercatat.
 
-## Dua varian strategi
+## Tiga varian strategi
 
 - **utama** (`bot-meme-coin/config.json`): saringan awal.
 - **hati-hati** (`bot-meme-coin/hati-hati/config.json`): likuiditas min $50.000, umur min 1 jam, kenaikan 1 jam maks 100% dan 6 jam maks 200% (tidak beli di pucuk), RugCheck lebih ketat, beli $5, stop loss 30%, take profit 50%, batas rugi harian $10.
@@ -82,6 +82,29 @@ Kesalahan yang diperbaiki di `bot.py`:
 6. **Kondisi saat beli tidak tercatat.** Kolom `alasan` pada baris BELI kini berisi likuiditas, volume, umur, skor RugCheck, jumlah pemegang, dan LP, supaya hasil bisa diaudit.
 7. Workflow memberi peringatan bila status tidak ditemukan di cache (saldo kembali ke awal).
 
-Uji otomatis tanpa internet: `python3 uji_bot.py` (16 uji).
+Uji otomatis tanpa internet: `python3 uji_bot.py` (24 uji).
 
 Skill audit yang dipasang di `.claude/skills/`: `crypto-backtest-audit` (chrisamz/crypto-skills, MIT) dan `backtest-expert` (mphinance/alpha-skills, MIT). Keduanya hanya menganalisis, tidak bisa bertransaksi.
+
+## Varian "selektif" (11 November 2026)
+
+Dibuat dari temuan audit, jalan berdampingan dengan dua varian lama (saldo bohongan $100) supaya bisa dibandingkan secara adil. Ini **hipotesis yang sedang diuji, bukan jaminan untung**.
+
+Temuan yang mendasarinya (42 transaksi, 8-11 Nov):
+
+- Token yang dibeli saat umurnya **kurang dari 1 jam**: 17 transaksi, rata-rata -34%, hanya 2 yang untung. Token berumur lebih dari 1 jam: 23 transaksi, rata-rata sekitar -4,5%.
+- Stop loss 20% nyatanya kena di rata-rata -29% karena harga dicek tiap 60 detik.
+- 17 dari 30 pembelian varian utama terjadi sekaligus pada jam 00 WIB.
+
+Yang berbeda di `selektif/config.json`:
+
+- `umur_token_min_jam: 2` (umur token sejak terdeteksi RugCheck, bukan umur pool) dan `pemegang_min: 500`.
+- `jeda_posisi_detik: 15`: posisi terbuka dicek tiap 15 detik.
+- `jeda_antar_beli_menit: 30`: tidak memborong beberapa token sekaligus.
+- Tidak beli saat harga sedang jatuh (5 menit < -5%) atau melonjak (> 15%).
+- `pakai_boost_teratas: true`: ikut memantau token yang lebih matang.
+- Take profit 60% dengan trailing 20%, supaya yang untung dibiarkan lebih jauh; maksimal 2 posisi, beli $5, batas rugi harian $10.
+
+Pilihan baru itu juga bisa dipakai di config lain; nilai bawaannya mati, jadi varian utama dan hati-hati tidak berubah.
+
+Syarat sebelum uang asli dipertimbangkan: minimal 100 transaksi tertutup, total untung setelah biaya, tetap untung tanpa 3 transaksi terbaik, dan untung di paruh pertama maupun kedua.

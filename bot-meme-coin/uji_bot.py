@@ -193,6 +193,71 @@ class UjiRugcheck(Dasar):
         self.assertFalse(self.cek(topHolders=besar)[0])
 
 
+class UjiStrategiBaru(Dasar):
+    def test_default_tidak_mengubah_perilaku_lama(self):
+        f = bot.CONFIG_DEFAULT["filter"]
+        self.assertEqual((f["umur_token_min_jam"], f["pemegang_min"]), (0, 0))
+        self.assertEqual(bot.CONFIG_DEFAULT["jeda_posisi_detik"], 0)
+        self.assertEqual(bot.CONFIG_DEFAULT["pengaman"]["jeda_antar_beli_menit"], 0)
+
+    def test_umur_token(self):
+        from datetime import datetime, timezone, timedelta
+        iso = lambda jam: (datetime.now(timezone.utc) - timedelta(hours=jam)).isoformat().replace("+00:00", "Z")
+        self.assertAlmostEqual(bot.umur_token_jam(iso(5)), 5, places=1)
+        self.assertAlmostEqual(bot.umur_token_jam("2026-11-08T05:00:00.123456789Z") is not None, True)
+        self.assertIsNone(bot.umur_token_jam(None))
+        f = dict(self.cfg["filter"], umur_token_min_jam=2)
+        self.jawaban["/report"] = laporan_rc(detectedAt=iso(0.5))
+        self.assertFalse(bot.cek_rugcheck(TOKEN, f)[0])
+        self.jawaban["/report"] = laporan_rc(detectedAt=iso(3))
+        self.assertTrue(bot.cek_rugcheck(TOKEN, f)[0])
+        self.jawaban["/report"] = laporan_rc()  # tanpa detectedAt
+        self.assertFalse(bot.cek_rugcheck(TOKEN, f)[0])
+
+    def test_pemegang_min(self):
+        f = dict(self.cfg["filter"], pemegang_min=500)
+        self.jawaban["/report"] = laporan_rc(totalHolders=120)
+        self.assertFalse(bot.cek_rugcheck(TOKEN, f)[0])
+        self.jawaban["/report"] = laporan_rc(totalHolders=800)
+        self.assertTrue(bot.cek_rugcheck(TOKEN, f)[0])
+
+    def test_jeda_antar_beli(self):
+        self.cfg["pengaman"]["jeda_antar_beli_menit"] = 30
+        self.assertTrue(bot.boleh_beli(self.state, self.cfg, self.hari)[0])
+        self.beli()
+        self.assertFalse(bot.boleh_beli(self.state, self.cfg, self.hari)[0])
+        self.state["waktu_beli_terakhir"] -= 31 * 60
+        self.assertTrue(bot.boleh_beli(self.state, self.cfg, self.hari)[0])
+
+    def test_sedang_jatuh_ditolak(self):
+        f = dict(self.cfg["filter"], kenaikan_5menit_min_persen=-5)
+        p = pasangan()
+        p["priceChange"]["m5"] = -12
+        self.assertFalse(bot.saring(bot.ringkas_pasangan(p), f)[0])
+
+    def test_boost_teratas(self):
+        self.jawaban["/token-boosts/top/"] = [{"chainId": "solana", "tokenAddress": "X"}]
+        self.assertEqual(bot.kandidat_token(self.cfg), [])
+        self.assertEqual(bot.kandidat_token(dict(self.cfg, pakai_boost_teratas=True)), ["X"])
+
+    def test_cek_posisi_cepat(self):
+        self.cfg["jeda_posisi_detik"] = 0.05
+        bot.simpan_state(self.state)
+        self.beli()
+        bot.simpan_state(self.state)
+        self.jawaban["/tokens/v1/"] = [pasangan(0.7)]
+        bot.tunggu_sambil_jaga_posisi(self.cfg, 0.2)
+        self.assertNotIn(TOKEN, bot.muat_state(self.cfg)["posisi"])
+
+    def test_config_selektif_terbaca(self):
+        import json
+        jalur = os.path.join(os.path.dirname(os.path.abspath(bot.__file__)), "selektif", "config.json")
+        with open(jalur, encoding="utf-8") as fh:
+            cfg = bot.gabung_dict(bot.CONFIG_DEFAULT, json.load(fh))
+        self.assertEqual(cfg["filter"]["umur_token_min_jam"], 2)
+        self.assertEqual(cfg["jeda_posisi_detik"], 15)
+
+
 class UjiPutaran(Dasar):
     def test_satu_putaran_beli_dan_catat(self):
         self.jawaban["/token-profiles/"] = [{"chainId": "solana", "tokenAddress": TOKEN}]
