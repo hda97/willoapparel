@@ -2231,6 +2231,14 @@ export default {
       url.pathname += "index.html";
       return env.ASSETS.fetch(new Request(url, request));
     }
+    // three.js disimpan sendiri di willoapparel.com (11 Nov 2026): CDN luar menambah sambungan baru & bisa gagal di sebagian
+    // operator. Path berversi (0.169.0) tidak pernah berubah, jadi HP boleh menyimpannya setahun.
+    if (url.pathname.startsWith("/duniakotak/three/")) {
+      const r = await env.ASSETS.fetch(request);
+      if (!r.ok) return r;
+      const h = new Headers(r.headers); h.set("cache-control", "public, max-age=31536000, immutable"); h.set("access-control-allow-origin", "*");
+      return new Response(r.body, { status: r.status, headers: h });
+    }
     return env.ASSETS.fetch(request);
   },
 };
