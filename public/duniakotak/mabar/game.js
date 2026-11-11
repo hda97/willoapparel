@@ -311,9 +311,10 @@ const PASANG_FASUM = [[0, 'supermarket', '🛒 Supermarket Dunia Kotak'], [10, '
 // lahan tetap: [dusun, lahan]. Wetan: lahan = indeks fas; dusun lain: indeks lahanKosong (lahan tanpa aset di kulon/curug/tlaga.js).
 // Curug & Tlaga mulai dari lahan 1 (lahan 0 = tempat main anak NPC). Entri BANGUN_VOTING untuk dusun lain: {dusun, lahan, ...}.
 // (10 Nov 2026) lahan cadangan Kulon 1 (dulu untuk Damkar) dipakai Arena Pelari Kalcer; Damkar dapat lahan baru saat jadi calon.
-const LOKASI_FASUM = {kafe: ['kulon', 0], polisi: ['curug', 1], hiburan: ['tlaga', 1], perpus: ['curug', 0], renang: ['tlaga', 0], bioskop: ['wetan', 14]};
+// (11 Nov 2026) Huda: renang & bioskop dicoret, diganti Stasiun Pemadam (Wetan fas[14]) & Bandara (Tlaga lahan 0).
+const LOKASI_FASUM = {kafe: ['kulon', 0], polisi: ['curug', 1], hiburan: ['tlaga', 1], perpus: ['curug', 0], damkar: ['wetan', 14], bandara: ['tlaga', 2]};
 // aset & nama tiap calon (aset di js/aset/fasum.js). Fasum lain (damkar, perpus, renang, bioskop) asetnya dibuat saat jadi calon.
-const ASET_CALON = {kafe: ['kafe', '☕ Kafe Bukit'], polisi: ['polisi', '👮 Kantor Polisi'], hiburan: ['hiburan', '🎡 Taman Hiburan']};
+const ASET_CALON = {kafe: ['kafe', '☕ Kafe Bukit'], polisi: ['polisi', '👮 Kantor Polisi'], hiburan: ['hiburan', '🎡 Taman Hiburan'], damkar: ['damkar', '🚒 Stasiun Pemadam'], bandara: ['bandaraBesar', '✈️ Bandara']};
 // Pemenang voting → entri BANGUN_VOTING di dusun tujuannya, mis. bangunCalon('kafe', Date.parse('2026-11-14T00:00:00+07:00')).
 const bangunCalon = (c, mulai) => { const [dusun, lahan] = LOKASI_FASUM[c], [aset, nama] = ASET_CALON[c];
   return {id: c, dusun, lahan, fas: lahan, aset, nama, judul: 'PEMBANGUNAN ' + nama.replace(/^\S+ /, '').toUpperCase(), mulai, sampai: mulai + 7 * 864e5}; };
@@ -329,7 +330,7 @@ try { const j = await (await fetch('/duniakotak/api/bangun', {signal: AbortSigna
 // tahap visual (Huda 6 Nov): sepertiga awal fondasi, sepertiga kedua pasang bata, sepertiga akhir setengah jadi, lalu jadi
 const tahapBangun = b => { const uji = new URLSearchParams(location.search).get('uji_tahap'); if (uji != null) return +uji; const p = (Date.now() - b.mulai) / (b.sampai - b.mulai); return p < 1 / 3 ? 0 : p < 2 / 3 ? 1 : 2; };
 const dusunBangun = b => b.dusun || 'wetan';
-const lahanBangun = b => dusunBangun(b) === 'wetan' ? I.fas?.[b.fas] : (f => f && {x: f.x * VS, y: (f.y || 0) * VS, z: f.z * VS, g: f.g})(I.lahanKosong?.[b.lahan]);
+const lahanBangun = b => dusunBangun(b) === 'wetan' ? I.fas?.[b.fas] : (f => f && {x: f.x * VS, y: (f.y || 0) * VS, z: f.z * VS, g: f.g, ry: f.ry || 0, besar: f.besar || 1})(I.lahanKosong?.[b.lahan]);
 const bangunAktif = () => BANGUN_VOTING.find(b => dusunBangun(b) === DI && Date.now() < b.sampai) || null;
 const pasangVoting = () => BANGUN_VOTING.filter(b => dusunBangun(b) === DI).map(b => Date.now() < b.sampai ? [b, 'proyek', '🚧 ' + b.nama.replace(/^\S+ /, '') + ' (' + ['fondasi', 'pasang bata', 'setengah jadi'][tahapBangun(b)] + ')', [b.judul, tahapBangun(b), F[b.aset]]] : [b, b.aset, b.nama]);
 // fasum khas yang SUDAH berdiri di tiap dusun (bahan misi "Kunjungi fasum khas", makin banyak fasum makin beragam misinya)
@@ -345,7 +346,7 @@ function pasangVotingDusun() {
   for (const [b, k, nama, judul] of pasangVoting()) {
     const f = lahanBangun(b); if (!f || !F[k]) continue;
     if (f.g) f.g.children.slice(1).forEach(c => f.g.remove(c));
-    const m = Array.isArray(judul) ? F[k](...judul) : F[k](); m.scale.setScalar(VS); m.position.set(f.x, f.y, f.z); g.add(m); catatPutar(m); ada = true;
+    const m = Array.isArray(judul) ? F[k](...judul) : F[k](); m.scale.setScalar(VS * (Array.isArray(judul) ? f.besar || 1 : 1)); m.rotation.y = f.ry || 0; m.position.set(f.x, f.y, f.z); g.add(m); catatPutar(m); ada = true;   // lahan besar (bandara): proyek diperbesar
     fasumBangun.push({position: new THREE.Vector3(f.x, f.y, f.z), nama, ...F.pisahFasum(m)});
   }
   if (ada) { kumpulPijakan(g); bakeGroup(g); } else sc.remove(g);
@@ -1533,7 +1534,7 @@ function kibarPiala(t) {
 }
 // ---------- voting fasum berbintang (Huda 6 Nov 2026) ----------
 // 1 bintang gratis per hari; bintang donasi masuk otomatis dari webhook Trakteer (Saweria lama tetap diterima) bila pesan donasi memuat kode DK<no>.
-const CALON = {kafe: ['☕', 'Kafe'], taman: ['🌳', 'Taman Kota'], hiburan: ['🎡', 'Taman Hiburan'], polisi: ['👮', 'Kantor Polisi'], damkar: ['🚒', 'Pemadam Kebakaran'], perpus: ['📚', 'Perpustakaan'], renang: ['🏊', 'Kolam Renang'], bioskop: ['🎬', 'Bioskop']};
+const CALON = {kafe: ['☕', 'Kafe'], taman: ['🌳', 'Taman Kota'], hiburan: ['🎡', 'Taman Hiburan'], polisi: ['👮', 'Kantor Polisi'], damkar: ['🚒', 'Stasiun Pemadam'], bandara: ['✈️', 'Bandara'], perpus: ['📚', 'Perpustakaan'], renang: ['🏊', 'Kolam Renang'], bioskop: ['🎬', 'Bioskop']};
 let VT = null, vtSibuk = false;
 // Voting WAJIB (Huda 6 Nov 2026): pop up harian tidak bisa ditutup sebelum warga menaruh bintang. Hanya berlaku bila
 // warga masih punya bintang (bintang gratis harian selalu ada), jadi tidak pernah memaksa donasi.
