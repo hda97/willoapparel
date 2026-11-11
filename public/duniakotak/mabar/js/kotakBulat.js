@@ -3,7 +3,7 @@
 // sudut bulat 3 lapis (588 segitiga per kotak). Di HP sudutnya dibuat 1 lapis (108 segitiga): bentuk, ukuran,
 // warna, dan jari-jari sudut tetap sama, hanya lengkungan sudutnya lebih sederhana. Di komputer tidak berubah.
 // Dipasang lewat importmap di index.html: 'three/addons/geometries/RoundedBoxGeometry.js' -> file ini.
-import {RoundedBoxGeometry as Asli} from 'https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/geometries/RoundedBoxGeometry.js';
+import {RoundedBoxGeometry as Asli} from '/duniakotak/three/0.169.0/jsm/geometries/RoundedBoxGeometry.js';
 
 const ua = navigator.userAgent || '';
 export const HP = /Android|iPhone|iPad|iPod|Mobile|Instagram|FBAN|FBAV|TikTok|musical_ly|BytedanceWebview/i.test(ua)

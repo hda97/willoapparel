@@ -3064,13 +3064,15 @@ async function mulai() {
   wnpc = buatWargaNPC({sc, I, VS, warga, pose: wpose, siapAv: bersihAv, bayangan: false, tinggi: (x, z, r) => tanah(x, z, r)});
   muatWargaNPC();
   // lalu lintas desa: rambu + kendaraan NPC (Huda 11 Nov 2026)
-  try { lalin = buatLaluLintas({sc, I, VS, tanah: (x, z, r) => tanah(x, z, r), warga, pose: wpose, siapAv: bersihAv, buatMobil, hemat, KEC}); } catch (e) { console.warn('lalu lintas', e); }
+  // dibangun sesudah layar main tampil (11 Nov 2026: percepat layar muat; semua pemakaian lalin sudah dicek null)
+  setTimeout(() => { try { lalin = buatLaluLintas({sc, I, VS, tanah: (x, z, r) => tanah(x, z, r), warga, pose: wpose, siapAv: bersihAv, buatMobil, hemat, KEC}); } catch (e) { console.warn('lalu lintas', e); } }, 1200);
   // kavling di sekitar pemain dibangun dulu sebelum layar dibuka
   for (let i = 0; i < 40; i++) aturKavling(tokoh.saya.position.x, tokoh.saya.position.z);
   $('masuk').hidden = true; $('hud').hidden = false;
   $('profNama').textContent = S.tamu ? 'Tamu' : '@' + S.saya.ig;
   document.querySelectorAll('.namaDusun').forEach(e => { e.textContent = NAMA_DUSUN[DI]; });
-  fotoProfil();
+  // foto profil butuh renderer kedua (berat): tampilkan warna kulit dulu, fotonya menyusul
+  $('profAva').style.background = S.av.kulit; setTimeout(fotoProfil, 2500);
   buatPeta();
   hitungOnline(); kabarWarga(); tulisChat(); aturHUD(); sambung();
   if (!baca('dk_panduan')) pemulaKini() ? panduanBaru() : panduan();
