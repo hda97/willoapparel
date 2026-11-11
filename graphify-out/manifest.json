@@ -13955,9 +13955,15 @@
     "semantic_hash": ""
   },
   "microstock/scenes.html": {
-    "mtime": 1794408747.9430711,
-    "seen": 1794408819.588101,
-    "ast_hash": "48bdbf197327b80e6e2bb99becb999ca",
+    "mtime": 1794409057.632799,
+    "seen": 1794409087.5036836,
+    "ast_hash": "9eb03288d888d0ee4e806b7155acec07",
+    "semantic_hash": ""
+  },
+  "microstock/batches/batch-03-riset-trafik.json": {
+    "mtime": 1794409057.6428442,
+    "seen": 1794409087.5027723,
+    "ast_hash": "2fb5fbfe6bd85090908779b4027ad32a",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {
