@@ -197,6 +197,11 @@ const PULANG_HARI = 3, PULANG_JEDA_HARI = 30, PULANG_KOIN = 50, PULANG_PERMATA =
 const PK_KOIN_DETIK = 0.8;   // harga koin = harga permata x 10
 const WARNA_TOPI = { merah: "#d8443a", biru: "#2f6fd8", hitam: "#24242a", kuning: "#f2c230" };
 const KOREKSI_IG = { fakhri_udah_itu_aja: "fakhri_udah_itu_aja_89" };
+// Gabung akun (Huda 11 Nov 2026): akun `dari` digabung ke akun `ke` (sekali jalan saat Durable Object Warga dimuat, aman diulang).
+// Semua aset `dari` pindah ke `ke`, baris `dari` dihapus, dan login lama `dari` (username, kode warga, kunci HP, akun Google) masuk sebagai `ke`.
+// Bila belum ada warga bernama `ke`, akun `dari` cukup diganti namanya jadi `ke` (nomor & semua aset tetap).
+// Cadangan kedua akun (semua baris terkait) disimpan dulu di tabel `cadangan` sebelum diubah.
+const GABUNG_AKUN = [{ dari: "miftakhul_hda", ke: "raka" }];
 
 // Username yang terpotong di screenshot: dicocokkan dari awalannya.
 const KAVLING_AWALAN = { muhammadfebriy: 10 };
@@ -353,12 +358,121 @@ export class Warga extends DurableObject {
       const kosong = siap && !this.sql.exec("SELECT 1 FROM warga WHERE no = ?", siap).toArray().length;
       this.sql.exec("UPDATE warga SET ig = ?, no = ? WHERE ig = ?", benar, kosong ? siap : r.no, salah);
     }
+    // Gabung akun (lihat GABUNG_AKUN). gabung = alias login lama → nomor warga tujuan; cadangan = salinan data sebelum digabung.
+    this.sql.exec("CREATE TABLE IF NOT EXISTS gabung (jenis TEXT, nilai TEXT, ke INTEGER, t INTEGER, PRIMARY KEY (jenis, nilai))");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS cadangan (id INTEGER PRIMARY KEY AUTOINCREMENT, t INTEGER, ket TEXT, data TEXT)");
+    for (const g of GABUNG_AKUN) { try { this.gabungAkun(g.dari, g.ke); } catch (e) { console.log("gabung akun gagal", g.dari, e && e.message); } }
     // Kavling 1 = Raka. Kavling 2-64 disiapkan untuk 63 pengikut pertama (lihat KAVLING_DISIAPKAN).
     // Pendaftar lain mulai dari kavling 65.
     if (!this.sql.exec("SELECT 1 FROM warga LIMIT 1").toArray().length) {
       this.sql.exec("DELETE FROM sqlite_sequence WHERE name = 'warga'");
       this.sql.exec("INSERT INTO sqlite_sequence (name, seq) VALUES ('warga', ?)", 64);
     }
+  }
+  // ---- Gabung akun ----
+  // Baris warga yang dituju alias login lama (jenis: un/kunci/kode/sub), atau undefined.
+  wargaAlias(jenis, nilai) {
+    if (!nilai) return undefined;
+    const a = this.sql.exec("SELECT ke FROM gabung WHERE jenis = ? AND nilai = ?", jenis, String(nilai)).toArray()[0];
+    return a ? this.sql.exec("SELECT * FROM warga WHERE no = ?", a.ke).toArray()[0] : undefined;
+  }
+  // Gabungkan akun bernama `dari` ke akun bernama `ke`. Tidak melakukan apa-apa bila akun `dari` sudah tidak ada.
+  gabungAkun(dari, ke) {
+    const src = this.sql.exec("SELECT * FROM warga WHERE ig = ? OR tiktok = ? ORDER BY no LIMIT 1", dari, dari).toArray()[0];
+    if (!src) return null;
+    const tgt = this.sql.exec("SELECT * FROM warga WHERE (ig = ? OR tiktok = ?) AND no != ? ORDER BY no LIMIT 1", ke, ke, src.no).toArray()[0];
+    const kini = Date.now(), A = src.no;
+    const alias = (jenis, nilai, no) => { if (nilai) this.sql.exec("INSERT OR REPLACE INTO gabung (jenis, nilai, ke, t) VALUES (?, ?, ?, ?)", jenis, String(nilai), no, kini); };
+    // Tabel yang memuat nomor warga (kolom-kolomnya), untuk cadangan.
+    const TABEL = { tukang: ["no"], reli: ["no"], reliRekor: ["no"], iuran: ["no"], suara: ["no"], rumahSuka: ["dari", "ke"], piala: ["no"], donasi: ["no"], juragan: ["no"], plakat: ["no"], notif: ["no"] };
+    const salin = (no) => { const o = { warga: this.sql.exec("SELECT * FROM warga WHERE no = ?", no).toArray() };
+      for (const [t, kol] of Object.entries(TABEL)) o[t] = this.sql.exec(`SELECT * FROM ${t} WHERE ${kol.map((k) => k + " = ?").join(" OR ")}`, ...kol.map(() => no)).toArray();
+      o.diajak = this.sql.exec("SELECT no FROM warga WHERE ajak = ?", no).toArray().map((x) => x.no); return o; };
+    return this.ctx.storage.transactionSync(() => {
+      this.sql.exec("INSERT INTO cadangan (t, ket, data) VALUES (?, ?, ?)", kini, "gabung " + dari + " -> " + ke,
+        JSON.stringify({ dari: { un: dari, ...salin(A) }, ke: tgt ? { un: ke, ...salin(tgt.no) } : null }));
+      if (!tgt) {
+        // Belum ada akun `ke`: ganti nama saja, nomor & semua aset tetap.
+        this.sql.exec("UPDATE warga SET ig = ?, tiktok = CASE WHEN tiktok = ? THEN NULL ELSE tiktok END WHERE no = ?", ke, dari, A);
+        alias("un", dari, A);
+        return { cara: "ganti-nama", no: A };
+      }
+      const B = tgt.no, J = (s, d) => { try { return s ? JSON.parse(s) : d; } catch (e) { return d; } };
+      const isi = (a, b) => (a !== null && a !== undefined && a !== "" ? a : b);
+      // 1) Kolom warga: saldo dijumlah, waktu ambil terbaru, isian tujuan diutamakan (kosong → ambil dari akun lama).
+      const h1 = J(tgt.hias, {}), h0 = J(src.hias, {}), hs = { ...h0, ...h1, punya: {} };
+      for (const j of new Set([...Object.keys(h0.punya || {}), ...Object.keys(h1.punya || {})])) hs.punya[j] = [...new Set([...((h1.punya || {})[j] || []), ...((h0.punya || {})[j] || [])])];
+      if (h0.rumah === "dua" || h1.rumah === "dua") hs.rumah = "dua";
+      hs.dekor = [...new Set([...(h1.dekor || []), ...(h0.dekor || [])])];
+      const K1 = h1.kendaraan || { g: [], p: -1 }, K0 = h0.kendaraan || { g: [], p: -1 }, g = [...(Array.isArray(K1.g) ? K1.g : [])];
+      for (const k of Array.isArray(K0.g) ? K0.g : []) if (k && !g.some((x) => x && x.m === k.m)) g.push(k);
+      const p0 = K0.g && K0.g[K0.p] ? g.findIndex((x) => x && x.m === K0.g[K0.p].m) : -1;
+      if (g.length) hs.kendaraan = { g, p: K1.g && K1.g[K1.p] ? K1.p : p0 };
+      if (h0.kaos || h1.kaos) { const a = h1.kaos || {}, b = h0.kaos || {}; hs.kaos = { pesan: a.pesan || b.pesan || null, lemari: [...(a.lemari || []), ...(b.lemari || [])] }; }
+      const t1 = J(tgt.tas, {}), t0 = J(src.tas, {}), tas = { ...t0, ...t1, isi: { ...(t1.isi || {}) }, _al: { ...(t0._al || {}), ...(t1._al || {}) } };
+      for (const [n, v] of Object.entries(t0.isi || {})) tas.isi[n] = (+tas.isi[n] || 0) + (+v || 0);
+      if (t0._impor || t1._impor) tas._impor = 1;
+      const pr1 = J(tgt.profesi, null), pr0 = J(src.profesi, null);
+      const profesi = pr1 || pr0 ? { ...(pr0 || {}), ...(pr1 || {}), p: [...new Set([...((pr1 && pr1.p) || []), ...((pr0 && pr0.p) || [])])] } : null;
+      const kb1 = J(tgt.kebun, {}), kebun = kb1 && kb1.b ? tgt.kebun : isi(src.kebun, tgt.kebun);
+      const mx = (a, b) => (a == null ? b : b == null ? a : a > b ? a : b);
+      this.sql.exec(`UPDATE warga SET koin = ?, koinTotal = ?, permata = ?, bintang = ?, bagi = ?, aktif = ?, panen = ?, pulang = ?, bhari = ?, vhari = ?, dibuat = ?,
+        hias = ?, tas = ?, profesi = ?, kebun = ?, avatar = ?, kucing = ?, kerja = ?, nama = ?, usulan = ?, iklan = ?, misi = ?, pemula = ?, hadir = ?, pelari = ?, ajak = ?, ajakOk = ?, email = ? WHERE no = ?`,
+        (tgt.koin || 0) + (src.koin || 0), (tgt.koinTotal || tgt.koin || 0) + (src.koinTotal || src.koin || 0), (tgt.permata || 0) + (src.permata || 0), (tgt.bintang || 0) + (src.bintang || 0),
+        Math.max(tgt.bagi || 0, src.bagi || 0), mx(tgt.aktif, src.aktif), mx(tgt.panen, src.panen), mx(tgt.pulang, src.pulang), mx(tgt.bhari, src.bhari), mx(tgt.vhari, src.vhari), Math.min(tgt.dibuat || kini, src.dibuat || kini),
+        JSON.stringify(hs), JSON.stringify(tas), profesi ? JSON.stringify(profesi) : null, kebun || null, isi(tgt.avatar, src.avatar), isi(tgt.kucing, src.kucing), isi(tgt.kerja, src.kerja),
+        isi(tgt.nama, src.nama), isi(tgt.usulan, src.usulan), isi(tgt.iklan, src.iklan),
+        // progres harian & misi: akun lama (yang dimainkan Huda) diutamakan
+        isi(src.misi, tgt.misi), isi(src.pemula, tgt.pemula), isi(src.hadir, tgt.hadir), isi(src.pelari, tgt.pelari),
+        tgt.ajak && tgt.ajak !== A ? tgt.ajak : src.ajak && src.ajak !== B ? src.ajak : null, isi(tgt.ajakOk, src.ajakOk), isi(tgt.email, src.email), B);
+      // 2) Tabel terkait: pindahkan baris akun lama ke akun tujuan (bentrok → dijumlah / ambil yang terbaik).
+      for (const x of this.sql.exec("SELECT * FROM tukang WHERE no = ?", A).toArray()) {
+        if (this.sql.exec("SELECT 1 FROM tukang WHERE fas = ? AND no = ?", x.fas, B).toArray().length) this.sql.exec("UPDATE tukang SET sesi = sesi + ?, poin = poin + ? WHERE fas = ? AND no = ?", x.sesi || 0, x.poin || 0, x.fas, B);
+        else this.sql.exec("INSERT INTO tukang (fas, no, sesi, poin, hari, sh, m) VALUES (?, ?, ?, ?, ?, ?, ?)", x.fas, B, x.sesi, x.poin, x.hari, x.sh, x.m);
+      }
+      this.sql.exec("DELETE FROM tukang WHERE no = ?", A);
+      const rl = this.sql.exec("SELECT * FROM reli WHERE no = ?", A).toArray()[0];
+      if (rl) { if (this.sql.exec("SELECT 1 FROM reli WHERE no = ?", B).toArray().length) this.sql.exec("UPDATE reli SET buka = MAX(COALESCE(buka, 1), ?) WHERE no = ?", rl.buka || 1, B);
+        else this.sql.exec("INSERT INTO reli (no, h, n, m, ml, buka) VALUES (?, ?, ?, ?, ?, ?)", B, rl.h, rl.n, rl.m, rl.ml, rl.buka); }
+      this.sql.exec("DELETE FROM reli WHERE no = ?", A);
+      for (const x of this.sql.exec("SELECT * FROM reliRekor WHERE no = ?", A).toArray())
+        this.sql.exec("INSERT INTO reliRekor (no, l, r) VALUES (?, ?, ?) ON CONFLICT (no, l) DO UPDATE SET r = CASE WHEN r > 0 AND r <= excluded.r THEN r ELSE excluded.r END", B, x.l, x.r);
+      this.sql.exec("DELETE FROM reliRekor WHERE no = ?", A);
+      for (const x of this.sql.exec("SELECT * FROM iuran WHERE no = ?", A).toArray())
+        this.sql.exec("INSERT INTO iuran (put, no, koin, permata, mg, mgn) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (put, no) DO UPDATE SET koin = koin + excluded.koin, permata = permata + excluded.permata", x.put, B, x.koin || 0, x.permata || 0, x.mg, x.mgn || 0);
+      this.sql.exec("DELETE FROM iuran WHERE no = ?", A);
+      for (const x of this.sql.exec("SELECT * FROM suara WHERE no = ?", A).toArray())
+        this.sql.exec("INSERT INTO suara (put, calon, no, n) VALUES (?, ?, ?, ?) ON CONFLICT (put, calon, no) DO UPDATE SET n = n + excluded.n", x.put, x.calon, B, x.n || 0);
+      this.sql.exec("DELETE FROM suara WHERE no = ?", A);
+      // Piala: poin tetap tercatat untuk dusun asalnya (kolom d), jadi klasemen dusun tidak berubah.
+      for (const x of this.sql.exec("SELECT * FROM piala WHERE no = ?", A).toArray()) {
+        const y = this.sql.exec("SELECT d FROM piala WHERE mg = ? AND no = ?", x.mg, B).toArray()[0];
+        if (!y) this.sql.exec("UPDATE piala SET no = ? WHERE mg = ? AND no = ?", B, x.mg, A);
+        else if (y.d === x.d) { this.sql.exec("UPDATE piala SET poin = poin + ?, lari = lari + ?, gol = gol + ? WHERE mg = ? AND no = ?", x.poin || 0, x.lari || 0, x.gol || 0, x.mg, B); this.sql.exec("DELETE FROM piala WHERE mg = ? AND no = ?", x.mg, A); }
+        // dusun beda & minggu sama: baris lama dibiarkan supaya poin dusunnya tetap utuh
+      }
+      // Lomba Rumah: ❤️ yang diberi/diterima akun lama pindah ke tujuan (❤️ ke rumah sendiri & dobel dibuang).
+      this.sql.exec("DELETE FROM rumahSuka WHERE (dari = ? AND ke = ?) OR (dari = ? AND ke = ?)", A, B, B, A);
+      this.sql.exec("UPDATE OR IGNORE rumahSuka SET dari = ? WHERE dari = ?", B, A); this.sql.exec("DELETE FROM rumahSuka WHERE dari = ?", A);
+      this.sql.exec("UPDATE OR IGNORE rumahSuka SET ke = ? WHERE ke = ?", B, A); this.sql.exec("DELETE FROM rumahSuka WHERE ke = ?", A);
+      // Bata, mahkota Juragan & plakat fasum ikut pindah.
+      this.sql.exec("UPDATE donasi SET no = ? WHERE no = ?", B, A);
+      this.sql.exec("UPDATE juragan SET no = ? WHERE no = ?", B, A);
+      let ke0 = this.sql.exec("SELECT COALESCE(MAX(ke), 0) AS m FROM plakat WHERE no = ?", B).toArray()[0].m;
+      for (const x of this.sql.exec("SELECT * FROM plakat WHERE no = ? ORDER BY ke", A).toArray()) this.sql.exec("INSERT INTO plakat (no, ke, fasum, t) VALUES (?, ?, ?, ?)", B, ++ke0, x.fasum, x.t);
+      this.sql.exec("DELETE FROM plakat WHERE no = ?", A);
+      if (!this.sql.exec("SELECT 1 FROM notif WHERE no = ?", B).toArray().length) this.sql.exec("UPDATE notif SET no = ? WHERE no = ?", B, A);
+      this.sql.exec("DELETE FROM notif WHERE no = ?", A);
+      this.sql.exec("UPDATE warga SET ajak = ? WHERE ajak = ? AND no != ?", B, A, B);
+      // 3) Hapus akun lama, lalu semua cara masuk lamanya diarahkan ke akun tujuan.
+      this.sql.exec("DELETE FROM warga WHERE no = ?", A);
+      if (/^(ig|tt):/.test(String(tgt.sub)) && !/^(ig|tt):/.test(String(src.sub))) this.sql.exec("UPDATE warga SET sub = ?, email = COALESCE(?, email) WHERE no = ?", src.sub, src.email, B);
+      else alias("sub", src.sub, B);
+      alias("un", dari, B); alias("kunci", src.kunci, B); alias("kode", src.kode, B);
+      this.sql.exec("UPDATE gabung SET ke = ? WHERE ke = ?", B, A);   // alias lama yang dulu menunjuk akun lama
+      this._rp = null; this._jr = undefined; this._tks = null; this._tr = null;
+      return { cara: "gabung", dari: A, ke: B };
+    });
   }
   // ---- Lomba Rumah Terindah ----
   // Juara minggu lalu (cache per minggu; data minggu lalu tidak berubah lagi). Seri: yang lebih dulu mencapai jumlah itu.
@@ -791,7 +905,7 @@ export class Warga extends DurableObject {
         this.lengkapi(r, isi);
         return keluar(r);
       };
-      let r = this.sql.exec("SELECT * FROM warga WHERE sub = ?", sub).toArray()[0];
+      let r = this.sql.exec("SELECT * FROM warga WHERE sub = ?", sub).toArray()[0] || this.wargaAlias("sub", sub);
       if (r) { this.lengkapi(r, isi); return keluar(r); }
       if (kunci) {
         r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", kunci).toArray()[0];
@@ -799,7 +913,7 @@ export class Warga extends DurableObject {
       }
       // Warga lama masuk dari HP lain: username IG/TikTok yang dulu dipakai daftar + akun Google ini.
       if (cari) {
-        r = KOREKSI_IG[cari] ? this.sql.exec("SELECT * FROM warga WHERE ig = ?", KOREKSI_IG[cari]).toArray()[0] : null;
+        r = KOREKSI_IG[cari] ? this.sql.exec("SELECT * FROM warga WHERE ig = ?", KOREKSI_IG[cari]).toArray()[0] : this.wargaAlias("un", cari);
         r = r || this.sql.exec("SELECT * FROM warga WHERE ig = ? OR tiktok = ? ORDER BY no LIMIT 1", cari, cari).toArray()[0];
         if (!r) return Response.json({ galat: "@" + cari + " belum terdaftar. Daftar dulu di tab Daftar warga baru." }, { status: 404 });
         if (!tanpaGoogle(r)) return Response.json({ galat: "@" + cari + " sudah tersambung ke akun Google lain. Masuk pakai akun Google itu, atau DM @duniakotak.id." }, { status: 409 });
@@ -824,17 +938,17 @@ export class Warga extends DurableObject {
       const q = await request.json();
       let r;
       if (aksi === "kode") {
-        if (String(q.kode || "").length === 6) r = this.sql.exec("SELECT * FROM warga WHERE kode = ?", String(q.kode)).toArray()[0];
+        if (String(q.kode || "").length === 6) r = this.sql.exec("SELECT * FROM warga WHERE kode = ?", String(q.kode)).toArray()[0] || this.wargaAlias("kode", q.kode);
         // Satu kolom: kode warga ATAU username IG/TikTok. Username hanya bisa dipakai untuk kavling yang belum dikunci Google.
         if (!r && q.un) {
           const un = q.un, r2 = (KOREKSI_IG[un] && this.sql.exec("SELECT * FROM warga WHERE ig = ?", KOREKSI_IG[un]).toArray()[0])
-            || this.sql.exec("SELECT * FROM warga WHERE ig = ? OR tiktok = ? ORDER BY no LIMIT 1", un, un).toArray()[0];
+            || this.wargaAlias("un", un) || this.sql.exec("SELECT * FROM warga WHERE ig = ? OR tiktok = ? ORDER BY no LIMIT 1", un, un).toArray()[0];
           if (r2 && !/^(ig|tt):/.test(String(r2.sub))) return Response.json({ galat: "@" + un + " sudah dikunci dengan akun Google. Masuk pakai tombol Google (buka di Chrome), atau pakai kode warga." }, { status: 401 });
           r = r2;
           if (r && !r.kunci) { r.kunci = crypto.randomUUID(); this.sql.exec("UPDATE warga SET kunci = ? WHERE no = ?", r.kunci, r.no); }
         }
       }
-      else r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      else r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0] || this.wargaAlias("kunci", q.kunci);
       if (!r) return Response.json({ galat: aksi === "kode" ? (q.un ? "@" + q.un + " belum terdaftar, dan bukan kode warga. Cek lagi tulisannya, atau daftar dulu." : "Kode warga tidak ditemukan.") : "Data warga tidak ditemukan di HP ini." }, { status: 401 });
       if (!r.kode) {
         const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
