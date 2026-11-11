@@ -45,6 +45,7 @@ jobs:
           sparse-checkout: bot-meme-coin
 
       - name: Ambil status sebelumnya
+        id: status
         uses: actions/cache/restore@v4
         with:
           path: |
@@ -53,6 +54,12 @@ jobs:
             ${{ matrix.folder }}/log_bot.txt
           key: ${{ matrix.cache }}${{ github.run_id }}
           restore-keys: ${{ matrix.cache }}
+
+      - name: Peringatan jika status hilang
+        if: steps.status.outputs.cache-matched-key == '' && github.run_number > 1
+        run: |
+          echo "::warning::Status ${{ matrix.varian }} tidak ditemukan di cache. Bot mulai lagi dari saldo awal, hasil sebelumnya tidak terbawa."
+          echo "> PERINGATAN: status ${{ matrix.varian }} tidak ditemukan, saldo mulai dari awal." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Jalankan bot ~9 menit
         run: python3 bot.py --durasi-menit 9

@@ -220,24 +220,40 @@ def kandidat_token():
     return alamat
 
 
-def pasangan_terbaik(daftar_alamat):
-    """Ambil pasangan dengan likuiditas terbesar untuk tiap token (maks 30 per panggilan)."""
+def likuiditas_pasangan(p):
+    return angka((p.get("liquidity") or {}).get("usd"))
+
+
+def semua_pasangan(daftar_alamat):
+    """Semua pasangan Solana untuk tiap token (maks 30 token per panggilan).
+
+    Mengembalikan (hasil, lengkap). `lengkap` False berarti ada panggilan API
+    yang gagal, jadi token yang tidak muncul di `hasil` BELUM TENTU hilang.
+    """
     hasil = {}
+    lengkap = True
     for i in range(0, len(daftar_alamat), 30):
         potong = ",".join(daftar_alamat[i:i + 30])
         data = ambil_json(f"{DEX}/tokens/v1/solana/{potong}")
         if isinstance(data, dict):
-            data = data.get("pairs") or []
-        for p in data or []:
-            if p.get("chainId") != "solana":
+            data = data.get("pairs")
+        if not isinstance(data, list):
+            lengkap = False
+            continue
+        for p in data:
+            if not isinstance(p, dict) or p.get("chainId") != "solana":
                 continue
             token = (p.get("baseToken") or {}).get("address")
             if not token or token not in daftar_alamat:
                 continue
-            lama = hasil.get(token)
-            if lama is None or angka((p.get("liquidity") or {}).get("usd")) > angka((lama.get("liquidity") or {}).get("usd")):
-                hasil[token] = p
-    return hasil
+            hasil.setdefault(token, []).append(p)
+    return hasil, lengkap
+
+
+def pasangan_terbaik(daftar_alamat):
+    """Pasangan dengan likuiditas terbesar untuk tiap token."""
+    semua, _ = semua_pasangan(daftar_alamat)
+    return {token: max(daftar, key=likuiditas_pasangan) for token, daftar in semua.items()}
 
 
 def ringkas_pasangan(p):
@@ -256,14 +272,15 @@ def ringkas_pasangan(p):
         "naik_1jam": angka((p.get("priceChange") or {}).get("h1")),
         "naik_6jam": angka((p.get("priceChange") or {}).get("h6")),
         "umur_menit": umur_menit,
+        "pair": p.get("pairAddress", ""),
         "link": p.get("url", ""),
     }
 
 
 def cek_rugcheck(token, f):
-    """Mengembalikan (lolos, alasan)."""
+    """Mengembalikan (lolos, alasan). Jika lolos, alasan berisi ringkasan data."""
     r = ambil_json(f"{RUGCHECK}/tokens/{token}/report")
-    if not isinstance(r, dict):
+    if not isinstance(r, dict) or "markets" not in r:
         return False, "rugcheck tidak bisa dibaca (anggap berbahaya)"
     if r.get("rugged"):
         return False, "rugcheck: sudah ditandai RUGGED"
@@ -283,18 +300,26 @@ def cek_rugcheck(token, f):
                if h.get("owner") not in dikenal and h.get("address") not in dikenal]
     if any(h.get("insider") for h in holders[:10]):
         return False, "rugcheck: ada pemegang orang dalam (insider) di 10 besar"
-    if holders:
-        top10 = sum(angka(h.get("pct")) for h in holders[:10])
-        if top10 > f["top10_pemegang_maks_persen"]:
-            return False, f"10 pemegang teratas menguasai {top10:.0f}%"
+    top10 = sum(angka(h.get("pct")) for h in holders[:10])
+    if top10 > f["top10_pemegang_maks_persen"]:
+        return False, f"10 pemegang teratas menguasai {top10:.0f}%"
+    # LP dinilai di pool TERBESAR (tempat uang sungguhan berada), bukan pool
+    # mana pun yang kebetulan terkunci. Data LP kosong dianggap berbahaya.
     lp = None
+    terbesar = -1.0
     for m in r.get("markets") or []:
-        nilai = (m.get("lp") or {}).get("lpLockedPct")
-        if nilai is not None:
-            lp = max(lp or 0.0, angka(nilai))
-    if lp is not None and lp < f["lp_terkunci_min_persen"]:
-        return False, f"LP terkunci hanya {lp:.0f}%"
-    return True, "lolos rugcheck"
+        d = m.get("lp") or {}
+        if d.get("lpLockedPct") is None:
+            continue
+        ukuran = angka(d.get("quoteUSD")) + angka(d.get("baseUSD"))
+        if ukuran > terbesar:
+            terbesar, lp = ukuran, angka(d.get("lpLockedPct"))
+    if lp is None:
+        return False, "data LP tidak ada di rugcheck (anggap berbahaya)"
+    if lp < f["lp_terkunci_min_persen"]:
+        return False, f"LP pool terbesar terkunci hanya {lp:.0f}%"
+    return True, (f"skor={angka(skor):.0f} pemegang={int(angka(r.get('totalHolders')))} "
+                  f"top10={top10:.0f}% lp={lp:.0f}%")
 
 
 def saring(info, f):
@@ -332,7 +357,7 @@ def saring(info, f):
 
 # ---------------------------------------------------------------- trading
 
-def beli(state, cfg, token, info, hari):
+def beli(state, cfg, token, info, hari, catatan=""):
     ukuran = min(cfg["ukuran_beli_usd"], state["saldo_usd"])
     if ukuran <= 0:
         return
@@ -347,13 +372,17 @@ def beli(state, cfg, token, info, hari):
         "harga_tertinggi": info["harga"],
         "likuiditas_awal": info["likuiditas"],
         "waktu_beli": time.time(),
+        "pair": info.get("pair", ""),
         "link": info["link"],
     }
     state["terakhir_dibeli"][token] = time.time()
     hari["jumlah_beli"] += 1
+    # Kondisi saat beli, supaya hasilnya bisa diaudit belakangan.
+    konteks = (f"lik=${info['likuiditas']:,.0f} vol1j=${info['volume_1jam']:,.0f} "
+               f"umur={info['umur_menit'] or 0:.0f}m naik1j={info['naik_1jam']:.0f}% {catatan}").strip()
     log(f"  + BELI (bohongan) {info['simbol']} ${ukuran:.2f} @ {info['harga']:.10g} | {info['link']}")
     catat_riwayat([sekarang().strftime("%Y-%m-%d %H:%M:%S"), "BELI", info["simbol"], token,
-                   f"{info['harga']:.10g}", f"{ukuran:.2f}", "", "", "", info["link"]])
+                   f"{info['harga']:.10g}", f"{ukuran:.2f}", "", "", konteks, info["link"]])
 
 
 def jual(state, cfg, token, harga, alasan, hari):
@@ -374,20 +403,32 @@ def kelola_posisi(state, cfg, hari):
     if not state["posisi"]:
         return
     k = cfg["keluar"]
-    data = pasangan_terbaik(list(state["posisi"].keys()))
+    data, lengkap = semua_pasangan(list(state["posisi"].keys()))
     for token in list(state["posisi"].keys()):
         pos = state["posisi"][token]
-        p = data.get(token)
+        daftar = data.get(token) or []
         menit = (time.time() - pos["waktu_beli"]) / 60
-        if p is None:
-            # Pasangan hilang dari DexScreener: anggap rug, harga nol.
-            if menit > 10:
+        # Utamakan pool tempat kita "membeli", supaya likuiditas dibandingkan
+        # dengan pool yang sama. Kalau pool itu tidak ada, pakai yang terbesar.
+        p = next((x for x in daftar if pos.get("pair") and x.get("pairAddress") == pos["pair"]), None)
+        if p is None and daftar:
+            p = max(daftar, key=likuiditas_pasangan)
+        info = ringkas_pasangan(p) if p else None
+        if info is None or info["harga"] <= 0:
+            if not lengkap:
+                # API gagal, BUKAN tanda rug: jangan jual di harga nol.
+                log(f"  ? {pos['simbol']} data harga gagal diambil, posisi ditahan")
+                continue
+            # API menjawab tapi pasangan/harga tidak ada. Baru dianggap rug
+            # setelah 3 putaran berturut-turut dan posisi berumur > 10 menit.
+            pos["hilang"] = pos.get("hilang", 0) + 1
+            if pos["hilang"] >= 3 and menit > 10:
                 jual(state, cfg, token, 0.0, "pasangan hilang (kemungkinan rug pull)", hari)
+            else:
+                log(f"  ? {pos['simbol']} tidak ada di data pasar ({pos['hilang']}x)")
             continue
-        info = ringkas_pasangan(p)
+        pos["hilang"] = 0
         harga = info["harga"]
-        if harga <= 0:
-            continue
         pos["harga_tertinggi"] = max(pos["harga_tertinggi"], harga)
         naik = (harga / pos["harga_beli"] - 1) * 100
         dari_puncak = (1 - harga / pos["harga_tertinggi"]) * 100
@@ -416,6 +457,15 @@ def boleh_beli(state, cfg, hari):
     p = cfg["pengaman"]
     if hari["rugi_laba_usd"] <= -p["batas_rugi_harian_usd"]:
         return False, f"batas rugi harian ${p['batas_rugi_harian_usd']} tercapai, tidak beli lagi sampai besok"
+    # Posisi yang masih terbuka juga bisa rugi. Hitung risikonya (sebesar stop
+    # loss) bersama pembelian baru, supaya batas harian tidak jebol karena
+    # beberapa posisi dibuka sekaligus.
+    sl = cfg["keluar"]["stop_loss_persen"] / 100
+    risiko = (sum(x["modal_usd"] for x in state["posisi"].values())
+              + min(cfg["ukuran_beli_usd"], state["saldo_usd"])) * sl
+    if hari["rugi_laba_usd"] - risiko < -p["batas_rugi_harian_usd"]:
+        return False, (f"rugi hari ini ${-hari['rugi_laba_usd']:.2f} + risiko posisi ${risiko:.2f} "
+                       f"melewati batas harian ${p['batas_rugi_harian_usd']}")
     if hari["jumlah_beli"] >= p["maks_beli_per_hari"]:
         return False, "jumlah beli harian maksimal tercapai"
     if len(state["posisi"]) >= cfg["maks_posisi_terbuka"]:
@@ -432,6 +482,8 @@ def cari_dan_beli(state, cfg, hari):
         return
     f = cfg["filter"]
     jeda = cfg["pengaman"]["jeda_beli_ulang_token_jam"] * 3600
+    for a in [a for a, t in state["terakhir_dibeli"].items() if time.time() - t > jeda]:
+        del state["terakhir_dibeli"][a]
     alamat = [a for a in kandidat_token()
               if a not in state["posisi"]
               and time.time() - state["terakhir_dibeli"].get(a, 0) > jeda]
@@ -452,12 +504,14 @@ def cari_dan_beli(state, cfg, hari):
         ok, _ = boleh_beli(state, cfg, hari)
         if not ok:
             break
+        catatan = ""
         if f["pakai_rugcheck"]:
             aman, alasan = cek_rugcheck(token, f)
             if not aman:
                 log(f"  x {info['simbol']:<10} {alasan}")
                 continue
-        beli(state, cfg, token, info, hari)
+            catatan = alasan
+        beli(state, cfg, token, info, hari, catatan)
 
 
 # ---------------------------------------------------------------- laporan

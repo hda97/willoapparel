@@ -69,3 +69,19 @@ Bot juga dijalankan otomatis oleh workflow `.github/workflows/bot-meme-coin.yml`
 - **hati-hati** (`bot-meme-coin/hati-hati/config.json`): likuiditas min $50.000, umur min 1 jam, kenaikan 1 jam maks 100% dan 6 jam maks 200% (tidak beli di pucuk), RugCheck lebih ketat, beli $5, stop loss 30%, take profit 50%, batas rugi harian $10.
 
 Keduanya jalan berdampingan di GitHub Actions dengan saldo bohongan masing-masing $100. Summary tiap run menampilkan laporan kedua varian.
+
+## Audit 11 November 2026
+
+Kesalahan yang diperbaiki di `bot.py`:
+
+1. **API mati dianggap rug pull.** Dulu kalau DexScreener gagal dijawab selama 10 menit, semua posisi "dijual" di harga nol. Sekarang kegagalan API dibedakan dari pasangan yang benar-benar hilang; posisi baru dianggap rug setelah 3 putaran berturut-turut tidak ada di data pasar.
+2. **Batas rugi harian bisa jebol.** Batas hanya menghitung rugi yang sudah terjadi, jadi beberapa posisi yang dibuka bersamaan bisa menembusnya (11 Nov: rugi $23,72 dengan batas $20). Sekarang risiko posisi terbuka (sebesar stop loss) ikut dihitung sebelum beli. Rug pull tetap bisa membuat rugi sedikit melewati batas.
+3. **Cek LP terkunci terlalu longgar.** Dulu cukup satu pool mana pun yang terkunci, dan data LP kosong diloloskan. Sekarang yang dinilai pool terbesar, dan data kosong ditolak.
+4. **Likuiditas dibandingkan dengan pool yang salah.** Sekarang bot memantau pool yang sama dengan saat beli.
+5. **Posisi berharga nol tidak pernah ditutup.** Sekarang diperlakukan seperti pasangan hilang.
+6. **Kondisi saat beli tidak tercatat.** Kolom `alasan` pada baris BELI kini berisi likuiditas, volume, umur, skor RugCheck, jumlah pemegang, dan LP, supaya hasil bisa diaudit.
+7. Workflow memberi peringatan bila status tidak ditemukan di cache (saldo kembali ke awal).
+
+Uji otomatis tanpa internet: `python3 uji_bot.py` (16 uji).
+
+Skill audit yang dipasang di `.claude/skills/`: `crypto-backtest-audit` (chrisamz/crypto-skills, MIT) dan `backtest-expert` (mphinance/alpha-skills, MIT). Keduanya hanya menganalisis, tidak bisa bertransaksi.
