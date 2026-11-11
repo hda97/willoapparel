@@ -2101,7 +2101,7 @@ function tataHUD() {
     const ra = atas.getBoundingClientRect(), rp0 = prof.getBoundingClientRect();
     // kartu profil tidak boleh menyentuh deret tombol atas (bila sebaris)
     prof.style.maxWidth = ra.top < rp0.bottom && ra.left > rp0.left ? Math.max(150, ra.left - rp0.left - 10) + 'px' : '';
-    const rp = prof.getBoundingClientRect(), bawah = Math.max(rp.bottom, ra.top < rp.bottom + 4 && ra.left < rp.right ? ra.bottom : 0) + 8;
+    const rp = prof.getBoundingClientRect(), bawah = Math.max(rp.bottom, ra.top < rp.bottom + 60 && ra.left < rp.right ? ra.bottom : 0) + 8;   // HP tegak: deret tombol di bawah profil -> chat turun di bawahnya (Huda 11 Nov: ikon jangan numpuk)
     if (buka) buka.style.top = bawah + 'px';
     if (chat) {
       chat.style.top = bawah + 'px';
@@ -2119,6 +2119,9 @@ function tataHUD() {
   const jm = el('jam');
   if (jm) { jm.style.visibility = ''; if (tampak(jm)) { const rj = jm.getBoundingClientRect(), tabrak = e => { if (!e) return false; const r = e.getBoundingClientRect(); return r.width && rj.left < r.right && rj.right > r.left && rj.top < r.bottom && rj.bottom > r.top; };
     if (tabrak(atas) || tabrak(prof) || tabrak(peta)) jm.style.visibility = 'hidden'; } }
+  // peta mini tidak boleh menutupi deret tombol atas (HP tegak): turunkan ke bawah deret tombol (Huda 11 Nov 2026)
+  if (peta && atas && tampak(atas)) { peta.style.top = ''; const rq = peta.getBoundingClientRect(), ra = atas.getBoundingClientRect();
+    if (rq.left < ra.right && rq.right > ra.left && rq.top < ra.bottom && rq.bottom > ra.top) peta.style.top = (ra.bottom + 8) + 'px'; }
   if (peta && chip) { const r = peta.getBoundingClientRect(); chip.style.top = (r.bottom + 6) + 'px'; chip.style.right = (innerWidth - r.right) + 'px'; chip.style.maxWidth = Math.max(r.width, 210) + 'px'; }
   infoKumpul();
   const tj = el('chipTujuan');
