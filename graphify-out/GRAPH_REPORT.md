@@ -1,17 +1,17 @@
 # Graph Report - willoapparel  (2026-11-11)
 
 ## Corpus Check
-- 1019 files · ~2,495,225 words
+- 1028 files · ~2,543,450 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 89 file(s) not represented in the graph (top: (none) 41, .xml 12, .css 8)
+- Unclassified: 90 file(s) not represented in the graph (top: (none) 42, .xml 12, .css 8)
 
 ## Summary
-- 14553 nodes · 32255 edges · 462 communities (365 shown, 97 thin omitted)
-- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 1244 edges (avg confidence: 0.85)
+- 16912 nodes · 36286 edges · 491 communities (385 shown, 106 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 1400 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c66d7e1a`
+- Built from commit: `3189be46`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -20,42 +20,42 @@
 - mabar/game.js
 - worker.js
 - paud/src/inti.js
-- toast
+- mobil.js
 - mabar/js/desa.js
 - lintasan.js
 - box
 - render.js
 - ktp.js
-- dusunDari
+- ramp
 - binatang/game.js
 - three.core.js
 - tanaman.js
 - main.js
 - security-check.yml
-- mulai
+- toast
 - bangunDunia
 - bentuk/game.js
 - tlaga.js
 - angka/game.js
 - with
-- rnd
+- _three/three.module.min.js
 - huruf/game.js
-- esc
+- 0.169.0/three.module.min.js
 - hitung-rpg/game.js
 - langkahMusik
 - steps
-- putar.js
+- Li
 - acak
 - tulisMisi
 - Vox
-- bangunKavling
-- json
+- rumah.js
+- pathlib
 - script.js
 - src/game.js
 - gambarGuru
 - siapPanggung
 - english/game.js
-- paper-trading
+- bot-meme-coin.yml
 - animasi
 - loop
 - three.module.js
@@ -65,23 +65,23 @@
 - main.go
 - smp/src/inti.js
 - hitung/game.js
-- $
+- Li
 - isiMenu
 - bot.py
 - petualang.js
-- mulai
-- kotak
+- $
+- reli.js
 - panel.py
 - Polish.tsx
-- math
+- look.py
 - segara.js
 - .layani
 - mulaiTarung
-- loop
+- bangun.js
 - inti-sd.js
 - akhirSesi
 - pelayaran-nusantara.js
-- langkah
+- kotak
 - simpan
 - coding-quest.js
 - bukaJawaban
@@ -90,7 +90,7 @@
 - precedent.py
 - bersama.js
 - soalMisi
-- van_westendorp.py
+- ref_node_url
 - lab-ajaib.js
 - BufferGeometry
 - acak
@@ -107,38 +107,38 @@
 - notif.js
 - jalankan
 - capture-template.mjs
-- bangunDunia
+- lm
 - ti
 - kotakBulat.js
 - jh
 - kelasduniakotak
 - langkah
-- warga
-- animSkill
-- type
+- ts
+- kabarBaru
+- Vl
 - opentype.module.js
-- pasangPeta
+- $
 - ei
 - am
-- finish
+- fisika
 - with
 - bangunKavling
 - hero3d.js
 - aplikasi-android/package.json
-- ramp
+- alpha
 - GLTFLoader.js
 - ExampleInstrumentedTest.java
 - Dr
 - MainActivity.java
 - mulai
-- rnd
+- ti
 - Vector2
-- alpha
-- siapkanHantu
+- GlitchDisplace.tsx
+- Fixtures.tsx
 - wi
 - ts
-- Ap
-- SpeedBlur
+- bi
+- velocity
 - Di
 - Ii
 - ref_node_fs
@@ -146,29 +146,29 @@
 - Hn
 - Material
 - ds
-- Texture
+- Matrix3
 - lr
-- Cs
+- Li
 - Tt
 - dd
 - Object3D
 - _h
 - jp
 - xr
-- WordRelayFilmstrip.tsx
+- IntegrationHubMap.tsx
 - .constructor
 - Loader
-- Ba
+- oa
 - _r
-- Ah
+- wi
 - wm
 - argparse
 - tts.mjs
-- or
+- ExplodedView.tsx
 - toon.ts
 - mabar/js/lib.js
-- Brand.tsx
-- Qi
+- ShotcraftMark
+- ds
 - ref_remotion
 - springAt
 - Zr
@@ -176,8 +176,8 @@
 - upload_post.py
 - _three/addons/utils/BufferGeometryUtils.js
 - cast.ts
-- id
-- Qc
+- dd
+- Dr
 - alam/game.js
 - KeyframeTrack
 - Mp
@@ -185,7 +185,7 @@
 - Kp
 - BufferAttribute
 - kata/game.js
-- Terminal3D.tsx
+- _h
 - buatLaluLintas
 - ref_three
 - Bridge.tsx
@@ -194,18 +194,18 @@
 - os
 - buatNPC
 - Matrix4
-- zc
+- TextOnPath.tsx
 - putaran
 - voice.py
-- ha
-- PerspectiveCamera
+- .parseObject
+- film
 - subprocess
 - ns
-- s
+- OrbitControls
 - gl
 - gen-index.mjs
 - store.ts
-- .parseObject
+- warn
 - ExplodedView.tsx
 - world.ts
 - .parseObject
@@ -216,16 +216,16 @@
 - Vector4
 - paint.ts
 - sfx.mjs
-- Sm
-- Mesh
+- am
+- PMREMGenerator
 - check-demo.mjs
 - mainFase
-- i18n.ts
+- App.tsx
 - fflate.module.js
 - Color
 - WebGLRenderer
 - telemetry.mjs
-- wp
+- xh
 - WebGLTextures
 - registry.ts
 - common.js
@@ -235,7 +235,7 @@
 - .parse
 - initGLContext
 - numpy
-- warn
+- lint.mjs
 - Quaternion
 - dsp.py
 - Parser
@@ -247,28 +247,28 @@
 - app.js
 - Box3
 - PropertyBinding
-- WebXRManager
+- film
 - AnimationAction
 - .constructor
 - instruments.py
 - transcript-cut.mjs
 - Font
-- brand.mjs
+- OscilloscopeStreamV2.tsx
 - Triangle
 - src/workbench.ts
 - UnitDotSwarmRegroupV2.tsx
 - FontWeightPump.tsx
 - SceneOutroLive.tsx
-- FileLoader
+- lr
 - BatchedMesh
 - Sphere
-- Matrix3
+- Tt
 - visual-theme.tsx
 - test-themes.mjs
 - hm
 - render-segment.mjs
 - Tokenizer
-- AnimationMixer
+- OrbFlylineRelay.tsx
 - Stargazed.tsx
 - scripts/mix.py
 - carve.mjs
@@ -285,11 +285,11 @@
 - useVisualTheme
 - test-legacy.mjs
 - dither.mjs
-- InterleavedBufferAttribute
-- .constructor
+- jh
+- WebXRManager
 - WebGLMaterials
-- render.mjs
-- useT
+- lint.mjs
+- Polish.tsx
 - PaletteThemeRipple.tsx
 - DatavizLandscapeOpen.tsx
 - template/package.json
@@ -299,21 +299,21 @@
 - Frustum
 - Ray
 - WebGLBindingStates
-- oa
+- zc
 - match-beats.py
 - lint_source.py
-- tempfile
+- json
 - BulletTimeFreezeOrbit.tsx
-- DesignStage
-- PaparazziFlash.tsx
+- ea
+- audit_trades.py
 - DeckDealFlyin.tsx
-- LibraryPanel.tsx
+- clip_rank.py
 - shared.tsx
 - ContextParams
 - Path
 - ThemeSweepToggle.tsx
 - NeonFrameForerun.tsx
-- useStore
+- LibraryPanel.tsx
 - wait-bgm.mjs
 - DocumentTypewriterReveal.tsx
 - showcase.js
@@ -324,34 +324,34 @@
 - verify-motion.mjs
 - sync.mjs
 - tier-3-data-driven/remotion-src/package.json
-- SourceTests
-- QuadSplitParallelScenes.tsx
+- ei
+- type
 - caption-burn.py
 - music.py
-- denormalize
-- film
-- lint.mjs
-- OscilloscopeStreamV2.tsx
-- HitCounter.tsx
+- dd
+- SphericalHarmonics3
+- .constructor
+- Ii
+- Di
 - ProductCardProgressiveAssemble.tsx
-- audio-duck.mjs
+- evaluate_backtest.py
 - transcribe.mjs
 - FontLoader.js
 - Substitution
-- PositionalAudio
+- AssembleThenTypeFlyin.tsx
 - PropertyMixer
 - r
-- t
-- fetch_logo.mjs
+- cb
+- Qs
 - tier-1-title-card/remotion-src/package.json
 - tier-2-multi-scene/remotion-src/package.json
-- AssembleThenTypeFlyin.tsx
-- BottomPushStackWipe.tsx
-- scripts
+- lm
+- Ba
+- DiagramCascadeBuild.tsx
 - theme-preview.mjs
 - eval.mjs
 - makeCFFTable
-- DiagramCascadeBuild.tsx
+- rnd
 - SceneWbr.tsx
 - Qs
 - oof
@@ -361,66 +361,65 @@
 - compilerOptions
 - compilerOptions
 - compilerOptions
-- AuroraBloomBgFlip.tsx
-- KanadaPerspectiveSnap.tsx
-- BezierSourceConvergeMerge.tsx
+- du
+- box
+- hm
 - compilerOptions
 - locate.mjs
 - hufUncompress
-- Shape
-- addShape
+- jp
+- DataTexture
 - WebGLPrograms
-- ChipGridSingleSelectBlackout.tsx
-- DocParkLeftPillDeal.tsx
+- KanadaPerspectiveSnap.tsx
+- _r
 - wargaNpc.js
 - getUnitVector
-- VideoTexture
-- WebGLRenderList
-- WebGLShaderCache
+- CardFlockTumble.tsx
+- gd
+- wm
 - hyperframes.json
 - zip
 - lossyDctDecode
 - Bidi
 - Table
-- Raycaster
-- Float16BufferAttribute
-- Layers
+- or
+- or
+- oa
 - Tween
-- ScanBracketSweep.tsx
-- AuthenticationTests
+- OrbitRingTitleOpen.tsx
+- projectCards.ts
 - uncompressDWA
-- SplineCurve
+- CSS2DRenderer.js
 - LineCurve
-- LineCurve3
+- Zr
 - WebGLEnvironments
 - native-ui.js
 - ja
-- seg
-- AvatarBracketCarousel.tsx
-- ValueStaggerGradient.tsx
+- NeonFrameForerunOrbit.tsx
+- Carousel3D.tsx
+- Qp
 - scripts
 - initTZone
 - tinf_uncompress
 - MultiScene.tsx
 - interface
-- LogoShrinkWordmarkLockup.tsx
+- finish
 - fontToSfntTable
-- AnimationObjectGroup
+- jsm/utils/BufferGeometryUtils.js
 - Cylindrical
 - GLBufferAttribute
 - run.sh
-- ref_remotion_cli
 - Handler
 - .exec
-- .onBeforeRender
+- MultiDrawRenderList
 - providers.sh
 - paper-title-card/PaperTitleCard.tsx
 - manifest.json
 - install.sh
-- Matrix2
+- Shape
 - TextureUtils
-- lib/VerticalTicker.tsx
-- buatNav
+- zc
+- Mp
 - click
 - click-soft
 - error
@@ -441,8 +440,8 @@
 - whoosh-short
 - addName
 - Event
-- AudioAnalyser
-- Od
+- Kp
+- t
 - lib/PageCam.tsx
 - AsyncDecompress
 - ZipPassThrough
@@ -463,8 +462,35 @@
 - smoke.sh
 - tsc-demos.sh
 - proj-stub/workbench.ts
-- info
+- NeonTripleMarquee.tsx
 - FlateErrorCode
+- esc
+- Tl
+- zc
+- paper-trading
+- steps
+- WebGLRenderList
+- EllipseCurve
+- with
+- include
+- fm
+- WebGLShaderCache
+- info
+- Sm
+- Raycaster
+- lanjut
+- on
+- Layers
+- transformPath
+- s
+- s
+- parseFloats
+- .isEmpty
+- .isEmpty
+- WebGLGeometries
+- Sm
+- AudioAnalyser
+- Gh
 
 ## God Nodes (most connected - your core abstractions)
 1. `ramp()` - 343 edges
@@ -479,31 +505,31 @@
 10. `FONT` - 113 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `update()` --indirect_call--> `gl()`  [INFERRED]
-  .claude/skills/motionmaxxing/runtime/hero3d/vendor/three.module.js → public/_three/three.module.min.js
-- `onFirstUse()` --indirect_call--> `gl()`  [INFERRED]
-  .claude/skills/motionmaxxing/runtime/hero3d/vendor/three.module.js → public/_three/three.module.min.js
-- `wb()` --indirect_call--> `Wt()`  [INFERRED]
-  .claude/skills/motionmaxxing/runtime/vendor/gsap.min.js → public/_three/three.module.min.js
-- `Tt()` --indirect_call--> `pt()`  [INFERRED]
-  public/_three/three.module.min.js → .claude/skills/video-shotcraft/demos/camera/overhead-camera-moves/TiltReveal.tsx
+- `CardFlipReveal()` --indirect_call--> `Y()`  [INFERRED]
+  .claude/skills/video-shotcraft/demos/transition/card-flip-reveal/CardFlipReveal.tsx → public/_three/three.module.min.js
 - `Scene()` --indirect_call--> `Z()`  [INFERRED]
   .claude/skills/video-shotcraft/demos/camera/space-camera-moves/DroneDiveLanding.tsx → public/_three/three.module.min.js
+- `update()` --indirect_call--> `gl()`  [INFERRED]
+  .claude/skills/motionmaxxing/runtime/hero3d/vendor/three.module.js → public/_three/three.module.min.js
+- `Tt()` --indirect_call--> `pt()`  [INFERRED]
+  public/_three/three.module.min.js → .claude/skills/video-shotcraft/demos/camera/overhead-camera-moves/TiltReveal.tsx
+- `onFirstUse()` --indirect_call--> `gl()`  [INFERRED]
+  .claude/skills/motionmaxxing/runtime/hero3d/vendor/three.module.js → public/_three/three.module.min.js
 
 ## Import Cycles
 - 2-file cycle: `.claude/skills/video-shotcraft/template/src/aifl/Main.tsx -> .claude/skills/video-shotcraft/template/src/aifl/live/SceneOpen.tsx -> .claude/skills/video-shotcraft/template/src/aifl/Main.tsx`
 - 2-file cycle: `.claude/skills/video-shotcraft/template/src/aifl/Main.tsx -> .claude/skills/video-shotcraft/template/src/aifl/live/SceneOutroLive.tsx -> .claude/skills/video-shotcraft/template/src/aifl/Main.tsx`
 - 2-file cycle: `.claude/skills/video-shotcraft/template/src/aifl/Main.tsx -> .claude/skills/video-shotcraft/template/src/aifl/live/ScenePapers.tsx -> .claude/skills/video-shotcraft/template/src/aifl/Main.tsx`
 
-## Communities (462 total, 97 thin omitted)
+## Communities (491 total, 106 thin omitted)
 
 ### Community 0 - "duniakotak/js/desa.js"
-Cohesion: 0.06
-Nodes (108): ANIM, base(), bigYard(), blockWorld(), blue(), boxHouse(), btree(), C01() (+100 more)
+Cohesion: 0.08
+Nodes (50): ANIM, base(), blue(), C01(), carve(), cat(), catFace(), CATSHOT() (+42 more)
 
 ### Community 1 - "mabar/game.js"
 Cohesion: 0.01
-Nodes (155): ADMOB, AK, AL, ALBUM, ALBUM_IKAN, animPasar(), ASET_CALON, ATASAN (+147 more)
+Nodes (177): ADMOB, AK, AL, ALBUM, ALBUM_IKAN, animPasar(), animPutar(), animSkill() (+169 more)
 
 ### Community 2 - "worker.js"
 Cohesion: 0.04
@@ -513,33 +539,33 @@ Nodes (51): AKHIRAN, ALBUM_IKAN, apiWarga(), apiWargaInti(), bacaAkun(), BANGUN_
 Cohesion: 0.05
 Nodes (31): aturMusik(), bersihRonde(), bisaKetuk, _bx, daftarKetuk(), DATA_BAWAAN, efek, FONT (+23 more)
 
-### Community 4 - "toast"
+### Community 4 - "mobil.js"
 Cohesion: 0.11
 Nodes (44): ABU, aksenStiker(), ambulans(), apiKnalpot(), buatBan(), decal(), FONT(), gabung() (+36 more)
 
 ### Community 5 - "mabar/js/desa.js"
-Cohesion: 0.08
-Nodes (85): ANIM, base(), bigYard(), blockWorld(), blue(), boxHouse(), btree(), C01() (+77 more)
+Cohesion: 0.07
+Nodes (87): ANIM, base(), bigYard(), blockWorld(), blue(), boxHouse(), btree(), C01() (+79 more)
 
 ### Community 6 - "lintasan.js"
 Cohesion: 0.09
 Nodes (47): akarSamping(), angkot(), batuBesar(), borobudur(), bromo(), candiBentar(), candiBorobudur(), candiKecil() (+39 more)
 
 ### Community 7 - "box"
-Cohesion: 0.23
-Nodes (46): kayu(), arenaLari(), bangku(), BAWAH, bunga(), daun(), dealer(), fin() (+38 more)
+Cohesion: 0.22
+Nodes (47): kayu(), pratinjauDealer(), arenaLari(), bangku(), BAWAH, bunga(), daun(), dealer() (+39 more)
 
 ### Community 8 - "render.js"
 Cohesion: 0.16
 Nodes (26): buatDaftar(), foto(), g(), handuk(), jam(), kanvas(), lootBox(), M() (+18 more)
 
 ### Community 9 - "ktp.js"
-Cohesion: 0.14
-Nodes (20): alamat(), ATASAN, avAcak(), BAWAHAN, bersihAv(), dusun(), foto(), gambarKTP() (+12 more)
+Cohesion: 0.10
+Nodes (34): alamat(), ATASAN, avAcak(), BAWAHAN, bersihAv(), dusun(), foto(), gambarKTP() (+26 more)
 
-### Community 10 - "dusunDari"
-Cohesion: 0.17
-Nodes (16): alamat(), ambilPiala(), bukaKamera(), bukaLombaRumah(), bukaPeringkat(), bukaPiala(), diTempatKerja(), dusunDari() (+8 more)
+### Community 10 - "ramp"
+Cohesion: 0.04
+Nodes (89): camAt(), CRASHIMPACT_DUR, CrashImpactReal(), CROP, CROP_C, edgeAt(), HOPS, L (+81 more)
 
 ### Community 11 - "binatang/game.js"
 Cohesion: 0.13
@@ -547,7 +573,7 @@ Nodes (23): benar(), buatHewan(), buatMakanan(), bunyiHewan(), dodo, HEWAN_ADA, 
 
 ### Community 12 - "three.core.js"
 Cohesion: 0.01
-Nodes (295): addContour(), _addedEvent, _alignedPosition, _axis, _baseVector, _batchIntersects, BezierInterpolant, _boneMatrix (+287 more)
+Nodes (291): addContour(), _addedEvent, _alignedPosition, _axis, _baseVector, _batchIntersects, _boneMatrix, _box (+283 more)
 
 ### Community 13 - "tanaman.js"
 Cohesion: 0.17
@@ -555,27 +581,27 @@ Nodes (24): bibit(), cabai(), CG, cubes(), DAFTAR_TANAMAN, grassBed(), hsl(), is
 
 ### Community 14 - "main.js"
 Cohesion: 0.03
-Nodes (81): A, akar(), AKOR, ATAP, aturSuara(), BALAS, BALON, balon() (+73 more)
+Nodes (85): A, akar(), AKOR, ATAP, aturSuara(), BALAS, BALON, batu() (+77 more)
 
 ### Community 15 - "security-check.yml"
 Cohesion: 0.09
 Nodes (21): concurrency, cancel-in-progress, group, jobs, syntax-and-regression, name, on, pull_request (+13 more)
 
-### Community 16 - "mulai"
-Cohesion: 0.07
-Nodes (78): ALBUM_PANEN(), albumBaru(), albumHitung(), albumPunya(), ambilAjakSingkat(), api(), aturAlbum(), aturHUD() (+70 more)
+### Community 16 - "toast"
+Cohesion: 0.06
+Nodes (89): aksiDealer(), aksiWillo(), ALBUM_PANEN(), albumBaru(), albumHitung(), albumPunya(), ambilHadir(), api() (+81 more)
 
 ### Community 17 - "bangunDunia"
-Cohesion: 0.15
-Nodes (26): aturProyek(), bakeGroup(), bangunAktif(), bangunCurug(), bangunDunia(), bangunKulon(), bangunProksi(), bangunSegara() (+18 more)
+Cohesion: 0.13
+Nodes (30): aturProyek(), bakeGroup(), bangunAktif(), bangunCurug(), bangunDunia(), bangunKulon(), bangunProksi(), bangunSegara() (+22 more)
 
 ### Community 18 - "bentuk/game.js"
 Cohesion: 0.18
 Nodes (16): benar(), bendaBentuk(), BENTUK, bentukVoxel(), garisBentuk(), kotakMainan(), lala, mulaiMain() (+8 more)
 
 ### Community 19 - "tlaga.js"
-Cohesion: 0.11
-Nodes (25): curug(), info, FASUM_TERAS, aturTipis(), carve(), fasum2(), hutan(), hutanPts() (+17 more)
+Cohesion: 0.15
+Nodes (23): curug(), FASUM_TERAS, aturTipis(), fasum2(), hutan(), hutanPts(), lot2(), nameTex() (+15 more)
 
 ### Community 20 - "angka/game.js"
 Cohesion: 0.22
@@ -585,13 +611,17 @@ Nodes (18): awan, benar(), BUAH, buatBuah(), buatKeranjang(), KATA, mulaiMain(),
 Cohesion: 0.11
 Nodes (17): runs-on, steps, timeout-minutes, jobs, deploy-staging, name, on, workflow_dispatch (+9 more)
 
-### Community 22 - "rnd"
+### Community 22 - "_three/three.module.min.js"
 Cohesion: 0.01
-Nodes (249): _a, aa, Ac, ao, Ao(), ap, ar, As (+241 more)
+Nodes (254): _a, aa, Ac, ao, Ao(), ap, ar, As (+246 more)
 
 ### Community 23 - "huruf/game.js"
 Cohesion: 0.23
 Nodes (14): awan, bima, jawabCari(), jenisRonde(), kataHTML(), mulaiMain(), putaran(), rondeCari() (+6 more)
+
+### Community 24 - "0.169.0/three.module.min.js"
+Cohesion: 0.01
+Nodes (250): _a, aa, Ac, Al(), ao, Ao(), ap, ar (+242 more)
 
 ### Community 25 - "hitung-rpg/game.js"
 Cohesion: 0.04
@@ -605,29 +635,25 @@ Nodes (14): aturVolMusik(), bunyiAlat(), bunyiHat(), bunyiKick(), frek(), langka
 Cohesion: 0.14
 Nodes (13): runs-on, steps, jobs, indexnow, name, on, push, workflow_dispatch (+5 more)
 
-### Community 28 - "putar.js"
-Cohesion: 0.24
-Nodes (10): asliH(), asliW(), gH, gW, kelasMedia(), kunciLandscape(), perlu(), terapkan() (+2 more)
-
 ### Community 29 - "acak"
 Cohesion: 0.21
 Nodes (12): acak(), awanVoxel(), batuVoxel(), konfeti(), kotak(), lempeng(), mataK(), pilih() (+4 more)
 
 ### Community 30 - "tulisMisi"
-Cohesion: 0.21
-Nodes (16): barisHadir(), barisMenit(), barisPemula(), daftarSesi(), infoKumpul(), jamKumpul(), jamTeks(), jamWIB() (+8 more)
+Cohesion: 0.23
+Nodes (15): barisHadir(), barisMenit(), barisPemula(), daftarSesi(), infoKumpul(), jamKumpul(), jamTeks(), jamWIB() (+7 more)
 
 ### Community 31 - "Vox"
 Cohesion: 0.33
 Nodes (4): alasBatu(), bungaVoxel(), geoKubus(), Vox
 
-### Community 32 - "bangunKavling"
+### Community 32 - "rumah.js"
 Cohesion: 0.21
 Nodes (23): warungDepan(), ambil(), at(), atapPelana(), BENTUK, box(), DAFTAR_RUMAH, DEF (+15 more)
 
-### Community 33 - "json"
-Cohesion: 0.04
-Nodes (23): CoreTests, load_script(), authenticate(), main(), probe_warn(), slug(), main(), parse_card() (+15 more)
+### Community 33 - "pathlib"
+Cohesion: 0.07
+Nodes (4): AuthenticationTests, player(), result(), SourceTests
 
 ### Community 34 - "script.js"
 Cohesion: 0.22
@@ -649,9 +675,9 @@ Nodes (7): gradasi(), objekDi(), pasangKetuk(), posisiPilihan(), siapPanggung(),
 Cohesion: 0.11
 Nodes (14): awan, dermaga, kafe, laut, mercu, nina, ombak, pasar (+6 more)
 
-### Community 39 - "paper-trading"
-Cohesion: 0.04
-Nodes (48): concurrency, cancel-in-progress, group, run, BOT_FOLDER, GH_TOKEN, cache, folder (+40 more)
+### Community 39 - "bot-meme-coin.yml"
+Cohesion: 0.22
+Nodes (8): concurrency, cancel-in-progress, group, jobs, name, permissions, actions, contents
 
 ### Community 40 - "animasi"
 Cohesion: 0.40
@@ -663,7 +689,7 @@ Nodes (6): batasUI(), bingkaiDrone(), layarLebar(), loop(), updatePartikel(), up
 
 ### Community 42 - "three.module.js"
 Cohesion: 0.01
-Nodes (104): Compatibility, DodecahedronGeometry, getConsoleFunction(), IcosahedronGeometry, OctahedronGeometry, PolyhedronGeometry, TetrahedronGeometry, Uniform (+96 more)
+Nodes (100): _cache, RenderObjectRefreshType, setConsoleFunction(), Uniform, addUniform(), allocTexUnits(), arrayCacheF32, arrayCacheI32 (+92 more)
 
 ### Community 44 - "bank.py"
 Cohesion: 0.13
@@ -685,41 +711,41 @@ Nodes (29): animasi(), ATUR, buatSiswa(), bunyiAlat(), dasiSMP(), DATA_BAWAAN, e
 Cohesion: 0.09
 Nodes (21): awan, BARANG, barangDari(), buatUang(), dimas, gerbang, JENIS, keStasiun() (+13 more)
 
-### Community 49 - "$"
-Cohesion: 0.13
-Nodes (23): ambil(), ambilIsotonik(), aturUlangAngin(), chatMasuk(), gambarNyawa(), kameraIkut(), ketukDrill(), langkah() (+15 more)
+### Community 49 - "Li"
+Cohesion: 0.03
+Nodes (18): ad, cd, Cs, S(), ed, gs, gu, hd (+10 more)
 
 ### Community 51 - "isiMenu"
-Cohesion: 0.14
-Nodes (30): aktif, apiPk(), aturWarga(), bayar(), cukup(), daftarMisi(), gagal(), gantiPemain() (+22 more)
+Cohesion: 0.16
+Nodes (24): aktif, apiPk(), aturWarga(), bayar(), cukup(), daftarMisi(), gantiPemain(), hargaPm() (+16 more)
 
 ### Community 52 - "bot.py"
-Cohesion: 0.16
-Nodes (24): ambil_json(), angka(), beli(), boleh_beli(), cari_dan_beli(), catat_riwayat(), cek_rugcheck(), data_hari_ini() (+16 more)
+Cohesion: 0.07
+Nodes (36): ambil_json(), angka(), beli(), boleh_beli(), cari_dan_beli(), catat_riwayat(), cek_rugcheck(), data_hari_ini() (+28 more)
 
 ### Community 53 - "petualang.js"
 Cohesion: 0.14
 Nodes (33): adaEmoji(), AYO, bacaKelompok(), benarPT(), DEPAN, esc(), JENIS_UMUM, KANAN (+25 more)
 
-### Community 54 - "mulai"
+### Community 54 - "$"
 Cohesion: 0.09
 Nodes (46): KUNCI(), aksiBooth(), aturMain(), audio(), avatar(), bersihkanEfek(), biayaUpgrade(), buka() (+38 more)
 
-### Community 55 - "kotak"
+### Community 55 - "reli.js"
 Cohesion: 0.04
-Nodes (65): apiR(), baca(), bangunMobil(), basah(), bekas, bukit(), cam, debu (+57 more)
+Nodes (55): baca(), basah(), bekas, bukit(), cam, debu, _E, gambarPeta() (+47 more)
 
 ### Community 56 - "panel.py"
 Cohesion: 0.10
 Nodes (23): _answer_ok(), check(), deal(), init(), load_state(), main(), _num(), PanelError (+15 more)
 
 ### Community 57 - "Polish.tsx"
-Cohesion: 0.02
-Nodes (247): SWAP(), GrazeFaceTour(), DRONE_DIVE_LANDING_DURATION, DroneDiveLanding(), FLOOR, floorStyle, Focus(), HERO (+239 more)
+Cohesion: 0.04
+Nodes (84): SWAP(), BEFORE_AFTER_SLIDER_SCRUB_DURATION, BeforeAfterSliderScrub(), posAt(), Tag(), arcPath(), dampingFor(), Gauge() (+76 more)
 
-### Community 58 - "math"
-Cohesion: 0.08
-Nodes (33): analyse(), load(), main(), _money(), NumbersError, report(), sensitivity(), _sum() (+25 more)
+### Community 58 - "look.py"
+Cohesion: 0.16
+Nodes (18): analyse(), audio_audit(), audio_env(), compute_gates(), detect(), die(), drawtext_filter(), events_to_cuts() (+10 more)
 
 ### Community 59 - "segara.js"
 Cohesion: 0.14
@@ -733,9 +759,9 @@ Nodes (6): albumBit(), kavlingSiap(), misiHari(), pasarBuka(), pkMisiHari(), pkP
 Cohesion: 0.18
 Nodes (24): aturFokusTarung(), banner(), bebas(), bicaraKoki(), bicaraSari(), bukaTas(), bukaToko(), kalah() (+16 more)
 
-### Community 62 - "loop"
-Cohesion: 0.06
-Nodes (52): apiB(), BAHAN, BLN, bunyi(), cakram, cam, catatSesi(), cincin (+44 more)
+### Community 62 - "bangun.js"
+Cohesion: 0.07
+Nodes (51): apiB(), BAHAN, BLN, bunyi(), cakram, cam, catatSesi(), cincin (+43 more)
 
 ### Community 63 - "inti-sd.js"
 Cohesion: 0.12
@@ -749,9 +775,9 @@ Nodes (21): akhirSesi(), alamatMurid(), aturBermain(), esc(), gambarLobi(), gamb
 Cohesion: 0.16
 Nodes (19): aturPosisi(), bangunKapal(), bangunPeta(), gx(), gz(), jarakRuas(), jawabanKini(), kapalVoxel() (+11 more)
 
-### Community 66 - "langkah"
-Cohesion: 0.13
-Nodes (24): bangunDunia(), buang(), buatPemain(), fotoMedali(), gapura(), kerucut(), kotak(), landmark() (+16 more)
+### Community 66 - "kotak"
+Cohesion: 0.11
+Nodes (31): balon(), bangunDunia(), buang(), buatNPC(), buatPemain(), cekSalip(), fotoMedali(), gapura() (+23 more)
 
 ### Community 67 - "simpan"
 Cohesion: 0.19
@@ -770,8 +796,8 @@ Cohesion: 0.27
 Nodes (17): buatPelari(), kaki(), lengan(), cGeo, cLathe, cMat, cTex, geo() (+9 more)
 
 ### Community 71 - "desaGabung.js"
-Cohesion: 0.18
-Nodes (14): ARAH(), CABANG, global(), IKON, IMG, keGambar(), LETAK, panjang() (+6 more)
+Cohesion: 0.12
+Nodes (26): buatPeta(), bukaPeta(), fotoUdaraPeta(), gambarPetaBesar(), gambarPetaMini(), keP(), pasangPeta(), pilihFasum() (+18 more)
 
 ### Community 72 - "precedent.py"
 Cohesion: 0.16
@@ -785,9 +811,9 @@ Nodes (7): _asap, buatEnt(), _ga, hapusEnt(), M, pasangHookUmum(), rupaTim()
 Cohesion: 0.25
 Nodes (8): ambilSoal(), catatJawab(), opsiAngka(), soalAcak(), soalMisi(), soalPilihan(), tampilSoal3(), ubahSoal()
 
-### Community 75 - "van_westendorp.py"
-Cohesion: 0.16
-Nodes (12): frame_rate(), main(), packet_times(), probe(), analyse(), cross(), curves(), _f() (+4 more)
+### Community 75 - "ref_node_url"
+Cohesion: 0.11
+Nodes (23): BGM_PY_DEPS, generateBgmDetached(), LYRIA_PY_DEPS, lyriaKey(), musicgenScript(), pipInstall(), pyOk(), r3() (+15 more)
 
 ### Community 76 - "lab-ajaib.js"
 Cohesion: 0.24
@@ -795,7 +821,7 @@ Nodes (10): aturPosisi(), bangunTabung(), jawabanKini(), kaca(), labu(), pasangA
 
 ### Community 77 - "BufferGeometry"
 Cohesion: 0.02
-Nodes (57): FullscreenTriangleGeometry, mergeGeometries(), arrayNeedsUint32(), ArrowHelper, AxesHelper, Box3Helper, BoxHelper, BufferGeometry (+49 more)
+Nodes (65): FullscreenTriangleGeometry, mergeGeometries(), arrayNeedsUint32(), ArrowHelper, AxesHelper, Box3Helper, BoxHelper, BufferGeometry (+57 more)
 
 ### Community 78 - "acak"
 Cohesion: 0.19
@@ -855,219 +881,215 @@ Nodes (21): addGlyphNames(), addGlyphNamesAll(), addGlyphNamesToUnicodeMap(), Cm
 
 ### Community 93 - "ti"
 Cohesion: 0.03
-Nodes (11): af, cp, Ec(), eu(), fp, fu, gp, hu (+3 more)
+Nodes (8): af, Ec(), eu(), fu, hu, pu, Tc, ti
 
 ### Community 96 - "jh"
 Cohesion: 0.05
-Nodes (7): au, cu, du, jh, ou, qh, yh
+Nodes (7): au, cu, jh, ou, qh, su, yh
 
 ### Community 98 - "langkah"
-Cohesion: 0.12
-Nodes (29): ambil(), ambilAir(), angkaTier(), aturKilau(), bukaLaci(), bukaRayakan(), bunyi(), gambarStory() (+21 more)
-
-### Community 99 - "warga"
-Cohesion: 0.33
-Nodes (12): box(), dada(), gc, hijab(), limb(), lukisSablon(), rambut(), rnd() (+4 more)
-
-### Community 100 - "animSkill"
 Cohesion: 0.09
-Nodes (29): animPutar(), animSkill(), arenaLari(), bisaJual(), bisaPanen(), bisaTanam(), bukaDealer(), bukaWillo() (+21 more)
+Nodes (41): ambil(), ambilAir(), angkaTier(), aturKilau(), bukaLaci(), bukaRayakan(), bunyi(), gagal() (+33 more)
 
-### Community 101 - "type"
-Cohesion: 0.02
-Nodes (164): DRIVE_EASE, driveAt(), MULTIPLANE_DUR, MultiplaneReal(), PILLS, BLOCKS, ChangelogPage(), DAYS (+156 more)
+### Community 99 - "ts"
+Cohesion: 0.03
+Nodes (20): ac, bd, Dm, fd, gi(), is, Jn(), Md (+12 more)
+
+### Community 100 - "kabarBaru"
+Cohesion: 0.24
+Nodes (10): ambilAjakSingkat(), dealerKend(), dekatDealer(), dekatReli(), kabarBaru(), keArenaLari(), keDealer(), keSirkuitReli() (+2 more)
+
+### Community 101 - "Vl"
+Cohesion: 0.09
+Nodes (8): cp, fp, ha, Vl(), b(), S(), T(), w()
 
 ### Community 102 - "opentype.module.js"
 Cohesion: 0.01
 Nodes (36): addSegment(), addStringToPool(), addTerminatorSegment(), argument(), Data(), ELSE(), encodeVarDeltaRunAsBytes(), encodeVarDeltaRunAsWords() (+28 more)
 
-### Community 103 - "pasangPeta"
-Cohesion: 0.31
-Nodes (13): buatPeta(), bukaPeta(), fotoUdaraPeta(), gambarPetaBesar(), gambarPetaMini(), keP(), lencana(), pasangPeta() (+5 more)
+### Community 103 - "$"
+Cohesion: 0.13
+Nodes (23): ambil(), ambilIsotonik(), aturUlangAngin(), chatMasuk(), gambarNyawa(), kameraIkut(), ketukDrill(), langkah() (+15 more)
 
 ### Community 104 - "ei"
-Cohesion: 0.05
-Nodes (6): bi, ei, hh, kh, $l, vc
+Cohesion: 0.06
+Nodes (5): bi, ei, hh, kh, vc
 
 ### Community 105 - "am"
 Cohesion: 0.05
 Nodes (3): am, om, setValue()
 
-### Community 106 - "finish"
-Cohesion: 0.15
-Nodes (20): bunyi(), esc(), finish(), fisika(), gambarSpido(), jamTeks(), kabar(), kamera() (+12 more)
+### Community 106 - "fisika"
+Cohesion: 0.19
+Nodes (13): fisika(), gambarSpido(), kabar(), kamera(), letup(), loop(), proyeksi(), semburDebu() (+5 more)
 
 ### Community 107 - "with"
 Cohesion: 0.05
 Nodes (36): defaults, runs-on, steps, timeout-minutes, run, jobs, apk, name (+28 more)
 
 ### Community 108 - "bangunKavling"
-Cohesion: 0.06
-Nodes (44): aksiDealer(), aturKavling(), bangunKavling(), bangunUlangKavling(), bangunUnitSegara(), bantuLajur(), buang(), buatInterior() (+36 more)
+Cohesion: 0.08
+Nodes (31): aturKavling(), bangunKavling(), buang(), catKavling(), dekorKavling(), EMAS(), KAVLING_LUAS(), kendKavling() (+23 more)
 
 ### Community 109 - "hero3d.js"
 Cohesion: 0.02
-Nodes (63): addWarp(), buildObject(), coinGeometry(), createHero3D(), envFor(), renderAt(), ease, filmThicknessMap() (+55 more)
+Nodes (68): addWarp(), buildObject(), coinGeometry(), createHero3D(), envFor(), renderAt(), ease, filmThicknessMap() (+60 more)
 
 ### Community 110 - "aplikasi-android/package.json"
 Cohesion: 0.13
 Nodes (18): dependencies, @capacitor/android@8.6.0, @capacitor-community/admob@8.3.0, @capacitor/core@8.6.0, description, devDependencies, @capacitor/cli@8.6.0, name (+10 more)
 
-### Community 111 - "ramp"
-Cohesion: 0.03
-Nodes (152): POP(), ARRIVE, Basic3DScene(), BASIC_3D_SCENE_DURATION, camAt(), camTransform(), ChapterCard(), CHAPTERS (+144 more)
+### Community 111 - "alpha"
+Cohesion: 0.02
+Nodes (249): POP(), ARRIVE, Basic3DScene(), BASIC_3D_SCENE_DURATION, camAt(), camTransform(), ChapterCard(), CHAPTERS (+241 more)
 
 ### Community 112 - "GLTFLoader.js"
 Cohesion: 0.02
-Nodes (52): addMorphTargets(), addPrimitiveAttributes(), addUnknownExtensionsToUserData(), ALPHA_MODES, assignExtrasToUserData(), ATTRIBUTES, BINARY_EXTENSION_CHUNK_TYPES, createAttributesKey() (+44 more)
+Nodes (50): addMorphTargets(), addPrimitiveAttributes(), addUnknownExtensionsToUserData(), ALPHA_MODES, assignExtrasToUserData(), ATTRIBUTES, BINARY_EXTENSION_CHUNK_TYPES, createAttributesKey() (+42 more)
 
 ### Community 114 - "Dr"
 Cohesion: 0.04
 Nodes (10): ah, bh, cc, cm, Dr, hp, kl, tc (+2 more)
 
 ### Community 125 - "mulai"
-Cohesion: 0.09
-Nodes (43): aksiWillo(), ambilHadir(), aturHadir(), avAcak(), avKerja(), bersihAv(), bisaKerja(), buatAvatarObj() (+35 more)
+Cohesion: 0.15
+Nodes (25): avAcak(), avKerja(), bersihAv(), buatAvatarObj(), bukaPembuatAvatar(), dialogRaka(), fotoAvatar(), fotoProfil() (+17 more)
 
-### Community 126 - "rnd"
-Cohesion: 0.29
-Nodes (11): buatNPC(), isiLintasan(), kucing(), muatDunia(), penonton(), pilih(), resetLari(), rnd() (+3 more)
+### Community 126 - "ti"
+Cohesion: 0.03
+Nodes (8): af, Ec(), eu(), fu, hu, pu, Tc, ti
 
 ### Community 127 - "Vector2"
-Cohesion: 0.02
-Nodes (20): addStops(), buildGradientTexture(), computeLocalBBox(), SVGLoader, addCapGeometry(), addVertex(), createSegmentTrianglesWithMiddleSection(), makeCircularSector() (+12 more)
-
-### Community 128 - "alpha"
 Cohesion: 0.03
-Nodes (114): Art(), ChipIcon(), Ep, EPS, Feed(), RADIAL_RIPPLE_PHONE_CHIPS_DURATION, RadialRipplePhoneChips(), RINGS (+106 more)
+Nodes (21): computeLocalBBox(), addCapGeometry(), addVertex(), createSegmentTrianglesWithMiddleSection(), makeCircularSector(), makeSegmentTriangles(), makeSegmentWithBevelJoin(), generateCap() (+13 more)
 
-### Community 129 - "siapkanHantu"
-Cohesion: 0.33
-Nodes (6): fmtWaktu(), hud(), isiPapan(), muatPapan(), peringkat(), siapkanHantu()
+### Community 128 - "GlitchDisplace.tsx"
+Cohesion: 0.17
+Nodes (16): BANDS, CH, Chart(), ENERGY, GLITCH_DISPLACE_DURATION, GlitchDisplace(), h(), LATENCY (+8 more)
+
+### Community 129 - "Fixtures.tsx"
+Cohesion: 0.03
+Nodes (104): DRONE_DIVE_LANDING_DURATION, DroneDiveLanding(), FLOOR, floorStyle, Focus(), HERO, Scene(), travel() (+96 more)
 
 ### Community 131 - "ts"
-Cohesion: 0.03
-Nodes (21): bd, Dm, fd, fi(), gi(), is, Jn(), Md (+13 more)
+Cohesion: 0.02
+Nodes (32): bd, fd, gi(), Ih, is, Jn(), km, _m() (+24 more)
 
-### Community 132 - "Ap"
-Cohesion: 0.03
-Nodes (31): Ap, s(), r(), bp, Cd(), t(), _d, r() (+23 more)
+### Community 132 - "bi"
+Cohesion: 0.06
+Nodes (11): Ap, s(), r(), i(), jd, lc, Mi(), mm (+3 more)
 
-### Community 133 - "SpeedBlur"
-Cohesion: 0.03
-Nodes (106): inCubic, Plate(), RegMark(), RISO_MISREGISTRATION_HIT_DURATION, RisoMisregistrationHit(), slideAt(), Stamp(), Sun() (+98 more)
+### Community 133 - "velocity"
+Cohesion: 0.02
+Nodes (168): DRIVE_EASE, driveAt(), MULTIPLANE_DUR, MultiplaneReal(), PILLS, Curtain(), FLICKER, lampOn() (+160 more)
 
 ### Community 136 - "ref_node_fs"
 Cohesion: 0.04
-Nodes (50): CENTER, COUNTRIES, framesDir, MARGIN, N, isMainModule(), CLI_MEDIA_USE, SKILLS (+42 more)
+Nodes (44): CENTER, COUNTRIES, framesDir, MARGIN, N, isMainModule(), CLI_MEDIA_USE, SKILLS (+36 more)
 
 ### Community 137 - "Vector3"
-Cohesion: 0.03
-Nodes (17): getUv(), RoundedBoxGeometry, _tempNormal, computeBounds(), BoxGeometry, buildPlane(), generateTorso(), applyRadius() (+9 more)
+Cohesion: 0.02
+Nodes (19): getUv(), computeBounds(), buildPlane(), generateTorso(), Line3, Points, applyRadius(), Spherical (+11 more)
 
 ### Community 138 - "Hn"
-Cohesion: 0.05
-Nodes (9): Cc, Cm, cs, dr, ea, Hn, of, pm (+1 more)
+Cohesion: 0.03
+Nodes (20): Ah, Cc, Cm, Dm, ea, Hs(), ih, lh (+12 more)
 
 ### Community 139 - "Material"
-Cohesion: 0.03
-Nodes (19): createAreaLightMaterial(), RoomEnvironment, createDefaultMaterial(), Euler, LineDashedMaterial, Material, MeshDistanceMaterial, MeshLambertMaterial (+11 more)
+Cohesion: 0.02
+Nodes (25): createAreaLightMaterial(), RoomEnvironment, createDefaultMaterial(), addStops(), buildGradientTexture(), BoxGeometry, CanvasTexture, Euler (+17 more)
 
 ### Community 140 - "ds"
 Cohesion: 0.04
 Nodes (13): ds, fs, hc, Kn(), ls(), ms, $n(), os() (+5 more)
 
-### Community 141 - "Texture"
-Cohesion: 0.03
-Nodes (22): interleaveAttributes(), CompressedArrayTexture, CompressedCubeTexture, CompressedTexture, Controls, Data3DTexture, DataArrayTexture, EventDispatcher (+14 more)
+### Community 141 - "Matrix3"
+Cohesion: 0.02
+Nodes (23): GLTFTextureTransformExtension, CompressedArrayTexture, CompressedCubeTexture, CompressedTexture, Data3DTexture, DataArrayTexture, DepthTexture, FramebufferTexture (+15 more)
 
 ### Community 142 - "lr"
 Cohesion: 0.04
 Nodes (5): kc, lr, qs, Wc, Zs
 
-### Community 143 - "Cs"
-Cohesion: 0.03
-Nodes (16): ad, cd, Cs, S(), ed, gs, gu, hd (+8 more)
+### Community 143 - "Li"
+Cohesion: 0.02
+Nodes (21): ad, cd, Cs, S(), ed, gs, p(), gu (+13 more)
 
 ### Community 144 - "Tt"
-Cohesion: 0.04
-Nodes (37): ba(), ci(), g(), da(), p(), ia, ic(), ii() (+29 more)
+Cohesion: 0.03
+Nodes (39): Ai, ba(), Ba, ci(), g(), da(), Ga(), Ha() (+31 more)
 
 ### Community 145 - "dd"
-Cohesion: 0.06
-Nodes (9): Ad(), dd, Ed(), gd, kd, Nd, pd(), Rd() (+1 more)
+Cohesion: 0.07
+Nodes (9): Ad(), Cd(), _d, gd, n, Rd(), ua(), r() (+1 more)
 
 ### Community 146 - "Object3D"
-Cohesion: 0.03
-Nodes (8): CubeCamera, DirectionalLightShadow, Group, LOD, Object3D, _points, UniformsGroup, WebXRController
+Cohesion: 0.02
+Nodes (14): Controls, CubeCamera, DirectionalLightShadow, EventDispatcher, Group, LightShadow, LOD, Object3D (+6 more)
 
-### Community 148 - "jp"
-Cohesion: 0.09
-Nodes (3): jp, kp(), zp
+### Community 147 - "_h"
+Cohesion: 0.05
+Nodes (14): _h, Qi, bt(), Ft(), Gt(), kt(), Lt(), n() (+6 more)
 
 ### Community 149 - "xr"
 Cohesion: 0.10
 Nodes (4): Al(), El, Tl, xr
 
-### Community 150 - "WordRelayFilmstrip.tsx"
-Cohesion: 0.03
-Nodes (79): SceneTopNav(), Curtain(), FLICKER, lampOn(), outCubic, rnd(), spotAt(), SPOTLIGHT_SWEEP_REVEAL_DURATION (+71 more)
+### Community 150 - "IntegrationHubMap.tsx"
+Cohesion: 0.18
+Nodes (15): CAM, FrontPanel(), HubPanel(), INTEGRATION_HUB_MAP_DURATION, IntegrationHubMap(), LIST, NOISE, panelShell() (+7 more)
 
 ### Community 151 - ".constructor"
-Cohesion: 0.06
-Nodes (40): ai(), _i, jl(), b(), C(), f(), g(), I() (+32 more)
+Cohesion: 0.17
+Nodes (22): ai(), fi(), _i, jl(), b(), C(), f(), g() (+14 more)
 
 ### Community 152 - "Loader"
-Cohesion: 0.03
-Nodes (27): TTFLoader, convert(), reverseCommands(), AudioLoader, BufferGeometryLoader, getArrayBuffer(), getInterleavedBuffer(), CompressedTextureLoader (+19 more)
-
-### Community 153 - "Ba"
-Cohesion: 0.12
-Nodes (9): Ca(), Ai, Ba, Ga(), Ha(), ka(), Ri, Va() (+1 more)
+Cohesion: 0.04
+Nodes (20): getImageURIMimeType(), GLTFRegistry(), SVGLoader, AnimationLoader, AudioLoader, handleError(), BufferGeometryLoader, CompressedTextureLoader (+12 more)
 
 ### Community 154 - "_r"
-Cohesion: 0.12
-Nodes (4): E(), il, ol(), _r
-
-### Community 155 - "Ah"
-Cohesion: 0.06
-Nodes (12): Ah, Hs(), ih, lh, qm, rf, Rh(), td() (+4 more)
+Cohesion: 0.10
+Nodes (5): E(), il, oc, ol(), _r
 
 ### Community 157 - "argparse"
 Cohesion: 0.04
-Nodes (36): main(), probe(), ease(), load_plan(), main(), rounded_device(), eye_offset(), main() (+28 more)
+Nodes (39): main(), probe(), ease(), load_plan(), main(), rounded_device(), detect_face(), grab() (+31 more)
 
 ### Community 158 - "tts.mjs"
 Cohesion: 0.05
-Nodes (63): argv, dur, output, positional, clone(), list(), main(), MEDIA_TYPES (+55 more)
+Nodes (61): argv, dur, output, positional, clone(), list(), main(), MEDIA_TYPES (+53 more)
 
-### Community 159 - "or"
-Cohesion: 0.04
-Nodes (16): Ih, km, _m(), $m, Nm(), or, sf, um (+8 more)
+### Community 159 - "ExplodedView.tsx"
+Cohesion: 0.15
+Nodes (19): AiUI(), Callouts(), Cam, camAt(), ChartUI(), COL, EXPLODED_VIEW_DURATION, ExplodedView() (+11 more)
 
 ### Community 160 - "toon.ts"
-Cohesion: 0.07
-Nodes (70): puddle(), Arms, Blob, blobPts(), bodyFront(), bodySide(), Build, BUILD (+62 more)
+Cohesion: 0.06
+Nodes (72): flotsam(), shakoAlone(), Arms, Blob, blobPts(), bodyFront(), bodySide(), Build (+64 more)
 
 ### Community 161 - "mabar/js/lib.js"
 Cohesion: 0.12
 Nodes (16): chest(), dust(), faces, flashlight(), floor(), gc, house(), lantern() (+8 more)
 
-### Community 162 - "Brand.tsx"
+### Community 162 - "ShotcraftMark"
+Cohesion: 0.03
+Nodes (118): CAM, ClapperGlyph(), easeFall, FloatWrap(), liftOf(), MiniWidget(), Panel(), PanelLayer() (+110 more)
+
+### Community 163 - "ds"
 Cohesion: 0.04
-Nodes (74): CAM, ClapperGlyph(), easeFall, FloatWrap(), liftOf(), MiniWidget(), Panel(), PanelLayer() (+66 more)
+Nodes (13): ds, fs, hc, Kn(), ls(), ms, $n(), os() (+5 more)
 
 ### Community 164 - "ref_remotion"
-Cohesion: 0.03
-Nodes (38): RemotionRoot(), TitleCard(), Props, handle, CustomHookDriven(), useFadeIn(), Item, MyComposition() (+30 more)
+Cohesion: 0.04
+Nodes (39): RemotionRoot(), TitleCard(), Props, handle, CustomHookDriven(), useFadeIn(), Item, MyComposition() (+31 more)
 
 ### Community 165 - "springAt"
-Cohesion: 0.05
-Nodes (76): Accounts(), ACCTS, CAM_EASE, camAt(), CAMS, CH, clickAt(), Cursor() (+68 more)
+Cohesion: 0.04
+Nodes (80): Accounts(), ACCTS, CAM_EASE, camAt(), CAMS, CH, clickAt(), Cursor() (+72 more)
 
 ### Community 167 - "loop"
 Cohesion: 0.07
-Nodes (47): bantuPemula(), bebas(), bisaDilalui(), bukaLift(), bukaTanam(), cekDalamFasum(), dialogRaka(), gambarGaris() (+39 more)
+Nodes (49): bantuPemula(), bebas(), bisaDilalui(), bukaLift(), bukaPasar(), bukaTanam(), cekDalamFasum(), cekMisiDekat() (+41 more)
 
 ### Community 168 - "upload_post.py"
 Cohesion: 0.05
@@ -1079,11 +1101,15 @@ Nodes (8): computeMikkTSpaceTangents(), computeMorphedAttributes(), deepCloneAtt
 
 ### Community 170 - "cast.ts"
 Cohesion: 0.06
-Nodes (72): BARE, blank, blob(), BODY, CamInfo, CARD, CHEER, column() (+64 more)
+Nodes (70): BARE, blank, blob(), BODY, CamInfo, CARD, CHEER, column() (+62 more)
 
-### Community 171 - "id"
-Cohesion: 0.09
-Nodes (6): id, ld, rd, xu, yu, zm
+### Community 171 - "dd"
+Cohesion: 0.06
+Nodes (8): dd, Ed(), id, kd, ld, Nd, pd(), zd
+
+### Community 172 - "Dr"
+Cohesion: 0.04
+Nodes (10): ah, bh, cc, cm, Dr, hp, kl, tc (+2 more)
 
 ### Community 173 - "alam/game.js"
 Cohesion: 0.12
@@ -1091,31 +1117,31 @@ Nodes (11): awan, bayu, katak, kebun, kolam, kupu, menara, petani (+3 more)
 
 ### Community 174 - "KeyframeTrack"
 Cohesion: 0.04
-Nodes (17): AnimationClip, AnimationLoader, AnimationUtils, BooleanKeyframeTrack, ColorKeyframeTrack, CubicInterpolant, DiscreteInterpolant, getTrackTypeForValueTypeName() (+9 more)
+Nodes (17): AnimationClip, AnimationUtils, BezierInterpolant, BooleanKeyframeTrack, ColorKeyframeTrack, CubicInterpolant, DiscreteInterpolant, getTrackTypeForValueTypeName() (+9 more)
 
 ### Community 176 - "story.ts"
 Cohesion: 0.07
 Nodes (67): amp(), boots(), Cam, camAt(), CAMS, CRANE, Crowd, Dof (+59 more)
 
 ### Community 178 - "BufferAttribute"
-Cohesion: 0.04
-Nodes (17): computeMikkTSpaceTangents(), computeMorphedAttributes(), deepCloneAttribute(), deinterleaveAttribute(), deinterleaveGeometry(), mergeAttributes(), BufferAttribute, convertBufferAttribute() (+9 more)
+Cohesion: 0.02
+Nodes (24): computeMikkTSpaceTangents(), computeMorphedAttributes(), deepCloneAttribute(), deinterleaveAttribute(), deinterleaveGeometry(), interleaveAttributes(), mergeAttributes(), BufferAttribute (+16 more)
 
 ### Community 179 - "kata/game.js"
 Cohesion: 0.14
 Nodes (11): awan, pedagang, perpus, pohonKata, POS, pustakawan, rak, riak (+3 more)
 
-### Community 180 - "Terminal3D.tsx"
+### Community 180 - "_h"
 Cohesion: 0.04
-Nodes (65): BackLight(), C, camAt(), charTimes(), enterAt(), Floor(), FloorPool(), FLY (+57 more)
+Nodes (7): _h, Qc, Qi, Lt(), Vc, vh(), Xc
 
 ### Community 181 - "buatLaluLintas"
 Cohesion: 0.18
 Nodes (14): ARMADA, BAJU, buatLaluLintas(), aturLampu(), halangan(), lajur(), letak(), panjangRuas() (+6 more)
 
 ### Community 182 - "ref_three"
-Cohesion: 0.08
-Nodes (21): blobMaterial(), CARD_K, cardShade(), GRAD_K, GRAD_KB, TINT_K, CHAR, LFB (+13 more)
+Cohesion: 0.12
+Nodes (13): FlatPanel(), useShadowTexture(), cam, d, g, r, sc, getUv() (+5 more)
 
 ### Community 183 - "Bridge.tsx"
 Cohesion: 0.04
@@ -1123,23 +1149,27 @@ Nodes (43): BRIDGE_FRAMES, BridgeShort(), dprOverride(), fpt, fwd, Inner(), make
 
 ### Community 184 - "MosaicReframe.tsx"
 Cohesion: 0.05
-Nodes (62): Sheen(), stagger(), H, hum(), I, KEY_AT, ORDER, P (+54 more)
+Nodes (58): stagger(), H, hum(), I, KEY_AT, ORDER, P, S (+50 more)
 
 ### Community 185 - "build.ts"
 Cohesion: 0.07
 Nodes (59): addVeg(), BANNER_COL, bannerGeo(), bannerProp(), bannerTex(), barkMat(), Batch, boxes (+51 more)
 
 ### Community 186 - "os"
-Cohesion: 0.06
-Nodes (31): build(), f2us(), sfx_cap_frames(), _backup_registry(), _bundle_media(), install(), jianying_running(), _load_platform() (+23 more)
+Cohesion: 0.05
+Nodes (36): ensure_textures(), find_demos(), main(), render_one(), write_smoke_root(), build(), f2us(), sfx_cap_frames() (+28 more)
 
 ### Community 187 - "buatNPC"
 Cohesion: 0.29
 Nodes (10): buatNPC(), dalam(), gayaDiam(), jalanKe(), langkah(), mainBola(), pilihTuju(), update() (+2 more)
 
 ### Community 188 - "Matrix4"
-Cohesion: 0.05
-Nodes (13): clone(), getBoneByName(), getBoneName(), getBones(), getHelperFromSkeleton(), parallelTraverse(), retarget(), retargetClip() (+5 more)
+Cohesion: 0.04
+Nodes (12): clone(), getBoneByName(), getBoneName(), getBones(), getHelperFromSkeleton(), parallelTraverse(), retarget(), retargetClip() (+4 more)
+
+### Community 189 - "TextOnPath.tsx"
+Cohesion: 0.14
+Nodes (17): ARC, bez(), FINAL, GRID, LIFT_EASE, MONTHS, P0, P1 (+9 more)
 
 ### Community 190 - "putaran"
 Cohesion: 0.45
@@ -1149,73 +1179,81 @@ Nodes (11): benar(), jawabanDari(), label3D(), lokal(), putaran(), rondeGerbang(
 Cohesion: 0.09
 Nodes (47): ApiError, audible_span(), clean_words(), cmd_music(), cmd_music_check(), cmd_music_fit(), cmd_refine(), cmd_sfx() (+39 more)
 
-### Community 193 - "PerspectiveCamera"
-Cohesion: 0.04
-Nodes (9): ArrayCamera, Camera, LightShadow, OrthographicCamera, PerspectiveCamera, PointLightShadow, SpotLight, SpotLightShadow (+1 more)
+### Community 192 - ".parseObject"
+Cohesion: 0.02
+Nodes (37): Ap, s(), r(), Bh, bp, t(), r(), e (+29 more)
+
+### Community 193 - "film"
+Cohesion: 0.17
+Nodes (8): cadence(), film(), cursor(), dive(), kf(), snap(), travel(), type()
 
 ### Community 194 - "subprocess"
-Cohesion: 0.07
-Nodes (34): crop_rect(), load_cuts(), load_faces(), main(), probe_display_size(), probe_fps(), snap(), source_envelope() (+26 more)
+Cohesion: 0.05
+Nodes (39): crop_rect(), load_cuts(), load_faces(), main(), probe_display_size(), probe_fps(), snap(), source_envelope() (+31 more)
 
 ### Community 195 - "ns"
 Cohesion: 0.09
 Nodes (35): bp(), impulse_train(), modal(), ns(), phase(), resbank(), shape(), tt() (+27 more)
 
-### Community 196 - "s"
-Cohesion: 0.36
-Nodes (7): s(), B(), k(), O(), P(), V(), z()
+### Community 196 - "OrbitControls"
+Cohesion: 0.06
+Nodes (17): _changeEvent, _endEvent, onKeyDown(), onMouseDown(), onMouseMove(), onMouseWheel(), onPointerDown(), onPointerUp() (+9 more)
 
 ### Community 197 - "gl"
-Cohesion: 0.46
-Nodes (7): gl(), G(), J(), q(), W(), Z(), _l()
+Cohesion: 0.10
+Nodes (9): du, Eu, gl(), G(), J(), q(), W(), Z() (+1 more)
 
 ### Community 198 - "gen-index.mjs"
 Cohesion: 0.04
 Nodes (46): bgmLib, cardBySlug, cardMdFrames(), categories, categoryEn, catOrder, demos, demosDir (+38 more)
 
 ### Community 199 - "store.ts"
-Cohesion: 0.08
-Nodes (47): canonical(), fnv1a(), groupUnits(), ManifestAudio, manifestKey(), ManifestTheme, ManifestUnit, UNIT_KINDS (+39 more)
+Cohesion: 0.14
+Nodes (28): fnv1a(), manifestKey(), cardIdOfUnit(), MANIFEST, CARDS, cardSize(), demoProject(), MainComposition() (+20 more)
 
-### Community 200 - ".parseObject"
-Cohesion: 0.04
-Nodes (14): AmbientLight, DirectionalLight, Fog, FogExp2, HemisphereLight, Light, LightProbe, getGeometry() (+6 more)
+### Community 200 - "warn"
+Cohesion: 0.02
+Nodes (24): AmbientLight, Audio, Bone, Clock, DirectionalLight, Fog, FogExp2, HemisphereLight (+16 more)
 
 ### Community 201 - "ExplodedView.tsx"
-Cohesion: 0.06
-Nodes (52): AiUI(), Callouts(), Cam, camAt(), ChartUI(), COL, EXPLODED_VIEW_DURATION, ExplodedView() (+44 more)
+Cohesion: 0.11
+Nodes (27): Col(), SideRow(), SLIDE_SPOTLIGHT_PAN_DURATION, SlideSpotlightPan(), Task(), WidePanel(), BAND, CH (+19 more)
 
 ### Community 202 - "world.ts"
-Cohesion: 0.06
-Nodes (43): Actor, creakFx(), Fx, makeEntry(), Pool, SIGN_AT, snapFx(), splashFx() (+35 more)
+Cohesion: 0.05
+Nodes (54): blobMaterial(), CARD_K, cardShade(), GRAD_K, GRAD_KB, TINT_K, Actor, creakFx() (+46 more)
 
 ### Community 203 - ".parseObject"
-Cohesion: 0.04
-Nodes (13): ac, Bh, Lh, oc, _p, rc, rp, sc (+5 more)
+Cohesion: 0.03
+Nodes (14): ac, Bh, gp, Lh, _p, Qc, rp, sc (+6 more)
 
 ### Community 204 - "audio.mjs"
-Cohesion: 0.05
-Nodes (41): anomalies, argv, audioMeta, bgmFields, bgmModeOverride, HERE, hyperframesDir, langOverride (+33 more)
+Cohesion: 0.06
+Nodes (27): anomalies, argv, audioMeta, bgmFields, bgmModeOverride, HERE, hyperframesDir, langOverride (+19 more)
 
 ### Community 205 - "manifest.mjs"
-Cohesion: 0.09
-Nodes (48): formatDims(), formatDur(), generateIndexContent(), pad(), regenerateIndex(), allocateId(), appendRecord(), currentRecords() (+40 more)
+Cohesion: 0.08
+Nodes (54): recordInManifest(), SFX_SOURCES, noBgm, voicePaths(), writtenAssets(), formatDims(), formatDur(), generateIndexContent() (+46 more)
 
 ### Community 207 - "sfx-source.py"
 Cohesion: 0.07
-Nodes (30): digest(), download(), main(), analyze(), check_license(), detail(), digest(), Document (+22 more)
+Nodes (31): digest(), download(), main(), write_gain_wav(), analyze(), check_license(), detail(), digest() (+23 more)
 
 ### Community 209 - "paint.ts"
 Cohesion: 0.11
 Nodes (49): flagTex(), beam(), beamHD(), bed(), blotch(), brick(), brickCol(), cache (+41 more)
 
 ### Community 210 - "sfx.mjs"
-Cohesion: 0.08
-Nodes (33): HERE, sfxLibDir, downloadTo(), agentWritePath(), recordInManifest(), SFX_SOURCES, noBgm, voicePaths() (+25 more)
+Cohesion: 0.12
+Nodes (25): downloadTo(), agentWritePath(), httpsUrl(), oneLine(), OPENVERSE_SFX_LICENSES, OpenverseUnavailableError, penalty(), pickOpenverseSfx() (+17 more)
 
-### Community 212 - "Mesh"
-Cohesion: 0.07
-Nodes (10): Mesh, SkinnedMesh, _createPlanes(), _getBlurShader(), _getCommonVertexShader(), _getCubemapMaterial(), _getEquirectMaterial(), _getGGXShader() (+2 more)
+### Community 211 - "am"
+Cohesion: 0.03
+Nodes (6): am, lc, mm, om, qn(), setValue()
+
+### Community 212 - "PMREMGenerator"
+Cohesion: 0.16
+Nodes (7): _getBlurShader(), _getCommonVertexShader(), _getCubemapMaterial(), _getEquirectMaterial(), _getGGXShader(), PMREMGenerator, _setViewport()
 
 ### Community 213 - "check-demo.mjs"
 Cohesion: 0.04
@@ -1225,17 +1263,17 @@ Nodes (35): chromiumOptions, [prefix, frames, scale = "0.5"], args, concurrency,
 Cohesion: 0.67
 Nodes (4): keFase(), mainFase(), soalSah(), urut
 
-### Community 215 - "i18n.ts"
+### Community 215 - "App.tsx"
 Cohesion: 0.08
-Nodes (36): App(), clamp(), ExportButton(), isEditable(), startSplit(), usePanelSize(), ExportError, applyLocaleToDocument() (+28 more)
+Nodes (37): App(), clamp(), ExportButton(), isEditable(), startSplit(), usePanelSize(), ExportError, applyLocaleToDocument() (+29 more)
 
 ### Community 216 - "fflate.module.js"
 Cohesion: 0.06
 Nodes (22): AsyncDeflate(), AsyncGunzip(), AsyncGzip(), AsyncZipDeflate(), AsyncZlib(), DecodeUTF8(), decompress, decompressSync() (+14 more)
 
 ### Community 217 - "Color"
-Cohesion: 0.06
-Nodes (8): Color, handleAlpha(), createColorManagement(), hue2rgb(), ImageUtils, LinearToSRGB(), serializeImage(), SRGBToLinear()
+Cohesion: 0.07
+Nodes (6): Color, handleAlpha(), createColorManagement(), hue2rgb(), LinearToSRGB(), SRGBToLinear()
 
 ### Community 218 - "WebGLRenderer"
 Cohesion: 0.05
@@ -1245,45 +1283,49 @@ Nodes (3): loadTexture(), probeAsync(), WebGLRenderer
 Cohesion: 0.10
 Nodes (36): withFileLock(), globalMediaDir(), mediaHome(), dedupe(), emptyFile(), isRecord(), mergedPreferences(), PREFERENCE_KEYS (+28 more)
 
+### Community 220 - "xh"
+Cohesion: 0.04
+Nodes (17): Cm, Ih, km, _m(), $m, Nm(), sf, um (+9 more)
+
 ### Community 221 - "WebGLTextures"
-Cohesion: 0.11
-Nodes (41): createElementNS(), getByteLength(), getTextureTypeByteLength(), WebGLTextures(), createCanvas(), deallocateRenderTarget(), deallocateTexture(), deleteTexture() (+33 more)
+Cohesion: 0.09
+Nodes (46): createElementNS(), getByteLength(), getTextureTypeByteLength(), onImageError(), onImageLoad(), removeEventListeners(), ImageUtils, serializeImage() (+38 more)
 
 ### Community 222 - "registry.ts"
-Cohesion: 0.08
-Nodes (23): BG_CARDS, buildCardRegistry(), DEMO_CARDS, captionStripCard, Props, DigitRoll(), flashCutCard, Props (+15 more)
+Cohesion: 0.07
+Nodes (19): BG_CARDS, buildCardRegistry(), DEMO_CARDS, captionStripCard, Props, DigitRoll(), flashCutCard, Props (+11 more)
 
 ### Community 223 - "common.js"
 Cohesion: 0.07
 Nodes (28): beat(), beatIndex(), beatPhase(), clamp(), createSegment(), sample(), DESIGN, drawFlash() (+20 more)
 
 ### Community 224 - "workbench/package.json"
-Cohesion: 0.07
-Nodes (42): dependencies, react@19.2.7, react-dom@19.2.7, @react-three/fiber@9.6.1, remotion@4.0.484, @remotion/google-fonts@4.0.484, @remotion/motion-blur@4.0.484, @remotion/player@4.0.484 (+34 more)
+Cohesion: 0.04
+Nodes (57): dependencies, react@19.2.7, react-dom@19.2.7, @react-three/fiber@9.6.1, remotion@4.0.484, @remotion/google-fonts@4.0.484, @remotion/motion-blur@4.0.484, @remotion/player@4.0.484 (+49 more)
 
 ### Community 225 - "error"
 Cohesion: 0.08
-Nodes (25): handleError(), error(), WebGLInfo(), update(), WebGLState(), compressedTexImage2D(), compressedTexImage3D(), compressedTexSubImage2D() (+17 more)
+Nodes (26): enhanceLogMessage(), error(), WebGLInfo(), update(), WebGLState(), ColorBuffer(), compressedTexImage2D(), compressedTexImage3D() (+18 more)
 
 ### Community 226 - ".parse"
 Cohesion: 0.12
 Nodes (38): applyLut(), calculateTileLevels(), calculateTiles(), decodeFloat32(), parseBox2i(), parseChlist(), parseChromaticities(), parseCompression() (+30 more)
 
 ### Community 227 - ".parse"
-Cohesion: 0.10
-Nodes (35): eigenDecomposition(), getNodeTransform(), getReflection(), getTransformScale(), getTransformScaleX(), getTransformScaleY(), isTransformFlipped(), isTransformSkewed() (+27 more)
+Cohesion: 0.18
+Nodes (22): getNodeTransform(), getReflection(), getTransformScale(), parseArcCommand(), parseCircleNode(), parseCSSStylesheet(), parseEllipseNode(), parseFloatWithUnits() (+14 more)
 
 ### Community 228 - "initGLContext"
-Cohesion: 0.05
-Nodes (18): WebGLAttributes(), createBuffer(), update(), updateBuffer(), WebGLBufferRenderer(), WebGLCapabilities(), WebGLGeometries(), get() (+10 more)
+Cohesion: 0.06
+Nodes (13): WebGLAttributes(), createBuffer(), update(), updateBuffer(), WebGLBufferRenderer(), WebGLCapabilities(), WebGLIndexedBufferRenderer(), WebGLObjects() (+5 more)
 
 ### Community 229 - "numpy"
 Cohesion: 0.21
 Nodes (32): adsr(), bandpass(), bell(), build_arrangement(), clap(), crash(), eight08(), epiano() (+24 more)
 
-### Community 230 - "warn"
-Cohesion: 0.08
-Nodes (6): Audio, Clock, enhanceLogMessage(), setQuaternionFromProperEuler(), warn(), allocateTextureUnit()
+### Community 230 - "lint.mjs"
+Cohesion: 0.20
+Nodes (15): addHit(), bb(), evalSample(), evalTyping(), fail2(), fsPct(), near(), numOpt() (+7 more)
 
 ### Community 232 - "dsp.py"
 Cohesion: 0.13
@@ -1295,7 +1337,7 @@ Nodes (7): getFixed(), getULong(), getUShort(), parseGDEFTable(), parseGposTable
 
 ### Community 234 - "gsap.min.js"
 Cohesion: 0.07
-Nodes (17): ee(), hb(), Jd(), Kd(), la(), lb(), Ld(), ma() (+9 more)
+Nodes (17): ee(), Jd(), Kd(), la(), Ld(), ma(), Md(), na() (+9 more)
 
 ### Community 235 - "wall-graphics.py"
 Cohesion: 0.11
@@ -1317,9 +1359,13 @@ Nodes (33): args, only, strict, accentOverride(), applyTheme(), AUDIT_PAIRS, aud
 Cohesion: 0.12
 Nodes (32): applyLanguage(), applyTheme(), captureFocus(), cardCopyValue(), cardDescription(), cardMarkup(), cardMatches(), cardName() (+24 more)
 
-### Community 242 - "WebXRManager"
-Cohesion: 0.08
-Nodes (5): WebGLClipping(), checkMaterialsReady(), WebXRManager, camera(), scene()
+### Community 241 - "PropertyBinding"
+Cohesion: 0.06
+Nodes (3): AnimationObjectGroup, Composite, PropertyBinding
+
+### Community 242 - "film"
+Cohesion: 0.15
+Nodes (4): WebGLClipping(), checkMaterialsReady(), camera(), scene()
 
 ### Community 244 - ".constructor"
 Cohesion: 0.10
@@ -1330,16 +1376,16 @@ Cohesion: 0.14
 Nodes (21): fades(), hp(), ramp(), rng(), smooth_noise(), brass(), brush(), cymbal() (+13 more)
 
 ### Community 246 - "transcript-cut.mjs"
-Cohesion: 0.13
-Nodes (29): bareToken(), clampRanges(), cleanRange(), compileCutList(), durationFrom(), fillerRanges(), finalizeKept(), hasRemovalSource() (+21 more)
+Cohesion: 0.09
+Nodes (41): escapeRegExp(), readTargetAttrs(), run(), { values: args }, bareToken(), clampRanges(), cleanRange(), compileCutList() (+33 more)
 
 ### Community 247 - "Font"
 Cohesion: 0.09
 Nodes (6): arrayBufferToNodeBuffer(), checkArgument(), DefaultEncoding(), Font(), isBrowser(), Position()
 
-### Community 248 - "brand.mjs"
-Cohesion: 0.12
-Nodes (26): chromatic(), contrast(), cut(), dist(), esc(), extOf(), fetchBuf(), firstFamily() (+18 more)
+### Community 248 - "OscilloscopeStreamV2.tsx"
+Cohesion: 0.25
+Nodes (15): bump(), burstK(), fmt(), gauss(), HEAD, hexMix(), inSpike(), OSCILLOSCOPE_STREAM_V2_DURATION (+7 more)
 
 ### Community 249 - "Triangle"
 Cohesion: 0.08
@@ -1347,7 +1393,7 @@ Nodes (7): AsyncInflate(), AsyncUnzipInflate(), AsyncUnzlib(), inflate, UnzipInf
 
 ### Community 250 - "src/workbench.ts"
 Cohesion: 0.10
-Nodes (21): Caption(), FlashCut(), AIFL_TOTAL, CAPTIONS, FLASH_CUTS, parseWords(), SFX, sfxDuration() (+13 more)
+Nodes (20): Caption(), FlashCut(), AIFL_TOTAL, CAPTIONS, FLASH_CUTS, parseWords(), SFX, sfxDuration() (+12 more)
 
 ### Community 251 - "UnitDotSwarmRegroupV2.tsx"
 Cohesion: 0.13
@@ -1361,25 +1407,21 @@ Nodes (26): at(), Bolt, BOLTS, Flash, FLASH_AT, FLASHES, FLICKER, GRADIENT_WORD_
 Cohesion: 0.08
 Nodes (23): {chromium}, fs, path, CamKey, lerp(), DETAIL_CAM, FLY_EASE, SCENE_DETAIL_DEFAULTS (+15 more)
 
-### Community 254 - "FileLoader"
-Cohesion: 0.12
-Nodes (6): GLTFRegistry(), FileLoader, readData(), HttpError, LoaderUtils, TextureLoader
+### Community 254 - "lr"
+Cohesion: 0.04
+Nodes (5): kc, lr, qs, Wc, Zs
 
-### Community 255 - "BatchedMesh"
-Cohesion: 0.12
-Nodes (3): ascIdSort(), BatchedMesh, copyArrayContents()
-
-### Community 257 - "Matrix3"
-Cohesion: 0.10
-Nodes (3): Matrix3, warnOnce(), WebGLExtensions()
+### Community 257 - "Tt"
+Cohesion: 0.03
+Nodes (52): ba(), ci(), g(), da(), p(), ia, ic(), ii() (+44 more)
 
 ### Community 258 - "visual-theme.tsx"
 Cohesion: 0.11
 Nodes (22): CAPTION_DEFAULTS, SCENE_FLYIN_DEFAULTS, TITLE_CARD_DEFAULTS, Manifest, Props, scenes, styleKey(), Unit (+14 more)
 
 ### Community 259 - "test-themes.mjs"
-Cohesion: 0.20
-Nodes (23): card, manifest, require, WorkbenchManifest, defaultsOf(), t(), themeLabel(), applyPalette() (+15 more)
+Cohesion: 0.19
+Nodes (23): WORKBENCH, card, manifest, require, defaultsOf(), t(), themeLabel(), applyPalette() (+15 more)
 
 ### Community 261 - "render-segment.mjs"
 Cohesion: 0.09
@@ -1389,21 +1431,21 @@ Nodes (21): args, browserCandidates(), CRF, DURATION, FPS, launchFfmpeg(), loadC
 Cohesion: 0.13
 Nodes (4): ContextChecker(), ContextRange(), Token(), Tokenizer()
 
+### Community 263 - "OrbFlylineRelay.tsx"
+Cohesion: 0.18
+Nodes (14): bez(), drift(), Flyline(), grow, h(), ICON_STROKE, LINES, Node() (+6 more)
+
 ### Community 264 - "Stargazed.tsx"
 Cohesion: 0.12
 Nodes (17): AnimatedNumber(), Props, Props, StatCard(), Props, UnderlinedText(), defaultProps, RemotionRoot() (+9 more)
 
 ### Community 265 - "scripts/mix.py"
-Cohesion: 0.14
-Nodes (15): build(), add_input(), db(), die(), duck_envelope(), main(), measure_duck(), merge_regions() (+7 more)
+Cohesion: 0.15
+Nodes (14): build(), add_input(), db(), die(), duck_envelope(), main(), measure_duck(), merge_regions() (+6 more)
 
 ### Community 266 - "carve.mjs"
 Cohesion: 0.19
 Nodes (17): attrOf(), carveSources(), decode(), DEFAULT_STRENGTH, detectTracks(), escapeAttr(), fail(), groupSourceRefusal() (+9 more)
-
-### Community 267 - "Path"
-Cohesion: 0.12
-Nodes (4): createPath(), ArcCurve, EllipseCurve, Path
 
 ### Community 268 - "parseCFFTable"
 Cohesion: 0.11
@@ -1415,11 +1457,15 @@ Nodes (12): box_blur(), chroma(), display_size(), fps_of(), frame_count(), main(
 
 ### Community 270 - "GrazeFaceTour.tsx"
 Cohesion: 0.15
-Nodes (23): Cam, cruise(), easeFall, FloatWrap(), GRAZE_FACE_TOUR_DURATION, Icon(), IconName, liftOf() (+15 more)
+Nodes (24): Cam, cruise(), easeFall, FloatWrap(), GRAZE_FACE_TOUR_DURATION, Icon(), IconName, liftOf() (+16 more)
 
 ### Community 271 - "Timer"
 Cohesion: 0.10
 Nodes (3): AudioContext, AudioListener, Timer
+
+### Community 273 - "Curve"
+Cohesion: 0.04
+Nodes (9): CatmullRom(), CatmullRomCurve3, CubicBezierCurve, CubicBezierCurve3, Curve, LineCurve3, QuadraticBezierCurve, QuadraticBezierCurve3 (+1 more)
 
 ### Community 275 - "helpers.test.ts"
 Cohesion: 0.12
@@ -1441,21 +1487,25 @@ Nodes (19): { buildCardRegistry }, cache, { CARD_LIST, CARDS }, documentStub, lo
 Cohesion: 0.18
 Nodes (19): frameRateNumber(), IMAGE_EXTENSIONS, OUTPUT_IMAGE_EXTENSIONS, probe(), processImage(), processVideo(), run(), temporaryOutput() (+11 more)
 
-### Community 281 - ".constructor"
-Cohesion: 0.11
-Nodes (7): ExternalTexture, WebGLAnimation(), WebXRDepthSensing, onAnimationFrame(), onInputSourcesChange(), onSessionEnd(), onSessionEvent()
+### Community 280 - "jh"
+Cohesion: 0.05
+Nodes (8): au, cu, jh, lu, ou, qh, su, yh
+
+### Community 281 - "WebXRManager"
+Cohesion: 0.04
+Nodes (12): ArrayCamera, Camera, ExternalTexture, PerspectiveCamera, StereoCamera, WebGLAnimation(), WebXRDepthSensing, WebXRManager (+4 more)
 
 ### Community 282 - "WebGLMaterials"
-Cohesion: 0.19
-Nodes (21): getUnlitUniformColorSpace(), WebGLBackground(), addToRenderList(), getBackground(), render(), setClear(), WebGLMaterials(), refreshFogUniforms() (+13 more)
+Cohesion: 0.14
+Nodes (25): cloneUniforms(), cloneUniformsGroups(), getUnlitUniformColorSpace(), isThreeObject(), mergeUniforms(), WebGLBackground(), addToRenderList(), getBackground() (+17 more)
 
-### Community 283 - "render.mjs"
-Cohesion: 0.13
-Nodes (14): CDP, die(), findChrome(), launchChrome(), newPage(), parseArgs(), crf, errors (+6 more)
+### Community 283 - "lint.mjs"
+Cohesion: 0.05
+Nodes (54): chromatic(), contrast(), cut(), dist(), esc(), extOf(), fetchBuf(), firstFamily() (+46 more)
 
-### Community 284 - "useT"
-Cohesion: 0.15
-Nodes (19): rand(), useT(), Fracture(), FRACTURE_DURATION, landEase, POSTER_BG, PosterType(), Scene() (+11 more)
+### Community 284 - "Polish.tsx"
+Cohesion: 0.03
+Nodes (140): GrazeFaceTour(), AURORA_BLOOM_BG_FLIP_DURATION, AuroraBloomBgFlip(), DARK, DEEPP, FLIP, INK, LIGHT (+132 more)
 
 ### Community 285 - "PaletteThemeRipple.tsx"
 Cohesion: 0.11
@@ -1485,6 +1535,10 @@ Nodes (9): chainingSubstitutionFormat3(), decompositionSubstitutionFormat1(), Fe
 Cohesion: 0.19
 Nodes (21): WebGLBindingStates(), bindVertexArrayObject(), createBindingState(), createVertexArrayObject(), deleteVertexArrayObject(), disableUnusedAttributes(), dispose(), enableAttribute() (+13 more)
 
+### Community 294 - "zc"
+Cohesion: 0.06
+Nodes (11): Ah, Hs(), ih, lh, qm, rf, Rh(), _u (+3 more)
+
 ### Community 295 - "match-beats.py"
 Cohesion: 0.16
 Nodes (13): find(), hms(), load_srt(), main(), norm(), score(), secs(), hms() (+5 more)
@@ -1493,29 +1547,29 @@ Nodes (13): find(), hms(), load_srt(), main(), norm(), score(), secs(), hms() (+
 Cohesion: 0.12
 Nodes (7): _find_matching_paren(), Finding, lint_file(), main(), _regex_matcher(), Rule, _use_effect_with_deps()
 
-### Community 297 - "tempfile"
-Cohesion: 0.15
-Nodes (9): ensure_textures(), find_demos(), main(), render_one(), write_smoke_root(), gh(), main(), wanted_names() (+1 more)
+### Community 297 - "json"
+Cohesion: 0.04
+Nodes (31): CoreTests, load_script(), analyse(), load(), main(), _money(), NumbersError, report() (+23 more)
 
 ### Community 298 - "BulletTimeFreezeOrbit.tsx"
 Cohesion: 0.17
 Nodes (18): barCx(), BARS, barTop(), BULLET_TIME_FREEZE_ORBIT_DURATION, BulletTimeFreezeOrbit(), CH, DAYS, digitPos() (+10 more)
 
-### Community 299 - "DesignStage"
-Cohesion: 0.15
-Nodes (16): DesignStage(), E, Icon(), ICONS, ITEMS, PICKER_CAROUSEL_FEATURE_CYCLE_DURATION, PickerCarouselFeatureCycle(), FALLBACK_WIDTHS (+8 more)
+### Community 299 - "ea"
+Cohesion: 0.05
+Nodes (11): Cc, cs, dr, ea, Hn, of, pm, ql() (+3 more)
 
-### Community 300 - "PaparazziFlash.tsx"
-Cohesion: 0.14
-Nodes (18): Brackets(), CARD, DIGIT, FLASHES, Laurel(), PAPARAZZI_FLASH_DURATION, PaparazziFlash(), POPS (+10 more)
+### Community 300 - "audit_trades.py"
+Cohesion: 0.10
+Nodes (32): asset_concentration(), basic(), bootstrap(), build(), by_asset(), clones(), cost_sensitivity(), entity_luck() (+24 more)
 
 ### Community 301 - "DeckDealFlyin.tsx"
 Cohesion: 0.11
 Nodes (19): ANCHORS, ANTICIPATE, BOARD, BRUSH_TILE, Cam, camAt(), COLS, CURVES (+11 more)
 
-### Community 302 - "LibraryPanel.tsx"
-Cohesion: 0.15
-Nodes (15): cardSize(), DRAG_MIME, DragPayload, setDragPayload(), cardSummary(), groupBy(), LazyCardLoop(), LazyLoopVideo() (+7 more)
+### Community 302 - "clip_rank.py"
+Cohesion: 0.24
+Nodes (9): build_candidates(), dedupe(), ffmpeg_args(), ffmpeg_cmd(), hms(), load_segments(), main(), score_text() (+1 more)
 
 ### Community 303 - "shared.tsx"
 Cohesion: 0.17
@@ -1537,9 +1591,9 @@ Nodes (17): DAY, DAYS, EVENTS, fmt(), Hue, NIGHT, Pointer(), SunMoon() (+9 more)
 Cohesion: 0.15
 Nodes (17): clamp01(), easeFall, ECHO, FADE, Icon(), NAV, NEON_FRAME_FORERUN_DURATION, NeonFrameForerun() (+9 more)
 
-### Community 308 - "useStore"
-Cohesion: 0.30
-Nodes (15): inOffsetFps(), readDragPayload(), cardName(), tx(), useTx(), Inspector(), PropControl(), Row() (+7 more)
+### Community 308 - "LibraryPanel.tsx"
+Cohesion: 0.11
+Nodes (37): CARD_LIST, CARD_FPS, cardFps(), clipDefaultsFor(), inOffsetFps(), PropField, sourceLength(), DRAG_MIME (+29 more)
 
 ### Community 309 - "wait-bgm.mjs"
 Cohesion: 0.11
@@ -1577,13 +1631,13 @@ Nodes (16): argv, beats, clips, fail(), fps, fr(), lead, lines (+8 more)
 Cohesion: 0.15
 Nodes (16): dependencies, react@^18.3.1, react-dom@^18.3.1, remotion@^4.0.0, @remotion/cli@^4.0.0, zod@^3.22.0, react, react-dom (+8 more)
 
-### Community 319 - "SourceTests"
-Cohesion: 0.14
-Nodes (3): player(), result(), SourceTests
+### Community 319 - "ei"
+Cohesion: 0.05
+Nodes (7): bi, ei, hh, kh, $l, vc, wa()
 
-### Community 320 - "QuadSplitParallelScenes.tsx"
-Cohesion: 0.21
-Nodes (16): blink(), Corner(), P_APPROVE, P_PUBLISH, P_START, qBez(), QUAD_SPLIT_PARALLEL_SCENES_DURATION, QuadBL() (+8 more)
+### Community 320 - "type"
+Cohesion: 0.04
+Nodes (94): BLOCKS, ChangelogPage(), DAYS, DeskTag(), DIVE, DIVE_SCALE, HomePage(), LOG (+86 more)
 
 ### Community 321 - "caption-burn.py"
 Cohesion: 0.19
@@ -1593,53 +1647,49 @@ Nodes (10): apply_corrections(), group(), load_corrections(), load_timeline(), m
 Cohesion: 0.26
 Nodes (10): Band, build(), chorus(), melody(), oompah(), _r(), roll(), snare_bar() (+2 more)
 
-### Community 324 - "film"
+### Community 323 - "dd"
+Cohesion: 0.06
+Nodes (8): dd, Ed(), id, kd, ld, Nd, pd(), zd
+
+### Community 325 - ".constructor"
 Cohesion: 0.17
-Nodes (8): cadence(), film(), cursor(), dive(), kf(), snap(), travel(), type()
-
-### Community 325 - "lint.mjs"
-Cohesion: 0.20
-Nodes (15): addHit(), bb(), evalSample(), evalTyping(), fail2(), fsPct(), near(), numOpt() (+7 more)
-
-### Community 326 - "OscilloscopeStreamV2.tsx"
-Cohesion: 0.25
-Nodes (15): bump(), burstK(), fmt(), gauss(), HEAD, hexMix(), inSpike(), OSCILLOSCOPE_STREAM_V2_DURATION (+7 more)
-
-### Community 327 - "HitCounter.tsx"
-Cohesion: 0.13
-Nodes (14): C, COUNTER_SIZE, DMG, DMG_SIZE, FeatureCard(), FEATURES, HIT_COUNTER_DURATION, HITS_REAL (+6 more)
+Nodes (22): ai(), fi(), _i, jl(), b(), C(), f(), g() (+14 more)
 
 ### Community 328 - "ProductCardProgressiveAssemble.tsx"
 Cohesion: 0.20
 Nodes (15): Box, clamp01(), cursorBox(), F, IMG, landP(), LINES, ORDER (+7 more)
 
-### Community 329 - "audio-duck.mjs"
-Cohesion: 0.30
-Nodes (12): escapeRegExp(), readTargetAttrs(), run(), { values: args }, duckKeyframes(), duckLane(), finiteOr(), mergeIntervals() (+4 more)
+### Community 329 - "evaluate_backtest.py"
+Cohesion: 0.10
+Nodes (15): calc_expectancy(), calc_profit_factor(), detect_red_flags(), evaluate(), get_verdict(), main(), parse_args(), score_execution_realism() (+7 more)
 
 ### Community 330 - "transcribe.mjs"
-Cohesion: 0.22
-Nodes (11): launchingCliInvocation(), resolveNpxCliPath(), resolveNpxInvocation(), mergeTokensToWords(), atomicWrite(), inputPath, outPath, report() (+3 more)
+Cohesion: 0.18
+Nodes (13): launchingCliInvocation(), resolveNpxCliPath(), resolveNpxInvocation(), mergeTokensToWords(), dist, root, atomicWrite(), inputPath (+5 more)
 
 ### Community 331 - "FontLoader.js"
-Cohesion: 0.16
-Nodes (5): TextGeometry, createPaths(), Font, ExtrudeGeometry, toJSON$1()
+Cohesion: 0.12
+Nodes (6): TextGeometry, createPath(), createPaths(), Font, ExtrudeGeometry, toJSON$1()
 
 ### Community 332 - "Substitution"
 Cohesion: 0.26
 Nodes (4): arraysEqual(), binSearch(), getSubstFormat(), Substitution()
 
+### Community 333 - "AssembleThenTypeFlyin.tsx"
+Cohesion: 0.17
+Nodes (14): ASSEMBLE_THEN_TYPE_FLYIN_DURATION, AssembleThenTypeFlyin(), Block, BLOCKS, CHAR_PARAMS, CharP, FilmStill(), FlyBlock() (+6 more)
+
 ### Community 335 - "r"
-Cohesion: 0.20
-Nodes (15): _a(), ac(), Co(), db(), ea(), eb(), fa(), ga() (+7 more)
+Cohesion: 0.13
+Nodes (21): _a(), ac(), Co(), db(), eb(), ga(), gb(), hb() (+13 more)
 
-### Community 336 - "t"
-Cohesion: 0.16
-Nodes (15): Ab(), Bb(), cb(), Context(), Ec(), fb(), Fc(), gb() (+7 more)
+### Community 336 - "cb"
+Cohesion: 0.29
+Nodes (7): Ab(), Bb(), cb(), Context(), fb(), Gw(), zb()
 
-### Community 337 - "fetch_logo.mjs"
-Cohesion: 0.28
-Nodes (14): helpFrom(), found, get(), has(), norm(), out, { pos, opt }, save() (+6 more)
+### Community 337 - "Qs"
+Cohesion: 0.06
+Nodes (5): cp, fp, gp, ha, Qs
 
 ### Community 338 - "tier-1-title-card/remotion-src/package.json"
 Cohesion: 0.17
@@ -1649,17 +1699,13 @@ Nodes (14): dependencies, react@^18.3.1, react-dom@^18.3.1, remotion@^4.0.0, @re
 Cohesion: 0.17
 Nodes (14): dependencies, react@^18.3.1, react-dom@^18.3.1, remotion@^4.0.0, @remotion/cli@^4.0.0, react, react-dom, remotion (+6 more)
 
-### Community 340 - "AssembleThenTypeFlyin.tsx"
-Cohesion: 0.17
-Nodes (14): ASSEMBLE_THEN_TYPE_FLYIN_DURATION, AssembleThenTypeFlyin(), Block, BLOCKS, CHAR_PARAMS, CharP, FilmStill(), FlyBlock() (+6 more)
+### Community 341 - "Ba"
+Cohesion: 0.12
+Nodes (9): Ca(), Ai, Ba, Ga(), Ha(), ka(), Ri, Va() (+1 more)
 
-### Community 341 - "BottomPushStackWipe.tsx"
-Cohesion: 0.23
-Nodes (14): Avatar(), BOTTOM_PUSH_STACK_WIPE_DURATION, BottomPushStackWipe(), ChannelCard(), Chapter, CHAPTERS, ChapterScene(), heavyEaseOut (+6 more)
-
-### Community 342 - "scripts"
-Cohesion: 0.13
-Nodes (15): scripts, build, dev, gen, open, parity, prebuild, predev (+7 more)
+### Community 342 - "DiagramCascadeBuild.tsx"
+Cohesion: 0.20
+Nodes (12): CHAR_T, DIAGRAM_CASCADE_BUILD_DURATION, DiagramCascadeBuild(), edgeGeom(), EntityCard(), Field, LAST, Node (+4 more)
 
 ### Community 343 - "theme-preview.mjs"
 Cohesion: 0.24
@@ -1673,13 +1719,17 @@ Nodes (13): countAssetFiles(), walk(), escapeHtml(), evalBlock(), generateReport
 Cohesion: 0.16
 Nodes (14): encodeString(), equals(), glyphToOps(), makeCFFTable(), makeCharsets(), makeCharStringsIndex(), makeDict(), makeGlobalSubrIndex() (+6 more)
 
-### Community 346 - "DiagramCascadeBuild.tsx"
-Cohesion: 0.20
-Nodes (12): CHAR_T, DIAGRAM_CASCADE_BUILD_DURATION, DiagramCascadeBuild(), edgeGeom(), EntityCard(), Field, LAST, Node (+4 more)
+### Community 346 - "rnd"
+Cohesion: 0.23
+Nodes (30): bigYard(), blockWorld(), boxHouse(), btree(), cloud(), cropField(), cubes(), droneWorld() (+22 more)
 
 ### Community 347 - "SceneWbr.tsx"
 Cohesion: 0.18
 Nodes (13): Block, blocks, CAM_KEYS, cueFor(), memberH2, parsePastWeeks(), PAST_WEEKS_DSL, REVEAL_EASE (+5 more)
+
+### Community 348 - "Qs"
+Cohesion: 0.09
+Nodes (8): Ka, $l, Ql, C(), P(), R(), Qs, Yl
 
 ### Community 349 - "oof"
 Cohesion: 0.23
@@ -1690,8 +1740,8 @@ Cohesion: 0.28
 Nodes (11): WebGLUniformsGroups(), allocateBindingPointIndex(), createBuffer(), getUniformSize(), hasUniformChanged(), onUniformsGroupsDispose(), prepareUniformsGroup(), update() (+3 more)
 
 ### Community 352 - "_d"
-Cohesion: 0.19
-Nodes (13): be(), _d(), ia(), ie(), je(), ke(), le(), oe() (+5 more)
+Cohesion: 0.21
+Nodes (13): be(), _d(), ea(), fa(), ia(), ie(), je(), ka() (+5 more)
 
 ### Community 353 - "compilerOptions"
 Cohesion: 0.15
@@ -1705,17 +1755,13 @@ Nodes (12): compilerOptions, esModuleInterop, forceConsistentCasingInFileNames, 
 Cohesion: 0.15
 Nodes (12): compilerOptions, esModuleInterop, forceConsistentCasingInFileNames, isolatedModules, jsx, module, moduleResolution, resolveJsonModule (+4 more)
 
-### Community 356 - "AuroraBloomBgFlip.tsx"
-Cohesion: 0.17
-Nodes (12): AURORA_BLOOM_BG_FLIP_DURATION, AuroraBloomBgFlip(), DARK, DEEPP, FLIP, INK, LIGHT, mix() (+4 more)
+### Community 356 - "du"
+Cohesion: 0.09
+Nodes (9): du, Eu, gl(), G(), J(), q(), W(), Z() (+1 more)
 
-### Community 357 - "KanadaPerspectiveSnap.tsx"
-Cohesion: 0.31
-Nodes (12): Artwork(), FOCUS, KANADA_PERSPECTIVE_SNAP_DURATION, KanadaPerspectiveSnap(), progAt(), rnd(), STREAKS, TOWERS (+4 more)
-
-### Community 358 - "BezierSourceConvergeMerge.tsx"
-Cohesion: 0.23
-Nodes (12): BEZIER_SOURCE_CONVERGE_MERGE_DURATION, BezierSourceConvergeMerge(), CAP_WORDS, clamp01(), cubic(), GEOMS, h2r(), ICON (+4 more)
+### Community 357 - "box"
+Cohesion: 0.13
+Nodes (28): fruitTree(), fullHouse(), kandang(), lot(), lot2(), lumbung(), numTex(), prism() (+20 more)
 
 ### Community 359 - "compilerOptions"
 Cohesion: 0.15
@@ -1729,25 +1775,21 @@ Nodes (5): [cmd, ...rest], font(), gridFilters(), opt, pos
 Cohesion: 0.23
 Nodes (12): getBits(), getChar(), getCode(), hufBuildDecTable(), hufCanonicalCodeTable(), hufClearDecTable(), hufCode(), hufDecode() (+4 more)
 
-### Community 362 - "Shape"
-Cohesion: 0.20
-Nodes (3): Shape, getInteriorPoint(), pointInPolygon()
-
-### Community 363 - "addShape"
-Cohesion: 0.27
-Nodes (10): addShape(), addUV(), addVertex(), buildLidFaces(), buildSideFaces(), f3(), f4(), getBevelVec() (+2 more)
+### Community 363 - "DataTexture"
+Cohesion: 0.19
+Nodes (3): ascIdSort(), copyArrayContents(), DataTexture
 
 ### Community 364 - "WebGLPrograms"
 Cohesion: 0.21
 Nodes (8): isPackedRGFormat(), WebGLPrograms(), acquireProgram(), getChannel(), getParameters(), getProgramCacheKey(), getProgramCacheKeyBooleans(), getProgramCacheKeyParameters()
 
-### Community 365 - "ChipGridSingleSelectBlackout.tsx"
-Cohesion: 0.27
-Nodes (11): CHIP_GRID_SINGLE_SELECT_BLACKOUT_DURATION, ChipGridSingleSelectBlackout(), chipPos(), Cursor(), h2r(), lin(), mixC(), NAMES (+3 more)
+### Community 365 - "KanadaPerspectiveSnap.tsx"
+Cohesion: 0.31
+Nodes (12): Artwork(), FOCUS, KANADA_PERSPECTIVE_SNAP_DURATION, KanadaPerspectiveSnap(), progAt(), rnd(), STREAKS, TOWERS (+4 more)
 
-### Community 366 - "DocParkLeftPillDeal.tsx"
-Cohesion: 0.29
-Nodes (11): Caption(), clamp01(), DOC, DOC_PARK_LEFT_PILL_DEAL_DURATION, DocParkLeftPillDeal(), h2r(), Icon(), ITEMS (+3 more)
+### Community 366 - "_r"
+Cohesion: 0.10
+Nodes (5): E(), il, oc, ol(), _r
 
 ### Community 367 - "wargaNpc.js"
 Cohesion: 0.32
@@ -1757,9 +1799,13 @@ Nodes (10): alat(), buatWargaNPC(), aturGotong(), isi(), setProyek(), kotak(), l
 Cohesion: 0.20
 Nodes (7): getUnitVector(), SDPVTL(), SFVFS(), SFVTL(), SPVFS(), SPVTL(), UnitVector()
 
-### Community 370 - "WebGLRenderList"
-Cohesion: 0.24
-Nodes (7): WebGLRenderList(), getNextRenderItem(), materialVariant(), push(), unshift(), WebGLRenderLists(), get()
+### Community 369 - "CardFlockTumble.tsx"
+Cohesion: 0.12
+Nodes (24): Av(), AV_COLORS, Backdrop(), CARD_FLOCK_TUMBLE_DURATION, CARD_OUT, CardFlockTumble(), CARDS, catmull() (+16 more)
+
+### Community 370 - "gd"
+Cohesion: 0.07
+Nodes (7): Ad(), Cd(), _d, gd, n, Rd(), Wd()
 
 ### Community 372 - "hyperframes.json"
 Cohesion: 0.18
@@ -1777,21 +1823,25 @@ Nodes (10): convertToHalf(), csc709Inverse(), dctInverse(), decodeFloat16(), los
 Cohesion: 0.27
 Nodes (8): Coverage(), FeatureList(), LookupList(), recordList(), ScriptList(), Table(), tableList(), ushortList()
 
-### Community 377 - "Raycaster"
-Cohesion: 0.24
-Nodes (3): ascSort(), intersect(), Raycaster
-
 ### Community 380 - "Tween"
-Cohesion: 0.27
-Nodes (10): _assertThisInitialized(), gc(), qa(), Timeline(), Tween(), ua(), va(), w() (+2 more)
+Cohesion: 0.17
+Nodes (15): _assertThisInitialized(), Ec(), Fc(), gc(), qa(), t(), tb(), Timeline() (+7 more)
 
-### Community 381 - "ScanBracketSweep.tsx"
-Cohesion: 0.33
-Nodes (9): clamp01(), colX(), CORNERS, HEAD, inOutSin(), ROWS, SCAN_BRACKET_SWEEP_DURATION, scanAt() (+1 more)
+### Community 381 - "OrbitRingTitleOpen.tsx"
+Cohesion: 0.23
+Nodes (19): Caps(), charStyle(), F(), ORBIT_RING_TITLE_OPEN_DURATION, OrbitRingTitleOpen(), Pad(), SKETCH, STEPS (+11 more)
+
+### Community 382 - "projectCards.ts"
+Cohesion: 0.18
+Nodes (16): canonical(), groupUnits(), ManifestAudio, ManifestTheme, ManifestUnit, UNIT_KINDS, UnitKind, unitsOf() (+8 more)
 
 ### Community 383 - "uncompressDWA"
 Cohesion: 0.39
 Nodes (9): unzlibSync(), decodeRunLength(), decompressDeepData(), interleaveScalar(), predictor(), uncompressDWA(), uncompressPXR(), uncompressRLE() (+1 more)
+
+### Community 384 - "CSS2DRenderer.js"
+Cohesion: 0.12
+Nodes (12): _a, _b, CSS2DObject, CSS2DRenderer, filterAndFlatten(), getDistanceToSquared(), hideObject(), renderObject() (+4 more)
 
 ### Community 387 - "WebGLEnvironments"
 Cohesion: 0.39
@@ -1805,17 +1855,13 @@ Nodes (6): appIcon(), list(), lockScreen(), notification(), phone(), statusBar()
 Cohesion: 0.28
 Nodes (9): Aa(), Animation(), ha(), ja(), Jc(), Lc(), Ra(), Sa() (+1 more)
 
-### Community 390 - "seg"
-Cohesion: 0.39
-Nodes (8): seg(), clamp01(), mixHex(), reelAt(), STEPS, VERTICAL_WORD_ROLL_BLUR_CYCLE_DURATION, VerticalWordRollBlurCycle(), WORDS
+### Community 390 - "NeonFrameForerunOrbit.tsx"
+Cohesion: 0.16
+Nodes (16): AV, BG_FRAMES, BgFrame, Chip(), easeFall, FloatWrap(), Glyph(), HomePage() (+8 more)
 
-### Community 391 - "AvatarBracketCarousel.tsx"
-Cohesion: 0.25
-Nodes (8): AV, AVATAR_BRACKET_CAROUSEL_DURATION, AvatarBracketCarousel(), CORNER_DIR, CORNERS, ICON, lighten(), SWITCHES
-
-### Community 392 - "ValueStaggerGradient.tsx"
-Cohesion: 0.31
-Nodes (8): BARS, Code(), LINE1, LINE2, staggerVal(), Tok, VALUE_STAGGER_GRADIENT_DURATION, ValueStaggerGradient()
+### Community 391 - "Carousel3D.tsx"
+Cohesion: 0.28
+Nodes (12): CARDS, Carousel3D(), CAROUSEL_3D_DURATION, clamp01(), Face(), Graphic(), hex(), Kind (+4 more)
 
 ### Community 393 - "scripts"
 Cohesion: 0.22
@@ -1837,13 +1883,17 @@ Nodes (5): ImageScene(), MultiScene(), OutroScene(), TitleScene(), RemotionRoot(
 Cohesion: 0.25
 Nodes (7): interface, brand_color, default_prompt, display_name, icon_large, icon_small, short_description
 
-### Community 398 - "LogoShrinkWordmarkLockup.tsx"
-Cohesion: 0.46
-Nodes (7): lerp(), arcPath(), Arcs(), LOGO_SHRINK_WORDMARK_LOCKUP_DURATION, LogoShrinkWordmarkLockup(), scaleAt(), spinAt()
+### Community 398 - "finish"
+Cohesion: 0.18
+Nodes (17): apiR(), bangunMobil(), bunyi(), esc(), finish(), gantiMobil(), jamTeks(), lewatGerbang() (+9 more)
 
 ### Community 399 - "fontToSfntTable"
 Cohesion: 0.33
 Nodes (7): average(), computeCheckSum(), fontToSfntTable(), log2(), makeSfntTable(), makeTableRecord(), metricsForChar()
+
+### Community 400 - "jsm/utils/BufferGeometryUtils.js"
+Cohesion: 0.14
+Nodes (8): computeMikkTSpaceTangents(), computeMorphedAttributes(), deepCloneAttribute(), deinterleaveAttribute(), deinterleaveGeometry(), mergeAttributes(), mergeGeometries(), toCreasedNormals()
 
 ### Community 403 - "run.sh"
 Cohesion: 0.57
@@ -1865,13 +1915,9 @@ Nodes (4): chime, description, duration, file
 Cohesion: 0.70
 Nodes (4): bad(), note(), ok(), install.sh script
 
-### Community 414 - "lib/VerticalTicker.tsx"
-Cohesion: 0.50
-Nodes (4): Column(), TickerColumn, VerticalTicker(), VerticalTickerProps
-
-### Community 415 - "buatNav"
-Cohesion: 0.50
-Nodes (4): buatNav(), cari(), lurus(), pecahRute()
+### Community 412 - "Shape"
+Cohesion: 0.20
+Nodes (3): Shape, getInteriorPoint(), pointInPolygon()
 
 ### Community 416 - "click"
 Cohesion: 0.50
@@ -1949,33 +1995,93 @@ Nodes (4): whoosh-short, description, duration, file
 Cohesion: 0.67
 Nodes (4): addName(), makeFvarAxis(), makeFvarInstance(), makeFvarTable()
 
-### Community 437 - "Od"
-Cohesion: 0.50
-Nodes (3): Od(), Sd(), Td()
+### Community 437 - "t"
+Cohesion: 0.04
+Nodes (28): asliH(), asliW(), gH, gW, kelasMedia(), kunciLandscape(), perlu(), terapkan() (+20 more)
 
 ### Community 438 - "lib/PageCam.tsx"
 Cohesion: 0.67
 Nodes (3): CamKey, lerp(), PageCam()
 
+### Community 458 - "NeonTripleMarquee.tsx"
+Cohesion: 0.20
+Nodes (13): IGNITE, ignite(), KILL, kill(), MarqueeRow(), measure(), NEON_TRIPLE_MARQUEE_DURATION, NeonTripleMarquee() (+5 more)
+
+### Community 462 - "esc"
+Cohesion: 0.11
+Nodes (31): alamat(), ambilPiala(), bisaKerja(), bukaLombaRumah(), bukaPeringkat(), bukaPiala(), bukaProfesi(), bukaProfil() (+23 more)
+
+### Community 465 - "paper-trading"
+Cohesion: 0.22
+Nodes (9): run, BOT_FOLDER, paper-trading, defaults, env, name, runs-on, timeout-minutes (+1 more)
+
+### Community 466 - "steps"
+Cohesion: 0.25
+Nodes (9): GH_TOKEN, steps, steps, env, id, if, name, run (+1 more)
+
+### Community 467 - "WebGLRenderList"
+Cohesion: 0.24
+Nodes (7): WebGLRenderList(), getNextRenderItem(), materialVariant(), push(), unshift(), WebGLRenderLists(), get()
+
+### Community 469 - "with"
+Cohesion: 0.25
+Nodes (8): with, if-no-files-found, key, name, path, restore-keys, retention-days, sparse-checkout
+
+### Community 470 - "include"
+Cohesion: 0.29
+Nodes (7): cache, folder, varian, include, strategy, fail-fast, matrix
+
+### Community 475 - "Raycaster"
+Cohesion: 0.24
+Nodes (3): ascSort(), intersect(), Raycaster
+
+### Community 476 - "lanjut"
+Cohesion: 0.50
+Nodes (4): lanjut, if, needs, runs-on
+
+### Community 477 - "on"
+Cohesion: 0.50
+Nodes (4): on, schedule, workflow_dispatch, cron
+
+### Community 479 - "transformPath"
+Cohesion: 0.31
+Nodes (8): eigenDecomposition(), getTransformScaleX(), getTransformScaleY(), isTransformFlipped(), isTransformSkewed(), transformPath(), transfEllipseGeneric(), transfEllipseNoSkew()
+
+### Community 480 - "s"
+Cohesion: 0.36
+Nodes (7): s(), B(), k(), O(), P(), V(), z()
+
+### Community 481 - "s"
+Cohesion: 0.36
+Nodes (7): s(), B(), k(), O(), P(), V(), z()
+
+### Community 482 - "parseFloats"
+Cohesion: 0.29
+Nodes (5): parseFloats(), parseGradients(), coord(), inherit(), parseTransformString()
+
+### Community 485 - "WebGLGeometries"
+Cohesion: 0.47
+Nodes (5): WebGLGeometries(), get(), getWireframeAttribute(), onGeometryDispose(), updateWireframeAttribute()
+
 ## Knowledge Gaps
-- **7 isolated node(s):** `RFC-1951`, `RFC-3987`, `kelasduniakotak`, `RFC-8030`, `RFC-8292` (+2 more)
-  These have ≤1 connection - possible missing edges. (Counts symbols only; 5787 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **97 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **7 isolated node(s):** `RFC-3987`, `RFC-1951`, `FlateErrorCode`, `RFC-8030`, `RFC-8291` (+2 more)
+  These have ≤1 connection - possible missing edges. (Counts symbols only; 6822 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **106 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `gl()` connect `gl` to `alpha`, `wi`, `ts`, `three.module.js`, `Texture`, `Tt`, `rnd`, `.constructor`?**
-  _High betweenness centrality (0.113) - this node is a cross-community bridge._
-- **What connects `RFC-1951`, `RFC-3987`, `kelasduniakotak` to the rest of the system?**
+- **Why does `gl()` connect `gl` to `wi`, `ts`, `three.module.js`, `Matrix3`, `_three/three.module.min.js`, `WebXRManager`, `Polish.tsx`?**
+  _High betweenness centrality (0.124) - this node is a cross-community bridge._
+- **What connects `RFC-3987`, `RFC-1951`, `FlateErrorCode` to the rest of the system?**
   _7 weakly-connected nodes found - possible missing edges._
 - **Should `duniakotak/js/desa.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.06289506953223767 - nodes in this community are weakly interconnected._
-- **Why does `scene()` connect `WebXRManager` to `src/workbench.ts`, `hero3d.js`?**
-  _High betweenness centrality (0.105) - this node is a cross-community bridge._
+  _Cohesion score 0.07966457023060797 - nodes in this community are weakly interconnected._
+- **Why does `Td()` connect `gsap.min.js` to `0.169.0/three.module.min.js`, `_three/three.module.min.js`?**
+  _High betweenness centrality (0.073) - this node is a cross-community bridge._
 - **Should `mabar/game.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.014140393910973234 - nodes in this community are weakly interconnected._
-- **Why does `WebGLRenderer` connect `WebGLRenderer` to `error`, `warn`, `three.module.js`, `WebXRManager`, `.constructor`?**
-  _High betweenness centrality (0.091) - this node is a cross-community bridge._
+  _Cohesion score 0.013621524259822132 - nodes in this community are weakly interconnected._
+- **Why does `scene()` connect `film` to `src/workbench.ts`, `hero3d.js`?**
+  _High betweenness centrality (0.071) - this node is a cross-community bridge._
 - **Should `worker.js` be split into smaller, more focused modules?**
   _Cohesion score 0.04242424242424243 - nodes in this community are weakly interconnected._

@@ -1,7 +1,7 @@
 name: Bot meme coin (paper trading)
 
 # Bot paper trading (uang bohongan). Tidak memakai private key atau secret apa pun.
-# Dua varian strategi jalan berdampingan (utama dan hati-hati), masing-masing ~9 menit
+# Tiga varian strategi jalan berdampingan (utama, hati-hati, selektif), masing-masing ~9 menit
 # per run (cek pasar tiap menit). Status disimpan di cache Actions per varian.
 # Tiap run memicu run berikutnya (disetujui Huda) karena cron GitHub tidak andal.
 # Hentikan: Actions > "Bot meme coin (paper trading)" > ... > Disable workflow.
@@ -33,6 +33,9 @@ jobs:
           - varian: hati-hati
             folder: bot-meme-coin/hati-hati
             cache: bot-meme-coin-hati-state-
+          - varian: selektif
+            folder: bot-meme-coin/selektif
+            cache: bot-meme-coin-selektif-state-
     name: paper-trading (${{ matrix.varian }})
     env:
       BOT_FOLDER: ${{ github.workspace }}/${{ matrix.folder }}
@@ -45,6 +48,7 @@ jobs:
           sparse-checkout: bot-meme-coin
 
       - name: Ambil status sebelumnya
+        id: status
         uses: actions/cache/restore@v4
         with:
           path: |
@@ -53,6 +57,12 @@ jobs:
             ${{ matrix.folder }}/log_bot.txt
           key: ${{ matrix.cache }}${{ github.run_id }}
           restore-keys: ${{ matrix.cache }}
+
+      - name: Peringatan jika status hilang
+        if: steps.status.outputs.cache-matched-key == '' && github.run_number > 1
+        run: |
+          echo "::warning::Status ${{ matrix.varian }} tidak ditemukan di cache. Bot mulai lagi dari saldo awal, hasil sebelumnya tidak terbawa."
+          echo "> PERINGATAN: status ${{ matrix.varian }} tidak ditemukan, saldo mulai dari awal." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Jalankan bot ~9 menit
         run: python3 bot.py --durasi-menit 9
