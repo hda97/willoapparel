@@ -890,7 +890,16 @@ export class Warga extends DurableObject {
       // Misi pemula: 5 langkah berurutan, sekali seumur kavling, koin langsung masuk (hadiah cepat warga baru).
       let pm = []; try { pm = r.pemula ? JSON.parse(r.pemula) : []; } catch (e) {}
       if (!Array.isArray(pm)) pm = [];
-      const bolehPemula = pm.length > 0 || (r.koinTotal || r.koin || 0) < PEMULA_BATAS_KOIN || (r.koin || 0) < PEMULA_SALDO;
+      // Huda 11 Nov 2026: "tanam tomat" jangan tampil ke warga yang sudah main & sudah menanam. Warga yang pernah
+      // menanam/panen tidak lagi masuk misi pemula (kecuali sedang di tengah misi pemula).
+      const sudahTanam = !!r.panen || !!this.bacaKebun(r).b;
+      const bolehPemula = pm.length > 0 || (!sudahTanam && ((r.koinTotal || r.koin || 0) < PEMULA_BATAS_KOIN || (r.koin || 0) < PEMULA_SALDO));
+      // Sedang di tengah misi pemula tapi kebun sudah ditanam di luar misi: langkah jalan & tanam dianggap selesai (tanpa koin)
+      if (pm.length > 0 && sudahTanam && !pm.includes("tanam")) {
+        for (const id of ["jalan", "tanam"]) if (!pm.includes(id)) pm.push(id);
+        this.sql.exec("UPDATE warga SET pemula = ? WHERE no = ?", JSON.stringify(pm), r.no);
+        const ha = this.bayarAjak(r); if (ha) { r._ajak = ha; r.permata = (r.permata || 0) + ha.permata; }
+      }
       let dapatPm = 0;
       if (aksi === "pemula" && bolehPemula) {
         const i = PEMULA.findIndex(([id]) => id === q.id);
@@ -1058,7 +1067,7 @@ export class Warga extends DurableObject {
         // bibit tomat gratis kalau koin kurang dari 10, supaya warga baru / koin habis tetap bisa mulai berkebun
         // + gratis juga saat langkah "tanam" misi pemula (warga baru sudah dapat koin dari langkah sebelumnya)
         let pm = []; try { pm = r.pemula ? JSON.parse(r.pemula) : []; } catch (e) {}
-        const pemulaTanam = Array.isArray(pm) && !pm.includes("tanam") && (pm.length > 0 || (r.koinTotal || r.koin || 0) < PEMULA_BATAS_KOIN || (r.koin || 0) < PEMULA_SALDO);
+        const pemulaTanam = Array.isArray(pm) && !pm.includes("tanam") && (pm.length > 0 || (!r.panen && ((r.koinTotal || r.koin || 0) < PEMULA_BATAS_KOIN || (r.koin || 0) < PEMULA_SALDO)));
         const harga = q.bibit === "tomat" && (koin < bb.harga || pemulaTanam) ? 0 : bb.harga;
         if (koin < harga) return Response.json({ galat: "Koinmu kurang (" + harga + " koin)." }, { status: 400 });
         koin -= harga; kb.b = q.bibit; kb.t = kini; this.arus("-koin:bibit", harga);
