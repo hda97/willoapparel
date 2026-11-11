@@ -1,4 +1,4 @@
-// Menggambar ulang satu batch dari kode (scenes.html) menjadi JPG 4000x3000.
+// Menggambar ulang satu batch dari kode (scenes.html atau svg/*.svg) menjadi JPG 4000x3000.
 // Pakai: node render.js batches/<nama>.json <folder-keluaran>
 const fs = require('fs');
 const path = require('path');
@@ -15,7 +15,18 @@ try { ({ chromium } = require('playwright-core')); } catch (e) { ({ chromium } =
   const galat = [];
   page.on('pageerror', (e) => galat.push(e.message));
   await page.goto('file://' + path.join(__dirname, 'scenes.html'));
-  for (const g of batch.gambar) {
+  // Gambar gaya SVG (entri punya "svg"): dirender langsung dari file SVG di folder svg/.
+  const svgPage = await browser.newPage({ viewport: { width: 4000, height: 3000 } });
+  for (const g of batch.gambar.filter((x) => x.svg)) {
+    const nama = path.basename(g.svg);
+    const isi = fs.readFileSync(path.join(__dirname, 'svg', nama), 'utf8');
+    await svgPage.setContent(`<body style="margin:0;overflow:hidden"><style>svg{display:block;width:4000px;height:3000px}</style>${isi}</body>`);
+    const buf = await svgPage.screenshot({ type: 'jpeg', quality: 95 });
+    fs.writeFileSync(path.join(outDir, g.file), buf);
+    console.log(`${g.file}  ${(buf.length / 1e6).toFixed(1)} MB`);
+  }
+  await svgPage.close();
+  for (const g of batch.gambar.filter((x) => !x.svg)) {
     const data = await page.evaluate((n) => {
       window.render(n);
       // Bintik halus (+-2) supaya gradasi tidak bergaris saat dibesarkan.
