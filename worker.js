@@ -1635,8 +1635,11 @@ export class Warga extends DurableObject {
       // hanya avatar + username publik (sama dengan yang terlihat saat mereka online). Klien menyembunyikan yang sedang online.
       const a = Math.max(0, +u.searchParams.get("a") || 0), b = Math.max(a, +u.searchParams.get("b") || 0);
       const rows = this.sql.exec("SELECT no, ig, tiktok, avatar FROM warga WHERE no > ? AND no <= ? AND avatar IS NOT NULL AND aktif IS NOT NULL ORDER BY aktif DESC LIMIT 40", a, b).toArray();
-      const warga = []; for (const r of rows) { try { const av = JSON.parse(r.avatar); if (av && (r.ig || r.tiktok)) warga.push({ no: r.no, u: r.ig || r.tiktok, av }); } catch (e) {} }
-      return Response.json({ warga });
+      const warga = []; for (const r of rows) { if (r.no === 1) continue; try { const av = JSON.parse(r.avatar); if (av && (r.ig || r.tiktok)) warga.push({ no: r.no, u: r.ig || r.tiktok, av }); } catch (e) {} }
+      // Raka = warga No. 1 (Huda 11 Nov 2026): avatarnya dipakai NPC di depan Warung Raka saat ia offline.
+      let satu = null;
+      if (a < 1 && b >= 1) { const r = this.sql.exec("SELECT ig, tiktok, avatar FROM warga WHERE no = 1").toArray()[0]; try { const av = r && r.avatar ? JSON.parse(r.avatar) : null; if (av) satu = { u: r.ig || r.tiktok || "raka", av }; } catch (e) {} }
+      return Response.json({ warga, ...(satu ? { satu } : {}) });
     }
     if (aksi === "daftar-publik") {
       // Gabungkan warga terdaftar dengan 63 pengikut awal yang kavlingnya sudah disiapkan (sudah warga sejak video).
