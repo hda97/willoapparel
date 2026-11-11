@@ -13937,21 +13937,99 @@
     "semantic_hash": ""
   },
   "microstock/render.js": {
-    "mtime": 1794408748.1118443,
-    "seen": 1794408819.5872924,
-    "ast_hash": "0c2a50db24d30c1796363532915181bc",
+    "mtime": 1794410149.4163754,
+    "seen": 1794410202.7796729,
+    "ast_hash": "2f0a21350ea7428abf93be43e71515ea",
     "semantic_hash": ""
   },
   "microstock/README.md": {
-    "mtime": 1794408774.9785924,
-    "seen": 1794408819.5880992,
-    "ast_hash": "5321abd35e66319a6b4a7258804d09d9",
+    "mtime": 1794410180.9127436,
+    "seen": 1794410202.7806969,
+    "ast_hash": "6ad983b645393f6fb1db8ba20e0b7607",
     "semantic_hash": ""
   },
   "microstock/scenes.html": {
     "mtime": 1794409295.0758054,
     "seen": 1794409312.5081542,
     "ast_hash": "46ae70b84fc1547fc6086c17088a91c8",
+    "semantic_hash": ""
+  },
+  "microstock/batches/batch-05-riset-gaya-baru.json": {
+    "mtime": 1794410150.155981,
+    "seen": 1794410202.7796683,
+    "ast_hash": "2ee77af6e6e3910acb3d1c909a651cd8",
+    "semantic_hash": ""
+  },
+  "microstock/svg/gen.py": {
+    "mtime": 1794410150.1320088,
+    "seen": 1794410202.7796755,
+    "ast_hash": "7f1aa49fc2c7243110c44665da3483af",
+    "semantic_hash": ""
+  },
+  "microstock/svg/gen2.py": {
+    "mtime": 1794410150.133868,
+    "seen": 1794410202.779677,
+    "ast_hash": "1a38b92570a7031dcd84467324d9fc39",
+    "semantic_hash": ""
+  },
+  "microstock/svg/riset-01-bun-in-the-oven-pregnancy-announcement.svg": {
+    "mtime": 1794410149.639759,
+    "seen": 1794410202.781187,
+    "ast_hash": "542d768a742a1f0263374ec375c1c482",
+    "semantic_hash": ""
+  },
+  "microstock/svg/riset-02-blank-white-t-shirt-front-back.svg": {
+    "mtime": 1794410149.6403866,
+    "seen": 1794410202.781189,
+    "ast_hash": "d9261b7f5a34caea3eb4a5b1819fdde7",
+    "semantic_hash": ""
+  },
+  "microstock/svg/riset-03-coat-of-arms-shield-crown-laurel.svg": {
+    "mtime": 1794410149.6411283,
+    "seen": 1794410202.78119,
+    "ast_hash": "868aeab3d1cfe7269123c381391eeb20",
+    "semantic_hash": ""
+  },
+  "microstock/svg/riset-04-christmas-card-layout-tree.svg": {
+    "mtime": 1794410149.641534,
+    "seen": 1794410202.7811909,
+    "ast_hash": "508ab104789f922f4594de57eecdb7e9",
+    "semantic_hash": ""
+  },
+  "microstock/svg/riset-05-photo-booth-strips-frames.svg": {
+    "mtime": 1794410149.6420164,
+    "seen": 1794410202.7811918,
+    "ast_hash": "dfed977ded97076c4ca1f04f62dc3dc2",
+    "semantic_hash": ""
+  },
+  "microstock/svg/riset-06-gift-tags-set.svg": {
+    "mtime": 1794410149.642362,
+    "seen": 1794410202.781193,
+    "ast_hash": "d3e31c50cc8c56525efd761c0fd080c8",
+    "semantic_hash": ""
+  },
+  "microstock/svg/riset-07-jigsaw-puzzle-missing-piece.svg": {
+    "mtime": 1794410149.7970488,
+    "seen": 1794410202.781194,
+    "ast_hash": "965d431e304b0e59aed656edc804dd0b",
+    "semantic_hash": ""
+  },
+  "microstock/svg/riset-08-american-football-jersey-front-back.svg": {
+    "mtime": 1794410149.9090488,
+    "seen": 1794410202.781195,
+    "ast_hash": "72f5a0a14358949801517f35c3341df7",
+    "semantic_hash": ""
+  },
+  "microstock/svg/riset-09-old-newspaper-layout.svg": {
+    "mtime": 1794410150.0210488,
+    "seen": 1794410202.781196,
+    "ast_hash": "a850571b99c904e0f648cf980917e772",
+    "semantic_hash": ""
+  },
+  "microstock/svg/riset-10-to-do-list-clipboard.svg": {
+    "mtime": 1794410150.1250489,
+    "seen": 1794410202.781197,
+    "ast_hash": "4c24891cac83cee3a4898294cf2b5605",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {
