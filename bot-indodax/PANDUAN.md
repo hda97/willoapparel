@@ -34,7 +34,7 @@ Bot butuh `curl`, karena API publik Indodax menolak klien bawaan Python tetapi m
 
 ## Jalan otomatis
 
-Workflow `.github/workflows/bot-indodax.yml` mengecek pasar beberapa kali sehari. Laporan ada di tab Actions > "Bot Indodax (paper trading)" > run terbaru > Summary. Hentikan lewat tombol "..." > Disable workflow.
+Workflow `.github/workflows/bot-indodax.yml` mengecek pasar beberapa kali sehari. Laporan ada di tab Actions > "Bot Indodax (paper trading)" > run terbaru > Summary. Karena jadwal GitHub di repo ini sering dilewati, tiap run menunggu sekitar 3 jam lalu memicu run berikutnya (rantai otomatis), jadi selalu ada satu run berstatus "in progress" dan itu normal. Hentikan lewat tombol "..." > Disable workflow, lalu Cancel run yang sedang menunggu.
 
 ## Sebelum uang asli
 
