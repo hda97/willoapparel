@@ -757,7 +757,7 @@ function bangunKavling(n) {
       if (Math.abs(p.x) < 2.75 && p.z > -2.3 && p.z < 3.3 && lebar < 6) badan.add(c); }
     H.add(badan); bakeGroup(badan); H = badan;
   }
-  if (H && n !== 1 && (BT[n] >= BATA_BENDERA || JR === n || TR === n)) pasangHadiahRumah(n, L, H, extra, rects);
+  if (H && (n !== 1 || NM[1]) && (BT[n] >= BATA_BENDERA || JR === n || TR === n)) pasangHadiahRumah(n, L, H, extra, rects);
   bakeGroup(g); bakeGroup(extra);
   lotRuntime.set(n, {g, extra, rects, rumah: H, dalam: H ? rectLot(L, -3, -1, -1.4, .2) : null, interior: null});
   if (S.saya && n === S.saya.no) { kebunTahap = null; segarKebun(); }
@@ -2299,13 +2299,13 @@ function bolaBuat(L) {
 }
 // skill Tendang (Huda 6 Nov: ganti skill Ngobrol): tombol muncul bila bola dekat; tendangan keras melambung ke arah hadap avatar
 // Kebun sendiri (audit ekonomi 6 Nov 2026): 🌱 Tanam (beli bibit pakai koin) → 6 jam → 🧺 Panen (5 hasil + 2 permata) → 💰 Jual di warung depan rumah.
-// Lomba Rumah Terindah: rumah warga lain (terdaftar, bukan Raka) yang sedang didekati → tombol ❤️ Suka
+// Lomba Rumah Terindah: rumah warga lain (terdaftar; No. 1 ikut bila sudah dihuni warga) yang sedang didekati → tombol ❤️ Suka
 let RS = {sisa: null, sudah: []}, rtCache = {t: 0, n: 0};
 function rumahTetangga(me) {
   if (S.tamu || !S.saya || !I) return 0;
   const t = performance.now(); if (t - rtCache.t < 400) return rtCache.n;
   let best = 0, bd = 4.5 * VS;
-  for (const n of lotRuntime.keys()) { if (n === 1 || n === S.saya.no || !NM[n]) continue; const L = I.lots[n]; if (!L) continue;
+  for (const n of lotRuntime.keys()) { if (n === S.saya.no || !NM[n]) continue; const L = I.lots[n]; if (!L) continue;
     const d = Math.hypot(L.c.x - me.position.x, L.c.z - me.position.z); if (d < bd) { bd = d; best = n; } }
   rtCache = {t, n: best}; return best;
 }
