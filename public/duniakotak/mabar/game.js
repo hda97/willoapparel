@@ -2059,7 +2059,7 @@ function jalanRute(t) {
 function titikPeta(c, k, me) {
   // warga online (hijau), Raka (bintang), saya (panah biru)
   for (const o of S.others.values()) { const [u, v] = keP(o.obj.position.x, o.obj.position.z); c.fillStyle = '#2ecc71'; c.strokeStyle = '#fff'; c.lineWidth = 2 * k; c.beginPath(); c.arc(u, v, 6 * k, 0, 7); c.fill(); c.stroke(); }
-  if (tokoh.raka) { const [u, v] = keP(tokoh.raka.position.x, tokoh.raka.position.z); c.font = `${Math.round(18 * k)}px sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('⭐', u, v); }
+  if (tokoh.raka && tokoh.raka.visible) { const [u, v] = keP(tokoh.raka.position.x, tokoh.raka.position.z); c.font = `${Math.round(18 * k)}px sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('⭐', u, v); }
   if (rute.titik) { c.lineJoin = c.lineCap = 'round'; for (const [w, col] of [[11, '#ffffff'], [7, '#4285f4']]) { c.strokeStyle = col; c.lineWidth = w * k; c.beginPath(); for (let i = rute.idx; i < rute.titik.length; i++) { const [u, v] = keP(rute.titik[i][0], rute.titik[i][1]); if (i === rute.idx) c.moveTo(u, v); else c.lineTo(u, v); } c.stroke(); } }
   const tj = rute.titik ? rute.tujuan : peta.tuju;
   if (tj) { const [u, v] = keP(tj.x, tj.z); c.fillStyle = '#ea4335'; c.strokeStyle = '#fff'; c.lineWidth = 2.5 * k; c.beginPath(); c.arc(u, v - 16 * k, 10 * k, Math.PI * .85, Math.PI * 2.15); c.lineTo(u, v); c.closePath(); c.fill(); c.stroke(); c.fillStyle = '#fff'; c.beginPath(); c.arc(u, v - 16 * k, 4 * k, 0, 7); c.fill(); }
@@ -2753,7 +2753,7 @@ function tulisChat() {
   el.innerHTML = S.chat[S.ch].map(x => x.kls === 'sistem' ? `<div class="sistem">${esc(x.m)}</div>` : `<div><b class="${x.kls || ''}">${esc(x.nama)}:</b> ${esc(x.m)}</div>`).join('') || '<div class="sistem">Belum ada pesan. Sapa warga lain!</div>';
   el.scrollTop = el.scrollHeight;
 }
-function gelembung(no, m, emo) { const t = no === 'raka' ? tokoh.raka : no === S.saya?.no ? tokoh.saya : S.others.get(no)?.obj; if (!t) return; t.userData.gel = {m, emo, sampai: performance.now() + (emo ? 2500 : 6000)}; }
+function gelembung(no, m, emo) { const t = no === 'raka' ? tokoh.raka : no === S.saya?.no ? tokoh.saya : S.others.get(no)?.obj; if (!t || !t.visible) return; t.userData.gel = {m, emo, sampai: performance.now() + (emo ? 2500 : 6000)}; }
 function kirimChat(m) {
   m = String(m || '').trim(); if (!m) return;
   if (S.tamu) { toast('Daftar jadi warga dulu untuk ngobrol.'); return; }
@@ -3064,6 +3064,8 @@ async function mulai() {
   yaw = yawNow = L.dir === 1 ? 0 : Math.PI;   // kamera menghadap depan rumah sendiri
   const L1 = I.lots[1] || {gate: I.spawn.clone().add(new THREE.Vector3(-5 * VS, 0, -2.2 * VS)), dir: 1};
   tokoh.raka = raka('senang'); tokoh.raka.traverse(m => { if (m.isMesh) m.castShadow = true; }); tokoh.raka.position.set(L1.gate.x + 1.6 * VS, 0, L1.gate.z + L1.dir * 1.1 * VS); tokoh.raka.rotation.y = L1.dir === 1 ? .3 : Math.PI + .3; sc.add(tokoh.raka);
+  // Warga No. 1 (@raka, akun Huda 11 Nov 2026) ADALAH Raka: di layarnya sendiri patung/NPC Raka disembunyikan supaya tidak ada dua Raka.
+  if (!S.tamu && S.saya?.no === 1) tokoh.raka.visible = false;
   tokoh.oyen = kucingMesh('oranye'); tokoh.oyen.traverse(m => { if (m.isMesh) m.castShadow = true; }); tokoh.oyen.position.set(L1.gate.x + 2.4 * VS, 0, L1.gate.z + L1.dir * 1.7 * VS); sc.add(tokoh.oyen);
   tokoh.oyen.userData.ph = 0;
   npc = buatNPC({sc, I, VS, warga, pose: wpose, siapAv: bersihAv, bayangan: !hemat, tinggi: (x, z, r) => tanah(x, z, r), pasar: () => DI === 'wetan' && pasarBuka()});
@@ -3316,7 +3318,7 @@ function loop(t) {
   pool.forEach(d => { d.dipakai = false; }); taruh.length = 0;
   const lbl = (o, h, teks, cls, no, idNpc) => { const el = tempel(o, h, teks, cls); if (el) { el.dataset.no = no || ''; el.dataset.npc = idNpc || ''; } return el; };
   lbl(me, 5.2, S.tamu ? 'Kamu (tamu)' : lencana(S.saya.no) + '@' + S.saya.ig, 'nm saya');
-  lbl(tokoh.raka, 5.2, '★ Raka', 'nm raka'); lbl(tokoh.oyen, 2.6, 'Oyen', 'nm raka kucing');
+  if (tokoh.raka.visible) lbl(tokoh.raka, 5.2, '★ Raka', 'nm raka'); lbl(tokoh.oyen, 2.6, 'Oyen', 'nm raka kucing');
   for (const c of [tokoh.oyen, ...kucingHidup]) if (c.userData.senang > performance.now()) tempel(c, 4.2, '❤️ nyam!', 'gel emo', -4);
   for (const it of itemDunia) if (it.position.distanceTo(me.position) < 45) tempel(it, 3.4, it.userData.jenis.ikon, 'nm item');
   if (mancing.on) tempel(me, 6.6, mancing.teks, 'gel emo', -4);
