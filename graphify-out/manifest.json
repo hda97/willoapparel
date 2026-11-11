@@ -13936,12 +13936,6 @@
     "ast_hash": "81cfd84f353dda79e1d48f4330171257",
     "semantic_hash": ""
   },
-  "microstock/batches/batch-02-ide-liar.json": {
-    "mtime": 1794408748.104036,
-    "seen": 1794408819.5872905,
-    "ast_hash": "8895e10f2baea088f3f4f51b44053ac7",
-    "semantic_hash": ""
-  },
   "microstock/render.js": {
     "mtime": 1794408748.1118443,
     "seen": 1794408819.5872924,
@@ -13955,15 +13949,21 @@
     "semantic_hash": ""
   },
   "microstock/scenes.html": {
-    "mtime": 1794409057.632799,
-    "seen": 1794409087.5036836,
-    "ast_hash": "9eb03288d888d0ee4e806b7155acec07",
+    "mtime": 1794409295.0758054,
+    "seen": 1794409312.5081542,
+    "ast_hash": "46ae70b84fc1547fc6086c17088a91c8",
     "semantic_hash": ""
   },
   "microstock/batches/batch-03-riset-trafik.json": {
     "mtime": 1794409057.6428442,
     "seen": 1794409087.5027723,
     "ast_hash": "2fb5fbfe6bd85090908779b4027ad32a",
+    "semantic_hash": ""
+  },
+  "microstock/batches/batch-04-riset-trafik.json": {
+    "mtime": 1794409295.083512,
+    "seen": 1794409312.5065234,
+    "ast_hash": "f39781487e7c92db463c1bfc24ec7a30",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {

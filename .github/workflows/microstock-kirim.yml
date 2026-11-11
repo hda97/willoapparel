@@ -19,7 +19,7 @@ on:
   workflow_dispatch:
     inputs:
       batch:
-        description: "Nama batch tanpa .json, misalnya batch-02-ide-liar"
+        description: "Nama batch tanpa .json, misalnya batch-03-riset-trafik"
         required: true
       kirim:
         description: "Kirim ke Adobe? (false = hanya gambar, hasil bisa diunduh)"
