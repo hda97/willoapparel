@@ -202,6 +202,9 @@ const KOREKSI_IG = { fakhri_udah_itu_aja: "fakhri_udah_itu_aja_89" };
 // Bila belum ada warga bernama `ke`, akun `dari` cukup diganti namanya jadi `ke` (nomor & semua aset tetap).
 // Cadangan kedua akun (semua baris terkait) disimpan dulu di tabel `cadangan` sebelum diubah.
 const GABUNG_AKUN = [{ dari: "miftakhul_hda", ke: "raka" }];
+// Pindah kavling (Huda 11 Nov 2026): warga `un` pindah ke nomor/kavling `ke` (rumah No. 1 = rumah Raka di Kotak Wetan).
+// Hanya jalan bila nomor tujuan masih kosong; semua aset ikut pindah (nomor warga diganti di semua tabel). Cadangan dulu di tabel `cadangan`.
+const PINDAH_KAVLING = [{ un: "raka", ke: 1 }];
 
 // Username yang terpotong di screenshot: dicocokkan dari awalannya.
 const KAVLING_AWALAN = { muhammadfebriy: 10 };
@@ -362,6 +365,7 @@ export class Warga extends DurableObject {
     this.sql.exec("CREATE TABLE IF NOT EXISTS gabung (jenis TEXT, nilai TEXT, ke INTEGER, t INTEGER, PRIMARY KEY (jenis, nilai))");
     this.sql.exec("CREATE TABLE IF NOT EXISTS cadangan (id INTEGER PRIMARY KEY AUTOINCREMENT, t INTEGER, ket TEXT, data TEXT)");
     for (const g of GABUNG_AKUN) { try { this.gabungAkun(g.dari, g.ke); } catch (e) { console.log("gabung akun gagal", g.dari, e && e.message); } }
+    for (const g of PINDAH_KAVLING) { try { this.pindahKavling(g.un, g.ke); } catch (e) { console.log("pindah kavling gagal", g.un, e && e.message); } }
     // Kavling 1 = Raka. Kavling 2-64 disiapkan untuk 63 pengikut pertama (lihat KAVLING_DISIAPKAN).
     // Pendaftar lain mulai dari kavling 65.
     if (!this.sql.exec("SELECT 1 FROM warga LIMIT 1").toArray().length) {
@@ -472,6 +476,27 @@ export class Warga extends DurableObject {
       this.sql.exec("UPDATE gabung SET ke = ? WHERE ke = ?", B, A);   // alias lama yang dulu menunjuk akun lama
       this._rp = null; this._jr = undefined; this._tks = null; this._tr = null;
       return { cara: "gabung", dari: A, ke: B };
+    });
+  }
+  // Pindahkan warga bernama `un` ke nomor `B` (harus kosong). Tidak melakukan apa-apa bila sudah di sana atau nomor tujuan terisi warga lain.
+  pindahKavling(un, B) {
+    const r = this.sql.exec("SELECT no FROM warga WHERE ig = ? OR tiktok = ? ORDER BY no LIMIT 1", un, un).toArray()[0];
+    if (!r || r.no === B) return null;
+    const lain = this.sql.exec("SELECT no, ig FROM warga WHERE no = ?", B).toArray()[0];
+    if (lain) { console.log("pindah kavling batal: No. " + B + " sudah dihuni @" + lain.ig); return null; }
+    const A = r.no, kini = Date.now();
+    const TABEL = [["tukang", "no"], ["reli", "no"], ["reliRekor", "no"], ["iuran", "no"], ["suara", "no"], ["rumahSuka", "dari"], ["rumahSuka", "ke"], ["piala", "no"], ["donasi", "no"], ["juragan", "no"], ["plakat", "no"], ["notif", "no"]];
+    return this.ctx.storage.transactionSync(() => {
+      const cad = { warga: this.sql.exec("SELECT * FROM warga WHERE no = ?", A).toArray() };
+      for (const [t, k] of TABEL) cad[t + "." + k] = this.sql.exec(`SELECT * FROM ${t} WHERE ${k} = ?`, A).toArray();
+      this.sql.exec("INSERT INTO cadangan (t, ket, data) VALUES (?, ?, ?)", kini, "pindah @" + un + " No. " + A + " -> " + B, JSON.stringify(cad));
+      this.sql.exec("UPDATE warga SET no = ? WHERE no = ?", B, A);
+      this.sql.exec("UPDATE warga SET ajak = ? WHERE ajak = ?", B, A);
+      // Piala: kolom d (dusun saat poin didapat) tidak diubah, jadi klasemen dusun tetap.
+      for (const [t, k] of TABEL) this.sql.exec(`UPDATE ${t} SET ${k} = ? WHERE ${k} = ?`, B, A);
+      this.sql.exec("UPDATE gabung SET ke = ? WHERE ke = ?", B, A);
+      this._rp = null; this._jr = undefined; this._tks = null; this._tr = null;
+      return { dari: A, ke: B };
     });
   }
   // ---- Lomba Rumah Terindah ----
@@ -1083,7 +1108,7 @@ export class Warga extends DurableObject {
       if (!r) return Response.json({ galat: "Masuk dulu sebagai warga." }, { status: 401 });
       const ke = Math.floor(+q.ke || 0), kini = Date.now(), hari = hariWib(kini), mg = mingguWib(kini);
       if (ke === r.no) return Response.json({ galat: "Itu rumahmu sendiri. Ajak tetangga memberi ❤️ ya!" }, { status: 400 });
-      if (ke <= 1 || !this.sql.exec("SELECT 1 FROM warga WHERE no = ?", ke).toArray().length) return Response.json({ galat: "Rumah ini belum ikut lomba." }, { status: 400 });
+      if (ke < 1 || !this.sql.exec("SELECT 1 FROM warga WHERE no = ?", ke).toArray().length) return Response.json({ galat: "Rumah ini belum ikut lomba." }, { status: 400 });
       const pakai = this.sql.exec("SELECT ke FROM rumahSuka WHERE hari = ? AND dari = ?", hari, r.no).toArray().map((x) => x.ke);
       if (pakai.includes(ke)) return Response.json({ galat: "Kamu sudah memberi ❤️ ke rumah ini hari ini." }, { status: 400 });
       if (pakai.length >= RUMAH_SUKA_HARI) return Response.json({ galat: "❤️ hari ini sudah habis (" + RUMAH_SUKA_HARI + "/" + RUMAH_SUKA_HARI + "). Besok dapat lagi." }, { status: 400 });
