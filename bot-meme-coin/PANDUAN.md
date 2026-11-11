@@ -108,3 +108,9 @@ Yang berbeda di `selektif/config.json`:
 Pilihan baru itu juga bisa dipakai di config lain; nilai bawaannya mati, jadi varian utama dan hati-hati tidak berubah.
 
 Syarat sebelum uang asli dipertimbangkan: minimal 100 transaksi tertutup, total untung setelah biaya, tetap untung tanpa 3 transaksi terbaik, dan untung di paruh pertama maupun kedua.
+
+## Status: DIHENTIKAN (11 November 2026)
+
+Bot dihentikan atas permintaan Huda. Jadwal otomatis dicabut. Hasil akhir paper trading (modal $100 per varian): utama $33,45, hati-hati sekitar $90, selektif $97,63. Tidak ada varian yang untung.
+
+Menjalankan lagi: tab Actions > "Bot meme coin (paper trading)" > Run workflow > centang **jalankan**. Status saldo tersimpan di cache Actions selama 7 hari sejak terakhir dipakai; setelah itu bot mulai dari saldo awal.
