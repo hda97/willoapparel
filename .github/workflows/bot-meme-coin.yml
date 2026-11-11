@@ -6,10 +6,16 @@ name: Bot meme coin (paper trading)
 # Tiap run memicu run berikutnya (disetujui Huda) karena cron GitHub tidak andal.
 # Hentikan: Actions > "Bot meme coin (paper trading)" > ... > Disable workflow.
 
+# DIHENTIKAN 11 Nov 2026 atas permintaan Huda. Jadwal otomatis dicabut dan bot
+# hanya jalan bila dipicu manual dengan pilihan "jalankan" dicentang
+# (Actions > workflow ini > Run workflow). Rantai otomatis ikut berhenti.
 on:
-  schedule:
-    - cron: "*/10 * * * *"
   workflow_dispatch:
+    inputs:
+      jalankan:
+        description: "Centang untuk menjalankan bot lagi (berantai terus sampai dihentikan)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -21,6 +27,7 @@ concurrency:
 
 jobs:
   paper-trading:
+    if: ${{ inputs.jalankan }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
@@ -97,10 +104,10 @@ jobs:
 
   lanjut:
     needs: paper-trading
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && inputs.jalankan }}
     runs-on: ubuntu-latest
     steps:
       - name: Lanjutkan run berikutnya
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run bot-meme-coin.yml --ref main --repo "$GITHUB_REPOSITORY"
+        run: gh workflow run bot-meme-coin.yml --ref main --repo "$GITHUB_REPOSITORY" -f jalankan=true
