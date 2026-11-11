@@ -205,6 +205,9 @@ const GABUNG_AKUN = [{ dari: "miftakhul_hda", ke: "raka" }];
 // Pindah kavling (Huda 11 Nov 2026): warga `un` pindah ke nomor/kavling `ke` (rumah No. 1 = rumah Raka di Kotak Wetan).
 // Hanya jalan bila nomor tujuan masih kosong; semua aset ikut pindah (nomor warga diganti di semua tabel). Cadangan dulu di tabel `cadangan`.
 const PINDAH_KAVLING = [{ un: "raka", ke: 1 }];
+// Hapus donasi uji (Huda 11 Nov 2026): donasi Bata warga `un` sebelum `sebelum` hanya tes → catatan donasi, mahkota Juragan, plakat,
+// dan bintang/permata hadiahnya dihapus (sekali jalan; donasi asli sesudah `sebelum` tidak tersentuh). Cadangan dulu di tabel `cadangan`.
+const HAPUS_DONASI_UJI = [{ un: "raka", sebelum: Date.parse("2026-11-11T10:00:00Z") }];
 
 // Username yang terpotong di screenshot: dicocokkan dari awalannya.
 const KAVLING_AWALAN = { muhammadfebriy: 10 };
@@ -366,6 +369,7 @@ export class Warga extends DurableObject {
     this.sql.exec("CREATE TABLE IF NOT EXISTS cadangan (id INTEGER PRIMARY KEY AUTOINCREMENT, t INTEGER, ket TEXT, data TEXT)");
     for (const g of GABUNG_AKUN) { try { this.gabungAkun(g.dari, g.ke); } catch (e) { console.log("gabung akun gagal", g.dari, e && e.message); } }
     for (const g of PINDAH_KAVLING) { try { this.pindahKavling(g.un, g.ke); } catch (e) { console.log("pindah kavling gagal", g.un, e && e.message); } }
+    for (const g of HAPUS_DONASI_UJI) { try { this.hapusDonasiUji(g.un, g.sebelum); } catch (e) { console.log("hapus donasi uji gagal", g.un, e && e.message); } }
     // Kavling 1 = Raka. Kavling 2-64 disiapkan untuk 63 pengikut pertama (lihat KAVLING_DISIAPKAN).
     // Pendaftar lain mulai dari kavling 65.
     if (!this.sql.exec("SELECT 1 FROM warga LIMIT 1").toArray().length) {
@@ -497,6 +501,25 @@ export class Warga extends DurableObject {
       this.sql.exec("UPDATE gabung SET ke = ? WHERE ke = ?", B, A);
       this._rp = null; this._jr = undefined; this._tks = null; this._tr = null;
       return { dari: A, ke: B };
+    });
+  }
+  hapusDonasiUji(un, sebelum) {
+    const w = this.sql.exec("SELECT no, bintang, permata FROM warga WHERE ig = ? OR tiktok = ? ORDER BY no LIMIT 1", un, un).toArray()[0];
+    if (!w) return null;
+    const don = this.sql.exec("SELECT * FROM donasi WHERE no = ? AND t < ?", w.no, sebelum).toArray();
+    if (!don.length) return null;
+    return this.ctx.storage.transactionSync(() => {
+      const jr = this.sql.exec("SELECT * FROM juragan WHERE no = ? AND t < ?", w.no, sebelum).toArray();
+      const pl = this.sql.exec("SELECT * FROM plakat WHERE no = ? AND t < ?", w.no, sebelum).toArray();
+      this.sql.exec("INSERT INTO cadangan (t, ket, data) VALUES (?, ?, ?)", Date.now(), "hapus donasi uji @" + un, JSON.stringify({ warga: w, donasi: don, juragan: jr, plakat: pl }));
+      const b = don.reduce((n, d) => n + (d.bintang || 0), 0);
+      this.sql.exec("UPDATE warga SET bintang = MAX(0, COALESCE(bintang, 0) - ?), permata = MAX(0, COALESCE(permata, 0) - ?) WHERE no = ?", b, b * PERMATA_PER_RIBU, w.no);
+      this.sql.exec("DELETE FROM donasi WHERE no = ? AND t < ?", w.no, sebelum);
+      this.sql.exec("DELETE FROM juragan WHERE no = ? AND t < ?", w.no, sebelum);
+      this.sql.exec("DELETE FROM plakat WHERE no = ? AND t < ?", w.no, sebelum);
+      this._rp = null; this._jr = undefined;
+      this.sesudahDonasi(0);   // mahkota pindah ke pendukung asli minggu ini (bila ada)
+      return { donasi: don.length, bintang: b, permata: b * PERMATA_PER_RIBU };
     });
   }
   // ---- Lomba Rumah Terindah ----
