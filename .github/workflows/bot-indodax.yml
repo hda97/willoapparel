@@ -1,0 +1,67 @@
+name: Bot Indodax (paper trading)
+
+# Paper trading (uang bohongan) dengan harga publik Indodax. Tidak memakai kunci
+# API atau secret apa pun dan tidak bisa bertransaksi sungguhan.
+# Strategi harian, jadi cukup dicek beberapa kali sehari. Status disimpan di cache Actions.
+# Hentikan: Actions > "Bot Indodax (paper trading)" > ... > Disable workflow.
+
+on:
+  schedule:
+    - cron: "23 */3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bot-indodax
+  cancel-in-progress: false
+
+jobs:
+  paper-trading:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: bot-indodax
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: bot-indodax
+
+      - name: Ambil status sebelumnya
+        id: status
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            bot-indodax/status_paper.json
+            bot-indodax/riwayat_transaksi.csv
+            bot-indodax/log_bot.txt
+          key: bot-indodax-state-${{ github.run_id }}
+          restore-keys: bot-indodax-state-
+
+      - name: Peringatan jika status hilang
+        if: steps.status.outputs.cache-matched-key == '' && github.run_number > 1
+        run: echo "::warning::Status bot Indodax tidak ditemukan di cache. Bot mulai lagi dari nol."
+
+      - name: Uji otomatis
+        run: python3 uji_bot.py
+
+      - name: Cek pasar dan jalankan strategi
+        run: python3 bot.py
+
+      - name: Laporan
+        if: always()
+        run: |
+          if [ -f log_bot.txt ]; then tail -n 5000 log_bot.txt > log_bot.tmp && mv log_bot.tmp log_bot.txt; fi
+          { echo '```'; python3 bot.py --laporan; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Simpan status
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            bot-indodax/status_paper.json
+            bot-indodax/riwayat_transaksi.csv
+            bot-indodax/log_bot.txt
+          key: bot-indodax-state-${{ github.run_id }}

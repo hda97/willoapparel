@@ -1,0 +1,9 @@
+{
+  "setoran_mingguan_idr": 100000,
+  "hari_setor": 0,
+  "koin": {"BTC": 0.7, "SOL": 0.3},
+  "pembanding_tanpa_sabuk": true,
+  "sma_hari": 50,
+  "biaya_dan_selisih_persen": 0.5,
+  "beli_minimal_idr": 10000
+}
