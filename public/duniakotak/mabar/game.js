@@ -454,6 +454,17 @@ function naikKendaraan() {
   bunyi('masuk'); toast(`${NAIK.ikon} Naik ${NAIK.nama}! Jalan pakai joystick. Tekan ⬇ Turun untuk parkir lagi di rumah.`, 3500);
 }
 function turunKendaraan() { if (!NAIK) return; NAIK = null; turunkan(tokoh.saya); bangunUlangKavling(S.saya.no); kirimNaik(); bunyi('klik'); toast('🅿️ Kendaraanmu diparkir lagi di rumah.', 2500); }
+// Kendaraan ikut pindah dusun (Huda 11 Nov 2026, laporan warga: beli sepeda di Curug, mau dibawa ke rumah di Wetan tapi tidak bisa).
+// Pindah dusun = halaman dimuat ulang, jadi status "sedang naik" disimpan sebentar di sessionStorage lalu dipulihkan di dusun tujuan.
+const kendBawa = () => NAIK ? {ikon: NAIK.ikon, nama: NAIK.nama} : null;
+addEventListener('pagehide', () => { try { const k = NAIK && kendSaya(); if (k) sessionStorage.setItem('dk_naik', JSON.stringify({k, t: Date.now()})); else sessionStorage.removeItem('dk_naik'); } catch (e) {} });
+function bawaKendaraan() {
+  let k = ''; try { const j = JSON.parse(sessionStorage.getItem('dk_naik') || 'null'); sessionStorage.removeItem('dk_naik'); if (j && Date.now() - j.t < 5 * 60e3) k = j.k; } catch (e) {}
+  if (!k || NAIK || S.tamu || !S.saya || I.gedung || !tokoh.saya || kendSaya() !== k) return;
+  NAIK = KEND[k.split(':')[0]]; if (!NAIK) return;
+  naikkan(tokoh.saya, k, S.saya.no); if (I.lots && I.lots[S.saya.no]) bangunUlangKavling(S.saya.no); kirimNaik();
+  setTimeout(() => toast(`${NAIK ? NAIK.ikon + ' ' + NAIK.nama + 'mu ikut sampai' : 'Sampai di'} Dusun ${NAMA_DUSUN[DI]}. Tekan ⬇ Turun untuk parkir di rumah.`, 4000), 3800);
+}
 function kirimNaik() { kirimPos(true); try { if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify({t: 'k'})); } catch (e) {} }
 // panel dealer
 const DLR = {m: 'sepeda', w: 0, data: null, sibuk: false};
@@ -1417,7 +1428,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2'};
+const KABAR_LAMA = {bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   if (window.DK_APP) simpan(KABAR_LAMA.notif, '1');   // aplikasi Android belum bisa notifikasi web
@@ -3104,8 +3115,9 @@ async function mulai() {
   if (!S.tamu && baca('dk_ingat') !== hariIni()) setTimeout(() => setelahPemula(ingatKoin), 45e3);
   onResize(); requestAnimationFrame(loop);
   $('chipTujuan').onclick = klikTujuan; tulisTujuan(); siapkanLangkah(); setTimeout(ambilHadir, 2500); setInterval(bantuPemula, 1000);
-  DG = pasangDesaGabung({DI, NAMA: NAMA_DUSUN, VS, tokoh, tanah, toast, bunyi, pindahBus: d => { const u = new URL(location.href); u.searchParams.set('dusun', d); u.searchParams.delete('ke'); location.href = u.toString(); }});
+  DG = pasangDesaGabung({DI, NAMA: NAMA_DUSUN, VS, tokoh, tanah, toast, bunyi, kend: kendBawa, pindahBus: d => { const u = new URL(location.href); u.searchParams.set('dusun', d); u.searchParams.delete('ke'); location.href = u.toString(); }});
   { const ke = new URLSearchParams(location.search).get('ke'); if (ke === 'gapura') DG.tiba(); else if (ke) setTimeout(() => keTempat(ke), 1500); }
+  bawaKendaraan();
   $('chipKumpul').onclick = keKumpul;
   setTimeout(pasangBenderaPiala, 3000); setTimeout(kabarBaru, 8000);
   mulaiLamaMain();

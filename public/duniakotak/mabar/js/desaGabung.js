@@ -86,8 +86,9 @@ export function pasangDesaGabung(o) {
     if (!p) { p = document.createElement('div'); p.id = 'pilihJalan'; p.className = 'layarPenuh popup'; document.body.appendChild(p);
       p.onclick = e => { const b = e.target.closest('button'); if (e.target === p || (b && b.dataset.batal != null)) { p.hidden = true; return; }
         if (!b) return; if (b.dataset.jalan) { p.hidden = true; jalanKe(b.dataset.jalan); } else if (b.dataset.bus) { p.hidden = true; o.pindahBus(b.dataset.bus); } }; }
+    const kd = o.kend && o.kend();
     const daftar = Object.keys(LETAK).filter(d => d !== DI && ada(d)).map(d => { const m = Math.round(panjang(ruteJalan(DI, d)) / VS);
-      return `<button class="dsPilih" data-jalan="${d}">${IKON[d]} Jalan kaki ke Dusun ${NAMA[d]}<small>arah ${ARAH(DI, d)} · ±${m} m lewat Jl. Raya Dunia Kotak</small></button>`; }).join('');
+      return `<button class="dsPilih" data-jalan="${d}">${IKON[d]} ${kd ? kd.ikon + ' Naik ' + kd.nama : 'Jalan kaki'} ke Dusun ${NAMA[d]}<small>arah ${ARAH(DI, d)} · ±${m} m lewat Jl. Raya Dunia Kotak</small></button>`; }).join('');
     p.innerHTML = `<div class="panel" style="max-width:360px"><h2 style="margin:0 0 6px">🛣️ Jl. Raya Dunia Kotak</h2>
       <p class="kecil" style="margin:0 0 6px">${dariPeta ? 'Jalan kaki dimulai dari gapura dusunmu.' : 'Kamu di gapura Dusun ' + NAMA[DI] + '. Mau ke mana?'}</p>${daftar}
       <button class="dsPilih" data-batal style="background:none;border:0;text-align:center;color:#ccc">Batal</button></div>`;
@@ -95,11 +96,11 @@ export function pasangDesaGabung(o) {
   }
   // animasi jalan kaki di peta desa, lalu masuk dusun tujuan lewat gapuranya
   function jalanKe(d) {
-    const rt = ruteJalan(DI, d), pts = rt.map(([x, z]) => keGambar(x, z));
+    const rt = ruteJalan(DI, d), pts = rt.map(([x, z]) => keGambar(x, z)), kd = o.kend && o.kend();
     const L = document.createElement('div'); L.id = 'layarJalan';
     L.innerHTML = `<div class="bj"><img src="/duniakotak/mabar/aset/peta-desa.jpg" alt=""><svg viewBox="0 0 100 100" preserveAspectRatio="none">
       <polyline points="${pts.map(p => p.join(',')).join(' ')}" fill="none" stroke="#2f6fd8" stroke-width=".9" stroke-dasharray="1.6 1" vector-effect="non-scaling-stroke" style="stroke-width:5px"/></svg>
-      <div class="dsAku" id="jalanAku">🚶 Kamu</div><div class="tk">Berjalan di Jl. Raya Dunia Kotak menuju Dusun ${NAMA[d]}…</div></div>`;
+      <div class="dsAku" id="jalanAku">${kd ? kd.ikon : '🚶'} Kamu</div><div class="tk">${kd ? 'Naik ' + kd.nama : 'Berjalan'} di Jl. Raya Dunia Kotak menuju Dusun ${NAMA[d]}…</div></div>`;
     document.body.appendChild(L); if (o.bunyi) o.bunyi('klik');
     const tot = panjang(pts), dur = 3200, t0 = performance.now(), aku = L.querySelector('#jalanAku');
     const step = t => { const f = Math.min(1, (t - t0) / dur); let s = f * tot, i = 0;
@@ -114,6 +115,7 @@ export function pasangDesaGabung(o) {
   function cek(me) {
     if (!me) return; const g = LETAK[DI] && LETAK[DI].gerbang; if (!g) return;
     const d = Math.hypot(me.position.x - g[0], me.position.z - g[1]), dekat = d < (dekatG ? 34 : 26);
+    if (dekat) { const kd = o.kend && o.kend(), t = '🛣️ Gapura · ' + (kd ? kd.ikon + ' naik ' + kd.nama : 'jalan kaki') + ' ke dusun lain'; if (chip.textContent !== t) chip.textContent = t; }
     if (dekat !== dekatG) { dekatG = dekat; chip.hidden = !dekat; if (dekat && o.bunyi) o.bunyi('klik'); }
   }
   // tiba lewat gapura: berdiri di ujung jalan gapura dusun ini, menghadap ke dalam dusun
