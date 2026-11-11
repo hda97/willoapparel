@@ -19,7 +19,7 @@ import {curug, JALAN_CURUG, AWAL_CURUG} from './js/curug.js?v=20261111nav';
 import {tlaga, JALAN_TLAGA, AWAL_TLAGA} from './js/tlaga.js';
 import {segara, AWAL_SEGARA, kodeUnit} from './js/segara.js';
 import {buatNav, pecahRute} from './js/navigasi.js';
-import {pasangDesaGabung, LETAK} from './js/desaGabung.js';
+import {pasangDesaGabung, LETAK} from './js/desaGabung.js?v=20261111bus';
 
 const $ = id => document.getElementById(id);
 const VS = D.VS;
@@ -377,7 +377,7 @@ const arenaLari = () => fasumBangun.find(f => f.nama && f.nama.includes(NAMA_ARE
 const dekatGapuraCFD = me => { if (DI !== DUSUN_LARI) return false; const f = arenaLari(); if (!f) return false;
   return Math.abs(me.position.x - f.position.x) < 10.5 * VS && Math.abs(me.position.z - f.position.z) < 11 * VS && Math.abs(me.position.y - f.position.y) < 3 * VS; };
 // antar ke gerbang arena (naik bus dulu bila di dusun lain)
-function keArenaLari() { if (DI !== DUSUN_LARI) { if (confirm(`${NAMA_ARENA} ada di Dusun ${NAMA_DUSUN[DUSUN_LARI]}. Naik bus ke sana?`)) { const u = new URL(location.href); u.searchParams.set('dusun', DUSUN_LARI); u.searchParams.set('ke', 'pelari'); location.href = u.toString(); } return; } keTempat('pelari'); }
+function keArenaLari() { if (DI !== DUSUN_LARI) { if (confirm(`${NAMA_ARENA} ada di Dusun ${NAMA_DUSUN[DUSUN_LARI]}. Naik bus ke sana?` + teksTiket())) naikBus(DUSUN_LARI, 'pelari'); return; } keTempat('pelari'); }
 // ---------- Sirkuit Reli Kotak (Huda 10 Nov 2026: game mobil reli versi Dunia Kotak) ----------
 // Lahan sendiri di depan kaki gunung Dusun Kotak Curug (aset F.sirkuitReli, dipasang curug.js, gerbang menghadap jalan).
 // Warga yang masuk area sirkuit dapat tombol 🏁 Reli → game reli terpisah /duniakotak/reli/.
@@ -385,7 +385,7 @@ const DUSUN_RELI = 'curug', NAMA_SIRKUIT = 'Sirkuit Reli Kotak';
 const sirkuitReli = () => fasumBangun.find(f => f.nama && f.nama.includes(NAMA_SIRKUIT));
 const dekatReli = me => { if (DI !== DUSUN_RELI) return false; const f = sirkuitReli(); if (!f) return false;
   return Math.abs(me.position.x - f.position.x) < 10.5 * VS && Math.abs(me.position.z - f.position.z) < 11 * VS && Math.abs(me.position.y - f.position.y) < 3 * VS; };
-function keSirkuitReli() { if (DI !== DUSUN_RELI) { if (confirm(`${NAMA_SIRKUIT} ada di Dusun ${NAMA_DUSUN[DUSUN_RELI]}. Naik bus ke sana?`)) { const u = new URL(location.href); u.searchParams.set('dusun', DUSUN_RELI); u.searchParams.set('ke', 'reli'); location.href = u.toString(); } return; } keTempat('reli'); }
+function keSirkuitReli() { if (DI !== DUSUN_RELI) { if (confirm(`${NAMA_SIRKUIT} ada di Dusun ${NAMA_DUSUN[DUSUN_RELI]}. Naik bus ke sana?` + teksTiket())) naikBus(DUSUN_RELI, 'reli'); return; } keTempat('reli'); }
 function ikutReli() { bunyi('masuk'); toast('🏁 Pakai helm dulu, menuju garis start…', 1500); setTimeout(() => { location.href = '/duniakotak/reli/?dari=desa'; }, 500); }
 // ---------- Dealer Kendaraan & kendaraan warga (Huda 11 Nov 2026) ----------
 // Dealer di Dusun Kotak Curug (aset F.dealer, sebelah Sirkuit Reli). Sepeda, motor & mobil dibeli pakai KOIN (harga = KENDARAAN
@@ -405,7 +405,7 @@ const KEND = {
 const dealerKend = () => fasumBangun.find(f => f.nama && f.nama.includes(NAMA_DEALER));
 const dekatDealer = me => { if (DI !== DUSUN_DEALER) return false; const f = dealerKend(); if (!f) return false;
   return Math.abs(me.position.x - f.position.x) < 10.5 * VS && Math.abs(me.position.z - f.position.z) < 9 * VS; };
-function keDealer() { if (DI !== DUSUN_DEALER) { if (confirm(`${NAMA_DEALER} ada di Dusun ${NAMA_DUSUN[DUSUN_DEALER]}. Naik bus ke sana?`)) { const u = new URL(location.href); u.searchParams.set('dusun', DUSUN_DEALER); u.searchParams.set('ke', 'dealer'); location.href = u.toString(); } return; } keTempat('dealer'); }
+function keDealer() { if (DI !== DUSUN_DEALER) { if (confirm(`${NAMA_DEALER} ada di Dusun ${NAMA_DUSUN[DUSUN_DEALER]}. Naik bus ke sana?` + teksTiket())) naikBus(DUSUN_DEALER, 'dealer'); return; } keTempat('dealer'); }
 const kendSaya = () => { const K = S.hias && S.hias.kendaraan, k = K && Array.isArray(K.g) && K.g[K.p]; return k && KEND[k.m] ? k.m + ':' + (k.w | 0) : ''; };
 const kendKavling = n => S.saya && n === S.saya.no ? kendSaya() : (HS[n] && HS[n].k) || '';
 function modelKend(k, no) { const [m, w] = k.split(':'); const o = buatMobil(m, (WARNA_KENDARAAN[w | 0] || WARNA_KENDARAAN[0])[1], no); o.scale.setScalar(M_KEND); return o; }
@@ -1429,7 +1429,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2'};
+const KABAR_LAMA = {bus: 'dk_kabar_bus1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   if (window.DK_APP) simpan(KABAR_LAMA.notif, '1');   // aplikasi Android belum bisa notifikasi web
@@ -2196,7 +2196,7 @@ function infoKumpul() {
 }
 function keKumpul() {
   const ki = sesiKini() || sesiBerikut(), tempat = ki.tempat;
-  if (DI !== 'wetan') { if (confirm(`${ki.nama} ada di ${ki.label} Dusun Kotak Wetan. Naik bus ke sana?`)) { const u = new URL(location.href); u.searchParams.set('dusun', 'wetan'); u.searchParams.set('ke', tempat); location.href = u.toString(); } return; }
+  if (DI !== 'wetan') { if (confirm(`${ki.nama} ada di ${ki.label} Dusun Kotak Wetan. Naik bus ke sana?` + teksTiket())) naikBus('wetan', tempat); return; }
   keTempat(tempat);
 }
 function keTempat(tempat) {
@@ -2270,7 +2270,7 @@ async function aksiWillo(data, pesan) {
 let tWillo = 0;
 async function bukaWillo(dari) {
   if (DI !== 'wetan' || !fasumBangun.some(b => b.toko)) {
-    if (confirm('Toko Willo Apparel ada di Dusun Kotak Wetan. Naik bus ke sana?')) { const u = new URL(location.href); u.searchParams.set('dusun', 'wetan'); u.searchParams.set('ke', 'tokowillo'); location.href = u.toString(); }
+    if (confirm('Toko Willo Apparel ada di Dusun Kotak Wetan. Naik bus ke sana?' + teksTiket())) naikBus('wetan', 'tokowillo');
     return;
   }
   if (dari === 'atur' && !dekatTokoWillo(tokoh.saya)) { $('panelAtur').hidden = true; keTempat('tokowillo'); return; }
@@ -3116,7 +3116,7 @@ async function mulai() {
   if (!S.tamu && baca('dk_ingat') !== hariIni()) setTimeout(() => setelahPemula(ingatKoin), 45e3);
   onResize(); requestAnimationFrame(loop);
   $('chipTujuan').onclick = klikTujuan; tulisTujuan(); siapkanLangkah(); setTimeout(ambilHadir, 2500); setInterval(bantuPemula, 1000);
-  DG = pasangDesaGabung({DI, NAMA: NAMA_DUSUN, VS, tokoh, tanah, toast, bunyi, kend: kendBawa, pindahBus: d => { const u = new URL(location.href); u.searchParams.set('dusun', d); u.searchParams.delete('ke'); location.href = u.toString(); }});
+  DG = pasangDesaGabung({DI, NAMA: NAMA_DUSUN, VS, tokoh, tanah, toast, bunyi, kend: kendBawa, pindahBus: d => { if (confirm(`Naik bus ke Dusun ${NAMA_DUSUN[d]}?` + teksTiket())) naikBus(d); }});
   { const ke = new URLSearchParams(location.search).get('ke'); if (ke === 'gapura') DG.tiba(); else if (ke) setTimeout(() => keTempat(ke), 1500); }
   bawaKendaraan();
   $('chipKumpul').onclick = keKumpul;
@@ -3416,19 +3416,39 @@ function pilihDusun() {
     p = document.createElement('div'); p.id = 'pilihDusun';
     p.style.cssText = 'position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(10,12,20,.45)';
     p.innerHTML = `<div style="background:#fffaf0;border-radius:18px;padding:16px 16px 12px;min-width:250px;max-width:86vw;font:600 15px Montserrat,sans-serif;color:#2a2a2a;box-shadow:0 10px 30px rgba(0,0,0,.3)">
-      <div style="font-weight:900;font-size:17px;margin-bottom:10px">🚌 Naik bus ke dusun mana?</div>
-      ${Object.entries(NAMA_DUSUN).map(([k, n]) => `<button data-d="${k}" style="display:block;width:100%;margin:6px 0;padding:11px 12px;border-radius:12px;border:2px solid #cbbd9e;background:#fff;font:700 15px Montserrat,sans-serif;text-align:left;cursor:pointer">${{wetan: '🌾', kulon: '🍃', curug: '💦', tlaga: '🛶', segara: '🏙️'}[k]} Dusun ${n}<span class="ini" style="float:right;color:#2a9a5a;font-size:12px"></span></button>`).join('')}
+      <div style="font-weight:900;font-size:17px;margin-bottom:4px">🚌 Naik bus ke dusun mana?</div><div class="tiketBus" style="font-size:12px;color:#7a6a4a;margin-bottom:6px"></div>
+      ${Object.entries(NAMA_DUSUN).map(([k, n]) => `<button data-d="${k}" style="display:block;width:100%;margin:6px 0;padding:11px 12px;border-radius:12px;border:2px solid #cbbd9e;background:#fff;color:#2a2a2a;font:700 15px Montserrat,sans-serif;text-align:left;cursor:pointer">${{wetan: '🌾', kulon: '🍃', curug: '💦', tlaga: '🛶', segara: '🏙️'}[k]} Dusun ${n}<span class="ini" style="float:right;color:#2a9a5a;font-size:12px"></span></button>`).join('')}
       <button data-d="" style="display:block;width:100%;margin-top:8px;padding:9px;border:0;background:none;font:700 14px Montserrat,sans-serif;color:#777;cursor:pointer">Batal</button></div>`;
-    p.onclick = e => { const b = e.target.closest('button'); if (e.target === p || (b && !b.dataset.d)) { p.hidden = true; return; } if (b && b.dataset.d && b.dataset.d !== DI) { const u = new URL(location.href); u.searchParams.set('dusun', b.dataset.d); u.searchParams.delete('ke'); location.href = u.toString(); } };
+    p.onclick = e => { const b = e.target.closest('button'); if (e.target === p || (b && !b.dataset.d)) { p.hidden = true; return; } if (b && b.dataset.d && b.dataset.d !== DI) { p.hidden = true; naikBus(b.dataset.d); } };
     document.body.appendChild(p);
   }
   p.querySelectorAll('button[data-d]').forEach(b => { const s = b.querySelector('.ini'); if (s) s.textContent = b.dataset.d === DI ? 'kamu di sini' : ''; });
+  p.querySelector('.tiketBus').textContent = teksTiket().trim() || 'Jalan kaki lewat 🛣️ Gapura gratis.';
   p.hidden = false;
 }
 function pindahDusun(ke, no) {
   if (ke === DI) return;
-  if (!confirm(`Naik bus ke Dusun ${NAMA_DUSUN[ke]}?` + (no ? ` Rumah No. ${no} ada di sana.` : ''))) return;
-  const u = new URL(location.href); u.searchParams.set('dusun', ke); location.href = u.toString();
+  if (!confirm(`Naik bus ke Dusun ${NAMA_DUSUN[ke]}?` + (no ? ` Rumah No. ${no} ada di sana.` : '') + teksTiket())) return;
+  naikBus(ke);
+}
+// Tiket bus antardusun (Huda 11 Nov 2026): "naik kendaraan pribadi gratis, kendaraan umum bayar". Bus 5 koin sekali jalan;
+// koin kurang tetap boleh naik (gratis). Jalan kaki / kendaraan pribadi lewat 🛣️ Gapura tetap gratis. Koin dipotong di server (aksi bus).
+const TARIF_BUS = 5;
+function teksTiket() {
+  if (S.tamu || !S.saya) return '';
+  return (S.saya.koin || 0) >= TARIF_BUS ? ` Tiket bus ${TARIF_BUS} 🪙 (jalan kaki lewat Gapura gratis).` : ` Koinmu kurang dari ${TARIF_BUS}, kali ini naik bus gratis.`;
+}
+let busJalan = false;
+async function naikBus(ke, tempat) {
+  if (busJalan || ke === DI) return; busJalan = true;
+  const u = new URL(location.href); u.searchParams.set('dusun', ke); if (tempat) u.searchParams.set('ke', tempat); else u.searchParams.delete('ke');
+  if (!S.tamu && S.kunci) try {
+    const r = await Promise.race([api('bus', {kunci: S.kunci}), new Promise((_, j) => setTimeout(() => j(new Error('lama')), 3000))]);
+    if (r.koin != null) { S.saya.koin = r.koin; try { hitungOnline(); } catch (e) {} }
+    toast(r.bayar ? `🎫 Tiket bus ${r.bayar} 🪙 · sisa koinmu ${r.koin}` : '🎫 Koinmu kurang, kali ini naik bus gratis', 1500); bunyi('klik');
+    await new Promise(res => setTimeout(res, 900));
+  } catch (e) {}
+  location.href = u.toString();
 }
 // ---------- jejak warga asli: kapan terakhir main, tampil di depan rumahnya ----------
 const titikRumah = {position: new THREE.Vector3()};

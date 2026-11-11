@@ -106,6 +106,7 @@ const KAOS_TUNGGU = 3 * 60e3, KAOS_LEMARI = 12;
 // di pekarangan rumah & bisa dikendarai keliling desa. Mobil di game Reli tetap GRATIS (Reli = misi harian), tidak lewat sini.
 // Disimpan di kolom hias: hias.kendaraan = { g: [{ m, w }], p: indeks dipakai / -1 }. Warna = indeks WARNA_KENDARAAN di game.js.
 const KENDARAAN = { sepeda: 150, motor: 400, sedan: 800, hatch: 900, jip: 1000, gt: 1200 };
+const TARIF_BUS = 5;   // tiket bus antardusun (koin); jalan kaki/kendaraan pribadi lewat gapura gratis
 const KENDARAAN_WARNA = 6;
 const KAOS_WARNA = ["#1d1d22", "#f4f4f4", "#3a7bd5", "#d0442f", "#2a9a5a", "#f2c14e", "#8a5ad8", "#e06a9a"];
 // tulisan sablon: huruf/angka/spasi maks 10, tanpa kata kasar (dipakai juga saat avatar disimpan)
@@ -1503,6 +1504,14 @@ export class Warga extends DurableObject {
       let av = null; try { av = avBaru ? JSON.parse(avBaru) : null; } catch (e) {}
       return Response.json({ koin, harga: KAOS_WILLO, tunggu: KAOS_TUNGGU, pesan: K.pesan, lemari: K.lemari, avatar: av, selisih: 0, kini });
     }
+    if (aksi === "bus") {   // tiket bus antardusun (Huda 11 Nov 2026): kendaraan umum bayar, koin kurang tetap boleh naik gratis
+      const q = await request.json();
+      const r = this.sql.exec("SELECT no, koin FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Masuk dulu sebagai warga." }, { status: 401 });
+      let koin = r.koin || 0, bayar = 0;
+      if (koin >= TARIF_BUS) { koin -= TARIF_BUS; bayar = TARIF_BUS; this.arus("-koin:bus", bayar); this.sql.exec("UPDATE warga SET koin = ? WHERE no = ?", koin, r.no); }
+      return Response.json({ koin, bayar, tarif: TARIF_BUS });
+    }
     if (aksi === "dealer") {
       const q = await request.json();
       const r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
@@ -2164,6 +2173,10 @@ async function apiWargaInti(request, env, url) {
   if (aksi === "kaos") {
     const q = { kunci: String(body.kunci || "").slice(0, 64), op: ["pesan", "ambil", "pakai"].includes(body.op) ? body.op : "", d: String(body.d || "").slice(0, 10), w: String(body.w || "").slice(0, 7), t: String(body.t || "").slice(0, 20), i: Math.floor(+body.i || 0) };
     const r = await stub.fetch("https://do/kaos", { method: "POST", body: JSON.stringify(q) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "bus") {
+    const r = await stub.fetch("https://do/bus", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64) }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "dealer") {

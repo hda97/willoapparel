@@ -88,7 +88,7 @@ export function pasangDesaGabung(o) {
         if (!b) return; if (b.dataset.jalan) { p.hidden = true; jalanKe(b.dataset.jalan); } else if (b.dataset.bus) { p.hidden = true; o.pindahBus(b.dataset.bus); } }; }
     const kd = o.kend && o.kend();
     const daftar = Object.keys(LETAK).filter(d => d !== DI && ada(d)).map(d => { const m = Math.round(panjang(ruteJalan(DI, d)) / VS);
-      return `<button class="dsPilih" data-jalan="${d}">${IKON[d]} ${kd ? kd.ikon + ' Naik ' + kd.nama : 'Jalan kaki'} ke Dusun ${NAMA[d]}<small>arah ${ARAH(DI, d)} · ±${m} m lewat Jl. Raya Dunia Kotak</small></button>`; }).join('');
+      return `<button class="dsPilih" data-jalan="${d}">${IKON[d]} ${kd ? kd.ikon + ' Naik ' + kd.nama : 'Jalan kaki'} ke Dusun ${NAMA[d]}<small>arah ${ARAH(DI, d)} · ±${m} m lewat Jl. Raya Dunia Kotak · gratis</small></button>`; }).join('');
     p.innerHTML = `<div class="panel" style="max-width:360px"><h2 style="margin:0 0 6px">🛣️ Jl. Raya Dunia Kotak</h2>
       <p class="kecil" style="margin:0 0 6px">${dariPeta ? 'Jalan kaki dimulai dari gapura dusunmu.' : 'Kamu di gapura Dusun ' + NAMA[DI] + '. Mau ke mana?'}</p>${daftar}
       <button class="dsPilih" data-batal style="background:none;border:0;text-align:center;color:#ccc">Batal</button></div>`;
