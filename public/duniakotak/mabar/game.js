@@ -2059,7 +2059,7 @@ function jalanRute(t) {
 function titikPeta(c, k, me) {
   // warga online (hijau), Raka (bintang), saya (panah biru)
   for (const o of S.others.values()) { const [u, v] = keP(o.obj.position.x, o.obj.position.z); c.fillStyle = '#2ecc71'; c.strokeStyle = '#fff'; c.lineWidth = 2 * k; c.beginPath(); c.arc(u, v, 6 * k, 0, 7); c.fill(); c.stroke(); }
-  if (tokoh.raka) { const [u, v] = keP(tokoh.raka.position.x, tokoh.raka.position.z); c.font = `${Math.round(18 * k)}px sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('⭐', u, v); }
+  if (tokoh.raka && tokoh.raka.visible) { const [u, v] = keP(tokoh.raka.position.x, tokoh.raka.position.z); c.font = `${Math.round(18 * k)}px sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('⭐', u, v); }
   if (rute.titik) { c.lineJoin = c.lineCap = 'round'; for (const [w, col] of [[11, '#ffffff'], [7, '#4285f4']]) { c.strokeStyle = col; c.lineWidth = w * k; c.beginPath(); for (let i = rute.idx; i < rute.titik.length; i++) { const [u, v] = keP(rute.titik[i][0], rute.titik[i][1]); if (i === rute.idx) c.moveTo(u, v); else c.lineTo(u, v); } c.stroke(); } }
   const tj = rute.titik ? rute.tujuan : peta.tuju;
   if (tj) { const [u, v] = keP(tj.x, tj.z); c.fillStyle = '#ea4335'; c.strokeStyle = '#fff'; c.lineWidth = 2.5 * k; c.beginPath(); c.arc(u, v - 16 * k, 10 * k, Math.PI * .85, Math.PI * 2.15); c.lineTo(u, v); c.closePath(); c.fill(); c.stroke(); c.fillStyle = '#fff'; c.beginPath(); c.arc(u, v - 16 * k, 4 * k, 0, 7); c.fill(); }
@@ -2594,7 +2594,19 @@ function pasangPapanDana() {
 async function segarPapan() { try { PAPAN.data = await (await fetch('/duniakotak/api/voting')).json(); gambarPapan(); aturProyek(); } catch (e) {} }
 // ---------- warga offline jadi NPC + gotong royong pembangunan fasum (Huda 6 Nov 2026) ----------
 async function muatWargaNPC() {
-  try { const j = await (await fetch('/duniakotak/api/warga-npc?dusun=' + DI)).json(); wnpc.isi(j.warga || []); aturProyek(); } catch (e) {}
+  try { const j = await (await fetch('/duniakotak/api/warga-npc?dusun=' + DI)).json(); pasangRakaWarga(j.satu); wnpc.isi((j.warga || []).filter(w => w.no !== 1)); aturProyek(); } catch (e) {}
+}
+// Raka = warga No. 1 (Huda 11 Nov 2026): NPC Raka lama dihapus; saat @raka offline, avatarnya sendiri berdiri di depan Warung Raka
+// sebagai NPC (misi "Temui Raka & Oyen" tetap ke sini). Saat @raka online, NPC disembunyikan (yang terlihat orangnya langsung).
+const RAKA_NO = 1;
+function rakaOnline() { return (!S.tamu && S.saya?.no === RAKA_NO) || S.others.has(RAKA_NO); }
+function rakaTampil() { return DI === 'wetan' && !rakaOnline(); }
+function labelRaka(ig) { return '★ @' + (ig || NM[RAKA_NO] || 'raka'); }
+function pasangRakaWarga(satu) {
+  if (!satu || !satu.av || !tokoh.raka || tokoh.raka.userData.warga) return;
+  const lama = tokoh.raka, o = buatAvatarObj(bersihAv(satu.av));
+  o.position.copy(lama.position); o.rotation.y = lama.rotation.y; o.userData = {...lama.userData, warga: 1, ig: satu.u}; o.visible = rakaTampil();
+  sc.remove(lama); sc.add(o); tokoh.raka = o;
 }
 function aturProyek() {
   if (!wnpc) return;
@@ -2753,7 +2765,7 @@ function tulisChat() {
   el.innerHTML = S.chat[S.ch].map(x => x.kls === 'sistem' ? `<div class="sistem">${esc(x.m)}</div>` : `<div><b class="${x.kls || ''}">${esc(x.nama)}:</b> ${esc(x.m)}</div>`).join('') || '<div class="sistem">Belum ada pesan. Sapa warga lain!</div>';
   el.scrollTop = el.scrollHeight;
 }
-function gelembung(no, m, emo) { const t = no === 'raka' ? tokoh.raka : no === S.saya?.no ? tokoh.saya : S.others.get(no)?.obj; if (!t) return; t.userData.gel = {m, emo, sampai: performance.now() + (emo ? 2500 : 6000)}; }
+function gelembung(no, m, emo) { const t = no === 'raka' ? tokoh.raka : no === S.saya?.no ? tokoh.saya : S.others.get(no)?.obj; if (!t || !t.visible) return; t.userData.gel = {m, emo, sampai: performance.now() + (emo ? 2500 : 6000)}; }
 function kirimChat(m) {
   m = String(m || '').trim(); if (!m) return;
   if (S.tamu) { toast('Daftar jadi warga dulu untuk ngobrol.'); return; }
@@ -3064,6 +3076,9 @@ async function mulai() {
   yaw = yawNow = L.dir === 1 ? 0 : Math.PI;   // kamera menghadap depan rumah sendiri
   const L1 = I.lots[1] || {gate: I.spawn.clone().add(new THREE.Vector3(-5 * VS, 0, -2.2 * VS)), dir: 1};
   tokoh.raka = raka('senang'); tokoh.raka.traverse(m => { if (m.isMesh) m.castShadow = true; }); tokoh.raka.position.set(L1.gate.x + 1.6 * VS, 0, L1.gate.z + L1.dir * 1.1 * VS); tokoh.raka.rotation.y = L1.dir === 1 ? .3 : Math.PI + .3; sc.add(tokoh.raka);
+  // Warga No. 1 (@raka, akun Huda 11 Nov 2026) ADALAH Raka: NPC Raka lama diganti avatar warga No. 1 (lihat pasangRakaWarga),
+  // dan hanya berdiri di depan Warung Raka saat warga No. 1 offline (lihat rakaTampil).
+  tokoh.raka.visible = rakaTampil();
   tokoh.oyen = kucingMesh('oranye'); tokoh.oyen.traverse(m => { if (m.isMesh) m.castShadow = true; }); tokoh.oyen.position.set(L1.gate.x + 2.4 * VS, 0, L1.gate.z + L1.dir * 1.7 * VS); sc.add(tokoh.oyen);
   tokoh.oyen.userData.ph = 0;
   npc = buatNPC({sc, I, VS, warga, pose: wpose, siapAv: bersihAv, bayangan: !hemat, tinggi: (x, z, r) => tanah(x, z, r), pasar: () => DI === 'wetan' && pasarBuka()});
@@ -3315,13 +3330,13 @@ function loop(t) {
   // label
   pool.forEach(d => { d.dipakai = false; }); taruh.length = 0;
   const lbl = (o, h, teks, cls, no, idNpc) => { const el = tempel(o, h, teks, cls); if (el) { el.dataset.no = no || ''; el.dataset.npc = idNpc || ''; } return el; };
-  lbl(me, 5.2, S.tamu ? 'Kamu (tamu)' : lencana(S.saya.no) + '@' + S.saya.ig, 'nm saya');
-  lbl(tokoh.raka, 5.2, '★ Raka', 'nm raka'); lbl(tokoh.oyen, 2.6, 'Oyen', 'nm raka kucing');
+  lbl(me, 5.2, S.tamu ? 'Kamu (tamu)' : S.saya.no === RAKA_NO ? labelRaka(S.saya.ig) : lencana(S.saya.no) + '@' + S.saya.ig, S.saya?.no === RAKA_NO && !S.tamu ? 'nm saya raka' : 'nm saya');
+  tokoh.raka.visible = rakaTampil(); if (tokoh.raka.visible) lbl(tokoh.raka, 5.2, labelRaka(tokoh.raka.userData.ig), 'nm raka'); lbl(tokoh.oyen, 2.6, 'Oyen', 'nm raka kucing');
   for (const c of [tokoh.oyen, ...kucingHidup]) if (c.userData.senang > performance.now()) tempel(c, 4.2, '❤️ nyam!', 'gel emo', -4);
   for (const it of itemDunia) if (it.position.distanceTo(me.position) < 45) tempel(it, 3.4, it.userData.jenis.ikon, 'nm item');
   if (mancing.on) tempel(me, 6.6, mancing.teks, 'gel emo', -4);
   for (const c of kucingHidup) if (c.userData.nama && c.position.distanceTo(me.position) < 60) lbl(c, 2.6, c.userData.nama, 'nm kucing');
-  for (const [no, o] of S.others) if (o.obj.position.distanceTo(me.position) < 220) lbl(o.obj, 5.2, (S.bisu.has(no) ? '🔇 ' : '') + lencana(no) + '@' + o.ig, 'nm', no);
+  for (const [no, o] of S.others) if (o.obj.position.distanceTo(me.position) < 220) lbl(o.obj, 5.2, (S.bisu.has(no) ? '🔇 ' : '') + (no === RAKA_NO ? labelRaka(o.ig) : lencana(no) + '@' + o.ig), no === RAKA_NO ? 'nm raka' : 'nm', no);
   if (npc) for (const n of npc.daftar) if (n.obj.visible && n.jauh < 130) { const lap = n.kerja === 'bola' || n.kerja === 'main' || n.wasit; lbl(n.obj, n.tinggi, n.nama + ' · ' + n.peran, lap ? 'nm npcl' : 'nm npc', '', lap ? '' : n.id); }   // pemain & wasit sedang bertanding: tidak bisa diajak ngobrol
   if (wnpc) for (const n of wnpc.daftar) if (n.obj.visible && n.jauh < 110) lbl(n.obj, 5.2, (n.gotong >= 0 ? '🔨 ' : '') + '@' + n.u, 'nm npcw');
   for (const f of fasumBangun) { const d = Math.hypot(f.position.x - me.position.x, f.position.z - me.position.z); if (d < 170) lbl(f, f.tinggi, f.nama, 'nm fasum'); }
