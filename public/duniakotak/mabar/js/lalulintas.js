@@ -145,6 +145,8 @@ export function buatLaluLintas({sc, I, VS, tanah, warga, pose, siapAv, buatMobil
   function update(dt, me, t, lain = []) {
     if (!armada.length && !simpang.size) return;
     aturLampu(t);
+    // sirene ambulans berkedip merah-biru (bahan dipakai bersama semua ambulans)
+    const sir = armada.find(c => c.v.userData.sirene); if (sir) { const [mM, mB] = sir.v.userData.sirene, f = Math.floor(t * 5) % 2; mM.emissiveIntensity = f ? 1.8 : .12; mB.emissiveIntensity = f ? .12 : 1.8; }
     for (const c of armada) {
       c.dt = dt; const L = panjangRuas(c), sisa = L - c.s, vert = c.a % NI === c.b % NI;
       let target = c.kec;

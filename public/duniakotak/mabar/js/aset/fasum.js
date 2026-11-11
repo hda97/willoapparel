@@ -1,6 +1,7 @@
 // Aset fasum Dunia Kotak (gaya kotak besar membulat, satuan kavling; skala VS di pemanggil)
 import {THREE,box} from '../lib.js';
-import {buatMobil,SKALA_FASUM} from './mobil.js?v=20261111kend';
+import {buatMobil,SKALA_FASUM} from './mobil.js?v=20261111amb';
+import {buatPesawat} from './pesawat.js?v=20261111amb';
 function roof(w,h,d,c){const s=new THREE.Shape();s.moveTo(-w/2,0);s.lineTo(w/2,0);s.lineTo(0,h);s.lineTo(-w/2,0);const g=new THREE.ExtrudeGeometry(s,{depth:d,bevelEnabled:false});g.translate(0,0,-d/2);return new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:c,roughness:.8}))}
 function G(){const g=new THREE.Group();g.ad=(m,x,y,z,ry=0)=>{m.position.set(x,y,z);m.rotation.y=ry;g.add(m);return m};return g}
 function fin(g){g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});return g}
@@ -526,14 +527,7 @@ export function damkar(){const g=G();const M=0xd6322a,M2=0xb02822,W=0xf4f1ea;lan
  [-3.4,1].forEach(x=>{g.ad(box(.2,3.6,.2,0x555555,.02),x,2.2,7.6);g.ad(box(.8,.3,.5,0xfff2c0,.05),x,4.1,7.6)});
  pagar(g,19,17,M,3.5);return fin(g)}
 // Bandara Dunia Kotak: terminal kaca + menara kontrol di belakang, apron dengan pesawat baling-baling (tanpa merek), landasan di depan, kantong angin.
-function pesawat(g,x,z,ry=0){const t=new THREE.Group();t.position.set(x,0,z);t.rotation.y=ry;const W=0xf6f7f9,B=0x2f6fb8;
- const a=(m,px,py,pz)=>{m.position.set(px,py,pz);t.add(m);return m};
- a(box(5.6,1.15,1.25,W,.4),0,1.55,0);a(box(5.62,.28,1.27,B,.05),0,1.38,0);a(box(1,.8,1,W,.35),3.1,1.5,0);
- for(let i=0;i<6;i++)[-1,1].forEach(s=>a(box(.3,.26,.04,0x2a3440,.05),-1.6+i*.6,1.82,s*.63));a(box(.5,.35,1.1,0x2a3440,.1),2.55,1.95,0);
- a(box(1.5,.14,7.6,W,.05),.3,1.95,0);a(box(1.52,.15,.6,B,.03),.3,1.96,3.5);a(box(1.52,.15,.6,B,.03),.3,1.96,-3.5);
- [-2.2,2.8].forEach(w=>{a(box(1,.6,.6,0xd8dbe0,.2),.6,1.75,w);a(box(.08,1.6,.22,0x333333,.03),1.15,1.75,w)});
- a(box(.9,1.3,.16,B,.05),-2.7,2.65,0);a(box(.8,.1,2.8,W,.03),-2.7,1.9,0);a(box(.12,1.8,.22,0x333333,.03),3.65,1.5,0);
- [[2.6,0],[-.2,-1],[-.2,1]].forEach(([u,v])=>{a(box(.08,.5,.08,0x555555,.01),u,.75,v);a(box(.36,.36,.2,0x222222,.15),u,.55,v)});g.add(t);return t}
+function pesawat(g,x,z,ry=0){const t=buatPesawat(0x2f6fb8,9);t.position.set(x,.35,z);t.rotation.y=ry;t.scale.setScalar(SKALA_FASUM*.4);g.add(t);return t}   // bandara kecil (lahan 1 kavling): model sama, diperkecil
 export function bandara(){const g=G();const W=0xf2f4f6,B=0x2f6fb8,K=0x8fd0ec,AS=0x4a4e56;lantai(g,19,17,0xcfd2d6);
  ruang(g,{x:-3,z:-5.4,w:12,d:5.6,h:5,c:W,bukaan:[{s:'d',p:0,w:2.8,h:2.8}],lantaiC:0xe6e8ea});
  g.ad(box(12.8,.45,6.4,B,.05),-3,5.57,-5.4);for(let i=0;i<5;i++){const x=-7.6+i*2.3;if(Math.abs(x+3)<1.6)continue;g.ad(box(1.8,1.8,.12,K,.02),x,2.2,-2.62)}
@@ -557,22 +551,8 @@ export function bandara(){const g=G();const W=0xf2f4f6,B=0x2f6fb8,K=0x8fd0ec,AS=
 // Bandara Besar 5 terminal (Huda 11 Nov 2026: "Bandaranya kurang besar" → "Bandara dengan 5 terminal"). Kawasan sendiri ±64×44
 // (bukan lahan fasum biasa): gedung utama kaca memanjang, 5 dermaga gerbang T1–T5 dengan garbarata & jet di tiap gerbang,
 // landasan pacu penuh lebar di depan dengan 1 jet siap lepas landas, menara kontrol tinggi, area antar-jemput & taksi di belakang.
-function jet(g,x,z,ry=0,s=1,warna=0x2f6fb8){const t=new THREE.Group();t.position.set(x,0,z);t.rotation.y=ry;t.scale.setScalar(s);const W=0xf6f7f9,KC=0x26313d,AB=0xc9ced6;
- const a=(m,px,py,pz)=>{m.position.set(px,py,pz);t.add(m);return m};
- a(box(10.4,1.9,1.9,W,.7),0,2.75,0);a(box(10.42,.4,1.92,warna,.1),0,2.0,0);a(box(10.4,.12,1.93,0xf2c14a,.03),0,2.27,0);
- a(box(1.4,1.66,1.74,W,.6),5.6,2.68,0);a(box(.9,1.2,1.3,W,.5),6.5,2.55,0);a(box(.45,.7,.8,W,.3),7.05,2.45,0);
- a(box(.7,.42,1.5,KC,.12),5.75,3.28,0);
- a(box(1.6,1.6,1.6,W,.6),-6,2.95,0);a(box(1.2,1.1,1.1,W,.4),-7.2,3.25,0);a(box(.6,.6,.6,AB,.2),-7.9,3.4,0);
- for(let i=0;i<14;i++)[-1,1].forEach(q=>a(box(.32,.38,.04,KC,.08),-4.4+i*.66,3.08,q*.96));
- [[3.9],[-4.9]].forEach(([u])=>[-1,1].forEach(q=>{a(box(.62,1.2,.05,AB,.05),u,2.6,q*.97)}));
- a(box(2.4,3.2,.24,warna,.08),-6.7,5.2,0);a(box(1.2,.5,.26,0xf2c14a,.05),-7.1,6.55,0);
- a(box(1.5,.16,5,W,.06),-7,3.6,0);[-1,1].forEach(q=>a(box(.6,.17,.5,warna,.03),-7.2,3.61,q*2.3));
- a(box(2.6,.24,13.2,W,.12),-.6,2.05,0);[-1,1].forEach(q=>{a(box(1,.26,.8,warna,.05),-1.1,2.06,q*6.3);a(box(.6,1.1,.14,warna,.05),-1.5,2.65,q*6.65)});
- [-1,1].forEach(q=>{const zz=q*3.2;a(box(2.4,1.25,1.25,0xdfe3e8,.5),.6,1.35,zz);a(box(.08,1.05,1.05,0x1b1f25,.4),1.82,1.35,zz);a(box(.5,.5,.5,0x9aa2ac,.2),-.75,1.35,zz);a(box(.9,.6,.2,AB,.05),.2,1.95,zz)});
- const roda=(u,v)=>{a(box(.12,1.1,.12,0x666a70,.02),u,1.25,v);a(box(.5,.5,.3,0x1e1e1e,.15),u,.6,v)};
- roda(5.4,0);[[-.8,-.9],[-.8,.9]].forEach(([u,v])=>{roda(u,v);roda(u-.6,v)});
- a(box(.16,.16,.16,0xff2a2a,.05,{emissive:0xff2a2a,emissiveIntensity:.9}),-1.1,2.1,-6.7);a(box(.16,.16,.16,0x2aff6a,.05,{emissive:0x2aff6a,emissiveIntensity:.9}),-1.1,2.1,6.7);
- g.add(t);return t}
+// pesawat apron (desain ulang 11 Nov 2026): jet regional Kotak Air dari aset pesawat.js, UKURAN NYATA (30 m, bentang 24 m) x SKALA_FASUM.
+let noPesawat=1;function jet(g,x,z,ry=0,s=1,warna=0x2f6fb8){const t=buatPesawat(warna,noPesawat++);t.position.set(x,.35,z);t.rotation.y=ry;t.scale.setScalar(SKALA_FASUM*(s>1?1:1));g.add(t);return t}
 export function bandaraBesar(){const g=G();const W=0xf2f4f6,B=0x2f6fb8,K=0x8fd0ec,AS=0x3e434a,AP=0x9aa0a8,KN=0xf2c14a;
  g.ad(box(64,.35,44,0xc9ccd0,.03),0,.18,0);
  // gedung utama (belakang): kaca memanjang, atap biru melengkung bertingkat
@@ -589,8 +569,8 @@ export function bandaraBesar(){const g=G();const W=0xf2f4f6,B=0x2f6fb8,K=0x8fd0e
   ruang(g,{x,z:-10,w:7,d:4.4,h:4.2,c:W,bukaan:[{s:'d',p:0,w:2.2,h:2.6},{s:'b',p:0,w:3,h:3}],lantaiC:0xe6e8ea,zona:true});
   g.ad(box(7.6,.4,5,B,.05),x,4.75,-10);g.ad(box(5.6,1.4,.12,K,.02),x,2.8,-7.78).position.x=x;
   const tp=papanTeks(2.6,1.3,'T'+(i+1),'#f2c14a','#1d2a3a');tp.position.set(x,5.6,-7.6);g.add(tp);
-  g.ad(box(1.6,1.6,4.4,0xdfe3e8,.1),x+2.2,3.2,-5.6);g.ad(box(1.7,.3,4.5,AS,.03),x+2.2,4.1,-5.6);for(let k=0;k<3;k++)g.ad(box(.06,.6,.6,K,.01),x+3.02,3.3,-7.2+k*1.4);
-  g.ad(box(.4,2.4,.4,0x777b82,.02),x+2.2,1.55,-4);g.ad(box(1.4,.5,.8,0x333333,.1),x+2.2,.6,-4);
+  g.ad(box(1.6,1.6,4.4,0xdfe3e8,.1),x+2.2,2.3,-5.6);g.ad(box(1.7,.3,4.5,AS,.03),x+2.2,3.2,-5.6);for(let k=0;k<3;k++)g.ad(box(.06,.6,.6,K,.01),x+3.02,2.4,-7.2+k*1.4);
+  g.ad(box(.4,1.2,.4,0x777b82,.02),x+2.2,.95,-4);g.ad(box(1.4,.5,.8,0x333333,.1),x+2.2,.6,-4);
   jet(g,x,2.6,Math.PI/2,.88,WJ[i]);
   for(let k=0;k<6;k++)g.ad(box(.18,.05,.9,KN,.01),x,.4,-2+k*1.6);
  });
@@ -607,7 +587,7 @@ export function bandaraBesar(){const g=G();const W=0xf2f4f6,B=0x2f6fb8,K=0x8fd0e
  g.ad(box(.15,2,.15,0x888888,.01),29,19,-3);g.ad(box(.4,.4,.4,0xff2a2a,.1,{emissive:0xff2a2a,emissiveIntensity:.9}),29,20.1,-3);g.ad(box(1.2,.8,1.2,0xdddddd,.3),27.6,18.4,-1.6);
  // kantong angin, truk BBM, mobil bagasi
  g.ad(box(.14,3.6,.14,0xdddddd,.02),30.5,2.15,7.6);g.ad(box(1.3,.5,.5,0xff7a1a,.15),31.1,3.7,7.6);g.ad(box(.35,.52,.52,0xffffff,.1),31.4,3.7,7.6);
- g.ad(box(4,1.6,1.6,0xe8e8e8,.4),-28.5,1.3,4);g.ad(box(1.6,1.8,1.7,0xd6322a,.15),-26,1.35,4);[-29.8,-27.3,-26].forEach(x=>[-1,1].forEach(q=>g.ad(box(.6,.6,.25,0x1e1e1e,.1),x,.66,4+q*.85)));
+ g.ad(box(4,1.6,1.6,0xe8e8e8,.4),-28.5,1.3,-3.5);g.ad(box(1.6,1.8,1.7,0xd6322a,.15),-26,1.35,-3.5);[-29.8,-27.3,-26].forEach(x=>[-1,1].forEach(q=>g.ad(box(.6,.6,.25,0x1e1e1e,.1),x,.66,-3.5+q*.85)));
  [[-6,-4],[18,-4]].forEach(([x,z])=>{g.ad(box(1.4,.8,.9,0xf2c14a,.1),x,.8,z);[1,2,3].forEach(k=>g.ad(box(1.4,.5,.9,0x9a7a5a,.05),x-k*1.7,.7,z));});
  // antar-jemput & taksi (belakang gedung)
  g.ad(box(64,.05,1.6,0xf4f4f0,.01),0,.4,-21.2);[-20,-8,8,20].forEach((x,i)=>{g.ad(box(2.4,.8,1.2,[0xf2c14a,0x3a8ad8,0xf2c14a,0xe8e8e8][i],.3),x,.9,-21.2);g.ad(box(1.4,.55,1.1,0x26313d,.2),x-.1,1.5,-21.2)});

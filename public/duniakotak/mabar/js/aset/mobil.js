@@ -276,7 +276,6 @@ function jip(bodi, cat, aksen, no, lampuRem) {
 
 // ---------- MOBIL FASUM (11 Nov 2026, Huda: "Semua mobil fasum juga") ----------
 // sedan warga (parkir Supermarket) & mobil patroli Kantor Polisi: sedan 4 pintu, bagasi, kisi krom, spion, gagang, plat DK.
-const silangTex = () => kanvas('silang', 128, 128, (g, w, h) => { g.fillStyle = '#ffffff'; g.beginPath(); g.arc(64, 64, 60, 0, 7); g.fill(); g.fillStyle = '#e0303a'; g.fillRect(48, 18, 32, 92); g.fillRect(18, 48, 92, 32); });
 function sedan(bodi, cat, aksen, no, lampuRem, patroli) {
   const p = pembuat(bodi), BIRU = mat(0x1f4fa8, {roughness: .35, metalness: .15});
   p(1.8, .5, 4.2, cat, 0, .66, 0, {r: .14, garis: 1});
@@ -308,40 +307,76 @@ function sedan(bodi, cat, aksen, no, lampuRem, patroli) {
   p.selesai();
   return {api: apiKnalpot(bodi, -.6, .4, -2.5), kursi: {x: .36, z: -.1, atap: 1.38, tinggi: 1.05}};
 }
-// ambulans RS: van tinggi putih, pita merah, palang merah di samping/belakang, tulisan AMBULANS, lampu sirene, pintu belakang ganda.
+// ambulans RS (desain ulang 11 Nov 2026, Huda: "desain ulang mobil ambulance"): van atap tinggi modern, kap pendek miring, kaca depan lebar.
+// Livery original: pita kotak-kotak merah-putih (Battenburg), garis biru, tulisan AMBULANS (cermin di depan), lambang Bintang Kehidupan biru
+// (bukan palang merah, lambang itu dilindungi), "RS DUNIA KOTAK · 119". Lampu: light bar LED penuh di atap kabin (merah-biru BERKEDIP,
+// userData.sirene), lampu sudut, lampu sorot samping, panah kuning belakang. Pintu geser samping, pintu belakang ganda + chevron, AC atap.
+const SIR_M = new THREE.MeshStandardMaterial({color: 0xff2a2a, emissive: 0xff2a2a, emissiveIntensity: .9, roughness: .3});
+const SIR_B = new THREE.MeshStandardMaterial({color: 0x2a6aff, emissive: 0x2a6aff, emissiveIntensity: .9, roughness: .3});
+const kotakTex = () => kanvas('kotakAmb', 512, 64, (g, w, h) => { for (let i = 0; i < 16; i++) for (let j = 0; j < 2; j++) { g.fillStyle = (i + j) % 2 ? '#ffffff' : '#e0303a'; g.fillRect(i * 32, j * 32, 32, 32); } });
+const bintangTex = () => kanvas('bintangHidup', 128, 128, (g) => {   // Bintang Kehidupan: palang 6 lengan biru bertepi putih + tongkat putih
+  g.translate(64, 64); const lengan = (c, t, l) => { g.fillStyle = c; for (let i = 0; i < 3; i++) { g.save(); g.rotate(i * Math.PI / 3); g.fillRect(-t / 2, -l / 2, t, l); g.restore(); } };
+  lengan('#ffffff', 40, 124); lengan('#1f5fc8', 28, 112); g.fillStyle = '#ffffff'; g.fillRect(-3, -40, 6, 80); g.beginPath(); g.arc(0, -42, 6, 0, 7); g.fill();
+  g.strokeStyle = '#ffffff'; g.lineWidth = 4; g.beginPath(); for (let y = -30; y <= 34; y += 2) g.lineTo(Math.sin(y / 6) * 9, y); g.stroke(); });
+const chevronTex = () => kanvas('chevAmb', 256, 128, (g, w, h) => { g.fillStyle = '#ffffff'; g.fillRect(0, 0, w, h); g.fillStyle = '#e0303a';
+  for (let x = -h; x < w + h; x += 48) { g.beginPath(); g.moveTo(x, h); g.lineTo(x + 24, h); g.lineTo(x + 24 + h / 2, h / 2); g.lineTo(x + 24, 0); g.lineTo(x, 0); g.lineTo(x + h / 2, h / 2); g.fill(); } });
 function ambulans(bodi, cat, aksen, no, lampuRem) {
-  const p = pembuat(bodi), PUTIH = cat, MERAH = mat(0xe0303a, {roughness: .4}), SIL = mat(0xffffff, {map: silangTex(), transparent: true, roughness: .5, polygonOffset: true, polygonOffsetFactor: -2});
-  p(1.92, 1.74, 3.1, PUTIH, 0, 1.42, -.72, {r: .12, garis: 1});   // ruang pasien
-  p(1.88, 1.0, 1.5, PUTIH, 0, 1.0, 1.55, {r: .12, garis: 1});      // kabin & kap
-  p(1.84, .62, .9, KACA, 0, 1.72, 1.12, {r: .08}); p(1.76, .7, .06, KACA, 0, 1.75, 1.6, {r: .02, rx: -.55});
-  p(1.88, .1, .9, PUTIH, 0, 2.08, 1.08, {r: .04});
-  [-1, 1].forEach(s => { p(.1, .7, .1, PUTIH, s * .9, 1.75, 1.56, {rx: -.55, r: .03}); p(.1, .66, .14, PUTIH, s * .92, 1.72, .7, {r: .03});
-    p(.02, .24, 4.6, MERAH, s * .965, 1.06, -.02, {r: 0}); p(.02, .06, 4.6, mat(0x1f4fa8), s * .966, .9, -.02, {r: 0});
-    p.bidang(.62, .62, SIL, s * .966, 1.5, -.15, s * PI / 2);
-    p.bidang(1.2, .2, mat(0xffffff, {map: teksTex('AMBULANS', '#ffffff', '#e0303a', 512, 72)}), s * .966, 1.62, -1.5, s * PI / 2);
-    p(.012, 1.2, .02, HITAM, s * .962, 1.36, .3, {r: 0}); p(.012, .02, .9, HITAM, s * .962, 1.96, -.15, {r: 0}); p(.012, 1.2, .02, HITAM, s * .962, 1.36, -.6, {r: 0});
-    p(.03, .035, .16, KROM, s * .965, 1.3, .2, {r: .01}); p(.03, .035, .16, KROM, s * .965, 1.3, -.5, {r: .01});
-    p(.05, .05, .14, HITAM, s * .96, 1.62, 1.28, {r: .01}); p(.1, .3, .16, HITAM, s * 1.03, 1.58, 1.28, {r: .04});
-    p(.18, .1, .4, mat(0xdfe3ea), s * .92, .48, .6, {r: .02}); });   // pijakan
-  for (const [x, z] of [[-.94, 1.5], [.94, 1.5], [-.94, -1.45], [.94, -1.45]]) p(.12, .26, 1.0, PUTIH, x, .92, z, {r: .06});
-  // atap: sirene merah-biru + lampu sorot belakang
-  p(1.3, .08, .34, HITAM, 0, 2.15, 1.1, {r: .02}); p(.6, .16, .3, mat(0xff2a2a, {emissive: 0xff2a2a, emissiveIntensity: .9}), -.32, 2.26, 1.1, {r: .05}); p(.6, .16, .3, mat(0x2a6aff, {emissive: 0x2a6aff, emissiveIntensity: .9}), .32, 2.26, 1.1, {r: .05});
-  [-1, 1].forEach(s => p(.16, .16, .1, mat(0xff2a2a, {emissive: 0xff2a2a, emissiveIntensity: .8}), s * .8, 2.22, -2.24, {r: .04}));
-  // depan: kisi, lampu, tulisan cermin, bumper
-  p(1.0, .24, .05, HITAM, 0, .86, 2.31, {r: .02}); for (let i = 0; i < 3; i++) p(.96, .03, .03, KROM, 0, .78 + i * .08, 2.34, {r: 0});
-  [-1, 1].forEach(s => { p(.36, .2, .06, KROM, s * .66, .9, 2.29, {r: .03}); p(.3, .15, .03, LAMPU, s * .66, .9, 2.325, {r: .02}); p(.12, .08, .04, SEN, s * .66, .74, 2.32, {r: .02}); });
-  p.bidang(1.2, .17, mat(0xffffff, {map: kanvas('ambCermin', 512, 72, (g, w, h) => { g.fillStyle = '#ffffff'; g.fillRect(0, 0, w, h); g.translate(w, 0); g.scale(-1, 1); g.fillStyle = '#e0303a'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = FONT(46); g.fillText('AMBULANS', w / 2, h / 2 + 2); })}), 0, 1.28, 2.31);
-  p(1.94, .22, .26, mat(0xc8ccd2, {roughness: .5}), 0, .56, 2.3, {r: .07, garis: 1, t: .02});
-  p.bidang(.6, .15, mat(0xffffff, {map: platTex('DK ' + (no || 'RS'))}), 0, .56, 2.432);
-  // belakang: pintu ganda berjendela, palang merah, lampu, pijakan, plat
-  p(.012, 1.4, .02, HITAM, 0, 1.4, -2.272, {r: 0, ry: PI / 2});
-  [-1, 1].forEach(s => { p(.66, .42, .03, KACA, s * .42, 1.86, -2.27, {r: .01}); p(.1, .5, .04, lampuRem, s * .86, 1.1, -2.28, {r: .02}); p(.1, .14, .04, SEN, s * .86, .78, -2.28, {r: .02});
-    p(.03, .16, .04, KROM, s * .1, 1.36, -2.29, {r: .01}); });
-  p.bidang(.5, .5, SIL, 0, 1.32, -2.3, PI);
-  p(1.94, .2, .4, mat(0xc8ccd2, {roughness: .5}), 0, .56, -2.3, {r: .05, garis: 1, t: .02});
-  p.bidang(.6, .15, mat(0xffffff, {map: platTex('DK ' + (no || 'RS'))}), 0, .82, -2.29, PI);
+  const p = pembuat(bodi), PUTIH = cat, BIRU = mat(0x1f4fa8, {roughness: .4}), KUNING = mat(0xf2b62a, {emissive: 0x8a5a00, emissiveIntensity: .5}),
+    DEC = t => mat(0xffffff, {map: t, transparent: true, roughness: .45, polygonOffset: true, polygonOffsetFactor: -2}),
+    KOTAK = DEC(kotakTex()), BINTANG = DEC(bintangTex()), CHEV = DEC(chevronTex()), BURAM = mat(0xc9d6e2, {roughness: .3, metalness: .2, transparent: true, opacity: .92});
+  // badan: ruang pasien atap tinggi menyatu dengan kabin, kap pendek miring, kaca depan lebar
+  p(1.96, 1.92, 3.72, PUTIH, 0, 1.5, -.76, {r: .16, garis: 1});
+  p(1.94, .66, 1.26, PUTIH, 0, .98, 1.66, {r: .16, garis: 1});
+  p(1.9, .16, 1.0, PUTIH, 0, 1.3, 1.62, {r: .07, rx: .2});
+  p(1.82, 1.2, .07, KACA, 0, 1.86, 1.47, {r: .03, rx: -.72});
+  [-1, 1].forEach(s => { p(.1, 1.22, .12, PUTIH, s * .93, 1.86, 1.47, {r: .04, rx: -.72});   // pilar A
+    p(.03, .62, .86, KACA, s * .975, 1.78, .78, {r: .02});                                  // kaca pintu kabin
+    p(.012, 1.35, .02, HITAM, s * .982, 1.18, .3, {r: 0});                                   // garis pintu kabin
+    p(.05, .05, .18, KROM, s * .99, 1.38, .5, {r: .01});
+    // spion van besar
+    p(.05, .05, .2, HITAM, s * 1.0, 1.72, 1.14, {r: .01}); p(.08, .36, .2, HITAM, s * 1.1, 1.66, 1.12, {r: .04}); p(.02, .3, .15, mat(0x9ab4cc, {metalness: .7, roughness: .1}), s * 1.1, 1.66, 1.02, {r: .01});
+    // livery: pita kotak-kotak, garis biru, tulisan
+    p.bidang(4.9, .3, KOTAK, s * .986, 1.02, -.12, s * PI / 2);
+    p(.015, .07, 4.9, BIRU, s * .984, .83, -.12, {r: 0});
+    p.bidang(1.7, .24, mat(0xffffff, {map: teksTex('AMBULANS', '#00000000', '#e0303a', 512, 72), transparent: true}), s * .986, 2.21, -.85, s * PI / 2);
+    p.bidang(.95, .1, mat(0xffffff, {map: teksTex('RS DUNIA KOTAK · 119', '#00000000', '#1f4fa8', 512, 56), transparent: true}), s * .986, 1.28, -2.0, s * PI / 2);
+    p.bidang(.62, .62, BINTANG, s * .986, 1.7, -2.0, s * PI / 2);
+    // pintu geser ruang pasien: garis, jendela buram, rel, gagang
+    p(.012, 1.36, .02, HITAM, s * .982, 1.27, .02, {r: 0}); p(.012, 1.36, .02, HITAM, s * .982, 1.27, -1.0, {r: 0}); p(.012, .02, 1.02, HITAM, s * .982, 1.95, -.49, {r: 0});
+    p(.02, .44, .74, BURAM, s * .98, 1.6, -.49, {r: .03}); p(.02, .03, 1.3, ABU, s * .985, 2.0, -1.05, {r: 0}); p(.03, .04, .18, KROM, s * .99, 1.3, -.88, {r: .01});
+        // lampu sorot samping & lampu kedip samping
+    p(.05, .1, .3, LAMPU, s * .99, 2.32, -1.4, {r: .02}); p(.05, .08, .16, s < 0 ? SIR_M : SIR_B, s * .99, .82, 1.0, {r: .02}); p(.05, .08, .16, s < 0 ? SIR_B : SIR_M, s * .99, .82, -2.3, {r: .02});
+    // spakbor & pijakan
+    p(.14, .3, 1.02, PUTIH, s * .95, .86, 1.5, {r: .07}); p(.14, .3, 1.02, PUTIH, s * .95, .86, -1.45, {r: .07});
+    p(.2, .08, .9, mat(0x2a2b31, {roughness: .8}), s * .92, .46, -.5, {r: .02}); p(.04, .08, .9, KROM, s * 1.0, .46, -.5, {r: .01}); });
+  // atap: light bar LED penuh (kedip merah-biru), lampu sudut, AC, bintang atap
+  p(1.72, .1, .4, HITAM, 0, 2.5, .9, {r: .03, garis: 1, t: .02});
+  for (let i = 0; i < 6; i++) p(.26, .14, .34, i < 3 ? SIR_M : SIR_B, -.7 + i * .28, 2.6, .9, {r: .04});
+  p(.4, .1, .34, LAMPU, 0, 2.6, .95, {r: .03});
+  [[-1, -2.55], [1, -2.55]].forEach(([s, z]) => p(.2, .14, .14, s < 0 ? SIR_M : SIR_B, s * .84, 2.52, z, {r: .04}));
+  p(.9, .22, .9, mat(0xdfe3ea, {roughness: .5}), 0, 2.56, -1.0, {r: .08, garis: 1, t: .02}); for (let i = 0; i < 4; i++) p(.7, .02, .05, ABU, 0, 2.68, -1.3 + i * .2, {r: 0});
+  p.bidang(.9, .9, BINTANG, 0, 2.465, -2.0, 0, -PI / 2);
+  // depan: tulisan cermin, kisi, lampu miring, lampu kabut, bumper, plat
+  p.bidang(1.3, .2, mat(0xffffff, {map: kanvas('ambCermin2', 512, 80, (g, w, h) => { g.translate(w, 0); g.scale(-1, 1); g.fillStyle = '#e0303a'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = FONT(56); g.fillText('AMBULANS', w / 2, h / 2 + 2); }), transparent: true}), 0, 1.36, 2.24, 0, -.25);
+  p(1.1, .3, .05, HITAM, 0, .98, 2.3, {r: .03}); for (let i = 0; i < 4; i++) p(1.04, .025, .03, KROM, 0, .87 + i * .07, 2.33, {r: 0});
+  p.bidang(.26, .26, BINTANG, 0, .98, 2.36);
+  [-1, 1].forEach(s => { p(.4, .18, .08, KROM, s * .72, 1.05, 2.27, {r: .04, ry: s * -.25}); p(.34, .13, .04, LAMPU, s * .72, 1.05, 2.31, {r: .03, ry: s * -.25});
+    p(.12, .07, .04, SEN, s * .86, .9, 2.28, {r: .02}); p(.14, .08, .04, s < 0 ? SIR_M : SIR_B, s * .4, .72, 2.37, {r: .02});
+    p.silinder(.06, .04, LAMPU, s * .75, .66, 2.36, {rx: PI / 2, n: 12}); });
+  p(1.98, .26, .26, mat(0x2a2b31, {roughness: .7}), 0, .62, 2.3, {r: .08, garis: 1, t: .02});
+  p.bidang(.6, .15, mat(0xffffff, {map: platTex('DK ' + (no || 'RS'))}), 0, .62, 2.435);
+  // belakang: pintu ganda berjendela buram, chevron, panah kuning, lampu tegak, pijakan, plat
+  p(.012, 1.6, .02, HITAM, 0, 1.38, -2.63, {r: 0});
+  [-1, 1].forEach(s => { p(.62, .5, .03, BURAM, s * .42, 1.88, -2.63, {r: .02}); p(.04, .2, .05, KROM, s * .08, 1.4, -2.65, {r: .01});
+    p(.12, .72, .05, lampuRem, s * .9, 1.12, -2.64, {r: .03}); p(.12, .14, .05, SEN, s * .9, .7, -2.64, {r: .02}); p(.12, .1, .05, MUNDUR, s * .9, .58, -2.64, {r: .02}); });
+  p.bidang(1.56, .32, CHEV, 0, 1.0, -2.65, PI);
+  p.bidang(.56, .56, BINTANG, 0, 1.52, -2.655, PI);
+  p(1.2, .16, .06, HITAM, 0, 2.3, -2.64, {r: .03}); for (let i = 0; i < 5; i++) p(.16, .1, .03, KUNING, -.44 + i * .22, 2.3, -2.67, {r: .02});   // panah kuning
+  p(1.98, .22, .5, mat(0x2a2b31, {roughness: .7}), 0, .56, -2.62, {r: .05, garis: 1, t: .02}); p(1.2, .05, .3, ABU, 0, .69, -2.82, {r: .01});
+  p.bidang(.6, .15, mat(0xffffff, {map: platTex('DK ' + (no || 'RS'))}), 0, .56, -2.875, PI);
   p.selesai();
-  return {api: apiKnalpot(bodi, -.6, .4, -2.7), kursi: {x: .4, z: 1.3, atap: 2.02, tinggi: 1.15}};
+  bodi.userData.sirene = [SIR_M, SIR_B];
+  return {api: apiKnalpot(bodi, -.6, .4, -2.95), kursi: {x: .4, z: 1.25, atap: 2.45, tinggi: 1.15}};
 }
 
 // ---------- KENDARAAN RODA DUA (11 Nov 2026, Huda: "Desainkan sepeda, motor juga") ----------
@@ -406,6 +441,8 @@ export function buatMobil(model, warna, no) {
   const roda = pasangBan(mobil, bodi, d);
   gabung(bodi);
   const supir = new THREE.Group(); supir.userData.jaga = true; bodi.add(supir);
-  mobil.userData = {bodi, roda, lampuRem, api, supir, kursi, jari: d.jari, model: SPEK[model] ? model : 'hatch'};
+  mobil.userData = {bodi, roda, lampuRem, api, supir, kursi, sirene: bodi.userData.sirene || null, jari: d.jari, model: SPEK[model] ? model : 'hatch'};
   return mobil;
 }
+// alat bersama untuk aset kendaraan lain (pesawat.js)
+export const ALAT = {pembuat, gabung, garisTepi, mat, kanvas, teksTex, FONT, KACA, HITAM, KROM, KARET, ABU, LAMPU, GARIS};

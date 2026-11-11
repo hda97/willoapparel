@@ -10,8 +10,8 @@ import {warga, pose as wpose, KULIT, WARNA_RAMBUT, GAYA_RAMBUT, SABLON, lukisSab
 import {kucingMesh, WARNA_KUCING, DAFTAR_KUCING} from './js/aset/kucing.js';
 import {warungMesh, rumahKucingMesh, WARNA_DINDING, WARNA_ATAP} from './js/aset/rumah.js';
 import * as F from './js/aset/fasum.js';
-import {buatMobil} from './js/aset/mobil.js?v=20261111kend';
-import {buatLaluLintas} from './js/lalulintas.js?v=20261111nav';
+import {buatMobil} from './js/aset/mobil.js?v=20261111amb';
+import {buatLaluLintas} from './js/lalulintas.js?v=20261111amb';
 import {buatNPC} from './js/npc.js?v=20261110willo';
 import {buatWargaNPC} from './js/wargaNpc.js';
 import {kulon, JALAN_KULON, AWAL_KULON} from './js/kulon.js?v=20261111nav';
