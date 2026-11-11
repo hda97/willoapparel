@@ -1,0 +1,30 @@
+# Python venv (create locally with requirements.txt)
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Downloaded ONNX models / HF cache
+models/
+*.onnx
+
+# Per-job working data + media (never commit source video or rendered clips)
+projects/
+*.mp4
+*.mov
+*.mkv
+*.webm
+*.wav
+*.mp3
+*.m4a
+*.png
+*.jpg
+*.jpeg
+*.ass
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
