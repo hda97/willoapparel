@@ -2172,6 +2172,10 @@ function infoKumpul() {
     html = `${ki.ikon} <b>${ki.nama}!</b> Misi koin 2x · +1💎/10 mnt main · ${Math.ceil((ki.j[1] - j) * 60)} mnt`;
     const kunci = hariIni() + ki.nama; if (kumpulDiumumkan !== kunci) { kumpulDiumumkan = kunci; toast(`${ki.ikon} ${ki.nama} dimulai! Misi koin 2x sampai ${jamTeks(ki.j[1])} WIB.`, 4000); bunyi('masuk'); }
   } else if (be.j[0] - j > 0 && be.j[0] - j <= 1) html = `⏰ <b>${be.nama}</b> ${jamTeks(be.j[0])} · ${Math.ceil((be.j[0] - j) * 60)} mnt lagi`;
+  // Huda 11 Nov 2026: chip event cukup tampil sekali (±8 dtk) lalu hilang, tidak menempel terus di layar.
+  if (html) { const kc = hariIni() + (ki ? ki.nama : '⏰' + be.nama), L = bacaJ('dk_chip_kumpul') || {};
+    if (!L[kc]) { for (const k in L) if (!k.startsWith(hariIni())) delete L[k]; L[kc] = Date.now(); simpan('dk_chip_kumpul', L); }
+    if (Date.now() - L[kc] > 8000) html = ''; }
   ck.hidden = !html; ck.classList.toggle('mulai', !!ki);
   if (html && ck._h !== html) { ck._h = html; ck.innerHTML = html; }
 }
