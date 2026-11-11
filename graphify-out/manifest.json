@@ -113,9 +113,9 @@
     "semantic_hash": "16f7aa92d3e9468edf41dd30b4c182d1"
   },
   "public/duniakotak/mabar/game.js": {
-    "mtime": 1794403648.5007815,
-    "seen": 1794403824.5426483,
-    "ast_hash": "087240a442998060ec28a97f527d0bf2",
+    "mtime": 1794404338.2643976,
+    "seen": 1794404380.6383317,
+    "ast_hash": "4b7348d77a1f7fad8f9ac00f9d628f5d",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/avatar.js": {
@@ -125,9 +125,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/fasum.js": {
-    "mtime": 1794403699.8575263,
-    "seen": 1794403824.5426517,
-    "ast_hash": "250fb35b1f81aa307713d4621484e2f8",
+    "mtime": 1794404479.4099333,
+    "seen": 1794404500.2988892,
+    "ast_hash": "1df41a80379cdf4362e822afd2fda646",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/kucing.js": {
@@ -209,9 +209,9 @@
     "semantic_hash": "bf3f8e495130df0e60287acb7ca38561"
   },
   "worker.js": {
-    "mtime": 1794403094.685578,
-    "seen": 1794403824.5426886,
-    "ast_hash": "16dc8158097d68956ec58e72a58d5a46",
+    "mtime": 1794404338.27251,
+    "seen": 1794404380.638385,
+    "ast_hash": "ba978f8376250655ee95b5ee41ea6793",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/musik.mp3": {
@@ -635,9 +635,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/desaGabung.js": {
-    "mtime": 1794403094.672555,
-    "seen": 1794403824.5426612,
-    "ast_hash": "c70dd2ff54387d688a063caff5c8b06f",
+    "mtime": 1794404338.2683976,
+    "seen": 1794404380.6383493,
+    "ast_hash": "be618258c1228a93cbf7b029d39b7b74",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/kotakBulat.js": {
@@ -977,9 +977,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/index.html": {
-    "mtime": 1794403648.505561,
-    "seen": 1794403824.5433888,
-    "ast_hash": "e283a219ad8ac25c6d26ba8e4bb58dbe",
+    "mtime": 1794404349.7174208,
+    "seen": 1794404380.639325,
+    "ast_hash": "74642a19511001af70452cab2c079bf5",
     "semantic_hash": ""
   },
   "public/duniakotak/privasi.html": {
@@ -8999,9 +8999,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/pesawat.js": {
-    "mtime": 1794403554.3249092,
-    "seen": 1794403824.542655,
-    "ast_hash": "1babc72949fc340d3901e9b6e789bd3e",
+    "mtime": 1794404443.67288,
+    "seen": 1794404500.2988977,
+    "ast_hash": "99783ebde5f1c590d3b85d33e6b02be2",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/lalulintas.js": {
@@ -12671,9 +12671,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/_pratinjau-mobil.html": {
-    "mtime": 1794403610.5443544,
-    "seen": 1794403824.5433795,
-    "ast_hash": "05f55cb9657985047ddcdef9c3714741",
+    "mtime": 1794404458.553507,
+    "seen": 1794404500.3008795,
+    "ast_hash": "da19acd35d9bb8aa1fe87f0b7fdabb65",
     "semantic_hash": ""
   },
   "public/kaos-santri-pondok-pesantren-ngawi.html": {
