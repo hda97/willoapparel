@@ -648,7 +648,9 @@ const PENUH = 860;
 function hitung(pd){
   const per = {}; for (const [d, a, b] of DUSUN_NO) per[d] = pd.daftar.filter(w => w.no >= a && w.no <= b).length;
   HITUNG = {per, isi: pd.daftar.filter(w => w.no <= PENUH).length, jumlah: pd.jumlah, live: pd.live};
-  const sisa = Math.max(0, PENUH - HITUNG.isi);
+  // Nomor warga baru = nomor terbesar + 1 (nomor kosong tidak diisi ulang), jadi hitung mundur pakai nomor terbesar, sama dengan /api/ajak.
+  const maksNo = pd.daftar.reduce((m, w) => Math.max(m, w.no || 0), 0);
+  const sisa = Math.max(0, PENUH + 1 - Math.max(maksNo, HITUNG.isi));
   $('hidup').innerHTML = `<i></i>${pd.jumlah.toLocaleString('id-ID')} warga terdaftar` + (pd.live ? '' : ' <small>(data 8 Nov)</small>') +
     (sisa ? `<span class="sg">🔒 Segara dibuka ${sisa} warga lagi</span>` : '<span class="sg">🏙️ Segara segera dibuka!</span>');
   tulisLabelDusun();
