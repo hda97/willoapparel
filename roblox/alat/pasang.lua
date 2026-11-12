@@ -33,6 +33,7 @@ end
 F.Parent=root
 local lama=workspace:FindFirstChild("DuniaKotak") if lama then lama.Parent=game:GetService("ServerStorage") end
 for _,s in ipairs(workspace:GetChildren()) do if s:IsA("SpawnLocation") then s:Destroy() end end
+local om=root:FindFirstChild("Muncul") if om then om:Destroy() end
 local sp=Instance.new("SpawnLocation") sp.Name="Muncul" sp.Anchored=true sp.Size=Vector3.new(6,0.4,6) sp.Transparency=1 sp.CanCollide=false
 sp.CFrame=CFrame.new(info.muncul[1],info.muncul[2]+0.5,info.muncul[3]) sp.Parent=root
 local L=game:GetService("Lighting") L.FogColor=Color3.fromRGB(191,228,255) L.FogStart=400 L.FogEnd=900 L.ClockTime=13.5 L.Brightness=2.2 L.Ambient=Color3.fromRGB(120,125,130) L.OutdoorAmbient=Color3.fromRGB(150,155,160)
