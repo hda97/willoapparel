@@ -1,0 +1,22 @@
+# Splitbill Cerdas v2
+
+Aplikasi bagi tagihan (patungan) milik Huda, dibangun ulang dari nol dengan Expo SDK 51.
+
+- Scan struk **offline** pakai Google ML Kit (foto tidak dikirim ke server), atau tempel teks struk.
+- Bagi **sesuai pesanan** (tiap item dipilih siapa yang ikut) atau **bagi rata**.
+- Service, pajak/PB1, diskon dibagi proporsional; ongkir dibagi rata; pembulatan 100/500/1.000.
+- Tandai siapa yang **sudah lunas**, total "uang belum kembali" di beranda, utang per teman.
+- Tagih via WhatsApp per orang (langsung ke nomornya kalau disimpan) + info rekening/e-wallet.
+- Daftar teman tersimpan, mode gelap, semua data hanya di HP.
+
+## Uji & build
+
+```bash
+npm ci
+npm test                 # uji logika hitung & pembaca struk
+npx expo export -p web   # cek tampilan cepat di browser (scan kamera hanya jalan di HP)
+```
+
+APK dibangun oleh workflow `.github/workflows/aplikasi-splitbill.yml` dan diunggah ke Release
+[`splitbill-uji`](https://github.com/hda97/willoapparel/releases/tag/splitbill-uji).
+APK ditandatangani kunci debug, jadi hapus dulu Splitbill Cerdas versi lama sebelum memasang.
