@@ -23,7 +23,7 @@ npx expo export -p web   # cek tampilan cepat di browser (scan kamera hanya jala
 
 APK dibangun oleh workflow `.github/workflows/aplikasi-splitbill.yml` dan diunggah ke Release
 [`splitbill-uji`](https://github.com/hda97/willoapparel/releases/tag/splitbill-uji).
-APK ditandatangani **kunci rilis resmi** (`kunci/splitbill-rilis.p12.enc`, AES-256 terenkripsi; sandinya disimpan
-di secret repo `SPLITBILL_KUNCI`). Kunci yang sama wajib dipakai di setiap rilis supaya pembeli bisa update tanpa
+APK ditandatangani **kunci rilis resmi**. Sandinya disimpan Huda sendiri di secret repo `SPLITBILL_KUNCI`.
+Pada run pertama, workflow membuat kunci, mengenkripsinya (AES-256) dengan sandi itu, lalu meng-commit
+`kunci/splitbill-rilis.p12.enc`. Kunci yang sama wajib dipakai di setiap rilis supaya pembeli bisa update tanpa
 menghapus aplikasi. Jangan hapus file kunci ini dan jangan kehilangan sandinya.
-Sidik jari SHA-256 sertifikat: `76:E4:13:6A:D7:10:9D:18:21:45:C3:FF:C8:92:D1:D8:D8:EC:CF:0A:73:2C:40:B7:0D:07:7E:AE:F8:D8:B1:CB`.
