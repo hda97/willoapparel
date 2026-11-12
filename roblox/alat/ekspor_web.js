@@ -62,9 +62,28 @@ const fs = require('fs');
             if (u.length === 3) { const ys = u.map(q => q.y), y0 = Math.min(...ys), y1 = Math.max(...ys); const bawah = u.filter(q => Math.abs(q.y-y0) < 1e-6), atas = u.filter(q => Math.abs(q.y-y1) < 1e-6);
               if (bawah.length === 2 && atas.length === 1 && Math.abs(atas[0].x - (bawah[0].x+bawah[1].x)/2) < 1e-4) t2 = 6; } } catch (e) {} }
           return [c, new T.Vector3(z.x,0,0), new T.Vector3(0,z.y,0), new T.Vector3(0,0,z.z), vcol(s, e), t2]; };
-        if (idx && gm.type !== 'ConeGeometry' && gm.type !== 'CylinderGeometry' && gm.type !== 'PlaneGeometry' && gm.type !== 'CircleGeometry') { let s = 0, sisa = -1;
-          while (s < pos.count) { const k = coba(s); if (k) { if (sisa >= 0) { chunks.push(aabb(sisa, s)); sisa = -1; } chunks.push(k); kotak = true; s += 24; } else { if (sisa < 0) sisa = s; s += 1; } }
-          if (sisa >= 0) chunks.push(aabb(sisa, pos.count)); }
+        // kotak tak berindeks (hasil toNonIndexed): 36 titik per kotak, tiap sisi = (a,b,d),(b,c,d)
+        const faceC6 = (s, k) => { const o = new T.Vector3(), q = s + k*6; for (const i of [0,1,2,4]) o.add(v.fromBufferAttribute(pos, q+i)); return o.multiplyScalar(.25); };
+        const coba36 = s => { if (s + 36 > pos.count) return null; const px = faceC6(s,0), nx = faceC6(s,1), py = faceC6(s,2), ny = faceC6(s,3), pz = faceC6(s,4), nz = faceC6(s,5);
+          const c = px.clone().add(nx).multiplyScalar(.5), c2 = py.clone().add(ny).multiplyScalar(.5), c3 = pz.clone().add(nz).multiplyScalar(.5);
+          const ax = px.sub(nx), ay = py.sub(ny), az = pz.sub(nz); const L = ax.length() + ay.length() + az.length(); if (L < 1e-9) return null; const tol = L * 1e-3;
+          if (c.distanceTo(c2) > tol || c.distanceTo(c3) > tol) return null;
+          if (Math.abs(ax.dot(ay)) > tol*L || Math.abs(ax.dot(az)) > tol*L || Math.abs(ay.dot(az)) > tol*L) return null;
+          const r2 = (ax.lengthSq() + ay.lengthSq() + az.lengthSq()) / 4; for (let i = 0; i < 36; i += 5) { if (Math.abs(v.fromBufferAttribute(pos, s+i).distanceToSquared(c) - r2) > tol*L) return null; }
+          return [c, ax, ay, az, vcol(s, s+36), 0]; };
+        // sisa (bukan kotak): pecah per gugus segitiga yang saling menyambung, tiap gugus jadi satu kotak pembatas
+        const gugus = (s, e) => { const par = new Map(); const cari = k => { let r = k; while (par.get(r) !== r) r = par.get(r); while (par.get(k) !== r) { const n = par.get(k); par.set(k, r); k = n; } return r; };
+          const kunci = i => { v.fromBufferAttribute(pos, i); return Math.round(v.x*200) + ',' + Math.round(v.y*200) + ',' + Math.round(v.z*200); };
+          const tris = []; if (idx) { for (let i = 0; i + 2 < idx.count; i += 3) { const p = idx.getX(i), q = idx.getX(i+1), r = idx.getX(i+2); if (p >= s && p < e && q >= s && q < e && r >= s && r < e) tris.push([p,q,r]); } }
+          else for (let i = s; i + 2 < e; i += 3) tris.push([i, i+1, i+2]);
+          if (tris.length > 60000 || !tris.length) return [aabb(s, e)];
+          for (const t of tris) { const ks = t.map(kunci); for (const k of ks) if (!par.has(k)) par.set(k, k); const r0 = cari(ks[0]); par.set(cari(ks[1]), r0); par.set(cari(ks[2]), r0); }
+          const kotakG = new Map(); for (const t of tris) { const r = cari(kunci(t[0])); let g = kotakG.get(r); if (!g) { g = {bb: new T.Box3(), col: new T.Color(0,0,0), n: 0}; kotakG.set(r, g); }
+            for (const i of t) { g.bb.expandByPoint(v.fromBufferAttribute(pos, i)); if (vc) { g.col.r += vc.getX(i); g.col.g += vc.getY(i); g.col.b += vc.getZ(i); } g.n++; } }
+          const out = []; for (const g of kotakG.values()) { const c = g.bb.getCenter(new T.Vector3()), z = g.bb.getSize(new T.Vector3()); out.push([c, new T.Vector3(z.x,0,0), new T.Vector3(0,z.y,0), new T.Vector3(0,0,z.z), vc ? g.col.multiplyScalar(1/g.n) : null, 5]); } return out; };
+        if (gm.type === 'BoxGeometry' || gm.type === 'BufferGeometry') { let s = 0, sisa = -1; const langkah = idx ? 24 : 36, uji = idx ? coba : coba36, maju = idx ? 1 : 3;
+          while (s < pos.count) { const k = uji(s); if (k) { if (sisa >= 0) { chunks.push(...gugus(sisa, s)); sisa = -1; } chunks.push(k); kotak = true; s += langkah; } else { if (sisa < 0) sisa = s; s += maju; } }
+          if (sisa >= 0) chunks.push(...gugus(sisa, pos.count)); }
         else chunks.push(aabb(0, pos.count));
         const key = gm.type + (kotak ? '|k' : '|x'); stat[key] = (stat[key]||0);
         const emit = (M, icol) => { for (const [c, ax, ay, az, col, t2] of chunks) { const cc = base.clone(); if (icol) cc.multiply(icol); if (col) cc.multiply(col);
