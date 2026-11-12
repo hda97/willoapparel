@@ -1,7 +1,7 @@
 """Ubah hasil ekspor adegan game web (ekspor_web.js -> <dusun>.f32 + .meta.json) menjadi berkas teks Part Roblox.
 Pakai: python3 ubah.py <folder-ekspor> <dusun> <folder-keluar>
 Tiap baris: x y z sx sy sz warna(hex) bendera [9 angka rotasi x1000]; posisi/ukuran dalam 1/100 stud.
-Bendera: 1 = tanpa tabrakan, 2 = tembus pandang, 4 = tanpa bayangan, 8 = WedgePart."""
+Bendera: 1 = tanpa tabrakan, 2 = tembus pandang, 4 = tanpa bayangan, 8 = WedgePart, 16 = silinder (sumbu X), 32 = bola."""
 import sys, json, os, collections
 import numpy as np
 
@@ -55,6 +55,16 @@ for i in np.nonzero(besar)[0]:
             zl = xh * arah; xl = np.cross(yh, zl)
             R = np.stack([xl, yh, zl], 1)
             tulis(p - xh * arah * w / 4, np.array([d, h, w / 2]), c, f | 8, R.flatten()); st['baji'] += 1
+        continue
+    if bentuk[i] in (2, 7, 8) and s.min() > 1e-6:   # silinder (sumbu Y lokal), torus (sumbu Z lokal), bola
+        sb = {2: 1, 7: 2, 8: 1}[bentuk[i]]; lain = [d for d in range(3) if d != sb]
+        ax3 = [AX[i] / s[0], AY[i] / s[1], AZ[i] / s[2]]
+        xl = ax3[sb]; yl = ax3[lain[0]]; zl = np.cross(xl, yl)
+        R = np.stack([xl, yl, zl], 1); dia = max(s[lain[0]], s[lain[1]]) * K
+        if dia < .9: f |= 1
+        if dia < 1.2: f |= 4
+        if bentuk[i] == 8: tulis(p, np.array([dia, dia, dia]), c, f | 32); st['bola'] += 1
+        else: tulis(p, np.array([s[sb] * K, dia, dia]), c, f | 16, R.flatten()); st['silinder'] += 1
         continue
     if bentuk[i] == 3:   # bidang datar
         f |= 1 | 4

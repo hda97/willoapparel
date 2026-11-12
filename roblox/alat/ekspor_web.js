@@ -14,6 +14,7 @@ const fs = require('fs');
   });
   await p.addInitScript(() => { Object.defineProperty(navigator, 'hardwareConcurrency', {get: () => 8}); Object.defineProperty(navigator, 'deviceMemory', {get: () => 8}); });
   await p.route('**/mabar/js/kotakBulat.js*', r => r.fulfill({contentType:'application/javascript', body: "import {BoxGeometry} from 'three'; export const HP = false; export class RoundedBoxGeometry extends BoxGeometry { constructor(w = 1, h = 1, d = 1) { super(w, h, d); } }"}));
+  await p.route('**/aset/mobil.js*', async r => { let s = fs.readFileSync('/home/user/willoapparel/public/duniakotak/mabar/js/aset/mobil.js','utf8'); if (!s.includes('function gabung(grup) {')) throw new Error('gabung'); r.fulfill({contentType:'application/javascript', body: s.replace('function gabung(grup) {', 'function gabung(grup) { return;')}); });
   await p.route('**/duniakotak/api/**', async r => {
     const u = new URL(r.request().url());
     if (r.request().method()==='GET' && u.pathname.endsWith('/api/warga')) return r.fulfill({body: fs.readFileSync('warga.json'), contentType:'application/json'});
@@ -42,7 +43,7 @@ const fs = require('fs');
       if (!o.visible || skip.has(o)) return; if (lotOf.has(o)) lot = lotOf.get(o);
       if (o.isMesh) {
         const gm = o.geometry, pos = gm.attributes.position, mats = Array.isArray(o.material) ? o.material : [o.material]; const mt = mats[0];
-        if (!pos || mt.visible === false || (mt.transparent && mt.opacity < .15)) return;
+        if (!pos || mt.visible === false || mt.side === T.BackSide || (mt.transparent && mt.opacity < .15)) { for (const ch of o.children) walk(ch, grp, lot); return; }
         const base = mt.color ? mt.color.clone() : new T.Color(1,1,1); let tipe = 0;
         if (mt.map) { const a = avgMap(mt.map); if (a) base.multiply(a); tipe = 4; }
         if (mt.transparent && mt.opacity < .95) tipe += 8;
@@ -57,7 +58,7 @@ const fs = require('fs');
           const r2 = (ax.lengthSq() + ay.lengthSq() + az.lengthSq()) / 4; for (let i = 0; i < 24; i += 5) { if (Math.abs(v.fromBufferAttribute(pos, s+i).distanceToSquared(c) - r2) > tol*L) return null; }
           return [c, ax, ay, az, vcol(s, s+24), 0]; };
         const aabb = (s, e) => { const bb = new T.Box3(); for (let i = s; i < e; i++) bb.expandByPoint(v.fromBufferAttribute(pos, i)); const c = bb.getCenter(new T.Vector3()), z = bb.getSize(new T.Vector3());
-          let t2 = gm.type === 'ConeGeometry' ? 1 : gm.type === 'CylinderGeometry' ? 2 : (gm.type === 'PlaneGeometry' || gm.type === 'CircleGeometry') ? 3 : 5;
+          let t2 = gm.type === 'ConeGeometry' ? 1 : gm.type === 'CylinderGeometry' ? 2 : gm.type === 'TorusGeometry' ? 7 : gm.type === 'SphereGeometry' || gm.type === 'IcosahedronGeometry' ? 8 : (gm.type === 'PlaneGeometry' || gm.type === 'CircleGeometry') ? 3 : 5;
           if (gm.type === 'ExtrudeGeometry') { try { const sh = gm.parameters.shapes, pts = (Array.isArray(sh) ? sh[0] : sh).getPoints(); const u = []; for (const q of pts) if (!u.some(w => Math.abs(w.x-q.x)+Math.abs(w.y-q.y) < 1e-6)) u.push(q);
             if (u.length === 3) { const ys = u.map(q => q.y), y0 = Math.min(...ys), y1 = Math.max(...ys); const bawah = u.filter(q => Math.abs(q.y-y0) < 1e-6), atas = u.filter(q => Math.abs(q.y-y1) < 1e-6);
               if (bawah.length === 2 && atas.length === 1 && Math.abs(atas[0].x - (bawah[0].x+bawah[1].x)/2) < 1e-4) t2 = 6; } } catch (e) {} }

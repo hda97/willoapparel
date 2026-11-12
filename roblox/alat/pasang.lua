@@ -16,6 +16,7 @@ for i=0,info.berkas-1 do
     local t=string.split(line," ")
     local f=tonumber(t[8])
     local p=Instance.new(bit32.band(f,8)~=0 and "WedgePart" or "Part")
+    if bit32.band(f,16)~=0 then p.Shape=Enum.PartType.Cylinder elseif bit32.band(f,32)~=0 then p.Shape=Enum.PartType.Ball end
     p.Anchored=true p.Material=Enum.Material.SmoothPlastic p.TopSurface=Enum.SurfaceType.Smooth p.BottomSurface=Enum.SurfaceType.Smooth
     p.Size=Vector3.new(t[4]/100,t[5]/100,t[6]/100)
     p.Color=Color3.fromHex(t[7])
@@ -37,6 +38,6 @@ local om=root:FindFirstChild("Muncul") if om then om:Destroy() end
 local sp=Instance.new("SpawnLocation") sp.Name="Muncul" sp.Anchored=true sp.Size=Vector3.new(6,0.4,6) sp.Transparency=1 sp.CanCollide=false
 sp.CFrame=CFrame.new(info.muncul[1],info.muncul[2]+0.5,info.muncul[3]) sp.Parent=root
 local L=game:GetService("Lighting") L.FogColor=Color3.fromRGB(191,228,255) L.FogStart=400 L.FogEnd=900 L.ClockTime=13.5 L.Brightness=2.2 L.Ambient=Color3.fromRGB(120,125,130) L.OutdoorAmbient=Color3.fromRGB(150,155,160)
-hint.Text="SELESAI "..nama.." part "..total
+H.HttpEnabled=false hint:Destroy()
 end)
 if not ok then hint.Text="GALAT: "..tostring(err) end
