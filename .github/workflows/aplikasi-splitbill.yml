@@ -2,14 +2,11 @@ name: Aplikasi Splitbill Cerdas (APK)
 
 # Build APK Splitbill Cerdas (Expo SDK 51, JS dibundel Hermes, bisa jalan tanpa server dev).
 # Hasil diunggah ke Release "splitbill-uji" supaya bisa diunduh & dipasang langsung dari HP.
+# HANYA jalan manual (Actions > Aplikasi Splitbill Cerdas > Run workflow), sesuai permintaan Huda:
+# APK tidak di-build otomatis. Pemicu pull_request hanya ada supaya run lama ikut dibatalkan; job-nya dilewati.
 on:
   workflow_dispatch:
   pull_request:
-    paths:
-      - "aplikasi-splitbill/**"
-      - ".github/workflows/aplikasi-splitbill.yml"
-  push:
-    branches: [main]
     paths:
       - "aplikasi-splitbill/**"
       - ".github/workflows/aplikasi-splitbill.yml"
@@ -23,6 +20,7 @@ concurrency:
 
 jobs:
   apk:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     defaults:
@@ -56,7 +54,6 @@ jobs:
           path: aplikasi-splitbill/splitbill-cerdas.apk
           retention-days: 14
       - name: Unggah ke Release splitbill-uji
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         uses: softprops/action-gh-release@v2
         with:
           tag_name: splitbill-uji
