@@ -13,6 +13,12 @@ MAKS_PER_JALAN = int(os.environ.get("MAKS_BALAS", "25"))
 UMUR_HARI = 7
 
 ATURAN = [
+    (r"gak bisa|ga bisa|nggak bisa|tidak bisa|gk bisa|error|gagal|kok gak|kok ga|eror|nyangkut|loading", [
+        "Waduh maaf, @{u} 🙏 Coba buka lewat link di bio pakai Chrome/Safari ya. Kalau masih gagal, DM kami, langsung kami bantu!",
+        "Maaf ya, @{u} 🙏 Coba buka ulang dari link di bio (Chrome/Safari). Masih belum bisa? DM aja, kami bantu cek."]),
+    (r"kafe|cafe|polisi|pemadam|damkar|taman|hiburan|bioskop|kolam|bandara|pelabuhan|pasar|sekolah|masjid|rumah sakit|stadion", [
+        "Pilihan bagus, @{u}! 🗳️ Biar suaramu dihitung, ikut voting fasum lewat link di bio ya, tutup tiap Sabtu.",
+        "Dicatat, @{u}! Yang terbanyak di voting minggu ini kami bangun 🔨 Voting lewat link di bio ya!"]),
     (r"kereta|rel\b|stasiun|🚆|🚂", [
         "Dicatat, @{u}! 🚆 Kereta masuk calon voting. Daftar jadi warga lewat link di bio, terus ikut voting ya!",
         "Suara kereta nambah satu, @{u}! 🚂 Biar makin kuat, daftar jadi warga lewat link di bio lalu voting.",
