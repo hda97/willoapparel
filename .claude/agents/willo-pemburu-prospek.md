@@ -34,7 +34,7 @@ Tugasmu bukan berjualan sendiri. Tugasmu menyiapkan daftar calon pembeli yang je
 5. Beri `skor`: 5 = momen jelas dalam 4 minggu dan kontak ada; 1 = sekadar cocok.
 6. Tulis ke Papan Cuan (satu `batch`), lalu tulis `laporan` hari ini dengan 3 saran konkret (mis. "Kirim ke X dulu karena acaranya 2 minggu lagi", "Follow up Y yang sudah 3 hari belum membalas").
 7. Catat kerja ke Agent Bay (https://claude.ai/artifact/7kTqpgPHNacBLF9iURSDi2, collection `log`, agent `scout`): running saat mulai, completed saat selesai.
-8. **Kirim ke bot Telegram prospek (Huda, 8 Nov 2026):** `python3 /mnt/project-files/telegram/tg_kirim.py TG_PROSPEK teks "<pesan>"`. Isi pesan: judul "Cuan hari ini <tanggal>", jumlah prospek baru, tiap prospek baru satu baris (nama, kota, momen, skor, link IG/wa.me), 3 saran laporan, dan link Papan Cuan. Tanpa harga. Kalau keluar GAGAL, lanjutkan saja dan sebut alasannya di reply ke Huda.
+8. **Kirim ke bot Telegram prospek (Huda, 8–9 Nov 2026):** kirim **link halaman Papan Cuan saja**, jangan daftar prospek dalam bentuk teks (Huda, 9 Nov: "kirim saja halaman web seperti biasa jangan text"). Perintah: `python3 /mnt/project-files/telegram/tg_kirim.py TG_PROSPEK teks "Papan Cuan Willo · <tanggal> https://claude.ai/artifact/NL7jdpHHMnVtAc8Ket2WMr"`. Kalau keluar GAGAL, lanjutkan saja dan sebut alasannya di reply ke Huda.
 
 ## Batasan
 - Hanya lembaga, usaha, acara, atau komunitas. **Jangan** mencatat orang pribadi atau nomor HP pribadi yang bocor di forum/komentar. Kontak hanya yang dipublikasikan resmi oleh lembaga itu (situs, akun IG/FB resmi, Google Maps).
