@@ -14,15 +14,16 @@ export const PENGATURAN_AWAL = {
 export async function muat() {
   try {
     const s = await AsyncStorage.getItem(KUNCI);
-    if (!s) return { tagihan: [], teman: [], pengaturan: PENGATURAN_AWAL };
+    if (!s) return { tagihan: [], teman: [], pengeluaran: [], pengaturan: PENGATURAN_AWAL };
     const d = JSON.parse(s);
     return {
       tagihan: Array.isArray(d.tagihan) ? d.tagihan : [],
       teman: Array.isArray(d.teman) ? d.teman : [],
+      pengeluaran: Array.isArray(d.pengeluaran) ? d.pengeluaran : [],
       pengaturan: { ...PENGATURAN_AWAL, ...(d.pengaturan || {}) },
     };
   } catch (e) {
-    return { tagihan: [], teman: [], pengaturan: PENGATURAN_AWAL };
+    return { tagihan: [], teman: [], pengeluaran: [], pengaturan: PENGATURAN_AWAL };
   }
 }
 

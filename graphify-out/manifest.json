@@ -14687,9 +14687,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/aplikasi-splitbill.yml": {
-    "mtime": 1794524900.2602282,
-    "seen": 1794525908.7208073,
-    "ast_hash": "4278f143dd2069d90f1803c4528c11ea",
+    "mtime": 1794526477.7937272,
+    "seen": 1794526520.1289716,
+    "ast_hash": "f80f8f3b7e112d6a42b15b317f8a2459",
     "semantic_hash": ""
   },
   ".github/workflows/ig-insight.yml": {
@@ -14699,9 +14699,9 @@
     "semantic_hash": ""
   },
   "aplikasi-splitbill/App.js": {
-    "mtime": 1794524509.290739,
-    "seen": 1794524844.8421023,
-    "ast_hash": "2de626837d2e4176cfd7a87e7e7bf53c",
+    "mtime": 1794526237.8251767,
+    "seen": 1794526520.129018,
+    "ast_hash": "b1cfd618e2343ab4d55e313ac78a5f94",
     "semantic_hash": ""
   },
   "aplikasi-splitbill/app.json": {
@@ -14729,9 +14729,9 @@
     "semantic_hash": ""
   },
   "aplikasi-splitbill/package.json": {
-    "mtime": 1794525738.4128826,
-    "seen": 1794525908.7208607,
-    "ast_hash": "f9351bf887984cad4ae4b43f834885ac",
+    "mtime": 1794526215.2889109,
+    "seen": 1794526520.129036,
+    "ast_hash": "f8827f33940d3c0d8689c3ad462fef01",
     "semantic_hash": ""
   },
   "aplikasi-splitbill/src/layar/Beranda.js": {
@@ -14741,27 +14741,27 @@
     "semantic_hash": ""
   },
   "aplikasi-splitbill/src/layar/Detail.js": {
-    "mtime": 1794525832.803964,
-    "seen": 1794525908.7208643,
-    "ast_hash": "c3e33f6a4240ddd474fa33b42b0f3783",
+    "mtime": 1794526368.3689764,
+    "seen": 1794526520.129051,
+    "ast_hash": "81463ccf612fbb501c1a3a40d905ec3b",
     "semantic_hash": ""
   },
   "aplikasi-splitbill/src/layar/EditorTagihan.js": {
-    "mtime": 1794524565.6050448,
-    "seen": 1794524844.8421097,
-    "ast_hash": "b6b77073316c04b818f3976e16df359c",
+    "mtime": 1794526368.3673444,
+    "seen": 1794526520.1290529,
+    "ast_hash": "32d68b8e8c84cc8d17c08614a3241708",
     "semantic_hash": ""
   },
   "aplikasi-splitbill/src/layar/Pengaturan.js": {
-    "mtime": 1794525832.8048708,
-    "seen": 1794525908.720868,
-    "ast_hash": "e5dff88727ccd35cf47c06411b1c06b5",
+    "mtime": 1794526311.1262112,
+    "seen": 1794526520.1290553,
+    "ast_hash": "3d6271d73fcb6ad52753456f5900407c",
     "semantic_hash": ""
   },
   "aplikasi-splitbill/src/layar/Scan.js": {
-    "mtime": 1794524590.0050788,
-    "seen": 1794524844.8421113,
-    "ast_hash": "a6cf32ba9bf55b968dbe72cdbc4b8f34",
+    "mtime": 1794526368.3661447,
+    "seen": 1794526520.1290572,
+    "ast_hash": "9aafa06015cf468423fc702e1cb05024",
     "semantic_hash": ""
   },
   "aplikasi-splitbill/src/layar/Teman.js": {
@@ -14777,9 +14777,9 @@
     "semantic_hash": ""
   },
   "aplikasi-splitbill/src/store.js": {
-    "mtime": 1794524470.032095,
-    "seen": 1794524844.8421135,
-    "ast_hash": "f768408cfe0fae38ae4a61f7c382a665",
+    "mtime": 1794526237.8236163,
+    "seen": 1794526520.1290638,
+    "ast_hash": "b4b1d87f90e1ba973b34c4421e7f7b38",
     "semantic_hash": ""
   },
   "aplikasi-splitbill/src/tema.js": {
@@ -14795,9 +14795,9 @@
     "semantic_hash": ""
   },
   "aplikasi-splitbill/test/hitung.test.mjs": {
-    "mtime": 1794525832.8088882,
-    "seen": 1794525908.720882,
-    "ast_hash": "5b0f9f61c7158114c746809ac34fb582",
+    "mtime": 1794526207.395569,
+    "seen": 1794526520.1290734,
+    "ast_hash": "b2bac62d43d95782ad20fcc7acb953fb",
     "semantic_hash": ""
   },
   "konten-ig/insight.py": {
@@ -14819,9 +14819,9 @@
     "semantic_hash": ""
   },
   "aplikasi-splitbill/README.md": {
-    "mtime": 1794525864.940153,
-    "seen": 1794525908.722239,
-    "ast_hash": "63bd8240a570214bca3c1fed42108a4a",
+    "mtime": 1794526477.794146,
+    "seen": 1794526520.1310256,
+    "ast_hash": "aecb83ea92a7d3e94d4431b7abd43936",
     "semantic_hash": ""
   },
   "aplikasi-splitbill/assets/adaptive-icon.png": {
@@ -14849,27 +14849,63 @@
     "semantic_hash": ""
   },
   "aplikasi-splitbill/lib/bukuExcel.js": {
-    "mtime": 1794525809.9690561,
-    "seen": 1794525908.720853,
-    "ast_hash": "d1c392618a2f63967d50882066721376",
+    "mtime": 1794526311.124822,
+    "seen": 1794526520.1290252,
+    "ast_hash": "022d121a6d6af5ccbe2191f225da2793",
     "semantic_hash": ""
   },
   "aplikasi-splitbill/lib/ekspor.js": {
-    "mtime": 1794525785.8377192,
-    "seen": 1794525908.7208552,
-    "ast_hash": "c916cf51e46a47e3daf70bbcfc57bc19",
+    "mtime": 1794526311.1236193,
+    "seen": 1794526520.1290276,
+    "ast_hash": "e57dcb275f8f5daa1bfae7082726d6f2",
     "semantic_hash": ""
   },
   "aplikasi-splitbill/src/excel.js": {
-    "mtime": 1794525785.8438358,
-    "seen": 1794525908.7208617,
-    "ast_hash": "bbb2540e60fccb289bac33ecb3ca9ea4",
+    "mtime": 1794526311.1250153,
+    "seen": 1794526520.1290405,
+    "ast_hash": "228eab44a18338a40f93f640587aa124",
     "semantic_hash": ""
   },
   "aplikasi-splitbill/test/ekspor.mjs": {
-    "mtime": 1794525785.8454492,
-    "seen": 1794525908.72088,
-    "ast_hash": "ae426812f7e6a655b3043f9dfac9adfc",
+    "mtime": 1794526458.680357,
+    "seen": 1794526520.1290715,
+    "ast_hash": "4966d08dc5fd3aed6054b27d9da561c4",
+    "semantic_hash": ""
+  },
+  "aplikasi-splitbill/lib/pengeluaran.js": {
+    "mtime": 1794526207.395569,
+    "seen": 1794526520.1290345,
+    "ast_hash": "4f26dd98df2b499a000440b876c01e8f",
+    "semantic_hash": ""
+  },
+  "aplikasi-splitbill/src/StrukGambar.js": {
+    "mtime": 1794526337.567105,
+    "seen": 1794526520.1290376,
+    "ast_hash": "e59491b3bd9d8e528f026a242cc855f9",
+    "semantic_hash": ""
+  },
+  "aplikasi-splitbill/src/foto.js": {
+    "mtime": 1794526337.565715,
+    "seen": 1794526520.1290417,
+    "ast_hash": "038055f27cae9c7f9b0af3ef82acd696",
+    "semantic_hash": ""
+  },
+  "aplikasi-splitbill/src/grafik.js": {
+    "mtime": 1794526237.8289123,
+    "seen": 1794526520.1290433,
+    "ast_hash": "87402955777f3912b798a07bafd12e9d",
+    "semantic_hash": ""
+  },
+  "aplikasi-splitbill/src/layar/CatatPengeluaran.js": {
+    "mtime": 1794526280.28727,
+    "seen": 1794526520.1290474,
+    "ast_hash": "0747c820ec941147123221bdbbccc3b3",
+    "semantic_hash": ""
+  },
+  "aplikasi-splitbill/src/layar/Catatan.js": {
+    "mtime": 1794526458.676699,
+    "seen": 1794526520.1290488,
+    "ast_hash": "e77083193cfddfa840f82da6d4d8acf3",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {
@@ -14897,9 +14933,9 @@
     "semantic_hash": ""
   },
   "aplikasi-splitbill/package-lock.json": {
-    "mtime": 1794525738.5688827,
-    "seen": 1794525908.7232738,
-    "ast_hash": "2778a4cb11d3f6cf2372a01748a22139",
+    "mtime": 1794526217.4729111,
+    "seen": 1794526520.1331453,
+    "ast_hash": "e782aad5e55c0bf16c729f4c96fd5957",
     "semantic_hash": ""
   },
   "edukasi/paud/package-lock.json": {

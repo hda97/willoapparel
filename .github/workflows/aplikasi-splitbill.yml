@@ -46,8 +46,23 @@ jobs:
       - name: Build APK release
         working-directory: aplikasi-splitbill/android
         run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
-      - name: Siapkan file APK
-        run: cp android/app/build/outputs/apk/release/app-release.apk splitbill-cerdas.apk && ls -la splitbill-cerdas.apk
+      - name: Tanda tangani dengan kunci resmi
+        # Kunci rilis ada terenkripsi di aplikasi-splitbill/kunci/. Sandinya di secret SPLITBILL_KUNCI.
+        # Kunci yang sama di tiap rilis = pembeli bisa update tanpa hapus aplikasi (data tetap aman).
+        env:
+          SANDI: ${{ secrets.SPLITBILL_KUNCI }}
+        run: |
+          if [ -z "$SANDI" ]; then
+            echo "::error::Secret SPLITBILL_KUNCI belum diisi. APK rilis wajib pakai kunci resmi."
+            exit 1
+          fi
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in kunci/splitbill-rilis.p12.enc -out "$RUNNER_TEMP/rilis.p12" -pass env:SANDI
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          "$BT/apksigner" sign --ks "$RUNNER_TEMP/rilis.p12" --ks-type PKCS12 --ks-key-alias splitbill \
+            --ks-pass env:SANDI --key-pass env:SANDI --out splitbill-cerdas.apk android/app/build/outputs/apk/release/app-release.apk
+          "$BT/apksigner" verify --print-certs splitbill-cerdas.apk | grep -i 'SHA-256'
+          rm -f "$RUNNER_TEMP/rilis.p12"
+          ls -la splitbill-cerdas.apk
       - uses: actions/upload-artifact@v4
         with:
           name: splitbill-cerdas-apk
@@ -63,7 +78,8 @@ jobs:
           make_latest: false
           body: |
             APK uji Splitbill Cerdas v2. Unduh **splitbill-cerdas.apk** di bawah dari HP Android.
-            Hapus dulu Splitbill Cerdas versi lama (kunci tanda tangannya beda), lalu ketuk file ini, izinkan "instal dari sumber tidak dikenal", dan Instal.
+            Ketuk file ini, izinkan "instal dari sumber tidak dikenal", lalu Instal. Update berikutnya tinggal pasang di atasnya (data tetap aman).
+            (Kalau masih ada Splitbill Cerdas versi 1.x lama, hapus dulu sekali saja.)
             Dibangun otomatis dari commit ${{ github.sha }}.
           files: aplikasi-splitbill/splitbill-cerdas.apk
           overwrite_files: true

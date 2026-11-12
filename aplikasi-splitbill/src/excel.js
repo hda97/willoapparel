@@ -5,8 +5,8 @@ import { buatWorkbook, XLSX } from '../lib/bukuExcel';
 import { namaFileEkspor } from '../lib/ekspor';
 
 // Buat file .xlsx lalu buka menu bagikan (simpan ke Drive/Files, kirim WA, buka di Excel/Sheets).
-export async function eksporExcel(daftarTagihan, judul) {
-  const wb = buatWorkbook(daftarTagihan, { judul });
+export async function eksporExcel(daftarTagihan, judul, opsi = {}) {
+  const wb = buatWorkbook(daftarTagihan, { judul, pengeluaran: opsi.pengeluaran });
   const nama = namaFileEkspor(judul);
   if (Platform.OS === 'web') {
     XLSX.writeFile(wb, nama);

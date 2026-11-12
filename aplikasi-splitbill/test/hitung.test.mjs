@@ -84,3 +84,27 @@ test('ekspor excel: 4 lembar, total & status benar', async () => {
   const balik = XLSX.read(buf);
   assert.equal(balik.Sheets['Ringkasan']['J5'].v, 90000);
 });
+
+test('pengeluaran pribadi: manual + bagian saya dari tagihan, rekap & tren', async () => {
+  const P = await import('../lib/pengeluaran.js');
+  const data = {
+    pengaturan: { namaSaya: 'Rina' },
+    pengeluaran: [
+      { id: 'm1', tanggal: '05/11/2026', judul: 'Bensin', nominal: 20000, kategori: 'transport' },
+      { id: 'm2', tanggal: '20/10/2026', judul: 'Pulsa', nominal: 50000, kategori: 'lain' },
+    ],
+    tagihan: [{ id: 't', judul: 'Bakso', tanggal: '07/11/2026', mode: 'rata', kategori: 'makan', penalang: 'a', orang: O, item: [{ nama: 'Bakso', harga: 45000, qty: 1 }] }],
+  };
+  const d = P.daftarPengeluaran(data);
+  assert.equal(d.length, 3);
+  assert.equal(d[0].judul, 'Bakso');
+  assert.equal(d[0].nominal, 15000);
+  const r = P.rekapBulan(d, 2026, 11);
+  assert.equal(r.total, 35000);
+  assert.equal(r.perKategori[0].id, 'transport');
+  const tren = P.trenBulanan(d, 2026, 11, 3);
+  assert.deepEqual(tren.map((x) => x.total), [0, 50000, 35000]);
+  assert.deepEqual(P.geserBulan(2026, 1, -1), { t: 2025, b: 12 });
+  const tm = P.temanBulan(data, 2026, 11);
+  assert.deepEqual(tm.map((x) => x.nama), ['Huda', 'Dimas']);
+});

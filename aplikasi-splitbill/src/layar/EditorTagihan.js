@@ -1,8 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { ScrollView, View, Pressable, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { ScrollView, View, Pressable, Alert, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { simpanFotoStruk, hapusFotoStruk } from '../foto';
 import { useTema } from '../tema';
 import { Kartu, Judul, Teks, Tombol, Input, Chip, Segmen, Header, Baris, Avatar } from '../ui';
 import { hitungTagihan, formatRp, parseAngka, uid } from '../../lib/hitung';
+import { KATEGORI } from '../../lib/pengeluaran';
 
 const hariIni = () => {
   const d = new Date();
@@ -16,6 +19,9 @@ function tagihanBaru(pengaturan, draft) {
     judul: draft?.judul || '',
     tanggal: hariIni(),
     orang: [saya],
+    saya: saya.id,
+    kategori: 'makan',
+    foto: draft?.foto || null,
     penalang: saya.id,
     mode: 'item',
     item: (draft?.items || []).map((it) => ({ id: uid(), nama: it.nama, harga: it.harga, qty: it.qty || 1, ikut: [] })),
@@ -61,6 +67,21 @@ export default function EditorTagihan({ data, aksi, tutup, ganti, param }) {
     ubahItem(it.id, { ikut: ikut.includes(oid) ? ikut.filter((x) => x !== oid) : [...ikut, oid] });
   };
 
+  const ambilFoto = async (kamera) => {
+    try {
+      const izin = kamera ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!izin.granted) return;
+      const opsi = { mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.6 };
+      const r = kamera ? await ImagePicker.launchCameraAsync(opsi) : await ImagePicker.launchImageLibraryAsync(opsi);
+      if (r.canceled) return;
+      const uri = await simpanFotoStruk(r.assets[0].uri);
+      if (tg.foto && tg.foto !== awal.foto) hapusFotoStruk(tg.foto);
+      ubah({ foto: uri });
+    } catch (e) {
+      Alert.alert('Gagal menyimpan foto', String(e.message || e));
+    }
+  };
+
   const saranTeman = data.teman.filter((f) => !tg.orang.some((o) => o.nama.toLowerCase() === f.nama.toLowerCase()));
   const cocok = namaBaru.trim() ? saranTeman.filter((f) => f.nama.toLowerCase().includes(namaBaru.trim().toLowerCase())) : saranTeman;
 
@@ -80,6 +101,10 @@ export default function EditorTagihan({ data, aksi, tutup, ganti, param }) {
         <Kartu>
           <Input label="Judul" value={tg.judul} onChangeText={(v) => ubah({ judul: v })} placeholder="mis. Makan malam di Warung Bu Sri" />
           <Input label="Tanggal" value={tg.tanggal} onChangeText={(v) => ubah({ tanggal: v })} style={{ marginTop: 12 }} />
+          <Teks pudar ukuran={12} tebal style={{ marginTop: 12, marginBottom: 6 }}>KATEGORI (MASUK KE CATATAN PENGELUARANMU)</Teks>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+            {KATEGORI.map((k) => <Chip key={k.id} label={`${k.ikon} ${k.nama}`} aktif={(tg.kategori || 'makan') === k.id} warna={k.warna} onPress={() => ubah({ kategori: k.id })} />)}
+          </View>
         </Kartu>
 
         <Kartu>
@@ -160,6 +185,27 @@ export default function EditorTagihan({ data, aksi, tutup, ganti, param }) {
             </View>
           ))}
           <Tombol ikon="＋" judul="Tambah item" jenis="lembut" onPress={() => ubah({ item: [...tg.item, { id: uid(), nama: '', harga: 0, qty: 1, ikut: [] }] })} />
+        </Kartu>
+
+        <Kartu>
+          <Judul>📎 Foto struk</Judul>
+          {tg.foto ? (
+            <View>
+              <Image source={{ uri: tg.foto }} style={{ width: '100%', height: 200, borderRadius: 12, backgroundColor: t.input }} resizeMode="contain" />
+              <Baris style={{ marginTop: 8 }}>
+                <Tombol kecil jenis="lembut" judul="Ganti foto" onPress={() => ambilFoto(false)} style={{ flex: 1, marginRight: 8 }} />
+                <Tombol kecil jenis="bahaya" judul="Hapus foto" onPress={() => ubah({ foto: null })} style={{ flex: 1 }} />
+              </Baris>
+            </View>
+          ) : (
+            <>
+              <Teks pudar ukuran={12} style={{ marginBottom: 8 }}>Simpan foto struk sebagai bukti, kalau ada yang tanya rinciannya.</Teks>
+              <Baris>
+                <Tombol kecil jenis="lembut" ikon="📷" judul="Kamera" onPress={() => ambilFoto(true)} style={{ flex: 1, marginRight: 8 }} />
+                <Tombol kecil jenis="lembut" ikon="🖼" judul="Galeri" onPress={() => ambilFoto(false)} style={{ flex: 1 }} />
+              </Baris>
+            </>
+          )}
         </Kartu>
 
         <Kartu>

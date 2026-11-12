@@ -1,5 +1,6 @@
 // Menyusun data tagihan menjadi baris-baris tabel untuk file Excel. Fungsi murni (bisa diuji di Node).
 import { statusTagihan } from './hitung.js';
+import { KATEGORI, kategoriById, bacaTanggal, BULAN } from './pengeluaran.js';
 
 const r = (n) => Math.round(Number(n) || 0);
 
@@ -62,4 +63,34 @@ export function namaFileEkspor(judul) {
   const tgl = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const dasar = judul ? String(judul).replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-').slice(0, 40) : 'catatan-pengeluaran';
   return `splitbill-${dasar || 'tagihan'}-${tgl}.xlsx`;
+}
+
+// Lembar "Pengeluaran Saya" + "Rekap Bulanan" (bulan × kategori).
+export function susunPengeluaran(daftar) {
+  const urut = [...daftar].sort((a, b) => urutTanggal(a) - urutTanggal(b));
+  const baris = [['Tanggal', 'Keterangan', 'Kategori', 'Sumber', 'Catatan', 'Nominal']];
+  let total = 0;
+  const perBulan = {};
+  for (const p of urut) {
+    const k = kategoriById(p.kategori);
+    baris.push([p.tanggal || '', p.judul || k.nama, `${k.ikon} ${k.nama}`, p.sumber === 'tagihan' ? 'Patungan' : 'Catatan', p.catatan || '', r(p.nominal)]);
+    total += r(p.nominal);
+    const d = bacaTanggal(p.tanggal);
+    if (d) {
+      const kb = d.t * 100 + d.b;
+      perBulan[kb] = perBulan[kb] || {};
+      perBulan[kb][k.id] = (perBulan[kb][k.id] || 0) + r(p.nominal);
+    }
+  }
+  baris.push([]);
+  baris.push(['', 'TOTAL', '', '', '', total]);
+  const rekap = [['Bulan', ...KATEGORI.map((k) => `${k.ikon} ${k.nama}`), 'Total']];
+  const jumlahKol = KATEGORI.map(() => 0);
+  for (const kb of Object.keys(perBulan).map(Number).sort()) {
+    const nilai = KATEGORI.map((k, i) => { const v = perBulan[kb][k.id] || 0; jumlahKol[i] += v; return v; });
+    rekap.push([`${BULAN[(kb % 100) - 1]} ${Math.floor(kb / 100)}`, ...nilai, nilai.reduce((a, v) => a + v, 0)]);
+  }
+  rekap.push([]);
+  rekap.push(['TOTAL', ...jumlahKol, jumlahKol.reduce((a, v) => a + v, 0)]);
+  return { pengeluaran: baris, rekapBulanan: rekap, totalPengeluaran: total, jumlahCatatan: urut.length };
 }

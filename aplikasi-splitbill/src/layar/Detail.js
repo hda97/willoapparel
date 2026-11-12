@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
-import { ScrollView, View, Pressable, Alert, Linking, Share } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { ScrollView, View, Pressable, Alert, Linking, Share, Modal, Image } from 'react-native';
+import * as Sharing from 'expo-sharing';
+import { captureRef } from 'react-native-view-shot';
+import StrukGambar from '../StrukGambar';
+import { hapusFotoStruk } from '../foto';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { useTema } from '../tema';
@@ -22,6 +26,9 @@ export default function Detail({ data, aksi, buka, tutup, param }) {
   const t = useTema();
   const tg = data.tagihan.find((x) => x.id === param.id);
   const [buka1, setBuka1] = useState(null);
+  const [lihatStruk, setLihatStruk] = useState(false);
+  const [lihatFoto, setLihatFoto] = useState(false);
+  const refStruk = useRef(null);
   if (!tg) return (<View style={{ flex: 1 }}><Header judul="Tagihan" onKembali={tutup} /><Kosong ikon="🤔" judul="Tagihan tidak ditemukan" /></View>);
   const s = statusTagihan(tg);
   const lunas = tg.lunas || {};
@@ -29,12 +36,40 @@ export default function Detail({ data, aksi, buka, tutup, param }) {
 
   const hapus = () => Alert.alert('Hapus tagihan?', `"${tg.judul}" akan dihapus permanen.`, [
     { text: 'Batal', style: 'cancel' },
-    { text: 'Hapus', style: 'destructive', onPress: () => { aksi.hapusTagihan(tg.id); tutup(); } },
+    { text: 'Hapus', style: 'destructive', onPress: () => { hapusFotoStruk(tg.foto); aksi.hapusTagihan(tg.id); tutup(); } },
   ]);
   const salin = async (teks) => { await Clipboard.setStringAsync(teks); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); Alert.alert('Tersalin', 'Teks tagihan sudah disalin.'); };
 
+  const kirimGambar = async () => {
+    try {
+      const uri = await captureRef(refStruk, { format: 'png', quality: 1, result: 'tmpfile' });
+      await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: 'Kirim struk tagihan' });
+    } catch (e) {
+      Alert.alert('Gagal membuat gambar', String(e.message || e));
+    }
+  };
+
   return (
     <View style={{ flex: 1 }}>
+      <Modal visible={lihatStruk} transparent animationType="fade" onRequestClose={() => setLihatStruk(false)}>
+        <View style={{ flex: 1, backgroundColor: '#000000bb', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <ScrollView contentContainerStyle={{ alignItems: 'center', paddingVertical: 20 }}>
+            <View ref={refStruk} collapsable={false} style={{ padding: 12, backgroundColor: '#ECEBFF', borderRadius: 22 }}>
+              <StrukGambar tg={tg} pengaturan={data.pengaturan} />
+            </View>
+            <Baris style={{ marginTop: 16, width: 340 }}>
+              <Tombol ikon="📤" judul="Kirim gambar" jenis="hijau" onPress={kirimGambar} style={{ flex: 1, marginRight: 8 }} />
+              <Tombol judul="Tutup" jenis="lembut" onPress={() => setLihatStruk(false)} />
+            </Baris>
+          </ScrollView>
+        </View>
+      </Modal>
+      <Modal visible={lihatFoto} transparent animationType="fade" onRequestClose={() => setLihatFoto(false)}>
+        <Pressable onPress={() => setLihatFoto(false)} style={{ flex: 1, backgroundColor: '#000000ee', alignItems: 'center', justifyContent: 'center' }}>
+          {tg.foto ? <Image source={{ uri: tg.foto }} style={{ width: '100%', height: '85%' }} resizeMode="contain" /> : null}
+          <Teks warna="#fff" style={{ marginTop: 8 }}>Ketuk untuk menutup</Teks>
+        </Pressable>
+      </Modal>
       <Header
         judul={tg.judul}
         onKembali={tutup}
@@ -55,6 +90,14 @@ export default function Detail({ data, aksi, buka, tutup, param }) {
             {s.ongkir ? <Rinci label="Ongkir" nilai={s.ongkir} /> : null}
           </View>
           {s.selisihBulat ? <Teks pudar ukuran={12} style={{ marginTop: 6 }}>Pembulatan menambah {formatRp(s.selisihBulat)} untuk yang bayar dulu.</Teks> : null}
+          {tg.foto ? (
+            <Pressable onPress={() => setLihatFoto(true)} style={{ marginTop: 12 }}>
+              <Baris>
+                <Image source={{ uri: tg.foto }} style={{ width: 56, height: 56, borderRadius: 10, backgroundColor: t.input }} />
+                <Teks warna={t.utama} tebal style={{ marginLeft: 10 }}>📎 Lihat foto struk</Teks>
+              </Baris>
+            </Pressable>
+          ) : null}
           {s.jumlahWajib > 0 && (
             <View style={{ marginTop: 12, padding: 10, borderRadius: 10, backgroundColor: s.selesai ? t.hijauLembut : t.kuningLembut }}>
               <Teks tebal warna={s.selesai ? t.hijau : t.kuning}>
@@ -110,9 +153,10 @@ export default function Detail({ data, aksi, buka, tutup, param }) {
         })}
       </ScrollView>
       <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: 16, flexDirection: 'row', backgroundColor: t.kartu, borderTopWidth: 1, borderColor: t.garis }}>
-        <Tombol ikon="📤" judul="Bagikan" onPress={() => kirimWA(pesanRingkasan(tg, data.pengaturan))} style={{ flex: 1, marginRight: 8 }} />
-        <Tombol ikon="📋" judul="Salin" jenis="lembut" onPress={() => salin(pesanRingkasan(tg, data.pengaturan))} style={{ marginRight: 8 }} />
-        <Tombol ikon="📊" judul="Excel" jenis="lembut" onPress={() => eksporExcel([tg], tg.judul).catch((e) => Alert.alert('Gagal ekspor', String(e.message || e)))} />
+        <Tombol ikon="🖼" judul="Gambar" onPress={() => setLihatStruk(true)} style={{ flex: 1, marginRight: 8 }} />
+        <Tombol ikon="💬" judul="Teks" jenis="hijau" onPress={() => kirimWA(pesanRingkasan(tg, data.pengaturan))} style={{ flex: 1, marginRight: 8 }} />
+        <Tombol judul="📋" jenis="lembut" onPress={() => salin(pesanRingkasan(tg, data.pengaturan))} style={{ marginRight: 8 }} />
+        <Tombol judul="📊" jenis="lembut" onPress={() => eksporExcel([tg], tg.judul).catch((e) => Alert.alert('Gagal ekspor', String(e.message || e)))} />
       </View>
     </View>
   );

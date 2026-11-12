@@ -6,6 +6,7 @@ import { Kartu, Judul, Teks, Tombol, Input, Header, Baris } from '../ui';
 import { bacaTeksGambar } from '../ocr';
 import { parseStruk } from '../../lib/parseStruk';
 import { formatRp } from '../../lib/hitung';
+import { simpanFotoStruk } from '../foto';
 
 export default function Scan({ tutup, ganti }) {
   const t = useTema();
@@ -37,9 +38,11 @@ export default function Scan({ tutup, ganti }) {
     }
   };
 
-  const lanjut = () => {
+  const lanjut = async () => {
     const items = hasil ? hasil.items.filter((_, i) => !buang[i]) : [];
-    ganti('editor', { draft: { items, servicePersen: hasil?.servicePersen || 0, pajakPersen: hasil?.pajakPersen || 0, diskon: hasil?.diskon || 0, ongkir: hasil?.ongkir || 0 } });
+    let fotoSimpan = null;
+    try { fotoSimpan = foto ? await simpanFotoStruk(foto) : null; } catch (e) {}
+    ganti('editor', { draft: { foto: fotoSimpan, items, servicePersen: hasil?.servicePersen || 0, pajakPersen: hasil?.pajakPersen || 0, diskon: hasil?.diskon || 0, ongkir: hasil?.ongkir || 0 } });
   };
 
   const jumlahItem = hasil ? hasil.items.filter((_, i) => !buang[i]).reduce((a, it) => a + it.harga * it.qty, 0) : 0;

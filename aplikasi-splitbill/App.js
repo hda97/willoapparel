@@ -10,9 +10,12 @@ import Scan from './src/layar/Scan';
 import Detail from './src/layar/Detail';
 import Teman from './src/layar/Teman';
 import Pengaturan from './src/layar/Pengaturan';
+import Catatan from './src/layar/Catatan';
+import CatatPengeluaran from './src/layar/CatatPengeluaran';
 
 const TAB = [
   { id: 'beranda', label: 'Tagihan', ikon: '🧾' },
+  { id: 'catatan', label: 'Catatan', ikon: '📊' },
   { id: 'teman', label: 'Teman', ikon: '👥' },
   { id: 'pengaturan', label: 'Atur', ikon: '⚙️' },
 ];
@@ -64,7 +67,13 @@ export default function App() {
     })),
     setTeman: (teman) => setData((d) => ({ ...d, teman })),
     setPengaturan: (p) => setData((d) => ({ ...d, pengaturan: { ...d.pengaturan, ...p } })),
-    hapusSemua: () => setData((d) => ({ ...d, tagihan: [] })),
+    hapusSemua: () => setData((d) => ({ ...d, tagihan: [], pengeluaran: [] })),
+    simpanPengeluaran: (p) => setData((d) => {
+      const list = d.pengeluaran || [];
+      const ada = list.some((x) => x.id === p.id);
+      return { ...d, pengeluaran: ada ? list.map((x) => (x.id === p.id ? p : x)) : [p, ...list] };
+    }),
+    hapusPengeluaran: (id) => setData((d) => ({ ...d, pengeluaran: (d.pengeluaran || []).filter((x) => x.id !== id) })),
   }), []);
 
   if (!data) {
@@ -79,10 +88,10 @@ export default function App() {
   const umum = { data, aksi, buka, tutup, ganti };
   let isi;
   if (atas) {
-    const L = { editor: EditorTagihan, scan: Scan, detail: Detail }[atas.layar];
+    const L = { editor: EditorTagihan, scan: Scan, detail: Detail, catat: CatatPengeluaran }[atas.layar];
     isi = <L key={tumpukan.length} {...umum} param={atas.param || {}} />;
   } else {
-    isi = tab === 'beranda' ? <Beranda {...umum} /> : tab === 'teman' ? <Teman {...umum} /> : <Pengaturan {...umum} />;
+    isi = tab === 'beranda' ? <Beranda {...umum} /> : tab === 'catatan' ? <Catatan {...umum} /> : tab === 'teman' ? <Teman {...umum} /> : <Pengaturan {...umum} />;
   }
 
   return (
