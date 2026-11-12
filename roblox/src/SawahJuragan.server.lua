@@ -89,12 +89,12 @@ local function part(induk, nama, ukuran, cf, warna, bahan, tembus)
 	return p
 end
 
-local function papanTeks(p, isi, tinggi, lebar)
+local function papanTeks(p, isi, tinggi, lebar, jarak)
 	local bb = Instance.new("BillboardGui")
 	bb.Name = "Teks"
 	bb.Size = UDim2.fromOffset(lebar or 200, 50)
 	bb.StudsOffset = Vector3.new(0, tinggi or 3, 0)
-	bb.MaxDistance = 90
+	bb.MaxDistance = jarak or 45
 	bb.AlwaysOnTop = false
 	bb.Adornee = p
 	bb.Parent = p
@@ -154,7 +154,7 @@ local DATANG = part(ROOT, "TitikDatang", Vector3.new(10, 0.4, 10), CFrame.new(O 
 -- papan judul
 local judul = part(ROOT, "PapanJudul", Vector3.new(30, 8, 1), CFrame.new(O + Vector3.new(-40, 6, -112)),
 	Color3.fromRGB(40, 120, 60), Enum.Material.Wood)
-papanTeks(judul, "🌾 SAWAH JURAGAN", 0, 420)
+papanTeks(judul, "🌾 SAWAH JURAGAN", 0, 420, 150)
 
 -- Kios Benih
 local KIOS = {}
@@ -166,7 +166,7 @@ for i, b in ipairs(BENIH) do
 	part(ROOT, "Contoh", Vector3.new(2.5, 2.5, 2.5), CFrame.new(O + Vector3.new(kiosX, 4.3, z)), b.warna,
 		Enum.Material.SmoothPlastic, true).Shape = Enum.PartType.Ball
 	local hargaTeks = b.harga == 0 and "gratis" or (b.harga .. " koin")
-	papanTeks(meja, b.nama .. " (" .. hargaTeks .. ")", 5, 230)
+	papanTeks(meja, b.nama .. " (" .. hargaTeks .. ")", 5, 230, 25)
 	KIOS[i] = tombol(meja, "Pilih Benih", b.nama)
 end
 
@@ -184,7 +184,7 @@ local function kiosRobux(nama, z, warna, id, aksi)
 		return nil
 	end
 	local m = part(ROOT, nama, Vector3.new(6, 3, 6), CFrame.new(O + Vector3.new(-75, 1.5, z)), warna, Enum.Material.Neon)
-	papanTeks(m, nama, 4, 230)
+	papanTeks(m, nama, 4, 230, 25)
 	return tombol(m, aksi, "Robux")
 end
 local TOMBOL_PUPUK = kiosRobux("Pupuk Ajaib", -5, Color3.fromRGB(120, 220, 255), DEV_PUPUK_AJAIB, "Beli Pupuk Ajaib")
@@ -204,12 +204,12 @@ for r = 1, MAKS_BARIS do
 	local z = AWAL_Z + (r - 1) * 12
 	local papan = part(ROOT, "PapanBaris" .. r, Vector3.new(1, 3, 6), CFrame.new(O + Vector3.new(AWAL_X - 8, 1.5, z)),
 		Color3.fromRGB(150, 100, 50), Enum.Material.Wood)
-	local label = papanTeks(papan, "Kosong", 3, 180)
+	local label = papanTeks(papan, "", 3, 180)
 	local daftar = {}
 	for i = 1, JUMLAH_PETAK do
 		local p = part(ROOT, ("Petak%d_%d"):format(r, i), Vector3.new(8, 1, 8),
 			CFrame.new(O + Vector3.new(AWAL_X + (i - 1) * 10, 0.5, z)), Color3.fromRGB(95, 65, 40), Enum.Material.Ground)
-		local info = papanTeks(p, "", 4, 160)
+		local info = papanTeks(p, "", 4, 160, 35)
 		local pr = tombol(p, "", "")
 		pr.Enabled = false
 		daftar[i] = { part = p, info = info, prompt = pr, tanaman = nil, tahap = -1 }
@@ -230,7 +230,7 @@ local muncul = cariMuncul()
 local posGerbang = muncul and (muncul.Position + Vector3.new(10, 0, 6)) or Vector3.new(-274, 0, -1051)
 local gerbang = part(ROOT, "GerbangSawah", Vector3.new(5, 7, 1), CFrame.new(posGerbang + Vector3.new(0, 3.5, 0)),
 	Color3.fromRGB(60, 170, 80), Enum.Material.Neon, true)
-papanTeks(gerbang, "🌾 SAWAH JURAGAN", 5, 260)
+papanTeks(gerbang, "🌾 SAWAH JURAGAN", 5, 260, 120)
 local TOMBOL_KE_SAWAH = tombol(gerbang, "Ke Sawah", "Sawah Juragan")
 TOMBOL_KE_SAWAH.MaxActivationDistance = 14
 
@@ -818,7 +818,7 @@ local function pemainKeluar(player)
 	if d and d.baris then
 		local baris = BARIS[d.baris]
 		baris.pemilik = nil
-		baris.papan.Text = "Kosong"
+		baris.papan.Text = ""
 		for i = 1, JUMLAH_PETAK do
 			segarkanPetak(player, d.baris, i)
 		end
