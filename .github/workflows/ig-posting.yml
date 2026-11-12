@@ -5,6 +5,9 @@ name: Posting Instagram Dunia Kotak
 # tiap 30 menit 18.00–20.30 WIB; antrean hanya terbit sekali (kolom "terbit").
 
 on:
+  push:
+    branches: [main]
+    paths: ["konten-ig/**", ".github/workflows/ig-posting.yml"]
   schedule:
     - cron: "0,30 11-13 * * *"
   workflow_dispatch:
@@ -39,7 +42,7 @@ jobs:
           IG_APP_SECRET: ${{ secrets.IG_APP_SECRET }}
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
           PAKSA_TANGGAL: ${{ inputs.tanggal }}
-          CEK_TOKEN: ${{ inputs.cek_token && '1' || '' }}
+          CEK_TOKEN: ${{ (inputs.cek_token || github.event_name == 'push') && '1' || '' }}
         run: python3 konten-ig/posting.py
       - name: Simpan status
         if: always()
