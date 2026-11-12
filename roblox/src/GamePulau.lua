@@ -293,3 +293,79 @@ task.spawn(function()
 		end
 	end
 end)
+
+---------------------------------------------------------------------
+-- Bus antardusun & perahu danau (rute, warna, ukuran sama dengan pulau di web)
+---------------------------------------------------------------------
+local SKALA, PUSAT_X, PUSAT_Z = 0.6, 1250, 1300
+local function keDunia(x, z)
+	return Vector3.new((x - PUSAT_X) * SKALA, 0, (z - PUSAT_Z) * SKALA)
+end
+
+local RUTE_BUS = { {1050, 188}, {1150, 188}, {1150, 800}, {1150, 2452}, {1650, 2452}, {1650, 3800}, {1650, 4200}, {801, 4200}, {801, 4010} }
+local titikBus, panjangRute = {}, 0
+for i, p in ipairs(RUTE_BUS) do
+	titikBus[i] = keDunia(p[1], p[2])
+	if i > 1 then
+		panjangRute += (titikBus[i] - titikBus[i - 1]).Magnitude
+	end
+end
+
+local KENDARAAN = Instance.new("Folder")
+KENDARAAN.Name = "Kendaraan"
+KENDARAAN.Parent = ROOT
+
+local daftarBus, daftarPerahu = {}, {}
+for i, warnaBus in ipairs({ Color3.fromRGB(242, 177, 52), Color3.fromRGB(79, 143, 214) }) do
+	local m = Instance.new("Model")
+	m.Name = "Bus Dunia Kotak"
+	local badan = part(m, "Badan", Vector3.new(21.6, 7.8, 9), CFrame.new(0, 0, 0), warnaBus)
+	part(m, "Kaca", Vector3.new(18, 2.4, 9.4), CFrame.new(0, 1.5, 0), Color3.fromRGB(223, 241, 255), Enum.Material.Glass)
+	m.PrimaryPart = badan
+	m.Parent = KENDARAAN
+	table.insert(daftarBus, { model = m, s = (i - 1) * panjangRute })
+end
+
+local acak = Random.new(7)
+local WARNA_BAJU = { Color3.fromRGB(232, 137, 44), Color3.fromRGB(79, 143, 214), Color3.fromRGB(217, 92, 92), Color3.fromRGB(95, 179, 107), Color3.fromRGB(242, 201, 76), Color3.fromRGB(155, 111, 209) }
+for i = 1, 6 do
+	local m = Instance.new("Model")
+	m.Name = "Perahu"
+	local lambung = part(m, "Lambung", Vector3.new(15.6, 3, 6), CFrame.new(0, 0, 0), Color3.fromRGB(168, 113, 74), Enum.Material.Wood)
+	part(m, "Pendayung", Vector3.new(2.4, 4.2, 2.4), CFrame.new(2.4, 3, 0), WARNA_BAJU[i])
+	m.PrimaryPart = lambung
+	m.Parent = KENDARAAN
+	table.insert(daftarPerahu, {
+		model = m, a = acak:NextNumber() * 6.28, r = 120 + acak:NextNumber() * 260,
+		cx = 1900 + acak:NextNumber() * 500, cz = 1350 + acak:NextNumber() * 400,
+		v = (0.04 + acak:NextNumber() * 0.05) * (acak:NextNumber() < 0.5 and -1 or 1),
+	})
+end
+
+RunService.Heartbeat:Connect(function(dt)
+	for _, b in ipairs(daftarBus) do
+		b.s = (b.s + dt * 24) % (panjangRute * 2)
+		local maju = b.s <= panjangRute
+		local s = maju and b.s or (panjangRute * 2 - b.s)
+		for i = 2, #titikBus do
+			local a, c = titikBus[i - 1], titikBus[i]
+			local L = (c - a).Magnitude
+			if s <= L then
+				local arah = (c - a).Unit
+				if not maju then arah = -arah end
+				local kanan = Vector3.new(-arah.Z, 0, arah.X)
+				local pos = a + (c - a) * (s / L) + kanan * 4.8 + Vector3.new(0, 4.6, 0)
+				b.model:PivotTo(CFrame.lookAt(pos, pos + arah) * CFrame.Angles(0, math.pi / 2, 0))
+				break
+			end
+			s -= L
+		end
+	end
+	local t = os.clock()
+	for _, p in ipairs(daftarPerahu) do
+		p.a += p.v * dt
+		local pos = keDunia(p.cx + math.cos(p.a) * p.r, p.cz + math.sin(p.a) * p.r * 0.6) + Vector3.new(0, 1.8 + math.sin(t * 2 + p.r) * 0.3, 0)
+		local arah = Vector3.new(-math.sin(p.a), 0, math.cos(p.a) * 0.6).Unit * (p.v > 0 and 1 or -1)
+		p.model:PivotTo(CFrame.lookAt(pos, pos + arah) * CFrame.Angles(0, math.pi / 2, 0))
+	end
+end)
