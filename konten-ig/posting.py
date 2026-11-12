@@ -42,17 +42,35 @@ def openssl(args, data):
                            "-pass", "env:IG_APP_SECRET"], input=data, capture_output=True, check=True).stdout
 
 
-def simpan_token(page_token, ig_id):
-    blob = json.dumps({"page_token": page_token, "ig_id": ig_id}).encode()
+def sidik(tok):
+    return hashlib.sha256((tok or "").encode()).hexdigest()[:16]
+
+
+def simpan_token(page_token, ig_id, src=None):
+    src = src or sidik(os.environ.get("IG_TOKEN"))
+    blob = json.dumps({"page_token": page_token, "ig_id": ig_id, "src": src}).encode()
     with open(TOKEN_FILE, "wb") as f:
         f.write(openssl([], blob))
 
 
 def muat_token():
+    """Token Halaman dari token.enc. Kalau secret IG_TOKEN diganti (mis. izin baru),
+    token Halaman diturunkan ulang; gagal -> tetap pakai token.enc lama."""
+    user = os.environ.get("IG_TOKEN")
     if os.path.exists(TOKEN_FILE):
         d = json.loads(openssl(["-d"], open(TOKEN_FILE, "rb").read()))
-        return d["page_token"], d["ig_id"]
-    user = os.environ.get("IG_TOKEN")
+        if not user or d.get("src") == sidik(user):
+            return d["page_token"], d["ig_id"]
+        try:
+            return turunkan(user)
+        except SystemExit as e:
+            print(f"IG_TOKEN baru tidak bisa dipakai, tetap pakai token lama: {e}")
+            simpan_token(d["page_token"], d["ig_id"])
+            return d["page_token"], d["ig_id"]
+    return turunkan(user)
+
+
+def turunkan(user):
     if not user:
         raise SystemExit("Secret IG_TOKEN belum diisi.")
     # 1) token pengguna jangka pendek -> jangka panjang (60 hari). Token yang tidak bisa
