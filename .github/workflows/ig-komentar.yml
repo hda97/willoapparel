@@ -2,6 +2,9 @@ name: Balas Komentar Instagram Dunia Kotak
 
 # Tiap 30 menit membalas komentar baru di reel @duniakotak.id (konten-ig/komentar.py).
 on:
+  push:
+    branches: [main]
+    paths: ["konten-ig/komentar.py", ".github/workflows/ig-komentar.yml"]
   schedule:
     - cron: "15,45 * * * *"
   workflow_dispatch:
