@@ -1,7 +1,7 @@
 """Ubah hasil ekspor adegan game web (ekspor_web.js -> <dusun>.f32 + .meta.json) menjadi berkas teks Part Roblox.
 Pakai: python3 ubah.py <folder-ekspor> <dusun> <folder-keluar>
 Tiap baris: x y z sx sy sz warna(hex) bendera [9 angka rotasi x1000]; posisi/ukuran dalam 1/100 stud.
-Bendera: 1 = tanpa tabrakan, 2 = tembus pandang, 4 = tanpa bayangan."""
+Bendera: 1 = tanpa tabrakan, 2 = tembus pandang, 4 = tanpa bayangan, 8 = WedgePart."""
 import sys, json, os, collections
 import numpy as np
 
@@ -48,6 +48,13 @@ for i in np.nonzero(besar)[0]:
         for l in range(4):
             r = 1 - l / 4 - .125
             tulis(np.array([p[0], p[1] - h / 2 + h * (l + .5) / 4, p[2]]), np.array([w * r * .72, h / 4, d * r * .72]), c, f | 4); st['limas'] += 1
+        continue
+    if bentuk[i] == 6 and s.max() >= 1:   # prisma segitiga (dinding pelana di bawah genteng) -> 2 WedgePart
+        w, h, d = s * K; xh = AX[i] / s[0]; yh = AY[i] / s[1]
+        for arah in (1, -1):
+            zl = xh * arah; xl = np.cross(yh, zl)
+            R = np.stack([xl, yh, zl], 1)
+            tulis(p - xh * arah * w / 4, np.array([d, h, w / 2]), c, f | 8, R.flatten()); st['baji'] += 1
         continue
     if bentuk[i] == 3:   # bidang datar
         f |= 1 | 4

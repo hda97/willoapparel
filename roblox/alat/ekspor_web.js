@@ -57,7 +57,10 @@ const fs = require('fs');
           const r2 = (ax.lengthSq() + ay.lengthSq() + az.lengthSq()) / 4; for (let i = 0; i < 24; i += 5) { if (Math.abs(v.fromBufferAttribute(pos, s+i).distanceToSquared(c) - r2) > tol*L) return null; }
           return [c, ax, ay, az, vcol(s, s+24), 0]; };
         const aabb = (s, e) => { const bb = new T.Box3(); for (let i = s; i < e; i++) bb.expandByPoint(v.fromBufferAttribute(pos, i)); const c = bb.getCenter(new T.Vector3()), z = bb.getSize(new T.Vector3());
-          const t2 = gm.type === 'ConeGeometry' ? 1 : gm.type === 'CylinderGeometry' ? 2 : (gm.type === 'PlaneGeometry' || gm.type === 'CircleGeometry') ? 3 : 5;
+          let t2 = gm.type === 'ConeGeometry' ? 1 : gm.type === 'CylinderGeometry' ? 2 : (gm.type === 'PlaneGeometry' || gm.type === 'CircleGeometry') ? 3 : 5;
+          if (gm.type === 'ExtrudeGeometry') { try { const sh = gm.parameters.shapes, pts = (Array.isArray(sh) ? sh[0] : sh).getPoints(); const u = []; for (const q of pts) if (!u.some(w => Math.abs(w.x-q.x)+Math.abs(w.y-q.y) < 1e-6)) u.push(q);
+            if (u.length === 3) { const ys = u.map(q => q.y), y0 = Math.min(...ys), y1 = Math.max(...ys); const bawah = u.filter(q => Math.abs(q.y-y0) < 1e-6), atas = u.filter(q => Math.abs(q.y-y1) < 1e-6);
+              if (bawah.length === 2 && atas.length === 1 && Math.abs(atas[0].x - (bawah[0].x+bawah[1].x)/2) < 1e-4) t2 = 6; } } catch (e) {} }
           return [c, new T.Vector3(z.x,0,0), new T.Vector3(0,z.y,0), new T.Vector3(0,0,z.z), vcol(s, e), t2]; };
         if (idx && gm.type !== 'ConeGeometry' && gm.type !== 'CylinderGeometry' && gm.type !== 'PlaneGeometry' && gm.type !== 'CircleGeometry') { let s = 0, sisa = -1;
           while (s < pos.count) { const k = coba(s); if (k) { if (sisa >= 0) { chunks.push(aabb(sisa, s)); sisa = -1; } chunks.push(k); kotak = true; s += 24; } else { if (sisa < 0) sisa = s; s += 1; } }

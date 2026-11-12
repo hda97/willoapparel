@@ -14,11 +14,11 @@ for i=0,info.berkas-1 do
   local M=Instance.new("Folder") M.Name=string.format("b%03d",i)
   for line in string.gmatch(d,"[^\n]+") do
     local t=string.split(line," ")
-    local p=Instance.new("Part")
+    local f=tonumber(t[8])
+    local p=Instance.new(bit32.band(f,8)~=0 and "WedgePart" or "Part")
     p.Anchored=true p.Material=Enum.Material.SmoothPlastic p.TopSurface=Enum.SurfaceType.Smooth p.BottomSurface=Enum.SurfaceType.Smooth
     p.Size=Vector3.new(t[4]/100,t[5]/100,t[6]/100)
     p.Color=Color3.fromHex(t[7])
-    local f=tonumber(t[8])
     if bit32.band(f,1)~=0 then p.CanCollide=false p.CanTouch=false p.CanQuery=false end
     if bit32.band(f,2)~=0 then p.Transparency=0.45 end
     if bit32.band(f,4)~=0 then p.CastShadow=false end
