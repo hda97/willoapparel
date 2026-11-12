@@ -4,6 +4,7 @@ import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { useTema } from '../tema';
 import { Kartu, Teks, Tombol, Header, Baris, Avatar, Kosong } from '../ui';
+import { eksporExcel } from '../excel';
 import { statusTagihan, formatRp, pesanPerOrang, pesanRingkasan, nomorWA } from '../../lib/hitung';
 
 async function kirimWA(teks, no) {
@@ -109,8 +110,9 @@ export default function Detail({ data, aksi, buka, tutup, param }) {
         })}
       </ScrollView>
       <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: 16, flexDirection: 'row', backgroundColor: t.kartu, borderTopWidth: 1, borderColor: t.garis }}>
-        <Tombol ikon="📤" judul="Bagikan ke grup" onPress={() => kirimWA(pesanRingkasan(tg, data.pengaturan))} style={{ flex: 1, marginRight: 8 }} />
-        <Tombol ikon="📋" judul="Salin" jenis="lembut" onPress={() => salin(pesanRingkasan(tg, data.pengaturan))} />
+        <Tombol ikon="📤" judul="Bagikan" onPress={() => kirimWA(pesanRingkasan(tg, data.pengaturan))} style={{ flex: 1, marginRight: 8 }} />
+        <Tombol ikon="📋" judul="Salin" jenis="lembut" onPress={() => salin(pesanRingkasan(tg, data.pengaturan))} style={{ marginRight: 8 }} />
+        <Tombol ikon="📊" judul="Excel" jenis="lembut" onPress={() => eksporExcel([tg], tg.judul).catch((e) => Alert.alert('Gagal ekspor', String(e.message || e)))} />
       </View>
     </View>
   );

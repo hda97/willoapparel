@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { ScrollView, View, Pressable } from 'react-native';
+import { ScrollView, View, Pressable, Alert } from 'react-native';
 import { useTema } from '../tema';
 import { Kartu, Teks, Tombol, Input, Kosong, Baris, Segmen } from '../ui';
 import { statusTagihan, formatRp } from '../../lib/hitung';
+import { eksporExcel } from '../excel';
 
 export default function Beranda({ data, buka }) {
   const t = useTema();
@@ -41,6 +42,14 @@ export default function Beranda({ data, buka }) {
 
       {data.tagihan.length > 0 && (
         <>
+          <Tombol
+            ikon="📊"
+            judul={`Ekspor catatan ke Excel (${tampil.length} tagihan)`}
+            jenis="garis"
+            kecil
+            onPress={() => eksporExcel(tampil.map((d) => d.x), filter === 'semua' && !q ? '' : 'Filter ' + (q || filter)).catch((e) => Alert.alert('Gagal ekspor', String(e.message || e)))}
+            style={{ marginBottom: 12 }}
+          />
           <Input value={cari} onChangeText={setCari} placeholder="🔍  Cari tagihan atau nama teman..." style={{ marginBottom: 10 }} />
           <View style={{ marginBottom: 12 }}>
             <Segmen

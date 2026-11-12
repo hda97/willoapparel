@@ -69,3 +69,18 @@ test('parse struk berkolom (nama & harga terpisah)', () => {
   assert.equal(h.items[1].nama, 'Roti Bakar');
   assert.equal(h.items[1].harga, 22000);
 });
+
+test('ekspor excel: 4 lembar, total & status benar', async () => {
+  const { susunEkspor } = await import('../lib/ekspor.js');
+  const { buatWorkbook, XLSX } = await import('../lib/bukuExcel.js');
+  const t = { id: 'x', judul: 'Tes', tanggal: '01/11/2026', mode: 'rata', penalang: 'a', lunas: { b: true }, orang: O, item: [{ nama: 'Pizza', harga: 90000, qty: 1 }] };
+  const d = susunEkspor([t]);
+  assert.equal(d.ringkasan[1][9], 90000);
+  assert.equal(d.ringkasan[1][12], 30000);
+  assert.deepEqual(d.perOrang.slice(1).map((r) => r[9]), ['Bayar dulu', 'Lunas', 'Belum bayar']);
+  const wb = buatWorkbook([t], { tanggal: '1 Nov' });
+  assert.deepEqual(wb.SheetNames, ['Ringkasan', 'Per Teman', 'Per Orang', 'Item']);
+  const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+  const balik = XLSX.read(buf);
+  assert.equal(balik.Sheets['Ringkasan']['J5'].v, 90000);
+});

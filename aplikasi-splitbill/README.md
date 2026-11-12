@@ -8,6 +8,7 @@ Aplikasi bagi tagihan (patungan) milik Huda, dibangun ulang dari nol dengan Expo
 - Tandai siapa yang **sudah lunas**, total "uang belum kembali" di beranda, utang per teman.
 - Tagih via WhatsApp per orang (langsung ke nomornya kalau disimpan) + info rekening/e-wallet.
 - Daftar teman tersimpan, mode gelap, semua data hanya di HP.
+- **Ekspor ke Excel (.xlsx)** berwarna: lembar Ringkasan, Per Teman, Per Orang, Item (dari beranda, detail tagihan, atau Atur).
 
 ## Uji & build
 

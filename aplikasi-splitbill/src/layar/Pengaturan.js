@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScrollView, View, Alert } from 'react-native';
 import Constants from 'expo-constants';
+import { eksporExcel } from '../excel';
 import { Kartu, Judul, Teks, Tombol, Input, Segmen, Baris } from '../ui';
 
 export default function Pengaturan({ data, aksi }) {
@@ -51,6 +52,14 @@ export default function Pengaturan({ data, aksi }) {
       <Kartu>
         <Judul>🗂 Data</Judul>
         <Teks pudar ukuran={13} style={{ marginBottom: 10 }}>Semua data tersimpan di HP ini saja, tanpa akun dan tanpa server.</Teks>
+        <Tombol
+          ikon="📊"
+          judul={`Ekspor semua ke Excel (${data.tagihan.length})`}
+          disabled={!data.tagihan.length}
+          onPress={() => eksporExcel(data.tagihan).catch((e) => Alert.alert('Gagal ekspor', String(e.message || e)))}
+          style={{ marginBottom: 6 }}
+        />
+        <Teks pudar ukuran={12} style={{ marginBottom: 12 }}>File .xlsx berisi 4 lembar: Ringkasan, Per Teman, Per Orang, dan Item. Bisa disimpan ke Drive/Files, dikirim lewat WA, atau dibuka di Excel/Google Sheets.</Teks>
         <Tombol
           jenis="bahaya"
           judul={`Hapus semua tagihan (${data.tagihan.length})`}

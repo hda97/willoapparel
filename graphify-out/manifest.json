@@ -14687,9 +14687,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/aplikasi-splitbill.yml": {
-    "mtime": 1794524760.7055883,
-    "seen": 1794524844.8420722,
-    "ast_hash": "39df656b2e7f1c6bfa593c9968dd3478",
+    "mtime": 1794524900.2602282,
+    "seen": 1794525908.7208073,
+    "ast_hash": "4278f143dd2069d90f1803c4528c11ea",
     "semantic_hash": ""
   },
   ".github/workflows/ig-insight.yml": {
@@ -14729,21 +14729,21 @@
     "semantic_hash": ""
   },
   "aplikasi-splitbill/package.json": {
-    "mtime": 1794524786.8646278,
-    "seen": 1794524844.8421068,
-    "ast_hash": "58484606c15ab513d21b8d9dfc4212cd",
+    "mtime": 1794525738.4128826,
+    "seen": 1794525908.7208607,
+    "ast_hash": "f9351bf887984cad4ae4b43f834885ac",
     "semantic_hash": ""
   },
   "aplikasi-splitbill/src/layar/Beranda.js": {
-    "mtime": 1794524525.917438,
-    "seen": 1794524844.8421075,
-    "ast_hash": "c2d08c652503e181cd81cb2409bb798d",
+    "mtime": 1794525832.8031151,
+    "seen": 1794525908.7208629,
+    "ast_hash": "f20d1e18955121178669e1a6f81e4dfc",
     "semantic_hash": ""
   },
   "aplikasi-splitbill/src/layar/Detail.js": {
-    "mtime": 1794524618.2290804,
-    "seen": 1794524844.8421087,
-    "ast_hash": "ad53063fc093e2a4865a38ceb18deefe",
+    "mtime": 1794525832.803964,
+    "seen": 1794525908.7208643,
+    "ast_hash": "c3e33f6a4240ddd474fa33b42b0f3783",
     "semantic_hash": ""
   },
   "aplikasi-splitbill/src/layar/EditorTagihan.js": {
@@ -14753,9 +14753,9 @@
     "semantic_hash": ""
   },
   "aplikasi-splitbill/src/layar/Pengaturan.js": {
-    "mtime": 1794524647.6610873,
-    "seen": 1794524844.8421104,
-    "ast_hash": "d8ef54d7184a7ec17dbd5c8e5dde6af7",
+    "mtime": 1794525832.8048708,
+    "seen": 1794525908.720868,
+    "ast_hash": "e5dff88727ccd35cf47c06411b1c06b5",
     "semantic_hash": ""
   },
   "aplikasi-splitbill/src/layar/Scan.js": {
@@ -14795,9 +14795,9 @@
     "semantic_hash": ""
   },
   "aplikasi-splitbill/test/hitung.test.mjs": {
-    "mtime": 1794524439.7915502,
-    "seen": 1794524844.8421159,
-    "ast_hash": "827943d9840cd6a58120b0d03fda4960",
+    "mtime": 1794525832.8088882,
+    "seen": 1794525908.720882,
+    "ast_hash": "5b0f9f61c7158114c746809ac34fb582",
     "semantic_hash": ""
   },
   "konten-ig/insight.py": {
@@ -14819,9 +14819,9 @@
     "semantic_hash": ""
   },
   "aplikasi-splitbill/README.md": {
-    "mtime": 1794524760.7039156,
-    "seen": 1794524844.8429856,
-    "ast_hash": "16142d177cd78317c8f4b49bf36bb55f",
+    "mtime": 1794525864.940153,
+    "seen": 1794525908.722239,
+    "ast_hash": "63bd8240a570214bca3c1fed42108a4a",
     "semantic_hash": ""
   },
   "aplikasi-splitbill/assets/adaptive-icon.png": {
@@ -14846,6 +14846,30 @@
     "mtime": 1794524685.0930843,
     "seen": 1794524844.8434584,
     "ast_hash": "94616f54899c72b2db06d42c034c0bad",
+    "semantic_hash": ""
+  },
+  "aplikasi-splitbill/lib/bukuExcel.js": {
+    "mtime": 1794525809.9690561,
+    "seen": 1794525908.720853,
+    "ast_hash": "d1c392618a2f63967d50882066721376",
+    "semantic_hash": ""
+  },
+  "aplikasi-splitbill/lib/ekspor.js": {
+    "mtime": 1794525785.8377192,
+    "seen": 1794525908.7208552,
+    "ast_hash": "c916cf51e46a47e3daf70bbcfc57bc19",
+    "semantic_hash": ""
+  },
+  "aplikasi-splitbill/src/excel.js": {
+    "mtime": 1794525785.8438358,
+    "seen": 1794525908.7208617,
+    "ast_hash": "bbb2540e60fccb289bac33ecb3ca9ea4",
+    "semantic_hash": ""
+  },
+  "aplikasi-splitbill/test/ekspor.mjs": {
+    "mtime": 1794525785.8454492,
+    "seen": 1794525908.72088,
+    "ast_hash": "ae426812f7e6a655b3043f9dfac9adfc",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {
@@ -14873,9 +14897,9 @@
     "semantic_hash": ""
   },
   "aplikasi-splitbill/package-lock.json": {
-    "mtime": 1794524788.0810905,
-    "seen": 1794524844.8439062,
-    "ast_hash": "11cdbe25ad30500be774fba16805e1f5",
+    "mtime": 1794525738.5688827,
+    "seen": 1794525908.7232738,
+    "ast_hash": "2778a4cb11d3f6cf2372a01748a22139",
     "semantic_hash": ""
   },
   "edukasi/paud/package-lock.json": {
