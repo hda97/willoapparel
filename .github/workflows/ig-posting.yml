@@ -37,6 +37,7 @@ jobs:
           IG_TOKEN: ${{ secrets.IG_TOKEN }}
           IG_APP_ID: ${{ secrets.IG_APP_ID }}
           IG_APP_SECRET: ${{ secrets.IG_APP_SECRET }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
           PAKSA_TANGGAL: ${{ inputs.tanggal }}
           CEK_TOKEN: ${{ inputs.cek_token && '1' || '' }}
         run: python3 konten-ig/posting.py

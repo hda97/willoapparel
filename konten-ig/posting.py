@@ -55,10 +55,19 @@ def muat_token():
     user = os.environ.get("IG_TOKEN")
     if not user:
         raise SystemExit("Secret IG_TOKEN belum diisi.")
-    # 1) token pengguna jangka pendek -> jangka panjang (60 hari)
-    long_user = req("GET", "oauth/access_token", grant_type="fb_exchange_token",
-                    client_id=os.environ["IG_APP_ID"], client_secret=os.environ["IG_APP_SECRET"],
-                    fb_exchange_token=user)["access_token"]
+    # 1) token pengguna jangka pendek -> jangka panjang (60 hari). Token yang tidak bisa
+    #    ditukar (mis. token pengguna sistem / sudah jangka panjang) dipakai apa adanya.
+    try:
+        long_user = req("GET", "oauth/access_token", grant_type="fb_exchange_token",
+                        client_id=os.environ["IG_APP_ID"], client_secret=os.environ["IG_APP_SECRET"],
+                        fb_exchange_token=user)["access_token"]
+    except SystemExit as e:
+        print(f"Tukar token dilewati: {e}")
+        long_user = user
+    ig_manual = os.environ.get("IG_USER_ID", "").strip()
+    if ig_manual:
+        simpan_token(long_user, ig_manual)
+        return long_user, ig_manual
     # 2) token Halaman dari token pengguna jangka panjang = tidak kedaluwarsa
     pages = req("GET", "me/accounts", access_token=long_user,
                 fields="name,access_token,instagram_business_account{id,username}")["data"]
