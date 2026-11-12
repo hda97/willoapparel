@@ -14416,6 +14416,276 @@
     "ast_hash": "ff1de531473cd0b361e40940222f5875",
     "semantic_hash": ""
   },
+  ".claude/skills/brand-illustration-systems/scripts/direction_sheet.py": {
+    "mtime": 1794503033.0959282,
+    "seen": 1794503081.7691417,
+    "ast_hash": "5971a4d0c68d3af260aab4ace9cec26b",
+    "semantic_hash": ""
+  },
+  ".claude/skills/brand-illustration-systems/scripts/match_score.py": {
+    "mtime": 1794503033.0959902,
+    "seen": 1794503081.7691445,
+    "ast_hash": "dad006ea99ff4f5ab8dcbdf73b42e4df",
+    "semantic_hash": ""
+  },
+  ".claude/skills/brand-illustration-systems/scripts/raster_check.py": {
+    "mtime": 1794503033.0960045,
+    "seen": 1794503081.7691467,
+    "ast_hash": "e7b9270577ffed5f56393a79e493d93c",
+    "semantic_hash": ""
+  },
+  ".claude/skills/brand-illustration-systems/scripts/render_png.py": {
+    "mtime": 1794503033.0960145,
+    "seen": 1794503081.7691483,
+    "ast_hash": "f0c539e7d42281a63491d10b4fc5f449",
+    "semantic_hash": ""
+  },
+  ".claude/skills/brand-illustration-systems/scripts/system_audit.py": {
+    "mtime": 1794503033.0960248,
+    "seen": 1794503081.7691498,
+    "ast_hash": "b7e651fa255f2588ebbed8e8c60508ce",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/scripts/build_catalog.py": {
+    "mtime": 1794503033.0928404,
+    "seen": 1794503081.7693286,
+    "ast_hash": "5367bbe1b911d5e5245fae728967d58d",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/scripts/concept_sheet.py": {
+    "mtime": 1794503033.0928524,
+    "seen": 1794503081.7693305,
+    "ast_hash": "323420ab26c0506e8ed7905717856dce",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/scripts/export_variants.py": {
+    "mtime": 1794503033.0928612,
+    "seen": 1794503081.7693315,
+    "ast_hash": "ddb276a0eec7b6c669e16e4054877729",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/scripts/presentation_board.py": {
+    "mtime": 1794503033.0928724,
+    "seen": 1794503081.7693336,
+    "ast_hash": "ade42443502dd9d8ff4dfc23fb5ca5ce",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/scripts/preview_sheet.py": {
+    "mtime": 1794503033.0928864,
+    "seen": 1794503081.7693353,
+    "ast_hash": "05d34eed96aa9bb2bd0abd58034cc998",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/scripts/render_png.py": {
+    "mtime": 1794503033.092897,
+    "seen": 1794503081.769337,
+    "ast_hash": "437f567a35525aaf97f02cdad7fe9b8e",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/scripts/search_library.py": {
+    "mtime": 1794503033.0929077,
+    "seen": 1794503081.7693384,
+    "ast_hash": "4d1eed56df3ca7fe9acf40b3e4157707",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/scripts/svg_audit.py": {
+    "mtime": 1794503033.0929174,
+    "seen": 1794503081.7693393,
+    "ast_hash": "577a2e4ebb933c582b74783d497dc00a",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/scripts/svglib.py": {
+    "mtime": 1794503033.0929286,
+    "seen": 1794503081.769341,
+    "ast_hash": "eb36c95f4691a9a448925c205cf84b3f",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/templates/presentation-spec.example.json": {
+    "mtime": 1794503033.0930085,
+    "seen": 1794503081.7693424,
+    "ast_hash": "cb7bc93bfe8736b8b3d9853cb3ced61d",
+    "semantic_hash": ""
+  },
+  ".claude/skills/LICENSE-brand-illustration.txt": {
+    "mtime": 1794503033.0972311,
+    "seen": 1794503081.7705305,
+    "ast_hash": "cc58bf07cf684ff0b4654d55da16d4f9",
+    "semantic_hash": ""
+  },
+  ".claude/skills/LICENSE-logo-design.txt": {
+    "mtime": 1794503033.0946147,
+    "seen": 1794503081.7705355,
+    "ast_hash": "e3219d64efd24fb48265001e47cb8ea1",
+    "semantic_hash": ""
+  },
+  ".claude/skills/brand-illustration-systems/SKILL.md": {
+    "mtime": 1794503033.095749,
+    "seen": 1794503081.7705498,
+    "ast_hash": "e54c7eb8a6fee8b31bb1879c41fbc2d0",
+    "semantic_hash": ""
+  },
+  ".claude/skills/brand-illustration-systems/references/constructive-illustration.md": {
+    "mtime": 1794503033.0958014,
+    "seen": 1794503081.770551,
+    "ast_hash": "ba2ffb16fb43ed929e9da31062dc0ede",
+    "semantic_hash": ""
+  },
+  ".claude/skills/brand-illustration-systems/references/direction-options.md": {
+    "mtime": 1794503033.0958183,
+    "seen": 1794503081.7705529,
+    "ast_hash": "3a2fbf6de25451a384fddcf554f1be8f",
+    "semantic_hash": ""
+  },
+  ".claude/skills/brand-illustration-systems/references/intake.md": {
+    "mtime": 1794503033.0958292,
+    "seen": 1794503081.7705543,
+    "ast_hash": "35212bee56b35cdf2d1be21eb6747783",
+    "semantic_hash": ""
+  },
+  ".claude/skills/brand-illustration-systems/references/production-prompts.md": {
+    "mtime": 1794503033.095839,
+    "seen": 1794503081.7705557,
+    "ast_hash": "b9f225c448b27cda3681b5dd34236744",
+    "semantic_hash": ""
+  },
+  ".claude/skills/brand-illustration-systems/references/reference-systems.md": {
+    "mtime": 1794503033.0958488,
+    "seen": 1794503081.770557,
+    "ast_hash": "21b90b37de278e1ea0e47e37c5dc1172",
+    "semantic_hash": ""
+  },
+  ".claude/skills/brand-illustration-systems/references/reference-transfer.md": {
+    "mtime": 1794503033.0958571,
+    "seen": 1794503081.7705576,
+    "ast_hash": "3005b5d4fbfded77fd14eaef88d980e3",
+    "semantic_hash": ""
+  },
+  ".claude/skills/brand-illustration-systems/references/research-and-translation.md": {
+    "mtime": 1794503033.0958743,
+    "seen": 1794503081.7705593,
+    "ast_hash": "092c01758485e1838e654df7018ec057",
+    "semantic_hash": ""
+  },
+  ".claude/skills/brand-illustration-systems/references/style-families.md": {
+    "mtime": 1794503033.0958846,
+    "seen": 1794503081.7705603,
+    "ast_hash": "0f9181db96d6b7db5e7c9cca5fdc520d",
+    "semantic_hash": ""
+  },
+  ".claude/skills/brand-illustration-systems/references/system-spec-and-validation.md": {
+    "mtime": 1794503033.0958948,
+    "seen": 1794503081.7705615,
+    "ast_hash": "9c271cfb9ec5e718e0c72030b6b91aa1",
+    "semantic_hash": ""
+  },
+  ".claude/skills/brand-illustration-systems/references/touchpoints.md": {
+    "mtime": 1794503033.0959044,
+    "seen": 1794503081.770563,
+    "ast_hash": "90b07c57747a5c7be7a331cd1cdcba87",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/CATATAN-WILLO.md": {
+    "mtime": 1794503033.0988128,
+    "seen": 1794503081.770792,
+    "ast_hash": "ce3192e25e4d529def637b52bc829af8",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/SKILL.md": {
+    "mtime": 1794503033.0926144,
+    "seen": 1794503081.770793,
+    "ast_hash": "0e10d5c8928da1110d47323ddf6a371d",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/references/color.md": {
+    "mtime": 1794503033.0926688,
+    "seen": 1794503081.7707942,
+    "ast_hash": "1e7069dd4c8ca6987bc1e829dbdf93a5",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/references/critique.md": {
+    "mtime": 1794503033.0926876,
+    "seen": 1794503081.7707953,
+    "ast_hash": "086b5f409c51686a9574f7346be27d16",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/references/discovery-brief.md": {
+    "mtime": 1794503033.0926955,
+    "seen": 1794503081.7707963,
+    "ast_hash": "157ed96b698f9db5ea035ea9d9236fab",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/references/identity-system.md": {
+    "mtime": 1794503033.092706,
+    "seen": 1794503081.7707973,
+    "ast_hash": "cb03acef89cc00a189f00ed4edf652cf",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/references/library-guide.md": {
+    "mtime": 1794503033.092716,
+    "seen": 1794503081.770799,
+    "ast_hash": "6631fb72dd329062af391ed37519b57e",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/references/mark-types.md": {
+    "mtime": 1794503033.092726,
+    "seen": 1794503081.7707999,
+    "ast_hash": "cb9c6afd92b2750948f5c46556fa733a",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/references/presentation-delivery.md": {
+    "mtime": 1794503033.092739,
+    "seen": 1794503081.7708008,
+    "ast_hash": "a0267d829e0b0b26f738dc320ec972ce",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/references/principles.md": {
+    "mtime": 1794503033.0927486,
+    "seen": 1794503081.7708018,
+    "ast_hash": "11be5b3001ee1cc68f4a51cfaf3bbc1e",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/references/process.md": {
+    "mtime": 1794503033.09276,
+    "seen": 1794503081.7708027,
+    "ast_hash": "74d8a1404eb47550461882e87a0d4947",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/references/redesign.md": {
+    "mtime": 1794503033.0927691,
+    "seen": 1794503081.7708037,
+    "ast_hash": "c36dc3e00845c21f34145cf60e916080",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/references/svg-construction.md": {
+    "mtime": 1794503033.0927796,
+    "seen": 1794503081.7708046,
+    "ast_hash": "485ba236fd3074ca8ed2aac6a29166c1",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/references/testing-checklist.md": {
+    "mtime": 1794503033.0927894,
+    "seen": 1794503081.7708058,
+    "ast_hash": "3aac91bf83ae28bf3ba2eb9ead68f454",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/references/typography.md": {
+    "mtime": 1794503033.0927982,
+    "seen": 1794503081.7708068,
+    "ast_hash": "59efe11b4b47acada6c09d03fc914c65",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/references/visual-techniques.md": {
+    "mtime": 1794503033.0928075,
+    "seen": 1794503081.7708075,
+    "ast_hash": "fd9eba5033888df4acd6818e8fc5c013",
+    "semantic_hash": ""
+  },
+  ".claude/skills/logo-design/templates/brand-guidelines-template.md": {
+    "mtime": 1794503033.0929973,
+    "seen": 1794503081.7708092,
+    "ast_hash": "1d60c7e518c642f234901afb43a10e88",
+    "semantic_hash": ""
+  },
   ".claude/skills/video-shotcraft/package-lock.json": {
     "mtime": 1794399051.6505044,
     "seen": 1794491932.5903792,
