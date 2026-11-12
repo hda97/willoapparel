@@ -9,7 +9,8 @@ name: Microstock - kirim ke Adobe Stock (SFTP)
 # Secret yang dibutuhkan (Settings > Secrets and variables > Actions):
 #   ADOBE_SFTP_USER  = nama pengguna SFTP dari portal kontributor
 #   ADOBE_SFTP_PASS  = kata sandi SFTP dari portal kontributor
-# Variabel opsional ADOBE_SFTP_HOST (bawaan: sftp.contributor.adobe.com).
+# Opsional ADOBE_SFTP_HOST (secret atau variabel) = alamat server dari portal,
+# menu Upload > Learn More (bawaan: sftp.contributor.adobestock.com).
 
 on:
   push:
@@ -87,7 +88,7 @@ jobs:
         env:
           SFTP_USER: ${{ secrets.ADOBE_SFTP_USER }}
           SSHPASS: ${{ secrets.ADOBE_SFTP_PASS }}
-          SFTP_HOST: ${{ vars.ADOBE_SFTP_HOST || 'sftp.contributor.adobe.com' }}
+          SFTP_HOST: ${{ secrets.ADOBE_SFTP_HOST || vars.ADOBE_SFTP_HOST || 'sftp.contributor.adobestock.com' }}
           DAFTAR: ${{ steps.batch.outputs.daftar }}
         run: |
           if [ -z "$SFTP_USER" ] || [ -z "$SSHPASS" ]; then
