@@ -13943,9 +13943,9 @@
     "semantic_hash": ""
   },
   "microstock/README.md": {
-    "mtime": 1794410180.9127436,
-    "seen": 1794491932.5896952,
-    "ast_hash": "6ad983b645393f6fb1db8ba20e0b7607",
+    "mtime": 1794494999.3248382,
+    "seen": 1794495016.1403887,
+    "ast_hash": "44e6b045c3c1c08d83a5df8df68b423c",
     "semantic_hash": ""
   },
   "microstock/scenes.html": {
@@ -14390,6 +14390,30 @@
     "mtime": 1794491821.8210766,
     "seen": 1794491932.5903678,
     "ast_hash": "c521e2b03032e1ace52230ee43c46ca7",
+    "semantic_hash": ""
+  },
+  "microstock/cek_kembar.py": {
+    "mtime": 1794494966.7715244,
+    "seen": 1794495016.139599,
+    "ast_hash": "0f48ac971a2906cbff89dcf382b0c679",
+    "semantic_hash": ""
+  },
+  ".claude/skills/LICENSE-adhd.txt": {
+    "mtime": 1794494966.7693517,
+    "seen": 1794495016.139692,
+    "ast_hash": "69aa5c4feb044b374071c80d65ff8d4a",
+    "semantic_hash": ""
+  },
+  ".claude/skills/adhd/SKILL.md": {
+    "mtime": 1794494966.7675643,
+    "seen": 1794495016.1396961,
+    "ast_hash": "152b3f8c31cfbf611849c893a042a57f",
+    "semantic_hash": ""
+  },
+  ".claude/skills/microstock-ide/SKILL.md": {
+    "mtime": 1794494966.7704954,
+    "seen": 1794495016.1399467,
+    "ast_hash": "ff1de531473cd0b361e40940222f5875",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {
