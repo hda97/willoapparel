@@ -49,7 +49,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898499+github-actions[bot]@users.noreply.github.com"
-          git add konten-ig/token.enc konten-ig/antrean 2>/dev/null || true
+          for f in konten-ig/token.enc konten-ig/antrean; do [ -e "$f" ] && git add "$f"; done; true
           if ! git diff --cached --quiet; then
             git commit -m "IG: status posting $(TZ=Asia/Jakarta date +%F)"
             for i in 1 2 3; do git pull --rebase -q origin main && git push -q origin HEAD:main && break; sleep 5; done
