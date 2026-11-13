@@ -1564,7 +1564,7 @@ function tulisVoting() {
   // Siklus mingguan (Huda 8 Nov 2026): voting 1 minggu, pemenang langsung dibangun, lalu voting fasum lain.
   const sisa = d.tutup ? d.tutup - Date.now() : 0, tgl = d.tutup ? new Date(d.tutup).toLocaleDateString('id-ID', {weekday: 'long', day: 'numeric', month: 'short', timeZone: 'Asia/Jakarta'}) : '';
   const waktu = !d.tutup ? '' : sisa <= 0 ? 'Voting sudah ditutup, pemenangnya sedang dibangun. ' : `Ditutup ${tgl}, 00.00 WIB (${sisa > 864e5 ? 'sisa ' + Math.floor(sisa / 864e5) + ' hari' : 'kurang dari sehari'}). `;
-  const sb = d.sebelum && d.sebelum.sampai > Date.now() ? `🚧 ${(d.sebelum.nama || '').replace(/^\S+ /, '')} (pemenang voting lalu) sedang dibangun, jadi ${new Date(d.sebelum.sampai).toLocaleDateString('id-ID', {weekday: 'long', day: 'numeric', month: 'short', timeZone: 'Asia/Jakarta'})}. ` : '';
+  const sb = d.sebelum && d.sebelum.sampai > Date.now() ? `🚧 ${(d.sebelum.nama || '').replace(/^\S+ /, '')} (hasil voting lalu) sedang dibangun, jadi ${new Date(d.sebelum.sampai).toLocaleDateString('id-ID', {weekday: 'long', day: 'numeric', month: 'short', timeZone: 'Asia/Jakarta'})}. ` : '';
   $('ringkasVoting').textContent = sb + waktu + `Terbanyak langsung dibangun di dusun 📍 tujuannya, tiap dusun punya fasum berbeda. ${d.pemilih} warga sudah memilih` + (S.tamu ? '.' : ', 1 bintang gratis tiap hari.');
   if (sisa < 0 || d.ditutup) $('isiVoting').querySelectorAll('button[data-vt]').forEach(b => b.disabled = true);
   if (!S.tamu && d.no) {

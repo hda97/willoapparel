@@ -113,9 +113,9 @@
     "semantic_hash": "16f7aa92d3e9468edf41dd30b4c182d1"
   },
   "public/duniakotak/mabar/game.js": {
-    "mtime": 1794569863.5068252,
-    "seen": 1794569913.103875,
-    "ast_hash": "2c97e246acc355c061552beb78ee515e",
+    "mtime": 1794570256.0911243,
+    "seen": 1794570297.2754035,
+    "ast_hash": "595671aa9b3df7659108ad9eb2cb5649",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/avatar.js": {
@@ -209,9 +209,9 @@
     "semantic_hash": "bf3f8e495130df0e60287acb7ca38561"
   },
   "worker.js": {
-    "mtime": 1794569863.5021093,
-    "seen": 1794569913.1039467,
-    "ast_hash": "19e08b487d4997298e79ed9ab06975a3",
+    "mtime": 1794570247.9308238,
+    "seen": 1794570297.2754714,
+    "ast_hash": "f062c348335d532cf69e7d4bf98c1f70",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/musik.mp3": {
@@ -977,9 +977,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/index.html": {
-    "mtime": 1794569863.5034184,
-    "seen": 1794569913.1051698,
-    "ast_hash": "259cb334f6f82da5f54e8fb2d1e774ac",
+    "mtime": 1794570256.0886915,
+    "seen": 1794570297.276708,
+    "ast_hash": "42e09f2da1dde368f72833f34b8aa8cd",
     "semantic_hash": ""
   },
   "public/duniakotak/privasi.html": {
