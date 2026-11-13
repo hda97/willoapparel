@@ -111,12 +111,19 @@ const BATAS_AMBIL = 60, BATAS_MANCING = 40;   // per hari WIB
 const ALBUM_IKAN = IKAN.map((i) => i[2]);
 // Pasar Malam Sabtu (Huda 9 Nov 2026): tiap Sabtu 19.00–23.00 WIB di lapangan Stadion Kotak Wetan. Jajan & Lempar Gelang bayar koin
 // (penyerap koin mengendap). Lempar Gelang kena >= 2 dari 3 = suvenir acak masuk tas & Album (lengkap 5 = lencana 🎪, bit 4).
-// Kafe Bukit (Huda 13 Nov 2026: "bisa masuk, pesan minuman, pesan makanan khas kafe"): aktif setelah proyek kafe JADI.
-// Pesan pakai koin (penyerap koin), maks KAFE_HARI pesanan/hari. Pesanan pertama tiap hari diumumkan di Chat Desa.
-const KAFE_MENU = { tubruk: ["☕", "Kopi Tubruk", 8, "m"], aren: ["🧋", "Kopi Susu Gula Aren", 12, "m"], cappu: ["☕", "Cappuccino", 14, "m"], matcha: ["🍵", "Matcha Latte", 14, "m"],
-  coklat: ["🍫", "Coklat Panas", 10, "m"], esteh: ["🧊", "Es Teh Manis", 5, "m"], jeruk: ["🍊", "Jus Jeruk", 9, "m"],
-  croissant: ["🥐", "Croissant", 12, "k"], roti: ["🍞", "Roti Bakar", 10, "k"], donat: ["🍩", "Donat", 8, "k"], cheese: ["🍰", "Cheesecake", 15, "k"], pisang: ["🍌", "Pisang Goreng", 7, "k"], kentang: ["🍟", "Kentang Goreng", 10, "k"] };
-const KAFE_HARI = 6;
+// BELANJA (Huda 13 Nov 2026): Kafe Bukit ("bisa masuk, pesan minuman, makanan khas kafe"), Supermarket & Warung Desa ("Warung juga bisa? Iya").
+// Bayar koin (penyerap koin). Jenis: m = minuman & k = makanan (langsung dinikmati), t = masuk tas (pakan kucing, bahan rakit hiasan),
+// p = dipakai langsung (sabun). Kafe aktif setelah proyeknya JADI. Batas pembelian per tempat per hari. Tanpa merek asli.
+const TOKO_BELANJA = {
+  kafe: { nama: "Kafe Bukit", hari: 6, menu: { tubruk: ["☕", "Kopi Tubruk", 8, "m"], aren: ["🧋", "Kopi Susu Gula Aren", 12, "m"], cappu: ["☕", "Cappuccino", 14, "m"], matcha: ["🍵", "Matcha Latte", 14, "m"],
+    coklat: ["🍫", "Coklat Panas", 10, "m"], esteh: ["🧊", "Es Teh Manis", 5, "m"], jeruk: ["🍊", "Jus Jeruk", 9, "m"],
+    croissant: ["🥐", "Croissant", 12, "k"], roti: ["🍞", "Roti Bakar", 10, "k"], donat: ["🍩", "Donat", 8, "k"], cheese: ["🍰", "Cheesecake", 15, "k"], pisang: ["🍌", "Pisang Goreng", 7, "k"], kentang: ["🍟", "Kentang Goreng", 10, "k"] } },
+  super: { nama: "Supermarket Dunia Kotak", hari: 12, menu: { pakan: ["🥫", "Pakan Kucing", 6, "t"], kayu: ["🪵", "Kayu", 5, "t"], batu: ["🪨", "Batu kotak", 5, "t"], bunga: ["🌼", "Bunga", 4, "t"], daun: ["🍃", "Daun", 3, "t"],
+    susu: ["🥛", "Susu Kotak", 6, "m"], jus: ["🧃", "Jus Buah", 7, "m"], roti: ["🍞", "Roti Tawar", 7, "k"], semangka: ["🍉", "Semangka", 8, "k"], eskrim: ["🍦", "Es Krim", 9, "k"], sabun: ["🧼", "Sabun Mandi", 4, "p"] } },
+  warung: { nama: "Warung Desa", hari: 8, menu: { kopi: ["☕", "Kopi Hitam", 4, "m"], esteh: ["🧊", "Es Teh", 3, "m"], mie: ["🍜", "Mi Rebus Telur", 6, "k"], nasi: ["🍙", "Nasi Kucing", 5, "k"],
+    gorengan: ["🥟", "Gorengan", 2, "k"], kerupuk: ["🍘", "Kerupuk", 2, "k"], sabun: ["🧼", "Sabun Batang", 3, "p"], pakan: ["🥫", "Pakan Kucing", 6, "t"] } },
+};
+const PAKAN_KUCING = "Pakan Kucing";
 const PASAR_JAJAN = { sate: ["🍢", "Sate", 6], martabak: ["🥞", "Martabak", 8], dawet: ["🥤", "Es dawet", 3], gulali: ["🍭", "Gulali", 4], jagung: ["🌽", "Jagung bakar", 5] };
 const PASAR_GELANG = 10, PASAR_GELANG_HARI = 10, PASAR_JAJAN_HARI = 20;
 const SUVENIR = [["🧸", "Boneka beruang"], ["🐰", "Boneka kelinci"], ["🎈", "Balon"], ["🪀", "Yoyo"], ["🏮", "Lampion"]];
@@ -1492,24 +1499,27 @@ export class Warga extends DurableObject {
       this.sql.exec("UPDATE warga SET koin = ?, koinTotal = COALESCE(koinTotal, 0) + ?, permata = ?, profesi = ? WHERE no = ?", koin, tambahKoin, permata, JSON.stringify(p), r.no);
       return Response.json({ koin, permata, profesi: this.infoProfesi(p), ...info });
     }
-    if (aksi === "kafe") {
-      const q = await request.json(), kini = Date.now(), hari = hariWib(kini);
-      const kf = this.daftarBangun(kini).find((x) => x.id === "kafe"), jadi = !!kf && kini >= this.sampaiBangun(kf);
+    if (aksi === "belanja") {
+      const q = await request.json(), kini = Date.now(), hari = hariWib(kini), tk = TOKO_BELANJA[q.tempat];
+      if (!tk) return Response.json({ galat: "Toko tidak ada." }, { status: 400 });
+      const kf = this.daftarBangun(kini).find((x) => x.id === "kafe"), jadi = q.tempat !== "kafe" || (!!kf && kini >= this.sampaiBangun(kf));
       const r = this.sql.exec("SELECT no, ig, tiktok, nama, koin, tas FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
-      if (!r) return Response.json({ galat: "Daftar jadi warga dulu supaya bisa pesan di Kafe Bukit." }, { status: 401 });
-      const t = this.bacaTas(r); if (t._kh !== hari) { t._kh = hari; t._kn = 0; }
+      if (!r) return Response.json({ galat: "Daftar jadi warga dulu supaya bisa belanja." }, { status: 401 });
+      const t = this.bacaTas(r); if (!t._bl || t._bl.h !== hari) t._bl = { h: hari };
       let koin = r.koin || 0, hasil = null, kabar = null;
-      if (q.op === "pesan") {
+      if (q.op === "beli") {
         if (!jadi) return Response.json({ galat: "Kafe Bukit masih dibangun. Bantu jadi tukang supaya cepat buka!" }, { status: 400 });
-        const m = KAFE_MENU[q.id]; if (!m) return Response.json({ galat: "Menu tidak ada." }, { status: 400 });
-        if (t._kn >= KAFE_HARI) return Response.json({ galat: "Sudah kenyang! Kafe tunggu kamu lagi besok ya." }, { status: 400 });
+        const m = tk.menu[q.id]; if (!m) return Response.json({ galat: "Barang tidak ada." }, { status: 400 });
+        const n = t._bl[q.tempat] || 0;
+        if (n >= tk.hari) return Response.json({ galat: "Jatah belanja di " + tk.nama + " hari ini habis. Datang lagi besok ya!" }, { status: 400 });
         if (koin < m[2]) return Response.json({ galat: "Koinmu kurang (" + m[2] + " koin)." }, { status: 400 });
-        if (kini - (t._kt || 0) < 3000) return Response.json({ galat: "Pesanan sebelumnya masih dibuat barista." }, { status: 429 });
-        koin -= m[2]; t._kn++; t._kt = kini; this.arus("-koin:kafe", m[2]); hasil = { ikon: m[0], nama: m[1], harga: m[2], jenis: m[3] };
-        if (t._kn === 1) kabar = { no: r.no, ig: r.ig || r.tiktok || "warga" + r.no, m: m[0] + " Nongkrong di Kafe Bukit, pesan " + m[1] + "!" };
+        if (kini - (t._bt || 0) < 2500) return Response.json({ galat: "Sebentar, kasirnya masih menghitung." }, { status: 429 });
+        if (m[3] === "t") { const x = t.isi[m[1]] || (t.isi[m[1]] = { ikon: m[0], n: 0 }); if (x.n >= 99) return Response.json({ galat: "Tasmu sudah penuh " + m[1] + "." }, { status: 400 }); x.n++; }
+        koin -= m[2]; t._bl[q.tempat] = n + 1; t._bt = kini; this.arus("-koin:belanja-" + q.tempat, m[2]); hasil = { ikon: m[0], nama: m[1], harga: m[2], jenis: m[3] };
+        if (q.tempat === "kafe" && n === 0) kabar = { no: r.no, ig: r.ig || r.tiktok || "warga" + r.no, m: m[0] + " Nongkrong di Kafe Bukit, pesan " + m[1] + "!" };
         this.sql.exec("UPDATE warga SET koin = ?, tas = ? WHERE no = ?", koin, JSON.stringify(t), r.no);
       }
-      return Response.json({ koin, jadi, hasil, kabar, sisa: KAFE_HARI - t._kn });
+      return Response.json({ koin, jadi, hasil, kabar, tas: t.isi, sisa: tk.hari - (t._bl[q.tempat] || 0) });
     }
     if (aksi === "pasar") {
       const q = await request.json(), kini = Date.now();
@@ -1556,8 +1566,8 @@ export class Warga extends DurableObject {
         t._m++; t._tm = kini; tambah(h[2], h[1]); hasil = { ikon: h[1], nama: h[2] };
         if (!t._al[h[2]]) { t._al[h[2]] = kini; hasil.baru = 1; t._alb = albumBit(t._al); }
       } else if (q.op === "makan") {
-        const ikan = Object.entries(isi).filter(([n, v]) => v.n > 0 && IKAN.some((i) => i[2] === n && i[1] !== "👟")).sort((a, b) => b[1].n - a[1].n)[0];
-        if (!ikan) return Response.json({ galat: "🎣 Tidak ada ikan di inventori. Mancing dulu di sungai, baru bisa memberi makan kucing." }, { status: 400 });
+        const ikan = (isi[PAKAN_KUCING] && isi[PAKAN_KUCING].n > 0 ? [PAKAN_KUCING, isi[PAKAN_KUCING]] : null) || Object.entries(isi).filter(([n, v]) => v.n > 0 && IKAN.some((i) => i[2] === n && i[1] !== "👟")).sort((a, b) => b[1].n - a[1].n)[0];
+        if (!ikan) return Response.json({ galat: "🎣 Tidak ada ikan atau pakan kucing di tas. Mancing di sungai atau beli 🥫 Pakan Kucing di Warung/Supermarket." }, { status: 400 });
         ikan[1].n--; if (ikan[1].n <= 0) delete isi[ikan[0]]; hasil = { ikon: ikan[1].ikon, nama: ikan[0] };
       } else if (q.op === "impor" && !t._impor) {
         // pindahan dari tas lama di HP (sekali), maks 10 per barang supaya tidak bisa diakali
@@ -2265,8 +2275,9 @@ async function apiWargaInti(request, env, url) {
     const r = await stub.fetch("https://do/profesi", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), id: String(body.id || "").slice(0, 12) }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
-  if (aksi === "kafe") {
-    const r = await stub.fetch("https://do/kafe", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), id: String(body.id || "").slice(0, 12) }) });
+  if (aksi === "belanja" || aksi === "kafe") {
+    const q = { kunci: String(body.kunci || "").slice(0, 64), op: aksi === "kafe" ? (body.op === "pesan" ? "beli" : "") : String(body.op || "").slice(0, 10), tempat: aksi === "kafe" ? "kafe" : String(body.tempat || "").slice(0, 10), id: String(body.id || "").slice(0, 12) };
+    const r = await stub.fetch("https://do/belanja", { method: "POST", body: JSON.stringify(q) });
     const j = await r.json();
     if (j.kabar && env.RUANG) { const isi = JSON.stringify({ ...j.kabar, w: Date.now(), d: "" });
       await Promise.all(DUSUN_RUANG.map((d) => env.RUANG.get(env.RUANG.idFromName(d)).fetch("https://ruang/desa", { method: "POST", body: isi }).catch(() => {}))); }
