@@ -21,6 +21,7 @@ import {tlaga, JALAN_TLAGA, AWAL_TLAGA} from './js/tlaga.js';
 import {segara, AWAL_SEGARA, kodeUnit} from './js/segara.js';
 import {buatNav, pecahRute} from './js/navigasi.js';
 import {pasangDesaGabung, LETAK} from './js/desaGabung.js?v=20261111bus';
+import {musimDusun, musimkan, buatCuaca} from './js/musim.js?v=20261114ms';
 
 const $ = id => document.getElementById(id);
 const VS = D.VS;
@@ -304,6 +305,7 @@ R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.25; R.out
 const sc = new THREE.Scene(); sc.background = new THREE.Color(0xbfe4ff); sc.fog = hemat ? new THREE.Fog(0xbfe4ff, 210, 430) : new THREE.Fog(0xbfe4ff, 260, 520);
 const cam = new THREE.PerspectiveCamera(38, 1, 1, hemat ? 450 : 560);
 let I = null, NM = {}, KC = {}, AK = {}, npc = null, wnpc = null;   // AK: no → terakhir main (ms)   // KC: no → kucing warga {k:[{w,n}], d, a}
+let MSM = null, CUACA = null;   // musim dusun yang sedang dibuka + partikel cuacanya (js/musim.js)
 const lotRuntime = new Map();   // no → {g, extra, rects}
 const dekor = new Map();        // rects statis tambahan
 
@@ -667,6 +669,7 @@ function bangunSegara() {
   I = segara(sc, {names: NM, isFilled: n => !!NM[n], maksNo, sm: hemat ? 1024 : 2048, shadowR: 70, hemat});
   I.light.castShadow = !hemat;
   kumpulPijakan(I.G); kumpulPijakan(I.grupFasum);
+  musimkan(I.G, MSM);
   pecahInstanced(I.G); bakeGroup(I.G); bakeGroup(I.grupFasum);
   fasumBangun.push(...I.bangunan);
   pasangAtasFasum(fasumBangun);
@@ -677,6 +680,7 @@ function bangunKulon(buat = kulon) {
   I.light.castShadow = !hemat;
   I.grupFasum.children.forEach(catatPutar);   // bagian berputar aset dusun (mis. panggung putar Dealer Kendaraan di Curug)
   kumpulPijakan(I.G); kumpulPijakan(I.grupFasum);
+  musimkan(I.G, MSM);
   pecahInstanced(I.G); bakeGroup(I.G); bakeGroup(I.grupFasum);
   fasumBangun.push(...I.bangunan);
   pasangVotingDusun();
@@ -691,6 +695,8 @@ async function bangunDunia() {
   await document.fonts.load('900 40px Montserrat').catch(() => {});
   const minta = new URLSearchParams(location.search).get('dusun');
   DI = NAMA_DUSUN[minta] ? minta : (S.saya ? dusunDari(S.saya.no) : 'wetan');
+  // musim tetap tiap dusun (Huda 14 Nov 2026): kabut lebih rapat saat hujan/salju, partikel cuaca 1 draw call
+  MSM = musimDusun(DI); if (MSM) { sc.fog.near *= MSM.kabut; sc.fog.far *= MSM.kabut; CUACA = buatCuaca(sc, MSM, hemat); }
   if (DI === 'kulon') return bangunKulon();
   if (DI === 'curug') return bangunCurug();
   if (DI === 'tlaga') return bangunTlaga();
@@ -705,6 +711,7 @@ async function bangunDunia() {
   // kubus kembar yang banyak (jalan, hutan, sawah): dipecah per petak supaya yang di luar layar tidak digambar,
   // bentuk kubus versi ringan, dan tidak ikut bayangan (hemat untuk HP)
   kumpulPijakan(I.G);
+  musimkan(I.G, MSM);
   pecahInstanced(I.G);
   // gabung benda statis (sungai, jembatan, fasum) supaya ringan
   bakeGroup(I.G);
@@ -814,9 +821,10 @@ function bangunKavling(n) {
     const badan = new THREE.Group();
     for (const c of [...H.children]) { const p = c.position, lebar = c.geometry?.parameters?.width || 0;
       if (Math.abs(p.x) < 2.75 && p.z > -2.3 && p.z < 3.3 && lebar < 6) badan.add(c); }
-    H.add(badan); bakeGroup(badan); H = badan;
+    H.add(badan); bakeGroup(badan); H.userData.tanpaMusim = true; H = badan;
   }
   if (H && (n !== 1 || NM[1]) && (BT[n] >= BATA_BENDERA || JR === n || TR === n || TR3[n])) pasangHadiahRumah(n, L, H, extra, rects);
+  musimkan(g, MSM); musimkan(extra, MSM);   // rumput, pohon, semak halaman ikut musim; badan rumah tidak
   bakeGroup(g); bakeGroup(extra);
   lotRuntime.set(n, {g, extra, rects, rumah: H, dalam: H ? rectLot(L, -3, -1, -1.4, .2) : null, interior: null});
   if (S.saya && n === S.saya.no) { kebunTahap = null; segarKebun(); }
@@ -1518,7 +1526,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {tandajuara: 'dk_kabar_tandajuara1', hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2'};
+const KABAR_LAMA = {musim: 'dk_kabar_musim1', tandajuara: 'dk_kabar_tandajuara1', hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   if (window.DK_APP) simpan(KABAR_LAMA.notif, '1');   // aplikasi Android belum bisa notifikasi web
@@ -3652,6 +3660,7 @@ function loop(t) {
   // kavling dekat dibangun bertahap
   if (t - tKav > (hemat ? 200 : 120) && dtAsli < .034) { tKav = t; aturKavling(tx, tz); }
   siangMalam(t);
+  if (CUACA) CUACA.update(dt, tx, camY, tz);
   kirimPos(false);
   R.render(sc, cam);
   gambarPetaMini(t);
@@ -3791,10 +3800,10 @@ function siangMalam(t) {
   const d = new Date(Date.now() + 7 * 3600e3), j = d.getUTCHours() + d.getUTCMinutes() / 60;
   const terang = j < 5 || j > 19.5 ? 0 : j < 6.5 ? (j - 5) / 1.5 : j > 18 ? (19.5 - j) / 1.5 : 1;
   terangNow = terang;
-  const langit = new THREE.Color(0x1a2448).lerp(new THREE.Color(0xbfe4ff), terang);
-  sc.background = langit; sc.fog.color = langit; I.light.intensity = .5 + 1.9 * terang; R.toneMappingExposure = .85 + .4 * terang;
+  const langit = new THREE.Color(MSM ? MSM.malam : 0x1a2448).lerp(new THREE.Color(MSM ? MSM.langit : 0xbfe4ff), terang);
+  sc.background = langit; sc.fog.color = langit; I.light.intensity = (.5 + 1.9 * terang) * (MSM ? MSM.cahaya : 1); R.toneMappingExposure = .85 + .4 * terang;
   const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-  if ($('chipDusun') && $('chipDusun')._d !== DI) { $('chipDusun')._d = DI; $('chipDusun').innerHTML = `📍 <b>Dusun ${NAMA_DUSUN[DI]}</b>`; }
+  if ($('chipDusun') && $('chipDusun')._d !== DI) { $('chipDusun')._d = DI; $('chipDusun').innerHTML = `📍 <b>Dusun ${NAMA_DUSUN[DI]}</b>${MSM ? ' ' + MSM.ik : ''}`; }
   $('jam').innerHTML = `<span class="dsn">Dusun ${NAMA_DUSUN[DI]} · </span>${HARI[d.getUTCDay()]} ${String(d.getUTCHours()).padStart(2, '0')}.${String(d.getUTCMinutes()).padStart(2, '0')} ${terang > .5 ? '☀️' : '🌙'}<small>🌱 Tanam di kebun rumahmu · jual di warung</small>`;
 }
 function onResize() {
