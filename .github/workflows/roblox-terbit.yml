@@ -5,10 +5,10 @@ name: Terbitkan game Roblox Dunia Kotak
 # Butuh 3 secret repo: ROBLOX_API_KEY (izin universe-places: write),
 # ROBLOX_UNIVERSE_ID, ROBLOX_PLACE_ID.
 
+# Hanya jalan manual (Run workflow). Terbit otomatis saat push DIMATIKAN karena
+# place sekarang dibangun di Roblox Studio (map v3); terbit dari file rakitan
+# akan MENIMPA isi place itu.
 on:
-  push:
-    branches: [main]
-    paths: ["roblox/**", ".github/workflows/roblox-terbit.yml"]
   workflow_dispatch:
     inputs:
       jenis:
