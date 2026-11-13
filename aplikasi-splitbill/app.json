@@ -1,0 +1,58 @@
+{
+  "expo": {
+    "name": "Splitbill Cerdas",
+    "slug": "splitbill-cerdas",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#6C63FF"
+    },
+    "scheme": "splitbillcerdas",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.splitbillcerdas.app"
+    },
+    "android": {
+      "package": "com.splitbillcerdas.app",
+      "versionCode": 3,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#6C63FF"
+      },
+      "permissions": ["android.permission.CAMERA"],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Izinkan Splitbill Cerdas membuka galeri untuk memilih foto struk.",
+          "cameraPermission": "Izinkan Splitbill Cerdas memakai kamera untuk scan struk.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 24,
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
+          }
+        }
+      ]
+    ]
+  }
+}
