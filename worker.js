@@ -58,7 +58,11 @@ const FASUM_CALON = {
 // Pindahkan ke FASUM_CALON + CALON_LANJUT (dan LOKASI_FASUM/ASET_CALON/CALON di game.js) setelah model 3D-nya dibuat
 // dan syaratnya terpenuhi. Kios Warga masuk setelah calon sekarang habis; Pasar & Dermaga setelah Segara buka (warga No. 861).
 const CALON_NANTI = {
-  kios: { nama: "🏪 Kios Warga", dusun: "tlaga", lahan: 0, syarat: "setelah calon sekarang (dekat Taman Hiburan)", isi: "kios disewa warga untuk jualan" },
+  kios: { nama: "🏪 Kios Warga", dusun: "tlaga", lahan: 0, syarat: "setelah calon sekarang (dekat Taman Hiburan)", isi: "kios disewa warga untuk jualan",
+    // SPEK disetujui Huda 13 Nov ("Sudah pas"): sewa 20 koin/minggu, 6 kios, kios lepas bila sewa tak diperpanjang;
+    // harga diatur pemilik 1–15 koin; dagangan: ikan, hasil kebun, hiasan rakitan bahan Supermarket, jajanan buatan sendiri;
+    // potongan desa 10% tiap penjualan.
+    spek: { sewa: 20, jumlah: 6, hargaMin: 1, hargaMaks: 15, potongan: 0.1, barang: ["ikan", "kebun", "hiasan", "jajanan"] } },
   pasar: { nama: "🧺 Pasar Desa", dusun: "segara", lahan: 0, syarat: "Segara buka (warga No. 861)", isi: "warga jual-beli ikan & hasil kebun" },
   dermaga: { nama: "⚓ Dermaga Nelayan", dusun: "segara", lahan: 1, syarat: "Segara buka (warga No. 861)", isi: "dermaga perahu nelayan" },
 };
