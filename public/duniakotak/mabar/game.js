@@ -131,7 +131,7 @@ const GELAR = [[1, '🌱', 'Warga Baru'], [3, '🏡', 'Warga Tetap'], [5, '🤝'
 const gelarDari = L => GELAR.filter(g => L >= g[0]).pop();
 const XP = {};   // no → xp (dari /api/warga; warga sendiri dari S.saya.koinTotal)
 const lvTeks = no => XP[no] ? `Lv${levelDari(XP[no])} ` : '';
-const lencana = no => (PJ[no] ? '🏆 ' : '') + (RJ[no] ? ['', '🥇', '🥈', '🥉'][RJ[no]] + ' ' : '') + (AL[no] & 1 ? '🎣 ' : '') + (AL[no] & 2 ? '🧺 ' : '') + (AL[no] & 4 ? '🎪 ' : '') + (TR && TR === no ? '🏡 ' : '') + (JR && JR === no ? '👑 ' : '') + (BT[no] >= 1 ? '🧱 ' : '');   // no → {c: cat, p: pagar} (warga lain, dari /api/warga)
+const lencana = no => (RJ[no] ? ['', '🥇', '🥈', '🥉'][RJ[no]] + ' ' : '') + (PJ[no] ? '🏆 ' : '') + (AL[no] & 1 ? '🎣 ' : '') + (AL[no] & 2 ? '🧺 ' : '') + (AL[no] & 4 ? '🎪 ' : '') + (TR && TR === no ? '🏡 ' : '') + (JR && JR === no ? '👑 ' : '') + (BT[no] >= 1 ? '🧱 ' : '');   // no → {c: cat, p: pagar} (warga lain, dari /api/warga)
 function bersihAv(a) {
   a = a && typeof a === 'object' ? a : {};
   const jenis = a.jenis === 'P' ? 'P' : 'L';
@@ -2990,10 +2990,12 @@ const taruh = [];   // kotak label nama yang sudah dipasang frame ini (supaya ti
 const V = new THREE.Vector3();
 // Label nama: awalan "Lv<n> " jadi chip emas kecil (Huda 13 Nov: "tulisan level kurang bagus"), sisanya teks biasa.
 function isiLabel(el, teks) {
-  const m = /^(🔇 )?Lv(\d+) (.*)$/s.exec(teks);
-  if (!m) { el.textContent = teks; return; }
-  el.textContent = m[1] || ''; const c = document.createElement('span'); c.className = 'nmLv'; c.textContent = m[2];
-  el.appendChild(c); el.appendChild(document.createTextNode(m[3]));
+  // Lencana juara 🥇🥈🥉 (Warga Rajin) dibuat lebih besar & berkilau di label atas kepala (Huda 13 Nov: "biar bangga")
+  const m = /^(🔇 )?(?:Lv(\d+) )?(🥇|🥈|🥉)? ?(.*)$/su.exec(teks);
+  el.textContent = m[1] || '';
+  if (m[2]) { const c = document.createElement('span'); c.className = 'nmLv'; c.textContent = m[2]; el.appendChild(c); }
+  if (m[3]) { const md = document.createElement('span'); md.className = 'nmMedali m' + '🥇🥈🥉'.indexOf(m[3]) / 2; md.textContent = m[3]; el.appendChild(md); }
+  el.appendChild(document.createTextNode(m[4]));
 }
 function tempel(obj, tinggi, teks, cls, dy = 0) {
   V.copy(obj.position); V.y += tinggi; V.project(cam);
