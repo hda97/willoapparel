@@ -85,6 +85,7 @@ const BANGUN_SEKARANG = [{ id: "taman", nama: "🌳 Taman Kota", aset: "tamanKot
 // Tiap finish sah: RL_KOIN koin, hanya RL_SESI_KOIN finish pertama tiap hari WIB (semua lintasan). Finish sah bila jarak POST "mulai"
 // ke "selesai" lebih lama dari waktunya dan waktunya >= RL_MIN_MS[lintasan] (± panjang lintasan / 36 m/dtk, batas fisika mobil).
 const RL_KOIN = 10, RL_SESI_KOIN = 3, RL_MIN_MS = [0, 33e3, 29e3, 24e3, 27e3, 27e3], RL_LINTASAN = 5;
+const DUSUN_BANGUN = (d) => (/^(wetan|kulon|curug|tlaga|segara)$/.test(String(d || "")) ? String(d) : "");
 const TK_MAJU = 20 * 60e3, TK_MAJU_MAKS = 3 * 864e5, TK_SESI_MAJU = 10, TK_SESI_KOIN = 3, TK_KOIN_MAKS = 30, TK_MIN = 45e3, PIALA_BANGUN = 5, TK_MISI_DESA = 15;
 // Kata kunci usulan warga (kolom usulan saat daftar) untuk mencari pengusul pertama tiap fasum pemenang/calon.
 // Bisa ditimpa manual lewat BOS_TETAP (mis. { taman: 48 }) bila pengusul yang ditemukan otomatis kurang tepat.
@@ -681,7 +682,11 @@ export class Warga extends DurableObject {
   }
   majuBangun(b) { return Math.min(TK_MAJU_MAKS, this.sesiBangun(b.id) * TK_MAJU); }
   sampaiBangun(b) { return b.sampai - this.majuBangun(b); }
-  proyekBangun(t = Date.now()) { return this.daftarBangun(t).find((x) => t >= x.mulai && t < this.sampaiBangun(x)) || null; }
+  // Proyek aktif. Bila ada beberapa proyek bersamaan (mis. Taman Kota di Wetan + Taman Hiburan di Tlaga), `dusun` memilih proyek di dusun itu.
+  proyekBangun(t = Date.now(), dusun = "") {
+    const L = this.daftarBangun(t).filter((x) => t >= x.mulai && t < this.sampaiBangun(x));
+    return L.find((x) => (x.dusun || "wetan") === dusun) || L[0] || null;
+  }
   // Data publik: jadwal jadi tiap fasum (dibaca game.js saat dimuat) + proyek yang sedang dikerjakan & 5 tukang teratas.
   // Reli Kotak: papan rekor publik (5 tercepat sepanjang masa) + jumlah pembalap
   infoReli(l = 1) {
@@ -689,8 +694,8 @@ export class Warga extends DurableObject {
       .map((x) => ({ no: x.no, u: this.nm(x), t: x.r }));
     return { l, top, pembalap: this.sql.exec("SELECT COUNT(*) AS n FROM reliRekor WHERE l = ? AND r > 0", l).toArray()[0].n };
   }
-  infoBangun() {
-    const kini = Date.now(), b = this.proyekBangun(kini);
+  infoBangun(dusun = "") {
+    const kini = Date.now(), b = this.proyekBangun(kini, dusun);
     const proyek = this.daftarBangun(kini).map((x) => ({ id: x.id, nama: x.nama, aset: x.aset, dusun: x.dusun || "wetan", lahan: x.lahan, mulai: x.mulai, sampaiAsli: x.sampai, sampai: this.sampaiBangun(x) }));
     if (!b) return { proyek, aktif: null, aturan: { maju: TK_MAJU, majuMaks: TK_MAJU_MAKS, sesiKoin: TK_SESI_KOIN, koinMaks: TK_KOIN_MAKS } };
     const top = this.sql.exec("SELECT t.no, t.sesi, t.poin, w.ig, w.tiktok, w.nama FROM tukang t LEFT JOIN warga w ON w.no = t.no WHERE t.fas = ? AND t.sesi > 0 ORDER BY t.sesi DESC, t.poin DESC, t.no ASC LIMIT 5", b.id).toArray()
@@ -1195,7 +1200,44 @@ export class Warga extends DurableObject {
     }
     if (aksi === "ajak") return Response.json(this.infoAjak(Math.max(0, Math.floor(+u.searchParams.get("no") || 0)), Math.max(0, Math.floor(+u.searchParams.get("dari") || 0))));
     if (aksi === "piala") return Response.json(this.piala(Math.max(0, Math.floor(+u.searchParams.get("no") || 0))));
-    if (aksi === "bangun-publik") return Response.json(this.infoBangun());
+    if (aksi === "bangun-publik") return Response.json(this.infoBangun(DUSUN_BANGUN(u.searchParams.get("dusun"))));
+    if (aksi === "bangun") {
+      // Tukang Kotak: op info | mulai | selesai {skor 0-100}, {dusun} memilih proyek di dusun tempat warga masuk.
+      // (Dipulihkan 13 Nov 2026: blok ini tidak sengaja terhapus saat Reli Kotak #254, sehingga sesi tukang sejak 10 Nov tidak tercatat.)
+      const q = await request.json(), kini = Date.now(), hari = hariWib(kini), ds = DUSUN_BANGUN(q.dusun);
+      const r = this.sql.exec("SELECT no, ig, tiktok, nama, koin, koinTotal, permata, avatar, misi FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r) return Response.json({ ...this.infoBangun(ds), galat: q.op === "info" ? undefined : "Masuk dulu sebagai warga Dunia Kotak." }, { status: q.op === "info" ? 200 : 401 });
+      const b = this.proyekBangun(kini, ds);
+      const baris = () => (b && this.sql.exec("SELECT sesi, poin, hari, sh, m FROM tukang WHERE fas = ? AND no = ?", b.id, r.no).toArray()[0]) || { sesi: 0, poin: 0, hari, sh: 0, m: null };
+      let t = baris(); if (t.hari !== hari) { t.hari = hari; t.sh = 0; }
+      const tulis = () => this.sql.exec("INSERT INTO tukang (fas, no, sesi, poin, hari, sh, m) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (fas, no) DO UPDATE SET sesi = excluded.sesi, poin = excluded.poin, hari = excluded.hari, sh = excluded.sh, m = excluded.m", b.id, r.no, t.sesi, t.poin, t.hari, t.sh, t.m);
+      const info = {};
+      if (q.op === "mulai" && b) { t.m = kini; tulis(); }
+      else if (q.op === "selesai") {
+        if (!b) return Response.json({ ...this.infoBangun(ds), galat: "Fasumnya sudah jadi! Tunggu pemenang voting berikutnya." }, { status: 400 });
+        const lama = t.m ? kini - t.m : 0; t.m = null;
+        if (lama < TK_MIN) { tulis(); return Response.json({ ...this.infoBangun(ds), galat: "Kerjanya tidak tercatat. Mulai lagi dari awal ya." }, { status: 400 }); }
+        const skor = Math.max(0, Math.min(100, Math.floor(+q.skor || 0)));
+        if (t.sh < TK_SESI_MAJU) { t.sesi += 1; t.poin += skor; info.maju = this.majuBangun(b) < TK_MAJU_MAKS ? TK_MAJU : 0; this._tks = null; }
+        if (t.sh < TK_SESI_KOIN) {
+          const k = Math.max(5, Math.min(TK_KOIN_MAKS, Math.round(skor * TK_KOIN_MAKS / 100)));
+          this.sql.exec("UPDATE warga SET koin = COALESCE(koin, 0) + ?, koinTotal = COALESCE(koinTotal, 0) + ? WHERE no = ?", k, k, r.no);
+          r.koin = (r.koin || 0) + k; info.dapat = k; this.arus("+koin:bangun", k);
+          const pl = this.tambahPiala(r.no, "bangun"); if (pl) info.piala = pl;
+        }
+        // Misi harian DESA "Ikut bangun fasum" (Huda 10 Nov): tetap tiap hari seperti Pelari Kalcer, selesai otomatis di misi bangun pertama.
+        let mm = { t: hari, s: [] }; try { const m0 = r.misi ? JSON.parse(r.misi) : null; if (m0 && m0.t === hari && Array.isArray(m0.s)) mm = m0; } catch (e) {}
+        if (!mm.s.includes("tukang")) {
+          mm.s.push("tukang"); r.koin = (r.koin || 0) + TK_MISI_DESA; info.misiDesa = TK_MISI_DESA;
+          this.sql.exec("UPDATE warga SET koin = COALESCE(koin, 0) + ?, koinTotal = COALESCE(koinTotal, 0) + ?, misi = ? WHERE no = ?", TK_MISI_DESA, TK_MISI_DESA, JSON.stringify(mm), r.no);
+          this.arus("+koin:misi-bangun", TK_MISI_DESA);
+        }
+        t.sh += 1; tulis();
+      }
+      t = baris(); const sh = t.hari === hari ? t.sh : 0;
+      let avatar = null; try { avatar = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
+      return Response.json({ ...this.infoBangun(ds), ...info, saya: { no: r.no, u: this.nm(r), koin: r.koin || 0, permata: r.permata || 0, avatar, sesi: t.sesi, sesiHari: sh, sisaKoin: Math.max(0, TK_SESI_KOIN - sh), sisaMaju: Math.max(0, TK_SESI_MAJU - sh) } });
+    }
     const lintasReli = (v) => Math.max(1, Math.min(RL_LINTASAN, Math.floor(+v || 1)));
     if (aksi === "reli-publik") return Response.json(this.infoReli(lintasReli(u.searchParams.get("l"))));
     if (aksi === "reli") {
@@ -2070,7 +2112,7 @@ async function apiWargaInti(request, env, url) {
     return new Response((await stub.fetch("https://do/ajak?no=" + no + "&dari=" + dari)).body, { headers: { "content-type": "application/json", "cache-control": no ? "no-store" : "public, max-age=30" } });
   }
   if (aksi === "bangun" && request.method === "GET") {
-    return new Response((await stub.fetch("https://do/bangun-publik")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=30" } });
+    return new Response((await stub.fetch("https://do/bangun-publik?dusun=" + DUSUN_BANGUN(url.searchParams.get("dusun")))).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=30" } });
   }
   if (aksi === "reli" && request.method === "GET") {
     const l = Math.max(1, Math.min(5, parseInt(url.searchParams.get("l") || "1", 10) || 1));
@@ -2166,7 +2208,7 @@ async function apiWargaInti(request, env, url) {
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "bangun") {
-    const r = await stub.fetch("https://do/bangun", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), skor: +body.skor || 0 }) });
+    const r = await stub.fetch("https://do/bangun", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), skor: +body.skor || 0, dusun: DUSUN_BANGUN(body.dusun) }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "reli") {
