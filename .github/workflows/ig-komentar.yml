@@ -1,0 +1,43 @@
+name: Balas Komentar Instagram Dunia Kotak
+
+# Tiap 30 menit membalas komentar baru di reel @duniakotak.id (konten-ig/komentar.py).
+on:
+  push:
+    branches: [main]
+    paths: ["konten-ig/komentar.py", ".github/workflows/ig-komentar.yml"]
+  schedule:
+    - cron: "15,45 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ig-komentar
+  cancel-in-progress: false
+
+jobs:
+  balas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: konten-ig
+      - name: Balas komentar
+        env:
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          IG_APP_ID: ${{ secrets.IG_APP_ID }}
+          IG_APP_SECRET: ${{ secrets.IG_APP_SECRET }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+        run: python3 konten-ig/komentar.py
+      - name: Simpan catatan
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898499+github-actions[bot]@users.noreply.github.com"
+          for f in konten-ig/token.enc konten-ig/dibalas.json; do [ -e "$f" ] && git add "$f"; done; true
+          if ! git diff --cached --quiet; then
+            git commit -m "IG: catatan balas komentar"
+            for i in 1 2 3; do git pull --rebase -q origin main && git push -q origin HEAD:main && break; sleep 5; done
+          fi
