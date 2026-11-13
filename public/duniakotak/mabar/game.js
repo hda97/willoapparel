@@ -1439,6 +1439,8 @@ const KABAR_LAMA = {bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: '
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   if (window.DK_APP) simpan(KABAR_LAMA.notif, '1');   // aplikasi Android belum bisa notifikasi web
+  // Kafe Bukit (Huda 13 Nov): disembunyikan sampai proyeknya mulai (Taman jadi, Sabtu 00.00 WIB), baru diumumkan.
+  { const kf = BANGUN_VOTING.find(b => b.id === 'kafe'); if (!kf || Date.now() < kf.mulai) document.querySelector('#panelKabar .kbItem[data-k="kafe"]')?.remove(); }
   const baru = [...document.querySelectorAll('#panelKabar .kbItem[data-k]')].filter(e => !baca(KABAR_LAMA[e.dataset.k]));
   if (!baru.length) return;
   const sibuk = sedangJalan() || [...document.querySelectorAll('.layarPenuh')].some(e => !e.hidden) || (typeof pemulaKini === 'function' && pemulaKini() && n < 40);
