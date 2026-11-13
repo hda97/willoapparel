@@ -1,0 +1,888 @@
+<title>Krysák Ratislav</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Hratelné demo: krysí šermíř nakreslený jednou linkou perem, v měkkém pohádkovém stylu — chůze, skok a útok, všech 33 snímků.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..800,0..100,0..1&family=Nunito:wght@400;700;800&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #F7F1E5;
+    --card: #FFFCF6;
+    --ink: #2F2A35;
+    --line: #2F2A35;
+    --muted: #665D6D;
+    --rule: #E2D5C2;
+    --chip: #F2E9DA;
+    --key: #FFFCF6;
+    --key-hover: #FBF4E8;
+    --key-down: #EFE4D2;
+    --key-inset: rgba(47, 42, 53, .09);
+    --accent: #E0583D;
+    --accent-hover: #E66B51;
+    --accent-down: #C94A31;
+    --film: #D4E8F0;
+    --sky: #A9D2E6;
+    --art-ink: #2F2A35;
+    --grain-opacity: 1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper: #1D1A21;
+      --card: #28242D;
+      --ink: #F3EEE6;
+      --line: #0D0B10;
+      --muted: #BDB3C3;
+      --rule: #3A3440;
+      --chip: #38323F;
+      --key: #35303C;
+      --key-hover: #3E3846;
+      --key-down: #2B2631;
+      --key-inset: rgba(0, 0, 0, .25);
+      --film: #2E3A42;
+      --grain-opacity: .35;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper: #1D1A21;
+    --card: #28242D;
+    --ink: #F3EEE6;
+    --line: #0D0B10;
+    --muted: #BDB3C3;
+    --rule: #3A3440;
+    --chip: #38323F;
+    --key: #35303C;
+    --key-hover: #3E3846;
+    --key-down: #2B2631;
+    --key-inset: rgba(0, 0, 0, .25);
+    --film: #2E3A42;
+    --grain-opacity: .35;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background-color: var(--paper);
+    color: var(--ink);
+    font: 400 17px/1.6 "Nunito", ui-rounded, system-ui, sans-serif;
+  }
+  body::before {                       /* faint watercolour-paper grain over the whole page */
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .29 0 0 0 0 .2 0 0 0 .075 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E");
+    opacity: var(--grain-opacity);
+  }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 max(16px, env(safe-area-inset-right)) 64px max(16px, env(safe-area-inset-left));
+  }
+  .serif { font-family: "Fraunces", Georgia, serif; font-variation-settings: "SOFT" 100, "WONK" 1; }
+
+  /* ---------- hero */
+  .hero { padding: 48px 0 32px; display: grid; gap: 16px; }
+  .eyebrow {
+    margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+    font: 500 12px/1 "DM Mono", ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .eyebrow span { padding: 7px 10px; border: 1.5px solid var(--rule); border-radius: 999px; background: var(--card); }
+  .eyebrow span:first-child { border-color: var(--line); color: var(--ink); }
+  h1 {
+    margin: 0;
+    font: 700 clamp(50px, 10vw, 104px)/.95 "Fraunces", Georgia, serif;
+    font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144;
+    letter-spacing: -.02em;
+  }
+  h1 .name {
+    color: var(--accent);
+    text-decoration: underline wavy color-mix(in srgb, var(--accent) 55%, transparent);
+    text-decoration-thickness: .045em; text-underline-offset: .16em; text-decoration-skip-ink: none;
+  }
+  .lede { margin: 0; max-width: 62ch; font-size: clamp(17px, 2vw, 20px); color: var(--muted); }
+
+  /* ---------- game screen */
+  .stage { display: grid; gap: 26px; }
+  .screen {
+    position: relative; overflow: hidden;
+    border: 2.5px solid var(--line); border-radius: 24px;
+    background: var(--sky);
+    box-shadow: 0 5px 0 var(--line);
+    outline: none;
+  }
+  .screen:focus-visible { box-shadow: 0 5px 0 var(--line), 0 0 0 4px var(--paper), 0 0 0 7px var(--accent); }
+  .screen canvas { display: block; width: 100%; height: auto; aspect-ratio: 12 / 5; touch-action: manipulation; }
+  .hud {
+    position: absolute; top: 12px; left: 12px; right: 12px;
+    display: flex; justify-content: space-between; gap: 8px; pointer-events: none;
+  }
+  .pill {
+    font: 500 12px/1 "DM Mono", ui-monospace, monospace; color: var(--art-ink);
+    background: rgba(255, 252, 246, .9); border: 1.5px solid var(--art-ink); border-radius: 999px;
+    padding: 6px 10px; white-space: nowrap;
+  }
+  .pill b { font-weight: 500; color: #B03E26; }
+  .tip {
+    position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%);
+    margin: 0; max-width: calc(100% - 24px); width: max-content;
+    padding: 7px 14px; border: 1.5px solid var(--art-ink); border-radius: 999px;
+    background: rgba(255, 252, 246, .93); color: var(--art-ink);
+    font: 700 14px/1.3 "Nunito", sans-serif; text-align: center;
+    transition: opacity .5s ease; pointer-events: none;
+  }
+  .tip.is-hidden { opacity: 0; }
+  .tip .coarse { display: none; }
+  @media (hover: none) and (pointer: coarse) {
+    .tip .fine { display: none; }
+    .tip .coarse { display: inline; }
+  }
+  .loading {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    background: var(--sky); color: var(--art-ink);
+    font: 600 24px/1 "Fraunces", Georgia, serif; font-variation-settings: "SOFT" 100;
+  }
+
+  /* ---------- controller: keycaps adapted from the 21st.dev "Button Retro" keypad, inked thinner */
+  .pad { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .cluster { display: flex; gap: 12px; }
+  .key {
+    position: relative; display: grid; place-items: center;
+    min-width: 88px; height: 68px; padding: 14px 18px 6px;
+    font: 800 17px/1 "Nunito", sans-serif; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink); background: var(--key);
+    border: 2.5px solid var(--line); border-radius: 18px;
+    box-shadow: 0 5px 0 var(--line), inset 0 -4px 0 var(--key-inset);
+    cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+    touch-action: none; -webkit-tap-highlight-color: transparent;
+    transition: transform 70ms ease, box-shadow 70ms ease, background-color 120ms ease;
+  }
+  .key svg { display: block; }
+  .key .legend {
+    position: absolute; top: 7px; left: 10px;
+    font: 500 10px/1 "DM Mono", ui-monospace, monospace; letter-spacing: .02em; text-transform: none;
+    color: var(--muted);
+  }
+  .key:hover { background: var(--key-hover); }
+  .key:focus-visible { outline: 3px solid var(--accent); outline-offset: 5px; }
+  .key.is-down {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 var(--line), inset 0 4px 0 var(--key-inset);
+    background: var(--key-down);
+  }
+  .key--hot { background: var(--accent); color: #2F2A35; }
+  .key--hot .legend { color: #2F2A35; }
+  .key--hot:hover { background: var(--accent-hover); }
+  .key--hot.is-down { background: var(--accent-down); }
+
+  .switch { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; cursor: pointer; user-select: none; }
+  .switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .switch .track {
+    position: relative; flex: none; width: 48px; height: 28px;
+    border: 2.5px solid var(--line); border-radius: 999px; background: var(--key);
+    box-shadow: 0 3px 0 var(--line); transition: background-color .15s ease;
+  }
+  .switch .track::after {
+    content: ""; position: absolute; top: 3.5px; left: 3.5px; width: 16px; height: 16px;
+    border-radius: 50%; background: var(--ink); transition: transform .15s ease;
+  }
+  .switch input:checked + .track { background: var(--accent); }
+  .switch input:checked + .track::after { transform: translateX(20px); background: #2F2A35; }
+  .switch input:focus-visible + .track { outline: 3px solid var(--accent); outline-offset: 4px; }
+
+  /* ---------- section heads */
+  .section-head { display: grid; gap: 8px; margin: 72px 0 24px; }
+  h2 {
+    margin: 0; font: 700 clamp(30px, 4.4vw, 44px)/1.02 "Fraunces", Georgia, serif;
+    font-variation-settings: "SOFT" 100, "WONK" 1; letter-spacing: -.01em;
+  }
+  .section-head p { margin: 0; max-width: 64ch; color: var(--muted); }
+
+  /* ---------- animation rows with filmstrips */
+  .anims { display: grid; gap: 24px; }
+  .anim {
+    display: grid; grid-template-columns: 172px minmax(0, 1fr); grid-template-rows: auto 1fr;
+    column-gap: 24px; row-gap: 16px; padding: 18px;
+    background: var(--card); border: 2.5px solid var(--line); border-radius: 24px;
+    box-shadow: 0 4px 0 var(--line);
+  }
+  .anim-view {
+    grid-row: 1 / span 2; align-self: start; position: relative; display: block; padding: 0;
+    border: 2px solid var(--line); border-radius: 16px; overflow: hidden;
+    background: var(--sky); cursor: pointer;
+  }
+  .anim-view canvas { display: block; width: 100%; height: auto; aspect-ratio: 300 / 352; }
+  .anim-view:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+  .play {
+    position: absolute; right: 8px; bottom: 8px; width: 36px; height: 36px;
+    display: grid; place-items: center; border-radius: 50%;
+    background: #FFFCF6; color: var(--art-ink); border: 2px solid var(--art-ink);
+    opacity: 0; transform: scale(.8); transition: opacity .15s ease, transform .15s ease;
+  }
+  .anim.is-paused .play { opacity: 1; transform: none; }
+  .anim-head { display: grid; gap: 10px; align-content: start; }
+  .anim-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+  h3 {
+    margin: 0; font: 700 28px/1 "Fraunces", Georgia, serif;
+    font-variation-settings: "SOFT" 100, "WONK" 1;
+  }
+  .tag { font: 500 13px/1 "DM Mono", ui-monospace, monospace; color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { padding: 6px 10px; border-radius: 999px; background: var(--chip); font: 500 12px/1 "DM Mono", ui-monospace, monospace; }
+  .anim-note { margin: 0; max-width: 60ch; color: var(--muted); font-size: 16px; }
+  .film {
+    list-style: none; margin: 0; padding: 0; align-self: end;
+    display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 8px;
+  }
+  .film li { display: grid; gap: 5px; justify-items: center; }
+  .thumb {
+    width: 100%; aspect-ratio: 1; padding: 0; cursor: pointer;
+    border: 1.5px solid var(--line); border-radius: 10px;
+    background-color: var(--film); background-image: url("ratislav_atlas@2x.png");
+    background-size: 731.43% 731.43%; background-repeat: no-repeat;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .thumb:hover { transform: translateY(-2px); }
+  .thumb:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  .film li.is-current .thumb { box-shadow: 0 0 0 3px var(--accent); transform: translateY(-2px); }
+  .film .ms { font: 500 11px/1 "DM Mono", ui-monospace, monospace; color: var(--muted); }
+  .film li.is-current .ms { color: var(--ink); }
+
+  /* ---------- how it was made */
+  .how { display: grid; gap: 28px; }
+  .sheet {
+    margin: 0; overflow: hidden;
+    background: var(--card); border: 2.5px solid var(--line); border-radius: 24px; box-shadow: 0 4px 0 var(--line);
+  }
+  .sheet img { display: block; width: 100%; height: auto; background: #F8F4EA; }
+  .sheet figcaption { padding: 12px 18px 14px; border-top: 2px solid var(--line); color: var(--muted); font-size: 16px; }
+  .facts {
+    list-style: none; margin: 0; padding: 0; counter-reset: fact;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px;
+  }
+  .facts li {
+    position: relative; padding: 16px 18px 16px 64px;
+    background: var(--card); border: 2px solid var(--line); border-radius: 18px;
+  }
+  .facts li::before {
+    counter-increment: fact; content: counter(fact);
+    position: absolute; left: 14px; top: 15px; width: 36px; height: 36px;
+    display: grid; place-items: center; border-radius: 50%;
+    background: var(--accent); color: #2F2A35; border: 2px solid var(--line);
+    font: 700 18px/1 "Fraunces", Georgia, serif; font-variation-settings: "SOFT" 100;
+  }
+  .facts b { display: block; font-weight: 800; margin-bottom: 2px; }
+  .foot { margin-top: 64px; padding-top: 20px; border-top: 2px dashed var(--rule); color: var(--muted); font-size: 16px; }
+
+  @media (max-width: 820px) {
+    .facts { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 720px) {
+    .hero { padding-top: 32px; }
+    .screen { border-radius: 20px; }
+    .screen canvas { aspect-ratio: 4 / 3; }
+    .pad { display: grid; grid-template-columns: auto auto; justify-content: space-between; row-gap: 22px; }
+    .switch { grid-row: 2; grid-column: 1 / -1; justify-self: center; }
+    .cluster { gap: 10px; }
+    .key { min-width: 72px; height: 64px; padding: 14px 14px 6px; font-size: 16px; }
+    .anim { grid-template-columns: 104px minmax(0, 1fr); column-gap: 14px; padding: 14px; }
+    .anim-view { grid-row: 1; }
+    .film { grid-column: 1 / -1; gap: 6px; }
+    h3 { font-size: 25px; }
+    .section-head { margin-top: 56px; }
+  }
+  @media (max-width: 380px) {
+    .cluster { gap: 8px; }
+    .key { min-width: 60px; padding: 14px 10px 6px; font-size: 14px; letter-spacing: .06em; }
+    .key .legend { left: 7px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; }
+  }
+</style>
+
+<main class="wrap">
+  <header class="hero">
+    <p class="eyebrow"><span>Test animace · verze 2</span><span>kresleno perem</span><span>4 animace · 33 snímků</span></p>
+    <h1>Krysák <span class="name">Ratislav</span></h1>
+    <p class="lede">Krysí šermíř, tentokrát nakreslený jednou linkou perem: měkké oblé tvary, hlava splývá s tělem a za ním malovaná louka jako ze starého pohádkového seriálu. Každý snímek nakreslil program napsaný přímo pro něj — chůze, skok i útok. Vyzkoušej si ho.</p>
+  </header>
+
+  <section class="stage" aria-labelledby="play-title">
+    <h2 id="play-title" class="sr-only">Hratelné demo</h2>
+    <div class="screen" id="screen" tabindex="0">
+      <canvas id="game" role="img" aria-label="Herní scéna: krysák Ratislav na malované louce se dvěma cvičnými panáky"></canvas>
+      <div class="hud" aria-hidden="true">
+        <span class="pill" id="hud-anim">stoj · snímek 1/8</span>
+        <span class="pill">zásahy <b id="hud-hits">0</b></span>
+      </div>
+      <p class="tip" id="tip"><span class="fine">Klikni sem a hraj: ← → chůze · mezerník skok · X útok</span><span class="coarse">Hraj tlačítky pod obrázkem</span></p>
+      <div class="loading" id="loading">Načítám…</div>
+    </div>
+
+    <div class="pad" role="group" aria-label="Ovládání">
+      <div class="cluster">
+        <button class="key" type="button" data-act="left" aria-label="Doleva">
+          <span class="legend" aria-hidden="true">← A</span>
+          <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M15.5 4.5 7 12l8.5 7.5z" fill="currentColor" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="key" type="button" data-act="right" aria-label="Doprava">
+          <span class="legend" aria-hidden="true">→ D</span>
+          <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M8.5 4.5 17 12l-8.5 7.5z" fill="currentColor" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <label class="switch"><input type="checkbox" id="boxes"><span class="track"></span><span>Rámečky snímků</span></label>
+      <div class="cluster">
+        <button class="key" type="button" data-act="jump" aria-label="Skok"><span class="legend" aria-hidden="true">↑ W ␣</span>Skok</button>
+        <button class="key key--hot" type="button" data-act="attack" aria-label="Útok"><span class="legend" aria-hidden="true">X J K</span>Útok</button>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="anims-title">
+    <div class="section-head">
+      <h2 id="anims-title">Animace snímek po snímku</h2>
+      <p>Každý řádek je jedna animace. Klikni na políčko a animace se na tom snímku zastaví; klik na náhled ji zase rozběhne. Čísla pod políčky říkají, kolik milisekund snímek svítí.</p>
+    </div>
+    <div class="anims" id="anim-list"></div>
+  </section>
+
+  <section aria-labelledby="how-title">
+    <div class="section-head">
+      <h2 id="how-title">Jak krysák vznikl</h2>
+    </div>
+    <div class="how">
+      <figure class="sheet">
+        <img src="model_sheet.png" width="1200" height="720" loading="lazy" alt="Modelový list: Ratislav ve stoje z boku, šest výrazů obličeje (úsměv, zamračení, otevřená pusa, výkřik, údiv, mrknutí) a paleta deseti barev.">
+        <figcaption>Modelový list. Podle něj se hlídá, aby krysák vypadal ve všech snímcích stejně — stejné barvy, stejná linka, stejné délky rukou a nohou.</figcaption>
+      </figure>
+      <ol class="facts">
+        <li><b>Jedna linka kolem celé postavy.</b> Hlava, tělo i čumáček jsou jeden měkký tvar a kolem dokola vede jediná čára perem — na stinné straně o kousek silnější, jako když kreslíř přitlačí. Vnitřní čára je jen tam, kde něco opravdu leží před něčím: ruka před bříškem, noha před tělem. Kde ruka nebo ucho z těla vyrůstá, čára není.</li>
+        <li><b>Obličej ve správném pořadí.</b> Vousky rostou zpoza nosu, pusa je krátká čárka pod čumáčkem, bradička leží přes šálu a šála přes ramena. Žádné zuby. Při nápřahu schová meč za hlavu, aby čepel nikdy nešla přes obličej.</li>
+        <li><b>Nohy nekloužou, hra ho umí načíst.</b> Chodidlo na zemi jede přesně stejně rychle jako tráva pod ním; kontrola naměřila odchylku 0,000 px a ruce ani nohy nikdy nezmění délku. Všechny snímky leží na jednom obrázku s popisem (Aseprite JSON), který načte třeba Phaser nebo PixiJS — tahle stránka kreslí krysáka přímo z něj.</li>
+        <li><b>Malované pozadí, všechno zdarma.</b> Louka, kopce, stromy a mraky jsou malované bez obrysů a lehce rozmazané na papírové struktuře; linku má jen krysák a cvičný panák, takže vystoupí dopředu. Žádné placené nástroje ani generátor obrázků — vlastní program v Pythonu a bezplatné knihovny Shapely, PyMuPDF a Pillow.</li>
+      </ol>
+    </div>
+  </section>
+
+  <p class="foot">Ratislav je původní postava, žádná převzatá grafika. Kresba, animace, malované pozadí i tahle malá hra vznikly jako vlastní kód.</p>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  // ---- Sprite data, copied from ratislav_atlas@2x.json: 6 columns of 256-unit cells, stored at 2 px per unit
+  const CELL = 256, PX = 2, COLS = 6;
+  const ANCHOR_X = 118, ANCHOR_Y = 236;            // ground point under the hip
+  const ANIMS = {
+    idle:   { from: 0,  ms: [150, 150, 150, 150, 150, 150, 150, 150], loop: true,  name: 'Stoj',
+              note: 'Dýchá, jednou mrkne a cukne uchem. Tohle dělá, když se nic neděje.' },
+    walk:   { from: 8,  ms: [83, 83, 83, 83, 83, 83, 83, 83],         loop: true,  name: 'Chůze',
+              note: 'Chodidlo na zemi stojí, dokud se nezvedne; tráva pod ním jede přesně stejně rychle.' },
+    jump:   { from: 16, ms: [70, 90, 60, 70, 80, 130, 80, 90, 110],   loop: false, name: 'Skok',
+              note: 'Přikrčení, odraz, výstup, vrchol, pád a dopad s obláčkem prachu.' },
+    attack: { from: 25, ms: [80, 70, 110, 50, 60, 110, 80, 80],       loop: false, name: 'Útok',
+              note: 'Nápřah s mečem za hlavou, švih před hrudí, zásah, dokončení a návrat do postoje.' },
+  };
+  for (const a of Object.values(ANIMS)) a.total = a.ms.reduce((sum, v) => sum + v, 0) / 1000;
+  const WALK_STEP = 6;                             // ground travel per walk frame (one cycle = 48)
+  const WALK_SPEED = WALK_STEP / 0.083;            // ≈ 72.3 units/s, so the feet keep pace with the ground
+  const JUMP_LIFT = [0, 0, -13, -50, -72, -78, -42, 0, 0];   // height per jump frame, previews only
+  const SKY = '#9ECCE4', INK = '#2F2A35';
+  const BACK_GROUND = 340;                         // where the painted backdrop has its ground line
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const SRC = { atlas: 'ratislav_atlas@2x.png', backdrop: 'backdrop@2x.png', ground: 'ground@2x.png',
+                dummy: 'dummy@2x.png', dust: 'dust@2x.png' };
+  const img = {};
+  let ready = false;
+
+  function load(key) {
+    return new Promise((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => { img[key] = i; resolve(); };
+      i.onerror = () => reject(new Error(key));
+      i.src = SRC[key];
+    });
+  }
+
+  // ---- Drawing helpers. Everything is drawn in device pixels; s = pixels per world unit.
+  function prep(ctx) {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+  }
+
+  function drawFrame(ctx, index, ax, ay, s, flip) {
+    const sx = (index % COLS) * CELL * PX, sy = Math.floor(index / COLS) * CELL * PX;
+    const x0 = Math.round(ax), size = Math.round(CELL * s);
+    const left = x0 - Math.round(ANCHOR_X * s), top = Math.round(ay - ANCHOR_Y * s);
+    if (flip) { ctx.save(); ctx.setTransform(-1, 0, 0, 1, 2 * x0, 0); }   // mirror about the anchor
+    ctx.drawImage(img.atlas, sx, sy, CELL * PX, CELL * PX, left, top, size, size);
+    if (flip) ctx.restore();
+  }
+
+  function drawGround(ctx, scroll, groundY, s, width) {
+    // tile: 96 x 80 units, grass line 20 units below its top edge
+    const T = 96, y = Math.round((groundY - 20) * s), h = Math.round(80 * s);
+    const off = ((scroll % T) + T) % T;
+    for (let k = 0; ; k++) {
+      const u = k * T - off, x0 = Math.round(u * s), x1 = Math.round((u + T) * s);
+      if (x0 >= width) break;
+      if (x1 > 0) ctx.drawImage(img.ground, x0, y, x1 - x0, h);
+    }
+  }
+
+  function drawBackdrop(ctx, scroll, s, width, dy) {
+    const w = Math.round(1400 * s), h = Math.round(400 * s), y = Math.round(dy * s);
+    const x = -Math.round(scroll * s);
+    ctx.drawImage(img.backdrop, x, y, w, h);
+    if (x + w < width) ctx.drawImage(img.backdrop, x + w, y, w, h);
+  }
+
+  function drawShadow(ctx, x, gy, s, k) {
+    ctx.save();
+    ctx.globalAlpha = 0.16;
+    ctx.fillStyle = INK;
+    ctx.beginPath();
+    ctx.ellipse(x, gy + s, 26 * k * s, 4.5 * k * s, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawDummy(ctx, x, gy, s, deg) {
+    ctx.save();
+    ctx.translate(Math.round(x), Math.round(gy));
+    ctx.rotate(deg * Math.PI / 180);
+    ctx.drawImage(img.dummy, -40 * s, -104 * s, 80 * s, 110 * s);   // pivot = foot of the post
+    ctx.restore();
+  }
+
+  function drawDust(ctx, x, gy, s, k, dir) {
+    const grow = 0.75 + 0.45 * k;
+    ctx.save();
+    ctx.globalAlpha = 0.95 * (1 - k);
+    ctx.translate(x, gy);
+    ctx.scale(dir * grow, grow);
+    ctx.drawImage(img.dust, -40 * s, -34 * s, 80 * s, 40 * s);
+    ctx.restore();
+  }
+
+  function drawBurst(ctx, x, y, s, k) {
+    const r = (12 + 20 * k) * s;
+    ctx.save();
+    ctx.globalAlpha = 1 - k * k;
+    ctx.translate(x, y);
+    ctx.rotate(k * 0.7);
+    ctx.beginPath();
+    for (let i = 0; i < 16; i++) {
+      const rr = i % 2 ? r * 0.46 : r, a = i * Math.PI / 8;
+      ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr);
+    }
+    ctx.closePath();
+    ctx.fillStyle = '#FFE27A';
+    ctx.fill();
+    ctx.lineWidth = 2.5 * s;
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = INK;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function frameAt(ms, t) {
+    let acc = 0;
+    for (let i = 0; i < ms.length; i++) { acc += ms[i] / 1000; if (t < acc) return i; }
+    return ms.length - 1;
+  }
+
+  function fitCanvas(c) {
+    const r = c.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
+    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+  }
+
+  // ======================================================================= game
+  const VIEW_H = 330, GROUND = 280, WORLD_W = 2400;
+  const GRAVITY = 1900, JUMP_V = 600;              // apex ≈ 95 units, 0.32 s up
+  const screen = document.getElementById('screen');
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const boxes = document.getElementById('boxes');
+  const hudAnim = document.getElementById('hud-anim');
+  const hudHits = document.getElementById('hud-hits');
+  const tip = document.getElementById('tip');
+
+  const hero = { x: 300, y: GROUND, vy: 0, facing: 1, mode: 'idle', t: 0, dist: 0, hit: false };
+  const dummies = [{ x: 880, ang: 0, vel: 0 }, { x: 1720, ang: 0, vel: 0 }];
+  const effects = [];
+  const holders = { left: new Set(), right: new Set(), jump: new Set(), attack: new Set() };
+  const buffer = { jump: 0, attack: 0 };            // a press stays valid for a moment, so inputs never feel dropped
+  let camX = 0, camReady = false, shake = 0, hits = 0, stageVisible = true, hudText = '', shownHits = -1;
+
+  const held = (act) => holders[act].size > 0;
+
+  function enter(mode) {
+    hero.mode = mode;
+    hero.t = 0;
+    if (mode === 'walk') hero.dist = 0;
+    if (mode === 'attack') hero.hit = false;
+  }
+
+  function step(dx) {
+    const nx = Math.min(WORLD_W - 60, Math.max(60, hero.x + dx));
+    const moved = Math.abs(nx - hero.x);
+    hero.x = nx;
+    return moved;
+  }
+
+  function puff(x) {
+    effects.push({ kind: 'dust', x: x + 8, dir: 1, t: 0, life: 0.38 },
+                 { kind: 'dust', x: x - 8, dir: -1, t: 0, life: 0.38 });
+  }
+
+  function strike() {
+    for (const d of dummies) {
+      const dx = (d.x - hero.x) * hero.facing;
+      if (dx > -10 && dx < 122) {
+        d.vel += hero.facing * 300;
+        hits++;
+        effects.push({ kind: 'burst', x: d.x - hero.facing * 6, y: GROUND - 59, t: 0, life: 0.3 });
+        if (!reduceMotion) shake = 0.12;
+      }
+    }
+  }
+
+  function update(dt) {
+    const h = hero, dir = (held('right') ? 1 : 0) - (held('left') ? 1 : 0);
+    buffer.jump = Math.max(0, buffer.jump - dt);
+    buffer.attack = Math.max(0, buffer.attack - dt);
+    h.t += dt;
+
+    if (h.mode === 'idle' || h.mode === 'walk') {
+      if (buffer.attack) { buffer.attack = 0; enter('attack'); }
+      else if (buffer.jump) { buffer.jump = 0; enter('crouch'); }
+      else if (dir) {
+        h.facing = dir;
+        if (h.mode !== 'walk') enter('walk');
+        const moved = step(dir * WALK_SPEED * dt);
+        if (moved < 1e-3) enter('idle'); else h.dist += moved;
+      } else if (h.mode !== 'idle') enter('idle');
+    } else if (h.mode === 'crouch') {
+      if (dir) h.facing = dir;
+      if (h.t >= 0.16) { enter('air'); h.vy = -JUMP_V; puff(h.x); }
+    } else if (h.mode === 'air') {
+      if (dir) { h.facing = dir; step(dir * WALK_SPEED * dt); }
+      h.vy += GRAVITY * dt;
+      h.y += h.vy * dt;
+      if (h.y >= GROUND) { h.y = GROUND; h.vy = 0; enter('land'); }
+    } else if (h.mode === 'land') {
+      if (buffer.jump && h.t >= 0.06) { buffer.jump = 0; enter('crouch'); }
+      else if (h.t >= 0.2 || (dir && h.t >= 0.09)) enter(dir ? 'walk' : 'idle');
+    } else if (h.mode === 'attack') {
+      if (!h.hit && frameAt(ANIMS.attack.ms, h.t) >= 4) { h.hit = true; strike(); }
+      if (h.t >= ANIMS.attack.total) enter(dir ? 'walk' : 'idle');
+    }
+
+    for (const d of dummies) {                    // springy wobble, in degrees
+      d.vel += (-220 * d.ang - 7 * d.vel) * dt;
+      d.ang += d.vel * dt;
+    }
+    for (const e of effects) e.t += dt;
+    for (let i = effects.length - 1; i >= 0; i--) if (effects[i].t >= effects[i].life) effects.splice(i, 1);
+    shake = Math.max(0, shake - dt);
+  }
+
+  function heroFrame() {
+    const h = hero;
+    switch (h.mode) {
+      case 'walk': return ['walk', Math.floor(h.dist / WALK_STEP) % 8];
+      case 'crouch': return ['jump', h.t < 0.07 ? 0 : 1];
+      case 'air': {
+        if (h.t < 0.06) return ['jump', 2];
+        const v = h.vy / JUMP_V;
+        return ['jump', v < -0.45 ? 3 : v < -0.12 ? 4 : v < 0.3 ? 5 : 6];
+      }
+      case 'land': return ['jump', h.t < 0.09 ? 7 : 8];
+      case 'attack': return ['attack', frameAt(ANIMS.attack.ms, h.t)];
+      default: return ['idle', Math.floor(h.t / 0.15) % 8];
+    }
+  }
+
+  function drawBoxes(ax, ay, s, gy, W, anim, i) {
+    const size = CELL * s, top = ay - ANCHOR_Y * s;
+    const left = ax - (hero.facing > 0 ? ANCHOR_X : CELL - ANCHOR_X) * s;
+    ctx.save();
+    ctx.lineWidth = Math.max(1, 1.5 * s);
+    ctx.setLineDash([6 * s, 5 * s]);
+    ctx.strokeStyle = INK;
+    ctx.strokeRect(left, top, size, size);
+    ctx.strokeStyle = '#E04A2C';
+    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.lineWidth = Math.max(1.5, 2 * s);
+    ctx.beginPath();
+    ctx.arc(ax, ay, 5 * s, 0, Math.PI * 2);
+    ctx.moveTo(ax - 11 * s, ay); ctx.lineTo(ax + 11 * s, ay);
+    ctx.moveTo(ax, ay - 11 * s); ctx.lineTo(ax, ay + 11 * s);
+    ctx.stroke();
+    const label = anim + '_' + String(i).padStart(2, '0');
+    ctx.font = '500 ' + Math.round(11 * s) + 'px "DM Mono", ui-monospace, monospace';
+    const pad = 4 * s, tw = ctx.measureText(label).width;
+    ctx.fillStyle = INK;
+    ctx.fillRect(left, top, tw + 2 * pad, 17 * s);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, left + pad, top + 9 * s);
+    ctx.restore();
+  }
+
+  function renderGame(dt) {
+    const W = canvas.width, H = canvas.height;
+    if (W < 2 || H < 2) return;
+    const s = H / VIEW_H, viewW = W / s;
+    const maxCam = Math.max(0, WORLD_W - viewW);
+    const target = Math.min(maxCam, Math.max(0, hero.x + hero.facing * viewW * 0.12 - viewW / 2));
+    camX = camReady ? camX + (target - camX) * (1 - Math.exp(-dt * 4)) : target;
+    camReady = true;
+    const cx = camX + (shake > 0 ? (Math.random() * 2 - 1) * 3 : 0);
+
+    prep(ctx);
+    ctx.fillStyle = SKY;
+    ctx.fillRect(0, 0, W, H);
+    drawBackdrop(ctx, cx * 0.3, s, W, GROUND - BACK_GROUND);
+    drawGround(ctx, cx, GROUND, s, W);
+    const gy = GROUND * s;
+    for (const d of dummies) {
+      const px = (d.x - cx) * s;
+      if (px < -90 * s || px > W + 90 * s) continue;
+      drawShadow(ctx, px, gy, s, 0.6);
+      drawDummy(ctx, px, gy, s, d.ang);
+    }
+    const hx = (hero.x - cx) * s, hy = hero.y * s;
+    drawShadow(ctx, hx, gy, s, Math.max(0.4, 1 - (GROUND - hero.y) / 160));
+    const [anim, i] = heroFrame();
+    drawFrame(ctx, ANIMS[anim].from + i, hx, hy, s, hero.facing < 0);
+    for (const e of effects) {
+      const k = e.t / e.life, px = (e.x - cx) * s;
+      if (e.kind === 'dust') drawDust(ctx, px, gy, s, k, e.dir);
+      else drawBurst(ctx, px, e.y * s, s, k);
+    }
+    if (boxes.checked) drawBoxes(Math.round(hx), hy, s, gy, W, anim, i);
+
+    const text = ANIMS[anim].name.toLowerCase() + ' · snímek ' + (i + 1) + '/' + ANIMS[anim].ms.length;
+    if (text !== hudText) { hudText = text; hudAnim.textContent = text; }
+    if (hits !== shownHits) { shownHits = hits; hudHits.textContent = String(hits); }
+  }
+
+  // ---- input: keyboard, on-screen keycaps (touch + mouse), each action can be held by several sources
+  const KEYS = { ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
+                 ArrowUp: 'jump', KeyW: 'jump', Space: 'jump', KeyX: 'attack', KeyJ: 'attack', KeyK: 'attack' };
+  let tipHidden = false;
+
+  function press(act, src, fresh) {
+    holders[act].add(src);
+    if (fresh && act === 'jump') buffer.jump = 0.15;
+    if (fresh && act === 'attack') buffer.attack = 0.25;
+    if (!tipHidden) { tipHidden = true; tip.classList.add('is-hidden'); }
+  }
+  function release(act, src) { holders[act].delete(src); }
+  function releaseAll() {
+    for (const k in holders) holders[k].clear();
+    buffer.jump = buffer.attack = 0;
+  }
+
+  window.addEventListener('keydown', (e) => {
+    const act = KEYS[e.code];
+    if (!act || e.altKey || e.ctrlKey || e.metaKey || !stageVisible) return;
+    const t = e.target;
+    // let Space/arrows work normally on other controls (checkbox, filmstrip buttons)
+    if (t && t.closest && t.closest('input, select, textarea, [contenteditable], .anim-view, .thumb')) return;
+    e.preventDefault();
+    press(act, e.code, !e.repeat);
+  });
+  window.addEventListener('keyup', (e) => { const act = KEYS[e.code]; if (act) release(act, e.code); });
+  window.addEventListener('blur', releaseAll);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) releaseAll(); });
+  screen.addEventListener('pointerdown', () => screen.focus({ preventScroll: true }));
+
+  const keyEls = Array.from(document.querySelectorAll('.key'));
+  for (const btn of keyEls) {
+    const act = btn.dataset.act;
+    btn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      try { btn.setPointerCapture(e.pointerId); } catch (_) { /* pointer already gone */ }
+      press(act, 'p' + e.pointerId, true);
+    });
+    const up = (e) => release(act, 'p' + e.pointerId);
+    btn.addEventListener('pointerup', up);
+    btn.addEventListener('pointercancel', up);
+    btn.addEventListener('lostpointercapture', up);
+    btn.addEventListener('contextmenu', (e) => e.preventDefault());
+    btn.addEventListener('click', (e) => {          // Enter on a focused keycap
+      if (e.detail !== 0) return;
+      press(act, 'enter', true);
+      setTimeout(() => release(act, 'enter'), act === 'left' || act === 'right' ? 260 : 120);
+    });
+  }
+  function syncKeys() {
+    for (const b of keyEls) {
+      const down = held(b.dataset.act);
+      if (down !== b._down) { b._down = down; b.classList.toggle('is-down', down); }
+    }
+  }
+
+  // ================================================================== previews
+  const PV = { h: 300, ground: 272, x: 112, dummyX: 216 };
+  const CROP = { x: 14, y: 46, size: 210 };          // the part of a cell shown in a filmstrip square
+  const REST_FRAME = { idle: 0, walk: 2, jump: 5, attack: 4 };
+  const BACK_X = { idle: 40, walk: 330, jump: 640, attack: 930 };
+  const previews = [];
+
+  function thumbPos(index) {
+    const span = COLS * CELL - CROP.size;
+    const x = ((index % COLS) * CELL + CROP.x) / span * 100;
+    const y = (Math.floor(index / COLS) * CELL + CROP.y) / span * 100;
+    return x.toFixed(3) + '% ' + y.toFixed(3) + '%';
+  }
+
+  function buildPreviews() {
+    const list = document.getElementById('anim-list');
+    for (const [key, a] of Object.entries(ANIMS)) {
+      const n = a.ms.length, lo = Math.min(...a.ms), hi = Math.max(...a.ms);
+      const timing = lo === hi ? lo + ' ms na snímek' : lo + '–' + hi + ' ms na snímek';
+      const art = document.createElement('article');
+      art.className = 'anim';
+      art.innerHTML =
+        '<button class="anim-view" type="button" aria-label="' + a.name + ': přehrát nebo zastavit">' +
+          '<canvas width="300" height="352"></canvas>' +
+          '<span class="play" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M8 5.5v13l10-6.5z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>' +
+        '</button>' +
+        '<div class="anim-head">' +
+          '<div class="anim-title"><h3>' + a.name + '</h3><code class="tag">' + key + '</code></div>' +
+          '<div class="chips"><span class="chip">' + n + ' snímků</span><span class="chip">' + timing +
+            '</span><span class="chip">' + (a.loop ? 'smyčka' : 'jednou') + '</span></div>' +
+          '<p class="anim-note">' + a.note + '</p>' +
+        '</div>' +
+        '<ol class="film" style="--n:' + n + '">' +
+          a.ms.map((ms, i) =>
+            '<li><button class="thumb" type="button" aria-label="Snímek ' + (i + 1) + ', ' + ms + ' ms" style="background-position:' +
+            thumbPos(a.from + i) + '"></button><span class="ms">' + ms + '</span></li>').join('') +
+        '</ol>';
+      list.appendChild(art);
+
+      const canvasEl = art.querySelector('canvas');
+      const p = { key, a, art, canvas: canvasEl, ctx: canvasEl.getContext('2d'), items: Array.from(art.querySelectorAll('.film li')),
+                  frame: 0, acc: 0, playing: !reduceMotion, visible: true, dirty: true, dummyAng: 0, dummyVel: 0 };
+      previews.push(p);
+      setPreviewFrame(p, reduceMotion ? REST_FRAME[key] : 0);
+      art.classList.toggle('is-paused', !p.playing);
+
+      art.querySelector('.anim-view').addEventListener('click', () => {
+        p.playing = !p.playing;
+        p.acc = 0;
+        art.classList.toggle('is-paused', !p.playing);
+      });
+      p.items.forEach((li, i) => li.querySelector('.thumb').addEventListener('click', () => {
+        p.playing = false;
+        p.acc = 0;
+        art.classList.add('is-paused');
+        setPreviewFrame(p, i);
+      }));
+    }
+  }
+
+  function setPreviewFrame(p, f) {
+    p.items[p.frame].classList.remove('is-current');
+    p.frame = f;
+    p.items[f].classList.add('is-current');
+    p.dirty = true;
+    if (p.key === 'attack' && f === 4 && p.playing) p.dummyVel += 300;
+  }
+
+  function drawPreview(p) {
+    const c = p.canvas, g = p.ctx;
+    if (c.width < 2) return;
+    const s = c.height / PV.h, gy = PV.ground * s;
+    prep(g);
+    g.fillStyle = SKY;
+    g.fillRect(0, 0, c.width, c.height);
+    drawBackdrop(g, BACK_X[p.key], s, c.width, PV.ground - BACK_GROUND);
+    drawGround(g, p.key === 'walk' ? p.frame * WALK_STEP : 0, PV.ground, s, c.width);
+    if (p.key === 'attack') {
+      drawShadow(g, PV.dummyX * s, gy, s, 0.6);
+      drawDummy(g, PV.dummyX * s, gy, s, p.dummyAng);
+    }
+    const lift = p.key === 'jump' ? JUMP_LIFT[p.frame] : 0;
+    drawShadow(g, PV.x * s, gy, s, Math.max(0.4, 1 + lift / 160));
+    drawFrame(g, p.a.from + p.frame, PV.x * s, (PV.ground + lift) * s, s, false);
+  }
+
+  function tickPreview(p, dt) {
+    if (p.key === 'attack' && (Math.abs(p.dummyAng) > 0.05 || Math.abs(p.dummyVel) > 0.5)) {
+      p.dummyVel += (-220 * p.dummyAng - 7 * p.dummyVel) * dt;
+      p.dummyAng += p.dummyVel * dt;
+      p.dirty = true;
+    }
+    if (p.playing) {
+      p.acc += dt * 1000;
+      for (;;) {
+        const last = p.frame === p.a.ms.length - 1;
+        const dur = p.a.ms[p.frame] + (!p.a.loop && last ? 450 : 0);   // one-shot animations rest before replaying
+        if (p.acc < dur) break;
+        p.acc -= dur;
+        setPreviewFrame(p, (p.frame + 1) % p.a.ms.length);
+      }
+    }
+    if (p.dirty && p.visible) { drawPreview(p); p.dirty = false; }
+  }
+
+  // ===================================================================== start
+  buildPreviews();
+
+  const sizes = new ResizeObserver((entries) => {
+    for (const e of entries) {
+      fitCanvas(e.target);
+      const p = previews.find((q) => q.canvas === e.target);
+      if (p) p.dirty = true;
+    }
+  });
+  sizes.observe(canvas);
+  for (const p of previews) sizes.observe(p.canvas);
+
+  const seen = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.target === screen) { stageVisible = e.isIntersecting; if (!stageVisible) releaseAll(); continue; }
+      const p = previews.find((q) => q.art === e.target);
+      if (p) { p.visible = e.isIntersecting; if (p.visible) p.dirty = true; }
+    }
+  }, { threshold: 0.2 });
+  seen.observe(screen);
+  for (const p of previews) seen.observe(p.art);
+
+  let lastTime = performance.now();
+  function loop(now) {
+    const dt = Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+    lastTime = now;
+    if (ready) {
+      if (stageVisible) { update(dt); renderGame(dt); }
+      for (const p of previews) tickPreview(p, dt);
+    }
+    syncKeys();
+    requestAnimationFrame(loop);
+  }
+
+  Promise.all(Object.keys(SRC).map(load)).then(() => {
+    ready = true;
+    document.getElementById('loading').remove();
+  }).catch(() => {
+    document.getElementById('loading').textContent = 'Obrázky se nepodařilo načíst.';
+  });
+  requestAnimationFrame(loop);
+})();
+</script>
