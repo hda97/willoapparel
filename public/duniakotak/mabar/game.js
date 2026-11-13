@@ -3733,21 +3733,38 @@ document.addEventListener('click', e => {
   tampilNgobrol(n, teks); bunyi('klik');
 });
 // ---------- pindah dusun lewat terminal bus ----------
-// pilih dusun tujuan bus (3 dusun sejak 6 Nov 2026)
+// Kartu dusun khas Dunia Kotak (Huda 14 Nov 2026: "icon desa buat lebih menarik khas dunia kotak, ui-nya juga"):
+// ikon piksel 12x12 tiap dusun (pemandangan + musimnya), kartu balok bergaris tinta. Segara tampil terkunci sampai dibuka.
+const PAL_DSN = {K: '#2a2218', B: '#5ab4ff', b: '#2f7fd0', W: '#ffffff', w: '#c9d2de', H: '#3aa860', h: '#24733f', Y: '#f2c14a', A: '#e2b955', L: '#fff1b8',
+  E: '#e04848', C: '#8a5a3c', G: '#c8c6c0', g: '#6c6f74', M: '#ff9fc2', m: '#e0679a', S: '#bfe4ff', s: '#9fb4c8', F: '#e8742a', T: '#7cc35a'};
+const IKON_DSN = {
+  wetan: ['ssBsssBsssBs', 'sBsssBsssBss', 'ssssEEEsssss', 'sssEEEEEssBs', 'ssBLLLLLssss', 'sssLCLLLsBss', 'HHHLCLLLHHHH', 'YHYHYHYHYHYH', 'HhHhHhHhHhHh', 'YHYHYHYHYHYH', 'bBbBbBbBbBbB', 'hhhhhhhhhhhh'],
+  kulon: ['SSSSSSSSSSSS', 'SSSSSMMMSSSS', 'SSSSMMmMMSSS', 'SSSMMMMMmMSS', 'SSSSMmMMMSSS', 'SSSSSSCSSSHH', 'SSSHHHCHHHHT', 'SHHTTTTTTHHH', 'HTTHHHHHHTTH', 'TTHHTTTTHHTT', 'HHTTHHHHTTHH', 'hhhhhhhhhhhh'],
+  curug: ['SSSSSSWSSSSS', 'SSSSSWWWSSWS', 'SWSSWWWWWSSS', 'SSSWWgWWgWSS', 'SSWggBggggWS', 'SWgggBgggggW', 'WgggBBgggggg', 'gggggBgggggg', 'gggggBBggggg', 'WWWWBBBBWWWW', 'WwWWWBWWWwWW', 'wwwwwwwwwwww'],
+  tlaga: ['LLLLLLLLLLLL', 'LFFFLLLLLFLL', 'FFEFFLLLLLLL', 'FFFFFLLEELLL', 'LFEFLLLEEEEL', 'LLCLLLLLCLLL', 'AACAAAAAACAA', 'ABBBBBBBBBBA', 'BBBCCCCBBBBB', 'BBBBCCBBBbBB', 'BbBBBBBBBBBB', 'AAAAAAAAAAAA'],
+  segara: ['SSSSSSSSSYYS', 'SSGGSSSSYYYY', 'SSGBSGGGSYYS', 'SSGGSGBGSSSS', 'GGGBSGGGSGGS', 'GBGGSGBGSGBS', 'GGGBSGGGSGGS', 'GBGGgGBGgGBg', 'AAAAAAAAAAAA', 'BBWBBBBBWBBB', 'BBBBBbBBBBBB', 'bbbbbbbbbbbb']};
+const KET_DSN = {wetan: ['Sawah', 'Musim Hujan', '#cfe8ff'], kulon: ['Bukit teh', 'Musim Semi', '#ffe0ec'], curug: ['Gunung & curug', 'Musim Salju', '#e8f1fa'], tlaga: ['Tepi danau', 'Musim Gugur', '#ffe6c4'], segara: ['Kota teluk', 'Musim Panas', '#d6f0ff']};
+const svgPiksel = (g, pal) => { let r = ''; g.forEach((row, y) => [...row].forEach((c, x) => { if (c !== '.') r += `<rect x="${x}" y="${y}" width="1.04" height="1.04" fill="${pal[c]}"/>`; })); return `<svg viewBox="0 0 ${g[0].length} ${g.length}" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`; };
+const IKON_BUS = ['............', '.EEEEEEEEEE.', 'EEEEEEEEEEEE', 'EBBWBBWBBWBE', 'EBBWBBWBBWBE', 'EEEEEEEEEEEE', 'EYEEEEEEEEYE', 'EEEEEEEEEEEE', '.KKK....KKK.', '.KgK....KgK.', '..K......K..', '............'];
+const IKON_GEMBOK = ['....gggg....', '...g....g...', '...g....g...', '...g....g...', '..YYYYYYYY..', '..YAAAAAAY..', '..YAAKKAAY..', '..YAAKKAAY..', '..YAAAAAAY..', '..YYYYYYYY..', '............', '............'];
 function pilihDusun() {
   let p = $('pilihDusun');
   if (!p) {
-    p = document.createElement('div'); p.id = 'pilihDusun';
-    p.style.cssText = 'position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(10,12,20,.45)';
-    p.innerHTML = `<div style="background:#fffaf0;border-radius:18px;padding:16px 16px 12px;min-width:250px;max-width:86vw;font:600 15px Montserrat,sans-serif;color:#2a2a2a;box-shadow:0 10px 30px rgba(0,0,0,.3)">
-      <div style="font-weight:900;font-size:17px;margin-bottom:4px">🚌 Naik bus ke dusun mana?</div><div class="tiketBus" style="font-size:12px;color:#7a6a4a;margin-bottom:6px"></div>
-      ${Object.entries(NAMA_DUSUN).map(([k, n]) => `<button data-d="${k}" style="display:block;width:100%;margin:6px 0;padding:11px 12px;border-radius:12px;border:2px solid #cbbd9e;background:#fff;color:#2a2a2a;font:700 15px Montserrat,sans-serif;text-align:left;cursor:pointer">${{wetan: '🌾', kulon: '🍃', curug: '💦', tlaga: '🛶', segara: '🏙️'}[k]} Dusun ${n}<span class="ini" style="float:right;color:#2a9a5a;font-size:12px"></span></button>`).join('')}
-      <button data-d="" style="display:block;width:100%;margin-top:8px;padding:9px;border:0;background:none;font:700 14px Montserrat,sans-serif;color:#777;cursor:pointer">Batal</button></div>`;
-    p.onclick = e => { const b = e.target.closest('button'); if (e.target === p || (b && !b.dataset.d)) { p.hidden = true; return; } if (b && b.dataset.d && b.dataset.d !== DI) { p.hidden = true; naikBus(b.dataset.d); } };
+    p = document.createElement('div'); p.id = 'pilihDusun'; p.className = 'dsnLatar';
+    const semua = ['wetan', 'kulon', 'curug', 'tlaga', 'segara'];
+    p.innerHTML = `<div class="dsnPanel"><div class="dsnJudul"><i class="dsnBus">${svgPiksel(IKON_BUS, PAL_DSN)}</i><b>Naik bus ke dusun mana?</b><button class="dsnTutup" data-d="" aria-label="Tutup">✕</button></div>
+      <div class="tiketBus"></div><div class="dsnDaftar">${semua.map(k => `<button class="dsnKartu" data-d="${k}" style="--dsn:${KET_DSN[k][2]}">
+        <span class="dsnIkon">${svgPiksel(IKON_DSN[k], PAL_DSN)}<span class="dsnKunci">${svgPiksel(IKON_GEMBOK, PAL_DSN)}</span></span>
+        <b>Kotak ${k[0].toUpperCase() + k.slice(1)}</b><small>${KET_DSN[k][0]}</small><em>${KET_DSN[k][1]}</em><span class="dsnIni"></span></button>`).join('')}</div></div>`;
+    p.onclick = e => { const b = e.target.closest('button'); if (e.target === p || (b && !b.dataset.d)) { p.hidden = true; return; }
+      if (b && b.classList.contains('terkunci')) { toast(`🔒 Dusun Kotak Segara dibuka setelah ada warga No. ${AWAL_SEGARA + 1}. Ajak temanmu daftar!`, 3000); return; }
+      if (b && b.dataset.d && b.dataset.d !== DI) { p.hidden = true; naikBus(b.dataset.d); } };
     document.body.appendChild(p);
   }
-  p.querySelectorAll('button[data-d]').forEach(b => { const s = b.querySelector('.ini'); if (s) s.textContent = b.dataset.d === DI ? 'kamu di sini' : ''; });
-  p.querySelector('.tiketBus').textContent = teksTiket().trim() || 'Jalan kaki lewat 🛣️ Gapura gratis.';
+  p.querySelectorAll('.dsnKartu').forEach(b => { const k = b.dataset.d, kunci = !NAMA_DUSUN[k], ini = k === DI;
+    b.classList.toggle('terkunci', kunci); b.classList.toggle('ini', ini);
+    b.querySelector('.dsnIni').textContent = ini ? 'KAMU DI SINI' : kunci ? `BUKA DI NO. ${AWAL_SEGARA + 1}` : ''; });
+  p.querySelector('.tiketBus').textContent = teksTiket().trim() || 'Jalan kaki lewat Gapura gratis.';
   p.hidden = false;
 }
 function pindahDusun(ke, no) {
