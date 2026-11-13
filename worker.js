@@ -2361,6 +2361,11 @@ export default {
       url.pathname = "/pesan/";
       return Response.redirect(url.toString(), 301);
     }
+    // Halaman "link di bio" Instagram (Huda 13 Nov 2026): /link, /links, /bio → /link/.
+    if (["/link", "/links", "/bio"].includes(pendek) && url.pathname !== "/link/") {
+      url.pathname = "/link/";
+      return Response.redirect(url.toString(), 301);
+    }
     // Landing game edukasi Dunia Kotak: /edukasi, /belajar, /duniakotak/belajar → /duniakotak/belajar/.
     if (["/edukasi", "/belajar", "/duniakotak/belajar"].includes(pendek) && url.pathname !== "/duniakotak/belajar/") {
       url.pathname = "/duniakotak/belajar/";
