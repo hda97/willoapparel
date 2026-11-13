@@ -20,7 +20,7 @@ import {curug, JALAN_CURUG, AWAL_CURUG} from './js/curug.js?v=20261111nav';
 import {tlaga, JALAN_TLAGA, AWAL_TLAGA} from './js/tlaga.js';
 import {segara, AWAL_SEGARA, kodeUnit} from './js/segara.js';
 import {buatNav, pecahRute} from './js/navigasi.js';
-import {pasangDesaGabung, LETAK} from './js/desaGabung.js';
+import {pasangDesaGabung, LETAK} from './js/desaGabung.js?v=20261111bus';
 
 const $ = id => document.getElementById(id);
 const VS = D.VS;
@@ -392,7 +392,7 @@ const arenaLari = () => fasumBangun.find(f => f.nama && f.nama.includes(NAMA_ARE
 const dekatGapuraCFD = me => { if (DI !== DUSUN_LARI) return false; const f = arenaLari(); if (!f) return false;
   return Math.abs(me.position.x - f.position.x) < 10.5 * VS && Math.abs(me.position.z - f.position.z) < 11 * VS && Math.abs(me.position.y - f.position.y) < 3 * VS; };
 // antar ke gerbang arena (naik bus dulu bila di dusun lain)
-function keArenaLari() { if (DI !== DUSUN_LARI) { if (confirm(`${NAMA_ARENA} ada di Dusun ${NAMA_DUSUN[DUSUN_LARI]}. Naik bus ke sana?`)) { const u = new URL(location.href); u.searchParams.set('dusun', DUSUN_LARI); u.searchParams.set('ke', 'pelari'); location.href = u.toString(); } return; } keTempat('pelari'); }
+function keArenaLari() { if (DI !== DUSUN_LARI) { if (confirm(`${NAMA_ARENA} ada di Dusun ${NAMA_DUSUN[DUSUN_LARI]}. Naik bus ke sana?` + teksTiket())) naikBus(DUSUN_LARI, 'pelari'); return; } keTempat('pelari'); }
 // ---------- Sirkuit Reli Kotak (Huda 10 Nov 2026: game mobil reli versi Dunia Kotak) ----------
 // Lahan sendiri di depan kaki gunung Dusun Kotak Curug (aset F.sirkuitReli, dipasang curug.js, gerbang menghadap jalan).
 // Warga yang masuk area sirkuit dapat tombol 🏁 Reli → game reli terpisah /duniakotak/reli/.
@@ -400,7 +400,7 @@ const DUSUN_RELI = 'curug', NAMA_SIRKUIT = 'Sirkuit Reli Kotak';
 const sirkuitReli = () => fasumBangun.find(f => f.nama && f.nama.includes(NAMA_SIRKUIT));
 const dekatReli = me => { if (DI !== DUSUN_RELI) return false; const f = sirkuitReli(); if (!f) return false;
   return Math.abs(me.position.x - f.position.x) < 10.5 * VS && Math.abs(me.position.z - f.position.z) < 11 * VS && Math.abs(me.position.y - f.position.y) < 3 * VS; };
-function keSirkuitReli() { if (DI !== DUSUN_RELI) { if (confirm(`${NAMA_SIRKUIT} ada di Dusun ${NAMA_DUSUN[DUSUN_RELI]}. Naik bus ke sana?`)) { const u = new URL(location.href); u.searchParams.set('dusun', DUSUN_RELI); u.searchParams.set('ke', 'reli'); location.href = u.toString(); } return; } keTempat('reli'); }
+function keSirkuitReli() { if (DI !== DUSUN_RELI) { if (confirm(`${NAMA_SIRKUIT} ada di Dusun ${NAMA_DUSUN[DUSUN_RELI]}. Naik bus ke sana?` + teksTiket())) naikBus(DUSUN_RELI, 'reli'); return; } keTempat('reli'); }
 function ikutReli() { bunyi('masuk'); toast('🏁 Pakai helm dulu, menuju garis start…', 1500); setTimeout(() => { location.href = '/duniakotak/reli/?dari=desa'; }, 500); }
 // ---------- Dealer Kendaraan & kendaraan warga (Huda 11 Nov 2026) ----------
 // Dealer di Dusun Kotak Curug (aset F.dealer, sebelah Sirkuit Reli). Sepeda, motor & mobil dibeli pakai KOIN (harga = KENDARAAN
@@ -420,7 +420,7 @@ const KEND = {
 const dealerKend = () => fasumBangun.find(f => f.nama && f.nama.includes(NAMA_DEALER));
 const dekatDealer = me => { if (DI !== DUSUN_DEALER) return false; const f = dealerKend(); if (!f) return false;
   return Math.abs(me.position.x - f.position.x) < 10.5 * VS && Math.abs(me.position.z - f.position.z) < 9 * VS; };
-function keDealer() { if (DI !== DUSUN_DEALER) { if (confirm(`${NAMA_DEALER} ada di Dusun ${NAMA_DUSUN[DUSUN_DEALER]}. Naik bus ke sana?`)) { const u = new URL(location.href); u.searchParams.set('dusun', DUSUN_DEALER); u.searchParams.set('ke', 'dealer'); location.href = u.toString(); } return; } keTempat('dealer'); }
+function keDealer() { if (DI !== DUSUN_DEALER) { if (confirm(`${NAMA_DEALER} ada di Dusun ${NAMA_DUSUN[DUSUN_DEALER]}. Naik bus ke sana?` + teksTiket())) naikBus(DUSUN_DEALER, 'dealer'); return; } keTempat('dealer'); }
 const kendSaya = () => { const K = S.hias && S.hias.kendaraan, k = K && Array.isArray(K.g) && K.g[K.p]; return k && KEND[k.m] ? k.m + ':' + (k.w | 0) : ''; };
 const kendKavling = n => S.saya && n === S.saya.no ? kendSaya() : (HS[n] && HS[n].k) || '';
 function modelKend(k, no) { const [m, w] = k.split(':'); const o = buatMobil(m, (WARNA_KENDARAAN[w | 0] || WARNA_KENDARAAN[0])[1], no); o.scale.setScalar(M_KEND); return o; }
@@ -441,6 +441,36 @@ function naikkan(obj, k, no) {
   obj.userData.naik = {k, v, angkat, badan, pose: {legL: s.kaki, legR: s.kaki, armL: s.tangan, armR: s.tangan, armLz: .12, armRz: -.12}};
 }
 function turunkan(obj) { const n = obj.userData.naik; if (!n) return; n.badan.forEach(c => { c.position.y -= n.angkat; }); obj.remove(n.v); obj.userData.naik = null; }
+// ---------- Nebeng (Huda 13 Nov 2026: "mobil bisa dinaiki berdua"): warga lain ikut duduk di kursi sebelah sopir ----------
+// Sopir tetap menyetir seperti biasa; penumpang menempel di kursi sebelah & ikut ke mana mobil pergi. Hanya mobil (bukan sepeda/motor).
+// Posisi penumpang dikirim dengan b = No. sopir, jadi semua warga melihatnya duduk di mobil yang sama.
+let NEBENG = 0;   // No. warga yang mobilnya sedang kutumpangi
+const mobilK = k => !!k && !['sepeda', 'motor'].includes(k.split(':')[0]) && !!KEND[k.split(':')[0]];
+const objWarga = no => S.saya && no === S.saya.no ? tokoh.saya : S.others.get(no)?.obj;
+const _kursi = new THREE.Vector3();
+function kursiSebelah(sopir) { const n = sopir && sopir.userData.naik; if (!n || !mobilK(n.k)) return null; const ku = n.v.userData.kursi; return _kursi.set(-2 * ku.x * M_KEND, 0, 0); }
+function dudukkan(obj, k) { if (obj.userData.nebeng || !mobilK(k)) return; const s = KEND[k.split(':')[0]], angkat = s.duduk[0] * M_KEND - 1.37, badan = obj.children.slice();
+  badan.forEach(c => { c.position.y += angkat; }); obj.userData.nebeng = {angkat, badan, pose: {legL: s.kaki, legR: s.kaki, armL: -.35, armR: -.35, armLz: .12, armRz: -.12}}; }
+function berdirikan(obj) { const n = obj.userData.nebeng; if (!n) return; n.badan.forEach(c => { c.position.y -= n.angkat; }); obj.userData.nebeng = null; }
+function tempelKursi(obj, sopir) { const off = kursiSebelah(sopir); if (!off) return false; sopir.updateMatrixWorld(); obj.position.copy(sopir.localToWorld(off)); obj.rotation.copy(sopir.rotation); return true; }
+function mobilDekat(me) {   // mobil warga lain yang sedang disetir di dekatku & kursi sebelahnya kosong
+  if (!me || S.tamu || NAIK || NEBENG || TM.naik || I.gedung) return 0;
+  for (const [no, o] of S.others) { if (!o.naikK || !mobilK(o.naikK) || o.b) continue;
+    if ([...S.others.values()].some(x => x.b === no)) continue;
+    if (o.obj.position.distanceTo(me.position) < 4.5 * VS) return no; }
+  return 0;
+}
+function naikNebeng() {
+  const no = mobilDekat(tokoh.saya), o = no && S.others.get(no); if (!o) return;
+  NEBENG = no; gerak.tujuan = null; dudukkan(tokoh.saya, o.naikK); tempelKursi(tokoh.saya, o.obj); kirimPos(true);
+  bunyi('masuk'); toast(`${KEND[o.naikK.split(':')[0]].ikon} Ikut naik mobil @${o.ig}! Duduk manis, sopir yang nyetir. Tekan ⬇ Turun kapan saja.`, 3500);
+}
+function turunNebeng(alasan) {
+  if (!NEBENG) return; const sopir = objWarga(NEBENG); NEBENG = 0; const me = tokoh.saya; berdirikan(me);
+  const off = sopir && kursiSebelah(sopir); if (off) { const t = off.clone(); t.x += Math.sign(t.x || -1) * 1.6 * VS; sopir.updateMatrixWorld(); const w = sopir.localToWorld(t); if (bebas(w.x, w.z)) { me.position.x = w.x; me.position.z = w.z; } }   // turun di samping pintu penumpang
+  me.rotation.x = me.rotation.z = 0; me.position.y = tanah(me.position.x, me.position.z, me.position.y);
+  kirimPos(true); bunyi('klik'); toast(alasan || '👋 Turun dari mobil. Makasih tumpangannya!', 2500);
+}
 // roda kendaraan yang dikendarai selalu menapak jalan: di tanjakan kendaraan miring & diangkat seperlunya (tidak tenggelam)
 function kendMenapak(obj) { const n = obj.userData.naik; if (!n) return; const m = n.k.split(':')[0], sb = ({sepeda: .55, motor: .7}[m] || 1.35) * M_KEND, p = obj.position;
   const hx = Math.sin(obj.rotation.y), hz = Math.cos(obj.rotation.y), yD = tanah(p.x + hx * sb, p.z + hz * sb, p.y), yB = tanah(p.x - hx * sb, p.z - hz * sb, p.y);
@@ -1446,7 +1476,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2'};
+const KABAR_LAMA = {nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   if (window.DK_APP) simpan(KABAR_LAMA.notif, '1');   // aplikasi Android belum bisa notifikasi web
@@ -2033,7 +2063,7 @@ function animSkill(dt, me) {
   // tombol skill menyala bila bisa dipakai
   const t = now | 0; if (t % 4 === 0 || !animSkill.t || now - animSkill.t > 300) { animSkill.t = now;
     // tombol hanya muncul saat skill bisa dipakai; joran sedang dipakai = tombol Mancing hilang
-    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sSuka: !!rumahTetangga(me), sLari: dekatGapuraCFD(me), sReli: dekatReli(me), sBangun: dekatProyek(me), sPasar: dekatPasar(me), sKafe: !!tokoDekat(me), sWahana: !!dekatHiburan(me), sJog: !!dekatTaman(me) && !TM.jog && !TM.jogOk && !S.tamu, sWillo: dekatTokoWillo(me), sDealer: dekatDealer(me), sNaik: dekatParkiranSaya(me), sTurun: !!NAIK, sLompat: !NAIK, sLift: !!(I.gedung && I.gedung.dekatLift(me.position.x, me.position.z))};
+    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sSuka: !!rumahTetangga(me), sLari: dekatGapuraCFD(me), sReli: dekatReli(me), sBangun: dekatProyek(me), sPasar: dekatPasar(me), sKafe: !!tokoDekat(me), sWahana: !!dekatHiburan(me), sJog: !!dekatTaman(me) && !TM.jog && !TM.jogOk && !S.tamu, sWillo: dekatTokoWillo(me), sDealer: dekatDealer(me), sNaik: dekatParkiranSaya(me), sNebeng: !!mobilDekat(me), sTurun: !!NAIK || !!NEBENG, sLompat: !NAIK && !NEBENG, sLift: !!(I.gedung && I.gedung.dekatLift(me.position.x, me.position.z))};
     for (const id in bisa) { const b = $(id); if (b.classList.contains('siap') !== bisa[id] || b.hidden === bisa[id]) { b.classList.toggle('siap', bisa[id]); b.hidden = !bisa[id]; } }
     if (air) misiMaju('sungai'); }
 }
@@ -2043,7 +2073,7 @@ function animSkill(dt, me) {
 // =====================================================================
 const tokoh = {};
 function buatAvatarObj(av) { const o = warga(av); o.traverse(m => { if (m.isMesh) m.castShadow = true; }); return o; }
-function jalanAnim(o, ph, amp, isRaka) { if (o.userData.naik) return wpose(o, o.userData.naik.pose); const p = {legL: Math.sin(ph) * amp, legR: -Math.sin(ph) * amp, armL: -Math.sin(ph) * amp * .8, armR: Math.sin(ph) * amp * .8}; (isRaka ? rpose : wpose)(o, p); }
+function jalanAnim(o, ph, amp, isRaka) { if (o.userData.naik || o.userData.nebeng) return wpose(o, (o.userData.naik || o.userData.nebeng).pose); const p = {legL: Math.sin(ph) * amp, legR: -Math.sin(ph) * amp, armL: -Math.sin(ph) * amp * .8, armR: Math.sin(ph) * amp * .8}; (isRaka ? rpose : wpose)(o, p); }
 function gantiAvatarSaya() {
   const p = tokoh.saya.position.clone(), r = tokoh.saya.rotation.y; sc.remove(tokoh.saya);
   tokoh.saya = buatAvatarObj(avKerja(S.av)); tokoh.saya.position.copy(p); tokoh.saya.rotation.y = r; sc.add(tokoh.saya); if (NAIK) naikkan(tokoh.saya, kendSaya(), S.saya?.no);
@@ -2341,7 +2371,7 @@ function infoKumpul() {
 }
 function keKumpul() {
   const ki = sesiKini() || sesiBerikut(), tempat = ki.tempat;
-  if (DI !== 'wetan') { if (confirm(`${ki.nama} ada di ${ki.label} Dusun Kotak Wetan. Naik bus ke sana?`)) { const u = new URL(location.href); u.searchParams.set('dusun', 'wetan'); u.searchParams.set('ke', tempat); location.href = u.toString(); } return; }
+  if (DI !== 'wetan') { if (confirm(`${ki.nama} ada di ${ki.label} Dusun Kotak Wetan. Naik bus ke sana?` + teksTiket())) naikBus('wetan', tempat); return; }
   keTempat(tempat);
 }
 function keTempat(tempat) {
@@ -2415,7 +2445,7 @@ async function aksiWillo(data, pesan) {
 let tWillo = 0;
 async function bukaWillo(dari) {
   if (DI !== 'wetan' || !fasumBangun.some(b => b.toko)) {
-    if (confirm('Toko Willo Apparel ada di Dusun Kotak Wetan. Naik bus ke sana?')) { const u = new URL(location.href); u.searchParams.set('dusun', 'wetan'); u.searchParams.set('ke', 'tokowillo'); location.href = u.toString(); }
+    if (confirm('Toko Willo Apparel ada di Dusun Kotak Wetan. Naik bus ke sana?' + teksTiket())) naikBus('wetan', 'tokowillo');
     return;
   }
   if (dari === 'atur' && !dekatTokoWillo(tokoh.saya)) { $('panelAtur').hidden = true; keTempat('tokowillo'); return; }
@@ -2960,8 +2990,9 @@ function terima(q) {
   if (q.t === 'halo') { q.warga.forEach(tambahWarga); S.chat.dusun = []; q.chat.forEach(c => tambahChat('dusun', namaDesa(c), c.m)); hitungOnline(); }
   else if (q.t === 'masuk') { tambahWarga(q.w); hitungOnline(); tambahChat('sekitar', '', '@' + q.w.ig + ' masuk ke desa', 'sistem'); bunyi('masuk'); }
   else if (q.t === 'keluar') { const o = S.others.get(q.no); if (o) { sc.remove(o.obj); S.others.delete(q.no); } hitungOnline(); }
-  else if (q.t === 'p') { for (const [no, x, z, r, a, n] of q.d) { const o = S.others.get(no); if (o) { o.tx = x; o.tz = z; o.tr = r; o.a = a; o.akhir = performance.now();
-    const k = n && HS[no] && HS[no].k || ''; if (k !== (o.naikK || '')) { o.naikK = k; if (k) naikkan(o.obj, k, no); else turunkan(o.obj); } } } }
+  else if (q.t === 'p') { for (const [no, x, z, r, a, n, b] of q.d) { const o = S.others.get(no); if (o) { o.tx = x; o.tz = z; o.tr = r; o.a = a; o.akhir = performance.now();
+    const k = n && HS[no] && HS[no].k || ''; if (k !== (o.naikK || '')) { o.naikK = k; if (k) naikkan(o.obj, k, no); else turunkan(o.obj); }
+    if ((b || 0) !== (o.b || 0)) { o.b = b || 0; if (o.b) { const kd = o.b === S.saya?.no ? kendSaya() : (S.others.get(o.b)?.naikK || HS[o.b]?.k || ''); dudukkan(o.obj, kd); if (o.b === S.saya?.no) { toast(`🚗 @${o.ig} ikut naik di mobilmu!`, 3000); bunyi('masuk'); } } else { berdirikan(o.obj); o.obj.rotation.x = o.obj.rotation.z = 0; } } } } }
   else if (q.t === 'av') { const o = S.others.get(q.no); if (o) { const p = o.obj.position.clone(); sc.remove(o.obj); o.obj = buatAvatarObj(bersihAv(q.av)); o.obj.position.copy(p); sc.add(o.obj); o.naikK = ''; } }
   else if (q.t === 'k') { HS[q.no] = {...(HS[q.no] || {}), k: q.k || ''}; if (!q.k) delete HS[q.no].k; try { bangunUlangKavling(q.no); } catch (e) {} const o = S.others.get(q.no); if (o) o.naikK = ''; }
   else if (q.t === 'c') {
@@ -3084,7 +3115,7 @@ function kirimPos(paksa) {
   // hemat kuota Durable Objects (10 Nov 2026): maks 4 posisi/detik saat jalan, diam cukup tiap 10 detik
   if (!paksa && (now - kirimT < 250 || (k === posLama && now - kirimT < 10000))) return;
   kirimT = now; posLama = k;
-  S.ws.send(JSON.stringify({t: 'p', x: +p.x.toFixed(2), z: +p.z.toFixed(2), r: +tokoh.saya.rotation.y.toFixed(2), a: gerak.jalan ? 1 : 0, ...(NAIK ? {n: 1} : {})}));
+  S.ws.send(JSON.stringify({t: 'p', x: +p.x.toFixed(2), z: +p.z.toFixed(2), r: +tokoh.saya.rotation.y.toFixed(2), a: gerak.jalan ? 1 : 0, ...(NAIK ? {n: 1} : {}), ...(NEBENG ? {b: NEBENG} : {})}));
 }
 
 // =====================================================================
@@ -3295,7 +3326,7 @@ async function mulai() {
   if (!S.tamu && baca('dk_ingat') !== hariIni()) setTimeout(() => setelahPemula(ingatKoin), 45e3);
   onResize(); requestAnimationFrame(loop);
   $('chipTujuan').onclick = klikTujuan; tulisTujuan(); siapkanLangkah(); setTimeout(ambilHadir, 2500); setInterval(bantuPemula, 1000);
-  DG = pasangDesaGabung({DI, NAMA: NAMA_DUSUN, VS, tokoh, tanah, toast, bunyi, kend: kendBawa, pindahBus: d => { const u = new URL(location.href); u.searchParams.set('dusun', d); u.searchParams.delete('ke'); location.href = u.toString(); }});
+  DG = pasangDesaGabung({DI, NAMA: NAMA_DUSUN, VS, tokoh, tanah, toast, bunyi, kend: kendBawa, pindahBus: d => { if (confirm(`Naik bus ke Dusun ${NAMA_DUSUN[d]}?` + teksTiket())) naikBus(d); }});
   { const ke = new URLSearchParams(location.search).get('ke'); if (ke === 'gapura') DG.tiba(); else if (ke) setTimeout(() => keTempat(ke), 1500); }
   bawaKendaraan();
   $('chipKumpul').onclick = keKumpul;
@@ -3349,7 +3380,7 @@ function aturHUD() {
   $('bDusun').onclick = pilihDusun;
   musikSiap();
   // pointerdown (bukan click): click tidak terpicu di HP saat jari lain masih menahan joystick -> bisa lompat sambil lari
-  $('sLari').onclick = ikutLari; $('sReli').onclick = ikutReli; $('sBangun').onclick = ikutBangun; $('sPasar').onclick = bukaPasar; $('sKafe').onclick = bukaBelanja; $('sWahana').onclick = bukaWahana; $('sJog').onclick = mulaiJog; $('tutupWahana').onclick = () => { $('panelWahana').hidden = true; }; $('tutupBelanja').onclick = () => { $('panelBelanja').hidden = true; }; $('sWillo').onclick = () => bukaWillo('tombol'); $('sDealer').onclick = bukaDealer; $('sNaik').onclick = naikKendaraan; $('sTurun').onclick = turunKendaraan;
+  $('sLari').onclick = ikutLari; $('sReli').onclick = ikutReli; $('sBangun').onclick = ikutBangun; $('sPasar').onclick = bukaPasar; $('sKafe').onclick = bukaBelanja; $('sWahana').onclick = bukaWahana; $('sJog').onclick = mulaiJog; $('tutupWahana').onclick = () => { $('panelWahana').hidden = true; }; $('tutupBelanja').onclick = () => { $('panelBelanja').hidden = true; }; $('sWillo').onclick = () => bukaWillo('tombol'); $('sDealer').onclick = bukaDealer; $('sNaik').onclick = naikKendaraan; $('sTurun').onclick = () => NEBENG ? turunNebeng() : turunKendaraan(); $('sNebeng').onclick = naikNebeng;
   $('bPasar').onclick = () => { $('panelAtur').hidden = true; bukaPasar(); }; $('tutupPasar').onclick = () => { $('panelPasar').hidden = true; };
   $('bWillo').onclick = () => bukaWillo('atur'); $('bDealer').onclick = bukaDealer; $('tutupWillo').onclick = () => { $('panelWillo').hidden = true; };
   $('sLift').onclick = () => { const d = I.gedung && I.gedung.dekatLift(tokoh.saya.position.x, tokoh.saya.position.z); if (d) bukaLift(d); };
@@ -3444,7 +3475,7 @@ const tanah = (x, z, ref) => {
   return best;
 };
 const lompat = {vy: 0, diTanah: true};
-function mulaiLompat() { if (!lompat.diTanah || !tokoh.saya || NAIK) return;   // naik kendaraan tidak bisa lompat
+function mulaiLompat() { if (!lompat.diTanah || !tokoh.saya || NAIK || NEBENG) return;   // naik kendaraan tidak bisa lompat
   lompat.vy = gerak.lari && gerak.jalan ? 38 : 34; lompat.diTanah = false; bunyi('langkah'); misiMaju('lompat'); if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify({t: 'e', e: 'lompat'})); }   // satuan dunia per detik (avatar setinggi pintu ≈ 4,1)
 let tAkhir = performance.now(), tKav = 0, ph = 0, camY = 0;
 const bebas = (x, z) => {
@@ -3487,6 +3518,7 @@ function loop(t) {
   if (vx || vz) { const sn = Math.sin(yawNow), cs = Math.cos(yawNow); const ax = vx * cs + vz * sn, az = -vx * sn + vz * cs; vx = ax; vz = az; }
   if (vx || vz) { gerak.tujuan = null; rute.antar = false; }
   else if (gerak.tujuan) { const dx = gerak.tujuan.x - me.position.x, dz = gerak.tujuan.z - me.position.z, l = Math.hypot(dx, dz); if (l < 1.5) gerak.tujuan = null; else { vx = dx / l; vz = dz / l; } }
+  if (NEBENG) { vx = vz = 0; gerak.tujuan = null; }
   if (NAIK && lalin && lalin.jalurDi && (vx || vz)) bantuLajur(me, vx, vz, (ax, az) => { vx = ax; vz = az; });
   const l = Math.hypot(vx, vz); gerak.jalan = l > .15;
   if (gerak.jalan) {
@@ -3516,6 +3548,9 @@ function loop(t) {
     let dr = o.tr - o.obj.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); o.obj.rotation.y += dr * a; if (o.obj.userData.naik) kendMenapak(o.obj);
     const jalan = o.a && performance.now() - (o.akhir || 0) < 600; if (jalan) { o.ph += dt * 11; jalanAnim(o.obj, o.ph, .7); } else jalanAnim(o.obj, 0, 0);
   }
+  // penumpang nebeng ditempel ke kursi sebelah sopir SETELAH semua sopir bergerak (tidak tertinggal satu frame)
+  for (const o of S.others.values()) if (o.b) { const sp = objWarga(o.b); if (sp) tempelKursi(o.obj, sp); }
+  if (NEBENG) { const sp = objWarga(NEBENG); if (!sp || !tempelKursi(me, sp)) turunNebeng('🅿️ Sopir sudah turun, kamu ikut turun.'); else { jalanAnim(me, 0, 0); kirimPos(); } }
   // Raka menghadap pemain bila dekat, Oyen mengibas
   const dR = tokoh.raka.position.distanceTo(me.position);
   if (dR < 40) { const tr = Math.atan2(me.position.x - tokoh.raka.position.x, me.position.z - tokoh.raka.position.z); let dr = tr - tokoh.raka.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); tokoh.raka.rotation.y += dr * Math.min(1, dt * 4); }
@@ -3617,19 +3652,39 @@ function pilihDusun() {
     p = document.createElement('div'); p.id = 'pilihDusun';
     p.style.cssText = 'position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(10,12,20,.45)';
     p.innerHTML = `<div style="background:#fffaf0;border-radius:18px;padding:16px 16px 12px;min-width:250px;max-width:86vw;font:600 15px Montserrat,sans-serif;color:#2a2a2a;box-shadow:0 10px 30px rgba(0,0,0,.3)">
-      <div style="font-weight:900;font-size:17px;margin-bottom:10px">🚌 Naik bus ke dusun mana?</div>
-      ${Object.entries(NAMA_DUSUN).map(([k, n]) => `<button data-d="${k}" style="display:block;width:100%;margin:6px 0;padding:11px 12px;border-radius:12px;border:2px solid #cbbd9e;background:#fff;font:700 15px Montserrat,sans-serif;text-align:left;cursor:pointer">${{wetan: '🌾', kulon: '🍃', curug: '💦', tlaga: '🛶', segara: '🏙️'}[k]} Dusun ${n}<span class="ini" style="float:right;color:#2a9a5a;font-size:12px"></span></button>`).join('')}
+      <div style="font-weight:900;font-size:17px;margin-bottom:4px">🚌 Naik bus ke dusun mana?</div><div class="tiketBus" style="font-size:12px;color:#7a6a4a;margin-bottom:6px"></div>
+      ${Object.entries(NAMA_DUSUN).map(([k, n]) => `<button data-d="${k}" style="display:block;width:100%;margin:6px 0;padding:11px 12px;border-radius:12px;border:2px solid #cbbd9e;background:#fff;color:#2a2a2a;font:700 15px Montserrat,sans-serif;text-align:left;cursor:pointer">${{wetan: '🌾', kulon: '🍃', curug: '💦', tlaga: '🛶', segara: '🏙️'}[k]} Dusun ${n}<span class="ini" style="float:right;color:#2a9a5a;font-size:12px"></span></button>`).join('')}
       <button data-d="" style="display:block;width:100%;margin-top:8px;padding:9px;border:0;background:none;font:700 14px Montserrat,sans-serif;color:#777;cursor:pointer">Batal</button></div>`;
-    p.onclick = e => { const b = e.target.closest('button'); if (e.target === p || (b && !b.dataset.d)) { p.hidden = true; return; } if (b && b.dataset.d && b.dataset.d !== DI) { const u = new URL(location.href); u.searchParams.set('dusun', b.dataset.d); u.searchParams.delete('ke'); location.href = u.toString(); } };
+    p.onclick = e => { const b = e.target.closest('button'); if (e.target === p || (b && !b.dataset.d)) { p.hidden = true; return; } if (b && b.dataset.d && b.dataset.d !== DI) { p.hidden = true; naikBus(b.dataset.d); } };
     document.body.appendChild(p);
   }
   p.querySelectorAll('button[data-d]').forEach(b => { const s = b.querySelector('.ini'); if (s) s.textContent = b.dataset.d === DI ? 'kamu di sini' : ''; });
+  p.querySelector('.tiketBus').textContent = teksTiket().trim() || 'Jalan kaki lewat 🛣️ Gapura gratis.';
   p.hidden = false;
 }
 function pindahDusun(ke, no) {
   if (ke === DI) return;
-  if (!confirm(`Naik bus ke Dusun ${NAMA_DUSUN[ke]}?` + (no ? ` Rumah No. ${no} ada di sana.` : ''))) return;
-  const u = new URL(location.href); u.searchParams.set('dusun', ke); location.href = u.toString();
+  if (!confirm(`Naik bus ke Dusun ${NAMA_DUSUN[ke]}?` + (no ? ` Rumah No. ${no} ada di sana.` : '') + teksTiket())) return;
+  naikBus(ke);
+}
+// Tiket bus antardusun (Huda 11 Nov 2026): "naik kendaraan pribadi gratis, kendaraan umum bayar". Bus 5 koin sekali jalan;
+// koin kurang tetap boleh naik (gratis). Jalan kaki / kendaraan pribadi lewat 🛣️ Gapura tetap gratis. Koin dipotong di server (aksi bus).
+const TARIF_BUS = 5;
+function teksTiket() {
+  if (S.tamu || !S.saya) return '';
+  return (S.saya.koin || 0) >= TARIF_BUS ? ` Tiket bus ${TARIF_BUS} 🪙 (jalan kaki lewat Gapura gratis).` : ` Koinmu kurang dari ${TARIF_BUS}, kali ini naik bus gratis.`;
+}
+let busJalan = false;
+async function naikBus(ke, tempat) {
+  if (busJalan || ke === DI) return; busJalan = true;
+  const u = new URL(location.href); u.searchParams.set('dusun', ke); if (tempat) u.searchParams.set('ke', tempat); else u.searchParams.delete('ke');
+  if (!S.tamu && S.kunci) try {
+    const r = await Promise.race([api('bus', {kunci: S.kunci}), new Promise((_, j) => setTimeout(() => j(new Error('lama')), 3000))]);
+    if (r.koin != null) { S.saya.koin = r.koin; try { hitungOnline(); } catch (e) {} }
+    toast(r.bayar ? `🎫 Tiket bus ${r.bayar} 🪙 · sisa koinmu ${r.koin}` : '🎫 Koinmu kurang, kali ini naik bus gratis', 1500); bunyi('klik');
+    await new Promise(res => setTimeout(res, 900));
+  } catch (e) {}
+  location.href = u.toString();
 }
 // ---------- jejak warga asli: kapan terakhir main, tampil di depan rumahnya ----------
 const titikRumah = {position: new THREE.Vector3()};
@@ -3673,4 +3728,4 @@ var tegakSesi = false; try { localStorage.removeItem('dk_tegak'); } catch (e) {}
 $('tetapTegak').onclick = () => { tegakSesi = true; $('miring').hidden = true; };
 onResize();
 layarMasuk();
-window.__dk = {S, HS, belanja: () => bukaBelanja(), tokoDekat: () => tokoDekat(tokoh.saya), segara: () => ({I, tokoh, bukaLift, pindahZona}), peta: () => peta, voting: w => bukaVoting(w), wnpc: () => wnpc, avAcak: n => avAcak(n), proyek: aturProyek, iklan: siapIklan, tonton: tontonIklan, rectLot: (n, a, b, c, d) => rectLot(I.lots[n], a, b, c, d), mancing: () => skillMancing(), dekatAir: () => dekatAir(tokoh.saya), tulisDana, VT: v => { VT = v; tulisVoting(); $('panelVoting').hidden = false; }, segarKebun, kebunSiap: () => { kebunTahap = null; segarKebun(); }, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }, lalin: () => lalin, kend: {naikkan, turunkan, bukaDealer, DLR, set: v => { NAIK = v; }}};
+window.__dk = {S, HS, uji: {terima: q => terima(q), tambahWarga: w => tambahWarga(w), nebeng: () => NEBENG, naikNebeng: () => naikNebeng(), turunNebeng: () => turunNebeng()}, belanja: () => bukaBelanja(), tokoDekat: () => tokoDekat(tokoh.saya), segara: () => ({I, tokoh, bukaLift, pindahZona}), peta: () => peta, voting: w => bukaVoting(w), wnpc: () => wnpc, avAcak: n => avAcak(n), proyek: aturProyek, iklan: siapIklan, tonton: tontonIklan, rectLot: (n, a, b, c, d) => rectLot(I.lots[n], a, b, c, d), mancing: () => skillMancing(), dekatAir: () => dekatAir(tokoh.saya), tulisDana, VT: v => { VT = v; tulisVoting(); $('panelVoting').hidden = false; }, segarKebun, kebunSiap: () => { kebunTahap = null; segarKebun(); }, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }, lalin: () => lalin, kend: {naikkan, turunkan, bukaDealer, DLR, set: v => { NAIK = v; }}};

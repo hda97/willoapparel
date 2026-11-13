@@ -54,6 +54,14 @@ const FASUM_CALON = {
   damkar: { nama: "🚒 Stasiun Pemadam", aset: "damkar", dusun: "wetan", lahan: 14 },
   bandara: { nama: "✈️ Bandara", aset: "bandaraBesar", dusun: "tlaga", lahan: 2 },
 };
+// RENCANA BANDARA (Huda 13 Nov 2026; BELUM dibangun, tetap menunggu Bandara MENANG voting):
+// - "Bandara ada di setiap dusun, pesawat bisa terbang, warga bisa naik". Disetujui ("Oke"): bandara utama di Tlaga (lahan 2 di atas),
+//   empat dusun lain cukup landasan kecil di pinggir dusun yang TIDAK memakan lahan fasum.
+// - Pesawat penumpang besar milik desa = "Kotak Air" (model js/aset/pesawat.js, merek asli tidak dipakai): terbang antardusun,
+//   warga bisa naik (kendaraan umum, jadi bayar koin seperti bus/kereta; tarif ditanyakan ke Huda saat dibangun).
+// - "Pesawat pribadi ada": warga bisa punya pesawat kecil sendiri (dibeli koin seperti Dealer Kendaraan), terbang gratis
+//   (aturan Huda: kendaraan pribadi gratis, kendaraan umum bayar).
+const RENCANA_BANDARA = { utama: "tlaga", landasanKecil: ["wetan", "kulon", "curug", "segara"], pesawatDesa: "Kotak Air", pesawatPribadi: true };
 // CALON NANTI (Huda 13 Nov 2026: "Pasar desa juga", "Dibangun setelah itu"). BELUM aktif: semua tetap lewat voting.
 // Pindahkan ke FASUM_CALON + CALON_LANJUT (dan LOKASI_FASUM/ASET_CALON/CALON di game.js) setelah model 3D-nya dibuat
 // dan syaratnya terpenuhi. Kios Warga masuk setelah calon sekarang habis; Pasar & Dermaga setelah Segara buka (warga No. 861).
@@ -152,6 +160,7 @@ const KAOS_TUNGGU = 3 * 60e3, KAOS_LEMARI = 12;
 // di pekarangan rumah & bisa dikendarai keliling desa. Mobil di game Reli tetap GRATIS (Reli = misi harian), tidak lewat sini.
 // Disimpan di kolom hias: hias.kendaraan = { g: [{ m, w }], p: indeks dipakai / -1 }. Warna = indeks WARNA_KENDARAAN di game.js.
 const KENDARAAN = { sepeda: 150, motor: 400, sedan: 800, hatch: 900, jip: 1000, gt: 1200 };
+const TARIF_BUS = 5;   // tiket bus antardusun (koin); jalan kaki/kendaraan pribadi lewat gapura gratis
 const KENDARAAN_WARNA = 6;
 const KAOS_WARNA = ["#1d1d22", "#f4f4f4", "#3a7bd5", "#d0442f", "#2a9a5a", "#f2c14e", "#8a5ad8", "#e06a9a"];
 // tulisan sablon: huruf/angka/spasi maks 10, tanpa kata kasar (dipakai juga saat avatar disimpan)
@@ -1701,6 +1710,14 @@ export class Warga extends DurableObject {
       let av = null; try { av = avBaru ? JSON.parse(avBaru) : null; } catch (e) {}
       return Response.json({ koin, harga: KAOS_WILLO, tunggu: KAOS_TUNGGU, pesan: K.pesan, lemari: K.lemari, avatar: av, selisih: 0, kini });
     }
+    if (aksi === "bus") {   // tiket bus antardusun (Huda 11 Nov 2026): kendaraan umum bayar, koin kurang tetap boleh naik gratis
+      const q = await request.json();
+      const r = this.sql.exec("SELECT no, koin FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Masuk dulu sebagai warga." }, { status: 401 });
+      let koin = r.koin || 0, bayar = 0;
+      if (koin >= TARIF_BUS) { koin -= TARIF_BUS; bayar = TARIF_BUS; this.arus("-koin:bus", bayar); this.sql.exec("UPDATE warga SET koin = ? WHERE no = ?", koin, r.no); }
+      return Response.json({ koin, bayar, tarif: TARIF_BUS });
+    }
     if (aksi === "dealer") {
       const q = await request.json();
       const r = this.sql.exec("SELECT * FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
@@ -1980,7 +1997,7 @@ export class Ruang extends DurableObject {
     if (!a.no) return;
     const now = Date.now();
     if (q.t === "p") {
-      const p = { x: +q.x || 0, z: +q.z || 0, r: +q.r || 0, a: q.a ? 1 : 0, n: q.n ? 1 : 0 };   // n = sedang naik kendaraan
+      const p = { x: +q.x || 0, z: +q.z || 0, r: +q.r || 0, a: q.a ? 1 : 0, n: q.n ? 1 : 0, b: Math.max(0, Math.floor(+q.b) || 0) };   // n = sedang naik kendaraan, b = No. sopir mobil yang ditumpangi (nebeng)
       if (![p.x, p.z, p.r].every(Number.isFinite)) return;
       this.pos.set(a.no, p);
       if (now - (a.simpan || 0) > 5000) {
@@ -1991,7 +2008,7 @@ export class Ruang extends DurableObject {
       }
       if (now - this.kirimTerakhir > 120) {
         this.kirimTerakhir = now;
-        const daftar = []; for (const [no, v] of this.pos) daftar.push([no, Math.round(v.x * 10) / 10, Math.round(v.z * 10) / 10, Math.round(v.r * 100) / 100, v.a, v.n]);
+        const daftar = []; for (const [no, v] of this.pos) daftar.push([no, Math.round(v.x * 10) / 10, Math.round(v.z * 10) / 10, Math.round(v.r * 100) / 100, v.a, v.n, v.b]);
         this.pos.clear();
         this.siar({ t: "p", d: daftar });
       }
@@ -2376,6 +2393,10 @@ async function apiWargaInti(request, env, url) {
   if (aksi === "kaos") {
     const q = { kunci: String(body.kunci || "").slice(0, 64), op: ["pesan", "ambil", "pakai"].includes(body.op) ? body.op : "", d: String(body.d || "").slice(0, 10), w: String(body.w || "").slice(0, 7), t: String(body.t || "").slice(0, 20), i: Math.floor(+body.i || 0) };
     const r = await stub.fetch("https://do/kaos", { method: "POST", body: JSON.stringify(q) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "bus") {
+    const r = await stub.fetch("https://do/bus", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64) }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "dealer") {
