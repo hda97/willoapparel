@@ -35,17 +35,43 @@ export class Pengunjung extends DurableObject {
 // Salah ketik yang sudah dipastikan (username salah → username benar).
 // Voting fasum berbintang (Huda 6 Nov 2026): 1 bintang gratis per hari (WIB) + bintang donasi (Rp1.000 = 1 bintang).
 // Huda 8 Nov 2026: donasi pindah ke Trakteer (trakteer.id/duniakotak.id, unit "Bata" Rp5.000). Webhook Saweria tetap diterima.
-// Ganti PUTARAN untuk membuka putaran voting baru (suara putaran lama tetap tersimpan). Calon bisa ditambah/diubah di CALON_FASUM.
-const PUTARAN_VOTING = "2026-11";
+// VOTING BERANTAI (Huda 13 Nov 2026: "voting selesai pembangunan jalan, terus voting lagi pembangunan selanjutnya",
+// "saat voting juga harus ada pembangunan"): begitu satu putaran ditutup, pemenangnya (bintang terbanyak) langsung mulai
+// dibangun 7 hari (dikurangi iuran putaran itu & percepatan Tukang Kotak) DAN putaran berikutnya langsung dibuka, tutup 7 hari kemudian.
+// Putaran di JADWAL_VOTING dipakai berurutan; sesudahnya putaran dibuat otomatis tiap minggu dari CALON_LANJUT yang belum pernah menang
+// (berhenti bila tinggal < 2 calon). Pemenang seri = urutan calon. Data fasum tiap calon di FASUM_CALON (samakan dengan game.js).
+const JADWAL_VOTING = [
+  { put: "2026-11", calon: ["kafe", "hiburan", "polisi"], tutup: Date.parse("2026-11-14T00:00:00+07:00"), menang: "kafe" },
+  // Huda 13 Nov 2026: voting berikutnya Stasiun (kereta), Damkar, Bandara. `menang` (opsional) = pemenang ditetapkan Huda.
+  { put: "2026-11b", calon: ["kereta", "damkar", "bandara"], tutup: Date.parse("2026-11-21T00:00:00+07:00") },
+];
+const CALON_LANJUT = ["kafe", "polisi", "kereta", "damkar", "bandara"];
+const FASUM_CALON = {
+  kafe: { nama: "☕ Kafe Bukit", aset: "kafe", dusun: "kulon", lahan: 0 },
+  hiburan: { nama: "🎡 Taman Hiburan", aset: "hiburan", dusun: "tlaga", lahan: 1 },
+  polisi: { nama: "👮 Kantor Polisi", aset: "polisi", dusun: "curug", lahan: 1 },
+  kereta: { nama: "🚆 Stasiun Kereta", aset: "stasiun", dusun: "curug", lahan: 0 },
+  damkar: { nama: "🚒 Stasiun Pemadam", aset: "damkar", dusun: "wetan", lahan: 14 },
+  bandara: { nama: "✈️ Bandara", aset: "bandaraBesar", dusun: "tlaga", lahan: 2 },
+};
+// CALON NANTI (Huda 13 Nov 2026: "Pasar desa juga", "Dibangun setelah itu"). BELUM aktif: semua tetap lewat voting.
+// Pindahkan ke FASUM_CALON + CALON_LANJUT (dan LOKASI_FASUM/ASET_CALON/CALON di game.js) setelah model 3D-nya dibuat
+// dan syaratnya terpenuhi. Kios Warga masuk setelah calon sekarang habis; Pasar & Dermaga setelah Segara buka (warga No. 861).
+const CALON_NANTI = {
+  kios: { nama: "🏪 Kios Warga", dusun: "tlaga", lahan: 0, syarat: "setelah calon sekarang (dekat Taman Hiburan)", isi: "kios disewa warga untuk jualan",
+    // SPEK disetujui Huda 13 Nov ("Sudah pas"): sewa 20 koin/minggu, 6 kios, kios lepas bila sewa tak diperpanjang;
+    // harga diatur pemilik 1–15 koin; dagangan: ikan, hasil kebun, hiasan rakitan bahan Supermarket, jajanan buatan sendiri;
+    // potongan desa 10% tiap penjualan.
+    spek: { sewa: 20, jumlah: 6, hargaMin: 1, hargaMaks: 15, potongan: 0.1, barang: ["ikan", "kebun", "hiasan", "jajanan"] } },
+  pasar: { nama: "🧺 Pasar Desa", dusun: "segara", lahan: 0, syarat: "Segara buka (warga No. 861)", isi: "warga jual-beli ikan & hasil kebun" },
+  dermaga: { nama: "⚓ Dermaga Nelayan", dusun: "segara", lahan: 1, syarat: "Segara buka (warga No. 861)", isi: "dermaga perahu nelayan" },
+};
 // Siklus mingguan (Huda 8 Nov 2026): voting 1 minggu → pemenang dibangun 7 hari → voting fasum lain dibuka.
-// Setelah VOTING_TUTUP suara ditolak dan pop up wajib tidak muncul sampai putaran baru (ganti PUTARAN_VOTING, CALON_FASUM, VOTING_TUTUP).
-const VOTING_TUTUP = Date.parse("2026-11-14T00:00:00+07:00");
 // Stream Key Saweria bisa disetel lewat halaman /duniakotak/atur-saweria.html (Huda tidak menemukan worker di Cloudflare).
 // Halaman itu butuh token setel; di sini hanya hash SHA-256-nya (token asli dikirim ke Huda lewat chat proyek).
 const HASH_TOKEN_SETEL = "3875bd9e3be8eb385420fc08c7acbb25d81b72d5581356c72a210d4b87df4510";
 // Huda 6 Nov 2026: cukup 4 calon (usulan terbanyak dari komentar); fasum lain untuk voting berikutnya.
 // 6 Nov 2026 Huda menutup voting → Taman Kota dibangun (game.js BANGUN_VOTING); taman keluar dari calon, bintangnya dikembalikan.
-const CALON_FASUM = ["kafe", "hiburan", "polisi"];
 // Toko Hias (Huda 6 Nov 2026): barang hias dibeli PERMATA (dari donasi Saweria: Rp1.000 = 1 bintang + 10 permata)
 // atau koin (lebih mahal). Barang pertama tiap jenis gratis. Permata tidak masuk peringkat & tidak bisa jadi koin.
 const PERMATA_PER_RIBU = 10;
@@ -56,7 +82,10 @@ const PERMATA_PER_RIBU = 10;
 // Tiap kelipatan 20 Bata: nama di plakat fasum yang sedang dibangun saat itu. Pengusul pertama fasum pemenang = Bos fasum (gratis).
 const BATA_RP = 5000, BATA_BENDERA = 2, BATA_PLAKAT = 20;
 // Fasum yang sedang dibangun (samakan dengan BANGUN_VOTING di game.js). Setelah `sampai`, plakat baru masuk ke fasum berikutnya.
-const BANGUN_SEKARANG = [{ id: "taman", nama: "🌳 Taman Kota", aset: "tamanKota", dusun: "wetan", mulai: Date.parse("2026-11-07T00:00:00+07:00"), sampai: Date.parse("2026-11-14T00:00:00+07:00") }];
+// Huda 13 Nov 2026: "Taman hiburan sudah dibangun besok sudah jadi" → Taman Hiburan (Tlaga) ikut jadi Sabtu 14 Nov bersama Taman Kota,
+// dan Kafe (peringkat 2 voting 2026-11) yang dibangun minggu 14–21 Nov.
+const BANGUN_SEKARANG = [{ id: "taman", nama: "🌳 Taman Kota", aset: "tamanKota", dusun: "wetan", mulai: Date.parse("2026-11-07T00:00:00+07:00"), sampai: Date.parse("2026-11-14T00:00:00+07:00") },
+  { id: "hiburan", nama: "🎡 Taman Hiburan", aset: "hiburan", dusun: "tlaga", lahan: 1, mulai: Date.parse("2026-11-07T00:00:00+07:00"), sampai: Date.parse("2026-11-14T00:00:00+07:00") }];
 // Tukang Kotak (Huda 10 Nov 2026): warga ikut MEMBANGUN fasum pemenang voting lewat mini-game /duniakotak/bangun/
 // (masuk dari lahan proyek, seperti gapura Pelari Kalcer). Gaya "Angkut & Bangun": warga mengangkut bahan ke gerbang proyek,
 // 1 sesi = 1 misi = TK_BAHAN (60) bahan disetor (dihitung di HP, server membatasi lewat jeda minimal TK_MIN antar sesi).
@@ -68,6 +97,7 @@ const BANGUN_SEKARANG = [{ id: "taman", nama: "🌳 Taman Kota", aset: "tamanKot
 // Tiap finish sah: RL_KOIN koin, hanya RL_SESI_KOIN finish pertama tiap hari WIB (semua lintasan). Finish sah bila jarak POST "mulai"
 // ke "selesai" lebih lama dari waktunya dan waktunya >= RL_MIN_MS[lintasan] (± panjang lintasan / 36 m/dtk, batas fisika mobil).
 const RL_KOIN = 10, RL_SESI_KOIN = 3, RL_MIN_MS = [0, 33e3, 29e3, 24e3, 27e3, 27e3], RL_LINTASAN = 5;
+const DUSUN_BANGUN = (d) => (/^(wetan|kulon|curug|tlaga|segara)$/.test(String(d || "")) ? String(d) : "");
 const TK_MAJU = 20 * 60e3, TK_MAJU_MAKS = 3 * 864e5, TK_SESI_MAJU = 10, TK_SESI_KOIN = 3, TK_KOIN_MAKS = 30, TK_MIN = 45e3, PIALA_BANGUN = 5, TK_MISI_DESA = 15;
 // Kata kunci usulan warga (kolom usulan saat daftar) untuk mencari pengusul pertama tiap fasum pemenang/calon.
 // Bisa ditimpa manual lewat BOS_TETAP (mis. { taman: 48 }) bila pengusul yang ditemukan otomatis kurang tepat.
@@ -93,6 +123,22 @@ const BATAS_AMBIL = 60, BATAS_MANCING = 40;   // per hari WIB
 const ALBUM_IKAN = IKAN.map((i) => i[2]);
 // Pasar Malam Sabtu (Huda 9 Nov 2026): tiap Sabtu 19.00–23.00 WIB di lapangan Stadion Kotak Wetan. Jajan & Lempar Gelang bayar koin
 // (penyerap koin mengendap). Lempar Gelang kena >= 2 dari 3 = suvenir acak masuk tas & Album (lengkap 5 = lencana 🎪, bit 4).
+// BELANJA (Huda 13 Nov 2026): Kafe Bukit ("bisa masuk, pesan minuman, makanan khas kafe"), Supermarket & Warung Desa ("Warung juga bisa? Iya").
+// Bayar koin (penyerap koin). Jenis: m = minuman & k = makanan (langsung dinikmati), t = masuk tas (pakan kucing, bahan rakit hiasan),
+// p = dipakai langsung (sabun). Kafe aktif setelah proyeknya JADI. Batas pembelian per tempat per hari. Tanpa merek asli.
+const TOKO_BELANJA = {
+  kafe: { nama: "Kafe Bukit", hari: 6, menu: { tubruk: ["☕", "Kopi Tubruk", 8, "m"], aren: ["🧋", "Kopi Susu Gula Aren", 12, "m"], cappu: ["☕", "Cappuccino", 14, "m"], matcha: ["🍵", "Matcha Latte", 14, "m"],
+    coklat: ["🍫", "Coklat Panas", 10, "m"], esteh: ["🧊", "Es Teh Manis", 5, "m"], jeruk: ["🍊", "Jus Jeruk", 9, "m"],
+    croissant: ["🥐", "Croissant", 12, "k"], roti: ["🍞", "Roti Bakar", 10, "k"], donat: ["🍩", "Donat", 8, "k"], cheese: ["🍰", "Cheesecake", 15, "k"], pisang: ["🍌", "Pisang Goreng", 7, "k"], kentang: ["🍟", "Kentang Goreng", 10, "k"] } },
+  super: { nama: "Supermarket Dunia Kotak", hari: 12, menu: { pakan: ["🥫", "Pakan Kucing", 6, "t"], kayu: ["🪵", "Kayu", 5, "t"], batu: ["🪨", "Batu kotak", 5, "t"], bunga: ["🌼", "Bunga", 4, "t"], daun: ["🍃", "Daun", 3, "t"],
+    susu: ["🥛", "Susu Kotak", 6, "m"], jus: ["🧃", "Jus Buah", 7, "m"], roti: ["🍞", "Roti Tawar", 7, "k"], semangka: ["🍉", "Semangka", 8, "k"], eskrim: ["🍦", "Es Krim", 9, "k"], sabun: ["🧼", "Sabun Mandi", 4, "p"] } },
+  warung: { nama: "Warung Desa", hari: 8, menu: { kopi: ["☕", "Kopi Hitam", 4, "m"], esteh: ["🧊", "Es Teh", 3, "m"], mie: ["🍜", "Mi Rebus Telur", 6, "k"], nasi: ["🍙", "Nasi Kucing", 5, "k"],
+    gorengan: ["🥟", "Gorengan", 2, "k"], kerupuk: ["🍘", "Kerupuk", 2, "k"], sabun: ["🧼", "Sabun Batang", 3, "p"], pakan: ["🥫", "Pakan Kucing", 6, "t"] } },
+};
+// Taman Hiburan & Taman Kota (Huda 13 Nov 2026). Samakan WAHANA dengan game.js.
+const WAHANA = { bianglala: { nama: "🎡 Bianglala", harga: 5, lama: 40 }, komidi: { nama: "🎠 Komidi Putar", harga: 3, lama: 30 } };
+const WAHANA_HARI = 10, LOKET_BAGI = { bianglala: 2, komidi: 1 }, LOKET_MAKS = 60, LOKET_LAMA = 15, JOG_KOIN = 10, JOG_MIN = 40;
+const PAKAN_KUCING = "Pakan Kucing";
 const PASAR_JAJAN = { sate: ["🍢", "Sate", 6], martabak: ["🥞", "Martabak", 8], dawet: ["🥤", "Es dawet", 3], gulali: ["🍭", "Gulali", 4], jagung: ["🌽", "Jagung bakar", 5] };
 const PASAR_GELANG = 10, PASAR_GELANG_HARI = 10, PASAR_JAJAN_HARI = 20;
 const SUVENIR = [["🧸", "Boneka beruang"], ["🐰", "Boneka kelinci"], ["🎈", "Balon"], ["🪀", "Yoyo"], ["🏮", "Lampion"]];
@@ -338,10 +384,11 @@ export class Warga extends DurableObject {
     // suara = bintang yang sudah ditaruh warga ke calon fasum; donasi = catatan webhook Saweria (id unik, tidak dobel)
     this.sql.exec("CREATE TABLE IF NOT EXISTS suara (put TEXT, calon TEXT, no INTEGER, n INTEGER, PRIMARY KEY (put, calon, no))");
     // Bintang yang sudah ditaruh di calon yang dihapus dari putaran ini dikembalikan ke pemiliknya (aman diulang).
-    for (const x of this.sql.exec("SELECT calon, no, n FROM suara WHERE put = ?", PUTARAN_VOTING).toArray()) {
-      if (CALON_FASUM.includes(x.calon)) continue;
+    const vk0 = this.vk();
+    for (const x of this.sql.exec("SELECT calon, no, n FROM suara WHERE put = ?", vk0.put).toArray()) {
+      if (vk0.calon.includes(x.calon)) continue;
       this.sql.exec("UPDATE warga SET bintang = COALESCE(bintang, 0) + ? WHERE no = ?", x.n, x.no);
-      this.sql.exec("DELETE FROM suara WHERE put = ? AND calon = ? AND no = ?", PUTARAN_VOTING, x.calon, x.no);
+      this.sql.exec("DELETE FROM suara WHERE put = ? AND calon = ? AND no = ?", vk0.put, x.calon, x.no);
     }
     this.sql.exec("CREATE TABLE IF NOT EXISTS rahasia (k TEXT PRIMARY KEY, v TEXT, t INTEGER)");
     // Lomba Rumah Terindah: satu baris = satu ❤️ dari warga `dari` ke rumah `ke` pada hari WIB `hari` (minggu `mg`)
@@ -624,7 +671,38 @@ export class Warga extends DurableObject {
     if (this._jr === undefined) this._jr = this.sql.exec("SELECT no, t, mg FROM juragan ORDER BY id DESC LIMIT 1").toArray()[0] || null;
     return this._jr;
   }
-  fasumDibangun(t = Date.now()) { const b = BANGUN_SEKARANG.find((x) => t < this.sampaiBangun(x)); return b ? b.id : "berikut"; }
+  // ---- Voting berantai: daftar putaran (sampai putaran yang sedang buka), pemenang putaran yang sudah tutup, fasum yang dibangun ----
+  putaranSemua(t = Date.now()) {
+    const L = [], menang = new Set();
+    for (const r of JADWAL_VOTING) { const calon = r.calon.filter((c) => !menang.has(c)); if (calon.length < 2) break; L.push({ ...r, calon }); if (r.tutup > t) return L; menang.add(this.pemenang(L[L.length - 1])); }
+    let tutup = L.length ? L[L.length - 1].tutup : Date.now(), i = 1;
+    while (i < 200) {
+      const calon = CALON_LANJUT.filter((c) => !menang.has(c)); if (calon.length < 2) break;
+      tutup += 7 * 864e5; const r = { put: "auto-" + new Date(tutup + 7 * 3600e3).toISOString().slice(0, 10), calon, tutup }; L.push(r);
+      if (tutup > t) break; menang.add(this.pemenang(r)); i++;
+    }
+    return L;
+  }
+  // putaran yang sedang buka; kalau semua sudah tutup = putaran terakhir (ditutup)
+  vk(t = Date.now()) { const L = this.putaranSemua(t); return L.find((r) => r.tutup > t) || L[L.length - 1] || { put: "-", calon: [], tutup: 0 }; }
+  pemenang(r) {
+    if (r.menang && r.calon.includes(r.menang)) return r.menang;
+    this._mn = this._mn || {}; if (this._mn[r.put] && Date.now() >= r.tutup) return this._mn[r.put];
+    const n = {}; for (const x of this.sql.exec("SELECT calon, SUM(n) AS n FROM suara WHERE put = ? GROUP BY calon", r.put).toArray()) n[x.calon] = x.n;
+    let w = r.calon[0]; for (const c of r.calon) if ((n[c] || 0) > (n[w] || 0)) w = c;
+    if (Date.now() >= r.tutup) this._mn[r.put] = w; return w;
+  }
+  daftarBangun(t = Date.now()) {
+    const L = [...BANGUN_SEKARANG];
+    for (const r of this.putaranSemua(t)) {
+      if (r.tutup > t) break;
+      const c = this.pemenang(r), f = FASUM_CALON[c]; if (!f) continue;
+      const hemat = this.danaIuran(r.put).hemat;
+      L.push({ id: c, ...f, put: r.put, mulai: r.tutup, sampai: r.tutup + Math.max(0, IURAN_HARI - hemat) * 864e5 });
+    }
+    return L;
+  }
+  fasumDibangun(t = Date.now()) { const b = this.daftarBangun(t).find((x) => t < this.sampaiBangun(x)); return b ? b.id : "berikut"; }
   // ---- Tukang Kotak ----
   sesiBangun(id) {
     this._tks = this._tks || {};
@@ -633,7 +711,11 @@ export class Warga extends DurableObject {
   }
   majuBangun(b) { return Math.min(TK_MAJU_MAKS, this.sesiBangun(b.id) * TK_MAJU); }
   sampaiBangun(b) { return b.sampai - this.majuBangun(b); }
-  proyekBangun(t = Date.now()) { return BANGUN_SEKARANG.find((x) => t >= x.mulai && t < this.sampaiBangun(x)) || null; }
+  // Proyek aktif. Bila ada beberapa proyek bersamaan (mis. Taman Kota di Wetan + Taman Hiburan di Tlaga), `dusun` memilih proyek di dusun itu.
+  proyekBangun(t = Date.now(), dusun = "") {
+    const L = this.daftarBangun(t).filter((x) => t >= x.mulai && t < this.sampaiBangun(x));
+    return L.find((x) => (x.dusun || "wetan") === dusun) || L[0] || null;
+  }
   // Data publik: jadwal jadi tiap fasum (dibaca game.js saat dimuat) + proyek yang sedang dikerjakan & 5 tukang teratas.
   // Reli Kotak: papan rekor publik (5 tercepat sepanjang masa) + jumlah pembalap
   infoReli(l = 1) {
@@ -641,9 +723,9 @@ export class Warga extends DurableObject {
       .map((x) => ({ no: x.no, u: this.nm(x), t: x.r }));
     return { l, top, pembalap: this.sql.exec("SELECT COUNT(*) AS n FROM reliRekor WHERE l = ? AND r > 0", l).toArray()[0].n };
   }
-  infoBangun() {
-    const kini = Date.now(), b = this.proyekBangun(kini);
-    const proyek = BANGUN_SEKARANG.map((x) => ({ id: x.id, sampai: this.sampaiBangun(x) }));
+  infoBangun(dusun = "") {
+    const kini = Date.now(), b = this.proyekBangun(kini, dusun);
+    const proyek = this.daftarBangun(kini).map((x) => ({ id: x.id, nama: x.nama, aset: x.aset, dusun: x.dusun || "wetan", lahan: x.lahan, mulai: x.mulai, sampaiAsli: x.sampai, sampai: this.sampaiBangun(x) }));
     if (!b) return { proyek, aktif: null, aturan: { maju: TK_MAJU, majuMaks: TK_MAJU_MAKS, sesiKoin: TK_SESI_KOIN, koinMaks: TK_KOIN_MAKS } };
     const top = this.sql.exec("SELECT t.no, t.sesi, t.poin, w.ig, w.tiktok, w.nama FROM tukang t LEFT JOIN warga w ON w.no = t.no WHERE t.fas = ? AND t.sesi > 0 ORDER BY t.sesi DESC, t.poin DESC, t.no ASC LIMIT 5", b.id).toArray()
       .map((x) => ({ no: x.no, u: this.nm(x) || "warga " + x.no, sesi: x.sesi, poin: x.poin }));
@@ -699,7 +781,8 @@ export class Warga extends DurableObject {
     // Daftar lewat Google tanpa username: nama yang ditulis warga jadi ukiran batu (label).
     let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
     const hs = this.hiasPakai(r), bt = this.bataWarga(r.no), jr = this.juraganKini(), tr = this.juaraRumah();
-    return { ...(bt ? { bt } : {}), ...(r.alb ? { al: r.alb } : {}), ...(jr && jr.no === r.no ? { jr: 1 } : {}), ...(tr && tr.no === r.no ? { tr: 1 } : {}), ...(hs.cat !== "krem" || hs.pagar !== "putih" || hs.rumah === "dua" || hs.dekor.length || hs.kend ? { hs: { c: hs.cat, p: hs.pagar, ...(hs.rumah === "dua" ? { l: 2 } : {}), ...(hs.dekor.length ? { d: hs.dekor } : {}), ...(hs.kend ? { k: hs.kend } : {}) } } : {}), no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
+    // xp = koinTotal (Level Warga, Huda 13 Nov 2026): tiap koin dari kegiatan = 1 XP; level dihitung di game.js (LEVEL_XP)
+    return { ...(bt ? { bt } : {}), ...(r.alb ? { al: r.alb } : {}), ...(r.koinTotal > 0 ? { xp: r.koinTotal } : {}), ...(jr && jr.no === r.no ? { jr: 1 } : {}), ...(tr && tr.no === r.no ? { tr: 1 } : {}), ...(hs.cat !== "krem" || hs.pagar !== "putih" || hs.rumah === "dua" || hs.dekor.length || hs.kend ? { hs: { c: hs.cat, p: hs.pagar, ...(hs.rumah === "dua" ? { l: 2 } : {}), ...(hs.dekor.length ? { d: hs.dekor } : {}), ...(hs.kend ? { k: hs.kend } : {}) } } : {}), no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
   }
   // Hias: {punya:{cat:[...],pagar:[...],topi:[...]}, cat, pagar, topi}
   bacaHias(r) { let h = {}; try { h = r.hias ? JSON.parse(r.hias) : {}; } catch (e) {} h.punya = h.punya || {}; for (const j of Object.keys(TOKO_HIAS)) h.punya[j] = h.punya[j] || []; return h; }
@@ -720,14 +803,18 @@ export class Warga extends DurableObject {
     if (t.jenis !== "kaos-willo" || !(t.sablon in KAOS_WILLO)) { delete t.sablon; delete t.teks; } else t.teks = teksKaos(t.teks); return JSON.stringify(a); }
   pasangTopi(avatarJson, topi) { let a = {}; try { a = avatarJson ? JSON.parse(avatarJson) : {}; } catch (e) {} if (WARNA_TOPI[topi]) a.topi = WARNA_TOPI[topi]; else delete a.topi; return JSON.stringify(a).slice(0, 600); }
   hasilVoting() {
-    const hasil = {}; for (const c of CALON_FASUM) hasil[c] = 0;
-    for (const x of this.sql.exec("SELECT calon, SUM(n) AS n, COUNT(*) AS w FROM suara WHERE put = ? GROUP BY calon", PUTARAN_VOTING).toArray()) if (x.calon in hasil) hasil[x.calon] = x.n;
-    const pemilih = this.sql.exec("SELECT COUNT(DISTINCT no) AS w FROM suara WHERE put = ?", PUTARAN_VOTING).toArray()[0].w;
-    return { putaran: PUTARAN_VOTING, calon: CALON_FASUM, hasil, pemilih, tutup: VOTING_TUTUP, ditutup: Date.now() >= VOTING_TUTUP ? 1 : 0, dana: this.danaIuran() };
+    const kini = Date.now(), L = this.putaranSemua(kini), v = L.find((r) => r.tutup > kini) || L[L.length - 1] || { put: "-", calon: [], tutup: 0 };
+    const hasil = {}; for (const c of v.calon) hasil[c] = 0;
+    for (const x of this.sql.exec("SELECT calon, SUM(n) AS n, COUNT(*) AS w FROM suara WHERE put = ? GROUP BY calon", v.put).toArray()) if (x.calon in hasil) hasil[x.calon] = x.n;
+    const pemilih = this.sql.exec("SELECT COUNT(DISTINCT no) AS w FROM suara WHERE put = ?", v.put).toArray()[0].w;
+    // pemenang putaran sebelumnya (sedang/sudah dibangun) untuk kabar di layar voting
+    const lalu = L.filter((r) => r.tutup <= kini).pop(), b = lalu && this.daftarBangun(kini).find((x) => x.put === lalu.put);
+    const sebelum = lalu ? { putaran: lalu.put, pemenang: this.pemenang(lalu), nama: b ? b.nama : "", sampai: b ? this.sampaiBangun(b) : 0 } : null;
+    return { putaran: v.put, calon: v.calon, hasil, pemilih, tutup: v.tutup, ditutup: kini >= v.tutup ? 1 : 0, dana: this.danaIuran(v.put), sebelum };
   }
-  danaIuran() {
-    const t = this.sql.exec("SELECT COALESCE(SUM(koin + permata * ?), 0) AS v, COUNT(*) AS w FROM iuran WHERE put = ?", KOIN_PER_PERMATA, PUTARAN_VOTING).toArray()[0];
-    const top = this.sql.exec("SELECT i.koin + i.permata * ? AS v, w.ig, w.tiktok, w.nama FROM iuran i JOIN warga w ON w.no = i.no WHERE i.put = ? ORDER BY v DESC LIMIT 5", KOIN_PER_PERMATA, PUTARAN_VOTING).toArray().map(x => ({ ig: this.nm(x), v: x.v }));
+  danaIuran(put = this.vk().put) {
+    const t = this.sql.exec("SELECT COALESCE(SUM(koin + permata * ?), 0) AS v, COUNT(*) AS w FROM iuran WHERE put = ?", KOIN_PER_PERMATA, put).toArray()[0];
+    const top = this.sql.exec("SELECT i.koin + i.permata * ? AS v, w.ig, w.tiktok, w.nama FROM iuran i JOIN warga w ON w.no = i.no WHERE i.put = ? ORDER BY v DESC LIMIT 5", KOIN_PER_PERMATA, put).toArray().map(x => ({ ig: this.nm(x), v: x.v }));
     const target = IURAN_HARI * IURAN_PER_HARI, hemat = Math.min(IURAN_HARI, Math.floor(t.v / IURAN_PER_HARI));
     return { total: t.v, target, hemat, hari: IURAN_HARI - hemat, penyumbang: t.w, top, perHari: IURAN_PER_HARI, batasPermata: IURAN_PERMATA_MINGGU };
   }
@@ -817,8 +904,8 @@ export class Warga extends DurableObject {
   pesanNotif(w, kini, mw, sabtu) {
     if (sabtu && mw >= 18 * 60 + 30 && mw < 19 * 60 + 30 && w.pasar !== hariWib(kini))
       return { jenis: "pasar", judul: "🎪 Pasar Malam sudah buka!", isi: "Jajan sate, naik bianglala & lempar gelang di Stadion Kotak Wetan. Cuma malam ini sampai 23.00 WIB." };
-    const sisaVoting = VOTING_TUTUP - kini;
-    if (sisaVoting > 0 && sisaVoting < 30 * 3600e3 && mw >= 17 * 60 && w.pv !== PUTARAN_VOTING && w.vhari !== hariWib(kini))
+    const vk = this.vk(kini), sisaVoting = vk.tutup - kini;
+    if (sisaVoting > 0 && sisaVoting < 30 * 3600e3 && mw >= 17 * 60 && w.pv !== vk.put && w.vhari !== hariWib(kini))
       return { jenis: "voting", judul: "⭐ Voting fasum ditutup malam ini", isi: "Taruh bintang gratismu sekarang. Fasum pilihan warga langsung dibangun di desa." };
     let kb = {}; try { kb = w.kebun ? JSON.parse(w.kebun) : {}; } catch (e) {}
     const lama = kini - (w.aktif || 0);
@@ -848,7 +935,7 @@ export class Warga extends DurableObject {
       if (st < 200 || st >= 300) { this.sql.exec("UPDATE notif SET gagal = gagal + 1 WHERE no = ?", w.no); return; }
       kirim++; this.hitungFitur("notif-kirim:" + p.jenis);
       this.sql.exec("UPDATE notif SET hari = ?, gagal = 0, pt = COALESCE(?, pt), kg = CASE WHEN ? THEN ? ELSE kg END, pv = CASE WHEN ? THEN ? ELSE pv END, pasar = CASE WHEN ? THEN ? ELSE pasar END WHERE no = ?",
-        hari, p.pt || null, p.jenis === "kangen" || p.jenis === "pulang" ? 1 : 0, kini, p.jenis === "voting" ? 1 : 0, PUTARAN_VOTING, p.jenis === "pasar" ? 1 : 0, hari, w.no);
+        hari, p.pt || null, p.jenis === "kangen" || p.jenis === "pulang" ? 1 : 0, kini, p.jenis === "voting" ? 1 : 0, this.vk(kini).put, p.jenis === "pasar" ? 1 : 0, hari, w.no);
     }));
     return { kirim, mati, antre: antre.length, langganan: rows.length };
   }
@@ -1104,7 +1191,7 @@ export class Warga extends DurableObject {
     }
     // ---- Voting fasum berbintang ----
     if (aksi === "voting") {
-      const q = await request.json();
+      const q = await request.json(), vk = this.vk();
       const r = this.sql.exec("SELECT no, bintang, bhari, vhari FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
       if (!r) return Response.json({ galat: "Masuk dulu sebagai warga." }, { status: 401 });
       let saldo = r.bintang || 0, gratis = 0;
@@ -1112,16 +1199,16 @@ export class Warga extends DurableObject {
       if (r.bhari !== hari) { saldo += 1; gratis = 1; this.sql.exec("UPDATE warga SET bintang = ?, bhari = ? WHERE no = ?", saldo, hari, r.no); }
       if (q.calon) {
         const n = Math.floor(+q.n || 0);
-        if (Date.now() >= VOTING_TUTUP) return Response.json({ galat: "Voting minggu ini sudah ditutup. Bintangmu tetap tersimpan untuk voting berikutnya." }, { status: 400 });
-        if (!CALON_FASUM.includes(q.calon)) return Response.json({ galat: "Calon fasum tidak dikenal." }, { status: 400 });
+        if (Date.now() >= vk.tutup) return Response.json({ galat: "Voting minggu ini sudah ditutup. Bintangmu tetap tersimpan untuk voting berikutnya." }, { status: 400 });
+        if (!vk.calon.includes(q.calon)) return Response.json({ galat: "Calon fasum tidak dikenal." }, { status: 400 });
         if (n < 1 || n > saldo) return Response.json({ galat: saldo ? "Bintangmu tinggal " + saldo + "." : "Bintangmu habis. Besok dapat 1 bintang gratis lagi." }, { status: 400 });
         saldo -= n;
         this.sql.exec("UPDATE warga SET bintang = ?, vhari = ? WHERE no = ?", saldo, hari, r.no); r.vhari = hari;
-        this.sql.exec("INSERT INTO suara (put, calon, no, n) VALUES (?, ?, ?, ?) ON CONFLICT (put, calon, no) DO UPDATE SET n = n + excluded.n", PUTARAN_VOTING, q.calon, r.no, n);
+        this.sql.exec("INSERT INTO suara (put, calon, no, n) VALUES (?, ?, ?, ?) ON CONFLICT (put, calon, no) DO UPDATE SET n = n + excluded.n", vk.put, q.calon, r.no, n);
       }
-      const saya = {}; for (const x of this.sql.exec("SELECT calon, n FROM suara WHERE put = ? AND no = ?", PUTARAN_VOTING, r.no).toArray()) saya[x.calon] = x.n;
+      const saya = {}; for (const x of this.sql.exec("SELECT calon, n FROM suara WHERE put = ? AND no = ?", vk.put, r.no).toArray()) saya[x.calon] = x.n;
       const don = this.sql.exec("SELECT COALESCE(SUM(bintang), 0) AS b FROM donasi WHERE no = ?", r.no).toArray()[0].b;
-      return Response.json({ no: r.no, saldo, gratis, sudahPilih: r.vhari === hari || Date.now() >= VOTING_TUTUP ? 1 : 0, saya, donasi: don, ...this.hasilVoting() });
+      return Response.json({ no: r.no, saldo, gratis, sudahPilih: r.vhari === hari || Date.now() >= vk.tutup ? 1 : 0, saya, donasi: don, ...this.hasilVoting() });
     }
     if (aksi === "voting-publik") return Response.json(this.hasilVoting());
     if (aksi === "pendukung") return Response.json(this.pendukung());
@@ -1143,7 +1230,44 @@ export class Warga extends DurableObject {
     }
     if (aksi === "ajak") return Response.json(this.infoAjak(Math.max(0, Math.floor(+u.searchParams.get("no") || 0)), Math.max(0, Math.floor(+u.searchParams.get("dari") || 0))));
     if (aksi === "piala") return Response.json(this.piala(Math.max(0, Math.floor(+u.searchParams.get("no") || 0))));
-    if (aksi === "bangun-publik") return Response.json(this.infoBangun());
+    if (aksi === "bangun-publik") return Response.json(this.infoBangun(DUSUN_BANGUN(u.searchParams.get("dusun"))));
+    if (aksi === "bangun") {
+      // Tukang Kotak: op info | mulai | selesai {skor 0-100}, {dusun} memilih proyek di dusun tempat warga masuk.
+      // (Dipulihkan 13 Nov 2026: blok ini tidak sengaja terhapus saat Reli Kotak #254, sehingga sesi tukang sejak 10 Nov tidak tercatat.)
+      const q = await request.json(), kini = Date.now(), hari = hariWib(kini), ds = DUSUN_BANGUN(q.dusun);
+      const r = this.sql.exec("SELECT no, ig, tiktok, nama, koin, koinTotal, permata, avatar, misi FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r) return Response.json({ ...this.infoBangun(ds), galat: q.op === "info" ? undefined : "Masuk dulu sebagai warga Dunia Kotak." }, { status: q.op === "info" ? 200 : 401 });
+      const b = this.proyekBangun(kini, ds);
+      const baris = () => (b && this.sql.exec("SELECT sesi, poin, hari, sh, m FROM tukang WHERE fas = ? AND no = ?", b.id, r.no).toArray()[0]) || { sesi: 0, poin: 0, hari, sh: 0, m: null };
+      let t = baris(); if (t.hari !== hari) { t.hari = hari; t.sh = 0; }
+      const tulis = () => this.sql.exec("INSERT INTO tukang (fas, no, sesi, poin, hari, sh, m) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (fas, no) DO UPDATE SET sesi = excluded.sesi, poin = excluded.poin, hari = excluded.hari, sh = excluded.sh, m = excluded.m", b.id, r.no, t.sesi, t.poin, t.hari, t.sh, t.m);
+      const info = {};
+      if (q.op === "mulai" && b) { t.m = kini; tulis(); }
+      else if (q.op === "selesai") {
+        if (!b) return Response.json({ ...this.infoBangun(ds), galat: "Fasumnya sudah jadi! Tunggu pemenang voting berikutnya." }, { status: 400 });
+        const lama = t.m ? kini - t.m : 0; t.m = null;
+        if (lama < TK_MIN) { tulis(); return Response.json({ ...this.infoBangun(ds), galat: "Kerjanya tidak tercatat. Mulai lagi dari awal ya." }, { status: 400 }); }
+        const skor = Math.max(0, Math.min(100, Math.floor(+q.skor || 0)));
+        if (t.sh < TK_SESI_MAJU) { t.sesi += 1; t.poin += skor; info.maju = this.majuBangun(b) < TK_MAJU_MAKS ? TK_MAJU : 0; this._tks = null; }
+        if (t.sh < TK_SESI_KOIN) {
+          const k = Math.max(5, Math.min(TK_KOIN_MAKS, Math.round(skor * TK_KOIN_MAKS / 100)));
+          this.sql.exec("UPDATE warga SET koin = COALESCE(koin, 0) + ?, koinTotal = COALESCE(koinTotal, 0) + ? WHERE no = ?", k, k, r.no);
+          r.koin = (r.koin || 0) + k; info.dapat = k; this.arus("+koin:bangun", k);
+          const pl = this.tambahPiala(r.no, "bangun"); if (pl) info.piala = pl;
+        }
+        // Misi harian DESA "Ikut bangun fasum" (Huda 10 Nov): tetap tiap hari seperti Pelari Kalcer, selesai otomatis di misi bangun pertama.
+        let mm = { t: hari, s: [] }; try { const m0 = r.misi ? JSON.parse(r.misi) : null; if (m0 && m0.t === hari && Array.isArray(m0.s)) mm = m0; } catch (e) {}
+        if (!mm.s.includes("tukang")) {
+          mm.s.push("tukang"); r.koin = (r.koin || 0) + TK_MISI_DESA; info.misiDesa = TK_MISI_DESA;
+          this.sql.exec("UPDATE warga SET koin = COALESCE(koin, 0) + ?, koinTotal = COALESCE(koinTotal, 0) + ?, misi = ? WHERE no = ?", TK_MISI_DESA, TK_MISI_DESA, JSON.stringify(mm), r.no);
+          this.arus("+koin:misi-bangun", TK_MISI_DESA);
+        }
+        t.sh += 1; tulis();
+      }
+      t = baris(); const sh = t.hari === hari ? t.sh : 0;
+      let avatar = null; try { avatar = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
+      return Response.json({ ...this.infoBangun(ds), ...info, saya: { no: r.no, u: this.nm(r), koin: r.koin || 0, permata: r.permata || 0, avatar, sesi: t.sesi, sesiHari: sh, sisaKoin: Math.max(0, TK_SESI_KOIN - sh), sisaMaju: Math.max(0, TK_SESI_MAJU - sh) } });
+    }
     const lintasReli = (v) => Math.max(1, Math.min(RL_LINTASAN, Math.floor(+v || 1)));
     if (aksi === "reli-publik") return Response.json(this.infoReli(lintasReli(u.searchParams.get("l"))));
     if (aksi === "reli") {
@@ -1178,7 +1302,7 @@ export class Warga extends DurableObject {
       const r = this.sql.exec("SELECT no, koin, permata FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
       if (!r) return Response.json({ galat: "Masuk dulu sebagai warga." }, { status: 401 });
       const kini = Date.now(), mg = new Date(kini + 7 * 3600e3 - ((new Date(kini + 7 * 3600e3).getUTCDay() + 6) % 7) * 864e5).toISOString().slice(0, 10);
-      let saya = this.sql.exec("SELECT koin, permata, mg, mgn FROM iuran WHERE put = ? AND no = ?", PUTARAN_VOTING, r.no).toArray()[0] || { koin: 0, permata: 0, mg: mg, mgn: 0 };
+      let saya = this.sql.exec("SELECT koin, permata, mg, mgn FROM iuran WHERE put = ? AND no = ?", this.vk().put, r.no).toArray()[0] || { koin: 0, permata: 0, mg: mg, mgn: 0 };
       if (saya.mg !== mg) { saya.mg = mg; saya.mgn = 0; }
       const k = Math.max(0, Math.floor(+q.koin || 0)), pm = Math.max(0, Math.floor(+q.permata || 0));
       const galat = m => Response.json({ galat: m }, { status: 400 });
@@ -1191,7 +1315,7 @@ export class Warga extends DurableObject {
         if (k + pm * KOIN_PER_PERMATA > sisa) return galat("Dana tinggal kurang " + sisa + " koin lagi. Kecilkan iuranmu.");
         this.sql.exec("UPDATE warga SET koin = koin - ?, permata = permata - ? WHERE no = ?", k, pm, r.no);
         saya.koin += k; saya.permata += pm; saya.mgn += pm; this.arus("-koin:iuran", k); this.arus("-permata:iuran", pm);
-        this.sql.exec("INSERT INTO iuran (put, no, koin, permata, mg, mgn) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (put, no) DO UPDATE SET koin = excluded.koin, permata = excluded.permata, mg = excluded.mg, mgn = excluded.mgn", PUTARAN_VOTING, r.no, saya.koin, saya.permata, saya.mg, saya.mgn);
+        this.sql.exec("INSERT INTO iuran (put, no, koin, permata, mg, mgn) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (put, no) DO UPDATE SET koin = excluded.koin, permata = excluded.permata, mg = excluded.mg, mgn = excluded.mgn", this.vk().put, r.no, saya.koin, saya.permata, saya.mg, saya.mgn);
       }
       const w = this.sql.exec("SELECT koin, permata FROM warga WHERE no = ?", r.no).toArray()[0];
       return Response.json({ koin: w.koin || 0, permata: w.permata || 0, saya: { koin: saya.koin, permata: saya.permata, sisaPermata: IURAN_PERMATA_MINGGU - saya.mgn }, dana: this.danaIuran() });
@@ -1392,6 +1516,80 @@ export class Warga extends DurableObject {
       this.sql.exec("UPDATE warga SET koin = ?, koinTotal = COALESCE(koinTotal, 0) + ?, permata = ?, profesi = ? WHERE no = ?", koin, tambahKoin, permata, JSON.stringify(p), r.no);
       return Response.json({ koin, permata, profesi: this.infoProfesi(p), ...info });
     }
+    // Taman memutar ekonomi (Huda 13 Nov 2026 "Gas taman"): 🎡 tiket wahana Taman Hiburan (koin keluar), sebagian tiket untuk
+    // warga yang sedang jaga loket (koin pindah antarwarga), dan misi harian 🏃 jogging 3 putaran di Taman Kota (koin masuk).
+    if (aksi === "taman") {
+      const q = await request.json(), kini = Date.now(), hari = hariWib(kini);
+      const jadi = (id) => { const b = this.daftarBangun(kini).find((x) => x.id === id); return !!b && kini >= this.sampaiBangun(b); };
+      this.sql.exec("CREATE TABLE IF NOT EXISTS loket (id TEXT PRIMARY KEY, no INTEGER, sampai INTEGER)");
+      const lk = this.sql.exec("SELECT l.no, l.sampai, w.ig, w.tiktok, w.nama FROM loket l LEFT JOIN warga w ON w.no = l.no WHERE l.id = 'hiburan' AND l.sampai > ?", kini).toArray()[0] || null;
+      const petugas = lk ? { no: lk.no, ig: lk.ig || lk.tiktok || lk.nama || "warga", sampai: lk.sampai } : null;
+      const r = this.sql.exec("SELECT no, koin, tas FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (q.op === "info") {
+        const t = r ? this.bacaTas(r) : {}; const w = t._tw && t._tw.h === hari ? t._tw.n : 0, jg = t._jg && t._jg.h === hari ? t._jg : null;
+        return Response.json({ wahana: WAHANA, petugas, sisa: WAHANA_HARI - w, jog: jg ? { mulai: jg.m, selesai: !!jg.s } : null, jogKoin: JOG_KOIN, bagi: LOKET_BAGI, lama: LOKET_LAMA, hiburan: jadi("hiburan"), taman: jadi("taman") });
+      }
+      if (!r) return Response.json({ galat: "Daftar jadi warga dulu supaya bisa main di taman." }, { status: 401 });
+      const t = this.bacaTas(r); let koin = r.koin || 0, hasil = null, tambahTotal = 0;
+      if (q.op === "naik") {
+        const w = WAHANA[q.id]; if (!w) return Response.json({ galat: "Wahana tidak ada." }, { status: 400 });
+        if (!jadi("hiburan")) return Response.json({ galat: "Taman Hiburan masih dibangun. Bantu jadi tukang supaya cepat buka!" }, { status: 400 });
+        if (!t._tw || t._tw.h !== hari) t._tw = { h: hari, n: 0 };
+        if (t._tw.n >= WAHANA_HARI) return Response.json({ galat: "Sudah " + WAHANA_HARI + "x naik wahana hari ini. Main lagi besok ya!" }, { status: 400 });
+        if (kini - (t._tt || 0) < w.lama * 1000 - 3000) return Response.json({ galat: "Masih di wahana, tunggu sampai turun dulu." }, { status: 429 });
+        if (koin < w.harga) return Response.json({ galat: "Koinmu kurang (" + w.harga + " koin)." }, { status: 400 });
+        koin -= w.harga; t._tw.n++; t._tt = kini; this.arus("-koin:wahana", w.harga); hasil = { id: q.id, harga: w.harga, lama: w.lama };
+        // bagian petugas loket (bukan diri sendiri), dibatasi per hari per petugas
+        if (petugas && petugas.no !== r.no) {
+          const pr = this.sql.exec("SELECT no, tas FROM warga WHERE no = ?", petugas.no).toArray()[0];
+          if (pr) { const pt = this.bacaTas(pr); if (!pt._lk || pt._lk.h !== hari) pt._lk = { h: hari, d: 0 };
+            const b = Math.min(LOKET_BAGI[q.id] || 0, LOKET_MAKS - pt._lk.d);
+            if (b > 0) { pt._lk.d += b; this.sql.exec("UPDATE warga SET koin = COALESCE(koin, 0) + ?, koinTotal = COALESCE(koinTotal, 0) + ?, tas = ? WHERE no = ?", b, b, JSON.stringify(pt), pr.no); this.arus("+koin:loket", b); hasil.petugas = { ig: petugas.ig, dapat: b }; } }
+        }
+      } else if (q.op === "jaga") {
+        if (!jadi("hiburan")) return Response.json({ galat: "Taman Hiburan masih dibangun." }, { status: 400 });
+        if (petugas && petugas.no !== r.no) return Response.json({ galat: "Loket sedang dijaga @" + petugas.ig + ". Coba lagi nanti ya." }, { status: 400 });
+        const sampai = kini + LOKET_LAMA * 60e3;
+        this.sql.exec("INSERT INTO loket (id, no, sampai) VALUES ('hiburan', ?, ?) ON CONFLICT(id) DO UPDATE SET no = excluded.no, sampai = excluded.sampai", r.no, sampai);
+        const d = t._lk && t._lk.h === hari ? t._lk.d : 0;
+        return Response.json({ koin, petugas: { no: r.no, sampai }, dapatHariIni: d, maks: LOKET_MAKS });
+      } else if (q.op === "lepas") {
+        this.sql.exec("DELETE FROM loket WHERE id = 'hiburan' AND no = ?", r.no);
+        return Response.json({ koin, petugas: null });
+      } else if (q.op === "jogMulai") {
+        if (!jadi("taman")) return Response.json({ galat: "Taman Kota belum jadi." }, { status: 400 });
+        if (t._jg && t._jg.h === hari && t._jg.s) return Response.json({ galat: "Misi jogging hari ini sudah selesai. Besok lagi ya!" }, { status: 400 });
+        t._jg = { h: hari, m: kini }; hasil = { mulai: kini };
+      } else if (q.op === "jogSelesai") {
+        if (!t._jg || t._jg.h !== hari || t._jg.s) return Response.json({ galat: "Mulai jogging dulu di Taman Kota." }, { status: 400 });
+        if (kini - t._jg.m < JOG_MIN * 1000) return Response.json({ galat: "Kecepatan jogging-mu tidak wajar, coba lagi pelan-pelan ya." }, { status: 400 });
+        t._jg.s = 1; koin += JOG_KOIN; tambahTotal = JOG_KOIN; this.arus("+koin:jogging", JOG_KOIN); hasil = { dapat: JOG_KOIN };
+      } else return Response.json({ galat: "?" }, { status: 400 });
+      this.sql.exec("UPDATE warga SET koin = ?, koinTotal = COALESCE(koinTotal, 0) + ?, tas = ? WHERE no = ?", koin, tambahTotal, JSON.stringify(t), r.no);
+      return Response.json({ koin, hasil, sisa: WAHANA_HARI - (t._tw && t._tw.h === hari ? t._tw.n : 0) });
+    }
+    if (aksi === "belanja") {
+      const q = await request.json(), kini = Date.now(), hari = hariWib(kini), tk = TOKO_BELANJA[q.tempat];
+      if (!tk) return Response.json({ galat: "Toko tidak ada." }, { status: 400 });
+      const kf = this.daftarBangun(kini).find((x) => x.id === "kafe"), jadi = q.tempat !== "kafe" || (!!kf && kini >= this.sampaiBangun(kf));
+      const r = this.sql.exec("SELECT no, ig, tiktok, nama, koin, tas FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Daftar jadi warga dulu supaya bisa belanja." }, { status: 401 });
+      const t = this.bacaTas(r); if (!t._bl || t._bl.h !== hari) t._bl = { h: hari };
+      let koin = r.koin || 0, hasil = null, kabar = null;
+      if (q.op === "beli") {
+        if (!jadi) return Response.json({ galat: "Kafe Bukit masih dibangun. Bantu jadi tukang supaya cepat buka!" }, { status: 400 });
+        const m = tk.menu[q.id]; if (!m) return Response.json({ galat: "Barang tidak ada." }, { status: 400 });
+        const n = t._bl[q.tempat] || 0;
+        if (n >= tk.hari) return Response.json({ galat: "Jatah belanja di " + tk.nama + " hari ini habis. Datang lagi besok ya!" }, { status: 400 });
+        if (koin < m[2]) return Response.json({ galat: "Koinmu kurang (" + m[2] + " koin)." }, { status: 400 });
+        if (kini - (t._bt || 0) < 2500) return Response.json({ galat: "Sebentar, kasirnya masih menghitung." }, { status: 429 });
+        if (m[3] === "t") { const x = t.isi[m[1]] || (t.isi[m[1]] = { ikon: m[0], n: 0 }); if (x.n >= 99) return Response.json({ galat: "Tasmu sudah penuh " + m[1] + "." }, { status: 400 }); x.n++; }
+        koin -= m[2]; t._bl[q.tempat] = n + 1; t._bt = kini; this.arus("-koin:belanja-" + q.tempat, m[2]); hasil = { ikon: m[0], nama: m[1], harga: m[2], jenis: m[3] };
+        if (q.tempat === "kafe" && n === 0) kabar = { no: r.no, ig: r.ig || r.tiktok || "warga" + r.no, m: m[0] + " Nongkrong di Kafe Bukit, pesan " + m[1] + "!" };
+        this.sql.exec("UPDATE warga SET koin = ?, tas = ? WHERE no = ?", koin, JSON.stringify(t), r.no);
+      }
+      return Response.json({ koin, jadi, hasil, kabar, tas: t.isi, sisa: tk.hari - (t._bl[q.tempat] || 0) });
+    }
     if (aksi === "pasar") {
       const q = await request.json(), kini = Date.now();
       if (!pasarBuka(kini)) return Response.json({ galat: "Pasar Malam buka tiap Sabtu 19.00–23.00 WIB di Stadion Kotak Wetan." }, { status: 400 });
@@ -1437,8 +1635,8 @@ export class Warga extends DurableObject {
         t._m++; t._tm = kini; tambah(h[2], h[1]); hasil = { ikon: h[1], nama: h[2] };
         if (!t._al[h[2]]) { t._al[h[2]] = kini; hasil.baru = 1; t._alb = albumBit(t._al); }
       } else if (q.op === "makan") {
-        const ikan = Object.entries(isi).filter(([n, v]) => v.n > 0 && IKAN.some((i) => i[2] === n && i[1] !== "👟")).sort((a, b) => b[1].n - a[1].n)[0];
-        if (!ikan) return Response.json({ galat: "🎣 Tidak ada ikan di inventori. Mancing dulu di sungai, baru bisa memberi makan kucing." }, { status: 400 });
+        const ikan = (isi[PAKAN_KUCING] && isi[PAKAN_KUCING].n > 0 ? [PAKAN_KUCING, isi[PAKAN_KUCING]] : null) || Object.entries(isi).filter(([n, v]) => v.n > 0 && IKAN.some((i) => i[2] === n && i[1] !== "👟")).sort((a, b) => b[1].n - a[1].n)[0];
+        if (!ikan) return Response.json({ galat: "🎣 Tidak ada ikan atau pakan kucing di tas. Mancing di sungai atau beli 🥫 Pakan Kucing di Warung/Supermarket." }, { status: 400 });
         ikan[1].n--; if (ikan[1].n <= 0) delete isi[ikan[0]]; hasil = { ikon: ikan[1].ikon, nama: ikan[0] };
       } else if (q.op === "impor" && !t._impor) {
         // pindahan dari tas lama di HP (sekali), maks 10 per barang supaya tidak bisa diakali
@@ -1652,7 +1850,7 @@ export class Warga extends DurableObject {
     }
     if (aksi === "daftar-publik") {
       // Gabungkan warga terdaftar dengan 63 pengikut awal yang kavlingnya sudah disiapkan (sudah warga sejak video).
-      const rows = this.sql.exec("SELECT no, sub, nama, ig, tiktok, usulan, dibuat, kucing, aktif, hias, json_extract(tas, '$._alb') AS alb FROM warga ORDER BY no").toArray();
+      const rows = this.sql.exec("SELECT no, sub, nama, ig, tiktok, usulan, dibuat, kucing, aktif, hias, koinTotal, json_extract(tas, '$._alb') AS alb FROM warga ORDER BY no").toArray();
       const terisi = new Set(rows.map((r) => r.no));
       const igTerdaftar = new Set(rows.map((r) => r.ig).filter(Boolean));
       const awalan = Object.entries(KAVLING_AWALAN).map(([a, no]) => [a + "…", no]);
@@ -2026,7 +2224,7 @@ async function apiWargaInti(request, env, url) {
     return new Response((await stub.fetch("https://do/ajak?no=" + no + "&dari=" + dari)).body, { headers: { "content-type": "application/json", "cache-control": no ? "no-store" : "public, max-age=30" } });
   }
   if (aksi === "bangun" && request.method === "GET") {
-    return new Response((await stub.fetch("https://do/bangun-publik")).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=30" } });
+    return new Response((await stub.fetch("https://do/bangun-publik?dusun=" + DUSUN_BANGUN(url.searchParams.get("dusun")))).body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=30" } });
   }
   if (aksi === "reli" && request.method === "GET") {
     const l = Math.max(1, Math.min(5, parseInt(url.searchParams.get("l") || "1", 10) || 1));
@@ -2122,7 +2320,7 @@ async function apiWargaInti(request, env, url) {
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "bangun") {
-    const r = await stub.fetch("https://do/bangun", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), skor: +body.skor || 0 }) });
+    const r = await stub.fetch("https://do/bangun", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), skor: +body.skor || 0, dusun: DUSUN_BANGUN(body.dusun) }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "reli") {
@@ -2153,6 +2351,20 @@ async function apiWargaInti(request, env, url) {
   if (aksi === "profesi") {
     const r = await stub.fetch("https://do/profesi", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), id: String(body.id || "").slice(0, 12) }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "taman") {
+    const q = { kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 12), id: String(body.id || "").slice(0, 12) };
+    const r = await stub.fetch("https://do/taman", { method: "POST", body: JSON.stringify(q) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "belanja" || aksi === "kafe") {
+    const q = { kunci: String(body.kunci || "").slice(0, 64), op: aksi === "kafe" ? (body.op === "pesan" ? "beli" : "") : String(body.op || "").slice(0, 10), tempat: aksi === "kafe" ? "kafe" : String(body.tempat || "").slice(0, 10), id: String(body.id || "").slice(0, 12) };
+    const r = await stub.fetch("https://do/belanja", { method: "POST", body: JSON.stringify(q) });
+    const j = await r.json();
+    if (j.kabar && env.RUANG) { const isi = JSON.stringify({ ...j.kabar, w: Date.now(), d: "" });
+      await Promise.all(DUSUN_RUANG.map((d) => env.RUANG.get(env.RUANG.idFromName(d)).fetch("https://ruang/desa", { method: "POST", body: isi }).catch(() => {}))); }
+    delete j.kabar;
+    return Response.json(j, { status: r.status, headers: { "cache-control": "no-store" } });
   }
   if (aksi === "pasar") {
     const q = { kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), id: String(body.id || "").slice(0, 12), kena: +body.kena || 0 };
@@ -2372,6 +2584,11 @@ export default {
     // Alat rencana pesanan kaos semua kalangan: /pesan, /rencana, /order → /pesan/.
     if (["/pesan", "/rencana", "/order"].includes(pendek) && url.pathname !== "/pesan/") {
       url.pathname = "/pesan/";
+      return Response.redirect(url.toString(), 301);
+    }
+    // Halaman "link di bio" Instagram (Huda 13 Nov 2026): /link, /links, /bio → /link/.
+    if (["/link", "/links", "/bio"].includes(pendek) && url.pathname !== "/link/") {
+      url.pathname = "/link/";
       return Response.redirect(url.toString(), 301);
     }
     // Landing game edukasi Dunia Kotak: /edukasi, /belajar, /duniakotak/belajar → /duniakotak/belajar/.

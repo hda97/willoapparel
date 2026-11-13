@@ -3,24 +3,35 @@ name: Bot Indodax (paper trading)
 # Paper trading (uang bohongan) dengan harga publik Indodax. Tidak memakai kunci
 # API atau secret apa pun dan tidak bisa bertransaksi sungguhan.
 # Strategi harian, jadi cukup dicek beberapa kali sehari. Status disimpan di cache Actions.
-# Hentikan: Actions > "Bot Indodax (paper trading)" > ... > Disable workflow.
+# Rantai otomatis (disetujui Huda 11 Nov 2026): cron GitHub di repo ini sering dilewati,
+# jadi tiap run menunggu ~3 jam lalu memicu run berikutnya. Hanya ada satu rantai:
+# run baru (cron atau manual) membatalkan penunggu lama dan menggantikannya.
+# Hentikan: Actions > "Bot Indodax (paper trading)" > ... > Disable workflow,
+# lalu Cancel run yang sedang menunggu.
 
+# DIHENTIKAN 13 Nov 2026 atas permintaan Huda. Jadwal dan rantai otomatis dicabut.
+# Bot hanya jalan bila dipicu manual dengan pilihan "jalankan" dicentang
+# (Actions > workflow ini > Run workflow).
 on:
-  schedule:
-    - cron: "23 */3 * * *"
   workflow_dispatch:
+    inputs:
+      jalankan:
+        description: "Centang untuk menjalankan bot lagi (berantai terus sampai dihentikan)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
-
-concurrency:
-  group: bot-indodax
-  cancel-in-progress: false
+  actions: write
 
 jobs:
   paper-trading:
+    if: ${{ inputs.jalankan }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    concurrency:
+      group: bot-indodax
+      cancel-in-progress: false
     defaults:
       run:
         working-directory: bot-indodax
@@ -65,3 +76,20 @@ jobs:
             bot-indodax/riwayat_transaksi.csv
             bot-indodax/log_bot.txt
           key: bot-indodax-state-${{ github.run_id }}
+
+  lanjut:
+    needs: paper-trading
+    if: ${{ !cancelled() && inputs.jalankan }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 200
+    concurrency:
+      group: bot-indodax-rantai
+      cancel-in-progress: true
+    steps:
+      - name: Tunggu ~3 jam
+        run: sleep 10500
+
+      - name: Picu run berikutnya
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run bot-indodax.yml --ref main --repo "$GITHUB_REPOSITORY" -f jalankan=true

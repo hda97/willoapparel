@@ -346,31 +346,59 @@ export function proyek(judul='PEMBANGUNAN FASUM',tahap=0,jadi=null){const g=G();
  g.userData.zona=[];return fin(g)}
 // ==== FASUM TERSEBAR (Huda 9 Nov 2026): fasum khas tiap dusun, calon voting putaran 2026-11 ====
 // Kafe Bukit (Kotak Kulon): kafe satu lantai berdinding kaca, meja bar & mesin kopi di dalam, teras payung menghadap jalan.
-export function kafe(){const g=G();const W=0xf6ead6,C=0x6a3f22,H=0x2f7a5a,K=0x8fd0ec;lantai(g,19,17,0xd9c6a4);
- ruang(g,{x:0,z:-4.4,w:14,d:7,h:4.2,c:W,bukaan:[{s:'d',p:-2.5,w:2.4,h:2.6}],lantaiC:0xc89a6a});
- g.ad(box(14.6,.45,7.6,C,.05),0,4.8,-4.4);g.ad(box(15.2,.25,8.2,0xe8dcc4,.05),0,5.15,-4.4);
- // jendela kaca besar depan + kusen
- for(let i=0;i<4;i++){const x=-.3+i*1.95;g.ad(box(1.75,2.3,.12,K,.02),x,1.95,-.95)}for(let i=0;i<5;i++)g.ad(box(.16,2.6,.2,C,.02),-1.27+i*1.95,1.85,-.92);
- // tenda bergaris di atas teras
- for(let i=0;i<10;i++){const a=box(1.4,.14,2.4,i%2?0xffffff:H,.02);a.rotation.x=.32;g.ad(a,-6.3+i*1.4,4.05,.25)}
- // papan nama + cangkir besar di atap
- g.ad(box(7.4,1.4,.3,C,.06),0,6.1,-1.2);const pn=papanTeks(7,1.1,'KAFE BUKIT','#6a3f22','#ffe9c4');pn.position.set(0,6.1,-1.03);g.add(pn);
- const cg=new THREE.Mesh(new THREE.CylinderGeometry(.9,.75,1.4,16),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.5}));cg.castShadow=true;g.ad(cg,5.6,6.1,-5);
- const ks=new THREE.Mesh(new THREE.CylinderGeometry(.82,.82,.06,16),new THREE.MeshStandardMaterial({color:0x4a2a14,roughness:.6}));g.ad(ks,5.6,6.78,-5);
- const tg=new THREE.Mesh(new THREE.TorusGeometry(.42,.13,6,14),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.5}));g.ad(tg,6.55,6.15,-5);
- // isi: meja bar + mesin kopi + rak cangkir, meja bundar & kursi
- perabot(g,box(5.2,1,.7,C,.04),2.6,.85,-6.6).userData.dinding=true;perabot(g,box(5.4,.08,.9,0xe8dcc4,.02),2.6,1.39,-6.6);
- perabot(g,box(.9,.8,.6,0x9a9a9a,.05),1.2,1.83,-6.8);perabot(g,box(.5,.3,.4,0x333333,.03),3.2,1.6,-6.7);
- rak(g,2.6,-7.65,4,.3,1.2,[0xffffff,0xd8402a,0x3a8ad8,0xf2c14a]);
- [[-5,-6],[-5,-3.4],[-2.4,-6.2],[-2.4,-3.6]].forEach(([x,z])=>{perabot(g,new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,.06,14),new THREE.MeshStandardMaterial({color:0xffffff})),x,1.05,z);perabot(g,box(.1,.6,.1,0x333333,.01),x,.68,z);[-1,1].forEach(s=>kursi(g,x+s*.85,z,H))});
- lampuGantung(g,-3.7,4.2,-4.8);lampuGantung(g,2.6,4.2,-5.6);
- // teras: meja payung
- [-5.5,-1.5,2.5,6.5].forEach((x,i)=>{meja(g,x,3.8,1.3,1.1,0xffffff,.45);[-1,1].forEach(s=>kursi(g,x+s*.95,3.8,[H,0xd8402a][i%2]));g.ad(box(.1,2.4,.1,0xdddddd,.01),x,1.9,3.8);
-  const p=new THREE.Mesh(new THREE.ConeGeometry(1.5,.7,8),new THREE.MeshStandardMaterial({color:[0xd8402a,H,0xf2c14a,0xffffff][i],roughness:.7}));p.castShadow=true;g.ad(p,x,3.3,3.8)});
- // pot tanaman, lampu taman, pohon
- [[-7.4,-.2],[7.4,-.2],[-7.4,6.6],[7.4,6.6]].forEach(([x,z])=>{g.ad(box(.9,.7,.9,0xb06a3a,.1),x,.7,z);g.ad(box(1.1,1,1.1,0x3a8a3a,.35),x,1.5,z)});
- [-4,4].forEach(x=>{g.ad(box(.16,2.6,.16,0x2a2a2a,.02),x,1.65,6.6);g.ad(box(.5,.4,.5,0xfff2c0,.06,{emissive:0xffe08a,emissiveIntensity:.7}),x,3.1,6.6)});
- pagar(g,19,17,C,3);return fin(g)}
+export function kafe(){const g=G();
+ // Kafe Bukit v2 (Huda 13 Nov 2026: "kafe besar inspirasi coffee shop modern"): gedung 2 lantai berdinding kaca dengan sirip kayu,
+ // lambang cangkir bulat milik sendiri (bukan merek asli, tanpa warna hijau merek), bar kopi panjang, papan menu, sofa, balkon lantai 2,
+ // teras kayu dengan payung, lampu tali, papan menu kapur di depan pintu.
+ const W=0xf2e6d2,D=0x2b2622,KY=0xa8743e,KY2=0x7a4f2a,T=0xc8553a,KUN=0xd9a441,K=0x9ed4ea;lantai(g,19,17,0xcdbb9c);
+ const X=0,Z=-3.9,BW=15,BD=8,BH=7.6,ZF=Z+BD/2;
+ ruang(g,{x:X,z:Z,w:BW,d:BD,h:BH,c:W,bukaan:[{s:'d',p:-3.2,w:2.6,h:2.7}],lantaiC:0xb98a5a});
+ // atap datar + lis gelap + parapet atap
+ g.ad(box(BW+.8,.45,BD+.8,D,.04),X,BH+.6,Z);g.ad(box(BW+.4,.5,.25,D,.02),X,BH+1.05,Z-BD/2-.2);[-1,1].forEach(s=>g.ad(box(.25,.5,BD+.6,D,.02),X+s*(BW/2+.2),BH+1.05,Z));
+ g.ad(box(3.2,1.1,2.2,0x8a8580,.05),4,BH+1.4,Z-1.8);   // mesin AC di atap
+ // dinding kaca 2 lantai di depan + sirip kayu vertikal
+ for(let i=0;i<6;i++){const x=-6.25+i*2.5;if(i!==1)g.ad(box(2.3,2.7,.14,K,.02),x,1.75,ZF+.03);g.ad(box(2.3,2.6,.14,K,.02),x,5.45,ZF+.03)}
+ for(let i=0;i<7;i++){const x=-7.5+i*2.5;g.ad(box(.26,BH,.42,KY,.03),x,.35+BH/2,ZF+.12)}
+ // pita kayu antar lantai + papan nama
+ g.ad(box(BW+.3,.6,.4,KY2,.03),X,3.75,ZF+.16);
+ g.ad(box(9.6,1.5,.35,D,.04),1.6,BH+1.75,ZF-.1);const pn=papanTeks(9,1.2,'KAFE BUKIT','#2b2622','#f6e2b8');pn.position.set(1.6,BH+1.75,ZF+.09);g.add(pn);
+ // lambang bulat sendiri: lingkaran gelap, cincin kuningan, cangkir putih + uap
+ const lg=new THREE.Group();lg.position.set(-5,BH+1.95,ZF+.2);g.add(lg);
+ const cyl=(r,h,c,em)=>new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,28),new THREE.MeshStandardMaterial({color:c,roughness:.5,...(em?{emissive:c,emissiveIntensity:.25}:{})}));
+ {const o=cyl(1.25,.18,KUN);o.rotation.x=Math.PI/2;lg.add(o);const i=cyl(1.05,.22,D);i.rotation.x=Math.PI/2;lg.add(i);
+  const c=box(.9,.7,.1,0xfaf3e6,.08);c.position.set(-.08,-.18,.14);lg.add(c);const pg=new THREE.Mesh(new THREE.TorusGeometry(.22,.07,6,12),new THREE.MeshStandardMaterial({color:0xfaf3e6}));pg.position.set(.42,-.15,.14);lg.add(pg);
+  [-.25,.05,.35].forEach((x,k)=>{const u=box(.09,.38,.08,KUN,.04);u.position.set(x-.08,.42+k%2*.06,.14);lg.add(u)})}
+ // kanopi gelap di atas pintu & jendela bawah
+ g.ad(box(9.6,.18,1.7,D,.02),-2.6,3.05,ZF+.9);[-7.2,1.9].forEach(x=>g.ad(box(.12,.12,1.7,D,.01),x,2.95,ZF+.9));
+ // balkon lantai 2 dengan pagar kaca
+ g.ad(box(BW,.25,2,KY2,.03),X,4.3,ZF+1.15);g.ad(box(BW,1,.08,K,.02),X,4.95,ZF+2.1);[-1,1].forEach(s=>g.ad(box(.08,1,2,K,.02),X+s*BW/2,4.95,ZF+1.15));g.ad(box(BW,.08,.12,D,.01),X,5.47,ZF+2.12);
+ [-6,-2,2,6].forEach(x=>{g.ad(box(1.2,.5,.6,D,.05),x,4.67,ZF+.6);g.ad(box(1.1,.6,.5,0x4f9a4a,.3),x,5.2,ZF+.6)});   // pot tanaman balkon
+ // isi lantai 1: bar kopi panjang, mesin espresso, etalase kue, papan menu menyala
+ perabot(g,box(8,1.05,.8,KY2,.04),2.6,.87,Z-2.4).userData.dinding=true;perabot(g,box(8.2,.1,1,0xefe6d6,.02),2.6,1.44,Z-2.4);
+ [0.4,2.2].forEach(x=>{perabot(g,box(1.2,.75,.65,0xb8bcc0,.08),x,1.86,Z-2.55);perabot(g,box(1,.12,.5,0x2a2a2a,.02),x,2.3,Z-2.55)});
+ perabot(g,box(1.8,.6,.75,0xdff0f6,.03,{transparent:true,opacity:.6}),4.7,1.78,Z-2.35);[[4.2,0xe8b07a],[4.7,0xf2d6a0],[5.2,0xc8553a]].forEach(([x,c])=>perabot(g,box(.35,.18,.35,c,.08),x,1.62,Z-2.35));
+ perabot(g,box(1.2,.9,.5,D,.02),6.2,.8,Z-2.4).userData.dinding=true;   // kasir
+ for(let i=0;i<3;i++){const m=perabot(g,box(2.1,1.2,.08,D,.02),.2+i*2.3,2.8,Z-BD/2+.38);const t=papanTeks(1.9,.32,['KOPI','TEH & SUSU','ROTI'][i],'#2b2622','#f6e2b8');t.position.set(.2+i*2.3,3.15,Z-BD/2+.43);t.userData.perabot=true;g.add(t);
+  for(let k=0;k<3;k++)perabot(g,box(1.5,.06,.02,0xf2e6d2,.01,{emissive:0xf2e6d2,emissiveIntensity:.3}),.2+i*2.3,2.85-k*.25,Z-BD/2+.43)}
+ rak(g,-4.6,Z-BD/2+.5,3,.35,1.4,[0x7a4f2a,0xd9a441,0xfaf3e6,0xc8553a]);
+ // sofa memanjang di dinding kiri + meja panjang bersama + meja bundar
+ perabot(g,box(.8,.5,5,T,.05),-BW/2+.75,.6,Z+.3);perabot(g,box(.25,.8,5,T,.05),-BW/2+.45,1,Z+.3);
+ [-1.4,.3,2].forEach(z=>{meja(g,-5.8,Z+z,.7,.7,KY,.4);kursi(g,-5,Z+z,D)});
+ perabot(g,box(4.6,.08,1.1,KY,.03),-1.6,1.2,Z+1.2);[-3.4,.2].forEach(x=>perabot(g,box(.1,.8,.9,D,.01),x,.78,Z+1.2));[-3.2,-2,-.8,.2].forEach(x=>{kursi(g,x,Z+.4,D,.25);kursi(g,x,Z+2.1,D,.25)});
+ [[2.4,Z+1.6],[4.8,Z+1.6]].forEach(([x,z])=>{perabot(g,new THREE.Mesh(new THREE.CylinderGeometry(.5,.5,.06,14),new THREE.MeshStandardMaterial({color:0xefe6d6})),x,1.05,z);perabot(g,box(.1,.6,.1,D,.01),x,.68,z);[-1,1].forEach(s=>kursi(g,x+s*.8,z,KY))});
+ [[-6.8,Z-3.2],[6.9,Z+2.6]].forEach(([x,z])=>{perabot(g,box(.6,.6,.6,D,.08),x,.65,z);perabot(g,box(.9,1.3,.9,0x3f8a4a,.4),x,1.6,z)});
+ [-4,-1.5,1,3.5].forEach(x=>lampuGantung(g,x,3.75,Z+.4));
+ // teras kayu di depan: payung krem/terakota, lampu tali, pot tanaman
+ g.ad(box(17,.12,5.6,KY,.02),0,.42,ZF+4.6);for(let i=0;i<8;i++)g.ad(box(17,.02,.04,KY2,.005),0,.49,ZF+2.1+i*.7);
+ [-6,-2.2,2.2,6].forEach((x,i)=>{meja(g,x,ZF+4.7,1.2,1.2,0xfaf3e6,.45);[-1,1].forEach(s=>kursi(g,x+s*.95,ZF+4.7,[D,KY2][i%2]));g.ad(box(.1,2.5,.1,D,.01),x,1.9,ZF+4.7);
+  const pa=new THREE.Mesh(new THREE.ConeGeometry(1.7,.7,8),new THREE.MeshStandardMaterial({color:[0xf6ead6,T][i%2],roughness:.7}));pa.castShadow=true;g.ad(pa,x,3.4,ZF+4.7)});
+ const LW=0xfff0b8;for(let i=0;i<16;i++){const x=-8+i*16/15;g.ad(box(.2,.2,.2,LW,.1,{emissive:0xffd88a,emissiveIntensity:.9}),x,3.6-Math.sin(i/15*Math.PI)*.7,ZF+7.2)}
+ [-8.2,8.2].forEach(x=>g.ad(box(.14,4,.14,D,.02),x,2.3,ZF+7.2));
+ for(let i=0;i<6;i++){const x=-7.6+i*3.04;if(Math.abs(x+3.2)<1.4)continue;g.ad(box(1.1,.6,.5,D,.05),x,.75,ZF+2.2);g.ad(box(1,.5,.4,0x4f9a4a,.3),x,1.25,ZF+2.2)}
+ // papan menu kapur berdiri (A-frame) + rak sepeda
+ const pk=box(.9,1.2,.08,D,.02);pk.rotation.x=-.22;g.ad(pk,-1.2,1.05,ZF+1.6);const pt=papanTeks(.8,.3,'KOPI SUSU','#2b2622','#ffffff');pt.position.set(-1.2,1.3,ZF+1.66);pt.rotation.x=-.22;g.add(pt);
+ for(let i=0;i<4;i++)g.ad(new THREE.Mesh(new THREE.TorusGeometry(.4,.05,5,12,Math.PI),new THREE.MeshStandardMaterial({color:0x9a9a9a})),7+i*.45-1,.45,ZF+1.4,Math.PI/2);
+ pagar(g,19,17,KY2,3);return fin(g)}
 // Taman Hiburan (Kotak Tlaga): gerbang, bianglala & komidi putar (berputar; g.userData.putar dianimasikan game), loket, kios, lampu warna.
 export function hiburan(){const g=G();const PAV=0xe8d8b8,M=0xe0303a,B=0x3a8ad8,K=0xf2c14a;lantai(g,19,17,PAV);g.userData.zona=[];g.userData.putar=[];
  g.ad(box(17,.05,1.6,0xc8875a,.02),0,.38,4.6);g.ad(box(1.6,.05,9,0xc8875a,.02),0,.38,.5);
@@ -379,17 +407,17 @@ export function hiburan(){const g=G();const PAV=0xe8d8b8,M=0xe0303a,B=0x3a8ad8,K
  // bianglala (kiri belakang): kaki A + roda berputar dengan 8 kabin
  [-1,1].forEach(s=>{const k=box(.3,8.6,.3,0xdddddd,.02);k.rotation.x=s*.22;g.ad(k,-4.6,4.6,-5.6+s*.95)});g.ad(box(.3,.3,2.4,0xaaaaaa,.02),-4.6,8.7,-5.6);
  const roda=new THREE.Group();roda.position.set(-4.6,8.7,-5.6);g.add(roda);const rr=4.2;
- const cin=new THREE.Mesh(new THREE.TorusGeometry(rr,.12,6,40),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.5}));roda.add(cin);
+ const kursiB=[];const cin=new THREE.Mesh(new THREE.TorusGeometry(rr,.12,6,40),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.5}));roda.add(cin);
  for(let i=0;i<8;i++){const a=i/8*Math.PI*2,j=box(.1,rr*2,.1,0xffffff,.01);j.rotation.z=a;roda.add(j);
-  const kb=box(1,1,1,[M,B,K,0x3aa860][i%4],.2);kb.position.set(Math.cos(a)*rr,Math.sin(a)*rr-.6,0);kb.userData.tegak=1;roda.add(kb)}
- g.userData.putar.push({o:roda,ax:'z',v:.25});
+  const kb=box(1,1,1,[M,B,K,0x3aa860][i%4],.2);kb.position.set(Math.cos(a)*rr,Math.sin(a)*rr-.6,0);kb.userData.tegak=1;roda.add(kb);kursiB.push(kb)}
+ g.userData.putar.push({o:roda,ax:'z',v:.25,wahana:'bianglala',kursi:kursiB});
  // komidi putar (kanan belakang)
  const km=new THREE.Group();km.position.set(4.6,0,-4.6);g.add(km);
  const cy=(r,h,c,y)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,20),new THREE.MeshStandardMaterial({color:c,roughness:.6}));m.castShadow=m.receiveShadow=true;m.position.y=y;return m};
  km.add(cy(3.3,.4,0xf6f0e2,.55));km.add(cy(.35,3.6,0xffd23a,2.4));
  const at=new THREE.Mesh(new THREE.ConeGeometry(3.6,1.6,12),new THREE.MeshStandardMaterial({color:M,roughness:.6}));at.position.y=4.9;at.castShadow=true;km.add(at);km.add(cy(3.5,.35,0xffffff,4));
- const kuda=new THREE.Group();km.add(kuda);for(let i=0;i<6;i++){const a=i/6*Math.PI*2,x=Math.cos(a)*2.3,z=Math.sin(a)*2.3;const t=box(.08,3.2,.08,0xffd23a,.01);t.position.set(x,2.4,z);kuda.add(t);const h=box(.5,.6,1.1,[0xffffff,B,K][i%3],.15);h.position.set(x,1.5,z);h.rotation.y=-a;kuda.add(h)}
- g.userData.putar.push({o:km,ax:'y',v:.5});
+ const kuda=new THREE.Group(),kursiK=[];km.add(kuda);for(let i=0;i<6;i++){const a=i/6*Math.PI*2,x=Math.cos(a)*2.3,z=Math.sin(a)*2.3;const t=box(.08,3.2,.08,0xffd23a,.01);t.position.set(x,2.4,z);kuda.add(t);const h=box(.5,.6,1.1,[0xffffff,B,K][i%3],.15);h.position.set(x,1.5,z);h.rotation.y=-a;kuda.add(h);kursiK.push(h)}
+ g.userData.putar.push({o:km,ax:'y',v:.5,wahana:'komidi',kursi:kursiK});
  // loket + kios jajan
  ruang(g,{x:-6.6,z:3,w:3,d:2.4,h:2.6,c:0xffffff,bukaan:[{s:'d',p:0,w:1.2,h:2.1}],zona:false});g.ad(box(3.4,.3,2.8,B,.04),-6.6,3.1,3);const lk=papanTeks(2.6,.6,'LOKET','#3a8ad8','#ffffff');lk.position.set(-6.6,2.55,4.22);g.add(lk);
  [[6.4,3,M],[3.6,3,K]].forEach(([x,z,c])=>{g.ad(box(2.2,1,1.2,0x9a6a3a,.04),x,.85,z);g.ad(box(.1,2.2,.1,0xdddddd,.01),x-1,1.45,z-.5);g.ad(box(.1,2.2,.1,0xdddddd,.01),x+1,1.45,z-.5);const a=box(2.6,.15,1.8,c,.03);a.rotation.x=-.25;g.ad(a,x,2.6,z)});
@@ -593,7 +621,36 @@ export function bandaraBesar(){const g=G();const W=0xf2f4f6,B=0x2f6fb8,K=0x8fd0e
  g.ad(box(64,.05,1.6,0xf4f4f0,.01),0,.4,-21.2);[-20,-8,8,20].forEach((x,i)=>{g.ad(box(2.4,.8,1.2,[0xf2c14a,0x3a8ad8,0xf2c14a,0xe8e8e8][i],.3),x,.9,-21.2);g.ad(box(1.4,.55,1.1,0x26313d,.2),x-.1,1.5,-21.2)});
  [-31,31].forEach(x=>[-8,-20].forEach(z=>{g.ad(box(.8,2.8,.8,0x6a4426,.04),x,1.75,z);g.ad(box(3,2.6,3,0x3a8a5a,.3),x,4.2,z)}));
  pagar(g,64,44,B,4);return fin(g)}
-export const SEMUA={masjid,gereja,katedral,pura,vihara,klenteng,sekolah,warung,supermarket,rumahSakit,stadion,kampus,tamanKota,kafe,hiburan,polisi,tokoWillo,arenaLari,sirkuitReli,dealer,damkar,bandara,bandaraBesar};
+// Stasiun Kereta (calon voting 14 Nov 2026, Kotak Curug lahan 0): gedung stasiun + peron beratap, rel di depan, kereta 3 gerbong
+// diam di peron. Rute melingkar 5 dusun (rencana kereta) menyusul setelah stasiun berdiri.
+export function stasiun(){const g=G();const W=0xf3eee2,M=0xb8322a,AB=0x5a5e66,K=0x8fd0ec,KY=0x7a5232;lantai(g,19,17,0xcfc8b8);
+ ruang(g,{x:0,z:-5.2,w:12,d:5.6,h:4,c:W,bukaan:[{s:'d',p:0,w:2.6,h:2.8}],lantaiC:0xe2dccd});
+ const at=roof(13,2.2,6.4,M);g.ad(at,0,4.35,-5.2);
+ g.ad(box(8.6,1.3,.3,M,.06),0,5.2,-2.2);const pn=papanTeks(8.2,1,'STASIUN KOTAK','#b8322a','#fff4dc');pn.position.set(0,5.2,-2.03);g.add(pn);
+ for(const x of[-4,4])g.ad(box(2.2,1.8,.12,K,.02),x,2.1,-2.38);
+ // jam bulat di atas pintu
+ const jm=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,.12,20),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.5}));jm.rotation.x=Math.PI/2;g.ad(jm,0,3.65,-2.3);
+ g.ad(box(.06,.4,.04,0x222222,0),0,3.75,-2.22);g.ad(box(.3,.06,.04,0x222222,0),.12,3.65,-2.22);
+ // isi: loket + kursi tunggu + papan jadwal
+ perabot(g,box(3,1,.6,KY,.04),-3.4,.85,-6.9).userData.dinding=true;perabot(g,box(3.2,.08,.8,0xe8dcc4,.02),-3.4,1.39,-6.9);
+ [1.2,2.4,3.6].forEach(x=>kursi(g,x,-5.6,0x3a8ad8));const pj=papanTeks(3,.9,'CURUG → KULON → SEGARA','#1d2a44','#f2c14a');pj.position.set(2.4,2.9,-7.82);g.add(pj);
+ // peron beratap
+ g.ad(box(17,.5,3.2,0xd8d2c4,.03),0,.6,.2);g.ad(box(17,.06,.3,0xf2c14a,0),0,.88,1.65);
+ for(const x of[-7,-3.5,0,3.5,7])g.ad(box(.2,2.8,.2,AB,.02),x,2.25,-.6);g.ad(box(17.4,.18,2.4,M,.03),0,3.7,-.1);
+ [-5.2,5.2].forEach(x=>bangku(g,x,-.6,1.8,KY));
+ // rel
+ g.ad(box(18.6,.12,2.4,0x8a8478,.02),0,.41,4.4);for(let x=-9;x<=9.01;x+=.9)g.ad(box(.3,.08,2,0x6a4426,.01),x,.5,4.4);
+ for(const z of[3.75,5.05])g.ad(box(18.6,.12,.12,0x9aa0a8,.01),0,.6,z);
+ // kereta 3 gerbong (lok merah, gerbong krem)
+ const gerbong=(x,lok)=>{const c=lok?M:0xf2e6c8;g.ad(box(5,1.9,1.9,c,.25),x,1.75,4.4);g.ad(box(5.1,.25,2,0x2a2a2a,.04),x,.75,4.4);
+  for(let i=-1;i<=1;i++)g.ad(box(1,.7,.06,K,.02),x+i*1.4,2.05,3.42);g.ad(box(5,.12,1.95,lok?0xf2c14a:M,.02),x,1.25,4.4);
+  for(const dx of[-1.7,1.7])for(const z of[3.55,5.25]){const r=new THREE.Mesh(new THREE.CylinderGeometry(.35,.35,.15,12),new THREE.MeshStandardMaterial({color:0x222222}));r.rotation.x=Math.PI/2;g.ad(r,x+dx,.75,z)}};
+ gerbong(-5.6,true);gerbong(-.2,false);gerbong(5.2,false);g.ad(box(.6,.5,.6,0x2a2a2a,.05),-7.6,2.95,4.4);
+ g.ad(box(.5,.35,.5,0xfff2c0,.06,{emissive:0xffe08a,emissiveIntensity:.8}),-8.15,1.9,4.4);
+ // tiang sinyal
+ g.ad(box(.14,3,.14,0x2a2a2a,.02),8.6,1.9,2.9);g.ad(box(.5,1,.3,0x2a2a2a,.04),8.6,3.3,2.9);g.ad(box(.26,.26,.06,0x3ad86a,.05,{emissive:0x3ad86a,emissiveIntensity:.8}),8.6,3.5,3.06);
+ pagar(g,19,17,AB,3);return fin(g)}
+export const SEMUA={masjid,gereja,katedral,pura,vihara,klenteng,sekolah,warung,supermarket,rumahSakit,stadion,kampus,tamanKota,kafe,hiburan,polisi,tokoWillo,arenaLari,sirkuitReli,dealer,damkar,bandara,bandaraBesar,stasiun};
 // Dipakai game: pisahkan bagian "atas" (dinding atas, atap, lantai 2) supaya bisa disembunyikan saat warga di dalam,
 // dan hitung kotak tabrakan per dinding (pintu & ruang dalam bisa dilewati). m sudah diskalakan & diposisikan.
 export function pisahFasum(m){

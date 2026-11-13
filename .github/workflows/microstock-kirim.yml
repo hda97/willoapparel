@@ -1,0 +1,110 @@
+name: Microstock - kirim ke Adobe Stock (SFTP)
+
+# Menggambar ulang satu batch dari kode (microstock/scenes.html) lalu mengirim JPG-nya
+# ke akun kontributor Adobe Stock lewat SFTP. Gambar tidak disimpan di repo.
+# Jalan otomatis saat file batch baru (microstock/batches/*.json) masuk ke main,
+# atau manual: Actions > workflow ini > Run workflow > isi nama batch.
+# Setelah terkirim, Huda tetap harus membuka portal Adobe: unggah CSV, centang
+# "Created using generative AI tools", lalu Submit.
+# Secret yang dibutuhkan (Settings > Secrets and variables > Actions):
+#   ADOBE_SFTP_USER  = nama pengguna SFTP dari portal kontributor
+#   ADOBE_SFTP_PASS  = kata sandi SFTP dari portal kontributor
+# Opsional ADOBE_SFTP_HOST (secret atau variabel) = alamat server dari portal,
+# menu Upload > Learn More (bawaan: sftp.contributor.adobestock.com).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "microstock/batches/*.json"
+  workflow_dispatch:
+    inputs:
+      batch:
+        description: "Nama batch tanpa .json, misalnya batch-03-riset-trafik"
+        required: true
+      kirim:
+        description: "Kirim ke Adobe? (false = hanya gambar, hasil bisa diunduh)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: microstock-kirim
+  cancel-in-progress: false
+
+jobs:
+  kirim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Tentukan batch
+        id: batch
+        env:
+          INPUT_BATCH: ${{ inputs.batch }}
+        run: |
+          if [ -n "$INPUT_BATCH" ]; then
+            case "$INPUT_BATCH" in *[!A-Za-z0-9._-]*) echo "::error::Nama batch tidak valid"; exit 1;; esac
+            daftar="$INPUT_BATCH"
+          else
+            daftar=$(git diff --name-only --diff-filter=AM HEAD~1 HEAD -- 'microstock/batches/*.json' | xargs -r -n1 basename | sed 's/\.json$//' | tr '\n' ' ')
+          fi
+          for b in $daftar; do
+            case "$b" in *[!A-Za-z0-9._-]*) echo "::error::Nama batch tidak valid"; exit 1;; esac
+            [ -f "microstock/batches/$b.json" ] || { echo "::error::Batch $b tidak ditemukan"; exit 1; }
+          done
+          echo "daftar=$daftar" >> "$GITHUB_OUTPUT"
+          echo "Batch: ${daftar:-tidak ada}"
+
+      - name: Gambar ulang dari kode
+        if: steps.batch.outputs.daftar != ''
+        working-directory: microstock
+        env:
+          BROWSER_CHANNEL: chrome
+          DAFTAR: ${{ steps.batch.outputs.daftar }}
+        run: |
+          npm install --no-save --no-audit --no-fund playwright-core@1.48.2
+          for b in $DAFTAR; do
+            node render.js "batches/$b.json" "keluaran/$b"
+            cp "batches/$b.csv" "keluaran/$b/"
+          done
+
+      - name: Simpan hasil gambar (bisa diunduh 7 hari)
+        if: steps.batch.outputs.daftar != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: microstock-${{ github.run_id }}
+          path: microstock/keluaran
+          retention-days: 7
+
+      - name: Kirim lewat SFTP
+        if: steps.batch.outputs.daftar != '' && (github.event_name == 'push' || inputs.kirim)
+        working-directory: microstock
+        env:
+          SFTP_USER: ${{ secrets.ADOBE_SFTP_USER }}
+          SSHPASS: ${{ secrets.ADOBE_SFTP_PASS }}
+          SFTP_HOST: ${{ secrets.ADOBE_SFTP_HOST || vars.ADOBE_SFTP_HOST || 'sftp.contributor.adobestock.com' }}
+          DAFTAR: ${{ steps.batch.outputs.daftar }}
+        run: |
+          if [ -z "$SFTP_USER" ] || [ -z "$SSHPASS" ]; then
+            echo "::error::Secret ADOBE_SFTP_USER / ADOBE_SFTP_PASS belum diisi. Gambar tidak dikirim."
+            exit 1
+          fi
+          sudo apt-get install -y -qq sshpass >/dev/null
+          jumlah=0
+          for b in $DAFTAR; do
+            ( cd "keluaran/$b" && for f in *.jpg; do echo "put \"$f\""; done > ../kirim.txt )
+            ( cd "keluaran/$b" && sshpass -e sftp -oBatchMode=no -oStrictHostKeyChecking=accept-new -oPreferredAuthentications=password -oPubkeyAuthentication=no -b ../kirim.txt "$SFTP_USER@$SFTP_HOST" )
+            jumlah=$((jumlah + $(ls "keluaran/$b"/*.jpg | wc -l)))
+          done
+          {
+            echo "## Terkirim ke Adobe Stock: $jumlah gambar"
+            echo "Batch: $DAFTAR"
+            echo ""
+            echo "Langkah Huda: buka portal kontributor, unggah file CSV batch ini, centang tanda buatan AI, lalu Submit."
+          } >> "$GITHUB_STEP_SUMMARY"

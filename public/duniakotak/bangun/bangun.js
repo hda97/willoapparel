@@ -32,8 +32,8 @@ function bunyi(f = 660, d = .08, tipe = 'square', v = .05) {
 // ---------- API ----------
 async function apiB(op, data = {}) {
   try {
-    if (!AKUN) { const r = await fetch('/duniakotak/api/bangun'); return await r.json(); }
-    const r = await fetch('/duniakotak/api/bangun', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({kunci: AKUN.kunci, op, ...data})});
+    if (!AKUN) { const r = await fetch('/duniakotak/api/bangun?dusun=' + DUSUN); return await r.json(); }
+    const r = await fetch('/duniakotak/api/bangun', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({kunci: AKUN.kunci, op, dusun: DUSUN, ...data})});
     const j = await r.json(); if (r.status === 401 && op === 'info') AKUN = null; return j;
   } catch (e) { return {galat: 'Sinyal putus. Coba lagi sebentar.'}; }
 }

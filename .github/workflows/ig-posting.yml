@@ -1,0 +1,56 @@
+name: Posting Instagram Dunia Kotak
+
+# Terbitkan reel dari konten-ig/antrean/<tanggal WIB>.json ke @duniakotak.id lewat
+# Instagram Graph API resmi (gratis). Cron GitHub sering telat/dilewati, jadi dicek
+# tiap 30 menit 18.00–20.30 WIB; antrean hanya terbit sekali (kolom "terbit").
+
+on:
+  push:
+    branches: [main]
+    paths: ["konten-ig/**", ".github/workflows/ig-posting.yml"]
+  schedule:
+    - cron: "0,30 11-13 * * *"
+  workflow_dispatch:
+    inputs:
+      tanggal:
+        description: "Terbitkan antrean tanggal ini sekarang (YYYY-MM-DD). Kosongkan = cek jadwal biasa."
+        required: false
+      cek_token:
+        description: "Hanya uji token (tanpa posting)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ig-posting
+  cancel-in-progress: false
+
+jobs:
+  posting:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: konten-ig
+      - name: Terbitkan
+        env:
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          IG_APP_ID: ${{ secrets.IG_APP_ID }}
+          IG_APP_SECRET: ${{ secrets.IG_APP_SECRET }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          PAKSA_TANGGAL: ${{ inputs.tanggal }}
+          CEK_TOKEN: ${{ (inputs.cek_token || github.event_name == 'push') && '1' || '' }}
+        run: python3 konten-ig/posting.py
+      - name: Simpan status
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898499+github-actions[bot]@users.noreply.github.com"
+          for f in konten-ig/token.enc konten-ig/antrean; do [ -e "$f" ] && git add "$f"; done; true
+          if ! git diff --cached --quiet; then
+            git commit -m "IG: status posting $(TZ=Asia/Jakarta date +%F)"
+            for i in 1 2 3; do git pull --rebase -q origin main && git push -q origin HEAD:main && break; sleep 5; done
+          fi

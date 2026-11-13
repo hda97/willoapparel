@@ -1,0 +1,58 @@
+name: Terbitkan game Roblox Dunia Kotak
+
+# Merakit roblox/src/*.server.lua jadi file tempat (.rbxlx) lalu menerbitkannya
+# ke Roblox lewat Open Cloud (gratis, tanpa Roblox Studio).
+# Butuh 3 secret repo: ROBLOX_API_KEY (izin universe-places: write),
+# ROBLOX_UNIVERSE_ID, ROBLOX_PLACE_ID.
+
+# Hanya jalan manual (Run workflow). Terbit otomatis saat push DIMATIKAN karena
+# place sekarang dibangun di Roblox Studio (map v3); terbit dari file rakitan
+# akan MENIMPA isi place itu.
+on:
+  workflow_dispatch:
+    inputs:
+      jenis:
+        description: "Published = langsung tayang; Saved = simpan versi saja"
+        type: choice
+        options: [Published, Saved]
+        default: Published
+
+permissions:
+  contents: read
+
+concurrency:
+  group: roblox-terbit
+  cancel-in-progress: false
+
+jobs:
+  terbit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: roblox
+      - name: Rakit file tempat
+        run: python3 roblox/build_rbxlx.py
+      - name: Terbitkan ke Roblox
+        env:
+          KEY: ${{ secrets.ROBLOX_API_KEY }}
+          UNIVERSE: ${{ secrets.ROBLOX_UNIVERSE_ID }}
+          PLACE: ${{ secrets.ROBLOX_PLACE_ID }}
+          JENIS: ${{ inputs.jenis || 'Published' }}
+        run: |
+          if [ -z "$KEY" ] || [ -z "$UNIVERSE" ] || [ -z "$PLACE" ]; then
+            echo "::warning::Secret ROBLOX_API_KEY / ROBLOX_UNIVERSE_ID / ROBLOX_PLACE_ID belum diisi. Lewati terbit."
+            exit 0
+          fi
+          kode=$(curl -sS -o hasil.json -w "%{http_code}" -X POST \
+            "https://apis.roblox.com/universes/v1/${UNIVERSE}/places/${PLACE}/versions?versionType=${JENIS}" \
+            -H "x-api-key: ${KEY}" \
+            -H "Content-Type: application/xml" \
+            --data-binary @roblox/build/DuniaKotak.rbxlx)
+          echo "HTTP $kode"; cat hasil.json; echo
+          if [ "$kode" != "200" ]; then
+            echo "::error::Gagal terbit ke Roblox (HTTP $kode). Cek izin API key (universe-places write), IP 0.0.0.0/0, dan ID."
+            exit 1
+          fi
+          echo "Terbit: https://www.roblox.com/games/${PLACE}"

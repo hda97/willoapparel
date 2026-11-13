@@ -1,0 +1,17 @@
+# Clipping Agent dependencies — a lightweight, CPU-only stack (onnxruntime).
+# Install into the skill venv:
+#   python -m venv .venv
+#   Windows:      .venv\Scripts\python -m pip install --only-binary=:all: -r requirements.txt
+#   macOS/Linux:  .venv/bin/python -m pip install -r requirements.txt
+# Do NOT add torch / opencv-python / faster-whisper / openai-whisper / mediapipe — the whole
+# point is a small dependency-light stack. All ML runs on onnxruntime (CPU). ffmpeg must be on PATH.
+onnxruntime
+onnx-asr
+numpy
+scipy
+pillow
+soundfile
+huggingface-hub
+imageio
+yt-dlp
+httpx
