@@ -5,3 +5,5 @@
 - Secret repo: `IG_TOKEN`, `IG_APP_ID`, `IG_APP_SECRET` (diisi Huda; jangan ditulis di chat atau file). `token.enc` = token Halaman terenkripsi, dibuat otomatis.
 
 Catatan 13 Nov 2026: cron GitHub sering telat; bila jadwal lewat, merge perubahan apa pun di konten-ig/ untuk memicu posting.
+
+Sampul reel: taruh JPG 9:16 di public/duniakotak/reel/<tanggal>-sampul.jpg (di PR yang sama dengan video). posting.py otomatis memasangnya sebagai cover_url. Sampul tidak bisa diganti lewat API setelah terbit.
