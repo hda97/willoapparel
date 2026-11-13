@@ -54,6 +54,14 @@ const FASUM_CALON = {
   damkar: { nama: "🚒 Stasiun Pemadam", aset: "damkar", dusun: "wetan", lahan: 14 },
   bandara: { nama: "✈️ Bandara", aset: "bandaraBesar", dusun: "tlaga", lahan: 2 },
 };
+// RENCANA BANDARA (Huda 13 Nov 2026; BELUM dibangun, tetap menunggu Bandara MENANG voting):
+// - "Bandara ada di setiap dusun, pesawat bisa terbang, warga bisa naik". Disetujui ("Oke"): bandara utama di Tlaga (lahan 2 di atas),
+//   empat dusun lain cukup landasan kecil di pinggir dusun yang TIDAK memakan lahan fasum.
+// - Pesawat penumpang besar milik desa = "Kotak Air" (model js/aset/pesawat.js, merek asli tidak dipakai): terbang antardusun,
+//   warga bisa naik (kendaraan umum, jadi bayar koin seperti bus/kereta; tarif ditanyakan ke Huda saat dibangun).
+// - "Pesawat pribadi ada": warga bisa punya pesawat kecil sendiri (dibeli koin seperti Dealer Kendaraan), terbang gratis
+//   (aturan Huda: kendaraan pribadi gratis, kendaraan umum bayar).
+const RENCANA_BANDARA = { utama: "tlaga", landasanKecil: ["wetan", "kulon", "curug", "segara"], pesawatDesa: "Kotak Air", pesawatPribadi: true };
 // CALON NANTI (Huda 13 Nov 2026: "Pasar desa juga", "Dibangun setelah itu"). BELUM aktif: semua tetap lewat voting.
 // Pindahkan ke FASUM_CALON + CALON_LANJUT (dan LOKASI_FASUM/ASET_CALON/CALON di game.js) setelah model 3D-nya dibuat
 // dan syaratnya terpenuhi. Kios Warga masuk setelah calon sekarang habis; Pasar & Dermaga setelah Segara buka (warga No. 861).
@@ -1989,7 +1997,7 @@ export class Ruang extends DurableObject {
     if (!a.no) return;
     const now = Date.now();
     if (q.t === "p") {
-      const p = { x: +q.x || 0, z: +q.z || 0, r: +q.r || 0, a: q.a ? 1 : 0, n: q.n ? 1 : 0 };   // n = sedang naik kendaraan
+      const p = { x: +q.x || 0, z: +q.z || 0, r: +q.r || 0, a: q.a ? 1 : 0, n: q.n ? 1 : 0, b: Math.max(0, Math.floor(+q.b) || 0) };   // n = sedang naik kendaraan, b = No. sopir mobil yang ditumpangi (nebeng)
       if (![p.x, p.z, p.r].every(Number.isFinite)) return;
       this.pos.set(a.no, p);
       if (now - (a.simpan || 0) > 5000) {
@@ -2000,7 +2008,7 @@ export class Ruang extends DurableObject {
       }
       if (now - this.kirimTerakhir > 120) {
         this.kirimTerakhir = now;
-        const daftar = []; for (const [no, v] of this.pos) daftar.push([no, Math.round(v.x * 10) / 10, Math.round(v.z * 10) / 10, Math.round(v.r * 100) / 100, v.a, v.n]);
+        const daftar = []; for (const [no, v] of this.pos) daftar.push([no, Math.round(v.x * 10) / 10, Math.round(v.z * 10) / 10, Math.round(v.r * 100) / 100, v.a, v.n, v.b]);
         this.pos.clear();
         this.siar({ t: "p", d: daftar });
       }
