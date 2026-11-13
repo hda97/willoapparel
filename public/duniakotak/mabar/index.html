@@ -21,7 +21,7 @@
 
 <!-- HUD -->
 <div id="hud" hidden>
- <div class="kartu profil" id="profil" title="Buka profil"><div class="ava" id="profAva">🙂</div><div class="pfNm"><b id="profNama">@warga</b></div><span class="dompet" id="dompet"><span id="dKoin">🪙 0</span><span id="dPermata">💎 0</span></span><button class="chipOnline" id="dOnline" title="Lihat warga online per dusun"><i class="titikOn"></i>0</button></div>
+ <div class="kartu profil" id="profil" title="Buka profil"><div class="ava" id="profAva">🙂</div><b class="lvChip avLv" id="dLevel" hidden>Lv1</b><div class="pfNm"><b id="profNama">@warga</b></div><span class="dompet" id="dompet"><span id="dKoin">🪙 0</span><span id="dPermata">💎 0</span></span><button class="chipOnline" id="dOnline" title="Lihat warga online per dusun"><i class="titikOn"></i>0</button></div>
  <div class="kartu jam" id="jam"></div>
  <div class="tombolAtas" id="tombolAtas">
   <button class="bulat" id="bRumah" title="Pulang ke rumah"><i>🏠</i>Rumah</button>
@@ -85,7 +85,7 @@
    <!-- Huda 9 Nov 2026: item yang berhubungan dengan 💎/top up & keaktifan game di atas, pengaturan biasa di bawah -->
    <button class="barisAtur" id="bMusik" title="Suara: semua / efek saja / senyap"><i>🔊</i>Suara</button>
    <button class="barisAtur" id="bAvatar" title="Ubah avatar"><i>🪞</i>Ubah avatar</button>
-   <button class="barisAtur" id="bPanduan" title="Panduan"><i>❓</i>Panduan bermain</button>
+   <button class="barisAtur" id="bPanduan" title="Tutorial bersama Raka"><i>🎬</i>Tutorial Raka (cara main)</button>
    <a class="barisAtur" id="bAkun" href="/duniakotak/hapus-akun.html" title="Privasi &amp; akun" style="text-decoration:none"><i>🔒</i><span>Privasi &amp; hapus akun<small>Kebijakan privasi, syarat, dan hapus akun warga</small></span></a>
   </div>
   <button class="utama" id="tutupAtur">Lanjut main</button>
@@ -94,6 +94,8 @@
 <div id="panelKabar" class="layarPenuh popup" hidden>
  <div class="panel"><button class="popTutup" data-tutup="panelKabar" aria-label="Tutup">✕</button>
   <h2>📣 Baru di Desa!</h2>
+  <div class="kbItem" data-k="level"><i>🌟</i><div><b>Level Warga, Gelar &amp; Impian</b><small>Tiap koin yang kamu dapat dari kegiatan jadi XP. Naik level, dapat gelar dari Warga Baru sampai Legenda Dunia Kotak, dan kejar 8 Impian Warga: rumah 2 lantai, pekarangan asri, kendaraan sendiri &amp; lainnya. Lihat di profilmu (ketuk fotomu di pojok kiri atas).</small></div></div>
+  <div class="kbItem" data-k="tutor"><i>🎬</i><div><b>Tutorial bareng Raka</b><small>Raka sekarang bisa ngajak keliling: cara cari koin, belanja, voting &amp; bangun fasum, sampai jelajah 5 dusun, lengkap dengan suaranya. Buka kapan saja di ⚙️ Atur → 🎬 Tutorial Raka.</small></div></div>
   <div class="kbItem" data-k="belanja"><i>🛒</i><div><b>Belanja di Warung &amp; Supermarket!</b><small>Datangi 🛒 Warung Desa (ada di tiap dusun) atau Supermarket Dunia Kotak di Kotak Wetan, tekan 🛒 Belanja. Jajan mi rebus, gorengan, es teh, es krim, beli 🥫 pakan kucing (buat memberi makan kucing tanpa mancing), dan bahan 🪵🪨🌼🍃 untuk Rakit Hiasan. Bayar pakai 🪙 koin.</small></div></div>
   <div class="kbItem" data-k="kafe"><i>☕</i><div><b>Kafe Bukit: kafe besar 2 lantai</b><small>Fasum pemenang voting minggu ini dibangun mulai Sabtu di Dusun Kotak Kulon: dinding kaca, bar kopi, sofa, balkon &amp; teras payung. Begitu jadi, masuk ke dalam lalu tekan 🛒 Belanja untuk beli kopi susu gula aren, cappuccino, croissant, roti bakar &amp; lainnya pakai 🪙 koin. Ikut jadi 🔨 tukang di lahannya supaya cepat buka!</small></div></div>
   <div class="kbItem" data-k="berantai"><i>🏗️</i><div><b>Voting &amp; pembangunan tanpa jeda</b><small>Begitu voting ditutup, fasum pemenangnya langsung dibangun dan voting berikutnya langsung dibuka. Jadi selalu ada yang sedang dibangun di desa! Sabtu 00.00 WIB 🌳 Taman Kota &amp; 🎡 Taman Hiburan jadi, ☕ Kafe Bukit di Kotak Kulon mulai dibangun, lalu voting baru dibuka dengan calon 🚆 Stasiun Kereta, 🚒 Stasiun Pemadam &amp; ✈️ Bandara. Taruh bintangmu di ⭐ Voting, bantu bangun lewat 🔨 Tukang Kotak.</small></div></div>
@@ -113,7 +115,7 @@
   <div class="kbItem" data-k="rumah"><i>🏡</i><div><b>Lomba Rumah Terindah</b><small>Hias rumahmu! Tiap hari kamu punya 3 ❤️ gratis untuk rumah tetangga (dekati rumahnya, tekan ❤️ Suka). Rumah dengan ❤️ terbanyak minggu ini dapat piala emas di atas rumah + dikunjungi Raka di vlog!</small></div></div>
   <div class="kbItem" data-k="ajak"><i>🤝</i><div><b>Ajak Tetangga</b><small id="kbAjak">Bagikan link ajakmu. Teman daftar &amp; tanam bibit pertama: kamu +10 💎, temanmu +5 💎. Ayo penuhi warga ke-861, Dusun Segara dibuka!</small></div></div>
   <div class="kbItem" data-k="piala"><i>🏆</i><div><b>Piala Antardusun Mingguan</b><small>Finish Pelari Kalcer +10 poin &amp; gol di stadion +2 poin untuk dusunmu. Dusun juara dapat bendera emas di gapura!</small></div></div>
-  <div class="kbTombol"><button class="utama" id="kbNotifBtn">🔔 Nyalakan pengingat</button><button class="utama" id="kbDealerBtn">🧭 Antar ke Dealer</button><button class="utama" id="kbReliBtn">🧭 Antar ke Sirkuit</button><button class="utama" id="kbArenaBtn">🧭 Antar ke Arena</button><button class="utama" id="kbTukangBtn">🔨 Ikut bangun sekarang</button><button class="utama" id="kbVotingBtn">⭐ Lihat voting fasum</button><button class="utama" id="kbPasarBtn">🎪 Lihat Pasar Malam</button><button class="utama" id="kbAlbumBtn">📖 Buka album</button><button class="utama" id="kbNpcBtn">🧭 Antar ke Rumah Sakit</button><button class="utama" id="kbRumahBtn">🏡 Lihat lomba</button><button class="utama" id="kbAjakBtn">🤝 Ajak teman sekarang</button><button id="kbPialaBtn">🏆 Lihat klasemen</button></div>
+  <div class="kbTombol"><button class="utama" id="kbTutorBtn">🎬 Tonton tutorial Raka</button><button class="utama" id="kbLevelBtn">🌟 Lihat levelku</button><button class="utama" id="kbNotifBtn">🔔 Nyalakan pengingat</button><button class="utama" id="kbDealerBtn">🧭 Antar ke Dealer</button><button class="utama" id="kbReliBtn">🧭 Antar ke Sirkuit</button><button class="utama" id="kbArenaBtn">🧭 Antar ke Arena</button><button class="utama" id="kbTukangBtn">🔨 Ikut bangun sekarang</button><button class="utama" id="kbVotingBtn">⭐ Lihat voting fasum</button><button class="utama" id="kbPasarBtn">🎪 Lihat Pasar Malam</button><button class="utama" id="kbAlbumBtn">📖 Buka album</button><button class="utama" id="kbNpcBtn">🧭 Antar ke Rumah Sakit</button><button class="utama" id="kbRumahBtn">🏡 Lihat lomba</button><button class="utama" id="kbAjakBtn">🤝 Ajak teman sekarang</button><button id="kbPialaBtn">🏆 Lihat klasemen</button></div>
   <p class="kecil">Semuanya ada di ⚙️ Atur dan tombol 🏆 Peringkat.</p>
  </div>
 </div>
@@ -181,6 +183,9 @@
  <div class="panel pfPanel"><button class="popTutup" data-tutup="panelProfil" aria-label="Tutup">✕</button>
   <div class="pfAtas"><img id="pfAva" alt="Avatarmu"><div class="pfInfo"><h2 id="pfNama">@warga</h2><small id="pfAlamat"></small>
    <div class="pfSaldo"><span>🪙 <b id="pfKoin">0</b> koin</span><span>💎 <b id="pfPermata">0</b> permata</span></div><small id="pfPanen"></small><small id="pfProfesi" class="pfProfesi"></small></div></div>
+  <div id="pfLevel" class="pfLevel"></div>
+  <div class="pfJudulBaris"><h3 class="pfJudul">🌟 Impian Warga <small id="pfImpianN"></small></h3></div>
+  <div id="pfImpian" class="pfImpian"></div>
   <div class="pfTombol"><button id="pfAvatar">🪞 Ubah avatar</button><button id="pfToko">🎨 Toko Hias</button><button id="pfProfesiB">🏛️ Profesi</button><button id="pfKucing">🐱 Kucing</button><button id="profOnline">🟢 Online</button><button id="pfKode">🔑 Kode warga</button></div>
   <div class="pfJudulBaris"><h3 class="pfJudul">🎒 Inventori <small>Ikan = makanan kucing / dijual di warung · barang = bahan hiasan</small></h3><button id="pfRakit" class="pfRakit">🔨 Rakit hiasan</button></div>
   <div id="pfInv" class="pfInv"></div>
@@ -291,6 +296,8 @@
 
 <!-- Dialog Raka -->
 <div id="ngobrol" class="kartu" hidden><div class="siapa"></div><p id="ngobrolTeks"></p><div class="pilih"><button data-tanya="apa">Lagi ngapain?</button><button data-tanya="kabar">Ada kabar apa?</button><button data-tanya="petunjuk">Minta petunjuk</button><button data-tanya="dadah" class="tipis">Dadah 👋</button></div></div>
+<div id="tutorSorot" hidden></div>
+<div id="tutor" class="kartu" hidden><canvas id="tutorRaka" width="264" height="336" aria-label="Raka"></canvas><div class="tuIsi"><div class="siapa">★ Raka <span class="tuGel"><i></i><i></i><i></i></span><span id="tutorNo" class="tuNo"></span></div><p id="tutorTeks"></p><div class="tuBawah"><span id="tutorTitik" class="tuTitik"></span><div class="aksi"><button id="tutorLewati" class="tipis">Lewati</button><button id="tutorUlang" class="tipis" title="Dengar lagi">🔊</button><button id="tutorKembali" class="tipis">◀</button><button id="tutorLanjut" class="utama">Lanjut ▶</button></div></div></div></div>
 <div id="dialog" class="kartu" hidden><div class="siapa">★ Raka</div><p id="dialogTeks"></p><div class="aksi"><button id="dLewati" class="tipis">Lewati</button><button id="dLanjut" class="utama">Lanjut</button></div></div>
 
 <!-- Kamera HP -->
@@ -304,6 +311,6 @@
 
 <div id="miring" class="layarPenuh" hidden><div class="panel"><div style="font-size:54px">📱↻</div><h2>Miringkan HP-mu</h2><p class="sub">Dunia Kotak dimainkan dengan layar mendatar.</p><button class="tipis" id="tetapTegak">Tetap main tegak</button></div></div>
 
-<script type="module" src="game.js?v=20261113bl"></script>
+<script type="module" src="game.js?v=20261113tu"></script>
 </body>
 </html>

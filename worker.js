@@ -777,7 +777,8 @@ export class Warga extends DurableObject {
     // Daftar lewat Google tanpa username: nama yang ditulis warga jadi ukiran batu (label).
     let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
     const hs = this.hiasPakai(r), bt = this.bataWarga(r.no), jr = this.juraganKini(), tr = this.juaraRumah();
-    return { ...(bt ? { bt } : {}), ...(r.alb ? { al: r.alb } : {}), ...(jr && jr.no === r.no ? { jr: 1 } : {}), ...(tr && tr.no === r.no ? { tr: 1 } : {}), ...(hs.cat !== "krem" || hs.pagar !== "putih" || hs.rumah === "dua" || hs.dekor.length || hs.kend ? { hs: { c: hs.cat, p: hs.pagar, ...(hs.rumah === "dua" ? { l: 2 } : {}), ...(hs.dekor.length ? { d: hs.dekor } : {}), ...(hs.kend ? { k: hs.kend } : {}) } } : {}), no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
+    // xp = koinTotal (Level Warga, Huda 13 Nov 2026): tiap koin dari kegiatan = 1 XP; level dihitung di game.js (LEVEL_XP)
+    return { ...(bt ? { bt } : {}), ...(r.alb ? { al: r.alb } : {}), ...(r.koinTotal > 0 ? { xp: r.koinTotal } : {}), ...(jr && jr.no === r.no ? { jr: 1 } : {}), ...(tr && tr.no === r.no ? { tr: 1 } : {}), ...(hs.cat !== "krem" || hs.pagar !== "putih" || hs.rumah === "dua" || hs.dekor.length || hs.kend ? { hs: { c: hs.cat, p: hs.pagar, ...(hs.rumah === "dua" ? { l: 2 } : {}), ...(hs.dekor.length ? { d: hs.dekor } : {}), ...(hs.kend ? { k: hs.kend } : {}) } } : {}), no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
   }
   // Hias: {punya:{cat:[...],pagar:[...],topi:[...]}, cat, pagar, topi}
   bacaHias(r) { let h = {}; try { h = r.hias ? JSON.parse(r.hias) : {}; } catch (e) {} h.punya = h.punya || {}; for (const j of Object.keys(TOKO_HIAS)) h.punya[j] = h.punya[j] || []; return h; }
@@ -1785,7 +1786,7 @@ export class Warga extends DurableObject {
     }
     if (aksi === "daftar-publik") {
       // Gabungkan warga terdaftar dengan 63 pengikut awal yang kavlingnya sudah disiapkan (sudah warga sejak video).
-      const rows = this.sql.exec("SELECT no, sub, nama, ig, tiktok, usulan, dibuat, kucing, aktif, hias, json_extract(tas, '$._alb') AS alb FROM warga ORDER BY no").toArray();
+      const rows = this.sql.exec("SELECT no, sub, nama, ig, tiktok, usulan, dibuat, kucing, aktif, hias, koinTotal, json_extract(tas, '$._alb') AS alb FROM warga ORDER BY no").toArray();
       const terisi = new Set(rows.map((r) => r.no));
       const igTerdaftar = new Set(rows.map((r) => r.ig).filter(Boolean));
       const awalan = Object.entries(KAVLING_AWALAN).map(([a, no]) => [a + "…", no]);

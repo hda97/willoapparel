@@ -113,9 +113,9 @@
     "semantic_hash": "16f7aa92d3e9468edf41dd30b4c182d1"
   },
   "public/duniakotak/mabar/game.js": {
-    "mtime": 1794573973.824306,
-    "seen": 1794574092.1658404,
-    "ast_hash": "2a305be140e138900d3d48aa5f23db7f",
+    "mtime": 1794575235.9415271,
+    "seen": 1794575461.9514658,
+    "ast_hash": "ddb274681725b6eb1dac94ea5eb2b838",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/avatar.js": {
@@ -209,9 +209,9 @@
     "semantic_hash": "bf3f8e495130df0e60287acb7ca38561"
   },
   "worker.js": {
-    "mtime": 1794574638.7800963,
-    "seen": 1794574680.9137688,
-    "ast_hash": "34a3a02aa465a5e5225c8b4ed4bb85ce",
+    "mtime": 1794575085.7714508,
+    "seen": 1794575461.9515464,
+    "ast_hash": "b0291e2ac900a2ff14cda174de11b784",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/musik.mp3": {
@@ -977,9 +977,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/index.html": {
-    "mtime": 1794573973.826447,
-    "seen": 1794574092.1676848,
-    "ast_hash": "77d28082eca944f190c01b8390c4442a",
+    "mtime": 1794575235.9657712,
+    "seen": 1794575461.952814,
+    "ast_hash": "c8aec404a816e2432a585b3c8860d847",
     "semantic_hash": ""
   },
   "public/duniakotak/privasi.html": {
@@ -15518,6 +15518,48 @@
     "mtime": 1794568918.7375941,
     "seen": 1794569630.5545998,
     "ast_hash": "01ef22cebc5cd4eebbfa36713dc9d4ef",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/mabar/js/tutor.js": {
+    "mtime": 1794575321.509112,
+    "seen": 1794575461.9514978,
+    "ast_hash": "51d2744a0b67357fc591aa95960c3a4d",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/mabar/aset/raka/tutor-1.mp3": {
+    "mtime": 1794574974.2118812,
+    "seen": 1794575461.9540002,
+    "ast_hash": "81d41f829f2f5bd3abe20c6581b08ac6",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/mabar/aset/raka/tutor-2.mp3": {
+    "mtime": 1794574974.5638814,
+    "seen": 1794575461.9540026,
+    "ast_hash": "2d452903c6212cabd1322577f9cdd22f",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/mabar/aset/raka/tutor-3.mp3": {
+    "mtime": 1794574974.9638813,
+    "seen": 1794575461.9540043,
+    "ast_hash": "8ba161c68345e45f1a153dad2d4dfb38",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/mabar/aset/raka/tutor-4.mp3": {
+    "mtime": 1794574975.2918813,
+    "seen": 1794575461.9540055,
+    "ast_hash": "f3918460ef1a726fd53134c1e71ded3c",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/mabar/aset/raka/tutor-5.mp3": {
+    "mtime": 1794574975.6278813,
+    "seen": 1794575461.9540067,
+    "ast_hash": "28c5b5a5bda8e8e5dc6aa1342bf4dddf",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/mabar/aset/raka/tutor-6.mp3": {
+    "mtime": 1794574975.9798813,
+    "seen": 1794575461.954008,
+    "ast_hash": "2dadfad0ac58598231e477199580f8f3",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {
