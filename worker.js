@@ -111,6 +111,12 @@ const BATAS_AMBIL = 60, BATAS_MANCING = 40;   // per hari WIB
 const ALBUM_IKAN = IKAN.map((i) => i[2]);
 // Pasar Malam Sabtu (Huda 9 Nov 2026): tiap Sabtu 19.00–23.00 WIB di lapangan Stadion Kotak Wetan. Jajan & Lempar Gelang bayar koin
 // (penyerap koin mengendap). Lempar Gelang kena >= 2 dari 3 = suvenir acak masuk tas & Album (lengkap 5 = lencana 🎪, bit 4).
+// Kafe Bukit (Huda 13 Nov 2026: "bisa masuk, pesan minuman, pesan makanan khas kafe"): aktif setelah proyek kafe JADI.
+// Pesan pakai koin (penyerap koin), maks KAFE_HARI pesanan/hari. Pesanan pertama tiap hari diumumkan di Chat Desa.
+const KAFE_MENU = { tubruk: ["☕", "Kopi Tubruk", 8, "m"], aren: ["🧋", "Kopi Susu Gula Aren", 12, "m"], cappu: ["☕", "Cappuccino", 14, "m"], matcha: ["🍵", "Matcha Latte", 14, "m"],
+  coklat: ["🍫", "Coklat Panas", 10, "m"], esteh: ["🧊", "Es Teh Manis", 5, "m"], jeruk: ["🍊", "Jus Jeruk", 9, "m"],
+  croissant: ["🥐", "Croissant", 12, "k"], roti: ["🍞", "Roti Bakar", 10, "k"], donat: ["🍩", "Donat", 8, "k"], cheese: ["🍰", "Cheesecake", 15, "k"], pisang: ["🍌", "Pisang Goreng", 7, "k"], kentang: ["🍟", "Kentang Goreng", 10, "k"] };
+const KAFE_HARI = 6;
 const PASAR_JAJAN = { sate: ["🍢", "Sate", 6], martabak: ["🥞", "Martabak", 8], dawet: ["🥤", "Es dawet", 3], gulali: ["🍭", "Gulali", 4], jagung: ["🌽", "Jagung bakar", 5] };
 const PASAR_GELANG = 10, PASAR_GELANG_HARI = 10, PASAR_JAJAN_HARI = 20;
 const SUVENIR = [["🧸", "Boneka beruang"], ["🐰", "Boneka kelinci"], ["🎈", "Balon"], ["🪀", "Yoyo"], ["🏮", "Lampion"]];
@@ -1486,6 +1492,25 @@ export class Warga extends DurableObject {
       this.sql.exec("UPDATE warga SET koin = ?, koinTotal = COALESCE(koinTotal, 0) + ?, permata = ?, profesi = ? WHERE no = ?", koin, tambahKoin, permata, JSON.stringify(p), r.no);
       return Response.json({ koin, permata, profesi: this.infoProfesi(p), ...info });
     }
+    if (aksi === "kafe") {
+      const q = await request.json(), kini = Date.now(), hari = hariWib(kini);
+      const kf = this.daftarBangun(kini).find((x) => x.id === "kafe"), jadi = !!kf && kini >= this.sampaiBangun(kf);
+      const r = this.sql.exec("SELECT no, ig, tiktok, nama, koin, tas FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Daftar jadi warga dulu supaya bisa pesan di Kafe Bukit." }, { status: 401 });
+      const t = this.bacaTas(r); if (t._kh !== hari) { t._kh = hari; t._kn = 0; }
+      let koin = r.koin || 0, hasil = null, kabar = null;
+      if (q.op === "pesan") {
+        if (!jadi) return Response.json({ galat: "Kafe Bukit masih dibangun. Bantu jadi tukang supaya cepat buka!" }, { status: 400 });
+        const m = KAFE_MENU[q.id]; if (!m) return Response.json({ galat: "Menu tidak ada." }, { status: 400 });
+        if (t._kn >= KAFE_HARI) return Response.json({ galat: "Sudah kenyang! Kafe tunggu kamu lagi besok ya." }, { status: 400 });
+        if (koin < m[2]) return Response.json({ galat: "Koinmu kurang (" + m[2] + " koin)." }, { status: 400 });
+        if (kini - (t._kt || 0) < 3000) return Response.json({ galat: "Pesanan sebelumnya masih dibuat barista." }, { status: 429 });
+        koin -= m[2]; t._kn++; t._kt = kini; this.arus("-koin:kafe", m[2]); hasil = { ikon: m[0], nama: m[1], harga: m[2], jenis: m[3] };
+        if (t._kn === 1) kabar = { no: r.no, ig: r.ig || r.tiktok || "warga" + r.no, m: m[0] + " Nongkrong di Kafe Bukit, pesan " + m[1] + "!" };
+        this.sql.exec("UPDATE warga SET koin = ?, tas = ? WHERE no = ?", koin, JSON.stringify(t), r.no);
+      }
+      return Response.json({ koin, jadi, hasil, kabar, sisa: KAFE_HARI - t._kn });
+    }
     if (aksi === "pasar") {
       const q = await request.json(), kini = Date.now();
       if (!pasarBuka(kini)) return Response.json({ galat: "Pasar Malam buka tiap Sabtu 19.00–23.00 WIB di Stadion Kotak Wetan." }, { status: 400 });
@@ -2239,6 +2264,14 @@ async function apiWargaInti(request, env, url) {
   if (aksi === "profesi") {
     const r = await stub.fetch("https://do/profesi", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), id: String(body.id || "").slice(0, 12) }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "kafe") {
+    const r = await stub.fetch("https://do/kafe", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), id: String(body.id || "").slice(0, 12) }) });
+    const j = await r.json();
+    if (j.kabar && env.RUANG) { const isi = JSON.stringify({ ...j.kabar, w: Date.now(), d: "" });
+      await Promise.all(DUSUN_RUANG.map((d) => env.RUANG.get(env.RUANG.idFromName(d)).fetch("https://ruang/desa", { method: "POST", body: isi }).catch(() => {}))); }
+    delete j.kabar;
+    return Response.json(j, { status: r.status, headers: { "cache-control": "no-store" } });
   }
   if (aksi === "pasar") {
     const q = { kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), id: String(body.id || "").slice(0, 12), kena: +body.kena || 0 };

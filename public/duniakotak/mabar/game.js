@@ -1435,7 +1435,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2'};
+const KABAR_LAMA = {bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   if (window.DK_APP) simpan(KABAR_LAMA.notif, '1');   // aplikasi Android belum bisa notifikasi web
@@ -1726,6 +1726,30 @@ function skillMancing() {
 // pedagang NPC. Jajan & Lempar Gelang bayar koin (server /api/pasar). Suvenir Lempar Gelang masuk Album (lengkap = lencana 🎪).
 // ?uji_pasar=1 memaksa pasar buka (hanya tampilan; server tetap menolak transaksi di luar jam).
 const PASAR_UJI = new URLSearchParams(location.search).get('uji_pasar') === '1';
+// Kafe Bukit (Huda 13 Nov 2026): masuk kafe yang sudah jadi (Kotak Kulon) → tombol ☕ Pesan → minuman & makanan khas kafe, bayar koin.
+// Harga & batas harian dijaga server (KAFE_MENU di worker.js). Pratinjau: ?uji_fasum=kafe&uji_kafe=1 (tanpa server).
+const KAFE_MENU = {tubruk: ['☕', 'Kopi Tubruk', 8, 'm'], aren: ['🧋', 'Kopi Susu Gula Aren', 12, 'm'], cappu: ['☕', 'Cappuccino', 14, 'm'], matcha: ['🍵', 'Matcha Latte', 14, 'm'],
+  coklat: ['🍫', 'Coklat Panas', 10, 'm'], esteh: ['🧊', 'Es Teh Manis', 5, 'm'], jeruk: ['🍊', 'Jus Jeruk', 9, 'm'],
+  croissant: ['🥐', 'Croissant', 12, 'k'], roti: ['🍞', 'Roti Bakar', 10, 'k'], donat: ['🍩', 'Donat', 8, 'k'], cheese: ['🍰', 'Cheesecake', 15, 'k'], pisang: ['🍌', 'Pisang Goreng', 7, 'k'], kentang: ['🍟', 'Kentang Goreng', 10, 'k']};
+const NAMA_KAFE = '☕ Kafe Bukit', KAFE_UJI = new URLSearchParams(location.search).has('uji_kafe');
+const dalamKafe = () => !!(fasumDalam && fasumDalam.nama === NAMA_KAFE);
+let KAFE_SISA = null;
+function tulisKafe() {
+  const koin = S.saya?.koin || 0, bisa = !S.tamu && dalamKafe();
+  const grup = (j, judul) => `<h3>${judul}</h3><div class="psJajan">${Object.entries(KAFE_MENU).filter(x => x[1][3] === j).map(([id, [ik, nm, hg]]) => `<button data-kafe="${id}" ${bisa && koin >= hg ? '' : 'disabled'}><i>${ik}</i><b>${nm}</b><small>${hg} 🪙</small></button>`).join('')}</div>`;
+  $('isiKafe').innerHTML = `<p class="psStatus">☕ Selamat datang di <b>Kafe Bukit</b>! Koinmu <b>${koin} 🪙</b>${KAFE_SISA != null ? ` · sisa pesan hari ini <b>${KAFE_SISA}</b>` : ''}</p>`
+    + grup('m', '🥤 Minuman') + grup('k', '🥐 Makanan') + `<p class="kecil">${S.tamu ? 'Daftar jadi warga dulu supaya bisa pesan.' : 'Maks 6 pesanan sehari. Pesanan pertamamu hari ini diumumkan di Chat Desa!'}</p>`;
+}
+function bukaKafe() { tulisKafe(); $('panelKafe').hidden = false; }
+document.addEventListener('click', async e => {
+  const b = e.target.closest?.('[data-kafe]'); if (!b || b.disabled) return; b.disabled = true;
+  try { const m = KAFE_MENU[b.dataset.kafe];
+    const r = KAFE_UJI ? {koin: (S.saya?.koin || 0) - m[2], hasil: {ikon: m[0], nama: m[1], harga: m[2], jenis: m[3]}, sisa: 5} : await api('kafe', {kunci: S.kunci, op: 'pesan', id: b.dataset.kafe});
+    if (S.saya) S.saya.koin = r.koin; KAFE_SISA = r.sisa; hitungOnline();
+    bunyi('emosi'); tokoh.saya.userData.gel = {m: r.hasil.ikon, emo: true, sampai: performance.now() + 3500};
+    toast(`${r.hasil.ikon} ${r.hasil.jenis === 'm' ? 'Srupuut… ' + r.hasil.nama + ' mantap!' : 'Nyam! ' + r.hasil.nama + ' hangat dari oven.'} (-${r.hasil.harga} 🪙)`, 2800); tulisKafe(); }
+  catch (err) { toast(err.message, 3000); b.disabled = false; }
+});
 const PASAR_JAJAN = {sate: ['🍢', 'Sate', 6], martabak: ['🥞', 'Martabak', 8], dawet: ['🥤', 'Es dawet', 3], gulali: ['🍭', 'Gulali', 4], jagung: ['🌽', 'Jagung bakar', 5]};
 const SUVENIR = [['🧸', 'Boneka beruang'], ['🐰', 'Boneka kelinci'], ['🎈', 'Balon'], ['🪀', 'Yoyo'], ['🏮', 'Lampion']];
 const PASAR_GELANG = 10;
@@ -1895,7 +1919,7 @@ function animSkill(dt, me) {
   // tombol skill menyala bila bisa dipakai
   const t = now | 0; if (t % 4 === 0 || !animSkill.t || now - animSkill.t > 300) { animSkill.t = now;
     // tombol hanya muncul saat skill bisa dipakai; joran sedang dipakai = tombol Mancing hilang
-    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sSuka: !!rumahTetangga(me), sLari: dekatGapuraCFD(me), sReli: dekatReli(me), sBangun: dekatProyek(me), sPasar: dekatPasar(me), sWillo: dekatTokoWillo(me), sDealer: dekatDealer(me), sNaik: dekatParkiranSaya(me), sTurun: !!NAIK, sLompat: !NAIK, sLift: !!(I.gedung && I.gedung.dekatLift(me.position.x, me.position.z))};
+    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sSuka: !!rumahTetangga(me), sLari: dekatGapuraCFD(me), sReli: dekatReli(me), sBangun: dekatProyek(me), sPasar: dekatPasar(me), sKafe: dalamKafe(), sWillo: dekatTokoWillo(me), sDealer: dekatDealer(me), sNaik: dekatParkiranSaya(me), sTurun: !!NAIK, sLompat: !NAIK, sLift: !!(I.gedung && I.gedung.dekatLift(me.position.x, me.position.z))};
     for (const id in bisa) { const b = $(id); if (b.classList.contains('siap') !== bisa[id] || b.hidden === bisa[id]) { b.classList.toggle('siap', bisa[id]); b.hidden = !bisa[id]; } }
     if (air) misiMaju('sungai'); }
 }
@@ -3177,7 +3201,7 @@ function aturHUD() {
   $('bDusun').onclick = pilihDusun;
   musikSiap();
   // pointerdown (bukan click): click tidak terpicu di HP saat jari lain masih menahan joystick -> bisa lompat sambil lari
-  $('sLari').onclick = ikutLari; $('sReli').onclick = ikutReli; $('sBangun').onclick = ikutBangun; $('sPasar').onclick = bukaPasar; $('sWillo').onclick = () => bukaWillo('tombol'); $('sDealer').onclick = bukaDealer; $('sNaik').onclick = naikKendaraan; $('sTurun').onclick = turunKendaraan;
+  $('sLari').onclick = ikutLari; $('sReli').onclick = ikutReli; $('sBangun').onclick = ikutBangun; $('sPasar').onclick = bukaPasar; $('sKafe').onclick = bukaKafe; $('tutupKafe').onclick = () => { $('panelKafe').hidden = true; }; $('sWillo').onclick = () => bukaWillo('tombol'); $('sDealer').onclick = bukaDealer; $('sNaik').onclick = naikKendaraan; $('sTurun').onclick = turunKendaraan;
   $('bPasar').onclick = () => { $('panelAtur').hidden = true; bukaPasar(); }; $('tutupPasar').onclick = () => { $('panelPasar').hidden = true; };
   $('bWillo').onclick = () => bukaWillo('atur'); $('bDealer').onclick = bukaDealer; $('tutupWillo').onclick = () => { $('panelWillo').hidden = true; };
   $('sLift').onclick = () => { const d = I.gedung && I.gedung.dekatLift(tokoh.saya.position.x, tokoh.saya.position.z); if (d) bukaLift(d); };
@@ -3479,4 +3503,4 @@ var tegakSesi = false; try { localStorage.removeItem('dk_tegak'); } catch (e) {}
 $('tetapTegak').onclick = () => { tegakSesi = true; $('miring').hidden = true; };
 onResize();
 layarMasuk();
-window.__dk = {S, HS, segara: () => ({I, tokoh, bukaLift, pindahZona}), peta: () => peta, voting: w => bukaVoting(w), wnpc: () => wnpc, avAcak: n => avAcak(n), proyek: aturProyek, iklan: siapIklan, tonton: tontonIklan, rectLot: (n, a, b, c, d) => rectLot(I.lots[n], a, b, c, d), mancing: () => skillMancing(), dekatAir: () => dekatAir(tokoh.saya), tulisDana, VT: v => { VT = v; tulisVoting(); $('panelVoting').hidden = false; }, segarKebun, kebunSiap: () => { kebunTahap = null; segarKebun(); }, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }, lalin: () => lalin, kend: {naikkan, turunkan, bukaDealer, DLR, set: v => { NAIK = v; }}};
+window.__dk = {S, HS, kafe: () => bukaKafe(), segara: () => ({I, tokoh, bukaLift, pindahZona}), peta: () => peta, voting: w => bukaVoting(w), wnpc: () => wnpc, avAcak: n => avAcak(n), proyek: aturProyek, iklan: siapIklan, tonton: tontonIklan, rectLot: (n, a, b, c, d) => rectLot(I.lots[n], a, b, c, d), mancing: () => skillMancing(), dekatAir: () => dekatAir(tokoh.saya), tulisDana, VT: v => { VT = v; tulisVoting(); $('panelVoting').hidden = false; }, segarKebun, kebunSiap: () => { kebunTahap = null; segarKebun(); }, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }, lalin: () => lalin, kend: {naikkan, turunkan, bukaDealer, DLR, set: v => { NAIK = v; }}};
