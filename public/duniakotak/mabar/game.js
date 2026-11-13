@@ -21,6 +21,7 @@ import {tlaga, JALAN_TLAGA, AWAL_TLAGA} from './js/tlaga.js';
 import {segara, AWAL_SEGARA, kodeUnit} from './js/segara.js';
 import {buatNav, pecahRute} from './js/navigasi.js';
 import {pasangDesaGabung, LETAK} from './js/desaGabung.js?v=20261111bus';
+import {musimDusun, musimkan, buatCuaca} from './js/musim.js?v=20261114ms';
 
 const $ = id => document.getElementById(id);
 const VS = D.VS;
@@ -304,6 +305,7 @@ R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.25; R.out
 const sc = new THREE.Scene(); sc.background = new THREE.Color(0xbfe4ff); sc.fog = hemat ? new THREE.Fog(0xbfe4ff, 210, 430) : new THREE.Fog(0xbfe4ff, 260, 520);
 const cam = new THREE.PerspectiveCamera(38, 1, 1, hemat ? 450 : 560);
 let I = null, NM = {}, KC = {}, AK = {}, npc = null, wnpc = null;   // AK: no → terakhir main (ms)   // KC: no → kucing warga {k:[{w,n}], d, a}
+let MSM = null, CUACA = null;   // musim dusun yang sedang dibuka + partikel cuacanya (js/musim.js)
 const lotRuntime = new Map();   // no → {g, extra, rects}
 const dekor = new Map();        // rects statis tambahan
 
@@ -667,6 +669,7 @@ function bangunSegara() {
   I = segara(sc, {names: NM, isFilled: n => !!NM[n], maksNo, sm: hemat ? 1024 : 2048, shadowR: 70, hemat});
   I.light.castShadow = !hemat;
   kumpulPijakan(I.G); kumpulPijakan(I.grupFasum);
+  musimkan(I.G, MSM);
   pecahInstanced(I.G); bakeGroup(I.G); bakeGroup(I.grupFasum);
   fasumBangun.push(...I.bangunan);
   pasangAtasFasum(fasumBangun);
@@ -677,6 +680,7 @@ function bangunKulon(buat = kulon) {
   I.light.castShadow = !hemat;
   I.grupFasum.children.forEach(catatPutar);   // bagian berputar aset dusun (mis. panggung putar Dealer Kendaraan di Curug)
   kumpulPijakan(I.G); kumpulPijakan(I.grupFasum);
+  musimkan(I.G, MSM);
   pecahInstanced(I.G); bakeGroup(I.G); bakeGroup(I.grupFasum);
   fasumBangun.push(...I.bangunan);
   pasangVotingDusun();
@@ -691,6 +695,8 @@ async function bangunDunia() {
   await document.fonts.load('900 40px Montserrat').catch(() => {});
   const minta = new URLSearchParams(location.search).get('dusun');
   DI = NAMA_DUSUN[minta] ? minta : (S.saya ? dusunDari(S.saya.no) : 'wetan');
+  // musim tetap tiap dusun (Huda 14 Nov 2026): kabut lebih rapat saat hujan/salju, partikel cuaca 1 draw call
+  MSM = musimDusun(DI); if (MSM) { sc.fog.near *= MSM.kabut; sc.fog.far *= MSM.kabut; CUACA = buatCuaca(sc, MSM, hemat); }
   if (DI === 'kulon') return bangunKulon();
   if (DI === 'curug') return bangunCurug();
   if (DI === 'tlaga') return bangunTlaga();
@@ -705,6 +711,7 @@ async function bangunDunia() {
   // kubus kembar yang banyak (jalan, hutan, sawah): dipecah per petak supaya yang di luar layar tidak digambar,
   // bentuk kubus versi ringan, dan tidak ikut bayangan (hemat untuk HP)
   kumpulPijakan(I.G);
+  musimkan(I.G, MSM);
   pecahInstanced(I.G);
   // gabung benda statis (sungai, jembatan, fasum) supaya ringan
   bakeGroup(I.G);
@@ -814,9 +821,10 @@ function bangunKavling(n) {
     const badan = new THREE.Group();
     for (const c of [...H.children]) { const p = c.position, lebar = c.geometry?.parameters?.width || 0;
       if (Math.abs(p.x) < 2.75 && p.z > -2.3 && p.z < 3.3 && lebar < 6) badan.add(c); }
-    H.add(badan); bakeGroup(badan); H = badan;
+    H.add(badan); bakeGroup(badan); H.userData.tanpaMusim = true; H = badan;
   }
   if (H && (n !== 1 || NM[1]) && (BT[n] >= BATA_BENDERA || JR === n || TR === n || TR3[n])) pasangHadiahRumah(n, L, H, extra, rects);
+  musimkan(g, MSM); musimkan(extra, MSM);   // rumput, pohon, semak halaman ikut musim; badan rumah tidak
   bakeGroup(g); bakeGroup(extra);
   lotRuntime.set(n, {g, extra, rects, rumah: H, dalam: H ? rectLot(L, -3, -1, -1.4, .2) : null, interior: null});
   if (S.saya && n === S.saya.no) { kebunTahap = null; segarKebun(); }
@@ -1518,7 +1526,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {tandajuara: 'dk_kabar_tandajuara1', hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2'};
+const KABAR_LAMA = {musim: 'dk_kabar_musim1', tandajuara: 'dk_kabar_tandajuara1', hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   if (window.DK_APP) simpan(KABAR_LAMA.notif, '1');   // aplikasi Android belum bisa notifikasi web
@@ -3652,6 +3660,7 @@ function loop(t) {
   // kavling dekat dibangun bertahap
   if (t - tKav > (hemat ? 200 : 120) && dtAsli < .034) { tKav = t; aturKavling(tx, tz); }
   siangMalam(t);
+  if (CUACA) CUACA.update(dt, tx, camY, tz);
   kirimPos(false);
   R.render(sc, cam);
   gambarPetaMini(t);
@@ -3724,21 +3733,38 @@ document.addEventListener('click', e => {
   tampilNgobrol(n, teks); bunyi('klik');
 });
 // ---------- pindah dusun lewat terminal bus ----------
-// pilih dusun tujuan bus (3 dusun sejak 6 Nov 2026)
+// Kartu dusun khas Dunia Kotak (Huda 14 Nov 2026: "icon desa buat lebih menarik khas dunia kotak, ui-nya juga"):
+// ikon piksel 12x12 tiap dusun (pemandangan + musimnya), kartu balok bergaris tinta. Segara tampil terkunci sampai dibuka.
+const PAL_DSN = {K: '#2a2218', B: '#5ab4ff', b: '#2f7fd0', W: '#ffffff', w: '#c9d2de', H: '#3aa860', h: '#24733f', Y: '#f2c14a', A: '#e2b955', L: '#fff1b8',
+  E: '#e04848', C: '#8a5a3c', G: '#c8c6c0', g: '#6c6f74', M: '#ff9fc2', m: '#e0679a', S: '#bfe4ff', s: '#9fb4c8', F: '#e8742a', T: '#7cc35a'};
+const IKON_DSN = {
+  wetan: ['ssBsssBsssBs', 'sBsssBsssBss', 'ssssEEEsssss', 'sssEEEEEssBs', 'ssBLLLLLssss', 'sssLCLLLsBss', 'HHHLCLLLHHHH', 'YHYHYHYHYHYH', 'HhHhHhHhHhHh', 'YHYHYHYHYHYH', 'bBbBbBbBbBbB', 'hhhhhhhhhhhh'],
+  kulon: ['SSSSSSSSSSSS', 'SSSSSMMMSSSS', 'SSSSMMmMMSSS', 'SSSMMMMMmMSS', 'SSSSMmMMMSSS', 'SSSSSSCSSSHH', 'SSSHHHCHHHHT', 'SHHTTTTTTHHH', 'HTTHHHHHHTTH', 'TTHHTTTTHHTT', 'HHTTHHHHTTHH', 'hhhhhhhhhhhh'],
+  curug: ['SSSSSSWSSSSS', 'SSSSSWWWSSWS', 'SWSSWWWWWSSS', 'SSSWWgWWgWSS', 'SSWggBggggWS', 'SWgggBgggggW', 'WgggBBgggggg', 'gggggBgggggg', 'gggggBBggggg', 'WWWWBBBBWWWW', 'WwWWWBWWWwWW', 'wwwwwwwwwwww'],
+  tlaga: ['LLLLLLLLLLLL', 'LFFFLLLLLFLL', 'FFEFFLLLLLLL', 'FFFFFLLEELLL', 'LFEFLLLEEEEL', 'LLCLLLLLCLLL', 'AACAAAAAACAA', 'ABBBBBBBBBBA', 'BBBCCCCBBBBB', 'BBBBCCBBBbBB', 'BbBBBBBBBBBB', 'AAAAAAAAAAAA'],
+  segara: ['SSSSSSSSSYYS', 'SSGGSSSSYYYY', 'SSGBSGGGSYYS', 'SSGGSGBGSSSS', 'GGGBSGGGSGGS', 'GBGGSGBGSGBS', 'GGGBSGGGSGGS', 'GBGGgGBGgGBg', 'AAAAAAAAAAAA', 'BBWBBBBBWBBB', 'BBBBBbBBBBBB', 'bbbbbbbbbbbb']};
+const KET_DSN = {wetan: ['Sawah', 'Musim Hujan', '#cfe8ff'], kulon: ['Bukit teh', 'Musim Semi', '#ffe0ec'], curug: ['Gunung & curug', 'Musim Salju', '#e8f1fa'], tlaga: ['Tepi danau', 'Musim Gugur', '#ffe6c4'], segara: ['Kota teluk', 'Musim Panas', '#d6f0ff']};
+const svgPiksel = (g, pal) => { let r = ''; g.forEach((row, y) => [...row].forEach((c, x) => { if (c !== '.') r += `<rect x="${x}" y="${y}" width="1.04" height="1.04" fill="${pal[c]}"/>`; })); return `<svg viewBox="0 0 ${g[0].length} ${g.length}" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`; };
+const IKON_BUS = ['............', '.EEEEEEEEEE.', 'EEEEEEEEEEEE', 'EBBWBBWBBWBE', 'EBBWBBWBBWBE', 'EEEEEEEEEEEE', 'EYEEEEEEEEYE', 'EEEEEEEEEEEE', '.KKK....KKK.', '.KgK....KgK.', '..K......K..', '............'];
+const IKON_GEMBOK = ['....gggg....', '...g....g...', '...g....g...', '...g....g...', '..YYYYYYYY..', '..YAAAAAAY..', '..YAAKKAAY..', '..YAAKKAAY..', '..YAAAAAAY..', '..YYYYYYYY..', '............', '............'];
 function pilihDusun() {
   let p = $('pilihDusun');
   if (!p) {
-    p = document.createElement('div'); p.id = 'pilihDusun';
-    p.style.cssText = 'position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(10,12,20,.45)';
-    p.innerHTML = `<div style="background:#fffaf0;border-radius:18px;padding:16px 16px 12px;min-width:250px;max-width:86vw;font:600 15px Montserrat,sans-serif;color:#2a2a2a;box-shadow:0 10px 30px rgba(0,0,0,.3)">
-      <div style="font-weight:900;font-size:17px;margin-bottom:4px">🚌 Naik bus ke dusun mana?</div><div class="tiketBus" style="font-size:12px;color:#7a6a4a;margin-bottom:6px"></div>
-      ${Object.entries(NAMA_DUSUN).map(([k, n]) => `<button data-d="${k}" style="display:block;width:100%;margin:6px 0;padding:11px 12px;border-radius:12px;border:2px solid #cbbd9e;background:#fff;color:#2a2a2a;font:700 15px Montserrat,sans-serif;text-align:left;cursor:pointer">${{wetan: '🌾', kulon: '🍃', curug: '💦', tlaga: '🛶', segara: '🏙️'}[k]} Dusun ${n}<span class="ini" style="float:right;color:#2a9a5a;font-size:12px"></span></button>`).join('')}
-      <button data-d="" style="display:block;width:100%;margin-top:8px;padding:9px;border:0;background:none;font:700 14px Montserrat,sans-serif;color:#777;cursor:pointer">Batal</button></div>`;
-    p.onclick = e => { const b = e.target.closest('button'); if (e.target === p || (b && !b.dataset.d)) { p.hidden = true; return; } if (b && b.dataset.d && b.dataset.d !== DI) { p.hidden = true; naikBus(b.dataset.d); } };
+    p = document.createElement('div'); p.id = 'pilihDusun'; p.className = 'dsnLatar';
+    const semua = ['wetan', 'kulon', 'curug', 'tlaga', 'segara'];
+    p.innerHTML = `<div class="dsnPanel"><div class="dsnJudul"><i class="dsnBus">${svgPiksel(IKON_BUS, PAL_DSN)}</i><b>Naik bus ke dusun mana?</b><button class="dsnTutup" data-d="" aria-label="Tutup">✕</button></div>
+      <div class="tiketBus"></div><div class="dsnDaftar">${semua.map(k => `<button class="dsnKartu" data-d="${k}" style="--dsn:${KET_DSN[k][2]}">
+        <span class="dsnIkon">${svgPiksel(IKON_DSN[k], PAL_DSN)}<span class="dsnKunci">${svgPiksel(IKON_GEMBOK, PAL_DSN)}</span></span>
+        <b>Kotak ${k[0].toUpperCase() + k.slice(1)}</b><small>${KET_DSN[k][0]}</small><em>${KET_DSN[k][1]}</em><span class="dsnIni"></span></button>`).join('')}</div></div>`;
+    p.onclick = e => { const b = e.target.closest('button'); if (e.target === p || (b && !b.dataset.d)) { p.hidden = true; return; }
+      if (b && b.classList.contains('terkunci')) { toast(`🔒 Dusun Kotak Segara dibuka setelah ada warga No. ${AWAL_SEGARA + 1}. Ajak temanmu daftar!`, 3000); return; }
+      if (b && b.dataset.d && b.dataset.d !== DI) { p.hidden = true; naikBus(b.dataset.d); } };
     document.body.appendChild(p);
   }
-  p.querySelectorAll('button[data-d]').forEach(b => { const s = b.querySelector('.ini'); if (s) s.textContent = b.dataset.d === DI ? 'kamu di sini' : ''; });
-  p.querySelector('.tiketBus').textContent = teksTiket().trim() || 'Jalan kaki lewat 🛣️ Gapura gratis.';
+  p.querySelectorAll('.dsnKartu').forEach(b => { const k = b.dataset.d, kunci = !NAMA_DUSUN[k], ini = k === DI;
+    b.classList.toggle('terkunci', kunci); b.classList.toggle('ini', ini);
+    b.querySelector('.dsnIni').textContent = ini ? 'KAMU DI SINI' : kunci ? `BUKA DI NO. ${AWAL_SEGARA + 1}` : ''; });
+  p.querySelector('.tiketBus').textContent = teksTiket().trim() || 'Jalan kaki lewat Gapura gratis.';
   p.hidden = false;
 }
 function pindahDusun(ke, no) {
@@ -3791,10 +3817,10 @@ function siangMalam(t) {
   const d = new Date(Date.now() + 7 * 3600e3), j = d.getUTCHours() + d.getUTCMinutes() / 60;
   const terang = j < 5 || j > 19.5 ? 0 : j < 6.5 ? (j - 5) / 1.5 : j > 18 ? (19.5 - j) / 1.5 : 1;
   terangNow = terang;
-  const langit = new THREE.Color(0x1a2448).lerp(new THREE.Color(0xbfe4ff), terang);
-  sc.background = langit; sc.fog.color = langit; I.light.intensity = .5 + 1.9 * terang; R.toneMappingExposure = .85 + .4 * terang;
+  const langit = new THREE.Color(MSM ? MSM.malam : 0x1a2448).lerp(new THREE.Color(MSM ? MSM.langit : 0xbfe4ff), terang);
+  sc.background = langit; sc.fog.color = langit; I.light.intensity = (.5 + 1.9 * terang) * (MSM ? MSM.cahaya : 1); R.toneMappingExposure = .85 + .4 * terang;
   const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-  if ($('chipDusun') && $('chipDusun')._d !== DI) { $('chipDusun')._d = DI; $('chipDusun').innerHTML = `📍 <b>Dusun ${NAMA_DUSUN[DI]}</b>`; }
+  if ($('chipDusun') && $('chipDusun')._d !== DI) { $('chipDusun')._d = DI; $('chipDusun').innerHTML = `📍 <b>Dusun ${NAMA_DUSUN[DI]}</b>${MSM ? ' ' + MSM.ik : ''}`; }
   $('jam').innerHTML = `<span class="dsn">Dusun ${NAMA_DUSUN[DI]} · </span>${HARI[d.getUTCDay()]} ${String(d.getUTCHours()).padStart(2, '0')}.${String(d.getUTCMinutes()).padStart(2, '0')} ${terang > .5 ? '☀️' : '🌙'}<small>🌱 Tanam di kebun rumahmu · jual di warung</small>`;
 }
 function onResize() {
