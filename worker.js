@@ -42,14 +42,17 @@ export class Pengunjung extends DurableObject {
 // (berhenti bila tinggal < 2 calon). Pemenang seri = urutan calon. Data fasum tiap calon di FASUM_CALON (samakan dengan game.js).
 const JADWAL_VOTING = [
   { put: "2026-11", calon: ["kafe", "hiburan", "polisi"], tutup: Date.parse("2026-11-14T00:00:00+07:00") },
-  { put: "2026-11b", calon: ["kafe", "polisi", "kereta"], tutup: Date.parse("2026-11-21T00:00:00+07:00") },
+  // Huda 13 Nov 2026: voting berikutnya Stasiun (kereta), Damkar, Bandara. `menang` (opsional) = pemenang ditetapkan Huda.
+  { put: "2026-11b", calon: ["kereta", "damkar", "bandara"], tutup: Date.parse("2026-11-21T00:00:00+07:00") },
 ];
-const CALON_LANJUT = ["kafe", "polisi", "kereta"];
+const CALON_LANJUT = ["kafe", "hiburan", "polisi", "kereta", "damkar", "bandara"];
 const FASUM_CALON = {
   kafe: { nama: "☕ Kafe Bukit", aset: "kafe", dusun: "kulon", lahan: 0 },
   hiburan: { nama: "🎡 Taman Hiburan", aset: "hiburan", dusun: "tlaga", lahan: 1 },
   polisi: { nama: "👮 Kantor Polisi", aset: "polisi", dusun: "curug", lahan: 1 },
   kereta: { nama: "🚆 Stasiun Kereta", aset: "stasiun", dusun: "curug", lahan: 0 },
+  damkar: { nama: "🚒 Stasiun Pemadam", aset: "damkar", dusun: "wetan", lahan: 14 },
+  bandara: { nama: "✈️ Bandara", aset: "bandaraBesar", dusun: "tlaga", lahan: 2 },
 };
 // Siklus mingguan (Huda 8 Nov 2026): voting 1 minggu → pemenang dibangun 7 hari → voting fasum lain dibuka.
 // Stream Key Saweria bisa disetel lewat halaman /duniakotak/atur-saweria.html (Huda tidak menemukan worker di Cloudflare).
@@ -650,6 +653,7 @@ export class Warga extends DurableObject {
   // putaran yang sedang buka; kalau semua sudah tutup = putaran terakhir (ditutup)
   vk(t = Date.now()) { const L = this.putaranSemua(t); return L.find((r) => r.tutup > t) || L[L.length - 1] || { put: "-", calon: [], tutup: 0 }; }
   pemenang(r) {
+    if (r.menang && r.calon.includes(r.menang)) return r.menang;
     this._mn = this._mn || {}; if (this._mn[r.put] && Date.now() >= r.tutup) return this._mn[r.put];
     const n = {}; for (const x of this.sql.exec("SELECT calon, SUM(n) AS n FROM suara WHERE put = ? GROUP BY calon", r.put).toArray()) n[x.calon] = x.n;
     let w = r.calon[0]; for (const c of r.calon) if ((n[c] || 0) > (n[w] || 0)) w = c;

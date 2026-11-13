@@ -113,9 +113,9 @@
     "semantic_hash": "16f7aa92d3e9468edf41dd30b4c182d1"
   },
   "public/duniakotak/mabar/game.js": {
-    "mtime": 1794569353.6143909,
-    "seen": 1794569630.5500138,
-    "ast_hash": "1a1fb752f755b1854650093fa6a1a557",
+    "mtime": 1794569863.5068252,
+    "seen": 1794569913.103875,
+    "ast_hash": "2c97e246acc355c061552beb78ee515e",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/avatar.js": {
@@ -209,9 +209,9 @@
     "semantic_hash": "bf3f8e495130df0e60287acb7ca38561"
   },
   "worker.js": {
-    "mtime": 1794569301.255024,
-    "seen": 1794569630.5501282,
-    "ast_hash": "2efbc7aa7a58e16a88bed984ed6b0253",
+    "mtime": 1794569863.5021093,
+    "seen": 1794569913.1039467,
+    "ast_hash": "19e08b487d4997298e79ed9ab06975a3",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/musik.mp3": {
@@ -965,9 +965,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/dashboard/index.html": {
-    "mtime": 1794569364.5937276,
-    "seen": 1794569630.5525744,
-    "ast_hash": "fcc3b4258105da9e90d14d12c28f8153",
+    "mtime": 1794569872.6276572,
+    "seen": 1794569913.1051643,
+    "ast_hash": "6fbc46c33753d2e71f5e479a0e4e4a8d",
     "semantic_hash": ""
   },
   "public/duniakotak/index.html": {
@@ -977,9 +977,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/index.html": {
-    "mtime": 1794569360.8573196,
-    "seen": 1794569630.5525832,
-    "ast_hash": "c08cf6e012f1a6942280d9fa800c8035",
+    "mtime": 1794569863.5034184,
+    "seen": 1794569913.1051698,
+    "ast_hash": "259cb334f6f82da5f54e8fb2d1e774ac",
     "semantic_hash": ""
   },
   "public/duniakotak/privasi.html": {
@@ -989,9 +989,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/pulau/index.html": {
-    "mtime": 1794569364.5910938,
-    "seen": 1794569630.552589,
-    "ast_hash": "7a18d4d60ea711318caf35548d0f250c",
+    "mtime": 1794569872.6247432,
+    "seen": 1794569913.105173,
+    "ast_hash": "262ffcd7a8d9d629b4021ac0dec9e8d4",
     "semantic_hash": ""
   },
   "public/edukasi/paud/angka/index.html": {
