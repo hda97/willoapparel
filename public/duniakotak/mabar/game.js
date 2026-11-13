@@ -312,9 +312,10 @@ const PASANG_FASUM = [[0, 'supermarket', '🛒 Supermarket Dunia Kotak'], [10, '
 // Curug & Tlaga mulai dari lahan 1 (lahan 0 = tempat main anak NPC). Entri BANGUN_VOTING untuk dusun lain: {dusun, lahan, ...}.
 // (10 Nov 2026) lahan cadangan Kulon 1 (dulu untuk Damkar) dipakai Arena Pelari Kalcer; Damkar dapat lahan baru saat jadi calon.
 // (11 Nov 2026) Huda: renang & bioskop dicoret, diganti Stasiun Pemadam (Wetan fas[14]) & Bandara (Tlaga lahan 0).
-const LOKASI_FASUM = {kafe: ['kulon', 0], polisi: ['curug', 1], hiburan: ['tlaga', 1], perpus: ['curug', 0], damkar: ['wetan', 14], bandara: ['tlaga', 2]};
+// (13 Nov 2026) Kereta (Stasiun Kotak) memakai lahan Curug 0 (dulu cadangan perpus). Samakan dengan FASUM_CALON di worker.js.
+const LOKASI_FASUM = {kafe: ['kulon', 0], polisi: ['curug', 1], hiburan: ['tlaga', 1], perpus: ['curug', 0], kereta: ['curug', 0], damkar: ['wetan', 14], bandara: ['tlaga', 2]};
 // aset & nama tiap calon (aset di js/aset/fasum.js). Fasum lain (damkar, perpus, renang, bioskop) asetnya dibuat saat jadi calon.
-const ASET_CALON = {kafe: ['kafe', '☕ Kafe Bukit'], polisi: ['polisi', '👮 Kantor Polisi'], hiburan: ['hiburan', '🎡 Taman Hiburan'], damkar: ['damkar', '🚒 Stasiun Pemadam'], bandara: ['bandaraBesar', '✈️ Bandara']};
+const ASET_CALON = {kafe: ['kafe', '☕ Kafe Bukit'], polisi: ['polisi', '👮 Kantor Polisi'], hiburan: ['hiburan', '🎡 Taman Hiburan'], damkar: ['damkar', '🚒 Stasiun Pemadam'], bandara: ['bandaraBesar', '✈️ Bandara'], kereta: ['stasiun', '🚆 Stasiun Kereta']};
 // Pemenang voting → entri BANGUN_VOTING di dusun tujuannya, mis. bangunCalon('kafe', Date.parse('2026-11-14T00:00:00+07:00')).
 const bangunCalon = (c, mulai) => { const [dusun, lahan] = LOKASI_FASUM[c], [aset, nama] = ASET_CALON[c];
   return {id: c, dusun, lahan, fas: lahan, aset, nama, judul: 'PEMBANGUNAN ' + nama.replace(/^\S+ /, '').toUpperCase(), mulai, sampai: mulai + 7 * 864e5}; };
@@ -325,8 +326,13 @@ const BANGUN_VOTING = [{id: 'taman', fas: 13, aset: 'tamanKota', nama: '🌳 Tam
 { const u = new URLSearchParams(location.search), c = u.get('uji_fasum'); if (ASET_CALON[c]) BANGUN_VOTING.push(bangunCalon(c, u.get('uji_tahap') != null ? Date.now() - 864e5 : Date.now() - 8 * 864e5)); }
 // Tukang Kotak (Huda 10 Nov 2026): warga yang ikut membangun lewat /duniakotak/bangun/ mempercepat fasum, jadi tanggal jadi
 // diambil dari server (GET /api/bangun, di-cache 30 dtk). Gagal/lambat (>2,5 dtk) = pakai jadwal asli di atas.
-try { const j = await (await fetch('/duniakotak/api/bangun', {signal: AbortSignal.timeout(2500)})).json();
-  for (const b of BANGUN_VOTING) { const x = (j.proyek || []).find(p => p.id === b.id); if (x && x.sampai > b.mulai && x.sampai <= b.sampai) b.sampai = x.sampai; } } catch (e) {}
+// VOTING BERANTAI (Huda 13 Nov 2026): pemenang tiap putaran voting otomatis masuk daftar proyek server (mulai = voting tutup),
+// jadi fasum pemenang tidak perlu ditulis manual di sini lagi. Daftar terakhir disimpan di HP supaya fasum tetap berdiri walau server lambat.
+{ let pr = null; try { pr = (await (await fetch('/duniakotak/api/bangun', {signal: AbortSignal.timeout(2500)})).json()).proyek; if (pr) simpan('dk_proyek', JSON.stringify(pr)); } catch (e) {}
+  if (!pr) try { pr = JSON.parse(baca('dk_proyek') || 'null'); } catch (e) {}
+  for (const x of pr || []) { let b = BANGUN_VOTING.find(y => y.id === x.id);
+    if (!b) { if (!ASET_CALON[x.id] || !LOKASI_FASUM[x.id] || !x.mulai) continue; b = bangunCalon(x.id, x.mulai); if (x.sampaiAsli) b.sampai = x.sampaiAsli; BANGUN_VOTING.push(b); }
+    if (x.sampai >= b.mulai && x.sampai <= b.sampai) b.sampai = x.sampai; } }
 // tahap visual (Huda 6 Nov): sepertiga awal fondasi, sepertiga kedua pasang bata, sepertiga akhir setengah jadi, lalu jadi
 const tahapBangun = b => { const uji = new URLSearchParams(location.search).get('uji_tahap'); if (uji != null) return +uji; const p = (Date.now() - b.mulai) / (b.sampai - b.mulai); return p < 1 / 3 ? 0 : p < 2 / 3 ? 1 : 2; };
 const dusunBangun = b => b.dusun || 'wetan';
@@ -1429,7 +1435,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2'};
+const KABAR_LAMA = {bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   if (window.DK_APP) simpan(KABAR_LAMA.notif, '1');   // aplikasi Android belum bisa notifikasi web
@@ -1438,7 +1444,7 @@ function kabarBaru(n = 0) {
   const sibuk = sedangJalan() || [...document.querySelectorAll('.layarPenuh')].some(e => !e.hidden) || (typeof pemulaKini === 'function' && pemulaKini() && n < 40);
   if (sibuk) { if (n < 120) setTimeout(() => kabarBaru(n + 1), 5000); return; }
   document.querySelectorAll('#panelKabar .kbItem[data-k]').forEach(e => { e.hidden = !baru.includes(e); });
-  $('kbNotifBtn').hidden = !baru.some(e => e.dataset.k === 'notif'); $('kbDealerBtn').hidden = !baru.some(e => e.dataset.k === 'dealer'); $('kbReliBtn').hidden = !baru.some(e => e.dataset.k === 'reli' || e.dataset.k === 'mobil') || baru.some(e => e.dataset.k === 'dealer'); $('kbArenaBtn').hidden = !baru.some(e => e.dataset.k === 'arena'); $('kbTukangBtn').hidden = !baru.some(e => e.dataset.k === 'tukang'); $('kbAjakBtn').hidden = !baru.some(e => e.dataset.k === 'ajak'); $('kbRumahBtn').hidden = !baru.some(e => e.dataset.k === 'rumah'); $('kbAlbumBtn').hidden = !baru.some(e => e.dataset.k === 'album'); $('kbPasarBtn').hidden = !baru.some(e => e.dataset.k === 'pasar'); $('kbVotingBtn').hidden = !baru.some(e => e.dataset.k === 'tersebar'); $('kbNpcBtn').hidden = !baru.some(e => e.dataset.k === 'npc') || DI !== 'wetan' || !I.fas?.[11];
+  $('kbNotifBtn').hidden = !baru.some(e => e.dataset.k === 'notif'); $('kbDealerBtn').hidden = !baru.some(e => e.dataset.k === 'dealer'); $('kbReliBtn').hidden = !baru.some(e => e.dataset.k === 'reli' || e.dataset.k === 'mobil') || baru.some(e => e.dataset.k === 'dealer'); $('kbArenaBtn').hidden = !baru.some(e => e.dataset.k === 'arena'); $('kbTukangBtn').hidden = !baru.some(e => e.dataset.k === 'tukang'); $('kbAjakBtn').hidden = !baru.some(e => e.dataset.k === 'ajak'); $('kbRumahBtn').hidden = !baru.some(e => e.dataset.k === 'rumah'); $('kbAlbumBtn').hidden = !baru.some(e => e.dataset.k === 'album'); $('kbPasarBtn').hidden = !baru.some(e => e.dataset.k === 'pasar'); $('kbVotingBtn').hidden = !baru.some(e => e.dataset.k === 'tersebar' || e.dataset.k === 'berantai'); $('kbNpcBtn').hidden = !baru.some(e => e.dataset.k === 'npc') || DI !== 'wetan' || !I.fas?.[11];
   baru.forEach(e => simpan(KABAR_LAMA[e.dataset.k], '1')); bunyi('masuk');
   ambilAjakSingkat();
   $('panelKabar').hidden = false;
@@ -1534,7 +1540,7 @@ function kibarPiala(t) {
 }
 // ---------- voting fasum berbintang (Huda 6 Nov 2026) ----------
 // 1 bintang gratis per hari; bintang donasi masuk otomatis dari webhook Trakteer (Saweria lama tetap diterima) bila pesan donasi memuat kode DK<no>.
-const CALON = {kafe: ['☕', 'Kafe'], taman: ['🌳', 'Taman Kota'], hiburan: ['🎡', 'Taman Hiburan'], polisi: ['👮', 'Kantor Polisi'], damkar: ['🚒', 'Stasiun Pemadam'], bandara: ['✈️', 'Bandara'], perpus: ['📚', 'Perpustakaan'], renang: ['🏊', 'Kolam Renang'], bioskop: ['🎬', 'Bioskop']};
+const CALON = {kafe: ['☕', 'Kafe'], taman: ['🌳', 'Taman Kota'], hiburan: ['🎡', 'Taman Hiburan'], polisi: ['👮', 'Kantor Polisi'], damkar: ['🚒', 'Stasiun Pemadam'], bandara: ['✈️', 'Bandara'], kereta: ['🚆', 'Kereta keliling 5 dusun'], perpus: ['📚', 'Perpustakaan'], renang: ['🏊', 'Kolam Renang'], bioskop: ['🎬', 'Bioskop']};
 let VT = null, vtSibuk = false;
 // Voting WAJIB (Huda 6 Nov 2026): pop up harian tidak bisa ditutup sebelum warga menaruh bintang. Hanya berlaku bila
 // warga masih punya bintang (bintang gratis harian selalu ada), jadi tidak pernah memaksa donasi.
@@ -1557,8 +1563,9 @@ function tulisVoting() {
   $('isiVoting').innerHTML = h; tulisDana();
   // Siklus mingguan (Huda 8 Nov 2026): voting 1 minggu, pemenang langsung dibangun, lalu voting fasum lain.
   const sisa = d.tutup ? d.tutup - Date.now() : 0, tgl = d.tutup ? new Date(d.tutup).toLocaleDateString('id-ID', {weekday: 'long', day: 'numeric', month: 'short', timeZone: 'Asia/Jakarta'}) : '';
-  const waktu = !d.tutup ? '' : sisa <= 0 ? 'Voting minggu ini sudah ditutup, pemenangnya mulai dibangun. ' : `Ditutup ${tgl}, 00.00 WIB (${sisa > 864e5 ? 'sisa ' + Math.floor(sisa / 864e5) + ' hari' : 'kurang dari sehari'}). `;
-  $('ringkasVoting').textContent = waktu + `Terbanyak langsung dibangun di dusun 📍 tujuannya, tiap dusun punya fasum berbeda. ${d.pemilih} warga sudah memilih` + (S.tamu ? '.' : ', 1 bintang gratis tiap hari.');
+  const waktu = !d.tutup ? '' : sisa <= 0 ? 'Voting sudah ditutup, pemenangnya sedang dibangun. ' : `Ditutup ${tgl}, 00.00 WIB (${sisa > 864e5 ? 'sisa ' + Math.floor(sisa / 864e5) + ' hari' : 'kurang dari sehari'}). `;
+  const sb = d.sebelum && d.sebelum.sampai > Date.now() ? `🚧 ${(d.sebelum.nama || '').replace(/^\S+ /, '')} (pemenang voting lalu) sedang dibangun, jadi ${new Date(d.sebelum.sampai).toLocaleDateString('id-ID', {weekday: 'long', day: 'numeric', month: 'short', timeZone: 'Asia/Jakarta'})}. ` : '';
+  $('ringkasVoting').textContent = sb + waktu + `Terbanyak langsung dibangun di dusun 📍 tujuannya, tiap dusun punya fasum berbeda. ${d.pemilih} warga sudah memilih` + (S.tamu ? '.' : ', 1 bintang gratis tiap hari.');
   if (sisa < 0 || d.ditutup) $('isiVoting').querySelectorAll('button[data-vt]').forEach(b => b.disabled = true);
   if (!S.tamu && d.no) {
     $('vtDonasiLipat').hidden = false;
