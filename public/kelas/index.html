@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="/iklan/kaos-kelas/slide-1.jpg">
+<link rel="preload" as="image" href="/iklan/kaos-kelas-v6/slide-1.webp">
 <style>
   :root { --bg:#E6E2DB; --kartu:#EFECE6; --tinta:#141414; --abu:#5E5A54; --garis:#C9C4BB; --biru:#2F5BFF; --wa:#1FA855; }
   * { box-sizing:border-box; margin:0; padding:0; }
@@ -50,6 +50,22 @@
   .btn:hover { filter:brightness(1.08); }
   .btn svg { width:22px; height:22px; flex:none; }
   .catatan { color:var(--abu); font-size:14px; margin-top:12px; }
+  .tanya { font-size:17px; margin:4px 0 10px; }
+  .pilih { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .jenjang { display:flex; align-items:center; justify-content:center; gap:8px; background:var(--wa); color:#fff; text-decoration:none; font-weight:900; font-size:22px; padding:16px 8px; border-radius:2px; box-shadow:4px 4px 0 var(--tinta); }
+  .jenjang svg { width:20px; height:20px; flex:none; }
+  .jenjang:active { transform:translate(2px,2px); box-shadow:2px 2px 0 var(--tinta); }
+  .geser .btn { margin-top:16px; }
+  .yakin { list-style:none; margin-top:18px; display:grid; gap:8px; }
+  .yakin li { display:flex; gap:10px; font-size:15px; }
+  .yakin li::before { content:"✓"; color:var(--wa); font-weight:900; }
+  .tim { display:grid; grid-template-columns:1fr 1.1fr; gap:32px; align-items:center; }
+  .tim img { width:100%; height:auto; display:block; }
+  .tim .peran { list-style:none; display:grid; gap:10px; margin-top:6px; }
+  .tim .peran li { font-size:17px; }
+  .tim .peran b { font-weight:900; }
+  .dipakai { padding-bottom:40px; }
+  .dipakai img { width:100%; height:auto; display:block; }
   .hero img { width:100%; height:auto; display:block; box-shadow:0 20px 50px -30px rgba(0,0,0,.45); }
 
   .geser { padding:8px 0 56px; }
@@ -94,8 +110,12 @@
 
   @media (max-width:780px) {
     .hero { grid-template-columns:1fr; gap:24px; padding-top:8px; }
-    .hero .gambar { display:none; }
-    .rel .hp { display:block; }
+    .hero .gambar { order:-1; }
+    .hero .gambar img { max-width:340px; margin:0 auto; }
+    .rel .hp { display:none; }
+    .tim { grid-template-columns:1fr; gap:16px; }
+    /* Di HP gambar karosel sudah memuat judul & harga: teks kembar disembunyikan agar tombol WA langsung terlihat */
+    .hero > div:first-child > .mono, .hero h1, .hero .sub, .hero .harga { display:none; }
     .langkah, .dua, .jamin { grid-template-columns:1fr; }
     .dua { gap:8px; }
     .harga b { font-size:56px; }
@@ -113,17 +133,30 @@
   <div class="hero">
     <div>
       <p class="mono biru">Kaos kelas · 2026</p>
-      <h1>Satu kelas.</h1>
-      <p class="sub serif">satu seragam,<br>banyak cerita.</p>
+      <h1>Desain gratis.</h1>
+      <p class="sub serif">lihat dulu desain kelasmu,<br>baru putuskan.</p>
       <div class="harga"><span class="mono">Mulai</span><b>65K</b><span class="mono">/pcs</span></div>
-      <a class="btn" href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20saya%20mau%20tanya%20harga%20kaos%20kelas.%0AKelas%2Fsekolah%3A%20%0AJumlah%3A%20%20pcs%0ATanggal%20acara%3A%20">
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.3 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.6 2.1 1.1 1 2 1.3 2.3 1.4.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l2 1c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>
-        Tanya harga kelasmu
-      </a>
-      <p class="catatan"><b>Sudah termasuk nama &amp; nomor punggung tiap anak.</b> Harga final ditulis di awal dan tidak berubah. Gratis tanya, dibalas Senin–Sabtu 08.00–16.00 WIB.</p>
+      <p class="tanya"><b>Kelasmu jenjang apa?</b> Pilih, langsung chat WA.</p>
+      <div class="pilih">
+        <a class="jenjang" href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20mau%20minta%20desain%20kaos%20kelas%20GRATIS%20untuk%20kelas%20SD.%0ANama%20kelas%2Fsekolah%3A%20"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.3 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.6 2.1 1.1 1 2 1.3 2.3 1.4.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l2 1c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>SD</a>
+        <a class="jenjang" href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20mau%20minta%20desain%20kaos%20kelas%20GRATIS%20untuk%20kelas%20SMP.%0ANama%20kelas%2Fsekolah%3A%20"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.3 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.6 2.1 1.1 1 2 1.3 2.3 1.4.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l2 1c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>SMP</a>
+        <a class="jenjang" href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20mau%20minta%20desain%20kaos%20kelas%20GRATIS%20untuk%20kelas%20SMA.%0ANama%20kelas%2Fsekolah%3A%20"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.3 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.6 2.1 1.1 1 2 1.3 2.3 1.4.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l2 1c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>SMA</a>
+      </div>
+      <p class="catatan" style="margin-top:8px">Pesannya sudah terisi, tinggal tekan <b>kirim</b>. Gratis, tanpa wajib pesan.</p>
+      <ul class="yakin">
+        <li>Contoh desain gratis, cocok baru pesan.</li>
+        <li>Sudah termasuk nama &amp; nomor punggung tiap anak.</li>
+        <li>Workshop di Ngawi sejak 2020, boleh didatangi.</li>
+      </ul>
+      <p class="catatan">Dibalas Senin–Sabtu 08.00–16.00 WIB.</p>
     </div>
-    <div class="gambar"><img src="/iklan/kaos-kelas/slide-1.jpg" width="1080" height="1080" alt="Kaos kelas hitam bertuliskan Satu Frekuensi, mulai 65 ribu per pcs"></div>
+    <div class="gambar"><img src="/iklan/kaos-kelas-v6/slide-1.webp" width="1080" height="1080" alt="Desain kaos kelas gratis, mulai 65 ribu per pcs"></div>
   </div>
+</div>
+
+<div class="w dipakai">
+  <img src="/kelas/kaos-kelas-dipakai.webp" width="1400" height="997" alt="Dua siswa memakai kaos kelas hitam: logo kelas kecil di dada, desain besar SMPN 8-D Space Cadets di punggung">
+  <p class="catatan">Depan: logo kelas di dada. Belakang: desain besar kelasmu. <span style="opacity:.7">(Foto ilustrasi, desain bisa diganti sesukamu.)</span></p>
 </div>
 
 <div class="geser">
@@ -132,25 +165,43 @@
     <h2>Contoh desain kaos kelas.</h2>
   </div>
   <div class="w"><div class="rel">
-    <img class="hp" src="/iklan/kaos-kelas/slide-1.jpg" width="1080" height="1080" alt="Kaos kelas hitam bertuliskan Satu Frekuensi, mulai 65 ribu per pcs">
-    <img src="/iklan/kaos-kelas/slide-2.jpg" width="1080" height="1080" loading="lazy" alt="Contoh kaos kelas tampak belakang dengan nama dan nomor">
-    <img src="/iklan/kaos-kelas/slide-3.jpg" width="1080" height="1080" loading="lazy" alt="Contoh kaos kelas tampak belakang dengan nama dan nomor berbeda">
-    <img src="/iklan/kaos-kelas/slide-4.jpg" width="1080" height="1080" loading="lazy" alt="Contoh kaos kelas tampak belakang, nama tiap anak">
-    <img src="/iklan/kaos-kelas/slide-5.jpg" width="1080" height="1080" loading="lazy" alt="Kaos kelas custom mulai 65 ribu, desain dibantu gratis">
+    <img class="hp" src="/iklan/kaos-kelas-v6/slide-1.webp" width="1080" height="1080" alt="Desain kaos kelas gratis, mulai 65 ribu per pcs">
+    <img src="/iklan/kaos-kelas-v6/slide-2.webp" width="1080" height="1080" loading="lazy" alt="Contoh kaos kelas SD, ceria dan penuh gambar lucu">
+    <img src="/iklan/kaos-kelas-v6/slide-3.webp" width="1080" height="1080" loading="lazy" alt="Contoh kaos kelas SMP, tema luar angkasa">
+    <img src="/iklan/kaos-kelas-v6/slide-4.webp" width="1080" height="1080" loading="lazy" alt="Contoh kaos kelas SMA, nama geng kelas">
+    <img src="/iklan/kaos-kelas-v6/slide-5.webp" width="1080" height="1080" loading="lazy" alt="Kaos kelas custom mulai 65 ribu, desain dibantu gratis">
   </div></div>
+  <div class="w"><a class="btn" href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20saya%20suka%20contoh%20desainnya.%20Mau%20minta%20desain%20kaos%20kelas%20GRATIS%20untuk%20kelas%20saya.%0ANama%20kelas%2Fsekolah%3A%20">Suka? Minta versi kelasmu, gratis →</a></div>
 </div>
 
 <div class="w">
-  <section>
-    <p class="mono biru">Yang kamu dapat</p>
-    <h2>Semua sudah termasuk.</h2>
-    <ul class="daftar">
-      <li><span class="mono">01</span>Desain dibantu gratis. Cukup kirim ide, logo, atau contoh gambar.</li>
-      <li><span class="mono">02</span>Nama &amp; nomor beda untuk tiap anak.</li>
-      <li><span class="mono">03</span>Mockup dikirim dulu, produksi setelah kamu setuju.</li>
-      <li><span class="mono">04</span>Jadi 3–7 hari kerja setelah desain disetujui.</li>
-      <li><span class="mono">05</span>Ambil di Ngawi, atau kirim ke Blora, Cepu, dan seluruh Indonesia.</li>
-    </ul>
+
+  <section class="dua bukti" style="border-top:0">
+    <div>
+      <p class="mono biru">Bukan cuma gambar</p>
+      <h2>Lihat hasil sablon asli.</h2>
+    </div>
+    <div>
+      <div class="asli">
+        <img src="/hasil-sablon-kaos-ora-melu-mumet.jpg" width="900" height="1200" loading="lazy" alt="Foto hasil sablon kaos Willo Apparel, tulisan Ora Melu Mumete Ora Usah Maido">
+      </div>
+      <p>Willo Apparel mengerjakan kaos custom di Ngawi sejak 2020. Workshop kami ada di Jl. PB. Sudirman No.31, Ngawi, dan boleh didatangi.</p>
+      <p><a class="tautan" href="/hasil-sablon.html">Tonton video hasil produksi →</a></p>
+      <p><a class="tautan" href="/cara-rekap-ukuran-kaos.html">Cara rekap ukuran satu kelas →</a></p>
+    </div>
+  </section>
+
+  <section class="tim">
+    <img src="/kelas/tim-willo.webp" width="1000" height="455" loading="lazy" alt="Mbak Wila admin, Mas Ucup desainer, dan Mas Han tukang sablon Willo Apparel">
+    <div>
+      <p class="mono biru">Yang bantu kelasmu</p>
+      <h2>Kamu chat, kami kerjakan.</h2>
+      <ul class="peran">
+        <li><b>Mbak Wila</b> balas chat dan hitungkan harganya.</li>
+        <li><b>Mas Ucup</b> buatkan desain &amp; mockup sampai kelasmu cocok.</li>
+        <li><b>Mas Han</b> nyablon di workshop Ngawi, satu per satu.</li>
+      </ul>
+    </div>
   </section>
 
   <section>
@@ -173,20 +224,6 @@
     </div>
   </section>
 
-  <section class="dua bukti">
-    <div>
-      <p class="mono biru">Bukan cuma gambar</p>
-      <h2>Lihat hasil sablon asli.</h2>
-    </div>
-    <div>
-      <div class="asli">
-        <img src="/hasil-sablon-kaos-ora-melu-mumet.jpg" width="900" height="1200" loading="lazy" alt="Foto hasil sablon kaos Willo Apparel, tulisan Ora Melu Mumete Ora Usah Maido">
-      </div>
-      <p>Willo Apparel mengerjakan kaos custom di Ngawi sejak 2020. Workshop kami ada di Jl. PB. Sudirman No.31, Ngawi, dan boleh didatangi.</p>
-      <p><a class="tautan" href="/hasil-sablon.html">Tonton video hasil produksi →</a></p>
-      <p><a class="tautan" href="/cara-rekap-ukuran-kaos.html">Cara rekap ukuran satu kelas →</a></p>
-    </div>
-  </section>
 
   <section>
     <p class="mono biru">Sering ditanya</p>
@@ -201,15 +238,15 @@
   <div class="penutup">
     <p class="mono biru">Mulai sekarang</p>
     <h2>Bikin kelasmu kompak.</h2>
-    <a class="btn" href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20saya%20mau%20tanya%20harga%20kaos%20kelas.%0AKelas%2Fsekolah%3A%20%0AJumlah%3A%20%20pcs%0ATanggal%20acara%3A%20">Tanya harga via WhatsApp →</a>
+    <a class="btn" href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20mau%20minta%20desain%20kaos%20kelas%20GRATIS.%0ANama%20kelas%2Fsekolah%3A%20">Minta desain gratis via WhatsApp →</a>
   </div>
 
   <footer>Willo Apparel · Jl. PB. Sudirman No.31, Kerek, Margomulyo, Ngawi · WA 0858-1690-0722 · <a href="/">willoapparel.com</a></footer>
 </div>
 
 <div class="lengket">
-  <span><b>Kaos kelas mulai 65K</b>Termasuk nama &amp; nomor · mockup dulu</span>
-  <a href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20saya%20mau%20tanya%20harga%20kaos%20kelas.%0AKelas%2Fsekolah%3A%20%0AJumlah%3A%20%20pcs%0ATanggal%20acara%3A%20"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Z"/></svg>Chat WA</a>
+  <span><b>Desain kaos kelas gratis</b>Mulai 65K, termasuk nama &amp; nomor</span>
+  <a href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20mau%20minta%20desain%20kaos%20kelas%20GRATIS.%0ANama%20kelas%2Fsekolah%3A%20"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Z"/></svg>Minta desain</a>
 </div>
 
 <script src="/wa-tag.js"></script>
