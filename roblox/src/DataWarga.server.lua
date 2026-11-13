@@ -13,6 +13,7 @@
   - Pintu untuk skrip lain: ServerStorage.DK_Koin (BindableFunction).
       DK_Koin:Invoke(player, jumlah)  -> true kalau berhasil.
       jumlah boleh negatif (bayar); gagal kalau koin kurang.
+    ServerStorage.DK_Permata bekerja sama untuk permata.
 
   Kalau data pemain gagal dimuat, skrip TIDAK menyimpan apa pun untuk pemain itu
   supaya tabungan lamanya tidak tertimpa.
@@ -173,6 +174,18 @@ local pintu = Instance.new("BindableFunction")
 pintu.Name = "DK_Koin"
 pintu.OnInvoke = tambahKoin
 pintu.Parent = ServerStorage
+
+local pintuPermata = Instance.new("BindableFunction")
+pintuPermata.Name = "DK_Permata"
+pintuPermata.OnInvoke = function(player, jumlah)
+	local s = sesi[player]
+	if not s or typeof(jumlah) ~= "number" or jumlah ~= jumlah then return false end
+	jumlah = math.floor(jumlah)
+	if s.permata.Value + jumlah < 0 then return false end
+	s.permata.Value += jumlah
+	return true
+end
+pintuPermata.Parent = ServerStorage
 
 Players.PlayerAdded:Connect(masuk)
 for _, p in ipairs(Players:GetPlayers()) do
