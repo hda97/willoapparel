@@ -54,6 +54,14 @@ const FASUM_CALON = {
   damkar: { nama: "🚒 Stasiun Pemadam", aset: "damkar", dusun: "wetan", lahan: 14 },
   bandara: { nama: "✈️ Bandara", aset: "bandaraBesar", dusun: "tlaga", lahan: 2 },
 };
+// CALON NANTI (Huda 13 Nov 2026: "Pasar desa juga", "Dibangun setelah itu"). BELUM aktif: semua tetap lewat voting.
+// Pindahkan ke FASUM_CALON + CALON_LANJUT (dan LOKASI_FASUM/ASET_CALON/CALON di game.js) setelah model 3D-nya dibuat
+// dan syaratnya terpenuhi. Kios Warga masuk setelah calon sekarang habis; Pasar & Dermaga setelah Segara buka (warga No. 861).
+const CALON_NANTI = {
+  kios: { nama: "🏪 Kios Warga", dusun: "tlaga", lahan: 0, syarat: "setelah calon sekarang (dekat Taman Hiburan)", isi: "kios disewa warga untuk jualan" },
+  pasar: { nama: "🧺 Pasar Desa", dusun: "segara", lahan: 0, syarat: "Segara buka (warga No. 861)", isi: "warga jual-beli ikan & hasil kebun" },
+  dermaga: { nama: "⚓ Dermaga Nelayan", dusun: "segara", lahan: 1, syarat: "Segara buka (warga No. 861)", isi: "dermaga perahu nelayan" },
+};
 // Siklus mingguan (Huda 8 Nov 2026): voting 1 minggu → pemenang dibangun 7 hari → voting fasum lain dibuka.
 // Stream Key Saweria bisa disetel lewat halaman /duniakotak/atur-saweria.html (Huda tidak menemukan worker di Cloudflare).
 // Halaman itu butuh token setel; di sini hanya hash SHA-256-nya (token asli dikirim ke Huda lewat chat proyek).
