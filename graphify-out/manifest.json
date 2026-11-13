@@ -14860,6 +14860,168 @@
     "ast_hash": "2ef30c38fe1260365232e040401bb6f3",
     "semantic_hash": ""
   },
+  "roblox/data/curug.json": {
+    "mtime": 1794538467.0084138,
+    "seen": 1794538508.2959352,
+    "ast_hash": "c2bcc793cd3e9c02e21148faf9ba32fa",
+    "semantic_hash": ""
+  },
+  "roblox/data/kulon.json": {
+    "mtime": 1794538457.790324,
+    "seen": 1794538508.295938,
+    "ast_hash": "f1751fa73a7214633ed453da25f6cf56",
+    "semantic_hash": ""
+  },
+  "roblox/data/tlaga.json": {
+    "mtime": 1794538473.042698,
+    "seen": 1794538508.29594,
+    "ast_hash": "f697178f24a821e23dc7dab7ff6efc7d",
+    "semantic_hash": ""
+  },
+  "roblox/data/curug-000.txt": {
+    "mtime": 1794538466.9513595,
+    "seen": 1794538508.2972841,
+    "ast_hash": "4bb21417a772f3f19c33eaea62a8875b",
+    "semantic_hash": ""
+  },
+  "roblox/data/curug-001.txt": {
+    "mtime": 1794538466.9579954,
+    "seen": 1794538508.2972858,
+    "ast_hash": "71c15e90ef49311286523141eba239a2",
+    "semantic_hash": ""
+  },
+  "roblox/data/curug-002.txt": {
+    "mtime": 1794538466.9649668,
+    "seen": 1794538508.2972877,
+    "ast_hash": "e5a4936a28fffe12da7a36fa249daaf4",
+    "semantic_hash": ""
+  },
+  "roblox/data/curug-003.txt": {
+    "mtime": 1794538466.9720125,
+    "seen": 1794538508.297289,
+    "ast_hash": "4b463a87777cbecff71943c58a5a0029",
+    "semantic_hash": ""
+  },
+  "roblox/data/curug-004.txt": {
+    "mtime": 1794538466.9789422,
+    "seen": 1794538508.2973049,
+    "ast_hash": "ca4a2d1441d44985188cb2b04f63fbac",
+    "semantic_hash": ""
+  },
+  "roblox/data/curug-005.txt": {
+    "mtime": 1794538466.9873352,
+    "seen": 1794538508.297309,
+    "ast_hash": "039ddda95f7250762d06ba5882a942ec",
+    "semantic_hash": ""
+  },
+  "roblox/data/curug-006.txt": {
+    "mtime": 1794538466.995836,
+    "seen": 1794538508.2973113,
+    "ast_hash": "f8a0c1bd26105827411a7755c881107d",
+    "semantic_hash": ""
+  },
+  "roblox/data/curug-007.txt": {
+    "mtime": 1794538467.0038767,
+    "seen": 1794538508.2973127,
+    "ast_hash": "29a9ffd79661723cd42e704e502b39fd",
+    "semantic_hash": ""
+  },
+  "roblox/data/curug-008.txt": {
+    "mtime": 1794538467.0069191,
+    "seen": 1794538508.2973142,
+    "ast_hash": "7127bec7fbefb7667ff02f946e31d7a8",
+    "semantic_hash": ""
+  },
+  "roblox/data/kulon-000.txt": {
+    "mtime": 1794538457.7374911,
+    "seen": 1794538508.2973154,
+    "ast_hash": "4e7aa819cbe58d617ab8b47bb9417362",
+    "semantic_hash": ""
+  },
+  "roblox/data/kulon-001.txt": {
+    "mtime": 1794538457.7470403,
+    "seen": 1794538508.2973166,
+    "ast_hash": "93c75b627f065427eab9182fea3b0a69",
+    "semantic_hash": ""
+  },
+  "roblox/data/kulon-002.txt": {
+    "mtime": 1794538457.7540274,
+    "seen": 1794538508.297318,
+    "ast_hash": "115d7da8389653844429dbd928c77c8a",
+    "semantic_hash": ""
+  },
+  "roblox/data/kulon-003.txt": {
+    "mtime": 1794538457.757491,
+    "seen": 1794538508.2973192,
+    "ast_hash": "7dba4f319ffda8c4c699fb97273b5a2e",
+    "semantic_hash": ""
+  },
+  "roblox/data/kulon-004.txt": {
+    "mtime": 1794538457.7670662,
+    "seen": 1794538508.2973206,
+    "ast_hash": "a79010151ad5690143ca861e9906fab6",
+    "semantic_hash": ""
+  },
+  "roblox/data/kulon-005.txt": {
+    "mtime": 1794538457.772917,
+    "seen": 1794538508.297322,
+    "ast_hash": "ac4c816890debd7f19701d6ca29296a7",
+    "semantic_hash": ""
+  },
+  "roblox/data/kulon-006.txt": {
+    "mtime": 1794538457.7794054,
+    "seen": 1794538508.2973232,
+    "ast_hash": "58ecbc2fd9023f0661bc26c0b6a12289",
+    "semantic_hash": ""
+  },
+  "roblox/data/kulon-007.txt": {
+    "mtime": 1794538457.7858236,
+    "seen": 1794538508.2973247,
+    "ast_hash": "a6b5f0392d65c6112c29d7a0430ca482",
+    "semantic_hash": ""
+  },
+  "roblox/data/kulon-008.txt": {
+    "mtime": 1794538457.7887886,
+    "seen": 1794538508.2973256,
+    "ast_hash": "3c4ee3832451d81773f6fa053d4ff073",
+    "semantic_hash": ""
+  },
+  "roblox/data/tlaga-000.txt": {
+    "mtime": 1794538473.0157926,
+    "seen": 1794538508.2973268,
+    "ast_hash": "3c873b34b4ad8b2bf187616580d2375b",
+    "semantic_hash": ""
+  },
+  "roblox/data/tlaga-001.txt": {
+    "mtime": 1794538473.0219164,
+    "seen": 1794538508.2973282,
+    "ast_hash": "3f8c83615d04cb2b93efde5fc84db285",
+    "semantic_hash": ""
+  },
+  "roblox/data/tlaga-002.txt": {
+    "mtime": 1794538473.0271654,
+    "seen": 1794538508.2973297,
+    "ast_hash": "aa0ac2b0ea7c6f2caa6df982b7159948",
+    "semantic_hash": ""
+  },
+  "roblox/data/tlaga-003.txt": {
+    "mtime": 1794538473.0294921,
+    "seen": 1794538508.2973306,
+    "ast_hash": "0153ebb9c48810008d7027b634334ded",
+    "semantic_hash": ""
+  },
+  "roblox/data/tlaga-004.txt": {
+    "mtime": 1794538473.0392528,
+    "seen": 1794538508.2973323,
+    "ast_hash": "1ec2bb4226c791a8de1476c33fe4ee26",
+    "semantic_hash": ""
+  },
+  "roblox/data/tlaga-005.txt": {
+    "mtime": 1794538473.0413802,
+    "seen": 1794538508.2973335,
+    "ast_hash": "4e672edd8b4f27003a4dc5cf2e202e3e",
+    "semantic_hash": ""
+  },
   ".claude/skills/video-shotcraft/package-lock.json": {
     "mtime": 1794434389.631907,
     "seen": 1794537309.6077132,
