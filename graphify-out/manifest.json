@@ -209,9 +209,9 @@
     "semantic_hash": "bf3f8e495130df0e60287acb7ca38561"
   },
   "worker.js": {
-    "mtime": 1794570247.9308238,
-    "seen": 1794570297.2754714,
-    "ast_hash": "f062c348335d532cf69e7d4bf98c1f70",
+    "mtime": 1794570917.1975849,
+    "seen": 1794571024.5890408,
+    "ast_hash": "88f22901f25d48ed4cb458b181121c7c",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/musik.mp3": {
@@ -3221,15 +3221,15 @@
     "semantic_hash": ""
   },
   "public/duniakotak/bangun/bangun.js": {
-    "mtime": 1794434389.9185822,
-    "seen": 1794569630.550003,
-    "ast_hash": "e72cbbb6735def5e253b78dd1dd2b2d5",
+    "mtime": 1794570924.3005736,
+    "seen": 1794571024.5888648,
+    "ast_hash": "80e68547707d42a36299068a3c7ce6b2",
     "semantic_hash": ""
   },
   "public/duniakotak/bangun/index.html": {
-    "mtime": 1794434389.91892,
-    "seen": 1794569630.5525692,
-    "ast_hash": "5c8154b2f35418a69cb12ee0cb546cae",
+    "mtime": 1794570930.8416784,
+    "seen": 1794571024.5912158,
+    "ast_hash": "591dd5a1acbdc1e337173bba37ea1409",
     "semantic_hash": ""
   },
   "public/duniakotak/ikon/favicon-48.png": {
