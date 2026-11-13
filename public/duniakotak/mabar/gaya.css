@@ -565,3 +565,6 @@ a.pdSaweria{display:block;text-align:center;text-decoration:none;margin-top:6px}
 .pkHadiah small{display:block;color:var(--emas);font-weight:600;font-size:10.5px;margin-top:2px}
 .pkMode{display:flex;gap:6px;margin-bottom:6px}.pkMode button{flex:1;padding:5px 8px;border-radius:10px;font:700 12px Montserrat,sans-serif;background:rgba(255,255,255,.08);color:#fff;border:1px solid var(--garis)}.pkMode button.on{background:var(--emas);color:#222}
 #isiHadiahPk .pkBaris{height:auto;padding:6px 10px}
+/* Chip level di label nama (13 Nov 2026) */
+.nmLv{display:inline-flex;align-items:center;justify-content:center;min-width:15px;height:15px;padding:0 4px;margin:0 5px 0 -5px;border-radius:999px;background:linear-gradient(180deg,#ffe27a,#f2b51c);color:#4a3000;font:900 9.5px/1 Montserrat,sans-serif;vertical-align:1px;box-shadow:inset 0 -1px 0 rgba(0,0,0,.18)}
+.nmLv::before{content:"Lv";font-size:7px;margin-right:1px;opacity:.75}
