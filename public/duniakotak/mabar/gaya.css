@@ -589,6 +589,6 @@ a.pdSaweria{display:block;text-align:center;text-decoration:none;margin-top:6px}
 #panelPeringkat #tutupPeringkat,#panelPeringkat h2,#panelPeringkat .tabPk,#ringkasPeringkat{flex:none}
 #panelPeringkat h2{margin:0 0 4px}
 /* Medali Warga Rajin di label nama (13 Nov 2026) */
-.nmMedali{display:inline-block;font-size:17px;line-height:1;margin:-4px 4px -4px -2px;vertical-align:-2px;filter:drop-shadow(0 0 3px rgba(255,215,80,.9));animation:kilau 2.4s ease-in-out infinite}
-.nmMedali.m1{filter:drop-shadow(0 0 3px rgba(220,230,240,.9))}.nmMedali.m2{filter:drop-shadow(0 0 3px rgba(230,150,80,.9))}
+.nmMedali{display:inline-block;font-size:12px;line-height:1;margin:0 3px 0 -1px;vertical-align:0;filter:drop-shadow(0 0 2px rgba(255,215,80,.8))}
+.nmMedali.m1{filter:drop-shadow(0 0 2px rgba(220,230,240,.8))}.nmMedali.m2{filter:drop-shadow(0 0 2px rgba(230,150,80,.8))}
 @keyframes kilau{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
