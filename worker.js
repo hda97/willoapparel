@@ -41,11 +41,11 @@ export class Pengunjung extends DurableObject {
 // Putaran di JADWAL_VOTING dipakai berurutan; sesudahnya putaran dibuat otomatis tiap minggu dari CALON_LANJUT yang belum pernah menang
 // (berhenti bila tinggal < 2 calon). Pemenang seri = urutan calon. Data fasum tiap calon di FASUM_CALON (samakan dengan game.js).
 const JADWAL_VOTING = [
-  { put: "2026-11", calon: ["kafe", "hiburan", "polisi"], tutup: Date.parse("2026-11-14T00:00:00+07:00") },
+  { put: "2026-11", calon: ["kafe", "hiburan", "polisi"], tutup: Date.parse("2026-11-14T00:00:00+07:00"), menang: "kafe" },
   // Huda 13 Nov 2026: voting berikutnya Stasiun (kereta), Damkar, Bandara. `menang` (opsional) = pemenang ditetapkan Huda.
   { put: "2026-11b", calon: ["kereta", "damkar", "bandara"], tutup: Date.parse("2026-11-21T00:00:00+07:00") },
 ];
-const CALON_LANJUT = ["kafe", "hiburan", "polisi", "kereta", "damkar", "bandara"];
+const CALON_LANJUT = ["kafe", "polisi", "kereta", "damkar", "bandara"];
 const FASUM_CALON = {
   kafe: { nama: "☕ Kafe Bukit", aset: "kafe", dusun: "kulon", lahan: 0 },
   hiburan: { nama: "🎡 Taman Hiburan", aset: "hiburan", dusun: "tlaga", lahan: 1 },
@@ -70,7 +70,10 @@ const PERMATA_PER_RIBU = 10;
 // Tiap kelipatan 20 Bata: nama di plakat fasum yang sedang dibangun saat itu. Pengusul pertama fasum pemenang = Bos fasum (gratis).
 const BATA_RP = 5000, BATA_BENDERA = 2, BATA_PLAKAT = 20;
 // Fasum yang sedang dibangun (samakan dengan BANGUN_VOTING di game.js). Setelah `sampai`, plakat baru masuk ke fasum berikutnya.
-const BANGUN_SEKARANG = [{ id: "taman", nama: "🌳 Taman Kota", aset: "tamanKota", dusun: "wetan", mulai: Date.parse("2026-11-07T00:00:00+07:00"), sampai: Date.parse("2026-11-14T00:00:00+07:00") }];
+// Huda 13 Nov 2026: "Taman hiburan sudah dibangun besok sudah jadi" → Taman Hiburan (Tlaga) ikut jadi Sabtu 14 Nov bersama Taman Kota,
+// dan Kafe (peringkat 2 voting 2026-11) yang dibangun minggu 14–21 Nov.
+const BANGUN_SEKARANG = [{ id: "taman", nama: "🌳 Taman Kota", aset: "tamanKota", dusun: "wetan", mulai: Date.parse("2026-11-07T00:00:00+07:00"), sampai: Date.parse("2026-11-14T00:00:00+07:00") },
+  { id: "hiburan", nama: "🎡 Taman Hiburan", aset: "hiburan", dusun: "tlaga", lahan: 1, mulai: Date.parse("2026-11-07T00:00:00+07:00"), sampai: Date.parse("2026-11-14T00:00:00+07:00") }];
 // Tukang Kotak (Huda 10 Nov 2026): warga ikut MEMBANGUN fasum pemenang voting lewat mini-game /duniakotak/bangun/
 // (masuk dari lahan proyek, seperti gapura Pelari Kalcer). Gaya "Angkut & Bangun": warga mengangkut bahan ke gerbang proyek,
 // 1 sesi = 1 misi = TK_BAHAN (60) bahan disetor (dihitung di HP, server membatasi lewat jeda minimal TK_MIN antar sesi).
