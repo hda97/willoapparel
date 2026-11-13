@@ -593,7 +593,36 @@ export function bandaraBesar(){const g=G();const W=0xf2f4f6,B=0x2f6fb8,K=0x8fd0e
  g.ad(box(64,.05,1.6,0xf4f4f0,.01),0,.4,-21.2);[-20,-8,8,20].forEach((x,i)=>{g.ad(box(2.4,.8,1.2,[0xf2c14a,0x3a8ad8,0xf2c14a,0xe8e8e8][i],.3),x,.9,-21.2);g.ad(box(1.4,.55,1.1,0x26313d,.2),x-.1,1.5,-21.2)});
  [-31,31].forEach(x=>[-8,-20].forEach(z=>{g.ad(box(.8,2.8,.8,0x6a4426,.04),x,1.75,z);g.ad(box(3,2.6,3,0x3a8a5a,.3),x,4.2,z)}));
  pagar(g,64,44,B,4);return fin(g)}
-export const SEMUA={masjid,gereja,katedral,pura,vihara,klenteng,sekolah,warung,supermarket,rumahSakit,stadion,kampus,tamanKota,kafe,hiburan,polisi,tokoWillo,arenaLari,sirkuitReli,dealer,damkar,bandara,bandaraBesar};
+// Stasiun Kereta (calon voting 14 Nov 2026, Kotak Curug lahan 0): gedung stasiun + peron beratap, rel di depan, kereta 3 gerbong
+// diam di peron. Rute melingkar 5 dusun (rencana kereta) menyusul setelah stasiun berdiri.
+export function stasiun(){const g=G();const W=0xf3eee2,M=0xb8322a,AB=0x5a5e66,K=0x8fd0ec,KY=0x7a5232;lantai(g,19,17,0xcfc8b8);
+ ruang(g,{x:0,z:-5.2,w:12,d:5.6,h:4,c:W,bukaan:[{s:'d',p:0,w:2.6,h:2.8}],lantaiC:0xe2dccd});
+ const at=roof(13,2.2,6.4,M);g.ad(at,0,4.35,-5.2);
+ g.ad(box(8.6,1.3,.3,M,.06),0,5.2,-2.2);const pn=papanTeks(8.2,1,'STASIUN KOTAK','#b8322a','#fff4dc');pn.position.set(0,5.2,-2.03);g.add(pn);
+ for(const x of[-4,4])g.ad(box(2.2,1.8,.12,K,.02),x,2.1,-2.38);
+ // jam bulat di atas pintu
+ const jm=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,.12,20),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.5}));jm.rotation.x=Math.PI/2;g.ad(jm,0,3.65,-2.3);
+ g.ad(box(.06,.4,.04,0x222222,0),0,3.75,-2.22);g.ad(box(.3,.06,.04,0x222222,0),.12,3.65,-2.22);
+ // isi: loket + kursi tunggu + papan jadwal
+ perabot(g,box(3,1,.6,KY,.04),-3.4,.85,-6.9).userData.dinding=true;perabot(g,box(3.2,.08,.8,0xe8dcc4,.02),-3.4,1.39,-6.9);
+ [1.2,2.4,3.6].forEach(x=>kursi(g,x,-5.6,0x3a8ad8));const pj=papanTeks(3,.9,'CURUG → KULON → SEGARA','#1d2a44','#f2c14a');pj.position.set(2.4,2.9,-7.82);g.add(pj);
+ // peron beratap
+ g.ad(box(17,.5,3.2,0xd8d2c4,.03),0,.6,.2);g.ad(box(17,.06,.3,0xf2c14a,0),0,.88,1.65);
+ for(const x of[-7,-3.5,0,3.5,7])g.ad(box(.2,2.8,.2,AB,.02),x,2.25,-.6);g.ad(box(17.4,.18,2.4,M,.03),0,3.7,-.1);
+ [-5.2,5.2].forEach(x=>bangku(g,x,-.6,1.8,KY));
+ // rel
+ g.ad(box(18.6,.12,2.4,0x8a8478,.02),0,.41,4.4);for(let x=-9;x<=9.01;x+=.9)g.ad(box(.3,.08,2,0x6a4426,.01),x,.5,4.4);
+ for(const z of[3.75,5.05])g.ad(box(18.6,.12,.12,0x9aa0a8,.01),0,.6,z);
+ // kereta 3 gerbong (lok merah, gerbong krem)
+ const gerbong=(x,lok)=>{const c=lok?M:0xf2e6c8;g.ad(box(5,1.9,1.9,c,.25),x,1.75,4.4);g.ad(box(5.1,.25,2,0x2a2a2a,.04),x,.75,4.4);
+  for(let i=-1;i<=1;i++)g.ad(box(1,.7,.06,K,.02),x+i*1.4,2.05,3.42);g.ad(box(5,.12,1.95,lok?0xf2c14a:M,.02),x,1.25,4.4);
+  for(const dx of[-1.7,1.7])for(const z of[3.55,5.25]){const r=new THREE.Mesh(new THREE.CylinderGeometry(.35,.35,.15,12),new THREE.MeshStandardMaterial({color:0x222222}));r.rotation.x=Math.PI/2;g.ad(r,x+dx,.75,z)}};
+ gerbong(-5.6,true);gerbong(-.2,false);gerbong(5.2,false);g.ad(box(.6,.5,.6,0x2a2a2a,.05),-7.6,2.95,4.4);
+ g.ad(box(.5,.35,.5,0xfff2c0,.06,{emissive:0xffe08a,emissiveIntensity:.8}),-8.15,1.9,4.4);
+ // tiang sinyal
+ g.ad(box(.14,3,.14,0x2a2a2a,.02),8.6,1.9,2.9);g.ad(box(.5,1,.3,0x2a2a2a,.04),8.6,3.3,2.9);g.ad(box(.26,.26,.06,0x3ad86a,.05,{emissive:0x3ad86a,emissiveIntensity:.8}),8.6,3.5,3.06);
+ pagar(g,19,17,AB,3);return fin(g)}
+export const SEMUA={masjid,gereja,katedral,pura,vihara,klenteng,sekolah,warung,supermarket,rumahSakit,stadion,kampus,tamanKota,kafe,hiburan,polisi,tokoWillo,arenaLari,sirkuitReli,dealer,damkar,bandara,bandaraBesar,stasiun};
 // Dipakai game: pisahkan bagian "atas" (dinding atas, atap, lantai 2) supaya bisa disembunyikan saat warga di dalam,
 // dan hitung kotak tabrakan per dinding (pintu & ruang dalam bisa dilewati). m sudah diskalakan & diposisikan.
 export function pisahFasum(m){
