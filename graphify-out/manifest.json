@@ -113,9 +113,9 @@
     "semantic_hash": "16f7aa92d3e9468edf41dd30b4c182d1"
   },
   "public/duniakotak/mabar/game.js": {
-    "mtime": 1794575235.9415271,
-    "seen": 1794575461.9514658,
-    "ast_hash": "ddb274681725b6eb1dac94ea5eb2b838",
+    "mtime": 1794577754.256145,
+    "seen": 1794577952.748724,
+    "ast_hash": "7d4827ffcc70f8e62cfb7ce4e318b5f9",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/avatar.js": {
@@ -125,9 +125,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/fasum.js": {
-    "mtime": 1794571830.0492969,
-    "seen": 1794571893.868961,
-    "ast_hash": "35727aa036e38b1dd06809a88076bb8a",
+    "mtime": 1794577658.1749406,
+    "seen": 1794577952.7487285,
+    "ast_hash": "f793ae70fa208d42b7a67ded81b52ef7",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/kucing.js": {
@@ -209,9 +209,9 @@
     "semantic_hash": "bf3f8e495130df0e60287acb7ca38561"
   },
   "worker.js": {
-    "mtime": 1794575085.7714508,
-    "seen": 1794575461.9515464,
-    "ast_hash": "b0291e2ac900a2ff14cda174de11b784",
+    "mtime": 1794577616.7196262,
+    "seen": 1794577952.7488005,
+    "ast_hash": "454cb40a391991ff1076f854f48e496b",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/musik.mp3": {
@@ -977,9 +977,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/index.html": {
-    "mtime": 1794575235.9657712,
-    "seen": 1794575461.952814,
-    "ast_hash": "c8aec404a816e2432a585b3c8860d847",
+    "mtime": 1794577731.5824585,
+    "seen": 1794577952.750139,
+    "ast_hash": "c8ffb10c5f6b18d5148a6ba52398f550",
     "semantic_hash": ""
   },
   "public/duniakotak/privasi.html": {
@@ -8939,9 +8939,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/bot-indodax.yml": {
-    "mtime": 1794434389.7128038,
-    "seen": 1794569630.549619,
-    "ast_hash": "3337f9a0483ce7ec39cc053a2bdd28dc",
+    "mtime": 1794577528.2558439,
+    "seen": 1794577952.7484493,
+    "ast_hash": "5b57fd62cb3d3a8b1a127d758a62f2fc",
     "semantic_hash": ""
   },
   "bot-indodax/bot.py": {
@@ -12665,9 +12665,9 @@
     "semantic_hash": ""
   },
   "bot-indodax/PANDUAN.md": {
-    "mtime": 1794434389.718521,
-    "seen": 1794569630.5524807,
-    "ast_hash": "07d0127aafa6b89ec67bcb5ddd7ab506",
+    "mtime": 1794577528.2558439,
+    "seen": 1794577952.7500663,
+    "ast_hash": "26cb8bf660cc4020ccb766e88186aa6f",
     "semantic_hash": ""
   },
   "public/duniakotak/_pratinjau-mobil.html": {
