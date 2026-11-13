@@ -191,7 +191,7 @@ const PK_MISI_DESA = 15;
 // (bukan rumah sendiri/Raka, 1 rumah sekali per hari). Minggu Senin–Minggu WIB; rumah dengan ❤️ terbanyak = juara minggu itu:
 // piala emas di atas rumah + lencana 🏡 selama minggu berikutnya (hanya tampilan). Juara masuk Vlog Raka (konten).
 const RUMAH_SUKA_HARI = 3;
-// Hadiah papan peringkat (Huda 13 Nov 2026 "Papan peringkat harusnya ada reward"): dibagi tiap Senin 00.00 WIB untuk minggu lalu.
+// Hadiah papan peringkat mingguan (Huda 13 Nov 2026 "Papan peringkat harusnya ada reward"): dibagi tiap Senin 00.00 WIB untuk minggu lalu.
 // Piala: 3 warga poin terbanyak + semua warga dusun juara yang menyumbang ≥ dusunMin poin. Rumah: 3 rumah ❤️ terbanyak (min rumahMin ❤️).
 // Rajin Minggu Ini (koin yang didapat minggu itu): hadiah PERMATA, bukan koin, supaya yang sudah kaya tidak makin cepat kaya.
 const HADIAH_PK = { piala: [50, 30, 20], dusun: 15, dusunMin: 10, rumah: [50, 30, 20], rumahMin: 3, rajin: [30, 20, 10] };
