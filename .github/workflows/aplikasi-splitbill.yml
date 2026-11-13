@@ -4,8 +4,15 @@ name: Aplikasi Splitbill Cerdas (APK)
 # Hasil diunggah ke Release "splitbill-uji" supaya bisa diunduh & dipasang langsung dari HP.
 # HANYA jalan manual (Actions > Aplikasi Splitbill Cerdas > Run workflow), sesuai permintaan Huda:
 # APK tidak di-build otomatis. Pemicu pull_request hanya ada supaya run lama ikut dibatalkan; job-nya dilewati.
+# Selain manual, build juga jalan saat ada push ke branch ini yang pesan commit-nya memuat [build-apk]
+# (dipakai saat Huda menulis "build", karena sesi Claude tidak bisa menekan Run workflow).
 on:
   workflow_dispatch:
+  push:
+    branches: [claude/project-thread-2582ou]
+    paths:
+      - "aplikasi-splitbill/**"
+      - ".github/workflows/aplikasi-splitbill.yml"
   pull_request:
     paths:
       - "aplikasi-splitbill/**"
@@ -20,7 +27,7 @@ concurrency:
 
 jobs:
   apk:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[build-apk]'))
     runs-on: ubuntu-latest
     timeout-minutes: 45
     defaults:
