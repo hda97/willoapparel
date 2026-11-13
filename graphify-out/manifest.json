@@ -15106,6 +15106,330 @@
     "ast_hash": "94616f54899c72b2db06d42c034c0bad",
     "semantic_hash": ""
   },
+  ".claude/skills/cartoon-sprite-animator/scripts/anims.py": {
+    "mtime": 1794550647.6691387,
+    "seen": 1794550698.3177927,
+    "ast_hash": "74e1a7c3f3e456e8146c34b0e1159c8e",
+    "semantic_hash": ""
+  },
+  ".claude/skills/cartoon-sprite-animator/scripts/build.py": {
+    "mtime": 1794550647.669159,
+    "seen": 1794550698.3177955,
+    "ast_hash": "ae3d6d424a497a8e86bb089007e516cb",
+    "semantic_hash": ""
+  },
+  ".claude/skills/cartoon-sprite-animator/scripts/drawn/anims_soft.py": {
+    "mtime": 1794550647.669194,
+    "seen": 1794550698.3177974,
+    "ast_hash": "04a1fb63e116e7044a45494abb526f2c",
+    "semantic_hash": ""
+  },
+  ".claude/skills/cartoon-sprite-animator/scripts/drawn/build.py": {
+    "mtime": 1794550647.6692133,
+    "seen": 1794550698.3177996,
+    "ast_hash": "14f40f950007edeb80028e4187081359",
+    "semantic_hash": ""
+  },
+  ".claude/skills/cartoon-sprite-animator/scripts/drawn/inkkit.py": {
+    "mtime": 1794550647.6692324,
+    "seen": 1794550698.317802,
+    "ast_hash": "618ff0d7f561d0ea465a75641ebc62b7",
+    "semantic_hash": ""
+  },
+  ".claude/skills/cartoon-sprite-animator/scripts/drawn/look.py": {
+    "mtime": 1794550647.6692748,
+    "seen": 1794550698.3178039,
+    "ast_hash": "01ab8ad071cd678a379ea8d024f4d36a",
+    "semantic_hash": ""
+  },
+  ".claude/skills/cartoon-sprite-animator/scripts/drawn/ratislav_soft.py": {
+    "mtime": 1794550647.6692932,
+    "seen": 1794550698.3178077,
+    "ast_hash": "2da0c7ee5edc32ac9d8edb3d9051f5b9",
+    "semantic_hash": ""
+  },
+  ".claude/skills/cartoon-sprite-animator/scripts/drawn/scenery.py": {
+    "mtime": 1794550647.6693141,
+    "seen": 1794550698.3178096,
+    "ast_hash": "04002e0509987e7a2c4eb004cbd8c9a4",
+    "semantic_hash": ""
+  },
+  ".claude/skills/cartoon-sprite-animator/scripts/drawn/svgkit.py": {
+    "mtime": 1794550647.6693351,
+    "seen": 1794550698.3178122,
+    "ast_hash": "0f0b3fcc718c1b29af01ca86f223958e",
+    "semantic_hash": ""
+  },
+  ".claude/skills/cartoon-sprite-animator/scripts/ratislav.py": {
+    "mtime": 1794550647.6693616,
+    "seen": 1794550698.317815,
+    "ast_hash": "32f83d88519bb0cb17b79a1f744622c9",
+    "semantic_hash": ""
+  },
+  ".claude/skills/cartoon-sprite-animator/scripts/svgkit.py": {
+    "mtime": 1794550647.6693897,
+    "seen": 1794550698.3178167,
+    "ast_hash": "0f0b3fcc718c1b29af01ca86f223958e",
+    "semantic_hash": ""
+  },
+  ".claude/skills/reanimate/scripts/capture.ts": {
+    "mtime": 1794550647.6821911,
+    "seen": 1794550698.318276,
+    "ast_hash": "9b32db2f8177f67934ceb1837a03b2f7",
+    "semantic_hash": ""
+  },
+  ".claude/skills/reanimate/scripts/compare.ts": {
+    "mtime": 1794550647.6822236,
+    "seen": 1794550698.318279,
+    "ast_hash": "afe10186cb6fa3636b385c9bd0b427df",
+    "semantic_hash": ""
+  },
+  ".claude/skills/reanimate/scripts/easing.ts": {
+    "mtime": 1794550647.6822662,
+    "seen": 1794550698.3182807,
+    "ast_hash": "0a9424c5162d093bb47eb3dd76f1bb6a",
+    "semantic_hash": ""
+  },
+  ".claude/skills/reanimate/scripts/frames.ts": {
+    "mtime": 1794550647.6822903,
+    "seen": 1794550698.318283,
+    "ast_hash": "bdd84fef6efabc3bd46a7fa933511fd0",
+    "semantic_hash": ""
+  },
+  ".claude/skills/reanimate/scripts/gl.ts": {
+    "mtime": 1794550647.6823103,
+    "seen": 1794550698.3182847,
+    "ast_hash": "4f1849def32d817834d978c4ecda4ae1",
+    "semantic_hash": ""
+  },
+  ".claude/skills/reanimate/scripts/inpage/clock.js": {
+    "mtime": 1794550647.6823604,
+    "seen": 1794550698.318287,
+    "ast_hash": "c7ecf8d75aa4eb14e6f215b7d509e405",
+    "semantic_hash": ""
+  },
+  ".claude/skills/reanimate/scripts/inpage/gl-hooks.js": {
+    "mtime": 1794550647.6823864,
+    "seen": 1794550698.3182886,
+    "ast_hash": "80e89cdb8c31e327fb56f1f85ac47197",
+    "semantic_hash": ""
+  },
+  ".claude/skills/reanimate/scripts/lib.ts": {
+    "mtime": 1794550647.6824605,
+    "seen": 1794550698.3182905,
+    "ast_hash": "b537c9c4d1c05f23f746bc968e08fd67",
+    "semantic_hash": ""
+  },
+  ".claude/skills/reanimate/scripts/package.json": {
+    "mtime": 1794550647.6824954,
+    "seen": 1794550698.318292,
+    "ast_hash": "029543395e023f3cb9c38db3360c1f64",
+    "semantic_hash": ""
+  },
+  ".claude/skills/reanimate/scripts/setup.sh": {
+    "mtime": 1794550647.6825254,
+    "seen": 1794550698.3182936,
+    "ast_hash": "089202e2b77993185ec2d01e1129488a",
+    "semantic_hash": ""
+  },
+  ".claude/skills/reanimate/scripts/sheet.ts": {
+    "mtime": 1794550647.682558,
+    "seen": 1794550698.318295,
+    "ast_hash": "fcb2ee9c61ef4c9ab9e3d5ef4ebe10c2",
+    "semantic_hash": ""
+  },
+  ".claude/skills/cartoon-sprite-animator/SKILL.md": {
+    "mtime": 1794550647.6690412,
+    "seen": 1794550698.3200526,
+    "ast_hash": "70ff1732eade77ebdb1f781c687b453d",
+    "semantic_hash": ""
+  },
+  ".claude/skills/cartoon-sprite-animator/SUMBER.md": {
+    "mtime": 1794550647.682558,
+    "seen": 1794550698.320055,
+    "ast_hash": "7542e43deddcf7a29f8983cbcc9229d4",
+    "semantic_hash": ""
+  },
+  ".claude/skills/cartoon-sprite-animator/references/animation-standard.md": {
+    "mtime": 1794550647.669103,
+    "seen": 1794550698.3200572,
+    "ast_hash": "19b55db760768185dc7dc446fcaa5483",
+    "semantic_hash": ""
+  },
+  ".claude/skills/cartoon-sprite-animator/templates/demo-drawn.html": {
+    "mtime": 1794550647.66943,
+    "seen": 1794550698.3200595,
+    "ast_hash": "ad414855747ac172c9aa9d7166f849b5",
+    "semantic_hash": ""
+  },
+  ".claude/skills/cartoon-sprite-animator/templates/demo.html": {
+    "mtime": 1794550647.6694624,
+    "seen": 1794550698.3200622,
+    "ast_hash": "a1f4bfe8981f0da5b78ff15bf328a5ee",
+    "semantic_hash": ""
+  },
+  ".claude/skills/motion-design/SKILL.md": {
+    "mtime": 1794550647.6785202,
+    "seen": 1794550698.3205123,
+    "ast_hash": "ff90e079b03a886ccdbe9c824d494210",
+    "semantic_hash": ""
+  },
+  ".claude/skills/motion-design/SUMBER.md": {
+    "mtime": 1794550647.682558,
+    "seen": 1794550698.3205152,
+    "ast_hash": "75e4a524b5ada6a3b755381aed7678cc",
+    "semantic_hash": ""
+  },
+  ".claude/skills/motion-design/director/choreography.md": {
+    "mtime": 1794550647.6785884,
+    "seen": 1794550698.320517,
+    "ast_hash": "be3eab2eba40595bd284709d9df63481",
+    "semantic_hash": ""
+  },
+  ".claude/skills/motion-design/director/context-adaptation.md": {
+    "mtime": 1794550647.6786265,
+    "seen": 1794550698.3205192,
+    "ast_hash": "c6433bffd6b25d876dffe2ed95ba02aa",
+    "semantic_hash": ""
+  },
+  ".claude/skills/motion-design/director/core-philosophy.md": {
+    "mtime": 1794550647.6786458,
+    "seen": 1794550698.3205206,
+    "ast_hash": "8ac84dcd99252589be924b5ebee76d6d",
+    "semantic_hash": ""
+  },
+  ".claude/skills/motion-design/director/decision-framework.md": {
+    "mtime": 1794550647.6786637,
+    "seen": 1794550698.3205228,
+    "ast_hash": "3b7e58678459c223f4e9fb2cd32e2d7d",
+    "semantic_hash": ""
+  },
+  ".claude/skills/motion-design/director/disney-principles.md": {
+    "mtime": 1794550647.6786804,
+    "seen": 1794550698.3205245,
+    "ast_hash": "93ba7e8ca4e40fe65a9dd6ec34343ba2",
+    "semantic_hash": ""
+  },
+  ".claude/skills/motion-design/director/emotion-mapping.md": {
+    "mtime": 1794550647.6786978,
+    "seen": 1794550698.3205261,
+    "ast_hash": "5e72451703a0cd398fa072af035c0d49",
+    "semantic_hash": ""
+  },
+  ".claude/skills/motion-design/director/motion-personality.md": {
+    "mtime": 1794550647.6787138,
+    "seen": 1794550698.3205276,
+    "ast_hash": "a044943dd962e75a88f2ae3eedfd5071",
+    "semantic_hash": ""
+  },
+  ".claude/skills/motion-design/director/narrative-structure.md": {
+    "mtime": 1794550647.6787295,
+    "seen": 1794550698.3205295,
+    "ast_hash": "67be92d43e8c58c4d32e7878cf99a310",
+    "semantic_hash": ""
+  },
+  ".claude/skills/motion-design/patterns/ambient-continuous.md": {
+    "mtime": 1794550647.6787713,
+    "seen": 1794550698.3205314,
+    "ast_hash": "bfe91fac3a45deb0e5bc19959bc43b5f",
+    "semantic_hash": ""
+  },
+  ".claude/skills/motion-design/patterns/entrance-exit.md": {
+    "mtime": 1794550647.6787906,
+    "seen": 1794550698.320533,
+    "ast_hash": "0ca412d274d243cf71d57c17426d3c64",
+    "semantic_hash": ""
+  },
+  ".claude/skills/motion-design/patterns/multi-element.md": {
+    "mtime": 1794550647.6788101,
+    "seen": 1794550698.3205345,
+    "ast_hash": "d2e5cce8caa4d930ba47ea1714927421",
+    "semantic_hash": ""
+  },
+  ".claude/skills/motion-design/patterns/state-feedback.md": {
+    "mtime": 1794550647.6788273,
+    "seen": 1794550698.3205361,
+    "ast_hash": "d21e216878deb00fd90b3d95809d3719",
+    "semantic_hash": ""
+  },
+  ".claude/skills/motion-design/reference/property-selection.md": {
+    "mtime": 1794550647.678922,
+    "seen": 1794550698.3205376,
+    "ast_hash": "590e9f04a50f71a9f6ee8a010d02cebd",
+    "semantic_hash": ""
+  },
+  ".claude/skills/motion-design/reference/quality-checklist.md": {
+    "mtime": 1794550647.6789446,
+    "seen": 1794550698.3205392,
+    "ast_hash": "c2dd49bd3331155f24c05ad9da8ec06b",
+    "semantic_hash": ""
+  },
+  ".claude/skills/motion-design/reference/timing-easing-tables.md": {
+    "mtime": 1794550647.6789608,
+    "seen": 1794550698.3205407,
+    "ast_hash": "fa7ee2d95dc5bbcd2563d3965ef2ee05",
+    "semantic_hash": ""
+  },
+  ".claude/skills/motion-design/reference/troubleshooting.md": {
+    "mtime": 1794550647.6789763,
+    "seen": 1794550698.3205426,
+    "ast_hash": "0a1a699e3e3ffa5cf8f38ad5b76575af",
+    "semantic_hash": ""
+  },
+  ".claude/skills/reanimate/SKILL.md": {
+    "mtime": 1794550647.681956,
+    "seen": 1794550698.3206174,
+    "ast_hash": "35a448a8466c7d2e0cfcf651603645b6",
+    "semantic_hash": ""
+  },
+  ".claude/skills/reanimate/SUMBER.md": {
+    "mtime": 1794550647.682558,
+    "seen": 1794550698.3206193,
+    "ast_hash": "1556d3f55b9110efd603f9eb52f3dafc",
+    "semantic_hash": ""
+  },
+  ".claude/skills/reanimate/references/analysis.md": {
+    "mtime": 1794550647.682006,
+    "seen": 1794550698.3206208,
+    "ast_hash": "a8767a7b15da7b07b25adf16533676ab",
+    "semantic_hash": ""
+  },
+  ".claude/skills/reanimate/references/capture.md": {
+    "mtime": 1794550647.6820323,
+    "seen": 1794550698.3206227,
+    "ast_hash": "0817e991fa83800a26868bb8e249885e",
+    "semantic_hash": ""
+  },
+  ".claude/skills/reanimate/references/implementation.md": {
+    "mtime": 1794550647.6820543,
+    "seen": 1794550698.3206244,
+    "ast_hash": "0bc72df4917bef5b53320502ba0fc6b5",
+    "semantic_hash": ""
+  },
+  ".claude/skills/reanimate/references/verify.md": {
+    "mtime": 1794550647.6820745,
+    "seen": 1794550698.320626,
+    "ast_hash": "6c1065d0cf0c8ce250555be82247c42f",
+    "semantic_hash": ""
+  },
+  ".claude/skills/reanimate/references/webgl.md": {
+    "mtime": 1794550647.682104,
+    "seen": 1794550698.3206275,
+    "ast_hash": "3ad8152c27fdcf6c81214afa52010868",
+    "semantic_hash": ""
+  },
+  ".claude/skills/ten-video-styles/SKILL.md": {
+    "mtime": 1794550647.6735919,
+    "seen": 1794550698.3207252,
+    "ast_hash": "863de9757e931e5a62278da0857859ba",
+    "semantic_hash": ""
+  },
+  ".claude/skills/ten-video-styles/SUMBER.md": {
+    "mtime": 1794550647.682558,
+    "seen": 1794550698.3207273,
+    "ast_hash": "8a1aa8fc837c4b6b4b139b356a6a0cbd",
+    "semantic_hash": ""
+  },
   ".claude/skills/video-shotcraft/package-lock.json": {
     "mtime": 1794509437.8202786,
     "seen": 1794549599.3367746,
