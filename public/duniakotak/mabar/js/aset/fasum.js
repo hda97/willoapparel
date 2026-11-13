@@ -407,17 +407,17 @@ export function hiburan(){const g=G();const PAV=0xe8d8b8,M=0xe0303a,B=0x3a8ad8,K
  // bianglala (kiri belakang): kaki A + roda berputar dengan 8 kabin
  [-1,1].forEach(s=>{const k=box(.3,8.6,.3,0xdddddd,.02);k.rotation.x=s*.22;g.ad(k,-4.6,4.6,-5.6+s*.95)});g.ad(box(.3,.3,2.4,0xaaaaaa,.02),-4.6,8.7,-5.6);
  const roda=new THREE.Group();roda.position.set(-4.6,8.7,-5.6);g.add(roda);const rr=4.2;
- const cin=new THREE.Mesh(new THREE.TorusGeometry(rr,.12,6,40),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.5}));roda.add(cin);
+ const kursiB=[];const cin=new THREE.Mesh(new THREE.TorusGeometry(rr,.12,6,40),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.5}));roda.add(cin);
  for(let i=0;i<8;i++){const a=i/8*Math.PI*2,j=box(.1,rr*2,.1,0xffffff,.01);j.rotation.z=a;roda.add(j);
-  const kb=box(1,1,1,[M,B,K,0x3aa860][i%4],.2);kb.position.set(Math.cos(a)*rr,Math.sin(a)*rr-.6,0);kb.userData.tegak=1;roda.add(kb)}
- g.userData.putar.push({o:roda,ax:'z',v:.25});
+  const kb=box(1,1,1,[M,B,K,0x3aa860][i%4],.2);kb.position.set(Math.cos(a)*rr,Math.sin(a)*rr-.6,0);kb.userData.tegak=1;roda.add(kb);kursiB.push(kb)}
+ g.userData.putar.push({o:roda,ax:'z',v:.25,wahana:'bianglala',kursi:kursiB});
  // komidi putar (kanan belakang)
  const km=new THREE.Group();km.position.set(4.6,0,-4.6);g.add(km);
  const cy=(r,h,c,y)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,20),new THREE.MeshStandardMaterial({color:c,roughness:.6}));m.castShadow=m.receiveShadow=true;m.position.y=y;return m};
  km.add(cy(3.3,.4,0xf6f0e2,.55));km.add(cy(.35,3.6,0xffd23a,2.4));
  const at=new THREE.Mesh(new THREE.ConeGeometry(3.6,1.6,12),new THREE.MeshStandardMaterial({color:M,roughness:.6}));at.position.y=4.9;at.castShadow=true;km.add(at);km.add(cy(3.5,.35,0xffffff,4));
- const kuda=new THREE.Group();km.add(kuda);for(let i=0;i<6;i++){const a=i/6*Math.PI*2,x=Math.cos(a)*2.3,z=Math.sin(a)*2.3;const t=box(.08,3.2,.08,0xffd23a,.01);t.position.set(x,2.4,z);kuda.add(t);const h=box(.5,.6,1.1,[0xffffff,B,K][i%3],.15);h.position.set(x,1.5,z);h.rotation.y=-a;kuda.add(h)}
- g.userData.putar.push({o:km,ax:'y',v:.5});
+ const kuda=new THREE.Group(),kursiK=[];km.add(kuda);for(let i=0;i<6;i++){const a=i/6*Math.PI*2,x=Math.cos(a)*2.3,z=Math.sin(a)*2.3;const t=box(.08,3.2,.08,0xffd23a,.01);t.position.set(x,2.4,z);kuda.add(t);const h=box(.5,.6,1.1,[0xffffff,B,K][i%3],.15);h.position.set(x,1.5,z);h.rotation.y=-a;kuda.add(h);kursiK.push(h)}
+ g.userData.putar.push({o:km,ax:'y',v:.5,wahana:'komidi',kursi:kursiK});
  // loket + kios jajan
  ruang(g,{x:-6.6,z:3,w:3,d:2.4,h:2.6,c:0xffffff,bukaan:[{s:'d',p:0,w:1.2,h:2.1}],zona:false});g.ad(box(3.4,.3,2.8,B,.04),-6.6,3.1,3);const lk=papanTeks(2.6,.6,'LOKET','#3a8ad8','#ffffff');lk.position.set(-6.6,2.55,4.22);g.add(lk);
  [[6.4,3,M],[3.6,3,K]].forEach(([x,z,c])=>{g.ad(box(2.2,1,1.2,0x9a6a3a,.04),x,.85,z);g.ad(box(.1,2.2,.1,0xdddddd,.01),x-1,1.45,z-.5);g.ad(box(.1,2.2,.1,0xdddddd,.01),x+1,1.45,z-.5);const a=box(2.6,.15,1.8,c,.03);a.rotation.x=-.25;g.ad(a,x,2.6,z)});

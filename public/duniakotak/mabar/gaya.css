@@ -558,3 +558,4 @@ a.pdSaweria{display:block;text-align:center;text-decoration:none;margin-top:6px}
 .pfImpian button.jadi{background:rgba(80,200,120,.16);border-color:rgba(80,200,120,.5)}
 .lvChip{display:inline-block;font-size:10px;font-weight:900;padding:1px 5px;border-radius:6px;background:#ffd23f;color:#3a2a00;margin-left:4px;vertical-align:middle}
 #profil{overflow:visible}.avLv{position:absolute;left:6px;bottom:-4px;margin:0;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.tmLoket{margin:10px 0 6px;padding:8px 10px;border-radius:12px;background:rgba(58,138,216,.14);border:1px solid rgba(58,138,216,.4);font-size:12.5px;line-height:1.45;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.tmLoket button{padding:6px 12px;font-size:12.5px}

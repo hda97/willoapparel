@@ -135,6 +135,9 @@ const TOKO_BELANJA = {
   warung: { nama: "Warung Desa", hari: 8, menu: { kopi: ["☕", "Kopi Hitam", 4, "m"], esteh: ["🧊", "Es Teh", 3, "m"], mie: ["🍜", "Mi Rebus Telur", 6, "k"], nasi: ["🍙", "Nasi Kucing", 5, "k"],
     gorengan: ["🥟", "Gorengan", 2, "k"], kerupuk: ["🍘", "Kerupuk", 2, "k"], sabun: ["🧼", "Sabun Batang", 3, "p"], pakan: ["🥫", "Pakan Kucing", 6, "t"] } },
 };
+// Taman Hiburan & Taman Kota (Huda 13 Nov 2026). Samakan WAHANA dengan game.js.
+const WAHANA = { bianglala: { nama: "🎡 Bianglala", harga: 5, lama: 40 }, komidi: { nama: "🎠 Komidi Putar", harga: 3, lama: 30 } };
+const WAHANA_HARI = 10, LOKET_BAGI = { bianglala: 2, komidi: 1 }, LOKET_MAKS = 60, LOKET_LAMA = 15, JOG_KOIN = 10, JOG_MIN = 40;
 const PAKAN_KUCING = "Pakan Kucing";
 const PASAR_JAJAN = { sate: ["🍢", "Sate", 6], martabak: ["🥞", "Martabak", 8], dawet: ["🥤", "Es dawet", 3], gulali: ["🍭", "Gulali", 4], jagung: ["🌽", "Jagung bakar", 5] };
 const PASAR_GELANG = 10, PASAR_GELANG_HARI = 10, PASAR_JAJAN_HARI = 20;
@@ -1512,6 +1515,58 @@ export class Warga extends DurableObject {
       this.sql.exec("UPDATE warga SET koin = ?, koinTotal = COALESCE(koinTotal, 0) + ?, permata = ?, profesi = ? WHERE no = ?", koin, tambahKoin, permata, JSON.stringify(p), r.no);
       return Response.json({ koin, permata, profesi: this.infoProfesi(p), ...info });
     }
+    // Taman memutar ekonomi (Huda 13 Nov 2026 "Gas taman"): 🎡 tiket wahana Taman Hiburan (koin keluar), sebagian tiket untuk
+    // warga yang sedang jaga loket (koin pindah antarwarga), dan misi harian 🏃 jogging 3 putaran di Taman Kota (koin masuk).
+    if (aksi === "taman") {
+      const q = await request.json(), kini = Date.now(), hari = hariWib(kini);
+      const jadi = (id) => { const b = this.daftarBangun(kini).find((x) => x.id === id); return !!b && kini >= this.sampaiBangun(b); };
+      this.sql.exec("CREATE TABLE IF NOT EXISTS loket (id TEXT PRIMARY KEY, no INTEGER, sampai INTEGER)");
+      const lk = this.sql.exec("SELECT l.no, l.sampai, w.ig, w.tiktok, w.nama FROM loket l LEFT JOIN warga w ON w.no = l.no WHERE l.id = 'hiburan' AND l.sampai > ?", kini).toArray()[0] || null;
+      const petugas = lk ? { no: lk.no, ig: lk.ig || lk.tiktok || lk.nama || "warga", sampai: lk.sampai } : null;
+      const r = this.sql.exec("SELECT no, koin, tas FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (q.op === "info") {
+        const t = r ? this.bacaTas(r) : {}; const w = t._tw && t._tw.h === hari ? t._tw.n : 0, jg = t._jg && t._jg.h === hari ? t._jg : null;
+        return Response.json({ wahana: WAHANA, petugas, sisa: WAHANA_HARI - w, jog: jg ? { mulai: jg.m, selesai: !!jg.s } : null, jogKoin: JOG_KOIN, bagi: LOKET_BAGI, lama: LOKET_LAMA, hiburan: jadi("hiburan"), taman: jadi("taman") });
+      }
+      if (!r) return Response.json({ galat: "Daftar jadi warga dulu supaya bisa main di taman." }, { status: 401 });
+      const t = this.bacaTas(r); let koin = r.koin || 0, hasil = null, tambahTotal = 0;
+      if (q.op === "naik") {
+        const w = WAHANA[q.id]; if (!w) return Response.json({ galat: "Wahana tidak ada." }, { status: 400 });
+        if (!jadi("hiburan")) return Response.json({ galat: "Taman Hiburan masih dibangun. Bantu jadi tukang supaya cepat buka!" }, { status: 400 });
+        if (!t._tw || t._tw.h !== hari) t._tw = { h: hari, n: 0 };
+        if (t._tw.n >= WAHANA_HARI) return Response.json({ galat: "Sudah " + WAHANA_HARI + "x naik wahana hari ini. Main lagi besok ya!" }, { status: 400 });
+        if (kini - (t._tt || 0) < w.lama * 1000 - 3000) return Response.json({ galat: "Masih di wahana, tunggu sampai turun dulu." }, { status: 429 });
+        if (koin < w.harga) return Response.json({ galat: "Koinmu kurang (" + w.harga + " koin)." }, { status: 400 });
+        koin -= w.harga; t._tw.n++; t._tt = kini; this.arus("-koin:wahana", w.harga); hasil = { id: q.id, harga: w.harga, lama: w.lama };
+        // bagian petugas loket (bukan diri sendiri), dibatasi per hari per petugas
+        if (petugas && petugas.no !== r.no) {
+          const pr = this.sql.exec("SELECT no, tas FROM warga WHERE no = ?", petugas.no).toArray()[0];
+          if (pr) { const pt = this.bacaTas(pr); if (!pt._lk || pt._lk.h !== hari) pt._lk = { h: hari, d: 0 };
+            const b = Math.min(LOKET_BAGI[q.id] || 0, LOKET_MAKS - pt._lk.d);
+            if (b > 0) { pt._lk.d += b; this.sql.exec("UPDATE warga SET koin = COALESCE(koin, 0) + ?, koinTotal = COALESCE(koinTotal, 0) + ?, tas = ? WHERE no = ?", b, b, JSON.stringify(pt), pr.no); this.arus("+koin:loket", b); hasil.petugas = { ig: petugas.ig, dapat: b }; } }
+        }
+      } else if (q.op === "jaga") {
+        if (!jadi("hiburan")) return Response.json({ galat: "Taman Hiburan masih dibangun." }, { status: 400 });
+        if (petugas && petugas.no !== r.no) return Response.json({ galat: "Loket sedang dijaga @" + petugas.ig + ". Coba lagi nanti ya." }, { status: 400 });
+        const sampai = kini + LOKET_LAMA * 60e3;
+        this.sql.exec("INSERT INTO loket (id, no, sampai) VALUES ('hiburan', ?, ?) ON CONFLICT(id) DO UPDATE SET no = excluded.no, sampai = excluded.sampai", r.no, sampai);
+        const d = t._lk && t._lk.h === hari ? t._lk.d : 0;
+        return Response.json({ koin, petugas: { no: r.no, sampai }, dapatHariIni: d, maks: LOKET_MAKS });
+      } else if (q.op === "lepas") {
+        this.sql.exec("DELETE FROM loket WHERE id = 'hiburan' AND no = ?", r.no);
+        return Response.json({ koin, petugas: null });
+      } else if (q.op === "jogMulai") {
+        if (!jadi("taman")) return Response.json({ galat: "Taman Kota belum jadi." }, { status: 400 });
+        if (t._jg && t._jg.h === hari && t._jg.s) return Response.json({ galat: "Misi jogging hari ini sudah selesai. Besok lagi ya!" }, { status: 400 });
+        t._jg = { h: hari, m: kini }; hasil = { mulai: kini };
+      } else if (q.op === "jogSelesai") {
+        if (!t._jg || t._jg.h !== hari || t._jg.s) return Response.json({ galat: "Mulai jogging dulu di Taman Kota." }, { status: 400 });
+        if (kini - t._jg.m < JOG_MIN * 1000) return Response.json({ galat: "Kecepatan jogging-mu tidak wajar, coba lagi pelan-pelan ya." }, { status: 400 });
+        t._jg.s = 1; koin += JOG_KOIN; tambahTotal = JOG_KOIN; this.arus("+koin:jogging", JOG_KOIN); hasil = { dapat: JOG_KOIN };
+      } else return Response.json({ galat: "?" }, { status: 400 });
+      this.sql.exec("UPDATE warga SET koin = ?, koinTotal = COALESCE(koinTotal, 0) + ?, tas = ? WHERE no = ?", koin, tambahTotal, JSON.stringify(t), r.no);
+      return Response.json({ koin, hasil, sisa: WAHANA_HARI - (t._tw && t._tw.h === hari ? t._tw.n : 0) });
+    }
     if (aksi === "belanja") {
       const q = await request.json(), kini = Date.now(), hari = hariWib(kini), tk = TOKO_BELANJA[q.tempat];
       if (!tk) return Response.json({ galat: "Toko tidak ada." }, { status: 400 });
@@ -2286,6 +2341,11 @@ async function apiWargaInti(request, env, url) {
   }
   if (aksi === "profesi") {
     const r = await stub.fetch("https://do/profesi", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 10), id: String(body.id || "").slice(0, 12) }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "taman") {
+    const q = { kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 12), id: String(body.id || "").slice(0, 12) };
+    const r = await stub.fetch("https://do/taman", { method: "POST", body: JSON.stringify(q) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "belanja" || aksi === "kafe") {
