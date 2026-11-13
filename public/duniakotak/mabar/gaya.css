@@ -559,3 +559,9 @@ a.pdSaweria{display:block;text-align:center;text-decoration:none;margin-top:6px}
 .lvChip{display:inline-block;font-size:10px;font-weight:900;padding:1px 5px;border-radius:6px;background:#ffd23f;color:#3a2a00;margin-left:4px;vertical-align:middle}
 #profil{overflow:visible}.avLv{position:absolute;left:6px;bottom:-4px;margin:0;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.4)}
 .tmLoket{margin:10px 0 6px;padding:8px 10px;border-radius:12px;background:rgba(58,138,216,.14);border:1px solid rgba(58,138,216,.4);font-size:12.5px;line-height:1.45;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.tmLoket button{padding:6px 12px;font-size:12.5px}
+
+/* Hadiah papan peringkat (13 Nov 2026) */
+.pkHadiah{background:linear-gradient(90deg,rgba(242,194,48,.22),rgba(242,194,48,.08));border:1px solid rgba(242,194,48,.6);border-radius:12px;padding:6px 10px;margin-bottom:6px;font:800 12.5px Montserrat,sans-serif;color:#fff;text-align:left}
+.pkHadiah small{display:block;color:var(--emas);font-weight:600;font-size:10.5px;margin-top:2px}
+.pkMode{display:flex;gap:6px;margin-bottom:6px}.pkMode button{flex:1;padding:5px 8px;border-radius:10px;font:700 12px Montserrat,sans-serif;background:rgba(255,255,255,.08);color:#fff;border:1px solid var(--garis)}.pkMode button.on{background:var(--emas);color:#222}
+#isiHadiahPk .pkBaris{height:auto;padding:6px 10px}
