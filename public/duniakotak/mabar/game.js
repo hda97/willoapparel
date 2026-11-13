@@ -120,7 +120,7 @@ const WARNA_PAGAR = {putih: '#ffffff', kayu: '#a0703c', hitam: '#3a3a40', biru: 
 const WARNA_TOPI = {merah: '#d8443a', biru: '#2f6fd8', hitam: '#24242a', kuning: '#f2c230'};
 const HS = {};
 // Hadiah pendukung Bata (Huda 8 Nov 2026): BT no → total Bata donasi, JR = nomor Juragan Bata (mahkota di atap)
-const BT = {}, AL = {}, RJ = {}; let JR = 0, TR = 0;   // RJ = lencana Warga Rajin minggu lalu (no → 1/2/3: 🥇🥈🥉)
+const BT = {}, AL = {}, RJ = {}, TR3 = {}, PJ = {}; let JR = 0, TR = 0;   // TR3 = 3 Rumah Terindah minggu lalu (no → 1–3), PJ = 3 penyumbang poin dusun juara Piala (🏆), RJ = lencana Warga Rajin minggu lalu (no → 1/2/3: 🥇🥈🥉)
    // AL = lencana Album lengkap (bit 1 🎣 ikan, bit 2 🧺 panen)
    // TR = rumah juara Lomba Rumah Terindah minggu lalu (piala emas di atas rumah)
 // Level Warga (Huda 13 Nov 2026): XP = total koin yang pernah didapat dari kegiatan (koinTotal; belanja tidak mengurangi).
@@ -131,7 +131,7 @@ const GELAR = [[1, '🌱', 'Warga Baru'], [3, '🏡', 'Warga Tetap'], [5, '🤝'
 const gelarDari = L => GELAR.filter(g => L >= g[0]).pop();
 const XP = {};   // no → xp (dari /api/warga; warga sendiri dari S.saya.koinTotal)
 const lvTeks = no => XP[no] ? `Lv${levelDari(XP[no])} ` : '';
-const lencana = no => (RJ[no] ? ['', '🥇', '🥈', '🥉'][RJ[no]] + ' ' : '') + (AL[no] & 1 ? '🎣 ' : '') + (AL[no] & 2 ? '🧺 ' : '') + (AL[no] & 4 ? '🎪 ' : '') + (TR && TR === no ? '🏡 ' : '') + (JR && JR === no ? '👑 ' : '') + (BT[no] >= 1 ? '🧱 ' : '');   // no → {c: cat, p: pagar} (warga lain, dari /api/warga)
+const lencana = no => (PJ[no] ? '🏆 ' : '') + (RJ[no] ? ['', '🥇', '🥈', '🥉'][RJ[no]] + ' ' : '') + (AL[no] & 1 ? '🎣 ' : '') + (AL[no] & 2 ? '🧺 ' : '') + (AL[no] & 4 ? '🎪 ' : '') + (TR && TR === no ? '🏡 ' : '') + (JR && JR === no ? '👑 ' : '') + (BT[no] >= 1 ? '🧱 ' : '');   // no → {c: cat, p: pagar} (warga lain, dari /api/warga)
 function bersihAv(a) {
   a = a && typeof a === 'object' ? a : {};
   const jenis = a.jenis === 'P' ? 'P' : 'L';
@@ -684,7 +684,7 @@ function bangunKulon(buat = kulon) {
   bangunProksi();
 }
 async function bangunDunia() {
-  try { const w = (wargaAwal && await wargaAwal) || await (await fetch('/duniakotak/api/warga')).json(); wargaAwal = null; w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; if (x.hs) HS[x.no] = x.hs; if (x.bt) BT[x.no] = x.bt; if (x.jr) JR = x.no; if (x.tr) TR = x.no; if (x.rj) RJ[x.no] = x.rj; if (x.al) AL[x.no] = x.al; if (x.xp) XP[x.no] = x.xp; }); } catch (e) {}
+  try { const w = (wargaAwal && await wargaAwal) || await (await fetch('/duniakotak/api/warga')).json(); wargaAwal = null; w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; if (x.hs) HS[x.no] = x.hs; if (x.bt) BT[x.no] = x.bt; if (x.jr) JR = x.no; if (x.tr) { TR3[x.no] = x.tr; if (x.tr === 1) TR = x.no; } if (x.rj) RJ[x.no] = x.rj; if (x.al) AL[x.no] = x.al; if (x.xp) XP[x.no] = x.xp; }); } catch (e) {}
   if (S.saya && S.saya.kucing) KC[S.saya.no] = S.saya.kucing;
   if (S.saya && S.saya.ig) NM[S.saya.no] = '@' + S.saya.ig;
   bukaSegara(Math.max(S.saya ? S.saya.no : 0, ...Object.keys(NM).map(Number)));
@@ -816,7 +816,7 @@ function bangunKavling(n) {
       if (Math.abs(p.x) < 2.75 && p.z > -2.3 && p.z < 3.3 && lebar < 6) badan.add(c); }
     H.add(badan); bakeGroup(badan); H = badan;
   }
-  if (H && (n !== 1 || NM[1]) && (BT[n] >= BATA_BENDERA || JR === n || TR === n)) pasangHadiahRumah(n, L, H, extra, rects);
+  if (H && (n !== 1 || NM[1]) && (BT[n] >= BATA_BENDERA || JR === n || TR === n || TR3[n])) pasangHadiahRumah(n, L, H, extra, rects);
   bakeGroup(g); bakeGroup(extra);
   lotRuntime.set(n, {g, extra, rects, rumah: H, dalam: H ? rectLot(L, -3, -1, -1.4, .2) : null, interior: null});
   if (S.saya && n === S.saya.no) { kebunTahap = null; segarKebun(); }
@@ -895,6 +895,25 @@ function pasangHadiahRumah(n, L, H, extra, rects) {
     add(.6, .12, .6, .06); add(.18, .3, .18, .27); add(.7, .12, .7, .48); add(.62, .5, .62, .78); add(.78, .1, .78, 1.08);
     for (const s of [-1, 1]) { const g = new THREE.Mesh(new THREE.BoxGeometry(.1 * k, .38 * k, .1 * k), emas); g.position.set(s * .45 * k, .82 * k, 0); G.add(g); const g2 = new THREE.Mesh(new THREE.BoxGeometry(.18 * k, .1 * k, .1 * k), emas); g2.position.set(s * .38 * k, 1.0 * k, 0); G.add(g2); }
     G.position.set((box.min.x + box.max.x) / 2, atas + (JR === n ? 1.5 : .35) * VS, (box.min.z + box.max.z) / 2); G.rotation.y = rot; extra.add(G);
+  }
+  if (TR3[n]) {   // Rumah Terindah juara 1–3 (Huda 13 Nov 2026): papan berpita di halaman + bintang berkilau di atas atap
+    const r = TR3[n], WARNA = ['', '#f2c230', '#c9d1db', '#d08a4a'], HEX = [0, 0xffc928, 0xdfe6ee, 0xd8894a];
+    const G = new THREE.Group(), kayu = new THREE.MeshStandardMaterial({color: 0x8a5a32, roughness: .8});
+    const tiang = new THREE.Mesh(new THREE.BoxGeometry(.08 * VS, 1.05 * VS, .08 * VS), kayu); tiang.position.y = .52 * VS; G.add(tiang);
+    const c = document.createElement('canvas'); c.width = 256; c.height = 160; const x = c.getContext('2d');
+    x.fillStyle = '#fff8e8'; x.fillRect(0, 0, 256, 160); x.fillStyle = WARNA[r]; x.fillRect(0, 0, 256, 34); x.fillRect(0, 126, 256, 34);
+    x.fillStyle = '#3a2a10'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '900 19px Montserrat, sans-serif'; x.fillText('RUMAH TERINDAH', 128, 17);
+    x.font = '54px sans-serif'; x.fillText(['', '🥇', '🥈', '🥉'][r], 128, 80); x.font = '900 18px Montserrat, sans-serif'; x.fillText('MINGGU INI · JUARA ' + r, 128, 143);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+    const pb = new THREE.MeshStandardMaterial({color: 0xf4ead2, roughness: .8}), muka = new THREE.MeshStandardMaterial({map: t, roughness: .7});
+    const papan = new THREE.Mesh(new THREE.BoxGeometry(.96 * VS, .6 * VS, .06 * VS), [pb, pb, pb, pb, muka, muka]); papan.position.set(0, 1.05 * VS, .05 * VS); G.add(papan);
+    G.position.set(L.c.x + L.dir * .62 * VS, 0, L.c.z + L.dir * .62 * VS); G.rotation.y = rot; extra.add(G);
+    rects.push(rectLot(L, .56, .68, .56, .68));
+    // bintang berkilau (juara 1 sudah punya piala emas → bintang kecil di atas piala)
+    const sh = new THREE.Shape(); for (let i = 0; i < 10; i++) { const a = Math.PI / 2 + i * Math.PI / 5, rr = (i % 2 ? .19 : .45) * VS; i ? sh.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : sh.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+    const bin = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, {depth: .14 * VS, bevelEnabled: false}), new THREE.MeshStandardMaterial({color: HEX[r], roughness: .25, metalness: .5, emissive: HEX[r], emissiveIntensity: .55}));
+    const sk = r === 1 ? .7 : 1.5; bin.scale.setScalar(sk);
+    bin.position.set((box.min.x + box.max.x) / 2, atas + (r === 1 ? (JR === n ? 3.05 : 1.9) : .75) * VS, (box.min.z + box.max.z) / 2); bin.rotation.y = rot; extra.add(bin);
   }
   if (JR === n) {   // mahkota emas melayang di atas atap
     const G = new THREE.Group(), w = .9 * VS, emas = EMAS();
@@ -1499,7 +1518,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2'};
+const KABAR_LAMA = {tandajuara: 'dk_kabar_tandajuara1', hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   if (window.DK_APP) simpan(KABAR_LAMA.notif, '1');   // aplikasi Android belum bisa notifikasi web
@@ -1581,9 +1600,10 @@ async function bukaLombaRumah() {
   $('isiPeringkat').querySelectorAll('.rmKunjungi').forEach(b => b.onclick = () => { $('panelPeringkat').hidden = true; pergiKe(+b.dataset.no); toast('🧭 Menuju rumah ' + (NM[+b.dataset.no] || 'No. ' + b.dataset.no) + '…', 2500); });
 }
 // bendera emas di gapura dusun juara minggu lalu (tidak ikut bakeGroup supaya kain bisa berkibar)
-let BENDERA_PIALA = null;
+let BENDERA_PIALA = null, PIALA_BESAR = null;
 async function pasangBenderaPiala() {
   const d = PIALA || await ambilPiala(); if (!d || !d.juara) return;
+  (d.juara.top || []).forEach(x => { PJ[x.no] = 1; });   // lencana 🏆 untuk 3 penyumbang poin terbanyak dusun juara
   const g = LETAK[DI] && LETAK[DI].gerbang;
   if (d.juara.d === DI && g) {
     const gp = new THREE.Group(), E = 0xf2c230;
@@ -1602,11 +1622,29 @@ async function pasangBenderaPiala() {
       const sub = new THREE.Group(); sub.add(tiang, kaki, kain); sub.position.set(s * 3, 0, 0); gp.add(sub);
     }
     gp.scale.setScalar(VS); const z = g[1] - 26; gp.position.set(g[0], tanah(g[0], z, 0), z); sc.add(gp); BENDERA_PIALA = gp;
+    // Huda 13 Nov 2026: umbul-umbul sepanjang jalan masuk dusun juara + piala emas besar di samping jalan (pindah bila juara berganti)
+    const um = new THREE.Group(), bambu = new THREE.MeshStandardMaterial({color: 0xc9a24a, roughness: .8});
+    const merah = new THREE.MeshStandardMaterial({color: 0xe0403a, roughness: .7, side: THREE.DoubleSide}), putih = new THREE.MeshStandardMaterial({color: 0xf6f3ea, roughness: .7, side: THREE.DoubleSide}), emasK = new THREE.MeshStandardMaterial({color: 0xf2c230, roughness: .6, side: THREE.DoubleSide});
+    for (let i = 0; i < 6; i++) for (const sx of [-1, 1]) {
+      const x0 = g[0] + sx * 3.4 * VS, z0 = g[1] - 26 - (i + 1) * 4.2 * VS, y0 = tanah(x0, z0, 0), u = new THREE.Group();
+      const t = new THREE.Mesh(new THREE.BoxGeometry(.09 * VS, 4.2 * VS, .09 * VS), bambu); t.position.y = 2.1 * VS; u.add(t);
+      // kain panjang melengkung ke bawah (tiga warna bergantian), seperti umbul-umbul 17-an
+      [merah, putih, i % 2 ? emasK : merah].forEach((m, k) => { const kn = new THREE.Mesh(new THREE.PlaneGeometry(.6 * VS, .9 * VS), m); kn.position.set(-sx * .33 * VS, (3.6 - k * .88) * VS, 0); kn.rotation.y = Math.PI / 2; kn.rotation.x = k * .08; u.add(kn); });
+      u.position.set(x0, y0, z0); um.add(u);
+    }
+    sc.add(um);
+    const pl = new THREE.Group(), emas = EMAS(), batu = new THREE.MeshStandardMaterial({color: 0x6a6f7a, roughness: .9});
+    const tambah = (m, w, h, dd, y) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, dd), m); o.position.y = y; pl.add(o); return o; };
+    tambah(batu, 2.2, .6, 2.2, .3); tambah(batu, 1.7, .5, 1.7, .85); tambah(emas, 1.1, .2, 1.1, 1.2); tambah(emas, .38, .7, .38, 1.65); tambah(emas, 1.3, .2, 1.3, 2.1);
+    tambah(emas, 1.15, 1, 1.15, 2.7); tambah(emas, 1.45, .16, 1.45, 3.25);
+    for (const s2 of [-1, 1]) { const tl = new THREE.Mesh(new THREE.BoxGeometry(.18, .8, .18), emas); tl.position.set(s2 * .82, 2.8, 0); pl.add(tl); const t2 = new THREE.Mesh(new THREE.BoxGeometry(.3, .18, .18), emas); t2.position.set(s2 * .68, 3.12, 0); pl.add(t2); const t3 = new THREE.Mesh(new THREE.BoxGeometry(.3, .18, .18), emas); t3.position.set(s2 * .68, 2.45, 0); pl.add(t3); }
+    pl.scale.setScalar(VS); const px = g[0] + 5.6 * VS, pz = g[1] - 26 - 2.2 * VS; pl.position.set(px, tanah(px, pz, 0), pz); sc.add(pl); PIALA_BESAR = pl;
     setTimeout(() => toast(`🏆 Dusun ${namaPiala(DI)} juara Piala Dusun minggu lalu! Bendera emas berkibar di gapura.`, 4500), 4000);
   }
 }
 function kibarPiala(t) {
   if (!BENDERA_PIALA) return;
+  if (PIALA_BESAR) PIALA_BESAR.rotation.y = t * .5;
   BENDERA_PIALA.traverse(o => { const k = o.userData && o.userData.kibar; if (!k) return; const p = k.geo.attributes.position;
     // simpangan nol di sisi tiang, makin besar ke ujung kain
     for (let i = 0; i < p.count; i++) { const x0 = k.a[i * 3], jauh = (k.s * x0 + .65) / 1.3; p.array[i * 3 + 2] = Math.sin(t * 3 - jauh * 5) * .09 * jauh; } p.needsUpdate = true; });
@@ -3088,7 +3126,11 @@ const IMPIAN = [
 const impianJadi = m => m.t ? m.n() >= m.t : m.jadi();
 function tulisLevel() {
   const s = S.saya, xp = s.koinTotal || 0, L = levelDari(xp), g = gelarDari(L), a = xpLevel(L), b = xpLevel(L + 1), ng = GELAR.find(x => x[0] > L);
-  $('pfLevel').innerHTML = `<b>⭐ Level ${L} · ${g[1]} ${g[2]}</b><div class="bar"><i style="width:${Math.round(100 * (xp - a) / (b - a))}%"></i></div><small>${xp - a}/${b - a} XP ke Level ${L + 1}${ng ? ` · gelar berikutnya ${ng[1]} ${ng[2]} di Level ${ng[0]}` : ''}. Tiap koin dari kegiatan = 1 XP, belanja tidak mengurangi XP.</small>`;
+  // Huda 13 Nov 2026 "tulisan level di profil jelek": lencana angka besar + gelar + bar XP berangka, teks penjelasan dipendekkan
+  const pct = Math.max(2, Math.min(100, Math.round(100 * (xp - a) / (b - a))));
+  $('pfLevel').innerHTML = `<div class="lvLencana"><small>LEVEL</small><b>${L}</b></div><div class="lvIsi"><div class="lvGelar">${g[1]} ${g[2]}</div>
+    <div class="bar"><i style="width:${pct}%"></i><span>${xp - a} / ${b - a} XP</span></div>
+    <small>${ng ? `Berikutnya: ${ng[1]} ${ng[2]} di Level ${ng[0]}` : `Naik ke Level ${L + 1}`} · 1 koin dari kegiatan = 1 XP</small></div>`;
   $('pfImpianN').textContent = `${IMPIAN.filter(impianJadi).length}/${IMPIAN.length} tercapai`;
   $('pfImpian').innerHTML = IMPIAN.map((m, i) => { const j = impianJadi(m); return `<button data-impian="${i}" class="${j ? 'jadi' : ''}"><i>${j ? '✅' : m.ikon}</i><span><b>${m.nama}</b><small>${j ? 'Tercapai!' : m.ket + (m.t ? ` (${m.n()}/${m.t})` : '')}</small></span></button>`; }).join('');
 }
@@ -3763,4 +3805,4 @@ var tegakSesi = false; try { localStorage.removeItem('dk_tegak'); } catch (e) {}
 $('tetapTegak').onclick = () => { tegakSesi = true; $('miring').hidden = true; };
 onResize();
 layarMasuk();
-window.__dk = {S, HS, uji: {terima: q => terima(q), hadiahPk: d => tampilHadiahPk(d), tambahWarga: w => tambahWarga(w), nebeng: () => NEBENG, naikNebeng: () => naikNebeng(), turunNebeng: () => turunNebeng()}, belanja: () => bukaBelanja(), tokoDekat: () => tokoDekat(tokoh.saya), segara: () => ({I, tokoh, bukaLift, pindahZona}), peta: () => peta, voting: w => bukaVoting(w), wnpc: () => wnpc, avAcak: n => avAcak(n), proyek: aturProyek, iklan: siapIklan, tonton: tontonIklan, rectLot: (n, a, b, c, d) => rectLot(I.lots[n], a, b, c, d), mancing: () => skillMancing(), dekatAir: () => dekatAir(tokoh.saya), tulisDana, VT: v => { VT = v; tulisVoting(); $('panelVoting').hidden = false; }, segarKebun, kebunSiap: () => { kebunTahap = null; segarKebun(); }, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }, lalin: () => lalin, kend: {naikkan, turunkan, bukaDealer, DLR, set: v => { NAIK = v; }}};
+window.__dk = {S, HS, uji: {terima: q => terima(q), bangunUlang: n => bangunUlangKavling(n), hadiahPk: d => tampilHadiahPk(d), tambahWarga: w => tambahWarga(w), nebeng: () => NEBENG, naikNebeng: () => naikNebeng(), turunNebeng: () => turunNebeng()}, belanja: () => bukaBelanja(), tokoDekat: () => tokoDekat(tokoh.saya), segara: () => ({I, tokoh, bukaLift, pindahZona}), peta: () => peta, voting: w => bukaVoting(w), wnpc: () => wnpc, avAcak: n => avAcak(n), proyek: aturProyek, iklan: siapIklan, tonton: tontonIklan, rectLot: (n, a, b, c, d) => rectLot(I.lots[n], a, b, c, d), mancing: () => skillMancing(), dekatAir: () => dekatAir(tokoh.saya), tulisDana, VT: v => { VT = v; tulisVoting(); $('panelVoting').hidden = false; }, segarKebun, kebunSiap: () => { kebunTahap = null; segarKebun(); }, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }, lalin: () => lalin, kend: {naikkan, turunkan, bukaDealer, DLR, set: v => { NAIK = v; }}};
