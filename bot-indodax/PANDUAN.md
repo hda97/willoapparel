@@ -39,3 +39,7 @@ Workflow `.github/workflows/bot-indodax.yml` mengecek pasar beberapa kali sehari
 ## Sebelum uang asli
 
 Syarat yang disepakati: paper trading berjalan minimal beberapa minggu dan hasilnya sesuai uji data historis. Bila nanti lanjut: kunci API Indodax dibuat dengan izin trade saja (izin tarik dana dimatikan), disimpan sebagai secret GitHub, dan tidak pernah ditempel di chat.
+
+## Status
+
+DIHENTIKAN 13 November 2026 atas permintaan Huda. Jadwal dan rantai otomatis dicabut. Hasil akhir paper trading: saldo Rp100.000 utuh, tidak pernah beli karena BTC dan SOL selalu di bawah rata-rata 50 hari. Menjalankan lagi: Actions > "Bot Indodax (paper trading)" > Run workflow dengan "jalankan" dicentang.
