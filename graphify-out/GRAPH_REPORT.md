@@ -1,7 +1,7 @@
 # Graph Report - willoapparel  (2026-11-13)
 
 ## Corpus Check
-- 1165 files · ~4,907,937 words
+- 1165 files · ~4,907,924 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 108 file(s) not represented in the graph (top: (none) 56, .xml 12, .css 8)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `132e2037`
+- Built from commit: `91283864`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -527,7 +527,7 @@
   public/_three/three.module.min.js → .claude/skills/video-shotcraft/demos/camera/overhead-camera-moves/TiltReveal.tsx
 - `langkah()` --calls--> `pose()`  [EXTRACTED]
   pelarikalcer-kotak/src/main.js → public/duniakotak/mabar/js/aset/avatar.js
-- `fotoMedali()` --calls--> `pose()`  [EXTRACTED]
+- `buatPemain()` --calls--> `warga()`  [EXTRACTED]
   pelarikalcer-kotak/src/main.js → public/duniakotak/mabar/js/aset/avatar.js
 
 ## Import Cycles
@@ -2174,16 +2174,16 @@ Nodes (4): keFase(), mainFase(), soalSah(), urut
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Td()` connect `gsap.min.js` to `0.169.0/three.module.min.js`, `_three/three.module.min.js`?**
-  _High betweenness centrality (0.112) - this node is a cross-community bridge._
+  _High betweenness centrality (0.142) - this node is a cross-community bridge._
 - **What connects `RFC-3987`, `RFC-1951`, `FlateErrorCode` to the rest of the system?**
   _7 weakly-connected nodes found - possible missing edges._
 - **Should `duniakotak/js/desa.js` be split into smaller, more focused modules?**
   _Cohesion score 0.07966457023060797 - nodes in this community are weakly interconnected._
-- **Why does `CubicBezier()` connect `three.core.js` to `r`, `Curve`?**
-  _High betweenness centrality (0.082) - this node is a cross-community bridge._
+- **Why does `t()` connect `r` to `gsap.min.js`, `cb`, `three.core.js`, `_d`, `zc`?**
+  _High betweenness centrality (0.087) - this node is a cross-community bridge._
 - **Should `mabar/game.js` be split into smaller, more focused modules?**
   _Cohesion score 0.012605042016806723 - nodes in this community are weakly interconnected._
-- **Why does `t()` connect `r` to `gsap.min.js`, `cb`, `three.core.js`, `_d`, `zc`?**
-  _High betweenness centrality (0.082) - this node is a cross-community bridge._
+- **Why does `CubicBezier()` connect `three.core.js` to `r`, `Curve`?**
+  _High betweenness centrality (0.087) - this node is a cross-community bridge._
 - **Should `worker.js` be split into smaller, more focused modules?**
   _Cohesion score 0.03460764587525151 - nodes in this community are weakly interconnected._
