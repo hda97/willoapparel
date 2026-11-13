@@ -120,7 +120,8 @@ const WARNA_PAGAR = {putih: '#ffffff', kayu: '#a0703c', hitam: '#3a3a40', biru: 
 const WARNA_TOPI = {merah: '#d8443a', biru: '#2f6fd8', hitam: '#24242a', kuning: '#f2c230'};
 const HS = {};
 // Hadiah pendukung Bata (Huda 8 Nov 2026): BT no → total Bata donasi, JR = nomor Juragan Bata (mahkota di atap)
-const BT = {}, AL = {}; let JR = 0, TR = 0;   // AL = lencana Album lengkap (bit 1 🎣 ikan, bit 2 🧺 panen)
+const BT = {}, AL = {}, RJ = {}; let JR = 0, TR = 0;   // RJ = lencana Warga Rajin minggu lalu (no → 1/2/3: 🥇🥈🥉)
+   // AL = lencana Album lengkap (bit 1 🎣 ikan, bit 2 🧺 panen)
    // TR = rumah juara Lomba Rumah Terindah minggu lalu (piala emas di atas rumah)
 // Level Warga (Huda 13 Nov 2026): XP = total koin yang pernah didapat dari kegiatan (koinTotal; belanja tidak mengurangi).
 // Level L butuh 25·L·(L−1) XP (Lv2 = 50, Lv5 = 500, Lv8 = 1.400, Lv11 = 2.750, Lv15 = 5.250). Gelar naik di level tertentu.
@@ -130,7 +131,7 @@ const GELAR = [[1, '🌱', 'Warga Baru'], [3, '🏡', 'Warga Tetap'], [5, '🤝'
 const gelarDari = L => GELAR.filter(g => L >= g[0]).pop();
 const XP = {};   // no → xp (dari /api/warga; warga sendiri dari S.saya.koinTotal)
 const lvTeks = no => XP[no] ? `Lv${levelDari(XP[no])} ` : '';
-const lencana = no => (AL[no] & 1 ? '🎣 ' : '') + (AL[no] & 2 ? '🧺 ' : '') + (AL[no] & 4 ? '🎪 ' : '') + (TR && TR === no ? '🏡 ' : '') + (JR && JR === no ? '👑 ' : '') + (BT[no] >= 1 ? '🧱 ' : '');   // no → {c: cat, p: pagar} (warga lain, dari /api/warga)
+const lencana = no => (RJ[no] ? ['', '🥇', '🥈', '🥉'][RJ[no]] + ' ' : '') + (AL[no] & 1 ? '🎣 ' : '') + (AL[no] & 2 ? '🧺 ' : '') + (AL[no] & 4 ? '🎪 ' : '') + (TR && TR === no ? '🏡 ' : '') + (JR && JR === no ? '👑 ' : '') + (BT[no] >= 1 ? '🧱 ' : '');   // no → {c: cat, p: pagar} (warga lain, dari /api/warga)
 function bersihAv(a) {
   a = a && typeof a === 'object' ? a : {};
   const jenis = a.jenis === 'P' ? 'P' : 'L';
@@ -683,7 +684,7 @@ function bangunKulon(buat = kulon) {
   bangunProksi();
 }
 async function bangunDunia() {
-  try { const w = (wargaAwal && await wargaAwal) || await (await fetch('/duniakotak/api/warga')).json(); wargaAwal = null; w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; if (x.hs) HS[x.no] = x.hs; if (x.bt) BT[x.no] = x.bt; if (x.jr) JR = x.no; if (x.tr) TR = x.no; if (x.al) AL[x.no] = x.al; if (x.xp) XP[x.no] = x.xp; }); } catch (e) {}
+  try { const w = (wargaAwal && await wargaAwal) || await (await fetch('/duniakotak/api/warga')).json(); wargaAwal = null; w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; if (x.hs) HS[x.no] = x.hs; if (x.bt) BT[x.no] = x.bt; if (x.jr) JR = x.no; if (x.tr) TR = x.no; if (x.rj) RJ[x.no] = x.rj; if (x.al) AL[x.no] = x.al; if (x.xp) XP[x.no] = x.xp; }); } catch (e) {}
   if (S.saya && S.saya.kucing) KC[S.saya.no] = S.saya.kucing;
   if (S.saya && S.saya.ig) NM[S.saya.no] = '@' + S.saya.ig;
   bukaSegara(Math.max(S.saya ? S.saya.no : 0, ...Object.keys(NM).map(Number)));
@@ -1445,7 +1446,7 @@ async function bukaPeringkat(dariTab) {
   const baris = (x, aku) => `<div class="pkBaris${aku ? ' aku' : ''}${x.r <= 3 ? ' juara' : ''}"><span class="pkNo">${medali(x.r)}</span><span class="pkNama">${x.u ? '@' + esc(x.u) : 'Warga No. ' + x.no}${aku ? ' (kamu)' : ''}<small>${NAMA_DUSUN[dusunDari(x.no)]}</small></span><b>🪙 ${minggu ? '+' : ''}${x.koin}</b></div>`;
   const aku = S.saya && daftar.some(x => x.no === S.saya.no);
   let h = d.hadiah ? `<div class="pkMode"><button data-m="minggu" class="${minggu ? 'on' : ''}">📅 Minggu ini</button><button data-m="semua" class="${minggu ? '' : 'on'}">🏅 Sepanjang masa</button></div>` : '';
-  if (minggu) h += `<div class="pkHadiah">🎁 Senin 00.00 WIB: 🥇 +${d.hadiah.rajin[0]} 💎 · 🥈 +${d.hadiah.rajin[1]} 💎 · 🥉 +${d.hadiah.rajin[2]} 💎<small>Kumpulkan koin terbanyak minggu ini. Sisa ${sisaWaktu(d.tutup - Date.now())}.</small></div>`;
+  if (minggu) h += `<div class="pkHadiah">🎁 Senin 00.00 WIB: 🥇 +${d.hadiah.rajin[0]} 💎 · 🥈 +${d.hadiah.rajin[1]} 💎 · 🥉 +${d.hadiah.rajin[2]} 💎<small>3 teratas juga dapat lencana 🥇🥈🥉 di samping username selama seminggu. Sisa ${sisaWaktu(d.tutup - Date.now())}.</small></div>`;
   h += daftar.length ? `<div class="pkDaftar" id="pkDaftar">${daftar.map(x => baris(x, S.saya && x.no === S.saya.no)).join('')}</div>` : '<p class="kecil">Belum ada warga yang dapat koin minggu ini. Jadilah yang pertama!</p>';
   if (S.saya && !aku) h += minggu ? `<div class="pkBaris aku pkSaya"><span class="pkNo">${sy ? sy.r : '–'}</span><span class="pkNama">@${esc(S.saya.ig || '')} (kamu)<small>${sy ? 'koin minggu ini' : 'Belum dapat koin minggu ini'}</small></span><b>🪙 +${sy ? sy.koin : 0}</b></div>`
     : d.saya ? `<div class="pkBaris aku pkSaya"><span class="pkNo">${d.saya.r || '–'}</span><span class="pkNama">@${esc(S.saya.ig || '')} (kamu)<small>${d.saya.r ? 'dari ' + d.jml + ' warga berkoin' : 'Belum punya koin'}</small></span><b>🪙 ${d.saya.koin}</b></div>` : '';
@@ -2815,7 +2816,7 @@ async function muatWargaNPC() {
 const RAKA_NO = 1;
 function rakaOnline() { return (!S.tamu && S.saya?.no === RAKA_NO) || S.others.has(RAKA_NO); }
 function rakaTampil() { return DI === 'wetan' && !rakaOnline(); }
-function labelRaka(ig) { return '★ @' + (ig || NM[RAKA_NO] || 'raka'); }
+function labelRaka(ig) { return (RJ[RAKA_NO] ? ['', '🥇', '🥈', '🥉'][RJ[RAKA_NO]] + ' ' : '') + '★ @' + String(ig || NM[RAKA_NO] || 'raka').replace(/^@+/, ''); }
 function pasangRakaWarga(satu) {
   if (!satu || !satu.av || !tokoh.raka || tokoh.raka.userData.warga) return;
   RAKA_AV = bersihAv(satu.av); const lama = tokoh.raka, o = buatAvatarObj(bersihAv(satu.av));
@@ -2949,11 +2950,18 @@ function kenaHUD(a, b, c, d) {
 addEventListener('resize', () => setTimeout(tataHUD, 60)); setInterval(tataHUD, 1000);
 const taruh = [];   // kotak label nama yang sudah dipasang frame ini (supaya tidak saling tumpuk)
 const V = new THREE.Vector3();
+// Label nama: awalan "Lv<n> " jadi chip emas kecil (Huda 13 Nov: "tulisan level kurang bagus"), sisanya teks biasa.
+function isiLabel(el, teks) {
+  const m = /^(🔇 )?Lv(\d+) (.*)$/s.exec(teks);
+  if (!m) { el.textContent = teks; return; }
+  el.textContent = m[1] || ''; const c = document.createElement('span'); c.className = 'nmLv'; c.textContent = m[2];
+  el.appendChild(c); el.appendChild(document.createTextNode(m[3]));
+}
 function tempel(obj, tinggi, teks, cls, dy = 0) {
   V.copy(obj.position); V.y += tinggi; V.project(cam);
   if (V.z > 1 || V.x < -1.2 || V.x > 1.2 || V.y < -1.2 || V.y > 1.2) return null;
   let d = pool.find(x => !x.dipakai); if (!d) { d = {el: document.createElement('div')}; lab.appendChild(d.el); pool.push(d); }
-  d.dipakai = true; if (d.el.className !== cls) d.el.className = cls; if (d.el._t !== teks) { d.el.textContent = teks; d.el._t = teks; d.el._w = 0; }
+  d.dipakai = true; if (d.el.className !== cls) d.el.className = cls; if (d.el._t !== teks) { isiLabel(d.el, teks); d.el._t = teks; d.el._w = 0; }
   const x = (V.x + 1) / 2 * innerWidth; let y = (1 - V.y) / 2 * innerHeight + dy;
   if (cls.startsWith('nm')) {
     const w = d.el._w || (d.el._w = d.el.offsetWidth || teks.length * 7.5 + 20), h = 24;
