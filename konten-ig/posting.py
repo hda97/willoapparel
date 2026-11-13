@@ -6,14 +6,15 @@ Antrean: konten-ig/antrean/YYYY-MM-DD.json
   {"video": "https://willoapparel.com/....mp4",   # URL publik MP4 9:16 (H.264 + AAC)
    "caption": "teks caption",
    "jam": "18:31",                                  # WIB, opsional (default 18:31)
-   "sampul_ms": 0}                                  # opsional: detik sampul (milidetik)
+   "sampul": "https://.../2026-11-14-sampul.jpg",   # opsional: sampul JPG 9:16 (default: <video>-sampul.jpg bila ada)
+   "sampul_ms": 0}                                  # opsional: bingkai sampul (milidetik) bila tak ada gambar
 Setelah terbit, file diberi kolom "terbit": {"id", "permalink", "waktu"}.
 
 Token: secret IG_TOKEN (token pengguna dari Graph API Explorer) + IG_APP_ID + IG_APP_SECRET.
 Run pertama menukarnya jadi token Halaman jangka panjang (tidak kedaluwarsa), lalu
 menyimpannya terenkripsi (kunci = IG_APP_SECRET) di konten-ig/token.enc.
 """
-import base64, datetime as dt, glob, hashlib, json, os, subprocess, sys, time, urllib.parse, urllib.request
+import base64, datetime as dt, glob, hashlib, json, os, re, subprocess, sys, time, urllib.parse, urllib.request
 
 API = "https://graph.facebook.com/v21.0"
 DIR = os.path.dirname(os.path.abspath(__file__))
@@ -105,10 +106,27 @@ def jatuh_tempo(item, now):
     return now >= now.replace(hour=h, minute=m, second=0, microsecond=0)
 
 
+def tebak_sampul(video):
+    """.../reel/2026-11-14.mp4 -> .../reel/2026-11-14-sampul.jpg bila gambar itu ada (cek lewat HTTP)."""
+    if not (video or "").endswith(".mp4"):
+        return None
+    url = video[:-4] + "-sampul.jpg"
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, method="HEAD"), timeout=20) as r:
+            return url if r.status == 200 else None
+    except Exception:
+        return None
+
+
 def terbitkan(token, ig_id, item):
     p = dict(media_type="REELS", video_url=item["video"], caption=item.get("caption", ""),
              share_to_feed="true", access_token=token)
-    if item.get("sampul_ms") is not None:
+    # Sampul: "sampul" = URL gambar JPG 9:16 (dipasang sebagai cover_url, tidak bisa diganti lewat API setelah terbit).
+    # Bila kosong, otomatis pakai <video tanpa .mp4>-sampul.jpg kalau file itu ada. "sampul_ms" = ambil bingkai video.
+    sampul = item.get("sampul") or tebak_sampul(item["video"])
+    if sampul:
+        p["cover_url"] = sampul
+    elif item.get("sampul_ms") is not None:
         p["thumb_offset"] = str(int(item["sampul_ms"]))
     cid = req("POST", f"{ig_id}/media", **p)["id"]
     for _ in range(60):  # tunggu Instagram memproses video, maks ±10 menit
