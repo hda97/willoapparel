@@ -1465,7 +1465,7 @@ async function bukaPeringkat(dariTab) {
   const baris = (x, aku) => `<div class="pkBaris${aku ? ' aku' : ''}${x.r <= 3 ? ' juara' : ''}"><span class="pkNo">${medali(x.r)}</span><span class="pkNama">${x.u ? '@' + esc(x.u) : 'Warga No. ' + x.no}${aku ? ' (kamu)' : ''}<small>${NAMA_DUSUN[dusunDari(x.no)]}</small></span><b>🪙 ${minggu ? '+' : ''}${x.koin}</b></div>`;
   const aku = S.saya && daftar.some(x => x.no === S.saya.no);
   let h = d.hadiah ? `<div class="pkMode"><button data-m="minggu" class="${minggu ? 'on' : ''}">📅 Minggu ini</button><button data-m="semua" class="${minggu ? '' : 'on'}">🏅 Sepanjang masa</button></div>` : '';
-  if (minggu) h += `<div class="pkHadiah">🎁 Senin 00.00 WIB: 🥇 +${d.hadiah.rajin[0]} 💎 · 🥈 +${d.hadiah.rajin[1]} 💎 · 🥉 +${d.hadiah.rajin[2]} 💎<small>3 teratas juga dapat lencana 🥇🥈🥉 di samping username selama seminggu. Sisa ${sisaWaktu(d.tutup - Date.now())}.</small></div>`;
+  if (minggu) h += `<div class="pkHadiah" title="Kumpulkan koin terbanyak minggu ini">🎁 Senin: 🥇${d.hadiah.rajin[0]} 🥈${d.hadiah.rajin[1]} 🥉${d.hadiah.rajin[2]} 💎 + lencana · sisa ${sisaWaktu(d.tutup - Date.now())}</div>`;
   h += daftar.length ? `<div class="pkDaftar" id="pkDaftar">${daftar.map(x => baris(x, S.saya && x.no === S.saya.no)).join('')}</div>` : '<p class="kecil">Belum ada warga yang dapat koin minggu ini. Jadilah yang pertama!</p>';
   if (S.saya && !aku) h += minggu ? `<div class="pkBaris aku pkSaya"><span class="pkNo">${sy ? sy.r : '–'}</span><span class="pkNama">@${esc(S.saya.ig || '')} (kamu)<small>${sy ? 'koin minggu ini' : 'Belum dapat koin minggu ini'}</small></span><b>🪙 +${sy ? sy.koin : 0}</b></div>`
     : d.saya ? `<div class="pkBaris aku pkSaya"><span class="pkNo">${d.saya.r || '–'}</span><span class="pkNama">@${esc(S.saya.ig || '')} (kamu)<small>${d.saya.r ? 'dari ' + d.jml + ' warga berkoin' : 'Belum punya koin'}</small></span><b>🪙 ${d.saya.koin}</b></div>` : '';
@@ -1473,7 +1473,7 @@ async function bukaPeringkat(dariTab) {
   if (minggu && jr.length) h += `<p class="kecil plSaya">🏅 Juara minggu lalu: ${jr.map(x => medali(x.r) + ' @' + esc(x.u || 'warga ' + x.no)).join(' · ')}</p>`;
   $('isiPeringkat').innerHTML = h;
   $('isiPeringkat').querySelectorAll('.pkMode button').forEach(b => b.onclick = () => { PK_MODE = b.dataset.m; bukaPeringkat(true); });
-  $('ringkasPeringkat').textContent = minggu ? 'Koin dari kegiatan apa saja minggu ini (Senin–Minggu) dihitung. Belanja tidak mengurangi.' : `${d.jml} warga sudah punya koin. Geser daftar untuk melihat peringkat 6 dan seterusnya.`;
+  $('ringkasPeringkat').textContent = minggu ? 'Koin yang didapat minggu ini.' : `${d.jml} warga sudah punya koin. Geser daftar untuk melihat peringkat 6 dan seterusnya.`;
 }
 // Pop up hadiah papan peringkat (sekali, saat masuk sesudah Senin 00.00 WIB). Koin/💎 sudah masuk di server.
 const NAMA_HADIAH = {piala: '⭐ Pahlawan Dusun (Piala Antardusun)', dusun: '🏆 Dusunmu juara Piala Antardusun', rumah: '🏡 Lomba Rumah Terindah', rajin: '📅 Warga Rajin Minggu Ini'};
@@ -1566,13 +1566,13 @@ function tabPeringkat(t) {
 }
 async function bukaPiala() {
   $('panelPeringkat').hidden = false; $('isiPeringkat').innerHTML = '<p class="kecil">Memuat…</p>';
-  $('ringkasPeringkat').textContent = 'Lari Pelari Kalcer sampai finish dan cetak gol di stadion untuk menambah poin dusunmu.';
+  $('ringkasPeringkat').textContent = 'Lari & cetak gol untuk poin dusunmu.';
   const d = await ambilPiala();
   if (!d || !d.klasemen) { $('isiPeringkat').innerHTML = '<p class="kecil">Klasemen Piala belum bisa dimuat. Coba lagi sebentar.</p>'; return; }
   const maks = Math.max(1, ...d.klasemen.map(x => x.poin)), medali = ['🥇', '🥈', '🥉', '4', '5'];
   const sayaD = S.saya ? dusunDari(S.saya.no) : '';
   let h = '';
-  if (HADIAH_PK) h += `<div class="pkHadiah">🎁 Tiap Senin: Pahlawan 🥇+${HADIAH_PK.piala[0]} 🥈+${HADIAH_PK.piala[1]} 🥉+${HADIAH_PK.piala[2]} 🪙<small>Semua warga dusun juara yang menyumbang ≥${HADIAH_PK.dusunMin} poin +${HADIAH_PK.dusun} 🪙</small></div>`;
+  if (HADIAH_PK) h += `<div class="pkHadiah">🎁 Senin: 🥇${HADIAH_PK.piala[0]} 🥈${HADIAH_PK.piala[1]} 🥉${HADIAH_PK.piala[2]} 🪙 · dusun juara +${HADIAH_PK.dusun} 🪙</div>`;
   if (d.juara) h += `<div class="plJuara">🏆 Juara minggu lalu: <b>${DUSUN_PIALA[d.juara.d][0]} Dusun ${namaPiala(d.juara.d)}</b> (${d.juara.poin} poin). Bendera emas berkibar di gapuranya.${d.juara.top.length ? '<small>Penyumbang poin terbanyak: ' + d.juara.top.map(x => '@' + esc(x.u || 'warga ' + x.no)).join(', ') + '</small>' : ''}</div>`;
   h += `<div class="plDaftar">${d.klasemen.map((x, i) => `<div class="plBaris${x.d === sayaD ? ' aku' : ''}"><span class="plMedali">${x.poin ? medali[i] : '–'}</span><span class="plNama">${DUSUN_PIALA[x.d][0]} ${namaPiala(x.d)}${x.d === sayaD ? '<small>dusunmu</small>' : ''}<i style="width:${Math.round(x.poin / maks * 100)}%"></i></span><b>${x.poin}<small>${x.pemain} pemain</small></b></div>`).join('')}</div>`;
   if (d.saya) h += `<p class="kecil plSaya">Sumbanganmu minggu ini: <b>${d.saya.poin} poin</b> (${d.saya.lari} finish lari, ${d.saya.gol} gol). Sisa finish berpoin hari ini: ${Math.max(0, d.saya.sisaLari)}/${d.aturan.lariHari}.</p>`;
@@ -1585,12 +1585,12 @@ async function bukaPiala() {
 // ---------- Lomba Rumah Terindah (Huda 9 Nov 2026) ----------
 async function bukaLombaRumah() {
   $('panelPeringkat').hidden = false; $('isiPeringkat').innerHTML = '<p class="kecil">Memuat…</p>';
-  $('ringkasPeringkat').textContent = 'Hias rumahmu (Toko Hias, rumah 2 lantai, rakit hiasan), lalu ajak tetangga mampir dan memberi ❤️.';
+  $('ringkasPeringkat').textContent = 'Hias rumahmu, ajak tetangga memberi ❤️.';
   let d = null; try { d = await (await fetch('/duniakotak/api/rumah' + (S.saya ? '?no=' + S.saya.no : ''), {cache: 'no-store'})).json(); } catch (e) {}
   if (!d || !d.top) { $('isiPeringkat').innerHTML = '<p class="kecil">Klasemen lomba belum bisa dimuat. Coba lagi sebentar.</p>'; return; }
   if (d.saya) { RS.sisa = d.saya.sisa; RS.sudah = d.saya.sudah; }
   let h = '';
-  if (HADIAH_PK) h += `<div class="pkHadiah">🎁 Senin 00.00 WIB: 🥇 +${HADIAH_PK.rumah[0]} · 🥈 +${HADIAH_PK.rumah[1]} · 🥉 +${HADIAH_PK.rumah[2]} 🪙<small>Minimal ${HADIAH_PK.rumahMin} ❤️. Juara 1 juga dapat piala emas di atas rumah.</small></div>`;
+  if (HADIAH_PK) h += `<div class="pkHadiah">🎁 Senin: 🥇${HADIAH_PK.rumah[0]} 🥈${HADIAH_PK.rumah[1]} 🥉${HADIAH_PK.rumah[2]} 🪙 + papan & bintang</div>`;
   if (d.juara) h += `<div class="plJuara">🏡 Rumah Terindah minggu lalu: <b>@${esc(d.juara.u || 'warga ' + d.juara.no)}</b> (${d.juara.suka} ❤️). Piala emas melayang di atas rumahnya.<small><button class="rmKunjungi" data-no="${d.juara.no}">🧭 Kunjungi rumahnya</button></small></div>`;
   if (d.saya) h += `<p class="kecil plSaya">Rumahmu: <b>${d.saya.suka} ❤️</b> minggu ini · ❤️ yang bisa kamu berikan hari ini: <b>${d.saya.sisa}/${d.aturan.hari}</b></p>`;
   h += d.top.length ? `<div class="pkDaftar">${d.top.map((x, i) => `<div class="pkBaris${S.saya && x.no === S.saya.no ? ' aku' : ''}${i < 3 ? ' juara' : ''}"><span class="pkNo">${['🥇', '🥈', '🥉'][i] || i + 1}</span><span class="pkNama">@${esc(x.u || 'warga ' + x.no)}<small>${NAMA_DUSUN[dusunDari(x.no)] || ''}</small></span><button class="rmKunjungi" data-no="${x.no}">🧭</button><b>${x.suka} ❤️</b></div>`).join('')}</div>`
