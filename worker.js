@@ -599,6 +599,12 @@ export class Warga extends DurableObject {
     }
     return this._rj.m;
   }
+  // 3 Rumah Terindah minggu lalu (Huda 13 Nov 2026: papan berpita + bintang di atas atap). {no: peringkat 1–3}
+  juaraRumah3() {
+    const lalu = mingguWib(Date.now() - 7 * 864e5);
+    if (!this._tr3 || this._tr3.mg !== lalu) { const m = {}; try { this.topRumah(lalu, 3).forEach((x, i) => { m[x.no] = i + 1; }); } catch (e) {} this._tr3 = { mg: lalu, m }; }
+    return this._tr3.m;
+  }
   juaraRumah() {
     const lalu = mingguWib(Date.now() - 7 * 864e5);
     if (!this._tr || this._tr.mg !== lalu) {
@@ -854,9 +860,9 @@ export class Warga extends DurableObject {
   publik(r) {
     // Daftar lewat Google tanpa username: nama yang ditulis warga jadi ukiran batu (label).
     let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
-    const hs = this.hiasPakai(r), bt = this.bataWarga(r.no), jr = this.juraganKini(), tr = this.juaraRumah(), rj = this.juaraRajin()[r.no];
+    const hs = this.hiasPakai(r), bt = this.bataWarga(r.no), jr = this.juraganKini(), tr = this.juaraRumah(), rj = this.juaraRajin()[r.no], tr3 = this.juaraRumah3()[r.no];
     // xp = koinTotal (Level Warga, Huda 13 Nov 2026): tiap koin dari kegiatan = 1 XP; level dihitung di game.js (LEVEL_XP)
-    return { ...(bt ? { bt } : {}), ...(r.alb ? { al: r.alb } : {}), ...(r.koinTotal > 0 ? { xp: r.koinTotal } : {}), ...(jr && jr.no === r.no ? { jr: 1 } : {}), ...(tr && tr.no === r.no ? { tr: 1 } : {}), ...(rj ? { rj } : {}), ...(hs.cat !== "krem" || hs.pagar !== "putih" || hs.rumah === "dua" || hs.dekor.length || hs.kend ? { hs: { c: hs.cat, p: hs.pagar, ...(hs.rumah === "dua" ? { l: 2 } : {}), ...(hs.dekor.length ? { d: hs.dekor } : {}), ...(hs.kend ? { k: hs.kend } : {}) } } : {}), no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
+    return { ...(bt ? { bt } : {}), ...(r.alb ? { al: r.alb } : {}), ...(r.koinTotal > 0 ? { xp: r.koinTotal } : {}), ...(jr && jr.no === r.no ? { jr: 1 } : {}), ...(tr && tr.no === r.no ? { tr: 1 } : tr3 ? { tr: tr3 } : {}), ...(rj ? { rj } : {}), ...(hs.cat !== "krem" || hs.pagar !== "putih" || hs.rumah === "dua" || hs.dekor.length || hs.kend ? { hs: { c: hs.cat, p: hs.pagar, ...(hs.rumah === "dua" ? { l: 2 } : {}), ...(hs.dekor.length ? { d: hs.dekor } : {}), ...(hs.kend ? { k: hs.kend } : {}) } } : {}), no: r.no, ig: r.ig || "", tiktok: r.tiktok || "", label: r.ig || r.tiktok ? "" : r.nama || "", usulan: r.usulan || "", dibuat: r.dibuat, ...(kc ? { kc } : {}), ...(r.aktif ? { ak: Math.floor(r.aktif / 60000) * 60000 } : {}) };
   }
   // Hias: {punya:{cat:[...],pagar:[...],topi:[...]}, cat, pagar, topi}
   bacaHias(r) { let h = {}; try { h = r.hias ? JSON.parse(r.hias) : {}; } catch (e) {} h.punya = h.punya || {}; for (const j of Object.keys(TOKO_HIAS)) h.punya[j] = h.punya[j] || []; return h; }
