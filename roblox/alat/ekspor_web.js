@@ -9,7 +9,7 @@ const fs = require('fs');
     let s = fs.readFileSync('/home/user/willoapparel/public/duniakotak/mabar/game.js','utf8');
     s = s.replace("const cam = new THREE.PerspectiveCamera(38, 1, 1, hemat ? 450 : 560);", "const cam = new THREE.PerspectiveCamera(38, 1, 1, hemat ? 450 : 560); window.__sc = sc; window.__THREE = THREE; window.__cam = cam;");
     if (!s.includes("function bakeGroup(root) {")) throw new Error('bake'); s = s.replace("function bakeGroup(root) {", "function bakeGroup(root) { return;");
-    s += '\n;window.__g={bangunKavling, lotRuntime, tokoh, get I(){return I}};';
+    s += '\n;window.__g={bangunKavling, lotRuntime, tokoh, get I(){return I}, get fasum(){return typeof fasumBangun !== "undefined" ? fasumBangun : []}};';
     r.fulfill({body:s, contentType:'application/javascript'});
   });
   await p.addInitScript(() => { Object.defineProperty(navigator, 'hardwareConcurrency', {get: () => 8}); Object.defineProperty(navigator, 'deviceMemory', {get: () => 8}); });
@@ -98,9 +98,10 @@ const fs = require('fs');
     };
     tops.forEach((o, i) => { names.push((o.name||'')+'/'+o.type+'/'+o.children.length); walk(o, i, -1); });
     window.__out = out.subarray(0, n*N);
-    const I = g.I; const lots = {}; for (const [k, L] of Object.entries(I.lots)) lots[k] = {c:[L.c.x, L.c.y||0, L.c.z], dir:L.dir, g: L.gate ? [L.gate.x, L.gate.y||0, L.gate.z] : null};
+    const I = g.I; const lots = {}; for (const [k, L] of Object.entries(I.lots)) lots[k] = {c:[L.c.x, L.c.y||0, L.c.z], dir:L.dir, g: L.gate ? [L.gate.x, L.gate.y||0, L.gate.z] : null, s: L.stone ? [L.stone.x, L.stone.y||0, L.stone.z] : null};
     const me = g.tokoh.saya; const bb = new T.Box3().setFromObject(me);
-    const meta = {n, names, stat, lots, me:[bb.min.toArray(), bb.max.toArray()], pos: me.position.toArray(), TW:I.TW, TD:I.TD, ox:I.ox, oz:I.oz, fog: sc.fog ? [sc.fog.near, sc.fog.far] : null};
+    const bangunan = []; try { for (const f of g.fasum) if (f && f.nama && f.position) bangunan.push({nama: f.nama, p: [f.position.x, f.position.y || 0, f.position.z]}); } catch (e) {}
+    const meta = {n, names, stat, lots, bangunan, me:[bb.min.toArray(), bb.max.toArray()], pos: me.position.toArray(), TW:I.TW, TD:I.TD, ox:I.ox, oz:I.oz, fog: sc.fog ? [sc.fog.near, sc.fog.far] : null};
     for (const k of ['fas','fasum','entry','cross','batas','vroads','hroads','xs','zs','river','sungai']) { try { meta[k] = JSON.parse(JSON.stringify(I[k], (kk, vv) => (vv && vv.isObject3D) ? undefined : vv)); } catch(e) { meta[k] = 'x'; } }
     return meta;
   });
