@@ -244,21 +244,35 @@ local function kameraDepan(nyala)
 		return
 	end
 	cam.CameraType = Enum.CameraType.Scriptable
-	sambungKamera = game:GetService("RunService").RenderStepped:Connect(function()
-		local char = player.Character
-		local hrp = char and char:FindFirstChild("HumanoidRootPart")
-		if not hrp then return end
-		local geser = cam.ViewportSize.X > 700 and 2.2 or 0
-		-- kamera 10 stud di depan tokoh; kalau ada bangunan di antaranya, kamera maju mendekat
+	-- kamera 10 stud di depan tokoh. Kalau terhalang bangunan, pilih sudut serong yang paling lega.
+	local function lega(char, hrp, sudut)
 		local mata = (hrp.CFrame * CFrame.new(0, 1.2, 0)).Position
-		local arah = (hrp.CFrame * CFrame.new(0, 1.6, -10)).Position - mata
+		local arah = (hrp.CFrame * CFrame.Angles(0, math.rad(sudut), 0) * CFrame.new(0, 1.6, -10)).Position - mata
 		local saring = RaycastParams.new()
 		saring.FilterType = Enum.RaycastFilterType.Exclude
 		saring.FilterDescendantsInstances = { char }
 		local kena = workspace:Raycast(mata, arah, saring)
 		local jarak = kena and math.max(4, (kena.Position - mata).Magnitude - 0.6) or arah.Magnitude
-		local dari = mata + arah.Unit * jarak + hrp.CFrame.RightVector * geser
-		cam.CFrame = CFrame.lookAt(dari, (hrp.CFrame * CFrame.new(geser, 0.4, 0)).Position)
+		return jarak, mata, arah.Unit
+	end
+	local sudutPilihan
+	sambungKamera = game:GetService("RunService").RenderStepped:Connect(function()
+		local char = player.Character
+		local hrp = char and char:FindFirstChild("HumanoidRootPart")
+		if not hrp then return end
+		if not sudutPilihan then
+			local terbaik = -1
+			for _, sudut in ipairs({ 0, 30, -30, 55, -55 }) do
+				local j = lega(char, hrp, sudut)
+				if j > terbaik + 0.5 then terbaik, sudutPilihan = j, sudut end
+				if j >= 9.5 then break end
+			end
+		end
+		local jarak, mata, satuan = lega(char, hrp, sudutPilihan)
+		local geser = cam.ViewportSize.X > 700 and 2.2 * jarak / 10 or 0
+		local samping = satuan:Cross(Vector3.yAxis).Unit
+		local dari = mata + satuan * jarak + samping * geser
+		cam.CFrame = CFrame.lookAt(dari, hrp.Position + Vector3.new(0, 0.4, 0) + samping * geser)
 	end)
 end
 
