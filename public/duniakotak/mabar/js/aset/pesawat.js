@@ -11,7 +11,7 @@ import * as THREE from 'three';
 import {ALAT} from './mobil.js?v=20261111amb';
 const {pembuat, gabung, garisTepi, mat, kanvas, teksTex, KACA, HITAM, KROM, KARET, ABU, GARIS} = ALAT;
 const PI = Math.PI, PUTIH = mat(0xf6f7f9, {roughness: .35, metalness: .1}), PERUT = mat(0xc9ced6, {roughness: .45, metalness: .2});
-const KUNING = mat(0xf2c14a, {roughness: .4}), KOKPIT = mat(0x1d2a3a, {roughness: .1, metalness: .6}), JENDELA = mat(0x26313d, {roughness: .15, metalness: .4});
+const KUNING = mat(0xf2c14a, {roughness: .4}), KOKPIT = mat(0x2c4a66, {roughness: .08, metalness: .7, polygonOffset: true, polygonOffsetFactor: -4}), BINGKAI = mat(0x161c24, {roughness: .5, polygonOffset: true, polygonOffsetFactor: -2}), JENDELA = mat(0x26313d, {roughness: .15, metalness: .4});
 const MERAH = mat(0xff2a2a, {emissive: 0xff2a2a, emissiveIntensity: 1}), HIJAU = mat(0x2aff6a, {emissive: 0x2aff6a, emissiveIntensity: 1}), STROBO = mat(0xffffff, {emissive: 0xffffff, emissiveIntensity: .8});
 
 // pelat berbentuk (sayap/sirip): titik [u, v] di bidang, tebal t, ditaruh dengan fungsi atur(mesh)
@@ -44,8 +44,13 @@ export function buatPesawat(warna = 0x2f6fb8, no = 1) {
     p.bidang(5.6, .95, mat(0xffffff, {map: teksTex('KOTAK AIR', '#00000000', '#' + new THREE.Color(warna).getHexString(), 512, 96), transparent: true, polygonOffset: true, polygonOffsetFactor: -2}), 2.2, Y + 1.12, s * (R - .2), s > 0 ? 0 : PI, s * -.2);
     p.bidang(2.2, .42, mat(0xffffff, {map: teksTex('PK-DK' + no, '#00000000', '#26313d', 256, 56), transparent: true, polygonOffset: true, polygonOffsetFactor: -2}), -11.6, Y + .1, s * (R - .14), s > 0 ? 0 : PI);
   });
-  // kaca kokpit: 4 panel miring di hidung
-  [-1, 1].forEach(s => { p(.95, .34, .66, KOKPIT, 12.5, Y + 1.2, s * .4, {r: .1, rz: -.62}); p(.8, .36, .36, KOKPIT, 12.0, Y + .95, s * 1.18, {r: .1, rx: s * .85, rz: -.3}); });
+  // kaca kokpit (desain ulang 11 Nov 2026 atas permintaan Huda): kaca menempel mengikuti lengkung hidung.
+  // Bingkai gelap melingkar + 6 panel kaca (2 depan, 2 samping, 2 samping belakang) dipisah tiang tipis.
+  // Potongan bola satuan yang sama dengan hidung (theta diukur dari ujung hidung, phi 0 = atas).
+  const kulitHidung = (m, f, ph0, ph1, th0, th1) => { const k = new THREE.Mesh(new THREE.SphereGeometry(R, 20, 8, ph0, ph1 - ph0, th0, th1 - th0), m);
+    k.scale.set(f, 2.1 * f, f); k.rotation.z = -PI / 2; k.position.set(11, Y, 0); g.add(k); return k; };
+  kulitHidung(BINGKAI, 1.006, -1.42, 1.42, .78, 1.2);
+  [[.03, .36, .84, 1.12], [.42, .86, .86, 1.15], [.92, 1.34, .9, 1.16]].forEach(([a0, a1, t0, t1]) => [-1, 1].forEach(s => kulitHidung(KOKPIT, 1.012, s > 0 ? a0 : -a1, s > 0 ? a1 : -a0, t0, t1)));
   // ---- sayap rendah menyapu (pelat di bidang x-z), winglet, flap ----
   [-1, 1].forEach(s => {
     pelat(g, [[3.2, 0], [-2.2, 0], [-6.4, s * 10.6], [-4.6, s * 10.6]], .45, PUTIH, me => { me.rotation.x = PI / 2 - s * .06; me.position.set(0, Y - 1.05, s * 1.2); }, true);

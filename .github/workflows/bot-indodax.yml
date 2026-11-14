@@ -9,10 +9,16 @@ name: Bot Indodax (paper trading)
 # Hentikan: Actions > "Bot Indodax (paper trading)" > ... > Disable workflow,
 # lalu Cancel run yang sedang menunggu.
 
+# DIHENTIKAN 13 Nov 2026 atas permintaan Huda. Jadwal dan rantai otomatis dicabut.
+# Bot hanya jalan bila dipicu manual dengan pilihan "jalankan" dicentang
+# (Actions > workflow ini > Run workflow).
 on:
-  schedule:
-    - cron: "23 */3 * * *"
   workflow_dispatch:
+    inputs:
+      jalankan:
+        description: "Centang untuk menjalankan bot lagi (berantai terus sampai dihentikan)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -20,6 +26,7 @@ permissions:
 
 jobs:
   paper-trading:
+    if: ${{ inputs.jalankan }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     concurrency:
@@ -72,7 +79,7 @@ jobs:
 
   lanjut:
     needs: paper-trading
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && inputs.jalankan }}
     runs-on: ubuntu-latest
     timeout-minutes: 200
     concurrency:
@@ -85,4 +92,4 @@ jobs:
       - name: Picu run berikutnya
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run bot-indodax.yml --ref main --repo "$GITHUB_REPOSITORY"
+        run: gh workflow run bot-indodax.yml --ref main --repo "$GITHUB_REPOSITORY" -f jalankan=true

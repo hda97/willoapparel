@@ -1,0 +1,106 @@
+name: Aplikasi Splitbill Cerdas (APK)
+
+# Build APK Splitbill Cerdas (Expo SDK 51, JS dibundel Hermes, bisa jalan tanpa server dev).
+# Hasil diunggah ke Release "splitbill-uji" supaya bisa diunduh & dipasang langsung dari HP.
+# HANYA jalan manual (Actions > Aplikasi Splitbill Cerdas > Run workflow), sesuai permintaan Huda:
+# APK tidak di-build otomatis. Pemicu pull_request hanya ada supaya run lama ikut dibatalkan; job-nya dilewati.
+# Selain manual, build juga jalan saat ada push ke branch ini yang pesan commit-nya memuat [build-apk]
+# (dipakai saat Huda menulis "build", karena sesi Claude tidak bisa menekan Run workflow).
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/project-thread-2582ou]
+    paths:
+      - "aplikasi-splitbill/**"
+      - ".github/workflows/aplikasi-splitbill.yml"
+  pull_request:
+    paths:
+      - "aplikasi-splitbill/**"
+      - ".github/workflows/aplikasi-splitbill.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: splitbill-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[build-apk]'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: aplikasi-splitbill
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: aplikasi-splitbill/package-lock.json
+      - name: Pasang paket
+        run: npm ci
+      - name: Uji logika
+        run: npm test
+      - name: Expo prebuild (buat proyek Android)
+        run: npx expo prebuild --platform android --no-install
+      - name: Build APK release
+        working-directory: aplikasi-splitbill/android
+        run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
+      - name: Tanda tangani dengan kunci resmi
+        # Kunci rilis disimpan terenkripsi di aplikasi-splitbill/kunci/. Sandinya = secret SPLITBILL_KUNCI (dibuat Huda sendiri).
+        # Run pertama: kunci belum ada -> dibuat di sini, dienkripsi dengan sandi itu, lalu di-commit ke branch ini.
+        # Kunci yang sama di tiap rilis = pembeli bisa update tanpa hapus aplikasi (data tetap aman).
+        env:
+          SANDI: ${{ secrets.SPLITBILL_KUNCI }}
+        run: |
+          if [ -z "$SANDI" ]; then
+            echo "::error::Secret SPLITBILL_KUNCI belum diisi (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+          mkdir -p kunci
+          if [ ! -f kunci/splitbill-rilis.p12.enc ]; then
+            echo "Kunci rilis belum ada, membuat kunci baru..."
+            keytool -genkeypair -storetype PKCS12 -keystore "$RUNNER_TEMP/rilis.p12" -alias splitbill -keyalg RSA -keysize 2048 \
+              -validity 10000 -storepass:env SANDI -keypass:env SANDI -dname "CN=Splitbill Cerdas, O=Splitbill Cerdas, C=ID"
+            openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -in "$RUNNER_TEMP/rilis.p12" -out kunci/splitbill-rilis.p12.enc -pass env:SANDI
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add kunci/splitbill-rilis.p12.enc
+            git commit -m "Splitbill: simpan kunci rilis terenkripsi (dibuat otomatis) [skip ci]"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          else
+            openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in kunci/splitbill-rilis.p12.enc -out "$RUNNER_TEMP/rilis.p12" -pass env:SANDI
+          fi
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          "$BT/apksigner" sign --ks "$RUNNER_TEMP/rilis.p12" --ks-type PKCS12 --ks-key-alias splitbill \
+            --ks-pass env:SANDI --key-pass env:SANDI --out splitbill-cerdas.apk android/app/build/outputs/apk/release/app-release.apk
+          "$BT/apksigner" verify --print-certs splitbill-cerdas.apk | grep -i 'SHA-256'
+          rm -f "$RUNNER_TEMP/rilis.p12"
+          ls -la splitbill-cerdas.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: splitbill-cerdas-apk
+          path: aplikasi-splitbill/splitbill-cerdas.apk
+          retention-days: 14
+      - name: Unggah ke Release splitbill-uji
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: splitbill-uji
+          target_commitish: ${{ github.sha }}
+          name: Splitbill Cerdas APK uji (terbaru)
+          prerelease: true
+          make_latest: false
+          body: |
+            APK uji Splitbill Cerdas v2. Unduh **splitbill-cerdas.apk** di bawah dari HP Android.
+            Ketuk file ini, izinkan "instal dari sumber tidak dikenal", lalu Instal. Update berikutnya tinggal pasang di atasnya (data tetap aman).
+            (Kalau masih ada Splitbill Cerdas versi 1.x lama, hapus dulu sekali saja.)
+            Dibangun otomatis dari commit ${{ github.sha }}.
+          files: aplikasi-splitbill/splitbill-cerdas.apk
+          overwrite_files: true

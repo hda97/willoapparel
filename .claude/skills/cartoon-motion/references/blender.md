@@ -1,0 +1,73 @@
+# Blender character authoring through available tools
+
+Use this route when Blender is the chosen authoring tool for a screen character. A rendered 2D performance may come from flat artwork, a 2D mesh rig, Grease Pencil, or stylized 3D. Choose the method from the desired appearance and motion; do not silently convert an illustrated character into a different aesthetic.
+
+## Connect without replacing existing work
+
+Discover the actual Blender MCP tools and read their schemas. Verify a read-only connection/scene query before editing: Blender version, current file and unsaved state where exposed, scene/collections, objects and rigs, active camera, renderer, frame range, resolution, and FPS including its base. Use the observed tool names and capabilities; an installed MCP configuration does not prove that the current agent can call it. If tools are absent after a restart, report that boundary and use an authorized CLI/UI fallback or leave the connection-dependent work pending. Do not reconfigure MCP or install a second server to hide the missing connection.
+
+Preserve the open scene and unrelated objects. Save an editable, versioned `.blend` candidate to the agreed project location before substantial changes; do not clear the scene or overwrite the only source. When saving a copy would change the active document or unsaved work, verify the tool's save semantics first. Keep generated objects in a named collection and retain external textures/references with portable paths or pack the dependencies that permit it. Reopen the candidate to check missing dependencies and that the rig/actions remain editable. Stage exports separately.
+
+Use original, user-owned, or explicitly cleared source models, textures and reference material appropriate to the intended use. Record source, author/provider, license/terms and applicable restrictions in the asset handoff; do not infer ownership from possession of a file. An external generative asset service is an opt-in choice: respect excluded providers, verify the current plan's output/commercial terms, and obtain permission before uploading private references or incurring charges. Blender's software license does not clear third-party content. Do not generalize one user's provider exclusion into a blanket legal claim.
+
+## Construct the character before polishing the rig
+
+Establish an observable performance brief in ordinary language: what the character does, what emotion reads, what body parts lead/follow, how it handles a prop, how it settles, and where it will appear. Separate four acceptance questions: **Does the character look right? Does its rig deform cleanly? Does the acting read in playback? Does the export work in the target?** Passing one does not answer the others.
+
+When image generation is the chosen reference pipeline, make an approved neutral front T-pose or A-pose suited to the planned rig, then request matching side/back views only as needed. Keep limbs readable and separated, hands empty, props separate, perspective minimal and proportions consistent. Generated views may contradict one another; reconcile landmarks and missing anatomy during original Blender modeling instead of treating the images as geometrically consistent reconstruction data. A reference PNG is neither a 3D model nor a rig.
+
+Before adding detail, render a neutral front study with a camera matched to the reference as closely as its perspective permits. Compare reference and render side by side at the same character height and baseline, retaining their aspect ratios. Identify a few defining landmarks or relationships, such as head/body width, eye spacing/tilt, muzzle contour and the outer silhouette of a distinctive appendage. Use contextual ratio ranges only where landmarks can be measured reliably; otherwise describe the visible mismatch without invented precision. When a head or appendage carries the identity, resolve that study before building out costume and full-body details. For 3D, also inspect side/three-quarter views and the actual screen camera; matching one projection alone can hide poor volume.
+
+Before diagnosing model proportions, verify the camera mapping by projecting a few known world landmarks with [`world_to_camera_view`](https://docs.blender.org/api/current/bpy_extras.object_utils.html#bpy_extras.object_utils.world_to_camera_view) and converting its normalized coordinates to actual render pixels, accounting for the bottom-left origin. Use the actual camera, resolution/percentage and pixel aspect; do not infer the vertical span from `ortho_scale` alone. Projection agreement validates the mapping, not the accuracy of traced reference landmarks or the three-dimensional form.
+
+Block out volume/planes, then refine recognizable contours, face placement, hands and other defining features. Primitives are useful construction tools; an unrefined stack of spheres/capsules is not a finished character unless that aesthetic was requested. Save the comparison and state which defining forms match and which still fail. Inspect the actual rendered result: successful scripts, object names and a claim that a shape was improved are not visual evidence. Show an early complete action playback before broad app integration, then improve the most visible defect within the agreed iteration budget.
+
+- **2D mesh/cutout:** keep the illustrated look in an orthographic camera; arrange clean separate planes/meshes with controlled depth, alpha and overlap. Subdivide only where bending requires vertices. Complete hidden joint regions rather than stretching a cropped image over a gap. Use alternate drawings for turns and silhouettes that the source cannot support.
+- **Grease Pencil:** use actual strokes/layers and supported modifiers/rigging for the installed Blender version. It is a drawing workflow, not automatic editable line extraction from a PNG. Verify compositing and the render/export path used by the target.
+- **Stylized 3D:** develop real volume and surface continuity, with intentional forms rather than expecting subdivision to fix proportions. Use deformation-friendly edge flow around shoulders, elbows, hips, knees, lids and mouth where those regions move. Remove duplicate/internal faces, flipped normals and unintended intersections; inspect modifier order and scale before binding. Preserve a high-resolution source when useful, and make an optimized deforming/export mesh separately when the target warrants it.
+
+If two targeted geometry revisions retain the same defining form failure, reject that construction approach for the failing region before adding detail. Rebuild from the reference contour and a deliberate continuous surface, or use a demonstrably stronger available modeling method, then render the same comparison again. Fusion, remeshing and smoothing can improve continuity but do not establish a new silhouette or expression; do not count repeating them as progress without a visible correction. A painted marking cannot substitute for missing three-dimensional form when that form is required by the brief. If no available method reaches the agreed visual standard within budget, report the unresolved limit rather than declaring the model ready.
+
+Check color under a consistent neutral lighting/view setup before changing materials to compensate for highlights or shadows. Review the final lighting separately. Check costume and prop intersections in the rendered study as well as in motion.
+
+For surface fitting, verify API coordinate spaces: [`Object.ray_cast` and `closest_point_on_mesh`](https://docs.blender.org/api/current/bpy.types.Object.html#bpy.types.Object.ray_cast) query evaluated geometry in object space. Convert world origins as points and ray directions as vectors with the inverse of the evaluated object’s `matrix_world`, then convert a successful hit location back with its forward `matrix_world`; handle normals and finite distance limits in their appropriate spaces, especially under nonuniform scale. Under nonuniform scale, `closest_point_on_mesh` minimizes object-space distance, so converting its result does not guarantee the closest world-space point; use world-space geometry when true world proximity is required. [`Scene.ray_cast`](https://docs.blender.org/api/current/bpy.types.Scene.html#bpy.types.Scene.ray_cast) uses world space, so do not apply the same conversion blindly. After moving or scaling the target, inspect surface contact in profile instead of trusting a front-view overlay.
+
+Polygon count is not a quality proxy. More triangles do not repair silhouette, bad joint flow, weights or acting. Budget geometry, textures and rendered detail for the chosen delivery path and measured target costs; do not invent a universal triangle limit. A pre-rendered sprite and an interactive 3D export have different runtime costs.
+
+## Build only the rig the performance needs
+
+Place bones/pivots at the actual joints, with consistent naming, hierarchy, local axes and rest pose. Distinguish animator controls from deformation bones when a control rig is useful. Rigid cutouts can use bone/object parenting; deforming meshes need appropriate vertex groups and an Armature modifier. Automatic weights are a starting estimate, not proof of a clean bind.
+
+Test shoulders/hips and bent elbows/knees through the planned range, including intermediate angles. If vertices spike, collapse, detach or follow the wrong limb, inspect stray/unweighted vertices, normalize/clean the relevant groups, and correct weights or supporting topology. Check the evaluated mesh with its actual modifiers. Do not blindly apply transforms/modifiers to an already bound or animated asset; inspect the rest pose and preserve a recoverable candidate first.
+
+For IK, set an intentional chain length, target, pole direction/angle and stretch behavior. Test reach limits, bends and transitions for flipping, drifting and foot/hand sliding. Add IK/FK switching only when required and test continuity if used. Do not call an armature useful until its controls produce the requested poses cleanly.
+
+For the required facial range, use suitable bones, shape keys, alternate drawings or a combination. Set a stable Basis/topology before shape-key editing, isolate eye/lid/brow/mouth controls, and test combinations rather than just each slider alone. Check lid closure over eyes, gaze direction, mouth corners, lip/jaw contact and unwanted penetrations. For 3D open-mouth poses, provide the visible mouth interior and any required teeth/tongue with sensible jaw attachment; for flat art, an appropriate mouth drawing may suffice. Do not add speech/visemes or elaborate teeth to a character that never needs them.
+
+Keep props independent of anatomy. Use a documented attachment/constraint for a held object and verify grip/contact across the action. If it is handed off or released, test the attachment/influence change for a position jump and keep the prop editable.
+
+## Author acting, not just keyframes
+
+Create named actions for the requested performances, with explicit frame ranges, FPS and rest/entry/exit poses. Use the installed version's action/slot APIs or UI; do not assume an old F-Curve script works unchanged. Block readable key poses and holds, then inspect breakdowns and refine Graph Editor curves for acceleration, arcs and settle. Add anticipation, squash/stretch and delayed follow-through where they fit the style; offset secondary parts rather than keying the whole character in lockstep.
+
+Judge observable acting: the gaze and face communicate the intended emotion, the gesture has direction and weight, hands/feet/props maintain intended contact, secondary motion follows the main action, and the character settles without jitter. A list of keyed channels, many triangles, or a count of screenshots proves none of those things. Scrub difficult intervals frame by frame for pops, but review the complete action at its intended speed to judge timing. Check a loop seam in motion and include the intended restart/interruption behavior in the motion contract.
+
+## Preview the whole performance, then export
+
+Set the actual camera, projection, frame range, render dimensions, background/alpha and exact FPS (`fps / fps_base`). Render or capture a frame-accurate preview; a viewport that drops frames can misrepresent timing. A rendered image sequence preserves exact frames and supports targeted rerendering; encode a preview with the same rate and verify its duration. Keep a stable camera/canvas/anchor unless camera movement was requested.
+
+Watch full playback at both the intended phone display size and a larger hero/detail size, on representative backgrounds. Inspect expression readability, silhouette, clipped extremities, depth/alpha artifacts, collisions, contact, curve pops, holds, pacing and settle. Use the actual target sizes when known, otherwise label the preview assumptions. Revise from observed defects rather than accumulating nominal passes. Do not advance a visibly weak model or performance into broad app integration merely because the file renders.
+
+Choose the delivery format from the target: pre-rendered frames/video/atlas, or a supported mesh/skeleton/morph export. Keep `.blend` as editable source. Constraints, drivers, materials and control rigs may not survive interchange; bake/evaluate the animation as required by the actual exporter and validate the exported result in its intended player. Check frame ranges, coordinate axes, scale, textures, action selection and morph behavior. Only then exercise app events, repetition/interruption, reduced motion and lifecycle behavior through the main skill's integration checks.
+
+Deliver the versioned source, dependencies/provenance, named action/frame/FPS notes, complete playback preview and chosen export. State separately which model, deformation, acting, export and app checks passed, and whether operation was via MCP, CLI or UI. A CLI test does not verify MCP connectivity; an authoring preview does not verify app integration.
+
+## Official references
+
+Consult documentation matching the installed Blender version when API/UI or exporter behavior matters:
+
+- [Armature deform and automatic weights](https://docs.blender.org/manual/en/latest/animation/armatures/skinning/parenting.html)
+- [Shape keys](https://docs.blender.org/manual/en/latest/animation/shape_keys/introduction.html)
+- [Inverse kinematics constraints](https://docs.blender.org/manual/en/latest/animation/constraints/tracking/ik_solver.html)
+- [Rendering animations and frame sequences](https://docs.blender.org/manual/en/latest/render/output/animation.html)
+- [Blender software and artwork licensing](https://www.blender.org/about/license/)
