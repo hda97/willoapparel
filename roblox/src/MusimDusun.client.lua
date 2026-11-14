@@ -4,7 +4,9 @@
 
   Wetan = Musim Hujan (gerimis), Kulon = Musim Semi (kelopak sakura), Curug = Musim Salju,
   Tlaga = Musim Gugur (daun jatuh), Segara = Musim Panas (cerah, tanpa partikel).
-  Warna alam (rumput, daun) sudah ikut musim di data map; skrip ini hanya menambah langit, kabut, cahaya, dan partikel.
+  Warna alam (rumput, daun) sudah ikut musim di data map; skrip ini hanya menambah langit, kabut, cahaya, dan butiran cuaca.
+  Butiran cuaca berupa balok kecil yang digerakkan di sekitar kamera (bukan ParticleEmitter), supaya tetap terlihat
+  di setelan grafis rendah dan bentuknya kotak seperti dunianya.
   Semuanya hanya di layar pemain itu sendiri (tidak membebani server).
 ]]
 local Players = game:GetService("Players")
@@ -26,84 +28,28 @@ local MUSIM = {
 	segara = { nama = "Musim Panas", langit = Color3.fromRGB(140, 200, 245), cahaya = 1.12, kabut = 1.1 },
 }
 
-local function warna(daftar)
-	local k = {}
-	for i, c in ipairs(daftar) do
-		table.insert(k, ColorSequenceKeypoint.new((i - 1) / (#daftar - 1), Color3.fromRGB(c[1], c[2], c[3])))
-	end
-	return ColorSequence.new(k)
-end
-
-local BULAT = "rbxasset://textures/particles/smoke_main.dds"
-local PARTIKEL = {
-	hujan = function(e)
-		e.Texture = BULAT
-		e.Rate = 900
-		e.Lifetime = NumberRange.new(0.55, 0.7)
-		e.Speed = NumberRange.new(105, 125)
-		e.SpreadAngle = Vector2.new(2, 2)
-		e.Size = NumberSequence.new(0.34)
-		e.Squash = NumberSequence.new(2.6)
-		e.Orientation = Enum.ParticleOrientation.VelocityParallel
-		e.Color = ColorSequence.new(Color3.fromRGB(207, 224, 240))
-		e.Transparency = NumberSequence.new(0.35)
-		e.LightEmission = 0.2
-	end,
-	salju = function(e)
-		e.Texture = BULAT
-		e.Rate = 170
-		e.Lifetime = NumberRange.new(6, 8)
-		e.Speed = NumberRange.new(7, 11)
-		e.SpreadAngle = Vector2.new(12, 12)
-		e.Size = NumberSequence.new(0.55)
-		e.Acceleration = Vector3.new(1.2, 0, 0.6)
-		e.Color = ColorSequence.new(Color3.new(1, 1, 1))
-		e.Transparency = NumberSequence.new(0.1)
-		e.LightEmission = 0.4
-	end,
-	kelopak = function(e)
-		e.Texture = BULAT
-		e.Rate = 55
-		e.Lifetime = NumberRange.new(8, 10)
-		e.Speed = NumberRange.new(5, 8)
-		e.SpreadAngle = Vector2.new(18, 18)
-		e.Size = NumberSequence.new(0.5)
-		e.Squash = NumberSequence.new(-0.4)
-		e.Rotation = NumberRange.new(0, 360)
-		e.RotSpeed = NumberRange.new(-90, 90)
-		e.Acceleration = Vector3.new(2, 0, 1)
-		e.Color = warna({ { 255, 195, 216 }, { 255, 168, 200 }, { 255, 240, 245 }, { 255, 143, 184 } })
-		e.Transparency = NumberSequence.new(0.05)
-	end,
-	daun = function(e)
-		e.Texture = BULAT
-		e.Rate = 55
-		e.Lifetime = NumberRange.new(8, 10)
-		e.Speed = NumberRange.new(5, 7)
-		e.SpreadAngle = Vector2.new(18, 18)
-		e.Size = NumberSequence.new(0.6)
-		e.Squash = NumberSequence.new(-0.4)
-		e.Rotation = NumberRange.new(0, 360)
-		e.RotSpeed = NumberRange.new(-120, 120)
-		e.Acceleration = Vector3.new(2.5, 0, 1)
-		e.Color = warna({ { 232, 116, 42 }, { 210, 70, 42 }, { 242, 178, 52 }, { 184, 86, 42 } })
-		e.Transparency = NumberSequence.new(0.05)
-	end,
+-- butiran cuaca: n = jumlah, uk = ukuran balok, laju = stud per detik (turun), goyang = ayunan ke samping, putar = putaran
+local BUTIR = {
+	hujan = { n = 150, uk = Vector3.new(0.09, 2.2, 0.09), laju = { 85, 105 }, goyang = 0, putar = 0, alfa = 0.35,
+		warna = { { 207, 224, 240 } } },
+	salju = { n = 150, uk = Vector3.new(0.32, 0.32, 0.32), laju = { 7, 11 }, goyang = 1.6, putar = 0.6, alfa = 0.05,
+		warna = { { 255, 255, 255 } } },
+	kelopak = { n = 70, uk = Vector3.new(0.45, 0.06, 0.45), laju = { 5, 8 }, goyang = 2.4, putar = 2.2, alfa = 0,
+		warna = { { 255, 195, 216 }, { 255, 168, 200 }, { 255, 240, 245 }, { 255, 143, 184 } } },
+	daun = { n = 70, uk = Vector3.new(0.55, 0.06, 0.55), laju = { 5, 7 }, goyang = 2.8, putar = 2.6, alfa = 0,
+		warna = { { 232, 116, 42 }, { 210, 70, 42 }, { 242, 178, 52 }, { 184, 86, 42 } } },
 }
+local LEBAR, ATAS, BAWAH = 45, 30, 14 -- kotak di sekitar kamera tempat butiran jatuh
 
 local lama = workspace:FindFirstChild("DK_Cuaca")
 if lama then lama:Destroy() end
-local awan = Instance.new("Part") -- lembaran tak terlihat di atas kamera, tempat partikel jatuh
-awan.Name = "DK_Cuaca"
-awan.Anchored = true
-awan.CanCollide = false
-awan.CanQuery = false
-awan.CanTouch = false
-awan.Transparency = 1
-awan.Size = Vector3.new(110, 1, 110) -- lebih sempit supaya partikel rapat di sekitar pemain
-awan.Parent = workspace
+local wadah = Instance.new("Folder")
+wadah.Name = "DK_Cuaca"
+wadah.Parent = workspace
 
-local pemancar
+local acak = Random.new()
+local butir = {} -- { part, x, y, z, laju, fase, putar }
+local jenis
 local kini
 
 local function dusunDi(p)
@@ -114,40 +60,81 @@ local function dusunDi(p)
 	return "wetan"
 end
 
-local function ganti(d)
+local function taruh(b, p, dariAtas)
+	b.x = p.X + acak:NextNumber(-LEBAR, LEBAR)
+	b.z = p.Z + acak:NextNumber(-LEBAR, LEBAR)
+	b.y = dariAtas and (p.Y + ATAS) or (p.Y + acak:NextNumber(-BAWAH, ATAS))
+end
+
+local function isiButir(nama, p)
+	for _, b in ipairs(butir) do b.part:Destroy() end
+	table.clear(butir)
+	jenis = BUTIR[nama]
+	if not jenis then return end
+	for i = 1, jenis.n do
+		local c = jenis.warna[(i - 1) % #jenis.warna + 1]
+		local part = Instance.new("Part")
+		part.Anchored = true
+		part.CanCollide = false
+		part.CanQuery = false
+		part.CanTouch = false
+		part.CastShadow = false
+		part.Material = Enum.Material.SmoothPlastic
+		part.Size = jenis.uk
+		part.Color = Color3.fromRGB(c[1], c[2], c[3])
+		part.Transparency = jenis.alfa
+		part.Parent = wadah
+		local b = { part = part, laju = acak:NextNumber(jenis.laju[1], jenis.laju[2]), fase = acak:NextNumber(0, 6.28), putar = acak:NextNumber(-1, 1) * jenis.putar }
+		taruh(b, p, false)
+		table.insert(butir, b)
+	end
+end
+
+local function ganti(d, p)
 	kini = d
 	local m = MUSIM[d]
-	if pemancar then
-		pemancar:Destroy()
-		pemancar = nil
+	if not m then
+		isiButir(nil, p)
+		return
 	end
-	if not m then return end
 	TweenService:Create(Lighting, TweenInfo.new(1.5), {
 		FogColor = m.langit,
 		FogStart = KABUT_AWAL * m.kabut,
 		FogEnd = KABUT_AKHIR * m.kabut,
 		Brightness = TERANG * m.cahaya,
 	}):Play()
-	if m.partikel then
-		pemancar = Instance.new("ParticleEmitter")
-		pemancar.EmissionDirection = Enum.NormalId.Bottom
-		pemancar.LockedToPart = false
-		PARTIKEL[m.partikel](pemancar)
-		pemancar.Parent = awan
-	end
+	isiButir(m.partikel, p)
 	player:SetAttribute("DK_Musim", m.nama)
 end
 
 local hitung = 0
+local waktu = 0
+local bagian, letak = {}, {}
 RunService.RenderStepped:Connect(function(dt)
 	kamera = workspace.CurrentCamera
 	if not kamera then return end
 	local p = kamera.CFrame.Position
-	awan.CFrame = CFrame.new(p.X, p.Y + 42, p.Z)
 	hitung += dt
 	if hitung > 0.5 or not kini then
 		hitung = 0
 		local d = dusunDi(p)
-		if d ~= kini then ganti(d) end
+		if d ~= kini then ganti(d, p) end
 	end
+	if not jenis or #butir == 0 then return end
+	dt = math.min(dt, 0.1)
+	waktu += dt
+	table.clear(bagian)
+	table.clear(letak)
+	for i, b in ipairs(butir) do
+		b.y -= b.laju * dt
+		if b.y < p.Y - BAWAH or math.abs(b.x - p.X) > LEBAR or math.abs(b.z - p.Z) > LEBAR then
+			taruh(b, p, b.y < p.Y - BAWAH)
+		end
+		local gx = jenis.goyang > 0 and math.sin(waktu * 1.3 + b.fase) * jenis.goyang or 0
+		local cf = CFrame.new(b.x + gx, b.y, b.z + gx * 0.5)
+		if b.putar ~= 0 then cf *= CFrame.Angles(waktu * b.putar, b.fase, waktu * b.putar * 0.7) end
+		bagian[i] = b.part
+		letak[i] = cf
+	end
+	workspace:BulkMoveTo(bagian, letak, Enum.BulkMoveMode.FireCFrameChanged)
 end)
