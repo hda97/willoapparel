@@ -72,9 +72,13 @@ local function bersih(a)
 	if d.rambut.gaya == "hijab" then
 		d.hijab = hexOk(rb.warna) and ada(WARNA_BAJU, rb.warna) and rb.warna or "#6a8fb0"
 		d.lenganPanjang = true
-		if not ada(BAWAHAN.P, bw.jenis) or bw.jenis == "celana" then d.bawahan = { jenis = "rok-panjang", warna = hexOk(bw.warna) and bw.warna or "#4a5a7a" } end
 	end
 	return d
+end
+
+-- bentuk ringkas yang disimpan (sama dengan kolom avatar di game web)
+local function ringkas(d)
+	return HttpService:JSONEncode({ jenis = d.jenis, kulit = d.kulit, rambut = d.rambut, atasan = d.atasan, bawahan = d.bawahan })
 end
 
 local function bacaAvatar(player)
@@ -83,9 +87,7 @@ local function bacaAvatar(player)
 		local ok, t = pcall(function() return HttpService:JSONDecode(s) end)
 		if ok then return bersih(t) end
 	end
-	local a = avAcak(player.UserId % 100000)
-	player:SetAttribute("DK_Avatar", HttpService:JSONEncode(a))
-	return bersih(a)
+	return bersih(avAcak(player.UserId % 100000))
 end
 
 ---------------------------------------------------------------------
@@ -428,6 +430,9 @@ local function sembunyikan(char)
 	end
 end
 
+local store
+pcall(function() store = game:GetService("DataStoreService"):GetDataStore("DuniaKotak_Avatar_v1") end)
+
 local sedang = {}
 local function pasang(player)
 	local char = player.Character
@@ -436,28 +441,77 @@ local function pasang(player)
 	local hum = char:WaitForChild("Humanoid", 10)
 	if not hum then sedang[char] = nil return end
 	if not char:IsDescendantOf(workspace) then char.AncestryChanged:Wait() end
-	-- rangka standar: R15 kotak, ukuran bawaan, tanpa aksesori, supaya ukuran tokoh semua pemain sama
-	pcall(function() hum:ApplyDescription(Instance.new("HumanoidDescription")) end)
-	task.wait(0.2)
-	if player.Character ~= char then sedang[char] = nil return end
+	if not char:GetAttribute("DK_Rangka") then
+		-- rangka standar: ukuran bawaan, tanpa aksesori, supaya ukuran tokoh semua pemain sama
+		pcall(function() hum:ApplyDescription(Instance.new("HumanoidDescription")) end)
+		task.wait(0.2)
+		char:SetAttribute("DK_Rangka", true)
+	end
 	-- sendi rangka kadang baru jadi sesaat setelah tampilan diganti: coba ulang sampai 5 detik
-	local ok, hasil, sebab
+	local ok, hasil, sebab, dipakai
 	for _ = 1, 20 do
+		if player.Character ~= char then break end
+		dipakai = player:GetAttribute("DK_Avatar")
 		ok, hasil, sebab = pcall(rakit, char, bacaAvatar(player))
-		if (ok and hasil) or player.Character ~= char then break end
+		if ok and hasil then break end
 		task.wait(0.25)
 	end
-	if ok and hasil then
+	local jadi = ok and hasil
+	if jadi then
 		sembunyikan(char)
-		hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
-	else
+	elseif player.Character == char then
 		warn("[AvatarKotak] tokoh " .. player.Name .. " tidak dirakit: " .. tostring(sebab or hasil))
 	end
 	sedang[char] = nil
+	-- pilihan berubah selagi merakit? rakit sekali lagi
+	if jadi and player.Character == char and dipakai ~= player:GetAttribute("DK_Avatar") then
+		task.defer(pasang, player)
+	end
 end
 
+-- Pintu untuk menu "Buat tokohmu" (LocalScript BuatTokoh): kirim JSON pilihan, simpan = true saat tombol Simpan.
+local pintu = game:GetService("ReplicatedStorage"):FindFirstChild("DK_Avatar") or Instance.new("RemoteEvent")
+pintu.Name = "DK_Avatar"
+pintu.Parent = game:GetService("ReplicatedStorage")
+local terakhir, termuat = {}, {}
+pintu.OnServerEvent:Connect(function(player, teks, simpan)
+	if typeof(teks) ~= "string" or #teks > 600 then return end
+	local kini = os.clock()
+	if terakhir[player] and kini - terakhir[player] < 0.1 then return end
+	terakhir[player] = kini
+	local ok, t = pcall(function() return HttpService:JSONDecode(teks) end)
+	if not ok then return end
+	local rapi = ringkas(bersih(t))
+	player:SetAttribute("DK_Avatar", rapi)
+	if simpan == true then
+		player:SetAttribute("DK_AvatarBaru", false)
+		if store and termuat[player] then
+			task.spawn(function() pcall(function() store:SetAsync("p_" .. player.UserId, rapi) end) end)
+		end
+	end
+end)
+
 local function masuk(player)
-	bacaAvatar(player) -- isi atribut dulu supaya tidak memicu rakit ulang
+	local ok, tersimpan = false, nil
+	if store then
+		for coba = 1, 3 do
+			ok, tersimpan = pcall(function() return store:GetAsync("p_" .. player.UserId) end)
+			if ok then break end
+			task.wait(coba)
+		end
+	end
+	if not player.Parent then return end
+	termuat[player] = ok
+	local punya = false
+	if ok and typeof(tersimpan) == "string" then
+		local ok2, t = pcall(function() return HttpService:JSONDecode(tersimpan) end)
+		if ok2 then
+			player:SetAttribute("DK_Avatar", ringkas(bersih(t)))
+			punya = true
+		end
+	end
+	if not punya then player:SetAttribute("DK_Avatar", ringkas(bersih(avAcak(player.UserId % 100000)))) end
+	player:SetAttribute("DK_AvatarBaru", ok and not punya) -- pemain baru: menu "Buat tokohmu" terbuka sendiri
 	player.CharacterAppearanceLoaded:Connect(function() pasang(player) end)
 	player:GetAttributeChangedSignal("DK_Avatar"):Connect(function() pasang(player) end)
 	if player.Character then task.spawn(pasang, player) end
@@ -465,3 +519,4 @@ end
 
 Players.PlayerAdded:Connect(masuk)
 for _, p in ipairs(Players:GetPlayers()) do task.spawn(masuk, p) end
+Players.PlayerRemoving:Connect(function(player) terakhir[player] = nil termuat[player] = nil end)
