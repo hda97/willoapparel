@@ -38,15 +38,15 @@ local BULAT = "rbxasset://textures/particles/smoke_main.dds"
 local PARTIKEL = {
 	hujan = function(e)
 		e.Texture = BULAT
-		e.Rate = 420
+		e.Rate = 900
 		e.Lifetime = NumberRange.new(0.55, 0.7)
 		e.Speed = NumberRange.new(105, 125)
 		e.SpreadAngle = Vector2.new(2, 2)
-		e.Size = NumberSequence.new(0.22)
+		e.Size = NumberSequence.new(0.34)
 		e.Squash = NumberSequence.new(2.6)
 		e.Orientation = Enum.ParticleOrientation.VelocityParallel
 		e.Color = ColorSequence.new(Color3.fromRGB(207, 224, 240))
-		e.Transparency = NumberSequence.new(0.55)
+		e.Transparency = NumberSequence.new(0.35)
 		e.LightEmission = 0.2
 	end,
 	salju = function(e)
@@ -55,7 +55,7 @@ local PARTIKEL = {
 		e.Lifetime = NumberRange.new(6, 8)
 		e.Speed = NumberRange.new(7, 11)
 		e.SpreadAngle = Vector2.new(12, 12)
-		e.Size = NumberSequence.new(0.42)
+		e.Size = NumberSequence.new(0.55)
 		e.Acceleration = Vector3.new(1.2, 0, 0.6)
 		e.Color = ColorSequence.new(Color3.new(1, 1, 1))
 		e.Transparency = NumberSequence.new(0.1)
@@ -100,7 +100,7 @@ awan.CanCollide = false
 awan.CanQuery = false
 awan.CanTouch = false
 awan.Transparency = 1
-awan.Size = Vector3.new(170, 1, 170)
+awan.Size = Vector3.new(110, 1, 110) -- lebih sempit supaya partikel rapat di sekitar pemain
 awan.Parent = workspace
 
 local pemancar
