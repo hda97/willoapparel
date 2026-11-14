@@ -111,18 +111,26 @@ local function rakit(char, d)
 	end
 
 	-- letak diam tiap bagian rangka terhadap HumanoidRootPart, dihitung dari sendi (tidak terpengaruh animasi)
+	-- sendi lama = Motor6D (C0, C1); sendi baru = AnimationConstraint (Attachment0, Attachment1)
 	local sendi = {}
 	for _, m in ipairs(char:GetDescendants()) do
-		if m:IsA("Motor6D") and m.Part1 then sendi[m.Part1] = m end
+		if m:IsA("Motor6D") and m.Part0 and m.Part1 then
+			sendi[m.Part1] = { induk = m.Part0, c0 = m.C0, c1 = m.C1 }
+		elseif m:IsA("AnimationConstraint") and m.Attachment0 and m.Attachment1 then
+			local p0, p1 = m.Attachment0.Parent, m.Attachment1.Parent
+			if p0 and p1 and p0:IsA("BasePart") and p1:IsA("BasePart") then
+				sendi[p1] = { induk = p0, c0 = m.Attachment0.CFrame, c1 = m.Attachment1.CFrame }
+			end
+		end
 	end
 	local diamPart = { [hrp] = CFrame.new() }
 	local function letak(part, dalam)
 		if diamPart[part] then return diamPart[part] end
 		local m = sendi[part]
-		if not m or not m.Part0 or (dalam or 0) > 8 then return nil end
-		local induk = letak(m.Part0, (dalam or 0) + 1)
+		if not m or (dalam or 0) > 8 then return nil end
+		local induk = letak(m.induk, (dalam or 0) + 1)
 		if not induk then return nil end
-		diamPart[part] = induk * m.C0 * m.C1:Inverse()
+		diamPart[part] = induk * m.c0 * m.c1:Inverse()
 		return diamPart[part]
 	end
 	local diam = {}
@@ -132,7 +140,7 @@ local function rakit(char, d)
 	end
 
 	local pinggul = sendi[bagian.LeftUpperLeg]
-	local yPinggul = (diamPart[pinggul.Part0] * pinggul.C0).Position.Y
+	local yPinggul = (diamPart[pinggul.induk] * pinggul.c0).Position.Y
 	local yTanah = -(hum.HipHeight + hrp.Size.Y / 2 + (r15 and 0 or bagian.LeftUpperLeg.Size.Y))
 	local S = (yPinggul - yTanah) / 1.37 -- pinggul tokoh web ada di 1,37
 	if S < 0.8 or S > 3 then S = 1.4 end
