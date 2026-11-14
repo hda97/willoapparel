@@ -15922,6 +15922,18 @@
     "ast_hash": "a59ad752c3caed1f06267278b8e9eca8",
     "semantic_hash": ""
   },
+  "roblox/src/TamanHiburan.client.lua": {
+    "mtime": 1794652781.6586602,
+    "seen": 1794652803.2551455,
+    "ast_hash": "94a55b2a3b8dff7576920283f0661d89",
+    "semantic_hash": ""
+  },
+  "roblox/src/TamanHiburan.server.lua": {
+    "mtime": 1794652781.6554034,
+    "seen": 1794652803.255148,
+    "ast_hash": "35455d650768cd41eb9801225c87976c",
+    "semantic_hash": ""
+  },
   ".claude/skills/video-shotcraft/package-lock.json": {
     "mtime": 1794434389.631907,
     "seen": 1794646146.8242428,
