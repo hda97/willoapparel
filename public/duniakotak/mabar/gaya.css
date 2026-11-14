@@ -618,3 +618,8 @@ a.pdSaweria{display:block;text-align:center;text-decoration:none;margin-top:6px}
 .dsnKartu.terkunci{filter:grayscale(.75);opacity:.85}
 .dsnKartu.terkunci .dsnKunci{display:flex}
 .dsnKartu.terkunci .dsnIni{background:#6c6f74}
+
+/* 🎚️ Volume (Huda 14 Nov 2026: musik latar per dusun + suara kendaraan) */
+.volAtur{cursor:default}.volAtur span{flex:0 0 auto}
+.volAtur input[type=range]{flex:1;min-width:0;height:28px;accent-color:#ffcf7a;cursor:pointer}
+.volAtur input[type=range]:disabled{opacity:.35}

@@ -11,7 +11,7 @@ import {kucingMesh, WARNA_KUCING, DAFTAR_KUCING} from './js/aset/kucing.js';
 import {warungMesh, rumahKucingMesh, WARNA_DINDING, WARNA_ATAP} from './js/aset/rumah.js';
 import * as F from './js/aset/fasum.js';
 import {buatMobil} from './js/aset/mobil.js?v=20261111amb';
-import {buatLaluLintas} from './js/lalulintas.js?v=20261111amb';
+import {buatLaluLintas} from './js/lalulintas.js?v=20261115bs';
 import {buatNPC} from './js/npc.js?v=20261110willo';
 import {buatWargaNPC} from './js/wargaNpc.js';
 import {bukaTutor} from './js/tutor.js?v=20261113tu';
@@ -22,6 +22,7 @@ import {segara, AWAL_SEGARA, kodeUnit} from './js/segara.js';
 import {buatNav, pecahRute} from './js/navigasi.js';
 import {pasangDesaGabung, LETAK} from './js/desaGabung.js?v=20261111bus';
 import {musimDusun, musimkan, buatCuaca} from './js/musim.js?v=20261114ms';
+import {buatMusik, buatSuaraKendaraan} from './js/suara.js?v=20261115bs';
 
 const $ = id => document.getElementById(id);
 const VS = D.VS;
@@ -1526,7 +1527,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {musim: 'dk_kabar_musim1', tandajuara: 'dk_kabar_tandajuara1', hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2'};
+const KABAR_LAMA = {musim: 'dk_kabar_musim1', tandajuara: 'dk_kabar_tandajuara1', hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2', musik: 'dk_kabar_musik1'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   if (window.DK_APP) simpan(KABAR_LAMA.notif, '1');   // aplikasi Android belum bisa notifikasi web
@@ -3312,16 +3313,20 @@ function pergiKe(no) { const L = I.lots[no]; if (!L && no === 1 && tokoh.raka) {
 // 9. MULAI
 // =====================================================================
 let zoom = 1, yaw = 0, yawNow = 0;
-// ---------- suara: musik latar (orisinal, loop) + efek suara (dibuat langsung, tanpa file) ----------
-// Mulai setelah sentuhan pertama (aturan browser). Tombol Suara: Semua -> Efek saja -> Senyap; diingat di HP.
-const M = {ctx: null, gain: null, fx: null, buf: null, src: null, mode: baca('dk_suara') || (baca('dk_musik') === '0' ? 'efek' : 'semua')};
+// ---------- suara: musik latar per dusun + suara kendaraan + efek suara (semua dibuat langsung dengan Web Audio, tanpa file) ----------
+// Huda 14 Nov 2026: "setiap dusun ada backsong masing-masing suasana" + "suara kendaraan juga" (lagu & bunyi di js/suara.js).
+// Mulai setelah sentuhan pertama (aturan browser). Tombol Suara: Semua -> Efek saja -> Senyap; geser 🎚️ Volume. Keduanya diingat di HP.
+const M = {ctx: null, gain: null, fx: null, lagu: null, kend: null, mode: baca('dk_suara') || (baca('dk_musik') === '0' ? 'efek' : 'semua'),
+  vol: Math.max(0, Math.min(100, +(baca('dk_vol') ?? 80))) / 100};
+if (isNaN(M.vol)) M.vol = .8;
 const MODE = {semua: '<i>🔊</i>Suara: musik + efek', efek: '<i>🔉</i>Suara: efek saja', senyap: '<i>🔇</i>Suara: senyap'};
-function tandaMusik() { $('bMusik').innerHTML = MODE[M.mode] || MODE.semua; }
+function tandaMusik() { $('bMusik').innerHTML = MODE[M.mode] || MODE.semua; const v = $('volSuara'); if (v) { v.value = Math.round(M.vol * 100); v.disabled = M.mode === 'senyap'; } }
+const volMusik = () => M.mode === 'semua' ? .5 * M.vol : 0, volEfek = () => M.mode === 'senyap' ? 0 : .75 * M.vol;
 function siapAudio() {
   if (!M.ctx) {
     M.ctx = new (window.AudioContext || window.webkitAudioContext)();
     M.gain = M.ctx.createGain(); M.gain.gain.value = 0; M.gain.connect(M.ctx.destination);
-    M.fx = M.ctx.createGain(); M.fx.gain.value = M.mode === 'senyap' ? 0 : .6; M.fx.connect(M.ctx.destination);
+    M.fx = M.ctx.createGain(); M.fx.gain.value = volEfek(); M.fx.connect(M.ctx.destination);
   }
   if (M.ctx.state === 'suspended' && !document.hidden) M.ctx.resume();
   return M.ctx;
@@ -3329,13 +3334,22 @@ function siapAudio() {
 async function putarMusik() {
   try {
     const c = siapAudio();
-    M.fx.gain.setTargetAtTime(M.mode === 'senyap' ? 0 : .6, c.currentTime, .05);
-    if (M.mode === 'semua') {
-      if (!M.buf) M.buf = await c.decodeAudioData(await (await fetch('musik.mp3')).arrayBuffer());
-      if (!M.src) { M.src = c.createBufferSource(); M.src.buffer = M.buf; M.src.loop = true; M.src.connect(M.gain); M.src.start(); }
-    }
-    M.gain.gain.setTargetAtTime(M.mode === 'semua' ? .35 : 0, c.currentTime, .4);
+    M.fx.gain.setTargetAtTime(volEfek(), c.currentTime, .05);
+    if (M.mode === 'semua') { if (!M.lagu) M.lagu = buatMusik(c, M.gain, DI); if (c.state === 'running') M.lagu.mulai(); else c.resume().then(() => M.mode === 'semua' && M.lagu.mulai()).catch(() => {}); }
+    M.gain.gain.setTargetAtTime(volMusik(), c.currentTime, .4);
+    if (M.mode !== 'semua' && M.lagu) setTimeout(() => { if (M.mode !== 'semua' && M.lagu) M.lagu.henti(); }, 1500);
+    if (!M.kend) M.kend = buatSuaraKendaraan(c, M.fx);
   } catch (e) { /* tanpa suara kalau browser menolak */ }
+}
+// suara kendaraan: dipanggil tiap frame dari loop (dibatasi 10x/dtk di dalam)
+function suaraKendaraan(dt, me) {
+  if (!M.kend || !M.ctx) return;
+  const daftar = [];
+  if (lalin) for (const c of lalin.armada) daftar.push({obj: c.o, jenis: c.model, laju: Math.min(1, c.laju / (c.kec || 1)), dihalangi: c.dihalangi});
+  for (const o of S.others.values()) if (o.naikK && !o.b) { const j = o.naikK.split(':')[0]; daftar.push({obj: o.obj, jenis: j, laju: performance.now() - (o.akhir || 0) < 600 ? .7 : .05}); }
+  let sendiri = null;
+  if (NAIK && me) { const j = kendSaya().split(':')[0]; sendiri = {obj: me, jenis: j, laju: gerak.jalan ? (gerak.lari ? 1 : .75) : 0}; }
+  M.kend.update(dt, daftar, cam, sendiri, M.mode !== 'senyap');
 }
 // nada pendek: frekuensi awal->akhir, durasi, bentuk gelombang, keras
 function nada(f0, f1, dur, tipe = 'sine', v = .3, tunda = 0) {
@@ -3371,6 +3385,8 @@ function musikSiap() {
   addEventListener('pointerdown', sekali); addEventListener('keydown', sekali);
   putarMusik();
   $('bMusik').onclick = () => { M.mode = {semua: 'efek', efek: 'senyap', senyap: 'semua'}[M.mode] || 'semua'; simpan('dk_suara', M.mode); tandaMusik(); putarMusik(); };
+  const vs = $('volSuara'); if (vs) { vs.oninput = () => { M.vol = vs.value / 100; simpan('dk_vol', String(vs.value)); if (M.ctx) { M.gain.gain.setTargetAtTime(volMusik(), M.ctx.currentTime, .05); M.fx.gain.setTargetAtTime(volEfek(), M.ctx.currentTime, .05); } };
+    vs.onchange = () => bunyi('pesan'); }
   // bunyi klik untuk semua tombol
   document.addEventListener('click', e => { if (e.target.closest('button')) bunyi('klik'); }, true);
   document.addEventListener('visibilitychange', () => { if (M.ctx) document.hidden ? M.ctx.suspend() : (M.mode !== 'senyap' && M.ctx.resume()); });
@@ -3658,6 +3674,7 @@ function loop(t) {
   if (npc) { const L = BOLA.m && BOLA.m.visible ? bolaLapangan() : null; npc.update(dt, me, jamWIB(), KEC, L ? {L, x: BOLA.x, z: BOLA.z, vx: BOLA.vx, vz: BOLA.vz, golT: BOLA.golT} : null); sapaNPC(t, me); }
   bolaUpdate(dt, me);
   if (lalin) lalin.update(dt, me, performance.now() / 1000, [...S.others.values()].map(o => o.obj.position));
+  suaraKendaraan(dt, me);
   tokoh.oyen.userData.ph += dt; tokoh.oyen.position.y = Math.abs(Math.sin(tokoh.oyen.userData.ph * 1.3)) * .15;
   // kamera ikut pemain (dikunci di dalam hutan pembatas)
   const tx = me.position.x, tz = me.position.z, ty = me.position.y; camY += (ty - camY) * Math.min(1, dt * 5);
@@ -3791,6 +3808,8 @@ function teksTiket() {
 let busJalan = false;
 async function naikBus(ke, tempat) {
   if (busJalan || ke === DI) return; busJalan = true;
+  const t0 = performance.now(); let tunggu = 0;
+  try { if (M.kend && M.mode !== 'senyap' && M.ctx.state === 'running') { M.kend.busBerangkat(); tunggu = 1500; } } catch (e) {}   // bel, pintu, mesin bus
   const u = new URL(location.href); u.searchParams.set('dusun', ke); if (tempat) u.searchParams.set('ke', tempat); else u.searchParams.delete('ke');
   if (!S.tamu && S.kunci) try {
     const r = await Promise.race([api('bus', {kunci: S.kunci}), new Promise((_, j) => setTimeout(() => j(new Error('lama')), 3000))]);
@@ -3798,6 +3817,7 @@ async function naikBus(ke, tempat) {
     toast(r.bayar ? `🎫 Tiket bus ${r.bayar} 🪙 · sisa koinmu ${r.koin}` : '🎫 Koinmu kurang, kali ini naik bus gratis', 1500); bunyi('klik');
     await new Promise(res => setTimeout(res, 900));
   } catch (e) {}
+  const sisa = tunggu - (performance.now() - t0); if (sisa > 0) await new Promise(res => setTimeout(res, sisa));
   location.href = u.toString();
 }
 // ---------- jejak warga asli: kapan terakhir main, tampil di depan rumahnya ----------
