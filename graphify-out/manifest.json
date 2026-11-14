@@ -14723,9 +14723,9 @@
     "semantic_hash": ""
   },
   "roblox/alat/ekspor_web.js": {
-    "mtime": 1794646875.9810529,
-    "seen": 1794647144.5871964,
-    "ast_hash": "a6f31d5edf197b35150a38f4046160cb",
+    "mtime": 1794648616.297482,
+    "seen": 1794648985.177056,
+    "ast_hash": "657f27a067addfb6ee21d7bebd49aec9",
     "semantic_hash": ""
   },
   "roblox/alat/pasang.lua": {
@@ -14735,9 +14735,9 @@
     "semantic_hash": ""
   },
   "roblox/alat/ubah.py": {
-    "mtime": 1794646875.982111,
-    "seen": 1794647144.587204,
-    "ast_hash": "ca3dcdf17d10c3cd333bcf5706f3b11e",
+    "mtime": 1794648616.2978532,
+    "seen": 1794648985.1770616,
+    "ast_hash": "0911ece7a2388d75efd84e37374fd29c",
     "semantic_hash": ""
   },
   "roblox/build_pulau.py": {
@@ -15767,9 +15767,9 @@
     "semantic_hash": ""
   },
   "roblox/src/AvatarKotak.server.lua": {
-    "mtime": 1794644547.3166811,
-    "seen": 1794646146.8195007,
-    "ast_hash": "9954f3660eda0af0fdcc9bb0ae28b71c",
+    "mtime": 1794652009.914282,
+    "seen": 1794652126.1357126,
+    "ast_hash": "0466b75a94a7516ef1a5422c810bdb2d",
     "semantic_hash": ""
   },
   "roblox/alat/pasang_dusun.lua": {
@@ -15833,9 +15833,9 @@
     "semantic_hash": ""
   },
   "roblox/src/Kavling.lua": {
-    "mtime": 1794647061.3766055,
-    "seen": 1794647144.587246,
-    "ast_hash": "a9c79c3f62449e2d316f8598841bec0c",
+    "mtime": 1794648213.2369792,
+    "seen": 1794648234.9528863,
+    "ast_hash": "25de3809cf729d48e69138efd984de51",
     "semantic_hash": ""
   },
   "roblox/src/RumahWarga.client.lua": {
@@ -15872,6 +15872,108 @@
     "mtime": 1794646746.17848,
     "seen": 1794647144.5903451,
     "ast_hash": "3b72ab4c23bf3521cd7545ae748ee20d",
+    "semantic_hash": ""
+  },
+  "roblox/src/MusimDusun.client.lua": {
+    "mtime": 1794651703.4449794,
+    "seen": 1794651910.5600948,
+    "ast_hash": "acce22a3ed690cb0ffef9f02641d9b62",
+    "semantic_hash": ""
+  },
+  "roblox/src/BatuNama.server.lua": {
+    "mtime": 1794648204.4675844,
+    "seen": 1794648234.9528759,
+    "ast_hash": "9f1e82f6b802b3a5c0c86c252d6c0305",
+    "semantic_hash": ""
+  },
+  "roblox/src/BelanjaToko.client.lua": {
+    "mtime": 1794648953.4716287,
+    "seen": 1794648985.1770782,
+    "ast_hash": "e8946352a6d1fa5d85b82b6f5f1c9337",
+    "semantic_hash": ""
+  },
+  "roblox/src/BelanjaToko.server.lua": {
+    "mtime": 1794648922.7596269,
+    "seen": 1794648985.1770802,
+    "ast_hash": "d2c8b750aba6ee646b821aec864b9c0c",
+    "semantic_hash": ""
+  },
+  "roblox/src/DealerKendaraan.client.lua": {
+    "mtime": 1794651159.9253151,
+    "seen": 1794651178.9419413,
+    "ast_hash": "951c73e3dd114d5a4f28e1fe99d6133c",
+    "semantic_hash": ""
+  },
+  "roblox/src/DealerKendaraan.server.lua": {
+    "mtime": 1794651159.9244914,
+    "seen": 1794651178.9419441,
+    "ast_hash": "7c786bc250d3b04a684f4f6c23555166",
+    "semantic_hash": ""
+  },
+  "roblox/src/TokoWillo.client.lua": {
+    "mtime": 1794652099.1066196,
+    "seen": 1794652126.1358283,
+    "ast_hash": "46e1c9132337ce8688652465a01741e3",
+    "semantic_hash": ""
+  },
+  "roblox/src/TokoWillo.server.lua": {
+    "mtime": 1794652049.8666167,
+    "seen": 1794652126.1358345,
+    "ast_hash": "a59ad752c3caed1f06267278b8e9eca8",
+    "semantic_hash": ""
+  },
+  "roblox/src/TamanHiburan.client.lua": {
+    "mtime": 1794653065.0426478,
+    "seen": 1794653786.1970868,
+    "ast_hash": "79e2eaaa334dec78bfbf7db85495c1d9",
+    "semantic_hash": ""
+  },
+  "roblox/src/TamanHiburan.server.lua": {
+    "mtime": 1794653065.042071,
+    "seen": 1794653786.197091,
+    "ast_hash": "383652ff6aafbd1fdf0879d7f1f08440",
+    "semantic_hash": ""
+  },
+  "roblox/src/TukangKotak.server.lua": {
+    "mtime": 1794654847.813563,
+    "seen": 1794654870.222637,
+    "ast_hash": "423a84843aa141244ca8eeb851ea0d90",
+    "semantic_hash": ""
+  },
+  "roblox/src/ReliKotak.client.lua": {
+    "mtime": 1794655128.1163144,
+    "seen": 1794655156.0833826,
+    "ast_hash": "19e36565a86528100d3753b84a761ce5",
+    "semantic_hash": ""
+  },
+  "roblox/src/ReliKotak.server.lua": {
+    "mtime": 1794654847.8129113,
+    "seen": 1794654870.222613,
+    "ast_hash": "cb7e0f8f76a9e9b3d77ed8c4d8868dc2",
+    "semantic_hash": ""
+  },
+  "roblox/src/ReliLintasan.lua": {
+    "mtime": 1794654270.6227531,
+    "seen": 1794654466.5128117,
+    "ast_hash": "334f744dc853f68daf4c29d776a1c53a",
+    "semantic_hash": ""
+  },
+  "roblox/src/TutorRaka.client.lua": {
+    "mtime": 1794655594.66124,
+    "seen": 1794655619.5545201,
+    "ast_hash": "2c5342bf14853d33a61ba3edc86d2603",
+    "semantic_hash": ""
+  },
+  "roblox/src/TutorRaka.server.lua": {
+    "mtime": 1794655594.6588275,
+    "seen": 1794655619.5545242,
+    "ast_hash": "1badc01f623b885db09fc104c0aed253",
+    "semantic_hash": ""
+  },
+  "roblox/src/PapanDesa.server.lua": {
+    "mtime": 1794656073.9455385,
+    "seen": 1794656085.0050156,
+    "ast_hash": "492d3ff4a3a6cf10818ed143b05d3e1b",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {
