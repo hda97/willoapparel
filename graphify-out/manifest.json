@@ -16042,6 +16042,324 @@
     "ast_hash": "4572ef68629efb4ae0788f019cfb62c1",
     "semantic_hash": ""
   },
+  ".claude/skills/douyin-script/agents/openai.yaml": {
+    "mtime": 1794671280.1945136,
+    "seen": 1794671326.88191,
+    "ast_hash": "d8ccadce8ee5f677587c920b2a2f6a71",
+    "semantic_hash": ""
+  },
+  ".claude/skills/explain-commercial-models/agents/openai.yaml": {
+    "mtime": 1794671280.194637,
+    "seen": 1794671326.881913,
+    "ast_hash": "818db4136a8c7db3d94bec066d07501a",
+    "semantic_hash": ""
+  },
+  ".claude/skills/LICENSE-AI-ShortVideo-Story-Engine.txt": {
+    "mtime": 1794671280.196286,
+    "seen": 1794671326.8847654,
+    "ast_hash": "2115679cca9e8107138fca140d5e78f2",
+    "semantic_hash": ""
+  },
+  ".claude/skills/LICENSE-drama-script-writing.txt": {
+    "mtime": 1794671280.2023964,
+    "seen": 1794671326.8847797,
+    "ast_hash": "5c862267fb1d666ade49c4b1f6d6e29d",
+    "semantic_hash": ""
+  },
+  ".claude/skills/LICENSE-master-storyteller.txt": {
+    "mtime": 1794671280.192948,
+    "seen": 1794671326.884785,
+    "ast_hash": "d03cb16e44d83dba7c711c622d1e6a60",
+    "semantic_hash": ""
+  },
+  ".claude/skills/LICENSE-mckee-story-engine.txt": {
+    "mtime": 1794671280.2053258,
+    "seen": 1794671326.8847864,
+    "ast_hash": "f66aac6f3b8cab7a0dec77c8375aae10",
+    "semantic_hash": ""
+  },
+  ".claude/skills/douyin-script/SKILL.md": {
+    "mtime": 1794671280.194464,
+    "seen": 1794671326.884938,
+    "ast_hash": "3d6f09395d451efa04d213d7bea348bf",
+    "semantic_hash": ""
+  },
+  ".claude/skills/douyin-script/references/archetype-longform.md": {
+    "mtime": 1794671280.1945405,
+    "seen": 1794671326.8849397,
+    "ast_hash": "4e2e17d7dff6250ff7052e0565782da5",
+    "semantic_hash": ""
+  },
+  ".claude/skills/douyin-script/references/competitor-teardown.md": {
+    "mtime": 1794671280.1945589,
+    "seen": 1794671326.8849413,
+    "ast_hash": "5e9eca54260e11b1a44a122f42fd1b6c",
+    "semantic_hash": ""
+  },
+  ".claude/skills/douyin-script/references/hook-bank.md": {
+    "mtime": 1794671280.194567,
+    "seen": 1794671326.8849428,
+    "ast_hash": "0a613f80bdc49f68a39c3176ed63d2d0",
+    "semantic_hash": ""
+  },
+  ".claude/skills/douyin-script/references/story-engine.md": {
+    "mtime": 1794671280.1945758,
+    "seen": 1794671326.884944,
+    "ast_hash": "8946b0efa0ef376a971f2a3bc4f8a925",
+    "semantic_hash": ""
+  },
+  ".claude/skills/douyin-script/references/story-factory.md": {
+    "mtime": 1794671280.194585,
+    "seen": 1794671326.8849456,
+    "ast_hash": "d00ae3086ab1787bbf6b48144676dede",
+    "semantic_hash": ""
+  },
+  ".claude/skills/drama-script-writing/SKILL.md": {
+    "mtime": 1794671280.1999567,
+    "seen": 1794671326.884947,
+    "ast_hash": "3039bbbebcec24a3454f5070eaafb0b0",
+    "semantic_hash": ""
+  },
+  ".claude/skills/drama-script-writing/learnings.md": {
+    "mtime": 1794671280.2000833,
+    "seen": 1794671326.8849485,
+    "ast_hash": "e0dd171666b6e52e31a12c43fb6f56b3",
+    "semantic_hash": ""
+  },
+  ".claude/skills/drama-script-writing/references/pitfalls-and-revisions.md": {
+    "mtime": 1794671280.2000153,
+    "seen": 1794671326.88495,
+    "ast_hash": "431a4c4f0c287e15756542436f36609b",
+    "semantic_hash": ""
+  },
+  ".claude/skills/drama-script-writing/references/script-format.md": {
+    "mtime": 1794671280.20004,
+    "seen": 1794671326.8849518,
+    "ast_hash": "d8380bb7e5203fd664e168f4b704e69e",
+    "semantic_hash": ""
+  },
+  ".claude/skills/drama-script-writing/references/sop-full-flow.md": {
+    "mtime": 1794671280.2000518,
+    "seen": 1794671326.8849533,
+    "ast_hash": "91efe4facc1ca39f2c6708af863c7ac1",
+    "semantic_hash": ""
+  },
+  ".claude/skills/drama-script-writing/references/style-system.md": {
+    "mtime": 1794671280.200068,
+    "seen": 1794671326.8849552,
+    "ast_hash": "2421f164b8b4e0147e5b2c73a8bd4566",
+    "semantic_hash": ""
+  },
+  ".claude/skills/explain-commercial-models/SKILL.md": {
+    "mtime": 1794671280.194608,
+    "seen": 1794671326.8849568,
+    "ast_hash": "1ee64d9ecb6dbb219db44a00817618bf",
+    "semantic_hash": ""
+  },
+  ".claude/skills/explain-commercial-models/references/audio-subtitle-sync-postmortem.md": {
+    "mtime": 1794671280.1946604,
+    "seen": 1794671326.884959,
+    "ast_hash": "82127dd251ce86d84f883059e5f9798b",
+    "semantic_hash": ""
+  },
+  ".claude/skills/explain-commercial-models/references/business-thinking-playbook.md": {
+    "mtime": 1794671280.194671,
+    "seen": 1794671326.8849607,
+    "ast_hash": "7d3ba29770cab3ae5ca169c5fb7c6f04",
+    "semantic_hash": ""
+  },
+  ".claude/skills/explain-commercial-models/references/domestic-retention-diagnostics-douyin-xhs.md": {
+    "mtime": 1794671280.1946826,
+    "seen": 1794671326.8849623,
+    "ast_hash": "b2e64bf23b0c64ab742710415db1b7ec",
+    "semantic_hash": ""
+  },
+  ".claude/skills/explain-commercial-models/references/earning-method-library.md": {
+    "mtime": 1794671280.1946952,
+    "seen": 1794671326.884965,
+    "ast_hash": "569ebfe578a2722f5503115ee8908bcc",
+    "semantic_hash": ""
+  },
+  ".claude/skills/explain-commercial-models/references/historical-business-cases.md": {
+    "mtime": 1794671280.194706,
+    "seen": 1794671326.8849673,
+    "ast_hash": "5f1f253f5e36189ec8db8798f6e5ebdc",
+    "semantic_hash": ""
+  },
+  ".claude/skills/explain-commercial-models/references/human-drive-story-engine.md": {
+    "mtime": 1794671280.1947174,
+    "seen": 1794671326.884969,
+    "ast_hash": "f8d28a45f0989791d175f58849a0afb9",
+    "semantic_hash": ""
+  },
+  ".claude/skills/explain-commercial-models/references/immersive-second-person-and-shot-rhythm.md": {
+    "mtime": 1794671280.1947277,
+    "seen": 1794671326.8849707,
+    "ast_hash": "bae31841d64dbed865ef874535964b9a",
+    "semantic_hash": ""
+  },
+  ".claude/skills/explain-commercial-models/references/modern-business-cases.md": {
+    "mtime": 1794671280.1947396,
+    "seen": 1794671326.8849723,
+    "ast_hash": "439a735852af82b21b3ec5ca86dd9ff6",
+    "semantic_hash": ""
+  },
+  ".claude/skills/explain-commercial-models/references/retention-engine-from-image-post.md": {
+    "mtime": 1794671280.1947584,
+    "seen": 1794671326.8849735,
+    "ast_hash": "18df70adfbde7f140fe5475b7b81f68e",
+    "semantic_hash": ""
+  },
+  ".claude/skills/explain-commercial-models/references/sample-01-comparison-story.md": {
+    "mtime": 1794671280.1947684,
+    "seen": 1794671326.8849752,
+    "ast_hash": "c44fd6b05e358da98ebcf517dc5f09d0",
+    "semantic_hash": ""
+  },
+  ".claude/skills/explain-commercial-models/references/sample-02-life-story-batch.md": {
+    "mtime": 1794671280.1947792,
+    "seen": 1794671326.8849764,
+    "ast_hash": "f96bac2178a2a711afe703f010cb0dd3",
+    "semantic_hash": ""
+  },
+  ".claude/skills/explain-commercial-models/references/sample-03-compounding-and-float.md": {
+    "mtime": 1794671280.1947913,
+    "seen": 1794671326.8849776,
+    "ast_hash": "9b5d91633f3abd575ca39b95be23580d",
+    "semantic_hash": ""
+  },
+  ".claude/skills/explain-commercial-models/references/sample-04-transitions-and-tension.md": {
+    "mtime": 1794671280.1948023,
+    "seen": 1794671326.8849795,
+    "ast_hash": "c81c6f1665b91ad0cbf161f0cd1c2299",
+    "semantic_hash": ""
+  },
+  ".claude/skills/explain-commercial-models/references/sources-and-verification.md": {
+    "mtime": 1794671280.194821,
+    "seen": 1794671326.8849812,
+    "ast_hash": "18d15c33bc0393cff792d4f852b0ff28",
+    "semantic_hash": ""
+  },
+  ".claude/skills/mckee-story-engine/SKILL.md": {
+    "mtime": 1794671280.2037957,
+    "seen": 1794671326.8852382,
+    "ast_hash": "2fe4f72737b527d4edfb4d1a129fecac",
+    "semantic_hash": ""
+  },
+  ".claude/skills/mckee-story-engine/references/1-story-architecture.md": {
+    "mtime": 1794671280.2038422,
+    "seen": 1794671326.8852859,
+    "ast_hash": "4f19ef7c08c822a5051575be0d7fac6e",
+    "semantic_hash": ""
+  },
+  ".claude/skills/mckee-story-engine/references/2-character-design.md": {
+    "mtime": 1794671280.2038615,
+    "seen": 1794671326.8852882,
+    "ast_hash": "671d8771353353ffb950081994a56f43",
+    "semantic_hash": ""
+  },
+  ".claude/skills/mckee-story-engine/references/3-dialogue-and-subtext.md": {
+    "mtime": 1794671280.2038722,
+    "seen": 1794671326.8852904,
+    "ast_hash": "e38b66a43fc60c518ac782d8e50c0bbb",
+    "semantic_hash": ""
+  },
+  ".claude/skills/mckee-story-engine/references/4-storynomics-and-teardown.md": {
+    "mtime": 1794671280.203885,
+    "seen": 1794671326.8852918,
+    "ast_hash": "a648310ea7300e5ca8bc6eba51ab7d5f",
+    "semantic_hash": ""
+  },
+  ".claude/skills/mckee-story-engine/references/5-action-suspense-and-pacing.md": {
+    "mtime": 1794671280.2038968,
+    "seen": 1794671326.8852937,
+    "ast_hash": "62c1882d10033b8ed406420734e50ae7",
+    "semantic_hash": ""
+  },
+  ".claude/skills/storyteller-aesop/SKILL.md": {
+    "mtime": 1794671297.0049114,
+    "seen": 1794671326.8857434,
+    "ast_hash": "43fb0418601308cafaa4691e97208ad7",
+    "semantic_hash": ""
+  },
+  ".claude/skills/storyteller-analyzer/SKILL.md": {
+    "mtime": 1794671280.1864805,
+    "seen": 1794671326.8857458,
+    "ast_hash": "ac3b8c8c7d7f55edeb9eed7191202b17",
+    "semantic_hash": ""
+  },
+  ".claude/skills/storyteller-homer/SKILL.md": {
+    "mtime": 1794671297.005033,
+    "seen": 1794671326.885748,
+    "ast_hash": "b75f1df74b2ababc624134d4a4e88998",
+    "semantic_hash": ""
+  },
+  ".claude/skills/storyteller-human-reviewer/SKILL.md": {
+    "mtime": 1794671280.186533,
+    "seen": 1794671326.8857498,
+    "ast_hash": "c6e4e97208522369e8550d21b37dbfa2",
+    "semantic_hash": ""
+  },
+  ".claude/skills/storyteller-muqaffa/SKILL.md": {
+    "mtime": 1794671297.0051413,
+    "seen": 1794671326.8857515,
+    "ast_hash": "7aaebdb6b77ae1dc5b256e1aef318a78",
+    "semantic_hash": ""
+  },
+  ".claude/skills/storyteller-scheherazade/SKILL.md": {
+    "mtime": 1794671297.0053353,
+    "seen": 1794671326.885754,
+    "ast_hash": "bfb78e24f9aa54098e474931748d1f91",
+    "semantic_hash": ""
+  },
+  ".claude/skills/storyteller-shakespeare/SKILL.md": {
+    "mtime": 1794671297.0056007,
+    "seen": 1794671326.885757,
+    "ast_hash": "03d6400779ba91be95d4df77e64deef0",
+    "semantic_hash": ""
+  },
+  ".claude/skills/storyteller-shotlist/SKILL.md": {
+    "mtime": 1794671280.1867247,
+    "seen": 1794671326.885759,
+    "ast_hash": "072dc8b964dac7a54755140f805d5e16",
+    "semantic_hash": ""
+  },
+  ".claude/skills/storyteller-voice-palestinian/SKILL.md": {
+    "mtime": 1794671297.0058472,
+    "seen": 1794671326.8857615,
+    "ast_hash": "84e6491535e9cc7e026b9968f74819f8",
+    "semantic_hash": ""
+  },
+  ".claude/skills/storyteller/METHOD.md": {
+    "mtime": 1794671297.0045507,
+    "seen": 1794671326.8857636,
+    "ast_hash": "e9e0781ba6124360da7be92fcc2a4869",
+    "semantic_hash": ""
+  },
+  ".claude/skills/storyteller/SKILL.md": {
+    "mtime": 1794671296.996569,
+    "seen": 1794671326.885766,
+    "ast_hash": "a1d111b83ca9ed685b0b21cefc5ab95c",
+    "semantic_hash": ""
+  },
+  ".claude/skills/storyteller/VOICE-MODULES.md": {
+    "mtime": 1794671280.1892946,
+    "seen": 1794671326.8857677,
+    "ast_hash": "68f5aefbcb1e02fddeb8890f606aa777",
+    "semantic_hash": ""
+  },
+  ".claude/skills/storyteller/house-rules.example.md": {
+    "mtime": 1794671280.1864157,
+    "seen": 1794671326.8857698,
+    "ast_hash": "7c14ebf6069c114067339562c41a02f5",
+    "semantic_hash": ""
+  },
+  ".claude/skills/storyteller/log.md": {
+    "mtime": 1794671280.1864243,
+    "seen": 1794671326.8857715,
+    "ast_hash": "bcbcc6f938da57b8539b0825df747607",
+    "semantic_hash": ""
+  },
   ".claude/skills/video-shotcraft/package-lock.json": {
     "mtime": 1794581286.5195184,
     "seen": 1794667563.459582,
