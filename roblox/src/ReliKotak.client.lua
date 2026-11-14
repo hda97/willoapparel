@@ -150,9 +150,8 @@ besar.TextXAlignment = Enum.TextXAlignment.Center
 besar.TextStrokeTransparency = 0.2
 besar.Visible = false
 local bKeluar = tombol(gui, "Keluar reli", Color3.fromRGB(70, 70, 78), PUTIH)
-bKeluar.AnchorPoint = Vector2.new(1, 1)
-bKeluar.Position = UDim2.new(1, -12, 0, 146)
-bKeluar.AnchorPoint = Vector2.new(1, 0)
+bKeluar.AnchorPoint = Vector2.new(0.5, 1)
+bKeluar.Position = UDim2.new(0.5, 60, 1, -12)
 bKeluar.Size = UDim2.fromOffset(104, 34)
 bKeluar.Visible = false
 
@@ -305,6 +304,9 @@ kabarEv.OnClientEvent:Connect(function(h)
 	if typeof(h) ~= "table" or MODE == "diam" then return end
 	MODE = "selesai"
 	besar.Visible = false
+	hud.Visible = false
+	bKeluar.Visible = false
+	tombolSetir(false)
 	for _, b in ipairs(baris) do b.Visible = false end
 	if h.galat then
 		judul.Text = "🏁 Finish"
