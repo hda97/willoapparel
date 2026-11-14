@@ -66,7 +66,8 @@ RunService.RenderStepped:Connect(function(dt)
 		kumpulkan()
 	end
 	local t = workspace:GetServerTimeNow()
-	local putarB, putarK = CFrame.Angles(0, 0, lajuB * t), CFrame.Angles(0, lajuK * t, 0)
+	local putaran = math.pi * 2 -- sudut dibungkus: CFrame.Angles kehilangan ketelitian untuk sudut besar
+	local putarB, putarK = CFrame.Angles(0, 0, (lajuB * t) % putaran), CFrame.Angles(0, ((lajuK * t) % putaran), 0)
 	table.clear(bagian)
 	table.clear(letak)
 	local n = 0

@@ -185,7 +185,7 @@ end
 -- letak kursi saat ini (rumus yang sama dipakai skrip klien untuk memutar balok wahana)
 local function letakKursi(id, k)
 	local w = WAHANA[id]
-	local sudut = w.laju * workspace:GetServerTimeNow()
+	local sudut = (w.laju * workspace:GetServerTimeNow()) % (math.pi * 2) -- dibungkus: CFrame.Angles kehilangan ketelitian untuk sudut besar
 	local pusat = tengah + w.pusat
 	if id == "bianglala" then
 		local p = CFrame.Angles(0, 0, sudut) * k.rel
