@@ -430,8 +430,7 @@ for _, p in ipairs(Players:GetPlayers()) do
 end
 Players.PlayerRemoving:Connect(function(p)
 	balap[p] = nil
-	simpan(p)
-	sesi[p] = nil
+	sesi[p] = nil -- data sudah disimpan tiap finish
 end)
 
 -- gerbang dan finish dihitung server dari posisi mobil

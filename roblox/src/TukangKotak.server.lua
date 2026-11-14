@@ -329,8 +329,7 @@ end
 Players.PlayerAdded:Connect(function(p) task.spawn(muat, p) end)
 for _, p in ipairs(Players:GetPlayers()) do task.spawn(muat, p) end
 Players.PlayerRemoving:Connect(function(p)
-	simpan(p)
-	sesi[p] = nil
+	sesi[p] = nil -- data sudah disimpan tiap misi selesai
 end)
 
 local total = 0
