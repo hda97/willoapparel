@@ -14753,9 +14753,9 @@
     "semantic_hash": ""
   },
   "roblox/data/wetan.json": {
-    "mtime": 1794519320.4646792,
-    "seen": 1794646146.8194978,
-    "ast_hash": "7625001bbe08f878e11880af2f8df4ca",
+    "mtime": 1794646375.5614398,
+    "seen": 1794646393.8794045,
+    "ast_hash": "9db5fd3a3e27d2043121a51a093d8676",
     "semantic_hash": ""
   },
   "roblox/src/BangunMap.server.lua": {
@@ -14789,69 +14789,69 @@
     "semantic_hash": ""
   },
   "roblox/data/wetan-000.txt": {
-    "mtime": 1794519320.3992095,
-    "seen": 1794646146.8221395,
-    "ast_hash": "d24866a072584a301638804ac46692a0",
+    "mtime": 1794646375.5547366,
+    "seen": 1794646393.8810296,
+    "ast_hash": "cac8a330f4b27cc9053e3a7e9e151b65",
     "semantic_hash": ""
   },
   "roblox/data/wetan-001.txt": {
-    "mtime": 1794519320.4089088,
-    "seen": 1794646146.8221421,
-    "ast_hash": "5647e8dd5a58fe95793dbe50ef422bb1",
+    "mtime": 1794646375.5555365,
+    "seen": 1794646393.881032,
+    "ast_hash": "73ccf1b9e1563323e72ee0a1687935bd",
     "semantic_hash": ""
   },
   "roblox/data/wetan-002.txt": {
-    "mtime": 1794519320.4152734,
-    "seen": 1794646146.8221457,
-    "ast_hash": "317d0eac53fea67ad8dd328538f937f3",
+    "mtime": 1794646375.5558338,
+    "seen": 1794646393.8810337,
+    "ast_hash": "297352fd3e8a5db741a2efd154cdbd84",
     "semantic_hash": ""
   },
   "roblox/data/wetan-003.txt": {
-    "mtime": 1794519320.4212654,
-    "seen": 1794646146.8221488,
-    "ast_hash": "4434bc726325fa777ff775f22e50901c",
+    "mtime": 1794646375.5561752,
+    "seen": 1794646393.8810356,
+    "ast_hash": "021583796161612343dfc5c7dc30d7bd",
     "semantic_hash": ""
   },
   "roblox/data/wetan-004.txt": {
-    "mtime": 1794519320.4276135,
-    "seen": 1794646146.8221514,
-    "ast_hash": "d370c649e1685e7867cb18c286701ce1",
+    "mtime": 1794646375.5568087,
+    "seen": 1794646393.881037,
+    "ast_hash": "aaaa8998e82eb8d24702a54714f66ae7",
     "semantic_hash": ""
   },
   "roblox/data/wetan-005.txt": {
-    "mtime": 1794519320.4312096,
-    "seen": 1794646146.8221545,
-    "ast_hash": "70c69b1c12380095b709edcd757d4376",
+    "mtime": 1794646375.5573459,
+    "seen": 1794646393.8810384,
+    "ast_hash": "bae962dcf507b6ce11f00e0df1161e39",
     "semantic_hash": ""
   },
   "roblox/data/wetan-006.txt": {
-    "mtime": 1794519320.440632,
-    "seen": 1794646146.822157,
-    "ast_hash": "eb5611a3c2806ab2882dee849a2d1c08",
+    "mtime": 1794646375.5581348,
+    "seen": 1794646393.8810394,
+    "ast_hash": "7c3011ba27a661a9b4d4a64c1719f6e5",
     "semantic_hash": ""
   },
   "roblox/data/wetan-007.txt": {
-    "mtime": 1794519320.4471562,
-    "seen": 1794646146.8221598,
-    "ast_hash": "d4fd8f5aafbd6d9c4b62bc06d910b4d3",
+    "mtime": 1794646375.5584607,
+    "seen": 1794646393.8810408,
+    "ast_hash": "ee49d54c211ecf59e783d6e3d6f60f2a",
     "semantic_hash": ""
   },
   "roblox/data/wetan-008.txt": {
-    "mtime": 1794519320.4536672,
-    "seen": 1794646146.8221624,
-    "ast_hash": "e15c7a05d90f1887a61cb9b4c0cfed36",
+    "mtime": 1794646375.5597694,
+    "seen": 1794646393.8810422,
+    "ast_hash": "06b8e60d085e053129e30e6d5d9b3239",
     "semantic_hash": ""
   },
   "roblox/data/wetan-009.txt": {
-    "mtime": 1794519320.459882,
-    "seen": 1794646146.822165,
-    "ast_hash": "59e33ccef2cf04877b6602b493f5fd1f",
+    "mtime": 1794646375.5602345,
+    "seen": 1794646393.8810437,
+    "ast_hash": "cac91ce55f826858ae8dbc1d57a6a8b1",
     "semantic_hash": ""
   },
   "roblox/data/wetan-010.txt": {
-    "mtime": 1794519320.4626667,
-    "seen": 1794646146.8221674,
-    "ast_hash": "385777e941c0323af819b62d937b2224",
+    "mtime": 1794646375.5607095,
+    "seen": 1794646393.881045,
+    "ast_hash": "ca5fd72a7b108fe47f7d77bb88153377",
     "semantic_hash": ""
   },
   ".github/workflows/aplikasi-splitbill.yml": {
@@ -15599,21 +15599,21 @@
     "semantic_hash": ""
   },
   "roblox/data/curug.json": {
-    "mtime": 1794538467.0084138,
-    "seen": 1794646146.8194883,
-    "ast_hash": "c2bcc793cd3e9c02e21148faf9ba32fa",
+    "mtime": 1794646375.5895889,
+    "seen": 1794646393.879397,
+    "ast_hash": "ff2851c21814b7b11df2ebd5000cb685",
     "semantic_hash": ""
   },
   "roblox/data/kulon.json": {
-    "mtime": 1794538457.790324,
-    "seen": 1794646146.8194907,
-    "ast_hash": "f1751fa73a7214633ed453da25f6cf56",
+    "mtime": 1794646375.5758271,
+    "seen": 1794646393.8793995,
+    "ast_hash": "eb2d41c32d817dbcc28f4023066012dd",
     "semantic_hash": ""
   },
   "roblox/data/tlaga.json": {
-    "mtime": 1794538473.042698,
-    "seen": 1794646146.8194933,
-    "ast_hash": "f697178f24a821e23dc7dab7ff6efc7d",
+    "mtime": 1794646375.600588,
+    "seen": 1794646393.8794017,
+    "ast_hash": "0fd8d2ac9d4c9defa499edbac07fe51c",
     "semantic_hash": ""
   },
   "roblox/src/DataWarga.server.lua": {
@@ -15629,147 +15629,141 @@
     "semantic_hash": ""
   },
   "roblox/data/curug-000.txt": {
-    "mtime": 1794538466.9513595,
-    "seen": 1794646146.8220634,
-    "ast_hash": "4bb21417a772f3f19c33eaea62a8875b",
+    "mtime": 1794646375.5846186,
+    "seen": 1794646393.8809924,
+    "ast_hash": "b74477c2be1fccd73727a950bf509bd6",
     "semantic_hash": ""
   },
   "roblox/data/curug-001.txt": {
-    "mtime": 1794538466.9579954,
-    "seen": 1794646146.822067,
-    "ast_hash": "71c15e90ef49311286523141eba239a2",
+    "mtime": 1794646375.585064,
+    "seen": 1794646393.8809946,
+    "ast_hash": "32657e265b0cb3e65d834c5d3d428dd3",
     "semantic_hash": ""
   },
   "roblox/data/curug-002.txt": {
-    "mtime": 1794538466.9649668,
-    "seen": 1794646146.8220696,
-    "ast_hash": "e5a4936a28fffe12da7a36fa249daaf4",
+    "mtime": 1794646375.5859318,
+    "seen": 1794646393.8809967,
+    "ast_hash": "9ac46389d7e257446ca0b621ac410247",
     "semantic_hash": ""
   },
   "roblox/data/curug-003.txt": {
-    "mtime": 1794538466.9720125,
-    "seen": 1794646146.8220725,
-    "ast_hash": "4b463a87777cbecff71943c58a5a0029",
+    "mtime": 1794646375.5863957,
+    "seen": 1794646393.8809981,
+    "ast_hash": "37bcf0f987953e227ab8dd6f66af82b1",
     "semantic_hash": ""
   },
   "roblox/data/curug-004.txt": {
-    "mtime": 1794538466.9789422,
-    "seen": 1794646146.8220754,
-    "ast_hash": "ca4a2d1441d44985188cb2b04f63fbac",
+    "mtime": 1794646375.5871034,
+    "seen": 1794646393.8809996,
+    "ast_hash": "bd13b1503204df2905397aa1440186e2",
     "semantic_hash": ""
   },
   "roblox/data/curug-005.txt": {
-    "mtime": 1794538466.9873352,
-    "seen": 1794646146.8220785,
-    "ast_hash": "039ddda95f7250762d06ba5882a942ec",
+    "mtime": 1794646375.5876667,
+    "seen": 1794646393.8810017,
+    "ast_hash": "00206255b8e5e25b300c7d2e80daa5fb",
     "semantic_hash": ""
   },
   "roblox/data/curug-006.txt": {
-    "mtime": 1794538466.995836,
-    "seen": 1794646146.8220816,
-    "ast_hash": "f8a0c1bd26105827411a7755c881107d",
+    "mtime": 1794646375.588281,
+    "seen": 1794646393.8810034,
+    "ast_hash": "0a64b2f607d46cc611805cac87cc3c31",
     "semantic_hash": ""
   },
   "roblox/data/curug-007.txt": {
-    "mtime": 1794538467.0038767,
-    "seen": 1794646146.8220844,
-    "ast_hash": "29a9ffd79661723cd42e704e502b39fd",
-    "semantic_hash": ""
-  },
-  "roblox/data/curug-008.txt": {
-    "mtime": 1794538467.0069191,
-    "seen": 1794646146.8220875,
-    "ast_hash": "7127bec7fbefb7667ff02f946e31d7a8",
+    "mtime": 1794646375.5889785,
+    "seen": 1794646393.8810048,
+    "ast_hash": "f7740bd21b48a670dc75f26f6f5be292",
     "semantic_hash": ""
   },
   "roblox/data/kulon-000.txt": {
-    "mtime": 1794538457.7374911,
-    "seen": 1794646146.8220909,
-    "ast_hash": "4e7aa819cbe58d617ab8b47bb9417362",
+    "mtime": 1794646375.570215,
+    "seen": 1794646393.881007,
+    "ast_hash": "8c9eea085ede036f01c67dc013fe1ae2",
     "semantic_hash": ""
   },
   "roblox/data/kulon-001.txt": {
-    "mtime": 1794538457.7470403,
-    "seen": 1794646146.822094,
-    "ast_hash": "93c75b627f065427eab9182fea3b0a69",
+    "mtime": 1794646375.5707662,
+    "seen": 1794646393.8810084,
+    "ast_hash": "711ba6774accf01acd49bc5ff703a49c",
     "semantic_hash": ""
   },
   "roblox/data/kulon-002.txt": {
-    "mtime": 1794538457.7540274,
-    "seen": 1794646146.8220973,
-    "ast_hash": "115d7da8389653844429dbd928c77c8a",
+    "mtime": 1794646375.5716994,
+    "seen": 1794646393.8810096,
+    "ast_hash": "e9c0b3752f8cf9feb66192a5f6fa4f32",
     "semantic_hash": ""
   },
   "roblox/data/kulon-003.txt": {
-    "mtime": 1794538457.757491,
-    "seen": 1794646146.8221009,
-    "ast_hash": "7dba4f319ffda8c4c699fb97273b5a2e",
+    "mtime": 1794646375.5722618,
+    "seen": 1794646393.8810115,
+    "ast_hash": "38e93169527e04370a82c7ad2ac964aa",
     "semantic_hash": ""
   },
   "roblox/data/kulon-004.txt": {
-    "mtime": 1794538457.7670662,
-    "seen": 1794646146.8221042,
-    "ast_hash": "a79010151ad5690143ca861e9906fab6",
+    "mtime": 1794646375.5727072,
+    "seen": 1794646393.8810124,
+    "ast_hash": "a15c7db9919234bdb23f4d949206bd93",
     "semantic_hash": ""
   },
   "roblox/data/kulon-005.txt": {
-    "mtime": 1794538457.772917,
-    "seen": 1794646146.822107,
-    "ast_hash": "ac4c816890debd7f19701d6ca29296a7",
+    "mtime": 1794646375.5735617,
+    "seen": 1794646393.8810143,
+    "ast_hash": "358c20a7a7c2ca840e983dd574fbed85",
     "semantic_hash": ""
   },
   "roblox/data/kulon-006.txt": {
-    "mtime": 1794538457.7794054,
-    "seen": 1794646146.8221111,
-    "ast_hash": "58ecbc2fd9023f0661bc26c0b6a12289",
+    "mtime": 1794646375.5740921,
+    "seen": 1794646393.8810155,
+    "ast_hash": "c9f748ce2f1ee4187e9c53bc4b1bf51b",
     "semantic_hash": ""
   },
   "roblox/data/kulon-007.txt": {
-    "mtime": 1794538457.7858236,
-    "seen": 1794646146.8221145,
-    "ast_hash": "a6b5f0392d65c6112c29d7a0430ca482",
+    "mtime": 1794646375.574617,
+    "seen": 1794646393.8810167,
+    "ast_hash": "a066be4d75c454d82ee1f8664650fb9c",
     "semantic_hash": ""
   },
   "roblox/data/kulon-008.txt": {
-    "mtime": 1794538457.7887886,
-    "seen": 1794646146.822117,
-    "ast_hash": "3c4ee3832451d81773f6fa053d4ff073",
+    "mtime": 1794646375.575268,
+    "seen": 1794646393.8810184,
+    "ast_hash": "c4023f74759ac6f02370949d8651505a",
     "semantic_hash": ""
   },
   "roblox/data/tlaga-000.txt": {
-    "mtime": 1794538473.0157926,
-    "seen": 1794646146.8221202,
-    "ast_hash": "3c873b34b4ad8b2bf187616580d2375b",
+    "mtime": 1794646375.596631,
+    "seen": 1794646393.8810198,
+    "ast_hash": "82e12e5da489b7a808dd14d5d55248fd",
     "semantic_hash": ""
   },
   "roblox/data/tlaga-001.txt": {
-    "mtime": 1794538473.0219164,
-    "seen": 1794646146.822123,
-    "ast_hash": "3f8c83615d04cb2b93efde5fc84db285",
+    "mtime": 1794646375.597675,
+    "seen": 1794646393.8810215,
+    "ast_hash": "8a36c4512b087684a8b04622559aa124",
     "semantic_hash": ""
   },
   "roblox/data/tlaga-002.txt": {
-    "mtime": 1794538473.0271654,
-    "seen": 1794646146.822126,
-    "ast_hash": "aa0ac2b0ea7c6f2caa6df982b7159948",
+    "mtime": 1794646375.5981584,
+    "seen": 1794646393.881023,
+    "ast_hash": "0fdfbdf6a22fb10977138f3f4f8edb73",
     "semantic_hash": ""
   },
   "roblox/data/tlaga-003.txt": {
-    "mtime": 1794538473.0294921,
-    "seen": 1794646146.8221295,
-    "ast_hash": "0153ebb9c48810008d7027b634334ded",
+    "mtime": 1794646375.598625,
+    "seen": 1794646393.8810246,
+    "ast_hash": "8fefc4034662fdf7a40b1871ef54f5fa",
     "semantic_hash": ""
   },
   "roblox/data/tlaga-004.txt": {
-    "mtime": 1794538473.0392528,
-    "seen": 1794646146.8221333,
-    "ast_hash": "1ec2bb4226c791a8de1476c33fe4ee26",
+    "mtime": 1794646375.5990386,
+    "seen": 1794646393.8810263,
+    "ast_hash": "bd851c201099c725619928aeaf7a5e56",
     "semantic_hash": ""
   },
   "roblox/data/tlaga-005.txt": {
-    "mtime": 1794538473.0413802,
-    "seen": 1794646146.8221364,
-    "ast_hash": "4e672edd8b4f27003a4dc5cf2e202e3e",
+    "mtime": 1794646375.599536,
+    "seen": 1794646393.881028,
+    "ast_hash": "1d5192ed8755420fa7e8a8a1148fd399",
     "semantic_hash": ""
   },
   "roblox/src/AvatarKotak.server.lua": {
