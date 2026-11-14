@@ -155,7 +155,8 @@ export function buatLaluLintas({sc, I, VS, tanah, warga, pose, siapAv, buatMobil
         if (sisa > garis - .5 * M && sisa - c.kec * .6 < garis) target = 0; }
       // jangan menabrak warga atau kendaraan lain
       const jauh = c.pj / 2 + 3 * M;
-      if (me && halangan(c, me.position.x, me.position.z, jauh + 1.5 * M)) target = 0;
+      c.dihalangi = false;   // dipakai suara klakson (js/suara.js)
+      if (me && halangan(c, me.position.x, me.position.z, jauh + 1.5 * M)) { target = 0; c.dihalangi = c.laju < c.kec * .25; }
       if (target) for (const p of lain) if (halangan(c, p.x, p.z, jauh)) { target = 0; break; }
       if (target) for (const d of armada) if (d !== c && halangan(c, d.o.position.x, d.o.position.z, c.pj / 2 + d.pj / 2 + 1.5 * M)) { target = 0; break; }
       c.laju += (target - c.laju) * Math.min(1, dt * (target ? 1.8 : 5));
