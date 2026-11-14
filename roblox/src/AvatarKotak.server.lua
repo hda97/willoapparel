@@ -372,7 +372,15 @@ local function rakit(char, d)
 			kotak(g, 66, 160, 32, 20, Color3.fromRGB(255, 120, 120), 0.65, 0, 0.5)
 			kotak(g, 190, 160, 32, 20, Color3.fromRGB(255, 120, 120), 0.65, 0, 0.5)
 		end
-		kotak(g, 129, 189, 44, 7, P and "#b0474a" or "#2a1a12", 0, 0, 0.5)
+		-- mulut senyum melengkung seperti wajah() ekspresi "normal" di game web, sedikit lebih dalam supaya terbaca di layar HP
+		local warnaMulut = P and "#b0474a" or "#2a1a12"
+		for i = 0, 14 do
+			local t = i / 14
+			local u = 1 - t
+			local mx = u * u * 108 + 2 * u * t * 128 + t * t * 150
+			local my = u * u * 186 + 2 * u * t * 204 + t * t * 186
+			kotak(g, mx, my, 7, 7, warnaMulut, 0, 0, 0.5)
+		end
 	end
 
 	-- RAMBUT / HIJAB / TOPI
