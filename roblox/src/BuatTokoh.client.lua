@@ -262,6 +262,12 @@ local function kameraDepan(nyala)
 	end)
 end
 
+-- obrolan dan papan skor bawaan Roblox disembunyikan selama menu terbuka supaya tidak menumpuk
+local function antarmukaRoblox(nyala)
+	pcall(function() game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat, nyala) end)
+	pcall(function() game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, nyala) end)
+end
+
 local function buka(pertama)
 	muat()
 	awal = HttpService:JSONEncode(av)
@@ -269,12 +275,14 @@ local function buka(pertama)
 	tulis()
 	panel.Visible = true
 	tombolBuka.Visible = false
+	antarmukaRoblox(false)
 	kameraDepan(true)
 end
 
 local function tutup()
 	panel.Visible = false
 	tombolBuka.Visible = true
+	antarmukaRoblox(true)
 	kameraDepan(false)
 end
 
