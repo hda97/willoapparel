@@ -325,6 +325,7 @@ local function taruhStart(player, l)
 	local L = LIN[l]
 	local q = L.T[L.START - 3]
 	local pos = R.dunia(l, q.x, R.yJalan(L, L.START - 3, 0), q.z) + Vector3.new(0, TINGGI, 0)
+	pcall(function() player:RequestStreamAroundAsync(pos, 4) end)
 	player.Character:PivotTo(CFrame.lookAt(pos, pos + Vector3.new(q.tx, 0, q.tz)))
 end
 

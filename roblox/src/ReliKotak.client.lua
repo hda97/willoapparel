@@ -7,6 +7,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 local pintu = ReplicatedStorage:WaitForChild("DK_Reli")
@@ -150,7 +151,8 @@ besar.TextStrokeTransparency = 0.2
 besar.Visible = false
 local bKeluar = tombol(gui, "Keluar reli", Color3.fromRGB(70, 70, 78), PUTIH)
 bKeluar.AnchorPoint = Vector2.new(1, 1)
-bKeluar.Position = UDim2.new(1, -12, 1, -12)
+bKeluar.Position = UDim2.new(1, -12, 0, 146)
+bKeluar.AnchorPoint = Vector2.new(1, 0)
 bKeluar.Size = UDim2.fromOffset(104, 34)
 bKeluar.Visible = false
 
@@ -161,11 +163,39 @@ local L, LNO, TINGGI = nil, 1, 2.6
 local Kd = {}       -- keadaan mobil (meter lintasan)
 local gerbangKe, waktu, tSiap, kamYaw, sibuk = 0, 0, 0, 0, false
 
-local kendali
-task.spawn(function()
-	local ok, m = pcall(function() return require(player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")) end)
-	if ok and m then kendali = m:GetControls() end
-end)
+-- setir: tombol A/D atau panah, rem: S, panah bawah, atau spasi; di HP pakai tombol layar
+local tekan = { kiri = false, kanan = false, rem = false }
+local function tombolTahan(isi, kunci, letak)
+	local b = tombol(gui, isi, Color3.fromRGB(52, 52, 60), PUTIH)
+	b.TextSize = 20
+	b.BackgroundTransparency = 0.25
+	b.Size = UDim2.fromOffset(72, 54)
+	b.AnchorPoint = Vector2.new(letak.X.Scale, 1)
+	b.Position = letak
+	b.Visible = false
+	b.InputBegan:Connect(function(i)
+		if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseButton1 then tekan[kunci] = true end
+	end)
+	b.InputEnded:Connect(function(i)
+		if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseButton1 then tekan[kunci] = false end
+	end)
+	return b
+end
+local bKiri = tombolTahan("◀", "kiri", UDim2.new(0, 12, 1, -56))
+local bKanan = tombolTahan("▶", "kanan", UDim2.new(0, 92, 1, -56))
+local bRem = tombolTahan("REM", "rem", UDim2.new(1, -12, 1, -56))
+bRem.TextSize = 15
+local function masukan()
+	local x = 0
+	if tekan.kiri or UserInputService:IsKeyDown(Enum.KeyCode.A) or UserInputService:IsKeyDown(Enum.KeyCode.Left) then x -= 1 end
+	if tekan.kanan or UserInputService:IsKeyDown(Enum.KeyCode.D) or UserInputService:IsKeyDown(Enum.KeyCode.Right) then x += 1 end
+	local rem = tekan.rem or UserInputService:IsKeyDown(Enum.KeyCode.S) or UserInputService:IsKeyDown(Enum.KeyCode.Down) or UserInputService:IsKeyDown(Enum.KeyCode.Space)
+	return x, rem
+end
+local function tombolSetir(tampil)
+	bKiri.Visible, bKanan.Visible, bRem.Visible = tampil, tampil, tampil
+	if not tampil then tekan.kiri, tekan.kanan, tekan.rem = false, false, false end
+end
 
 local function tulisLobi()
 	if not INFO or not INFO.lintasan then return end
@@ -229,6 +259,7 @@ local function berhenti()
 	besar.Visible = false
 	bKeluar.Visible = false
 	panel.Visible = false
+	tombolSetir(false)
 	local cam = workspace.CurrentCamera
 	cam.CameraType = Enum.CameraType.Custom
 	local char = player.Character
@@ -264,6 +295,7 @@ local function mulai()
 	hud.Visible = true
 	besar.Visible = true
 	bKeluar.Visible = true
+	tombolSetir(true)
 end
 bMulai.Activated:Connect(mulai)
 bDesa.Activated:Connect(keluar)
@@ -311,13 +343,17 @@ local function fisika(dt)
 	local diJalan = math.abs(d) < R.LEBAR / 2 + 0.4
 	local vmax = diJalan and R.VMAX or R.VRUMPUT
 	local aktif = MODE == "balap"
-	local mv = kendali and kendali:GetMoveVector() or Vector3.zero
-	local setirMau = math.clamp(mv.X, -1, 1)
-	local rem = mv.Z > 0.5
-	if MODE == "selesai" then
+	local setirMau, rem = masukan()
+	-- setir otomatis: sesudah finish, atau saat uji coba (atribut DK_ReliAuto di pemain)
+	local auto = player:GetAttribute("DK_ReliAuto") == true
+	if auto or MODE == "selesai" then
 		local q = T[math.min(NS, Kd.i + 4 + math.floor(math.abs(vf) * 0.22 + 0.5))]
 		local sudut = math.atan2(q.x - Kd.x, q.z - Kd.z) - Kd.h
 		setirMau = math.clamp(-math.atan2(math.sin(sudut), math.cos(sudut)) * 2.4, -1, 1)
+	end
+	if auto then
+		local ke = T[math.min(NS, Kd.i + 22)]
+		rem = math.abs(ke.k) > 0.035 and vf > 21
 	end
 	Kd.setir += (setirMau - Kd.setir) * math.min(1, dt * 7)
 	if aktif and not rem then
