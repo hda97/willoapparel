@@ -3439,6 +3439,15 @@ function aturHUD() {
  $('pfRakit').onclick = bukaRakit; $('tutupRakit').onclick = () => { $('panelRakit').hidden = true; };
   $('panelRakit').addEventListener('click', e => { if (e.target === $('panelRakit')) $('panelRakit').hidden = true; });
   $('pfKode').onclick = () => toast(`Kode wargamu: ${S.saya.kode} · pakai untuk masuk dari HP lain. Jangan dibagikan.`, 6000);
+  // Tautan akun Roblox (Huda 14 Nov 2026): kode 6 huruf sekali pakai, diketik di game Roblox. Tombol masih disembunyikan
+  // sampai versi Roblox dirilis; untuk uji buka dengan ?roblox=1.
+  if (new URLSearchParams(location.search).has('roblox')) $('pfRoblox').hidden = false;
+  $('pfRoblox').onclick = async () => {
+    if (S.tamu || !S.kunci) { toast('Masuk dulu sebagai warga untuk menautkan Roblox.', 3000); return; }
+    try { const r = await api('roblox-kode', {kunci: S.kunci});
+      toast(r.tertaut ? '🎮 Akunmu sudah tertaut ke Roblox.' : `🎮 Kode Roblox: ${r.kode} · ketik di game Roblox dalam ${r.menit} menit. Sekali pakai.`, r.tertaut ? 3000 : 20000);
+    } catch (e) { toast(e.message, 3000); }
+  };
   $('tutupProfil').onclick = () => { $('panelProfil').hidden = true; };
   $('panelProfil').addEventListener('click', e => { if (e.target === $('panelProfil')) $('panelProfil').hidden = true; });
   $('tutupOnline').onclick = () => { $('panelOnline').hidden = true; };

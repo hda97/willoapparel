@@ -98,7 +98,7 @@ const fs = require('fs');
     };
     tops.forEach((o, i) => { names.push((o.name||'')+'/'+o.type+'/'+o.children.length); walk(o, i, -1); });
     window.__out = out.subarray(0, n*N);
-    const I = g.I; const lots = {}; for (const [k, L] of Object.entries(I.lots)) lots[k] = {c:[L.c.x, L.c.y||0, L.c.z], dir:L.dir};
+    const I = g.I; const lots = {}; for (const [k, L] of Object.entries(I.lots)) lots[k] = {c:[L.c.x, L.c.y||0, L.c.z], dir:L.dir, g: L.gate ? [L.gate.x, L.gate.y||0, L.gate.z] : null};
     const me = g.tokoh.saya; const bb = new T.Box3().setFromObject(me);
     const meta = {n, names, stat, lots, me:[bb.min.toArray(), bb.max.toArray()], pos: me.position.toArray(), TW:I.TW, TD:I.TD, ox:I.ox, oz:I.oz, fog: sc.fog ? [sc.fog.near, sc.fog.far] : null};
     for (const k of ['fas','fasum','entry','cross','batas','vroads','hroads','xs','zs','river','sungai']) { try { meta[k] = JSON.parse(JSON.stringify(I[k], (kk, vv) => (vv && vv.isObject3D) ? undefined : vv)); } catch(e) { meta[k] = 'x'; } }

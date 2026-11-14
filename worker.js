@@ -199,6 +199,7 @@ const HADIAH_PK_MULAI = "2026-11-09";
 const AJAK_PERMATA = 10, AJAK_PERMATA_BARU = 5, AJAK_HARI = 5, AJAK_TARGET = 861;
 const PIALA_LARI = 10, PIALA_LARI_HARI = 3, PIALA_GOL = 2;
 const PIALA_DUSUN = ["wetan", "kulon", "curug", "tlaga", "segara"];
+const ROBLOX_KODE_MS = 10 * 6e4, ROBLOX_HURUF = "ABCDEFGHJKLMNPQRSTUVWXYZ";   // kode tautan Roblox: 6 huruf (tanpa I dan O), berlaku 10 menit
 const dusunNo = (no) => (no > 860 ? "segara" : no > 660 ? "tlaga" : no > 460 ? "curug" : no > 260 ? "kulon" : "wetan");
 const PK_RUTE = ["CFD Kotak Wetan", "Jakarta Sudirman CFD", "Jogja Borobudur", "Bali Sanur", "Siksorogo Lawu", "Bromo Trail", "Dieng & Rinjani"];
 const PK_MISI = { lari1: (p) => p.fh >= 1, lari3: (p) => p.fh >= 3, koin30: (p) => p.km >= 30, top5: (p) => p.pb > 0 && p.pb <= 5, iso: (p) => !!p.iso, mulus: (p) => !!p.mulus, cepat: (p) => p.rh > 0 && p.rh <= 330 };
@@ -404,6 +405,10 @@ export class Warga extends DurableObject {
       this.sql.exec("DELETE FROM suara WHERE put = ? AND calon = ? AND no = ?", vk0.put, x.calon, x.no);
     }
     this.sql.exec("CREATE TABLE IF NOT EXISTS rahasia (k TEXT PRIMARY KEY, v TEXT, t INTEGER)");
+    // Tautan akun Roblox (Huda 13-14 Nov 2026): web memberi kode 6 huruf sekali pakai, diketik di Roblox.
+    // robloxKode = kode yang masih berlaku; robloxTaut = satu warga <-> satu akun Roblox (rb = UserId Roblox).
+    this.sql.exec("CREATE TABLE IF NOT EXISTS robloxKode (kode TEXT PRIMARY KEY, no INTEGER, t INTEGER)");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS robloxTaut (rb TEXT PRIMARY KEY, no INTEGER UNIQUE, t INTEGER)");
     // Lomba Rumah Terindah: satu baris = satu ❤️ dari warga `dari` ke rumah `ke` pada hari WIB `hari` (minggu `mg`)
     this.sql.exec("CREATE TABLE IF NOT EXISTS rumahSuka (mg TEXT, hari TEXT, dari INTEGER, ke INTEGER, t INTEGER, PRIMARY KEY (hari, dari, ke))");
     // Piala Antardusun: poin warga per minggu (mg = Senin WIB), d = dusun saat poin didapat, lh = finish berpoin hari itu
@@ -1785,6 +1790,44 @@ export class Warga extends DurableObject {
       let av = null; try { av = avBaru ? JSON.parse(avBaru) : null; } catch (e) {}
       return Response.json({ koin, harga: KAOS_WILLO, tunggu: KAOS_TUNGGU, pesan: K.pesan, lemari: K.lemari, avatar: av, selisih: 0, kini });
     }
+    if (aksi === "roblox-kode") {   // warga minta kode tautan; kode lama miliknya hangus
+      const q = await request.json();
+      const r = this.sql.exec("SELECT no FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Masuk dulu sebagai warga." }, { status: 401 });
+      const kini = Date.now();
+      const taut = this.sql.exec("SELECT rb FROM robloxTaut WHERE no = ?", r.no).toArray()[0];
+      if (taut) return Response.json({ tertaut: 1 });
+      this.sql.exec("DELETE FROM robloxKode WHERE no = ? OR t < ?", r.no, kini - ROBLOX_KODE_MS);
+      let kode = "";
+      for (let coba = 0; coba < 8 && !kode; coba++) {
+        const b = crypto.getRandomValues(new Uint8Array(6)); let k = "";
+        for (const x of b) k += ROBLOX_HURUF[x % ROBLOX_HURUF.length];
+        if (!this.sql.exec("SELECT 1 FROM robloxKode WHERE kode = ?", k).toArray().length) kode = k;
+      }
+      if (!kode) return Response.json({ galat: "Coba lagi sebentar." }, { status: 503 });
+      this.sql.exec("INSERT INTO robloxKode (kode, no, t) VALUES (?, ?, ?)", kode, r.no, kini);
+      return Response.json({ kode, menit: ROBLOX_KODE_MS / 6e4 });
+    }
+    if (aksi === "roblox-taut") {   // dipanggil server Roblox: tukar kode dengan nomor warga, nama, dusun (data yang memang publik)
+      const q = await request.json();
+      const kini = Date.now(), rb = String(q.rb || ""), kode = String(q.kode || "").toUpperCase();
+      if (!/^[1-9][0-9]{0,15}$/.test(rb)) return Response.json({ galat: "Akun Roblox tidak dikenal." }, { status: 400 });
+      const kirim = (no) => { const w = this.sql.exec("SELECT no, nama, ig, tiktok FROM warga WHERE no = ?", no).toArray()[0];
+        return w ? Response.json({ no: w.no, nama: this.nm(w), dusun: dusunNo(w.no) }) : Response.json({ galat: "Warga tidak ditemukan." }, { status: 404 }); };
+      const sudah = this.sql.exec("SELECT no FROM robloxTaut WHERE rb = ?", rb).toArray()[0];
+      if (!kode) return sudah ? kirim(sudah.no) : Response.json({ belum: 1 });
+      if (sudah) return Response.json({ galat: "Akun Roblox ini sudah tertaut ke warga No. " + sudah.no + "." }, { status: 409 });
+      // rem tebak-tebakan: paling banyak 20 kode salah per menit untuk seluruh desa
+      this._rbSalah = (this._rbSalah || []).filter((t) => kini - t < 6e4);
+      if (this._rbSalah.length >= 20) return Response.json({ galat: "Terlalu banyak percobaan. Coba lagi 1 menit lagi." }, { status: 429 });
+      const k = /^[A-Z]{6}$/.test(kode) ? this.sql.exec("SELECT no, t FROM robloxKode WHERE kode = ?", kode).toArray()[0] : null;
+      if (!k || kini - k.t > ROBLOX_KODE_MS) { this._rbSalah.push(kini); return Response.json({ galat: "Kode salah atau sudah kedaluwarsa. Minta kode baru di game web." }, { status: 404 }); }
+      this.sql.exec("DELETE FROM robloxKode WHERE kode = ?", kode);
+      if (this.sql.exec("SELECT 1 FROM robloxTaut WHERE no = ?", k.no).toArray().length) return Response.json({ galat: "Warga ini sudah tertaut ke akun Roblox lain." }, { status: 409 });
+      this.sql.exec("INSERT INTO robloxTaut (rb, no, t) VALUES (?, ?, ?)", rb, k.no, kini);
+      this.hitungFitur("roblox-taut");
+      return kirim(k.no);
+    }
     if (aksi === "bus") {   // tiket bus antardusun (Huda 11 Nov 2026): kendaraan umum bayar, koin kurang tetap boleh naik gratis
       const q = await request.json();
       const r = this.sql.exec("SELECT no, koin FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
@@ -2470,6 +2513,14 @@ async function apiWargaInti(request, env, url) {
   if (aksi === "kaos") {
     const q = { kunci: String(body.kunci || "").slice(0, 64), op: ["pesan", "ambil", "pakai"].includes(body.op) ? body.op : "", d: String(body.d || "").slice(0, 10), w: String(body.w || "").slice(0, 7), t: String(body.t || "").slice(0, 20), i: Math.floor(+body.i || 0) };
     const r = await stub.fetch("https://do/kaos", { method: "POST", body: JSON.stringify(q) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "roblox-kode") {
+    const r = await stub.fetch("https://do/roblox-kode", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64) }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "roblox-taut") {
+    const r = await stub.fetch("https://do/roblox-taut", { method: "POST", body: JSON.stringify({ kode: String(body.kode || "").slice(0, 6), rb: String(body.rb || "").slice(0, 16) }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "bus") {

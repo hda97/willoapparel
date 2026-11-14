@@ -113,9 +113,9 @@
     "semantic_hash": "16f7aa92d3e9468edf41dd30b4c182d1"
   },
   "public/duniakotak/mabar/game.js": {
-    "mtime": 1794643599.674293,
-    "seen": 1794646146.8193362,
-    "ast_hash": "3feae0bc2b783b5c14eccf0cebf9580e",
+    "mtime": 1794646852.441523,
+    "seen": 1794647144.5871167,
+    "ast_hash": "a967e4fbc1d5d378b252c97a63a9fe0e",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/avatar.js": {
@@ -209,9 +209,9 @@
     "semantic_hash": "bf3f8e495130df0e60287acb7ca38561"
   },
   "worker.js": {
-    "mtime": 1794643599.723093,
-    "seen": 1794646146.819541,
-    "ast_hash": "89296b929f1cdcdde3bd62e4e5edd727",
+    "mtime": 1794646787.951262,
+    "seen": 1794647144.587265,
+    "ast_hash": "aad3f219ecc52a6d53d251679d6e07c9",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/musik.mp3": {
@@ -977,9 +977,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/index.html": {
-    "mtime": 1794643599.674293,
-    "seen": 1794646146.8218625,
-    "ast_hash": "74f7b035d6a9d196dce02e317db928d1",
+    "mtime": 1794646852.4371767,
+    "seen": 1794647144.5891082,
+    "ast_hash": "a2b6ce672e7ce758b00161e6b74b824a",
     "semantic_hash": ""
   },
   "public/duniakotak/privasi.html": {
@@ -1103,15 +1103,15 @@
     "semantic_hash": ""
   },
   "public/hasil-sablon.html": {
-    "mtime": 1794646119.9849982,
-    "seen": 1794646146.82193,
-    "ast_hash": "1f57e22f1ae97d54a00c941f65b8f44b",
+    "mtime": 1794646746.17848,
+    "seen": 1794647144.5891573,
+    "ast_hash": "b3324b59d9a4c119276915df05fd9e32",
     "semantic_hash": ""
   },
   "public/index.html": {
-    "mtime": 1794646119.9864428,
-    "seen": 1794646146.8219328,
-    "ast_hash": "60e716f109b3890bc807cb1beba55249",
+    "mtime": 1794646746.18248,
+    "seen": 1794647144.5891593,
+    "ast_hash": "6673d879b3177aa5384381cbf1df82e0",
     "semantic_hash": ""
   },
   "public/kantor-agen-ai/index.html": {
@@ -14723,9 +14723,9 @@
     "semantic_hash": ""
   },
   "roblox/alat/ekspor_web.js": {
-    "mtime": 1794519264.9347706,
-    "seen": 1794646146.8194702,
-    "ast_hash": "1327b2b2d87ff5e0d4ad77e7394efece",
+    "mtime": 1794646875.9810529,
+    "seen": 1794647144.5871964,
+    "ast_hash": "a6f31d5edf197b35150a38f4046160cb",
     "semantic_hash": ""
   },
   "roblox/alat/pasang.lua": {
@@ -14735,9 +14735,9 @@
     "semantic_hash": ""
   },
   "roblox/alat/ubah.py": {
-    "mtime": 1794519264.9350567,
-    "seen": 1794646146.8194785,
-    "ast_hash": "2e7d18dbd985045aadb84c1814ae9a79",
+    "mtime": 1794646875.982111,
+    "seen": 1794647144.587204,
+    "ast_hash": "ca3dcdf17d10c3cd333bcf5706f3b11e",
     "semantic_hash": ""
   },
   "roblox/build_pulau.py": {
@@ -14753,9 +14753,9 @@
     "semantic_hash": ""
   },
   "roblox/data/wetan.json": {
-    "mtime": 1794646375.5614398,
-    "seen": 1794646393.8794045,
-    "ast_hash": "9db5fd3a3e27d2043121a51a093d8676",
+    "mtime": 1794647061.365537,
+    "seen": 1794647144.5872207,
+    "ast_hash": "de650fa1d59c7f86d3e3f7355501e796",
     "semantic_hash": ""
   },
   "roblox/src/BangunMap.server.lua": {
@@ -15599,21 +15599,21 @@
     "semantic_hash": ""
   },
   "roblox/data/curug.json": {
-    "mtime": 1794646375.5895889,
-    "seen": 1794646393.879397,
-    "ast_hash": "ff2851c21814b7b11df2ebd5000cb685",
+    "mtime": 1794647061.3704987,
+    "seen": 1794647144.5872128,
+    "ast_hash": "2ab665f96c39bbe9d5f7606b18476558",
     "semantic_hash": ""
   },
   "roblox/data/kulon.json": {
-    "mtime": 1794646375.5758271,
-    "seen": 1794646393.8793995,
-    "ast_hash": "eb2d41c32d817dbcc28f4023066012dd",
+    "mtime": 1794647061.3693233,
+    "seen": 1794647144.5872152,
+    "ast_hash": "7690d4ccf0eb76271fd50e3edbd70c3f",
     "semantic_hash": ""
   },
   "roblox/data/tlaga.json": {
-    "mtime": 1794646375.600588,
-    "seen": 1794646393.8794017,
-    "ast_hash": "0fd8d2ac9d4c9defa499edbac07fe51c",
+    "mtime": 1794647061.375411,
+    "seen": 1794647144.5872178,
+    "ast_hash": "023cb17cedc6b61f599a891c8deaea9b",
     "semantic_hash": ""
   },
   "roblox/src/DataWarga.server.lua": {
@@ -15830,6 +15830,48 @@
     "mtime": 1794646119.9849982,
     "seen": 1794646146.82388,
     "ast_hash": "b985c5aeb912cc148bdfd33e04d553af",
+    "semantic_hash": ""
+  },
+  "roblox/src/Kavling.lua": {
+    "mtime": 1794647061.3766055,
+    "seen": 1794647144.587246,
+    "ast_hash": "a9c79c3f62449e2d316f8598841bec0c",
+    "semantic_hash": ""
+  },
+  "roblox/src/RumahWarga.client.lua": {
+    "mtime": 1794646945.0544918,
+    "seen": 1794647144.587251,
+    "ast_hash": "9d9b5fcff21b948854c4a7df8e8623b6",
+    "semantic_hash": ""
+  },
+  "roblox/src/RumahWarga.server.lua": {
+    "mtime": 1794646944.9904919,
+    "seen": 1794647144.587253,
+    "ast_hash": "0ea382985024e7a50a227b713b163b6f",
+    "semantic_hash": ""
+  },
+  "public/foto-hasil/kaos-ulang-tahun-anak-foto-pink.jpg": {
+    "mtime": 1794646746.17848,
+    "seen": 1794647144.5903394,
+    "ast_hash": "e880406c2589f21e1d991284f11a6bc4",
+    "semantic_hash": ""
+  },
+  "public/foto-hasil/kaos-ulang-tahun-anak-foto-pink.webp": {
+    "mtime": 1794646746.17848,
+    "seen": 1794647144.5903413,
+    "ast_hash": "f2734ccf03318e4c69f45a3ecb4d10b4",
+    "semantic_hash": ""
+  },
+  "public/foto-hasil/kaos-ulang-tahun-anak-foto-putih.jpg": {
+    "mtime": 1794646746.17848,
+    "seen": 1794647144.5903432,
+    "ast_hash": "b7ba9efe4f44d28ca46dc040b5fc67e9",
+    "semantic_hash": ""
+  },
+  "public/foto-hasil/kaos-ulang-tahun-anak-foto-putih.webp": {
+    "mtime": 1794646746.17848,
+    "seen": 1794647144.5903451,
+    "ast_hash": "3b72ab4c23bf3521cd7545ae748ee20d",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {
