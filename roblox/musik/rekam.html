@@ -1,0 +1,18 @@
+<!doctype html><html><body><script type="module">
+import { buatMusik } from './suara.js';
+const LAGU = {wetan:[74,8],kulon:[96,8],curug:[64,8],tlaga:[118,6],segara:[112,8]};
+window.render = async (dusun) => {
+  const [bpm, ketuk] = LAGU[dusun]; const C = 3 * ketuk * 8 * (60 / bpm / 2);
+  const sr = 44100, total = 0.1 + 2 * C + 0.05;
+  const c = new OfflineAudioContext(1, Math.ceil(sr * total), sr);
+  const m = buatMusik(c, c.destination, dusun); m.isi(0.1 + 2 * C);
+  const buf = await c.startRendering();
+  const d = buf.getChannelData(0); const a = Math.round((0.1 + C) * sr), b = Math.round((0.1 + 2 * C) * sr);
+  const seg = d.slice(a, b); const i16 = new Int16Array(seg.length);
+  let pk = 0; for (const v of seg) pk = Math.max(pk, Math.abs(v));
+  for (let i = 0; i < seg.length; i++) i16[i] = Math.max(-1, Math.min(1, seg[i] * 0.8)) * 32767;
+  const u8 = new Uint8Array(i16.buffer); let s = ''; for (let i = 0; i < u8.length; i += 32768) s += String.fromCharCode(...u8.subarray(i, i + 32768));
+  return { C, pk, b64: btoa(s) };
+};
+window.siap = true;
+</script></body></html>
