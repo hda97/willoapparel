@@ -4,6 +4,7 @@ import { useTema } from '../tema';
 import { Kartu, Teks, Tombol, Input, Kosong, Baris, Segmen } from '../ui';
 import { statusTagihan, formatRp } from '../../lib/hitung';
 import { eksporExcel } from '../excel';
+import { WEB, BATAS_TAGIHAN, terkunci, penuh } from '../coba';
 
 export default function Beranda({ data, buka }) {
   const t = useTema();
@@ -35,9 +36,20 @@ export default function Beranda({ data, buka }) {
         </Teks>
       </View>
 
+      {terkunci(data) && (
+        <Pressable onPress={() => buka('pro', {})}>
+          <View style={{ backgroundColor: t.kuningLembut, borderRadius: 14, padding: 12, marginBottom: 12, flexDirection: 'row', alignItems: 'center' }}>
+            <Teks style={{ flex: 1 }} ukuran={13}>
+              <Teks tebal ukuran={13}>Versi coba gratis</Teks> · sisa {Math.max(0, BATAS_TAGIHAN - data.tagihan.length)} dari {BATAS_TAGIHAN} tagihan
+            </Teks>
+            <Teks tebal warna={t.utama} ukuran={13}>Buka Pro →</Teks>
+          </View>
+        </Pressable>
+      )}
+
       <Baris style={{ marginBottom: 16 }}>
-        <Tombol ikon="📷" judul="Scan Struk" onPress={() => buka('scan')} style={{ flex: 1, marginRight: 8 }} />
-        <Tombol ikon="✏️" judul="Buat Manual" jenis="lembut" onPress={() => buka('editor', {})} style={{ flex: 1 }} />
+        <Tombol ikon="📷" judul={WEB ? 'Tempel Struk' : 'Scan Struk'} onPress={() => (penuh(data) ? buka('pro', { alasan: 'penuh' }) : buka('scan'))} style={{ flex: 1, marginRight: 8 }} />
+        <Tombol ikon="✏️" judul="Buat Manual" jenis="lembut" onPress={() => (penuh(data) ? buka('pro', { alasan: 'penuh' }) : buka('editor', {}))} style={{ flex: 1 }} />
       </Baris>
 
       {data.tagihan.length > 0 && (

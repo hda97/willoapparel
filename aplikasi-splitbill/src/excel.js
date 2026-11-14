@@ -3,9 +3,11 @@ import * as Sharing from 'expo-sharing';
 import { Platform } from 'react-native';
 import { buatWorkbook, XLSX } from '../lib/bukuExcel';
 import { namaFileEkspor } from '../lib/ekspor';
+import { excelTerkunci } from './coba';
 
 // Buat file .xlsx lalu buka menu bagikan (simpan ke Drive/Files, kirim WA, buka di Excel/Sheets).
 export async function eksporExcel(daftarTagihan, judul, opsi = {}) {
+  if (excelTerkunci()) throw new Error('Ekspor Excel ada di versi Pro. Buka menu Atur → Buka Pro.');
   const wb = buatWorkbook(daftarTagihan, { judul, pengeluaran: opsi.pengeluaran });
   const nama = namaFileEkspor(judul);
   if (Platform.OS === 'web') {

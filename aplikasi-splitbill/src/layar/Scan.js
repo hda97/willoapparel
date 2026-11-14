@@ -7,13 +7,14 @@ import { bacaTeksGambar } from '../ocr';
 import { parseStruk } from '../../lib/parseStruk';
 import { formatRp } from '../../lib/hitung';
 import { simpanFotoStruk } from '../foto';
+import { WEB } from '../coba';
 
 export default function Scan({ tutup, ganti }) {
   const t = useTema();
   const [foto, setFoto] = useState(null);
   const [teks, setTeks] = useState('');
   const [proses, setProses] = useState(false);
-  const [lihatTeks, setLihatTeks] = useState(false);
+  const [lihatTeks, setLihatTeks] = useState(WEB);
   const [buang, setBuang] = useState({});
   const hasil = useMemo(() => (teks ? parseStruk(teks) : null), [teks]);
 
@@ -49,8 +50,14 @@ export default function Scan({ tutup, ganti }) {
 
   return (
     <View style={{ flex: 1 }}>
-      <Header judul="Scan Struk" onKembali={tutup} />
+      <Header judul={WEB ? "Tempel Struk" : "Scan Struk"} onKembali={tutup} />
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 120 }} keyboardShouldPersistTaps="handled">
+        {WEB ? (
+          <Kartu style={{ backgroundColor: t.utamaLembut }}>
+            <Judul>📷 Scan foto struk ada di aplikasi Android</Judul>
+            <Teks pudar ukuran={13}>Di versi web, tempel atau ketik isi struk di bawah. Item, pajak, dan service tetap terbaca otomatis.</Teks>
+          </Kartu>
+        ) : (
         <Kartu>
           <Judul>📷 Foto struk</Judul>
           <Teks pudar ukuran={13} style={{ marginBottom: 12 }}>
@@ -68,6 +75,7 @@ export default function Scan({ tutup, ganti }) {
             </Baris>
           )}
         </Kartu>
+        )}
 
         <Kartu>
           <Pressable onPress={() => setLihatTeks((v) => !v)}>
