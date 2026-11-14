@@ -1,7 +1,8 @@
 --[[
   PapanDesa (Script) - papan pengumuman di dekat titik muncul Kotak Wetan yang menampilkan data publik game web
   (hanya membaca): 5 besar koin terbanyak, 5 besar Rajin minggu ini, dan hasil voting fasum yang sedang berjalan.
-  Memberi suara tetap dilakukan di game web. Data disegarkan tiap 5 menit.
+  Sisi belakang papan: klasemen Piala Antardusun, pencetak poin terbanyak, dan Lomba Rumah Terindah minggu ini.
+  Memberi suara, menyukai rumah, dan mengumpulkan poin Piala tetap dilakukan di game web. Data disegarkan tiap 5 menit.
 
   Nama warga dilewatkan saringan teks Roblox; nama yang tersaring ditulis "warga <nomor>".
   Pasang sebagai Script di ServerScriptService. Butuh HttpService menyala.
@@ -62,7 +63,12 @@ sg.Face = Enum.NormalId.Front
 sg.CanvasSize = Vector2.new(960, 440)
 sg.LightInfluence = 0
 sg.Parent = papan
-local function teks(isi, font, ukuran, warna, x, y, w, h)
+local sgB = Instance.new("SurfaceGui")
+sgB.Face = Enum.NormalId.Back
+sgB.CanvasSize = Vector2.new(960, 440)
+sgB.LightInfluence = 0
+sgB.Parent = papan
+local function teks(isi, font, ukuran, warna, x, y, w, h, induk)
 	local t = Instance.new("TextLabel")
 	t.BackgroundTransparency = 1
 	t.Position = UDim2.fromOffset(x, y)
@@ -74,7 +80,7 @@ local function teks(isi, font, ukuran, warna, x, y, w, h)
 	t.TextYAlignment = Enum.TextYAlignment.Top
 	t.TextWrapped = true
 	t.Text = isi
-	t.Parent = sg
+	t.Parent = induk or sg
 	return t
 end
 teks("PAPAN DESA DUNIA KOTAK", BERAT, 34, KUNING, 24, 14, 912, 40)
@@ -85,6 +91,16 @@ local tKoin = teks("Memuat…", TEBAL, 23, Color3.new(1, 1, 1), 24, 108, 300, 29
 local tRajin = teks("Memuat…", TEBAL, 23, Color3.new(1, 1, 1), 334, 108, 300, 290)
 local tVoting = teks("Memuat…", TEBAL, 23, Color3.new(1, 1, 1), 644, 108, 300, 290)
 teks("Data dari game web. Memberi suara dilakukan di game web.", TEBAL, 18, Color3.fromRGB(170, 170, 180), 24, 404, 912, 24)
+local PUTIH = Color3.new(1, 1, 1)
+teks("PIALA ANTARDUSUN DAN LOMBA RUMAH", BERAT, 34, KUNING, 24, 14, 912, 40, sgB)
+teks("Klasemen dusun", BERAT, 26, PUTIH, 24, 70, 290, 30, sgB)
+teks("Poin terbanyak", BERAT, 26, PUTIH, 334, 70, 290, 30, sgB)
+teks("Rumah terindah", BERAT, 26, PUTIH, 644, 70, 290, 30, sgB)
+local tKlasemen = teks("Memuat…", TEBAL, 23, PUTIH, 24, 108, 300, 290, sgB)
+local tPoin = teks("Memuat…", TEBAL, 23, PUTIH, 334, 108, 300, 290, sgB)
+local tRumah = teks("Memuat…", TEBAL, 23, PUTIH, 644, 108, 300, 290, sgB)
+teks("Data minggu ini dari game web. Poin Piala dan suka rumah dikumpulkan di game web.", TEBAL, 18, Color3.fromRGB(170, 170, 180), 24, 404, 912, 24, sgB)
+local NAMA_DUSUN = { wetan = "Kotak Wetan", kulon = "Kotak Kulon", curug = "Kotak Curug", tlaga = "Kotak Tlaga", segara = "Kotak Segara" }
 model.Parent = workspace
 
 local function ambil(nama)
@@ -115,13 +131,16 @@ local function namaAman(x)
 	return saring[u] or cadangan
 end
 
-local function daftar(L)
+local function daftar(L, kolom, satuan)
 	if typeof(L) ~= "table" or #L == 0 then return "Belum ada data." end
 	local t = {}
 	for i = 1, math.min(5, #L) do
-		table.insert(t, i .. ". " .. namaAman(L[i]) .. "  ·  " .. tostring(L[i].koin or 0))
+		table.insert(t, i .. ". " .. namaAman(L[i]) .. "  ·  " .. tostring(L[i][kolom or "koin"] or 0) .. (satuan or ""))
 	end
 	return table.concat(t, "\n")
+end
+local function juaraLalu(nama, angka)
+	return "\n\nJuara minggu lalu:\n" .. nama .. "  ·  " .. angka
 end
 
 local function segarkan()
@@ -154,6 +173,26 @@ local function segarkan()
 		tVoting.Text = table.concat(t, "\n")
 	elseif tVoting.Text == "Memuat…" then
 		tVoting.Text = "Data belum terjangkau."
+	end
+	local pi = ambil("piala")
+	if pi and typeof(pi.klasemen) == "table" then
+		local t = {}
+		for i, k in ipairs(pi.klasemen) do
+			table.insert(t, i .. ". " .. (NAMA_DUSUN[k.d] or tostring(k.d)) .. "  ·  " .. tostring(k.poin or 0))
+		end
+		local j = typeof(pi.juara) == "table" and pi.juara or nil
+		tKlasemen.Text = table.concat(t, "\n") .. (j and juaraLalu(NAMA_DUSUN[j.d] or tostring(j.d), tostring(j.poin or 0) .. " poin") or "")
+		tPoin.Text = daftar(pi.top, "poin", " poin")
+	elseif tKlasemen.Text == "Memuat…" then
+		tKlasemen.Text = "Data belum terjangkau."
+		tPoin.Text = "Data belum terjangkau."
+	end
+	local ru = ambil("rumah")
+	if ru and typeof(ru.top) == "table" then
+		local j = typeof(ru.juara) == "table" and ru.juara or nil
+		tRumah.Text = daftar(ru.top, "suka", " suka") .. (j and juaraLalu(namaAman(j), tostring(j.suka or 0) .. " suka") or "")
+	elseif tRumah.Text == "Memuat…" then
+		tRumah.Text = "Data belum terjangkau."
 	end
 end
 
