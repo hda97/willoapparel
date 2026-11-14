@@ -1,7 +1,7 @@
 # Graph Report - willoapparel  (2026-11-14)
 
 ## Corpus Check
-- 1178 files · ~9,075,494 words
+- 1178 files · ~9,075,517 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 108 file(s) not represented in the graph (top: (none) 56, .xml 12, .css 8)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `187c0344`
+- Built from commit: `65cd3353`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -2257,16 +2257,16 @@ Nodes (4): keFase(), mainFase(), soalSah(), urut
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Td()` connect `gsap.min.js` to `0.169.0/three.module.min.js`, `_three/three.module.min.js`?**
-  _High betweenness centrality (0.116) - this node is a cross-community bridge._
+  _High betweenness centrality (0.152) - this node is a cross-community bridge._
 - **What connects `RFC-3987`, `RFC-1951`, `FlateErrorCode` to the rest of the system?**
   _7 weakly-connected nodes found - possible missing edges._
 - **Should `duniakotak/js/desa.js` be split into smaller, more focused modules?**
   _Cohesion score 0.06289506953223767 - nodes in this community are weakly interconnected._
-- **Why does `pt()` connect `alpha` to `Tt`, `Tt`?**
-  _High betweenness centrality (0.085) - this node is a cross-community bridge._
+- **Why does `t()` connect `wait-bgm.mjs` to `three.core.js`, `gsap.min.js`, `_d`, `zc`?**
+  _High betweenness centrality (0.102) - this node is a cross-community bridge._
 - **Should `mabar/game.js` be split into smaller, more focused modules?**
   _Cohesion score 0.011578495965069588 - nodes in this community are weakly interconnected._
-- **Why does `t()` connect `wait-bgm.mjs` to `three.core.js`, `gsap.min.js`, `_d`, `zc`?**
-  _High betweenness centrality (0.076) - this node is a cross-community bridge._
+- **Why does `CubicBezier()` connect `three.core.js` to `wait-bgm.mjs`, `Curve`?**
+  _High betweenness centrality (0.102) - this node is a cross-community bridge._
 - **Should `worker.js` be split into smaller, more focused modules?**
   _Cohesion score 0.03460764587525151 - nodes in this community are weakly interconnected._

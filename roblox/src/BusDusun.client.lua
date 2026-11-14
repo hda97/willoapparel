@@ -76,7 +76,7 @@ latar.Parent = gui
 local panel = Instance.new("Frame")
 panel.AnchorPoint = Vector2.new(0.5, 0.5)
 panel.Position = UDim2.fromScale(0.5, 0.5)
-panel.Size = UDim2.new(0.92, 0, 0, 404)
+panel.Size = UDim2.new(0.92, 0, 0.96, 0) -- layar pendek: panel mengecil, daftar bisa digulir
 panel.BackgroundColor3 = Color3.new(1, 1, 1)
 panel.Active = true
 bulat(panel, 14)
@@ -106,8 +106,13 @@ tiket.Position = UDim2.fromOffset(16, 38)
 tiket.Size = UDim2.new(1, -32, 0, 18)
 tiket.TextTruncate = Enum.TextTruncate.AtEnd
 
-local daftar = Instance.new("Frame")
+local daftar = Instance.new("ScrollingFrame")
 daftar.BackgroundTransparency = 1
+daftar.BorderSizePixel = 0
+daftar.ScrollBarThickness = 4
+daftar.CanvasSize = UDim2.new()
+daftar.AutomaticCanvasSize = Enum.AutomaticSize.Y
+daftar.ScrollingDirection = Enum.ScrollingDirection.Y
 daftar.Position = UDim2.fromOffset(12, 64)
 daftar.Size = UDim2.new(1, -24, 1, -76)
 daftar.Parent = panel
@@ -166,7 +171,7 @@ end
 for i, k in ipairs(URUT) do
 	local b = Instance.new("TextButton")
 	b.LayoutOrder = i
-	b.Size = UDim2.new(1, 0, 0, 60)
+	b.Size = UDim2.new(1, -6, 0, 60)
 	b.BackgroundColor3 = KET[k][3]
 	b.AutoButtonColor = true
 	b.Text = ""
