@@ -22,14 +22,14 @@
 
 local PASS = {
 	{ kunci = "pendukung", id = 2088543159, nama = "Pendukung Desa", ket = "Gelar emas di atas kepalamu." },
-	{ kunci = "jejak", id = 0, nama = "Jejak Bintang", ket = "Percik bintang mengikuti langkahmu." },
-	{ kunci = "pelangi", id = 0, nama = "Gelar Pelangi", ket = "Tulisan gelarmu berwarna pelangi." },
-	{ kunci = "lentera", id = 0, nama = "Lentera Malam", ket = "Cahaya hangat di sekitarmu." },
+	{ kunci = "jejak", id = 2088957184, nama = "Jejak Bintang", ket = "Percik bintang mengikuti langkahmu." },
+	{ kunci = "pelangi", id = 2088003239, nama = "Gelar Pelangi", ket = "Tulisan gelarmu berwarna pelangi." },
+	{ kunci = "lentera", id = 2088045208, nama = "Lentera Malam", ket = "Cahaya hangat di sekitarmu." },
 }
 local PRODUK = {
-	{ kunci = "bata1", id = 0, nama = "1 Bata", ket = "Pasang 1 bata atas namamu di Tembok Pendukung.", bata = 1 },
-	{ kunci = "bata5", id = 0, nama = "5 Bata", ket = "Pasang 5 bata sekaligus.", bata = 5 },
-	{ kunci = "kembang", id = 0, nama = "Kembang Api", ket = "Nyalakan kembang api yang terlihat semua warga." },
+	{ kunci = "bata1", id = 3731308400, nama = "1 Bata", ket = "Pasang 1 bata atas namamu di Tembok Pendukung.", bata = 1 },
+	{ kunci = "bata5", id = 3731308805, nama = "5 Bata", ket = "Pasang 5 bata sekaligus.", bata = 5 },
+	{ kunci = "kembang", id = 3731309069, nama = "Kembang Api", ket = "Nyalakan kembang api yang terlihat semua warga." },
 }
 
 local Players = game:GetService("Players")
