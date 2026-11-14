@@ -15898,6 +15898,18 @@
     "ast_hash": "d2c8b750aba6ee646b821aec864b9c0c",
     "semantic_hash": ""
   },
+  "roblox/src/DealerKendaraan.client.lua": {
+    "mtime": 1794650430.6425204,
+    "seen": 1794650474.6892455,
+    "ast_hash": "9818d9d1886d3437d5e9a3c7318867b8",
+    "semantic_hash": ""
+  },
+  "roblox/src/DealerKendaraan.server.lua": {
+    "mtime": 1794650383.366518,
+    "seen": 1794650474.6892736,
+    "ast_hash": "d5bc7505dacd7129c284099fc701e803",
+    "semantic_hash": ""
+  },
   ".claude/skills/video-shotcraft/package-lock.json": {
     "mtime": 1794434389.631907,
     "seen": 1794646146.8242428,
