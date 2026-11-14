@@ -190,8 +190,8 @@ do
 		local rp = RaycastParams.new()
 		rp.FilterType = Enum.RaycastFilterType.Include
 		rp.FilterDescendantsInstances = { akar }
-		-- di rumput tepi jalan setapak, sejajar jalan dan menghadap jalan (+Z); tidak menutup gerbang rumah di belakangnya
-		local letak = pusat + Vector3.new(-9.5, 0, -12)
+		-- di rumput tepi jalan setapak, di antara tiang Papan Desa dan papan nama Warung Raka, menghadap jalan (+Z)
+		local letak = pusat + Vector3.new(-15.5, 0, -13)
 		local r = workspace:Raycast(letak + Vector3.new(0, 40, 0), Vector3.new(0, -120, 0), rp)
 		local tanah = r and r.Position.Y or pusat.Y - 3
 		local dasar = CFrame.new(letak.X, tanah, letak.Z) * CFrame.Angles(0, math.rad(180), 0)
@@ -210,21 +210,21 @@ do
 			return p
 		end
 		-- tembok bata
-		local tembok = balok(Vector3.new(12, 8, 1), dasar * CFrame.new(0, 4, 0), BATA)
+		local tembok = balok(Vector3.new(8, 7, 1), dasar * CFrame.new(0, 3.5, 0), BATA)
 		for i = 0, 3 do
-			balok(Vector3.new(12.1, 0.12, 1.05), dasar * CFrame.new(0, 1.6 + i * 1.6, 0), Color3.fromRGB(230, 220, 205))
+			balok(Vector3.new(8.1, 0.12, 1.05), dasar * CFrame.new(0, 1.4 + i * 1.4, 0), Color3.fromRGB(230, 220, 205))
 		end
 		local sg = Instance.new("SurfaceGui")
 		sg.Face = Enum.NormalId.Front
-		sg.CanvasSize = Vector2.new(480, 320)
+		sg.CanvasSize = Vector2.new(400, 350)
 		sg.LightInfluence = 0
 		sg.Parent = tembok
 		local j = Instance.new("TextLabel")
 		j.BackgroundTransparency = 1
 		j.Position = UDim2.fromOffset(16, 10)
-		j.Size = UDim2.fromOffset(448, 34)
+		j.Size = UDim2.fromOffset(368, 34)
 		j.FontFace = BERAT
-		j.TextSize = 28
+		j.TextSize = 26
 		j.TextColor3 = KUNING
 		j.TextStrokeTransparency = 0.4
 		j.TextXAlignment = Enum.TextXAlignment.Left
@@ -233,7 +233,7 @@ do
 		tTembok = Instance.new("TextLabel")
 		tTembok.BackgroundTransparency = 1
 		tTembok.Position = UDim2.fromOffset(16, 50)
-		tTembok.Size = UDim2.fromOffset(448, 262)
+		tTembok.Size = UDim2.fromOffset(368, 292)
 		tTembok.FontFace = TEBAL
 		tTembok.TextSize = 22
 		tTembok.TextColor3 = Color3.new(1, 1, 1)
