@@ -112,8 +112,8 @@ BENTUK.sepeda = {
 	{ Vector3.new(0.8, 0.3, 1.2), Vector3.new(0, 3, 1), BAN },
 }
 -- letak pengemudi (pinggul): { x, y, z }; pengemudi mobil kelihatan dari kaca
-local SOPIR = { sedan = { 1.4, 2.9, -0.6 }, patroli = { 1.4, 2.9, -0.6 }, hatch = { 1.4, 3.1, -0.4 }, jip = { 1.5, 3.9, -0.4 },
-	ambulans = { 1.5, 2.6, -4.6 }, motor = { 0, 3.3, 0.8 }, sepeda = { 0, 3.2, 0.9 } }
+local SOPIR = { sedan = { 1.4, 1.1, -0.6 }, patroli = { 1.4, 1.1, -0.6 }, hatch = { 1.4, 1.3, -0.4 }, jip = { 1.5, 2.3, -0.4 },
+	ambulans = { 1.5, 0.5, -4.6 }, motor = { 0, 3.3, 0.8 }, sepeda = { 0, 3.2, 0.9 } }
 
 local lama = workspace:FindFirstChild("DK_LaluLintas")
 if lama then lama:Destroy() end
