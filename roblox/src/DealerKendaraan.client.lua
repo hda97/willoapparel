@@ -133,7 +133,7 @@ daftar.CanvasSize = UDim2.new()
 daftar.AutomaticCanvasSize = Enum.AutomaticSize.Y
 daftar.ScrollingDirection = Enum.ScrollingDirection.Y
 daftar.Position = UDim2.fromOffset(12, 44)
-daftar.Size = UDim2.new(1, -24, 1, -214)
+daftar.Size = UDim2.new(1, -24, 1, -186)
 daftar.Parent = panel
 local susun = Instance.new("UIListLayout")
 susun.Padding = UDim.new(0, 6)
@@ -144,21 +144,20 @@ local bawah = Instance.new("Frame")
 bawah.BackgroundTransparency = 1
 bawah.AnchorPoint = Vector2.new(0, 1)
 bawah.Position = UDim2.new(0, 16, 1, -12)
-bawah.Size = UDim2.new(1, -32, 0, 150)
+bawah.Size = UDim2.new(1, -32, 0, 124)
 bawah.Parent = panel
 
 local namaT = teks(bawah, "", BERAT, 15)
 namaT.Size = UDim2.new(1, 0, 0, 20)
 local ketT = teks(bawah, "", BIASA, 12, Color3.fromRGB(90, 90, 100))
 ketT.Position = UDim2.fromOffset(0, 20)
-ketT.Size = UDim2.new(1, 0, 0, 30)
-ketT.TextWrapped = true
-ketT.TextYAlignment = Enum.TextYAlignment.Top
+ketT.Size = UDim2.new(1, 0, 0, 16)
+ketT.TextTruncate = Enum.TextTruncate.AtEnd
 
 local barisWarna = Instance.new("Frame")
 barisWarna.BackgroundTransparency = 1
-barisWarna.Position = UDim2.fromOffset(0, 54)
-barisWarna.Size = UDim2.new(1, 0, 0, 32)
+barisWarna.Position = UDim2.fromOffset(2, 42)
+barisWarna.Size = UDim2.new(1, 0, 0, 28)
 barisWarna.Parent = bawah
 local susunW = Instance.new("UIListLayout")
 susunW.FillDirection = Enum.FillDirection.Horizontal
@@ -166,7 +165,7 @@ susunW.Padding = UDim.new(0, 8)
 susunW.Parent = barisWarna
 
 local utama = Instance.new("TextButton")
-utama.Position = UDim2.fromOffset(0, 96)
+utama.Position = UDim2.fromOffset(0, 80)
 utama.Size = UDim2.new(1, 0, 0, 44)
 utama.BackgroundColor3 = KUNING
 utama.FontFace = BERAT
@@ -177,7 +176,7 @@ bulat(utama, 10)
 utama.Parent = bawah
 
 local cat = Instance.new("TextButton")
-cat.Position = UDim2.new(0.52, 0, 0, 96)
+cat.Position = UDim2.new(0.52, 0, 0, 80)
 cat.Size = UDim2.new(0.48, 0, 0, 44)
 cat.BackgroundColor3 = Color3.fromRGB(238, 238, 242)
 cat.FontFace = TEBAL
@@ -233,7 +232,7 @@ tulis = function()
 		if k.id == pilihM then pilih = k end
 		local b = Instance.new("TextButton")
 		b.LayoutOrder = i
-		b.Size = UDim2.new(1, -6, 0, 42)
+		b.Size = UDim2.new(1, -6, 0, 34)
 		b.BackgroundColor3 = k.id == pilihM and Color3.fromRGB(255, 232, 160) or Color3.fromRGB(246, 243, 232)
 		b.Text = ""
 		bulat(b, 10)
@@ -256,16 +255,16 @@ tulis = function()
 	end
 	if not pilih then return end
 	namaT.Text = pilih.ikon .. " " .. pilih.nama
-	ketT.Text = pilih.ket .. " · " .. string.format("%.1f", pilih.kec):gsub("%.", ",") .. "× lebih cepat dari jalan kaki"
+	ketT.Text = string.format("%.1f", pilih.kec):gsub("%.", ",") .. "× lebih cepat dari jalan kaki · " .. pilih.ket
 	for _, c in ipairs(barisWarna:GetChildren()) do
 		if not c:IsA("UIListLayout") then c:Destroy() end
 	end
 	for i, w in ipairs(data.warna) do
 		local b = Instance.new("TextButton")
-		b.Size = UDim2.fromOffset(32, 32)
+		b.Size = UDim2.fromOffset(28, 28)
 		b.BackgroundColor3 = Color3.fromRGB(w.r, w.g, w.b)
 		b.Text = ""
-		bulat(b, 16)
+		bulat(b, 14)
 		local s = Instance.new("UIStroke")
 		s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		s.Thickness = (i - 1) == pilihW and 3 or 1

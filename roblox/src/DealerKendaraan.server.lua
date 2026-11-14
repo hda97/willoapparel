@@ -194,6 +194,18 @@ local function simpan(player)
 	pcall(function() store:SetAsync("p_" .. player.UserId, s.data) end)
 end
 
+-- simpan beberapa detik setelah perubahan terakhir, supaya beli lalu cat ulang tidak mengirim dua permintaan beruntun
+local function simpanNanti(player)
+	local s = sesi[player]
+	if not s or s.antre then return end
+	s.antre = true
+	task.delay(8, function()
+		if sesi[player] ~= s then return end
+		s.antre = false
+		simpan(player)
+	end)
+end
+
 local function koinPemain(player)
 	local ls = player:FindFirstChild("leaderstats")
 	local k = ls and ls:FindFirstChild("Koin")
@@ -307,7 +319,7 @@ local function aksi(player, op, a, b)
 		table.insert(s.data.g, { m = m, w = w })
 		s.data.p = #s.data.g
 		if player:GetAttribute("DK_Naik") ~= "" then turun(player) end
-		task.spawn(simpan, player)
+		simpanNanti(player)
 		pesan = "🎉 " .. KEND[m].nama .. " jadi milikmu!"
 	elseif op == "pakai" then
 		local i = tonumber(a)
@@ -322,7 +334,7 @@ local function aksi(player, op, a, b)
 		if not potong(player, HARGA_CAT) then return { galat = "Koin belum bisa dipotong, coba lagi." } end
 		k.w = w
 		if player:GetAttribute("DK_Naik") ~= "" then turun(player) end
-		task.spawn(simpan, player)
+		simpanNanti(player)
 		pesan = "🎨 Kendaraanmu dicat ulang!"
 	elseif op == "naik" then
 		local galat = naik(player)
