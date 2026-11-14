@@ -14,7 +14,7 @@
   Ubah angka POSISI di Studio kalau letaknya menabrak bangunan.
 ]]
 
-local POSISI = Vector3.new(-284, 0.5, -1010) -- dekat TitikMuncul Kotak Wetan
+local POSISI = Vector3.new(-422.5, 0.5, -1269) -- lahan kosong di pojok barat laut Kotak Wetan, tepat di utara jalan
 local JUMLAH_PETAK = 24
 local PER_BARIS = 6
 local PANEN_JEDA = 6 * 3600
@@ -103,10 +103,10 @@ end
 
 local function tulisan(induk, teks, tinggi)
 	local bb = Instance.new("BillboardGui")
-	bb.Size = UDim2.new(0, 200, 0, 46)
+	bb.Size = UDim2.new(0, 150, 0, 32)
 	bb.StudsOffset = Vector3.new(0, tinggi, 0)
 	bb.AlwaysOnTop = false
-	bb.MaxDistance = 70
+	bb.MaxDistance = 30
 	local t = Instance.new("TextLabel")
 	t.Size = UDim2.new(1, 0, 1, 0)
 	t.BackgroundTransparency = 1
