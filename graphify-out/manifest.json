@@ -15772,6 +15772,12 @@
     "ast_hash": "4e672edd8b4f27003a4dc5cf2e202e3e",
     "semantic_hash": ""
   },
+  "roblox/src/AvatarKotak.server.lua": {
+    "mtime": 1794644336.4097018,
+    "seen": 1794644478.0284083,
+    "ast_hash": "e79f1f36ec60582f902edaeea586b140",
+    "semantic_hash": ""
+  },
   ".claude/skills/video-shotcraft/package-lock.json": {
     "mtime": 1794434389.631907,
     "seen": 1794643633.6320815,
