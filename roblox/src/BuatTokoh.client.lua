@@ -86,8 +86,8 @@ bulat(tombolBuka, 10)
 tombolBuka.Parent = gui
 
 local panel = Instance.new("Frame")
-panel.AnchorPoint = Vector2.new(1, 0.5)
-panel.Position = UDim2.new(1, -12, 0.5, 0)
+panel.AnchorPoint = Vector2.new(0, 0.5) -- kiri layar, supaya tidak menutup papan skor di kanan atas
+panel.Position = UDim2.new(0, 12, 0.5, 0)
 panel.Size = UDim2.new(0, 330, 0.86, 0)
 panel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 panel.Visible = false
@@ -249,7 +249,15 @@ local function kameraDepan(nyala)
 		local hrp = char and char:FindFirstChild("HumanoidRootPart")
 		if not hrp then return end
 		local geser = cam.ViewportSize.X > 700 and 2.2 or 0
-		local dari = (hrp.CFrame * CFrame.new(geser, 1.6, -10)).Position
+		-- kamera 10 stud di depan tokoh; kalau ada bangunan di antaranya, kamera maju mendekat
+		local mata = (hrp.CFrame * CFrame.new(0, 1.2, 0)).Position
+		local arah = (hrp.CFrame * CFrame.new(0, 1.6, -10)).Position - mata
+		local saring = RaycastParams.new()
+		saring.FilterType = Enum.RaycastFilterType.Exclude
+		saring.FilterDescendantsInstances = { char }
+		local kena = workspace:Raycast(mata, arah, saring)
+		local jarak = kena and math.max(4, (kena.Position - mata).Magnitude - 0.6) or arah.Magnitude
+		local dari = mata + arah.Unit * jarak + hrp.CFrame.RightVector * geser
 		cam.CFrame = CFrame.lookAt(dari, (hrp.CFrame * CFrame.new(geser, 0.4, 0)).Position)
 	end)
 end
