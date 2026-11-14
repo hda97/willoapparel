@@ -10,11 +10,34 @@ Mas Huda membukanya adalah yang benar.
 
 | No | Sumber | Yang sudah ada | Yang perlu tangan Huda |
 |---|---|---|---|
-| 1 | Premium Payouts | Tanda "Premium" di gelar pemain Premium (`DukungDesa.server.lua`) | Rilis game ke publik |
-| 2 | Game Pass "Pendukung Desa" | Gelar emas di atas kepala, panel beli di Kotak Dukungan | Buat pass, kirim nomornya |
-| 3 | Developer Product "1 Bata" | Hitungan bata, Tembok Pendukung 10 besar, pencatatan struk | Buat produk, kirim nomornya |
-| 4 | Kaos WILLO untuk avatar | 3 gambar kaos di `roblox/aset/kaos-willo/` | Unggah dan pasang harga |
+| 1 | Premium Payouts | Tanda "Premium" di gelar pemain Premium | Rilis game ke publik |
+| 2 | 4 Game Pass hiasan | Efeknya dan panel beli di Kotak Dukungan (`DukungDesa.server.lua`) | Buat pass, kirim nomornya |
+| 3 | 3 Developer Product | Bata, Tembok Pendukung 10 besar, kembang api, pencatatan struk | Buat produk, kirim nomornya |
+| 4 | 6 kaos untuk avatar | Gambar di `roblox/aset/kaos-willo/` | Unggah dan pasang harga |
 | 5 | Server pribadi berbayar | Tidak perlu kode | Nyalakan di pengaturan game |
+
+## Daftar barang dan saran harga
+
+Game Pass (sekali beli):
+
+| Nama | Deskripsi untuk dashboard | Saran harga |
+|---|---|---|
+| Pendukung Desa | Gelar emas Pendukung Desa di atas kepalamu. Hanya hiasan. | 49 Robux |
+| Jejak Bintang | Percik bintang mengikuti langkahmu. Hanya hiasan. | 79 Robux |
+| Gelar Pelangi | Tulisan gelarmu berwarna pelangi. Hanya hiasan. | 99 Robux |
+| Lentera Malam | Cahaya hangat di sekitar tokohmu. Hanya hiasan. | 59 Robux |
+
+Developer Product (bisa dibeli berulang):
+
+| Nama | Deskripsi untuk dashboard | Saran harga |
+|---|---|---|
+| 1 Bata | Pasang satu bata atas namamu di Tembok Pendukung. Hanya hiasan. | 25 Robux |
+| 5 Bata | Pasang lima bata sekaligus di Tembok Pendukung. Hanya hiasan. | 99 Robux |
+| Kembang Api | Nyalakan kembang api yang terlihat semua warga. Hanya hiasan. | 15 Robux |
+
+Kaos klasik (sekitar 5 Robux per kaos): WILLO kuning, hitam, putih, biru, dan Dunia Kotak hijau dan gelap.
+
+Harga di atas saran saya, bukan aturan. Mulai murah lalu naikkan kalau laku biasanya lebih aman.
 
 ## Langkah Huda
 
@@ -24,20 +47,20 @@ Semua dilakukan di https://create.roblox.com, masuk dengan akun hooda1997, lalu 
 1. Rilis game ke publik (tombol "Release publicly" di Roblox Studio atau ubah Audience menjadi Public di dashboard).
 2. Selesai. Roblox menghitung sendiri berapa lama pemain Premium bermain. Hasilnya terlihat di menu Analytics.
 
-### 2. Game Pass "Pendukung Desa"
+### 2. Game Pass
 1. Menu Monetization, pilih Passes, lalu Create a Pass.
-2. Nama: `Pendukung Desa`. Deskripsi: `Gelar emas Pendukung Desa di atas kepalamu. Hanya hiasan.`
-3. Simpan, buka pass itu, menu Sales, nyalakan Item for Sale, isi harga. Saran saya 49 Robux.
-4. Salin nomor pass (angka di alamat halaman) dan kirim ke saya.
+2. Isi nama dan deskripsi dari tabel di atas, lalu simpan.
+3. Buka pass itu, menu Sales, nyalakan Item for Sale, isi harga.
+4. Ulangi untuk pass lain. Tidak harus semuanya sekaligus, satu pass dulu juga boleh.
+5. Salin nomor tiap pass (angka di alamat halaman) dan kirim ke saya bersama namanya.
 
-### 3. Developer Product "1 Bata"
+### 3. Developer Product
 1. Menu Monetization, pilih Developer Products, lalu Create a Developer Product.
-2. Nama: `1 Bata`. Deskripsi: `Pasang satu bata atas namamu di Tembok Pendukung. Hanya hiasan.`
-3. Isi harga. Saran saya 25 Robux.
-4. Salin nomor produk dan kirim ke saya.
+2. Isi nama, deskripsi, dan harga dari tabel di atas.
+3. Salin nomor tiap produk dan kirim ke saya bersama namanya.
 
-Setelah dua nomor itu saya terima, saya isi `ID_PASS` dan `ID_BATA` di `DukungDesa.server.lua`, pasang ke Studio, dan
-coba beli di mode uji Studio (pembelian uji di Studio tidak memotong Robux).
+Setelah nomor saya terima, saya isi kolom `id` di tabel `PASS` dan `PRODUK` pada `DukungDesa.server.lua`, pasang ke
+Studio, dan coba beli di mode uji Studio (pembelian uji di Studio tidak memotong Robux).
 
 ### 4. Kaos WILLO
 Yang disiapkan adalah kaos klasik (gambar 2D yang menempel di badan avatar), karena item 3D butuh verifikasi identitas

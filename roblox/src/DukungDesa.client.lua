@@ -1,6 +1,6 @@
 --[[
-  DukungDesa (LocalScript, StarterPlayer.StarterPlayerScripts.DukungDesa) - panel Kotak Dukungan: beli Game Pass
-  "Pendukung Desa" dan produk "1 Bata" lewat jendela pembelian resmi Roblox. Pasangannya: ServerScriptService.DukungDesa.
+  DukungDesa (LocalScript, StarterPlayer.StarterPlayerScripts.DukungDesa) - panel Kotak Dukungan: daftar Game Pass dan
+  produk hiasan dari server, dibeli lewat jendela pembelian resmi Roblox. Pasangannya: ServerScriptService.DukungDesa.
   Kalau nomor pass atau produk belum diisi di server, tombolnya tertulis "Segera hadir".
 ]]
 local Players = game:GetService("Players")
@@ -61,7 +61,7 @@ local function tombol(induk, isi, x, y, w, h)
 	return b
 end
 
-local L, T = 360, 268
+local L, T = 380, 300
 local panel = Instance.new("Frame")
 panel.Size = UDim2.fromOffset(L, T)
 panel.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -85,20 +85,20 @@ label(panel, "Dukung Desa", BERAT, 18, KUNING, 14, 10, 280, 22)
 local tutup = tombol(panel, "X", L - 38, 8, 28, 28)
 tutup.BackgroundColor3 = ABU
 tutup.TextColor3 = PUTIH
-local kabar = label(panel, "Dukungan hanya hiasan. Tidak ada koin yang dijual.", TEBAL, 13, Color3.fromRGB(190, 190, 200), 14, 36, L - 28, 18)
+local PESAN = "Semua hanya hiasan. Tidak ada koin yang dijual."
+local kabar = label(panel, PESAN, TEBAL, 13, Color3.fromRGB(190, 190, 200), 14, 36, L - 28, 18)
 
-label(panel, "Pendukung Desa", BERAT, 15, PUTIH, 14, 64, L - 28, 18)
-label(panel, "Sekali beli. Gelar emas \"Pendukung Desa\" di atas kepalamu.", TEBAL, 13, PUTIH, 14, 84, L - 28, 34)
-local bPass = tombol(panel, "Segera hadir", 14, 120, L - 28, 34)
+local isi = Instance.new("ScrollingFrame")
+isi.Position = UDim2.fromOffset(10, 60)
+isi.Size = UDim2.fromOffset(L - 20, T - 70)
+isi.BackgroundTransparency = 1
+isi.BorderSizePixel = 0
+isi.ScrollBarThickness = 5
+isi.CanvasSize = UDim2.fromOffset(0, 0)
+isi.Parent = panel
 
-label(panel, "1 Bata", BERAT, 15, PUTIH, 14, 166, L - 28, 18)
-label(panel, "Bisa dibeli berulang. Namamu naik di Tembok Pendukung.", TEBAL, 13, PUTIH, 14, 186, L - 28, 34)
-local bBata = tombol(panel, "Segera hadir", 14, 222, L - 28, 34)
-
-local info = { idPass = 0, idBata = 0, pass = false, bata = 0 }
 local harga = {}
 local function hargaDari(id, jenis)
-	if id == 0 then return nil end
 	if harga[id] == nil then
 		harga[id] = false
 		pcall(function()
@@ -108,44 +108,50 @@ local function hargaDari(id, jenis)
 	end
 	return harga[id] or nil
 end
-local function mati(b, isi)
-	b.Text = isi
-	b.BackgroundColor3 = ABU
-	b.TextColor3 = PUTIH
-	b.Active = false
-end
-local function hidup(b, isi)
-	b.Text = isi
-	b.BackgroundColor3 = KUNING
-	b.TextColor3 = GELAP
-	b.Active = true
-end
+
+local TINGGI = 58
 local function segarkan()
 	local ok, d = pcall(function() return pintu:InvokeServer() end)
-	if ok and typeof(d) == "table" then info = d end
-	if info.idPass == 0 then mati(bPass, "Segera hadir")
-	elseif info.pass then mati(bPass, "Sudah kamu miliki. Terima kasih!")
-	else
-		local h = hargaDari(info.idPass, Enum.InfoType.GamePass)
-		hidup(bPass, h and ("Beli (" .. h .. " Robux)") or "Beli")
+	if not ok or typeof(d) ~= "table" or typeof(d.daftar) ~= "table" then return end
+	for _, c in ipairs(isi:GetChildren()) do c:Destroy() end
+	for i, b in ipairs(d.daftar) do
+		local baris = Instance.new("Frame")
+		baris.Position = UDim2.fromOffset(0, (i - 1) * (TINGGI + 6))
+		baris.Size = UDim2.fromOffset(L - 30, TINGGI)
+		baris.BackgroundColor3 = Color3.fromRGB(44, 44, 52)
+		baris.BorderSizePixel = 0
+		bulat(baris, 9)
+		baris.Parent = isi
+		local nama = b.nama
+		if b.jenis == "produk" and b.nama:find("Bata") and d.bata > 0 then nama = nama .. "  ·  batamu " .. d.bata end
+		label(baris, nama, BERAT, 14, PUTIH, 10, 7, L - 150, 18)
+		label(baris, b.ket, TEBAL, 12, Color3.fromRGB(200, 200, 210), 10, 26, L - 150, 30)
+		local t = tombol(baris, "Segera hadir", L - 136, 12, 98, 34)
+		t.TextSize = 13
+		if b.id == 0 then
+			t.BackgroundColor3, t.TextColor3, t.Active = ABU, PUTIH, false
+		elseif b.punya then
+			t.Text = "Dimiliki"
+			t.BackgroundColor3, t.TextColor3, t.Active = ABU, PUTIH, false
+		else
+			t.Text = "Beli"
+			task.spawn(function()
+				local h = hargaDari(b.id, b.jenis == "pass" and Enum.InfoType.GamePass or Enum.InfoType.Product)
+				if h and t.Parent then t.Text = h .. " Robux" end
+			end)
+			t.Activated:Connect(function()
+				if b.jenis == "pass" then MarketplaceService:PromptGamePassPurchase(player, b.id)
+				else MarketplaceService:PromptProductPurchase(player, b.id) end
+			end)
+		end
 	end
-	if info.idBata == 0 then mati(bBata, "Segera hadir")
-	else
-		local h = hargaDari(info.idBata, Enum.InfoType.Product)
-		hidup(bBata, (h and ("Pasang 1 bata (" .. h .. " Robux)") or "Pasang 1 bata") .. (info.bata > 0 and ("  ·  batamu " .. info.bata) or ""))
-	end
+	isi.CanvasSize = UDim2.fromOffset(0, #d.daftar * (TINGGI + 6))
 end
 
-bPass.Activated:Connect(function()
-	if info.idPass ~= 0 and not info.pass then MarketplaceService:PromptGamePassPurchase(player, info.idPass) end
-end)
-bBata.Activated:Connect(function()
-	if info.idBata ~= 0 then MarketplaceService:PromptProductPurchase(player, info.idBata) end
-end)
 tutup.Activated:Connect(function() panel.Visible = false end)
 
 buka.OnClientEvent:Connect(function(pesan)
-	kabar.Text = typeof(pesan) == "string" and pesan or "Dukungan hanya hiasan. Tidak ada koin yang dijual."
+	kabar.Text = typeof(pesan) == "string" and pesan or PESAN
 	panel.Visible = true
 	segarkan()
 end)

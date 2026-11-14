@@ -2,20 +2,35 @@
   DukungDesa (Script, ServerScriptService.DukungDesa) - dukungan pakai Robux untuk Dunia Kotak. Semuanya hanya hiasan:
   tidak menjual koin, tidak membuat pemain lebih cepat maju, dan tidak ada tautan pembayaran di luar Roblox.
 
-    1. Game Pass "Pendukung Desa" (sekali beli): gelar emas "Pendukung Desa" di atas kepala.
-    2. Developer Product "1 Bata" (bisa dibeli berulang): hitungan bata di gelar dan nama di Tembok Pendukung.
-    3. Pemain Roblox Premium: tanda kecil "Premium" di gelar (penghasilan Premium Payouts dihitung Roblox sendiri).
+  Game Pass (sekali beli):
+    - Pendukung Desa : gelar emas "Pendukung Desa" di atas kepala
+    - Jejak Bintang  : percik bintang mengikuti langkah
+    - Gelar Pelangi  : tulisan gelar berwarna pelangi
+    - Lentera Malam  : cahaya hangat di sekitar tokoh
+  Developer Product (bisa dibeli berulang):
+    - 1 Bata dan 5 Bata : hitungan bata di gelar dan nama di Tembok Pendukung
+    - Kembang Api       : kembang api di atas kepala, terlihat semua pemain
+  Pemain Roblox Premium: tanda kecil "Premium" di gelar (penghasilan Premium Payouts dihitung Roblox sendiri).
 
-  CARA MENYALAKAN: buat pass dan produk di Creator Dashboard, lalu isi nomornya di ID_PASS dan ID_BATA di bawah.
-  Selama nomornya 0, bagian itu tampil "Segera hadir" dan tidak ada yang bisa dibeli.
+  CARA MENYALAKAN: buat pass dan produk di Creator Dashboard, lalu isi nomornya di kolom id pada tabel PASS dan PRODUK.
+  Selama id = 0, barang itu tampil "Segera hadir" dan tidak bisa dibeli.
 
   Kotak Dukungan dan Tembok Pendukung berdiri di dekat titik muncul Kotak Wetan.
   Data: DataStore "DuniaKotak_Dukung_v1" kunci "p_<UserId>" = { bata, struk = { id pembelian terakhir } };
   OrderedDataStore "DuniaKotak_DukungTop" = jumlah bata tiap pemain. Pasangannya: StarterPlayerScripts.DukungDesa.
 ]]
 
-local ID_PASS = 0 -- nomor Game Pass "Pendukung Desa"
-local ID_BATA = 0 -- nomor Developer Product "1 Bata"
+local PASS = {
+	{ kunci = "pendukung", id = 0, nama = "Pendukung Desa", ket = "Gelar emas di atas kepalamu." },
+	{ kunci = "jejak", id = 0, nama = "Jejak Bintang", ket = "Percik bintang mengikuti langkahmu." },
+	{ kunci = "pelangi", id = 0, nama = "Gelar Pelangi", ket = "Tulisan gelarmu berwarna pelangi." },
+	{ kunci = "lentera", id = 0, nama = "Lentera Malam", ket = "Cahaya hangat di sekitarmu." },
+}
+local PRODUK = {
+	{ kunci = "bata1", id = 0, nama = "1 Bata", ket = "Pasang 1 bata atas namamu di Tembok Pendukung.", bata = 1 },
+	{ kunci = "bata5", id = 0, nama = "5 Bata", ket = "Pasang 5 bata sekaligus.", bata = 5 },
+	{ kunci = "kembang", id = 0, nama = "Kembang Api", ket = "Nyalakan kembang api yang terlihat semua warga." },
+}
 
 local Players = game:GetService("Players")
 local MarketplaceService = game:GetService("MarketplaceService")
@@ -45,7 +60,7 @@ local buka = Instance.new("RemoteEvent")
 buka.Name = "DK_DukungBuka"
 buka.Parent = ReplicatedStorage
 
-local sesi = {} -- [player] = { bata, pass, termuat }
+local sesi = {} -- [player] = { bata, punya = { [kunci pass] = true }, struk }
 
 -- ---------- gelar di atas kepala ----------
 local function gelar(player)
@@ -54,11 +69,42 @@ local function gelar(player)
 	if not s or not kepala then return end
 	local l = kepala:FindFirstChild("DK_Gelar")
 	if l then l:Destroy() end
+	local akarTokoh = player.Character:FindFirstChild("HumanoidRootPart")
+	if akarTokoh then
+		for _, n in ipairs({ "DK_Jejak", "DK_Lentera" }) do
+			local x = akarTokoh:FindFirstChild(n)
+			if x then x:Destroy() end
+		end
+		if s.punya.jejak then
+			local e = Instance.new("ParticleEmitter")
+			e.Name = "DK_Jejak"
+			e.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+			e.Rate = 7
+			e.Lifetime = NumberRange.new(0.7, 1.2)
+			e.Speed = NumberRange.new(0.5, 1.5)
+			e.SpreadAngle = Vector2.new(180, 180)
+			e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.5), NumberSequenceKeypoint.new(1, 0) })
+			e.Color = ColorSequence.new(KUNING)
+			e.LightEmission = 0.8
+			e.Parent = akarTokoh
+		end
+		if s.punya.lentera then
+			local c = Instance.new("PointLight")
+			c.Name = "DK_Lentera"
+			c.Color = Color3.fromRGB(255, 214, 140)
+			c.Range = 18
+			c.Brightness = 1.2
+			c.Parent = akarTokoh
+		end
+	end
 	local baris = {}
-	if s.pass then table.insert(baris, "Pendukung Desa") end
+	if s.punya.pendukung then table.insert(baris, "Pendukung Desa") end
 	if s.bata > 0 then table.insert(baris, s.bata .. " bata") end
 	if player.MembershipType == Enum.MembershipType.Premium then table.insert(baris, "Premium") end
-	if #baris == 0 then return end
+	if #baris == 0 then
+		if not s.punya.pelangi then return end
+		table.insert(baris, "Warga Dunia Kotak")
+	end
 	local b = Instance.new("BillboardGui")
 	b.Name = "DK_Gelar"
 	b.Size = UDim2.fromOffset(220, 22)
@@ -70,21 +116,29 @@ local function gelar(player)
 	t.BackgroundTransparency = 1
 	t.FontFace = BERAT
 	t.TextSize = 15
-	t.TextColor3 = s.pass and KUNING or Color3.new(1, 1, 1)
+	t.TextColor3 = (s.punya.pendukung and not s.punya.pelangi) and KUNING or Color3.new(1, 1, 1)
+	if s.punya.pelangi then
+		local g = Instance.new("UIGradient")
+		g.Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 90, 90)), ColorSequenceKeypoint.new(0.25, Color3.fromRGB(255, 200, 60)),
+			ColorSequenceKeypoint.new(0.5, Color3.fromRGB(90, 220, 120)), ColorSequenceKeypoint.new(0.75, Color3.fromRGB(80, 170, 255)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 110, 255)) })
+		g.Parent = t
+	end
 	t.TextStrokeTransparency = 0.3
 	t.Text = table.concat(baris, "  ·  ")
 	t.Parent = b
 	b.Parent = kepala
 end
 
-local function punyaPass(player)
-	if ID_PASS == 0 then return false end
-	local ok, punya = pcall(function() return MarketplaceService:UserOwnsGamePassAsync(player.UserId, ID_PASS) end)
+local function punyaPass(player, id)
+	if id == 0 then return false end
+	local ok, punya = pcall(function() return MarketplaceService:UserOwnsGamePassAsync(player.UserId, id) end)
 	return ok and punya or false
 end
 
 local function muat(player)
-	local s = { bata = 0, pass = false, struk = {}, termuat = false }
+	local s = { bata = 0, punya = {}, struk = {}, termuat = false }
 	sesi[player] = s
 	if store then
 		local ok, d = pcall(function() return store:GetAsync("p_" .. player.UserId) end)
@@ -96,7 +150,7 @@ local function muat(player)
 			end
 		end
 	end
-	s.pass = punyaPass(player)
+	for _, p in ipairs(PASS) do s.punya[p.kunci] = punyaPass(player, p.id) end
 	gelar(player)
 end
 
@@ -211,23 +265,76 @@ end
 
 pintu.OnServerInvoke = function(player)
 	local s = sesi[player]
-	return { idPass = ID_PASS, idBata = ID_BATA, pass = s and s.pass or false, bata = s and s.bata or 0,
-		premium = player.MembershipType == Enum.MembershipType.Premium }
+	local daftar = {}
+	for _, p in ipairs(PASS) do
+		table.insert(daftar, { jenis = "pass", id = p.id, nama = p.nama, ket = p.ket, punya = s and s.punya[p.kunci] or false })
+	end
+	for _, p in ipairs(PRODUK) do
+		table.insert(daftar, { jenis = "produk", id = p.id, nama = p.nama, ket = p.ket })
+	end
+	return { daftar = daftar, bata = s and s.bata or 0 }
+end
+
+local function kembangApi(player)
+	local akarTokoh = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	if not akarTokoh then return end
+	local pusat = akarTokoh.Position
+	task.spawn(function()
+		for i = 1, 6 do
+			local p = Instance.new("Part")
+			p.Anchored = true
+			p.CanCollide = false
+			p.CanQuery = false
+			p.CanTouch = false
+			p.Transparency = 1
+			p.Size = Vector3.new(1, 1, 1)
+			p.Position = pusat + Vector3.new(math.random(-14, 14), math.random(26, 40), math.random(-14, 14))
+			local e = Instance.new("ParticleEmitter")
+			e.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+			e.Rate = 0
+			e.Lifetime = NumberRange.new(1, 1.8)
+			e.Speed = NumberRange.new(14, 26)
+			e.SpreadAngle = Vector2.new(180, 180)
+			e.Drag = 2
+			e.Acceleration = Vector3.new(0, -12, 0)
+			e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1.4), NumberSequenceKeypoint.new(1, 0) })
+			e.Color = ColorSequence.new(Color3.fromHSV(math.random(), 0.75, 1))
+			e.LightEmission = 1
+			e.Parent = p
+			p.Parent = workspace
+			e:Emit(70)
+			game:GetService("Debris"):AddItem(p, 3)
+			task.wait(0.45)
+		end
+	end)
 end
 
 MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, id, dibeli)
-	if id ~= ID_PASS or not dibeli then return end
+	if not dibeli or id == 0 then return end
 	local s = sesi[player]
-	if s then
-		s.pass = true
-		gelar(player)
-		buka:FireClient(player, "Terima kasih! Kamu sekarang Pendukung Desa.")
+	for _, p in ipairs(PASS) do
+		if p.id == id and s then
+			s.punya[p.kunci] = true
+			gelar(player)
+			buka:FireClient(player, "Terima kasih! " .. p.nama .. " sudah aktif.")
+		end
 	end
 end)
 
--- pembelian "1 Bata": dicatat dulu ke DataStore, baru dinyatakan selesai (struk yang sama tidak dihitung dua kali)
+-- pembelian produk: bata dicatat dulu ke DataStore, baru dinyatakan selesai (struk yang sama tidak dihitung dua kali)
 MarketplaceService.ProcessReceipt = function(struk)
-	if ID_BATA == 0 or struk.ProductId ~= ID_BATA then return Enum.ProductPurchaseDecision.NotProcessedYet end
+	local barang
+	for _, p in ipairs(PRODUK) do
+		if p.id ~= 0 and p.id == struk.ProductId then barang = p end
+	end
+	if not barang then return Enum.ProductPurchaseDecision.NotProcessedYet end
+	local player = Players:GetPlayerByUserId(struk.PlayerId)
+	if not barang.bata then
+		-- kembang api: hanya bisa diberikan kalau pembelinya masih di server ini
+		if not player then return Enum.ProductPurchaseDecision.NotProcessedYet end
+		kembangApi(player)
+		return Enum.ProductPurchaseDecision.PurchaseGranted
+	end
 	if not store then return Enum.ProductPurchaseDecision.NotProcessedYet end
 	local jumlah
 	local ok = pcall(function()
@@ -235,7 +342,7 @@ MarketplaceService.ProcessReceipt = function(struk)
 			d = typeof(d) == "table" and d or { bata = 0, struk = {} }
 			d.struk = typeof(d.struk) == "table" and d.struk or {}
 			if not table.find(d.struk, struk.PurchaseId) then
-				d.bata = (tonumber(d.bata) or 0) + 1
+				d.bata = (tonumber(d.bata) or 0) + barang.bata
 				table.insert(d.struk, struk.PurchaseId)
 				while #d.struk > 30 do table.remove(d.struk, 1) end
 			end
@@ -245,11 +352,10 @@ MarketplaceService.ProcessReceipt = function(struk)
 	end)
 	if not ok or not jumlah then return Enum.ProductPurchaseDecision.NotProcessedYet end
 	if top then pcall(function() top:SetAsync("p_" .. struk.PlayerId, jumlah) end) end
-	local player = Players:GetPlayerByUserId(struk.PlayerId)
 	if player and sesi[player] then
 		sesi[player].bata = jumlah
 		gelar(player)
-		buka:FireClient(player, "Terima kasih! Batamu yang ke-" .. jumlah .. " sudah terpasang.")
+		buka:FireClient(player, "Terima kasih! Sekarang batamu ada " .. jumlah .. ".")
 	end
 	task.spawn(tulisTembok)
 	return Enum.ProductPurchaseDecision.PurchaseGranted

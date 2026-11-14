@@ -16361,45 +16361,63 @@
     "semantic_hash": ""
   },
   "roblox/alat/kaos.py": {
-    "mtime": 1794672555.3247688,
-    "seen": 1794672620.7656393,
-    "ast_hash": "c381428a81593eb36cb8ad11a4363a8f",
+    "mtime": 1794673029.5464725,
+    "seen": 1794673072.8630538,
+    "ast_hash": "1399398290e23b7507b30bc286346348",
     "semantic_hash": ""
   },
   "roblox/src/DukungDesa.client.lua": {
-    "mtime": 1794672533.5977607,
-    "seen": 1794672620.765673,
-    "ast_hash": "22b681c65e91c1f031021b9bf68292c4",
+    "mtime": 1794673029.5260792,
+    "seen": 1794673072.863108,
+    "ast_hash": "cb71ea1366d5e023ca840a3fc3af4b45",
     "semantic_hash": ""
   },
   "roblox/src/DukungDesa.server.lua": {
-    "mtime": 1794672538.3782125,
-    "seen": 1794672620.7656746,
-    "ast_hash": "33971134e9d2f804cef9f09e84fb550d",
+    "mtime": 1794673009.1931329,
+    "seen": 1794673072.86311,
+    "ast_hash": "57924e80799219dfee5c72035be9f9df",
     "semantic_hash": ""
   },
   "roblox/PENGHASILAN.md": {
-    "mtime": 1794672576.1017632,
-    "seen": 1794672620.7673612,
-    "ast_hash": "fc3f923b2f1a71e096937fbb37e4cc30",
+    "mtime": 1794673046.6875803,
+    "seen": 1794673072.8652332,
+    "ast_hash": "ffb7bd2e40ecddc46a5296920ad3af54",
     "semantic_hash": ""
   },
   "roblox/aset/kaos-willo/kaos-willo-hitam.png": {
-    "mtime": 1794672555.457762,
-    "seen": 1794672620.7685468,
+    "mtime": 1794673029.6377902,
+    "seen": 1794673072.866535,
     "ast_hash": "c02947606eeea71a4cdb87fc30ec89ba",
     "semantic_hash": ""
   },
   "roblox/aset/kaos-willo/kaos-willo-kuning.png": {
-    "mtime": 1794672555.445762,
-    "seen": 1794672620.7685797,
+    "mtime": 1794673029.6297903,
+    "seen": 1794673072.8665376,
     "ast_hash": "73b691fff5d9ef828ed7ed44a983fe20",
     "semantic_hash": ""
   },
   "roblox/aset/kaos-willo/kaos-willo-putih.png": {
-    "mtime": 1794672555.4657621,
-    "seen": 1794672620.7685814,
+    "mtime": 1794673029.6497903,
+    "seen": 1794673072.8665402,
     "ast_hash": "0b5d142982af2550ce6c74d6e1b2e661",
+    "semantic_hash": ""
+  },
+  "roblox/aset/kaos-willo/kaos-dunia-kotak-gelap.png": {
+    "mtime": 1794673029.6777902,
+    "seen": 1794673072.8665273,
+    "ast_hash": "e703d8e725e513b0caa16a8377752795",
+    "semantic_hash": ""
+  },
+  "roblox/aset/kaos-willo/kaos-dunia-kotak-hijau.png": {
+    "mtime": 1794673029.6697903,
+    "seen": 1794673072.8665304,
+    "ast_hash": "fd17430a05b23a42fbb3839d8ac0437a",
+    "semantic_hash": ""
+  },
+  "roblox/aset/kaos-willo/kaos-willo-biru.png": {
+    "mtime": 1794673029.6577902,
+    "seen": 1794673072.866532,
+    "ast_hash": "2daff8fc784684bac96b4626fb27654e",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {
