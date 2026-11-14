@@ -432,7 +432,13 @@ local function pasang(player)
 	pcall(function() hum:ApplyDescription(Instance.new("HumanoidDescription")) end)
 	task.wait(0.2)
 	if player.Character ~= char then sedang[char] = nil return end
-	local ok, hasil, sebab = pcall(rakit, char, bacaAvatar(player))
+	-- sendi rangka kadang baru jadi sesaat setelah tampilan diganti: coba ulang sampai 5 detik
+	local ok, hasil, sebab
+	for _ = 1, 20 do
+		ok, hasil, sebab = pcall(rakit, char, bacaAvatar(player))
+		if (ok and hasil) or player.Character ~= char then break end
+		task.wait(0.25)
+	end
 	if ok and hasil then
 		sembunyikan(char)
 		hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
