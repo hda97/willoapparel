@@ -4,13 +4,24 @@ import Constants from 'expo-constants';
 import { eksporExcel } from '../excel';
 import { daftarPengeluaran } from '../../lib/pengeluaran';
 import { Kartu, Judul, Teks, Tombol, Input, Segmen, Baris } from '../ui';
+import { WEB } from '../coba';
 
-export default function Pengaturan({ data, aksi }) {
+export default function Pengaturan({ data, aksi, buka }) {
   const p = data.pengaturan;
   const ubahBayar = (i, isi) => aksi.setPengaturan({ pembayaran: p.pembayaran.map((b, j) => (j === i ? { ...b, ...isi } : b)) });
 
   return (
     <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} keyboardShouldPersistTaps="handled">
+      {WEB && (
+        <Kartu>
+          <Judul>{p.pro ? '⭐ Pro aktif' : '⭐ Versi coba gratis'}</Judul>
+          {p.pro ? (
+            <Teks pudar ukuran={13}>Terima kasih sudah membeli! Semua fitur web terbuka di browser ini.</Teks>
+          ) : (
+            <Tombol ikon="🔑" judul="Buka Pro / masukkan kode" onPress={() => buka('pro', {})} />
+          )}
+        </Kartu>
+      )}
       <Kartu>
         <Judul>🙋 Profil</Judul>
         <Input label="Nama kamu" value={p.namaSaya} onChangeText={(v) => aksi.setPengaturan({ namaSaya: v })} placeholder="mis. Huda" />

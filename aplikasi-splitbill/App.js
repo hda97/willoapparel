@@ -3,6 +3,7 @@ import { View, Text, Pressable, BackHandler, useColorScheme, ActivityIndicator }
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { TemaContext, terang, gelap } from './src/tema';
+import { setStatusPro } from './src/coba';
 import { muat, simpan } from './src/store';
 import Beranda from './src/layar/Beranda';
 import EditorTagihan from './src/layar/EditorTagihan';
@@ -12,6 +13,7 @@ import Teman from './src/layar/Teman';
 import Pengaturan from './src/layar/Pengaturan';
 import Catatan from './src/layar/Catatan';
 import CatatPengeluaran from './src/layar/CatatPengeluaran';
+import Pro from './src/layar/Pro';
 
 const TAB = [
   { id: 'beranda', label: 'Tagihan', ikon: '🧾' },
@@ -27,7 +29,7 @@ export default function App() {
   const [tumpukan, setTumpukan] = useState([]); // [{layar, param}]
 
   useEffect(() => { muat().then(setData); }, []);
-  useEffect(() => { if (data) simpan(data); }, [data]);
+  useEffect(() => { if (data) { simpan(data); setStatusPro(!!data.pengaturan.pro); } }, [data]);
 
   const tema = useMemo(() => {
     const p = data?.pengaturan?.tema || 'sistem';
@@ -88,7 +90,7 @@ export default function App() {
   const umum = { data, aksi, buka, tutup, ganti };
   let isi;
   if (atas) {
-    const L = { editor: EditorTagihan, scan: Scan, detail: Detail, catat: CatatPengeluaran }[atas.layar];
+    const L = { editor: EditorTagihan, scan: Scan, detail: Detail, catat: CatatPengeluaran, pro: Pro }[atas.layar];
     isi = <L key={tumpukan.length} {...umum} param={atas.param || {}} />;
   } else {
     isi = tab === 'beranda' ? <Beranda {...umum} /> : tab === 'catatan' ? <Catatan {...umum} /> : tab === 'teman' ? <Teman {...umum} /> : <Pengaturan {...umum} />;
