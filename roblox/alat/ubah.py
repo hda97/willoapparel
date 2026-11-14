@@ -160,6 +160,6 @@ for _, _, t in baris:
 simpan()
 info = {'dusun': nama, 'berkas': n, 'part': len(baris), 'skala': K,
         'muncul': [round(v * K, 2) for v in meta['pos']],
-        'lots': {k: {'c': [round(x * K, 2) for x in v['c']], 'dir': v['dir']} for k, v in meta['lots'].items()}}
+        'lots': {k: {'c': [round(x * K, 2) for x in v['c']], 'dir': v['dir'], **({'g': [round(x * K, 2) for x in v['g']]} if v.get('g') else {})} for k, v in meta['lots'].items()}}
 json.dump(info, open(f'{out}/{nama}.json', 'w'))
 print(nama, 'part', len(baris), 'berkas', n, dict(st), 'kecil', int(kecil.sum()), 'buang', int(buang.sum()))
