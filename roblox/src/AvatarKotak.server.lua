@@ -24,6 +24,7 @@ local GAYA_RAMBUT = { L = { "cepak", "belah", "acak", "keriting" }, P = { "panja
 local ATASAN = { "kaos", "kaos-willo", "kemeja", "jaket", "batik", "seragam" }
 local BAWAHAN = { L = { "celana", "pendek", "sarung" }, P = { "celana", "rok", "rok-panjang" } }
 local WARNA_BAJU = { "#1d1d22", "#f4f4f4", "#3a7bd5", "#d0442f", "#2a9a5a", "#f2c14e", "#8a5ad8", "#e06a9a" }
+local SABLON = { "willo", "polos", "dk", "dusun", "tulisan" } -- sablon kaos Toko Willo (hanya untuk atasan "kaos-willo")
 local WARNA_BAWAH = { "#2f3a52", "#1d1d22", "#6a5a48", "#3a5a3a", "#7a2a2a", "#c8b89a" }
 
 local NAMA_FOLDER = "TokohKotak"
@@ -69,6 +70,12 @@ local function bersih(a)
 		topi = hexOk(a.topi) and a.topi or nil,
 		sepatu = "#1a1a1a",
 	}
+	-- sablon dari Toko Willo; teks huruf/angka saja, maks 10 (sama dengan game web)
+	if d.atasan.jenis == "kaos-willo" and ada(SABLON, at.sablon) then
+		d.atasan.sablon = at.sablon
+		local t = string.upper(tostring(at.teks or "")):gsub("[^A-Z0-9 ]", "")
+		d.atasan.teks = string.sub(t, 1, 10)
+	end
 	if d.rambut.gaya == "hijab" then
 		d.hijab = hexOk(rb.warna) and ada(WARNA_BAJU, rb.warna) and rb.warna or "#6a8fb0"
 		d.lenganPanjang = true
@@ -250,12 +257,12 @@ local function rakit(char, d)
 		f.Parent = g
 		return f
 	end
-	local function teks(g, isi, y, tinggi, warna)
+	local function teks(g, isi, y, tinggi, warna, x, lebar)
 		local t = Instance.new("TextLabel")
 		t.BackgroundTransparency = 1
 		t.AnchorPoint = Vector2.new(0.5, 1)
-		t.Position = UDim2.fromOffset(64, y + tinggi * 0.2)
-		t.Size = UDim2.fromOffset(108, tinggi * 1.25)
+		t.Position = UDim2.fromOffset(x or 64, y + tinggi * 0.2)
+		t.Size = UDim2.fromOffset(lebar or 108, tinggi * 1.25)
 		t.FontFace = FONT
 		t.TextScaled = true
 		t.TextColor3 = warna
@@ -268,8 +275,39 @@ local function rakit(char, d)
 		if aj == "kaos-willo" then
 			local terang = ada({ "#f4f4f4", "#f4f4f0", "#f2c14e", "#ffffff" }, string.lower(atas))
 			local tinta = terang and hex("#1d1d22") or putih
-			teks(g, "WILLO", 62, 30, tinta)
-			teks(g, "APPAREL", 80, 12, tinta)
+			local sb, tk = d.atasan.sablon or "willo", d.atasan.teks or ""
+			-- sama dengan lukisSablon() di game web
+			if sb == "dk" then
+				local o = kotak(g, 64, 34, 28, 24, hitam, 1)
+				local st = Instance.new("UIStroke")
+				st.Thickness = 4
+				st.Color = tinta
+				st.Parent = o
+				kotak(g, 64, 39, 14, 14, tinta)
+				teks(g, "DUNIA", 72, 22, tinta)
+				teks(g, "KOTAK", 96, 22, tinta)
+			elseif sb == "dusun" then
+				teks(g, "KOTAK", 46, 11, tinta)
+				teks(g, tk ~= "" and tk or "WETAN", 74, 26, tinta)
+				kotak(g, 64, 83.5, 60, 3, tinta)
+			elseif sb == "tulisan" then
+				teks(g, "WILLO", 44, 12, tinta, 40, 40)
+				kotak(g, 37, 49, 30, 2, tinta)
+			elseif sb == "willo" then
+				teks(g, "WILLO", 62, 30, tinta)
+				teks(g, "APPAREL", 80, 12, tinta)
+			end
+			-- punggung: Kaos Kelas (tulisan bebas) dan Kaos Dusun
+			if (sb == "tulisan" or sb == "dusun") and tk ~= "" then
+				local b = kanvas(torso, Enum.NormalId.Front, 128, 128)
+				if sb == "tulisan" then
+					teks(b, "WILLO", 30, 13, tinta)
+					teks(b, tk, 74, 34, tinta)
+				else
+					teks(b, "DUNIA KOTAK", 40, 12, tinta)
+					teks(b, tk, 76, 28, tinta)
+				end
+			end
 		elseif aj == "kemeja" or aj == "seragam" then
 			for i = 0, 3 do kotak(g, 64.5, 26.5 + i * 24, 5, 5, hitam, 0.75) end
 			if aj == "seragam" then kotak(g, 64, 29, 12, 46, "#8a1a1a") end
@@ -481,7 +519,15 @@ pintu.OnServerEvent:Connect(function(player, teks, simpan)
 	terakhir[player] = kini
 	local ok, t = pcall(function() return HttpService:JSONDecode(teks) end)
 	if not ok then return end
-	local rapi = ringkas(bersih(t))
+	local baru = bersih(t)
+	-- sablon hanya dari Toko Willo: menu tokoh tidak bisa menambah atau mengubah sablon, hanya mempertahankan yang sedang dipakai
+	local lamaA = bacaAvatar(player).atasan
+	if baru.atasan.jenis == "kaos-willo" and lamaA.jenis == "kaos-willo" and lamaA.sablon and baru.atasan.warna == lamaA.warna then
+		baru.atasan.sablon, baru.atasan.teks = lamaA.sablon, lamaA.teks
+	else
+		baru.atasan.sablon, baru.atasan.teks = nil, nil
+	end
+	local rapi = ringkas(baru)
 	player:SetAttribute("DK_Avatar", rapi)
 	if simpan == true then
 		player:SetAttribute("DK_AvatarBaru", false)
@@ -490,6 +536,27 @@ pintu.OnServerEvent:Connect(function(player, teks, simpan)
 		end
 	end
 end)
+
+-- Pintu untuk Toko Willo: ServerStorage.DK_AvatarAtasan:Invoke(player, { warna, sablon, teks }) memakaikan kaos dan menyimpannya.
+do
+	local SS = game:GetService("ServerStorage")
+	local l = SS:FindFirstChild("DK_AvatarAtasan")
+	if l then l:Destroy() end
+	local bf = Instance.new("BindableFunction")
+	bf.Name = "DK_AvatarAtasan"
+	bf.OnInvoke = function(player, k)
+		if typeof(k) ~= "table" then return false end
+		local d = bacaAvatar(player)
+		d.atasan = { jenis = "kaos-willo", warna = k.warna, sablon = k.sablon, teks = k.teks }
+		local rapi = ringkas(bersih(d))
+		player:SetAttribute("DK_Avatar", rapi)
+		if store and termuat[player] then
+			task.spawn(function() pcall(function() store:SetAsync("p_" .. player.UserId, rapi) end) end)
+		end
+		return true
+	end
+	bf.Parent = SS
+end
 
 local function masuk(player)
 	local ok, tersimpan = false, nil
