@@ -125,6 +125,7 @@ a{color:inherit}
 .gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
 .shot{margin:0;border:2px solid var(--ink);background:var(--cream-2);display:flex;flex-direction:column}
 .shot img{width:100%;aspect-ratio:3/4;object-fit:cover;border-bottom:2px solid var(--ink)}
+.shot picture{display:block}
 .shot figcaption{padding:12px 14px}
 .shot figcaption b{display:block;font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:20px}
 .shot figcaption .mono{color:var(--muted);font-size:12px}
