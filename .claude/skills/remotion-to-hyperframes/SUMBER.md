@@ -1,1 +1,1 @@
-Sumber: https://github.com/heygen-com/hyperframes/tree/main/skills/remotion-to-hyperframes (commit 717d3d0, Apache-2.0).
+Sumber: https://github.com/heygen-com/hyperframes/tree/main/skills/remotion-to-hyperframes (commit 2f0ade1, diperbarui 14 Nov 2026, Apache-2.0).
