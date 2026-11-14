@@ -15773,9 +15773,33 @@
     "semantic_hash": ""
   },
   "roblox/src/AvatarKotak.server.lua": {
-    "mtime": 1794644336.4097018,
-    "seen": 1794644478.0284083,
-    "ast_hash": "e79f1f36ec60582f902edaeea586b140",
+    "mtime": 1794644547.3166811,
+    "seen": 1794645774.0342028,
+    "ast_hash": "9954f3660eda0af0fdcc9bb0ae28b71c",
+    "semantic_hash": ""
+  },
+  "roblox/alat/pasang_dusun.lua": {
+    "mtime": 1794645380.7943988,
+    "seen": 1794645774.0341868,
+    "ast_hash": "64adde988da5784165088c591af7b01c",
+    "semantic_hash": ""
+  },
+  "roblox/src/BuatTokoh.client.lua": {
+    "mtime": 1794645267.0943558,
+    "seen": 1794645774.0342069,
+    "ast_hash": "0272befa1efe6b13b549f86dacc68e14",
+    "semantic_hash": ""
+  },
+  "roblox/src/BusDusun.client.lua": {
+    "mtime": 1794645751.3258965,
+    "seen": 1794645774.0342093,
+    "ast_hash": "960bebbbc4cf917729c2b75c268f4e4f",
+    "semantic_hash": ""
+  },
+  "roblox/src/BusDusun.server.lua": {
+    "mtime": 1794645751.3264208,
+    "seen": 1794645774.0342104,
+    "ast_hash": "3eab2896af9e94a462871d69e31f66e8",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {
