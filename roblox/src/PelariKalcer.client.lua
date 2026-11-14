@@ -13,6 +13,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local GuiService = game:GetService("GuiService")
+local StarterGui = game:GetService("StarterGui")
 
 local player = Players.LocalPlayer
 local pintu = ReplicatedStorage:WaitForChild("DK_Pelari")
@@ -33,7 +34,7 @@ if lama then lama:Destroy() end
 local gui = Instance.new("ScreenGui")
 gui.Name = "PelariKalcer"
 gui.ResetOnSpawn = false
-gui.DisplayOrder = 27
+gui.DisplayOrder = 60
 gui.Parent = pg
 
 local dunia = workspace:FindFirstChild("DK_PelariKlien")
@@ -456,6 +457,23 @@ bukaEv.OnClientEvent:Connect(function()
 	muatLobi()
 end)
 
+-- selama lari, tombol desa dan panel skrip lain disembunyikan supaya tidak bertumpuk dengan HUD lari
+local disembunyikan = {}
+local function guiLain(sembunyi)
+	if sembunyi then
+		for _, g in ipairs(pg:GetChildren()) do
+			if g:IsA("ScreenGui") and g ~= gui and g.Enabled then
+				g.Enabled = false
+				table.insert(disembunyikan, g)
+			end
+		end
+	else
+		for _, g in ipairs(disembunyikan) do if g.Parent then g.Enabled = true end end
+		disembunyikan = {}
+	end
+	pcall(function() StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, not sembunyi) end)
+end
+
 local function hudTampil(tampil)
 	hud.Visible, palang.Visible, buff.Visible, bKeluar.Visible = tampil, tampil, tampil, tampil
 	if not tampil then bAir.Visible = false end
@@ -464,6 +482,7 @@ end
 
 local function berhenti()
 	MODE = "diam"
+	guiLain(false)
 	hudTampil(false)
 	besar.Visible = false
 	panel.Visible = false
@@ -517,6 +536,7 @@ local function mulai()
 	TINGGI = r.tinggi or 3
 	resetLari()
 	tSiap = os.clock() + 3
+	if MODE == "diam" then guiLain(true) end
 	MODE = "hitung"
 	panel.Visible = false
 	hudTampil(true)
@@ -801,7 +821,7 @@ RunService.RenderStepped:Connect(function(dt)
 	-- HUD
 	if MODE == "lari" or MODE == "hitung" then
 		local pace = K.d > 5 and (K.waktu * PL.SKALA_WAKTU) / (K.d / 1000) or 0
-		hud.Text = string.format("%.2f KM  ·  pace %s  ·  %s  ·  🪙 %d  ·  #%d", K.d / 1000, jamTeks(pace), string.rep("❤️", math.max(0, K.nyawa)), K.koin, peringkat())
+		hud.Text = string.format("%.2f KM  ·  pace %s  ·  %s  ·  koin %d  ·  #%d", K.d / 1000, jamTeks(pace), string.rep("❤️", math.max(0, K.nyawa)), K.koin, peringkat())
 		isiPalang.Size = UDim2.fromScale(K.stamina / 100, 1)
 		isiPalang.BackgroundColor3 = K.stamina > 55 and rgb(58, 168, 96) or K.stamina > PL.BATAS_WALL and rgb(242, 193, 74) or rgb(224, 90, 58)
 		local b = {}

@@ -77,7 +77,7 @@ end
 local function tulisan(part, teks, ukuran)
 	local b = Instance.new("BillboardGui")
 	b.Size = UDim2.fromOffset(220, 40)
-	b.MaxDistance = 300
+	b.MaxDistance = 170
 	local t = Instance.new("TextLabel")
 	t.Size = UDim2.fromScale(1, 1)
 	t.BackgroundTransparency = 1
