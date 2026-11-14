@@ -6,9 +6,9 @@
   (salinan public/duniakotak/mabar/js/aset/avatar.js: ukuran, letak, warna,
   gaya rambut, hijab, atasan, bawahan, wajah). 1 satuan web = SKALA stud.
 
-  Cara kerja: rangka Roblox (R15 standar) tetap dipakai untuk jalan dan lompat,
+  Cara kerja: rangka Roblox (R6 atau R15) tetap dipakai untuk jalan dan lompat,
   tapi semua bagiannya disembunyikan. Balok tokoh web ditempel ke kepala, badan,
-  lengan atas, dan paha, jadi ayunan tangan dan kaki mengikuti gerak Roblox.
+  lengan, dan kaki, jadi ayunan tangan dan kaki mengikuti gerak Roblox.
 
   Pilihan tokoh disimpan di atribut pemain "DK_Avatar" (JSON, bentuknya sama
   dengan avatar di game web). Belum ada? Dibuat acak dari UserId dengan rumus
@@ -94,28 +94,46 @@ end
 local function rakit(char, d)
 	local hum = char:FindFirstChildOfClass("Humanoid")
 	local hrp = char:FindFirstChild("HumanoidRootPart")
-	if not hum or not hrp or hum.RigType ~= Enum.HumanoidRigType.R15 then return false end
+	if not hum or not hrp then return false end
+	local r15 = hum.RigType == Enum.HumanoidRigType.R15
+	-- nama bagian rangka: R15 (badan dua potong, lengan atas, paha) atau R6 (enam balok)
+	local NAMA = r15 and {
+		LowerTorso = "LowerTorso", UpperTorso = "UpperTorso", Head = "Head",
+		LeftUpperArm = "LeftUpperArm", RightUpperArm = "RightUpperArm", LeftUpperLeg = "LeftUpperLeg", RightUpperLeg = "RightUpperLeg",
+	} or {
+		LowerTorso = "Torso", UpperTorso = "Torso", Head = "Head",
+		LeftUpperArm = "Left Arm", RightUpperArm = "Right Arm", LeftUpperLeg = "Left Leg", RightUpperLeg = "Right Leg",
+	}
 	local bagian = {}
-	for _, n in ipairs({ "LowerTorso", "UpperTorso", "Head", "LeftUpperArm", "RightUpperArm", "LeftUpperLeg", "RightUpperLeg" }) do
-		bagian[n] = char:FindFirstChild(n)
-		if not bagian[n] then return false end
+	for kunci, n in pairs(NAMA) do
+		bagian[kunci] = char:FindFirstChild(n)
+		if not bagian[kunci] then return false, "bagian " .. n .. " tidak ada" end
 	end
 
-	-- letak diam tiap bagian rangka, dihitung dari sendi (tidak terpengaruh animasi)
-	local diam = { HumanoidRootPart = CFrame.new() }
-	local function dariSendi(nama, induk)
-		local m = bagian[nama]:FindFirstChildWhichIsA("Motor6D")
-		if not m or not diam[induk] then return false end
-		diam[nama] = diam[induk] * m.C0 * m.C1:Inverse()
-		return true
+	-- letak diam tiap bagian rangka terhadap HumanoidRootPart, dihitung dari sendi (tidak terpengaruh animasi)
+	local sendi = {}
+	for _, m in ipairs(char:GetDescendants()) do
+		if m:IsA("Motor6D") and m.Part1 then sendi[m.Part1] = m end
 	end
-	if not (dariSendi("LowerTorso", "HumanoidRootPart") and dariSendi("UpperTorso", "LowerTorso") and dariSendi("Head", "UpperTorso")
-		and dariSendi("LeftUpperArm", "UpperTorso") and dariSendi("RightUpperArm", "UpperTorso")
-		and dariSendi("LeftUpperLeg", "LowerTorso") and dariSendi("RightUpperLeg", "LowerTorso")) then return false end
+	local diamPart = { [hrp] = CFrame.new() }
+	local function letak(part, dalam)
+		if diamPart[part] then return diamPart[part] end
+		local m = sendi[part]
+		if not m or not m.Part0 or (dalam or 0) > 8 then return nil end
+		local induk = letak(m.Part0, (dalam or 0) + 1)
+		if not induk then return nil end
+		diamPart[part] = induk * m.C0 * m.C1:Inverse()
+		return diamPart[part]
+	end
+	local diam = {}
+	for kunci, part in pairs(bagian) do
+		diam[kunci] = letak(part)
+		if not diam[kunci] then return false, "sendi " .. part.Name .. " tidak ketemu" end
+	end
 
-	local pinggul = bagian.LeftUpperLeg:FindFirstChildWhichIsA("Motor6D")
-	local yPinggul = (diam.LowerTorso * pinggul.C0).Position.Y
-	local yTanah = -(hum.HipHeight + hrp.Size.Y / 2)
+	local pinggul = sendi[bagian.LeftUpperLeg]
+	local yPinggul = (diamPart[pinggul.Part0] * pinggul.C0).Position.Y
+	local yTanah = -(hum.HipHeight + hrp.Size.Y / 2 + (r15 and 0 or bagian.LeftUpperLeg.Size.Y))
 	local S = (yPinggul - yTanah) / 1.37 -- pinggul tokoh web ada di 1,37
 	if S < 0.8 or S > 3 then S = 1.4 end
 	local DASAR = CFrame.new(0, yTanah, 0) * FLIP -- titik nol tokoh web (telapak kaki) di rangka
@@ -414,12 +432,12 @@ local function pasang(player)
 	pcall(function() hum:ApplyDescription(Instance.new("HumanoidDescription")) end)
 	task.wait(0.2)
 	if player.Character ~= char then sedang[char] = nil return end
-	local ok, hasil = pcall(rakit, char, bacaAvatar(player))
+	local ok, hasil, sebab = pcall(rakit, char, bacaAvatar(player))
 	if ok and hasil then
 		sembunyikan(char)
 		hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
 	else
-		warn("[AvatarKotak] tokoh " .. player.Name .. " tidak dirakit: " .. tostring(hasil))
+		warn("[AvatarKotak] tokoh " .. player.Name .. " tidak dirakit: " .. tostring(sebab or hasil))
 	end
 	sedang[char] = nil
 end
