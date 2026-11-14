@@ -14,7 +14,7 @@ button{font-family:var(--f);cursor:pointer;border:0;color:inherit}
 button:focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
 [hidden]{display:none!important}
 /* MENU UTAMA */
-#lobi{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));left:max(16px,env(safe-area-inset-left,0px));width:min(330px,calc(100vw - 32px));display:flex;flex-direction:column;justify-content:center;gap:12px}
+#lobi{position:fixed;top:calc(14px + var(--sa-t));bottom:calc(14px + var(--sa-b));left:max(16px,var(--sa-l));width:min(330px,calc(var(--lw,100vw) - 32px));display:flex;flex-direction:column;justify-content:center;gap:12px}
 .judul small,.eyebrow{display:block;font-size:10px;font-weight:800;letter-spacing:.18em;color:var(--oranye)}
 .judul h1{margin:2px 0 0;font-size:44px;font-weight:900;line-height:.92;letter-spacing:-.02em;color:#fff;text-shadow:0 4px 0 rgba(19,20,31,.35)}
 .judul h1 span{color:var(--kuning)}
@@ -27,9 +27,9 @@ button:focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
 .ubin span{font-size:22px}
 .ubin em{position:absolute;top:-6px;right:-4px;background:var(--hijau);color:#fff;font-style:normal;font-size:9.5px;padding:2px 6px;border-radius:999px}
 .ubin em:empty{display:none}
-#dompet{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));padding:8px 14px;font-weight:900;font-size:16px;display:flex;gap:7px;align-items:center}
+#dompet{position:fixed;top:calc(14px + var(--sa-t));right:max(16px,var(--sa-r));padding:8px 14px;font-weight:900;font-size:16px;display:flex;gap:7px;align-items:center}
 #dompet i{font-style:normal;font-size:17px;line-height:1}
-.laci{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));left:max(16px,env(safe-area-inset-left,0px));width:min(360px,calc(100vw - 32px));display:flex;flex-direction:column;overflow:hidden;z-index:5}
+.laci{position:fixed;top:calc(14px + var(--sa-t));bottom:calc(14px + var(--sa-b));left:max(16px,var(--sa-l));width:min(360px,calc(var(--lw,100vw) - 32px));display:flex;flex-direction:column;overflow:hidden;z-index:5}
 .laci .kepala{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 6px}
 .laci h2{margin:0;font-size:20px;font-weight:900}
 .tutup{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.12);font-weight:900}
@@ -68,13 +68,13 @@ button:focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
 #fotoMedali{display:block;width:150px;height:180px;margin:4px auto 8px;object-fit:contain;background:radial-gradient(circle at 50% 40%,#fff4d6,#efe9dc 70%);border-radius:6px}
 .rank{display:grid;grid-template-columns:28px 1fr auto;gap:8px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.05);font-size:13px;font-variant-numeric:tabular-nums}
 .rank.saya{background:rgba(224,128,58,.35);font-weight:800}
-#pemanasan{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(260px,calc(100vw - 32px));background:var(--kaca);border-radius:14px;padding:10px 14px;display:grid;gap:6px;pointer-events:none}
+#pemanasan{position:fixed;right:max(16px,var(--sa-r));bottom:calc(16px + var(--sa-b));width:min(260px,calc(var(--lw,100vw) - 32px));background:var(--kaca);border-radius:14px;padding:10px 14px;display:grid;gap:6px;pointer-events:none}
 #pemanasan b{font-size:13px}#pemanasan small{font-size:11px;color:var(--redup)}
 #pemanasan.selesai #pmBar{background:var(--kuning)}
 .lebar{width:100%}#pmBar{height:100%;width:0;background:var(--hijau);border-radius:9px;transition:width .2s}
 
 /* HUD */
-#hud{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:16px;padding:8px 10px 8px 16px;white-space:nowrap}
+#hud{position:fixed;top:calc(10px + var(--sa-t));left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:16px;padding:8px 10px 8px 16px;white-space:nowrap}
 .stat small{display:block;font-size:9px;font-weight:800;letter-spacing:.14em;color:var(--redup)}
 .stat b{font-size:19px;font-weight:900;font-variant-numeric:tabular-nums}
 .stat b i{font-style:normal;font-size:11px;color:var(--redup);font-weight:700}
@@ -82,13 +82,13 @@ button:focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
 #hStamina{height:100%;width:100%;border-radius:9px;transition:width .2s}
 #hNyawa{font-size:14px;letter-spacing:-2px}
 #bJeda{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.12);font-weight:900}
-#hBuff{position:fixed;top:calc(66px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);display:flex;gap:6px}
+#hBuff{position:fixed;top:calc(66px + var(--sa-t));left:50%;transform:translateX(-50%);display:flex;gap:6px}
 #hBuff span{background:var(--kaca);padding:5px 10px;border-radius:999px;font-size:12px;font-weight:800}
-#toast{position:fixed;top:32%;left:50%;transform:translateX(-50%);font-size:clamp(18px,4vw,30px);font-weight:900;text-align:center;text-shadow:0 3px 0 rgba(19,20,31,.5);padding:0 16px;pointer-events:none;max-width:90vw}
-#bWS{position:fixed;right:calc(20px + env(safe-area-inset-right,0px));bottom:calc(30px + env(safe-area-inset-bottom,0px));width:110px;height:110px;border-radius:50%;background:#3a8ad8;color:#fff;font-weight:900;font-size:13px;box-shadow:0 0 0 6px rgba(58,138,216,.35);animation:denyut .7s infinite alternate}
+#toast{position:fixed;top:32%;left:50%;transform:translateX(-50%);font-size:clamp(18px,calc(var(--lw,100vw) * .04),30px);font-weight:900;text-align:center;text-shadow:0 3px 0 rgba(19,20,31,.5);padding:0 16px;pointer-events:none;max-width:calc(var(--lw,100vw) * .9)}
+#bWS{position:fixed;right:calc(20px + var(--sa-r));bottom:calc(30px + var(--sa-b));width:110px;height:110px;border-radius:50%;background:#3a8ad8;color:#fff;font-weight:900;font-size:13px;box-shadow:0 0 0 6px rgba(58,138,216,.35);animation:denyut .7s infinite alternate}
 @keyframes denyut{to{box-shadow:0 0 0 14px rgba(58,138,216,.1)}}
 /* PETUNJUK KONTROL (swipe & tap, tanpa tombol) */
-#kontrol{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;gap:8px;pointer-events:none;transition:opacity .6s;flex-wrap:wrap;justify-content:center;width:max-content;max-width:calc(100vw - 32px)}
+#kontrol{position:fixed;left:50%;bottom:calc(14px + var(--sa-b));transform:translateX(-50%);display:flex;gap:8px;pointer-events:none;transition:opacity .6s;flex-wrap:wrap;justify-content:center;width:max-content;max-width:calc(var(--lw,100vw) - 32px)}
 #kontrol span{background:var(--kaca);padding:7px 12px;border-radius:999px;font-size:12px;font-weight:800}
 #kontrol.pudar{opacity:0}
 #sprintKilat{position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 80px rgba(224,128,58,.0);transition:box-shadow .2s}
@@ -102,7 +102,7 @@ button:focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
 #gps.kunci #gpsTeks{color:#3aa860}
 #gps .tengah{display:grid;justify-items:center}
 /* STRUK */
-.layar{position:fixed;inset:0;display:grid;place-items:center;background:rgba(19,20,31,.55);padding:16px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px));overflow:auto}
+.layar{position:fixed;inset:0;display:grid;place-items:center;background:rgba(19,20,31,.55);padding:16px max(16px,var(--sa-r)) 16px max(16px,var(--sa-l));overflow:auto}
 .kertas{background:var(--kertas);color:var(--tinta);width:min(340px,100%);padding:20px 20px 16px;border-radius:4px;font-family:"Courier New",monospace;box-shadow:0 20px 50px rgba(0,0,0,.35);position:relative}
 .kertas::after{content:"";position:absolute;left:0;right:0;bottom:-8px;height:8px;background:linear-gradient(-45deg,transparent 6px,var(--kertas) 0) 0 0/12px 8px,linear-gradient(45deg,transparent 6px,var(--kertas) 0) 0 0/12px 8px}
 .kertas h2{font-family:var(--f);font-weight:900;font-size:20px;text-align:center;margin:0}
@@ -132,7 +132,7 @@ button:focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
 #rayakan{position:fixed;inset:0;z-index:9;pointer-events:none}
 #rayakan .tirai{position:absolute;inset:0;background:linear-gradient(90deg,rgba(19,20,31,.62),rgba(19,20,31,.18) 48%,rgba(19,20,31,0) 70%)}
 #rkKonfeti{position:absolute;inset:0;width:100%;height:100%}
-#rkKartu{pointer-events:auto;position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%);width:min(344px,calc(100vw - 32px));max-height:calc(100% - 24px);overflow:auto;padding:16px 18px 18px;display:grid;gap:10px;border:2px solid rgba(242,193,74,.55);box-shadow:0 0 0 4px rgba(242,193,74,.12),0 18px 40px rgba(0,0,0,.35)}
+#rkKartu{pointer-events:auto;position:absolute;left:max(16px,var(--sa-l));top:50%;transform:translateY(-50%);width:min(344px,calc(var(--lw,100vw) - 32px));max-height:calc(100% - 24px);overflow:auto;padding:16px 18px 18px;display:grid;gap:10px;border:2px solid rgba(242,193,74,.55);box-shadow:0 0 0 4px rgba(242,193,74,.12),0 18px 40px rgba(0,0,0,.35)}
 #rkKartu.muncul{animation:rkMasuk .55s cubic-bezier(.2,1.5,.4,1) both}
 @keyframes rkMasuk{from{opacity:0;transform:translateY(-50%) scale(.6) rotate(-4deg)}to{opacity:1;transform:translateY(-50%) scale(1)}}
 #rkKartu .eyebrow{font-size:10px}
@@ -146,23 +146,17 @@ button:focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
 #rkSorot{margin:0;font-size:12.5px;line-height:1.35;font-weight:700}
 #rkTitik{display:flex;gap:5px;align-items:center}#rkTitik i{width:14px;height:14px;border-radius:3px;background:rgba(255,255,255,.14)}#rkTitik i.ok{background:var(--hijau)}#rkTitik i.baru{background:var(--kuning);box-shadow:0 0 0 3px rgba(242,193,74,.35);animation:rkDenyut .5s ease-in-out infinite alternate}
 #rkKartu .tombol{margin-top:2px}#rkKartu .utama{font-size:15px;padding:12px 10px;flex:1.5}#rkKartu .kedua{font-size:12.5px;padding:10px 8px}
-#rkTag{position:absolute;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));padding:7px 12px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.12em;display:flex;gap:7px;align-items:center}
+#rkTag{position:absolute;right:max(16px,var(--sa-r));bottom:calc(16px + var(--sa-b));padding:7px 12px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.12em;display:flex;gap:7px;align-items:center}
 #rkTag i{width:9px;height:9px;border-radius:2px;background:#e04848;animation:rkDenyut .6s infinite alternate}
 body.rayakan #dompet{display:none}
 @media (max-height:430px){#rkKartu{gap:7px;padding:12px 14px 14px}#rkKartu h2{font-size:30px}#rkKartu h2 span{font-size:15px;margin-top:3px}.rkRute{padding:6px 8px;grid-template-columns:44px 1fr}#rkIkon{width:44px;height:44px}#rkIkon .pi{width:30px;height:30px}#rkSorot{font-size:11.5px}}
 @media (prefers-reduced-motion:reduce){#rkKartu.muncul,#rkKartu h2 span,#rkTitik i.baru,#rkTag i{animation:none}}
-/* HANYA LANDSCAPE (Huda 10 Nov): HP tegak = layar ajakan putar HP, game dibekukan */
-#putar{position:fixed;inset:0;z-index:50;display:none;place-items:center;text-align:center;padding:24px;background:radial-gradient(circle at 50% 35%,#2c3150,#13141f 75%)}
-body.tegak #putar{display:grid}
+/* HANYA LANDSCAPE (Huda 10 & 14 Nov): tidak ada tata letak potret. HP tegak (atau kunci rotasi iPhone aktif)
+   = seluruh game dirotasi 90 derajat sehingga tetap landscape; warga cukup memiringkan HP. Ukuran logis dari JS: --lw/--lh. */
+:root{--sa-t:env(safe-area-inset-top,0px);--sa-r:env(safe-area-inset-right,0px);--sa-b:env(safe-area-inset-bottom,0px);--sa-l:env(safe-area-inset-left,0px)}
+body.tegak{position:fixed;top:0;left:0;width:var(--lw);height:var(--lh);transform-origin:0 0;transform:rotate(90deg) translateY(-100%);--sa-t:0px;--sa-b:0px;--sa-l:env(safe-area-inset-top,0px);--sa-r:env(safe-area-inset-bottom,0px)}
 /* saat lari dompet disembunyikan (koin sudah ada di HUD) supaya tidak bertumpuk dengan HUD di layar 667px */
 body:has(#hud:not([hidden])) #dompet{display:none}
-#putar .hp{width:64px;height:108px;margin:0 auto 22px;border:5px solid #fff;border-radius:14px;position:relative;animation:putarHP 2.2s ease-in-out infinite}
-#putar .hp::after{content:"";position:absolute;left:50%;bottom:5px;width:14px;height:4px;margin-left:-7px;border-radius:2px;background:#fff}
-@keyframes putarHP{0%,20%{transform:rotate(0)}55%,85%{transform:rotate(-90deg)}100%{transform:rotate(0)}}
-#putar h2{margin:0;font-size:24px;font-weight:900;line-height:1.1}#putar h2 span{color:var(--kuning)}
-#putar p{margin:8px auto 18px;font-size:13px;color:var(--redup);max-width:260px;line-height:1.4}
-#putar .utama{font-size:15px}
-@media (prefers-reduced-motion:reduce){#putar .hp{animation:none;transform:rotate(-90deg)}}
 </style></head><body>
 <canvas id="kanvas"></canvas>
 <section id="lobi" aria-label="Menu utama">
@@ -233,8 +227,8 @@ body:has(#hud:not([hidden])) #dompet{display:none}
   <p>Supported by<br><b>www.willoapparel.com</b></p>
   <div class="tombol"><button class="kedua" id="bSimpan">📸 Simpan untuk Story</button><a class="kedua" id="bDesa2" href="/duniakotak/mabar/?dusun=kulon&amp;ke=pelari" target="_top" hidden style="text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;font-size:13px">Ke desa</a><button class="utama" id="bLagi" style="font-size:14px;padding:10px">MAIN LAGI</button></div>
 </div></div>
-<div id="story" class="layar" hidden><div class="kartu kaca" style="max-height:94vh;overflow:auto;text-align:center;gap:8px">
-  <img id="storyImg" alt="Struk finisher ukuran story" style="max-height:62vh;max-width:100%;border-radius:10px;align-self:center">
+<div id="story" class="layar" hidden><div class="kartu kaca" style="max-height:calc(var(--lh,100vh) * .94);overflow:auto;text-align:center;gap:8px">
+  <img id="storyImg" alt="Struk finisher ukuran story" style="max-height:calc(var(--lh,100vh) * .62);max-width:100%;border-radius:10px;align-self:center">
   <small style="color:var(--redup)">Kalau tombol unduh tidak jalan, tekan lama gambar lalu pilih Simpan.</small>
   <div class="tombol"><a id="unduhStory" class="utama" style="text-decoration:none;font-size:14px;padding:10px;text-align:center">⬇ Unduh gambar</a><button class="kedua" id="bBagi" hidden>Bagikan ke Story</button><button class="kedua" id="bTutupStory">Tutup</button></div>
 </div></div>
@@ -246,6 +240,5 @@ body:has(#hud:not([hidden])) #dompet{display:none}
     <p id="rkSorot"></p><div id="rkTitik" aria-hidden="true"></div>
     <div class="tombol"><button class="kedua" id="bRkStruk" type="button">Lihat struk</button><button class="utama" id="bRkCoba" type="button">LARI DI SINI →</button></div>
   </div></div>
-<div id="putar" role="dialog" aria-modal="true" aria-labelledby="putarJudul"><div><div class="hp" aria-hidden="true"></div><h2 id="putarJudul">Miringkan HP-mu <span>↻</span></h2><p>Pelari Kalcer dimainkan dengan layar mendatar (landscape). Matikan kunci rotasi kalau layar belum ikut berputar.</p><button class="utama" id="bPutar" type="button">MAINKAN LAYAR PENUH</button></div></div>
 <script>/*KODE*/</script>
 </body></html>

@@ -545,8 +545,8 @@ function isiRute() { const R = ruteKini(); $('bRute').querySelector('b').textCon
 $('bRute').onclick = () => { isiMaps(); bukaLaci('dMap'); };
 // ---- ABC Drills (GDD 2.2): ketuk avatar di menu, tiap ketuk = 1 gerakan; 8 ketukan per drill, 3 drill ----
 const pm = { n: 0, gerak: 0 }; const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
-function kenaAvatar(e) { ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); ray.setFromCamera(ndc, kam); if (ray.intersectObject(pemain, true).length) return true;
-  const p = pemain.position.clone().setY(2).project(kam); return Math.hypot(p.x - ndc.x, (p.y - ndc.y) * innerHeight / innerWidth) < 0.14; }
+function kenaAvatar(e) { const q = titik(e); ndc.set(q.x / LW * 2 - 1, -(q.y / LH) * 2 + 1); ray.setFromCamera(ndc, kam); if (ray.intersectObject(pemain, true).length) return true;
+  const p = pemain.position.clone().setY(2).project(kam); return Math.hypot(p.x - ndc.x, (p.y - ndc.y) * LH / LW) < 0.14; }
 kanvas.addEventListener('pointerdown', (e) => { if (mode === 'lobi' && !$('lobi').hidden && kenaAvatar(e)) ketukPemanasan(); });
 function ketukPemanasan() {
   if (D.warm) { toast('🔥 Sudah panas! Bonus +12% siap dipakai'); return; }
@@ -588,8 +588,8 @@ addEventListener('keyup', (e) => { if (e.key === 'Shift') P.sprint = false; });
 // swipe kiri/kanan = lajur, swipe atas = lompat, tap/tahan = sprint (tanpa tombol layar)
 let sentuh = null, sprintTap = 0;
 function blokir(e) { return e.target.closest && e.target.closest('button, input, .laci, #lobi, .layar'); }
-addEventListener('pointerdown', (e) => { if (blokir(e) || mode !== 'lari') return; sentuh = { x: e.clientX, y: e.clientY, t: performance.now(), geser: false }; });
-addEventListener('pointermove', (e) => { if (!sentuh || sentuh.geser) return; const dx = e.clientX - sentuh.x, dy = e.clientY - sentuh.y;
+addEventListener('pointerdown', (e) => { if (blokir(e) || mode !== 'lari') return; const q = titik(e); sentuh = { x: q.x, y: q.y, t: performance.now(), geser: false }; });
+addEventListener('pointermove', (e) => { if (!sentuh || sentuh.geser) return; const q = titik(e), dx = q.x - sentuh.x, dy = q.y - sentuh.y;
   if (Math.abs(dx) > 34 && Math.abs(dx) > Math.abs(dy)) { geser(dx > 0 ? 1 : -1); sentuh.geser = true; } else if (dy < -34 && Math.abs(dy) > Math.abs(dx)) { lompat(); sentuh.geser = true; } });
 addEventListener('pointerup', () => { if (sentuh && !sentuh.geser) sprintTap = Math.max(sprintTap, 0.9); sentuh = null; });
 addEventListener('pointercancel', () => { sentuh = null; });
@@ -772,7 +772,7 @@ $('bRkCoba').onclick = () => { tutupRayakan(); bunyi(660, .08); $('pemanasan').h
 $('bRkStruk').onclick = () => { tutupRayakan(); mode = 'selesai'; $('struk').hidden = false; };
 // konfeti kotak-kotak piksel warna palet Dunia Kotak
 function konfeti() {
-  const c = $('rkKonfeti'), x = c.getContext('2d'), w = c.width = innerWidth, h = c.height = innerHeight; const kurang = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const c = $('rkKonfeti'), x = c.getContext('2d'), w = c.width = LW, h = c.height = LH; const kurang = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const warna = [PAL.Y, PAL.R, PAL.H, PAL.B, PAL.E, PAL.V, PAL.W, PAL.L];
   const tembak = (ox, arah, n) => { for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + arah * (.25 + Math.random() * .55), v = (kurang ? 2 : 9) + Math.random() * (kurang ? 2 : 9);
     RK.kf.push({ x: ox, y: h + 10, vx: Math.cos(a) * v, vy: Math.sin(a) * v * 1.25, s: 5 + Math.random() * 7, r: Math.random() * 6, vr: (Math.random() - .5) * .4, c: warna[i % warna.length], hidup: 1 }); } };
@@ -878,18 +878,20 @@ function langkah(dt) {
   JAUH.position.z = pz; mentari.position.set(25, 50, pz + 30); mentari.target.position.set(0, 0, pz - 15);
   muatDunia(P.d || 0);
 }
-// HANYA LANDSCAPE (Huda 10 Nov): HP tegak → layar ajakan putar HP, game dibekukan; lari otomatis dijeda
-let tegak = false;
-function ukur() { const w = innerWidth, h = innerHeight; tegak = w < h; document.body.classList.toggle('tegak', tegak);
-  if (tegak && mode === 'lari') { mode = 'jeda'; $('jeda').hidden = false; }
-  R.setSize(w, h, false); kam.aspect = w / h; kam.fov = 58; kam.updateProjectionMatrix(); }
+// HANYA LANDSCAPE (Huda 10 & 14 Nov): tidak ada tata letak potret. HP tegak (mis. kunci rotasi iPhone aktif) → body
+// dirotasi 90° lewat CSS (body.tegak) sehingga game tetap landscape. LW×LH = ukuran logis landscape.
+let tegak = false, LW = innerWidth, LH = innerHeight;
+function ukur() { const w = innerWidth, h = innerHeight, t = w < h; if (t !== tegak && mode === 'lari') { mode = 'jeda'; $('jeda').hidden = false; }
+  tegak = t; LW = t ? h : w; LH = t ? w : h; const s = document.documentElement.style; s.setProperty('--lw', LW + 'px'); s.setProperty('--lh', LH + 'px');
+  document.body.classList.toggle('tegak', tegak); R.setSize(LW, LH, false); kam.aspect = LW / LH; kam.fov = 58; kam.updateProjectionMatrix(); }
+// koordinat sentuh layar → koordinat logis game (saat diputar 90°: x = clientY, y = lebarLayar − clientX)
+function titik(e) { return tegak ? { x: e.clientY, y: innerWidth - e.clientX } : { x: e.clientX, y: e.clientY }; }
 addEventListener('resize', ukur); addEventListener('orientationchange', () => setTimeout(ukur, 120)); ukur();
-// minta layar penuh + kunci landscape (Android Chrome); iOS/Instagram tidak mendukung → cukup layar ajakan putar
+// minta layar penuh + kunci landscape (Android Chrome); iOS/Instagram tidak mendukung → game diputar lewat CSS
 function kunciLandscape() { const el = document.documentElement, rq = el.requestFullscreen || el.webkitRequestFullscreen;
   const kunci = () => { try { const p = screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'); if (p && p.catch) p.catch(() => {}); } catch (e) {} };
   if (!(document.fullscreenElement || document.webkitFullscreenElement) && rq && matchMedia('(pointer:coarse)').matches) { try { const p = rq.call(el, { navigationUI: 'hide' }); if (p && p.then) p.then(kunci, () => {}); else kunci(); } catch (e) {} } else kunci(); }
-$('bPutar').onclick = kunciLandscape;
-function putar(now) { const dt = Math.min(.05, (now - jamLalu) / 1000); jamLalu = now; if (!tegak) { if (mode !== 'jeda') langkah(dt); R.render(sc, kam); } requestAnimationFrame(putar); }
+function putar(now) { const dt = Math.min(.05, (now - jamLalu) / 1000); jamLalu = now; if (mode !== 'jeda') langkah(dt); R.render(sc, kam); requestAnimationFrame(putar); }
 bangunDunia(Math.min(D.rute | 0, ruteBuka())); isiRute(); resetLari(); keLobi(); requestAnimationFrame((t) => { jamLalu = t; putar(t); });
 // datang dari Arena Pelari Kalcer (Dusun Kotak Kulon) → tampilkan jalan pulang ke desa
 if (/[?&]dari=desa/.test(location.search) || AKUN) { $('bDesa').hidden = false; $('bDesa2').hidden = false; }
