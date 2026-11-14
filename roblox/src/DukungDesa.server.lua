@@ -15,7 +15,7 @@
   CARA MENYALAKAN: buat pass dan produk di Creator Dashboard, lalu isi nomornya di kolom id pada tabel PASS dan PRODUK.
   Selama id = 0, barang itu tampil "Segera hadir" dan tidak bisa dibeli.
 
-  Kotak Dukungan dan Tembok Pendukung berdiri di dekat titik muncul Kotak Wetan.
+  Kotak Dukungan dan Tembok Pendukung berdiri di tepi jalan setapak dekat titik muncul Kotak Wetan.
   Data: DataStore "DuniaKotak_Dukung_v1" kunci "p_<UserId>" = { bata, struk = { id pembelian terakhir } };
   OrderedDataStore "DuniaKotak_DukungTop" = jumlah bata tiap pemain. Pasangannya: StarterPlayerScripts.DukungDesa.
 ]]
@@ -190,10 +190,11 @@ do
 		local rp = RaycastParams.new()
 		rp.FilterType = Enum.RaycastFilterType.Include
 		rp.FilterDescendantsInstances = { akar }
-		local letak = pusat + Vector3.new(-22, 0, -20)
+		-- di rumput tepi jalan setapak, sejajar jalan dan menghadap jalan (+Z); tidak menutup gerbang rumah di belakangnya
+		local letak = pusat + Vector3.new(-9.5, 0, -12)
 		local r = workspace:Raycast(letak + Vector3.new(0, 40, 0), Vector3.new(0, -120, 0), rp)
 		local tanah = r and r.Position.Y or pusat.Y - 3
-		local dasar = CFrame.new(letak.X, tanah, letak.Z) * CFrame.Angles(0, math.rad(-90), 0) -- menghadap titik muncul (+X)
+		local dasar = CFrame.new(letak.X, tanah, letak.Z) * CFrame.Angles(0, math.rad(180), 0)
 		local model = Instance.new("Model")
 		model.Name = "DK_DukungDesa"
 		local function balok(ukuran, cf, warna)
