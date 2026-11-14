@@ -50,11 +50,11 @@ local function balok(ukuran, cf, warna)
 	p.Parent = model
 	return p
 end
--- papan menghadap ke arah titik muncul (sumbu +X)
+-- papan digantung seperti gapura di atas jalan setapak, menghadap ke arah titik muncul (sumbu +X)
 local dasar = CFrame.new(letak.X, tanah, letak.Z) * CFrame.Angles(0, math.rad(-90), 0)
-balok(Vector3.new(1, 5, 1), dasar * CFrame.new(-9, 2.5, 0), Color3.fromRGB(110, 78, 50))
-balok(Vector3.new(1, 5, 1), dasar * CFrame.new(9, 2.5, 0), Color3.fromRGB(110, 78, 50))
-local papan = balok(Vector3.new(24, 11, 0.8), dasar * CFrame.new(0, 10.4, 0), GELAP)
+balok(Vector3.new(1, 8.5, 1), dasar * CFrame.new(-11, 4.25, 0), Color3.fromRGB(110, 78, 50))
+balok(Vector3.new(1, 8.5, 1), dasar * CFrame.new(11, 4.25, 0), Color3.fromRGB(110, 78, 50))
+local papan = balok(Vector3.new(24, 11, 0.8), dasar * CFrame.new(0, 14, 0), GELAP)
 papan.Name = "papan"
 
 local sg = Instance.new("SurfaceGui")
