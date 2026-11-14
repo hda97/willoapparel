@@ -15772,6 +15772,24 @@
     "ast_hash": "4e672edd8b4f27003a4dc5cf2e202e3e",
     "semantic_hash": ""
   },
+  "roblox/src/AvatarKotak.server.lua": {
+    "mtime": 1794645876.5650055,
+    "seen": 1794645901.4360352,
+    "ast_hash": "9954f3660eda0af0fdcc9bb0ae28b71c",
+    "semantic_hash": ""
+  },
+  "roblox/alat/pasang_dusun.lua": {
+    "mtime": 1794645876.5650055,
+    "seen": 1794645901.436024,
+    "ast_hash": "64adde988da5784165088c591af7b01c",
+    "semantic_hash": ""
+  },
+  "roblox/src/BuatTokoh.client.lua": {
+    "mtime": 1794645876.570112,
+    "seen": 1794645901.4360378,
+    "ast_hash": "0272befa1efe6b13b549f86dacc68e14",
+    "semantic_hash": ""
+  },
   ".claude/skills/video-shotcraft/package-lock.json": {
     "mtime": 1794581286.5195184,
     "seen": 1794645824.498087,
