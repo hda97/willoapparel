@@ -21,7 +21,7 @@
 ]]
 
 local PASS = {
-	{ kunci = "pendukung", id = 0, nama = "Pendukung Desa", ket = "Gelar emas di atas kepalamu." },
+	{ kunci = "pendukung", id = 2088543159, nama = "Pendukung Desa", ket = "Gelar emas di atas kepalamu." },
 	{ kunci = "jejak", id = 0, nama = "Jejak Bintang", ket = "Percik bintang mengikuti langkahmu." },
 	{ kunci = "pelangi", id = 0, nama = "Gelar Pelangi", ket = "Tulisan gelarmu berwarna pelangi." },
 	{ kunci = "lentera", id = 0, nama = "Lentera Malam", ket = "Cahaya hangat di sekitarmu." },
