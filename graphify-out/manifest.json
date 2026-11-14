@@ -15958,6 +15958,18 @@
     "ast_hash": "334f744dc853f68daf4c29d776a1c53a",
     "semantic_hash": ""
   },
+  "roblox/src/TutorRaka.client.lua": {
+    "mtime": 1794655594.66124,
+    "seen": 1794655619.5545201,
+    "ast_hash": "2c5342bf14853d33a61ba3edc86d2603",
+    "semantic_hash": ""
+  },
+  "roblox/src/TutorRaka.server.lua": {
+    "mtime": 1794655594.6588275,
+    "seen": 1794655619.5545242,
+    "ast_hash": "1badc01f623b885db09fc104c0aed253",
+    "semantic_hash": ""
+  },
   ".claude/skills/video-shotcraft/package-lock.json": {
     "mtime": 1794434389.631907,
     "seen": 1794646146.8242428,
