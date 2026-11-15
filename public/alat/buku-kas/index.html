@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="id">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-N4FLLMXDVK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-N4FLLMXDVK');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buku Kas Gratis untuk UMKM, Catat Keuangan di HP | Willo Apparel</title>
+<meta name="description" content="Aplikasi pencatat keuangan usaha gratis: catat uang masuk dan keluar, lihat saldo dan untung per bulan, pengeluaran per kategori, ekspor ke Excel. Tanpa daftar, data tersimpan di HP sendiri.">
+<link rel="canonical" href="https://willoapparel.com/alat/buku-kas/">
+<meta property="og:title" content="Buku Kas Gratis untuk UMKM | Willo Apparel">
+<meta property="og:description" content="Catat uang masuk & keluar, lihat untung per bulan, ekspor Excel. Gratis, tanpa daftar.">
+<meta property="og:locale" content="id_ID">
+<link rel="icon" href="/logo-willo.png">
+<link rel="stylesheet" href="/alat/alat.css">
+<style>
+.ringkas{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.ringkas .kotak{background:var(--kartu);border:1px solid var(--garis);border-radius:14px;padding:12px 14px}
+.ringkas .kotak.saldo{grid-column:1/-1;background:var(--teks);color:#fff;border-color:var(--teks)}
+.ringkas small{display:block;font-size:13px;color:var(--redup)}
+.ringkas .saldo small{color:#c9c9cf}
+.ringkas b{display:block;font-size:22px;line-height:1.25}
+.ringkas .saldo b{font-size:clamp(30px,8vw,40px)}
+.t-hijau{color:var(--hijau)} .t-merah{color:var(--merah)}
+.bulan{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.bulan button{width:44px;flex:0 0 44px}
+.bulan .nama{flex:1;text-align:center;font-weight:700;font-size:17px}
+.jenis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.jenis button{border:2px solid var(--garis);background:#fff;border-radius:12px;padding:12px;font:inherit;font-weight:700;cursor:pointer}
+.jenis button.pilih[data-j=masuk]{border-color:var(--hijau);background:var(--hijau-muda);color:var(--hijau)}
+.jenis button.pilih[data-j=keluar]{border-color:var(--merah);background:var(--merah-muda);color:var(--merah)}
+.nominal{font-size:28px !important;font-weight:800;text-align:right}
+.chip{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 12px}
+.chip button{border:1px solid var(--garis);background:#fff;border-radius:20px;padding:7px 12px;font:inherit;font-size:14px;cursor:pointer}
+.chip button.pilih{background:var(--teks);color:#fff;border-color:var(--teks)}
+.hari{margin-top:6px}
+.hari .kepala{display:flex;justify-content:space-between;font-size:13px;color:var(--redup);padding:10px 0 4px;border-bottom:1px solid var(--garis);font-weight:600}
+.tx{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0ede6;cursor:pointer}
+.tx .ik{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex:0 0 36px}
+.tx .ik.masuk{background:var(--hijau-muda)} .tx .ik.keluar{background:var(--merah-muda)}
+.tx .ket{flex:1;min-width:0}
+.tx .ket b{display:block;font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tx .ket small{color:var(--redup);font-size:12.5px}
+.tx .jml{font-weight:700;white-space:nowrap}
+.kosong{color:var(--redup);font-size:14px;padding:14px 0;text-align:center}
+.batang{margin:6px 0 10px}
+.batang .b{display:flex;justify-content:space-between;font-size:14px;margin-top:8px}
+.batang .rel{height:8px;background:#f0ede6;border-radius:4px;overflow:hidden;margin-top:3px}
+.batang .rel i{display:block;height:100%;background:var(--merah);border-radius:4px}
+.batang.masuk .rel i{background:var(--hijau)}
+</style>
+</head>
+<body>
+<header class="atas"><div class="wrap"><a href="/alat/">← Alat Usaha Gratis</a><a class="redup" href="/">Willo Apparel</a></div></header>
+
+<main class="wrap">
+  <h1>Buku Kas</h1>
+  <p class="sub">Catat uang masuk dan keluar usahamu. Data tersimpan di HP ini, tidak dikirim ke mana pun.</p>
+
+  <div class="bulan">
+    <button class="btn dua" id="bSebelum" aria-label="Bulan sebelumnya">‹</button>
+    <div class="nama" id="namaBulan"></div>
+    <button class="btn dua" id="bSesudah" aria-label="Bulan berikutnya">›</button>
+  </div>
+
+  <div class="ringkas">
+    <div class="kotak saldo"><small>Saldo kas sekarang</small><b class="angka" id="rSaldo">Rp0</b></div>
+    <div class="kotak"><small>Masuk bulan ini</small><b class="angka t-hijau" id="rMasuk">Rp0</b></div>
+    <div class="kotak"><small>Keluar bulan ini</small><b class="angka t-merah" id="rKeluar">Rp0</b></div>
+    <div class="kotak" style="grid-column:1/-1"><small id="lLaba">Untung bulan ini</small><b class="angka" id="rLaba">Rp0</b><small id="rHariIni"></small></div>
+  </div>
+
+  <section class="kartu">
+    <h2 id="judulForm">Catat transaksi</h2>
+    <div class="jenis" id="jenis">
+      <button type="button" data-j="masuk" class="pilih">＋ Uang masuk</button>
+      <button type="button" data-j="keluar">− Uang keluar</button>
+    </div>
+    <label class="isi">Jumlah (Rp)<input type="text" inputmode="numeric" id="fJml" class="nominal angka" placeholder="0" autocomplete="off"></label>
+    <div class="isi" style="margin-bottom:0;font-size:14px;font-weight:600">Kategori</div>
+    <div class="chip" id="fKat"></div>
+    <label class="isi">Catatan <small>Contoh: 20 kaos Pak RT, beli tinta</small><input type="text" id="fKet" maxlength="80" autocomplete="off"></label>
+    <div class="baris">
+      <label class="isi">Tanggal<input type="date" id="fTgl"></label>
+      <label class="isi">Lewat<select id="fMetode"><option>Tunai</option><option>QRIS</option><option>Transfer</option><option>E-wallet</option></select></label>
+    </div>
+    <div class="baris">
+      <button class="btn dua tersembunyi" id="bBatal">Batal</button>
+      <button class="btn merah tersembunyi" id="bHapus">Hapus</button>
+      <button class="btn lebar" id="bSimpan">Simpan</button>
+    </div>
+  </section>
+
+  <section class="kartu">
+    <div class="tab" id="tab">
+      <button class="pilih" data-t="daftar">Riwayat</button>
+      <button data-t="kategori">Per kategori</button>
+    </div>
+    <div id="vDaftar"></div>
+    <div id="vKategori" class="tersembunyi"></div>
+  </section>
+
+  <section class="kartu">
+    <h2>Simpan & pindah HP</h2>
+    <label class="isi">Saldo awal kas <small>Uang di laci/rekening saat mulai mencatat</small><input type="text" inputmode="numeric" id="sAwal" class="angka" placeholder="0"></label>
+    <div class="baris">
+      <button class="btn dua kecil" id="bCsv">⬇ Excel (CSV) bulan ini</button>
+      <button class="btn dua kecil" id="bCsvSemua">⬇ Excel semua</button>
+    </div>
+    <div class="baris" style="margin-top:10px">
+      <button class="btn dua kecil" id="bCadang">💾 Cadangkan</button>
+      <label class="btn dua kecil" for="fPulih">📂 Pulihkan</label>
+      <input type="file" id="fPulih" accept=".json,application/json" class="tersembunyi">
+    </div>
+    <p class="kecil redup" style="margin-bottom:0">Cadangkan berkala, karena data hilang kalau riwayat browser dihapus. File cadangan bisa dibuka di HP lain lewat tombol Pulihkan.</p>
+  </section>
+
+  <p class="kecil redup">Penjualan dari <a href="/alat/kasir/">Kasir</a> otomatis tercatat di sini sebagai uang masuk.</p>
+
+  <div class="cta">Butuh kaos seragam untuk tim usahamu? Sablon satuan sampai lusinan di <a href="/kaos-seragam-usaha-ngawi.html">Willo Apparel</a>.</div>
+</main>
+<footer>Alat gratis dari Willo Apparel · data tidak dikirim ke server</footer>
+<div class="pesan" id="pesan"></div>
+
+<script>
+(function(){
+  var KUNCI = "willo_kas_v1";
+  var $ = function(id){ return document.getElementById(id); };
+  var KAT = {
+    masuk: [["Penjualan","🛒"],["Jasa","🛠️"],["Modal","🏦"],["Piutang dibayar","🤝"],["Lainnya","➕"]],
+    keluar: [["Belanja bahan","📦"],["Gaji","👷"],["Sewa","🏠"],["Listrik & air","💡"],["Transport","🛵"],["Iklan","📣"],["Ambil pribadi","👛"],["Lainnya","➖"]]
+  };
+  var BULAN = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  var S;
+  function muat(){ try { S = JSON.parse(localStorage.getItem(KUNCI)) || {}; } catch(e){ S = {}; } S.tx = S.tx || []; S.awal = S.awal || 0; }
+  function simpan(){ try { localStorage.setItem(KUNCI, JSON.stringify(S)); } catch(e){ pesan("Gagal menyimpan: memori browser penuh"); } }
+  muat();
+
+  var rp = function(n){ return (n < 0 ? "−Rp" : "Rp") + Math.abs(Math.round(n)).toLocaleString("id-ID"); };
+  var angka = function(s){ return parseInt(String(s).replace(/\D/g, ""), 10) || 0; };
+  var pad = function(n){ return String(n).padStart(2, "0"); };
+  var tglIni = function(){ var d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); };
+  var ikon = function(t){ var k = (KAT[t.t] || []).filter(function(x){ return x[0] === t.kat; })[0]; return k ? k[1] : (t.t === "masuk" ? "➕" : "➖"); };
+  function pesan(t){ var p = $("pesan"); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, 2200); }
+  function formatInput(el){
+    el.addEventListener("input", function(){ var n = angka(el.value); el.value = n ? n.toLocaleString("id-ID") : ""; });
+  }
+  formatInput($("fJml")); formatInput($("sAwal"));
+
+  var kini = new Date(); var thn = kini.getFullYear(), bln = kini.getMonth();
+  var form = { j:"masuk", kat:"Penjualan", edit:null };
+
+  function kunciBulan(){ return thn + "-" + pad(bln + 1); }
+  function txBulan(){ var k = kunciBulan(); return S.tx.filter(function(t){ return t.tgl.slice(0,7) === k; }); }
+  function jumlah(arr, j){ return arr.filter(function(t){ return t.t === j; }).reduce(function(a,t){ return a + t.jml; }, 0); }
+
+  function gambarChip(){
+    var c = $("fKat"); c.innerHTML = "";
+    KAT[form.j].forEach(function(k){
+      var b = document.createElement("button"); b.type = "button"; b.textContent = k[1] + " " + k[0];
+      if (k[0] === form.kat) b.className = "pilih";
+      b.onclick = function(){ form.kat = k[0]; gambarChip(); };
+      c.appendChild(b);
+    });
+    Array.prototype.forEach.call($("jenis").children, function(b){ b.classList.toggle("pilih", b.dataset.j === form.j); });
+    $("bSimpan").className = "btn lebar " + (form.j === "masuk" ? "hijau" : "merah");
+  }
+  Array.prototype.forEach.call($("jenis").children, function(b){
+    b.onclick = function(){ form.j = b.dataset.j; form.kat = KAT[form.j][0][0]; gambarChip(); };
+  });
+
+  function gambar(){
+    $("namaBulan").textContent = BULAN[bln] + " " + thn;
+    var semuaMasuk = jumlah(S.tx, "masuk"), semuaKeluar = jumlah(S.tx, "keluar");
+    $("rSaldo").textContent = rp(S.awal + semuaMasuk - semuaKeluar);
+    var tb = txBulan(), m = jumlah(tb, "masuk"), k = jumlah(tb, "keluar");
+    $("rMasuk").textContent = rp(m); $("rKeluar").textContent = rp(k);
+    // Untung = masuk − keluar, tanpa modal masuk dan ambil pribadi (bukan hasil usaha).
+    var mU = tb.filter(function(t){ return t.t === "masuk" && t.kat !== "Modal" && t.kat !== "Piutang dibayar"; }).reduce(function(a,t){ return a + t.jml; }, 0);
+    var kU = tb.filter(function(t){ return t.t === "keluar" && t.kat !== "Ambil pribadi"; }).reduce(function(a,t){ return a + t.jml; }, 0);
+    var laba = mU - kU;
+    $("lLaba").textContent = laba >= 0 ? "Untung usaha bulan ini" : "Rugi usaha bulan ini";
+    $("rLaba").textContent = rp(laba); $("rLaba").className = "angka " + (laba >= 0 ? "t-hijau" : "t-merah");
+    var hi = S.tx.filter(function(t){ return t.tgl === tglIni(); });
+    $("rHariIni").textContent = hi.length ? "Hari ini: masuk " + rp(jumlah(hi, "masuk")) + " · keluar " + rp(jumlah(hi, "keluar")) : "Modal masuk dan ambil pribadi tidak dihitung sebagai untung/rugi.";
+    if (document.activeElement !== $("sAwal")) $("sAwal").value = S.awal ? S.awal.toLocaleString("id-ID") : "";
+    gambarDaftar(tb); gambarKategori(tb);
+  }
+
+  function gambarDaftar(tb){
+    var v = $("vDaftar"); v.innerHTML = "";
+    if (!tb.length) { v.innerHTML = '<div class="kosong">Belum ada catatan di bulan ini.</div>'; return; }
+    var urut = tb.slice().sort(function(a,b){ return a.tgl < b.tgl ? 1 : a.tgl > b.tgl ? -1 : b.id - a.id; });
+    var grup = {};
+    urut.forEach(function(t){ (grup[t.tgl] = grup[t.tgl] || []).push(t); });
+    Object.keys(grup).forEach(function(tgl){
+      var d = new Date(tgl + "T00:00:00"), arr = grup[tgl];
+      var h = document.createElement("div"); h.className = "hari";
+      var sel = jumlah(arr, "masuk") - jumlah(arr, "keluar");
+      h.innerHTML = '<div class="kepala"><span></span><span class="angka"></span></div>';
+      h.querySelector(".kepala span").textContent = d.getDate() + " " + BULAN[d.getMonth()];
+      h.querySelector(".kepala .angka").textContent = (sel >= 0 ? "+" : "") + rp(sel);
+      arr.forEach(function(t){
+        var r = document.createElement("div"); r.className = "tx";
+        r.innerHTML = '<span class="ik ' + t.t + '"></span><span class="ket"><b></b><small></small></span><span class="jml angka"></span>';
+        r.querySelector(".ik").textContent = ikon(t);
+        r.querySelector("b").textContent = t.ket || t.kat;
+        r.querySelector("small").textContent = t.kat + " · " + (t.metode || "Tunai") + (t.sumber === "kasir" ? " · dari Kasir" : "");
+        var j = r.querySelector(".jml"); j.textContent = (t.t === "masuk" ? "+" : "−") + rp(t.jml).replace("−",""); j.className = "jml angka " + (t.t === "masuk" ? "t-hijau" : "t-merah");
+        r.onclick = function(){ mulaiEdit(t); };
+        h.appendChild(r);
+      });
+      v.appendChild(h);
+    });
+  }
+
+  function gambarKategori(tb){
+    var v = $("vKategori"); v.innerHTML = "";
+    ["keluar","masuk"].forEach(function(j){
+      var arr = tb.filter(function(t){ return t.t === j; });
+      var total = jumlah(arr, j);
+      var h = document.createElement("div"); h.className = "batang " + j;
+      h.innerHTML = '<h2 style="margin:8px 0 0"></h2>';
+      h.querySelector("h2").textContent = (j === "keluar" ? "Uang keluar " : "Uang masuk ") + rp(total);
+      if (!total) { var k = document.createElement("div"); k.className = "kosong"; k.style.textAlign = "left"; k.textContent = "Belum ada."; h.appendChild(k); }
+      var per = {}; arr.forEach(function(t){ per[t.kat] = (per[t.kat] || 0) + t.jml; });
+      Object.keys(per).sort(function(a,b){ return per[b] - per[a]; }).forEach(function(kat){
+        var b = document.createElement("div");
+        b.innerHTML = '<div class="b"><span></span><span class="angka"></span></div><div class="rel"><i></i></div>';
+        b.querySelector(".b span").textContent = kat + " · " + Math.round(per[kat] / total * 100) + "%";
+        b.querySelector(".b .angka").textContent = rp(per[kat]);
+        b.querySelector("i").style.width = (per[kat] / total * 100) + "%";
+        h.appendChild(b);
+      });
+      v.appendChild(h);
+    });
+  }
+
+  function aturForm(){
+    var e = !!form.edit;
+    $("judulForm").textContent = e ? "Ubah catatan" : "Catat transaksi";
+    $("bBatal").classList.toggle("tersembunyi", !e); $("bHapus").classList.toggle("tersembunyi", !e);
+    $("bSimpan").textContent = e ? "Simpan perubahan" : "Simpan";
+  }
+  function kosongkan(){
+    form.edit = null; $("fJml").value = ""; $("fKet").value = ""; $("fTgl").value = tglIni();
+    aturForm(); gambarChip();
+  }
+  function mulaiEdit(t){
+    form.edit = t.id; form.j = t.t; form.kat = t.kat;
+    $("fJml").value = t.jml.toLocaleString("id-ID"); $("fKet").value = t.ket || ""; $("fTgl").value = t.tgl; $("fMetode").value = t.metode || "Tunai";
+    aturForm(); gambarChip();
+    $("judulForm").scrollIntoView({ behavior:"smooth", block:"start" });
+  }
+  $("bSimpan").onclick = function(){
+    var jml = angka($("fJml").value);
+    if (!jml) { pesan("Isi jumlah dulu"); $("fJml").focus(); return; }
+    var data = { t:form.j, jml:jml, kat:form.kat, ket:$("fKet").value.trim(), tgl:$("fTgl").value || tglIni(), metode:$("fMetode").value };
+    if (form.edit) {
+      var t = S.tx.filter(function(x){ return x.id === form.edit; })[0];
+      if (t) Object.assign(t, data);
+      pesan("Catatan diubah");
+    } else {
+      data.id = Date.now(); S.tx.push(data);
+      pesan((form.j === "masuk" ? "Uang masuk " : "Uang keluar ") + rp(jml) + " dicatat");
+    }
+    var d = new Date(data.tgl + "T00:00:00"); thn = d.getFullYear(); bln = d.getMonth();
+    simpan(); kosongkan(); gambar();
+  };
+  $("bBatal").onclick = kosongkan;
+  $("bHapus").onclick = function(){
+    if (!confirm("Hapus catatan ini?")) return;
+    S.tx = S.tx.filter(function(x){ return x.id !== form.edit; }); simpan(); kosongkan(); gambar(); pesan("Catatan dihapus");
+  };
+  $("bSebelum").onclick = function(){ bln--; if (bln < 0) { bln = 11; thn--; } gambar(); };
+  $("bSesudah").onclick = function(){ bln++; if (bln > 11) { bln = 0; thn++; } gambar(); };
+  $("sAwal").addEventListener("change", function(){ S.awal = angka(this.value); simpan(); gambar(); });
+  Array.prototype.forEach.call($("tab").children, function(b){
+    b.onclick = function(){
+      Array.prototype.forEach.call($("tab").children, function(x){ x.classList.toggle("pilih", x === b); });
+      $("vDaftar").classList.toggle("tersembunyi", b.dataset.t !== "daftar");
+      $("vKategori").classList.toggle("tersembunyi", b.dataset.t !== "kategori");
+    };
+  });
+
+  function unduh(nama, isi, tipe){
+    var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([isi], { type:tipe })); a.download = nama;
+    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  function csv(arr, nama){
+    var q = function(s){ return '"' + String(s == null ? "" : s).replace(/"/g, '""') + '"'; };
+    var baris = [["Tanggal","Jenis","Kategori","Catatan","Lewat","Masuk","Keluar"].join(";")];
+    arr.slice().sort(function(a,b){ return a.tgl < b.tgl ? -1 : a.tgl > b.tgl ? 1 : a.id - b.id; }).forEach(function(t){
+      baris.push([t.tgl, t.t === "masuk" ? "Masuk" : "Keluar", q(t.kat), q(t.ket), t.metode || "Tunai", t.t === "masuk" ? t.jml : "", t.t === "keluar" ? t.jml : ""].join(";"));
+    });
+    baris.push(["","","","Total","", jumlah(arr,"masuk"), jumlah(arr,"keluar")].join(";"));
+    unduh(nama, "﻿" + baris.join("\r\n"), "text/csv;charset=utf-8");
+  }
+  $("bCsv").onclick = function(){ csv(txBulan(), "buku-kas-" + kunciBulan() + ".csv"); };
+  $("bCsvSemua").onclick = function(){ csv(S.tx, "buku-kas-semua.csv"); };
+  $("bCadang").onclick = function(){ unduh("cadangan-buku-kas-" + tglIni() + ".json", JSON.stringify(S), "application/json"); pesan("File cadangan diunduh"); };
+  $("fPulih").onchange = function(){
+    var f = this.files[0]; if (!f) return;
+    var r = new FileReader();
+    r.onload = function(){
+      try {
+        var d = JSON.parse(r.result);
+        if (!d || !Array.isArray(d.tx)) throw 0;
+        if (!confirm("Ganti semua catatan di HP ini dengan isi file cadangan (" + d.tx.length + " catatan)?")) return;
+        S = d; S.awal = S.awal || 0; simpan(); gambar(); pesan("Data dipulihkan");
+      } catch(e){ pesan("File cadangan tidak dikenali"); }
+    };
+    r.readAsText(f); this.value = "";
+  };
+  window.addEventListener("storage", function(e){ if (e.key === KUNCI) { muat(); gambar(); } });
+
+  kosongkan(); gambar();
+})();
+</script>
+</body>
+</html>

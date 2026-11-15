@@ -2722,6 +2722,15 @@ export default {
       url.pathname = "/pesan/";
       return Response.redirect(url.toString(), 301);
     }
+    // Alat usaha gratis (Huda 15 Nov 2026): /alat, /kasir, /antrian, /kas, /bukukas, /alat/kasir (tanpa garis miring) → folder-nya.
+    {
+      const alat = { "/alat": "/alat/", "/kasir": "/alat/kasir/", "/alat/kasir": "/alat/kasir/", "/antrian": "/alat/antrian/", "/alat/antrian": "/alat/antrian/",
+        "/kas": "/alat/buku-kas/", "/bukukas": "/alat/buku-kas/", "/alat/bukukas": "/alat/buku-kas/", "/alat/jpgkevektor": "/alat/jpg-ke-vektor/" };
+      if (alat[pendek] && url.pathname !== alat[pendek]) {
+        url.pathname = alat[pendek];
+        return Response.redirect(url.toString(), 301);
+      }
+    }
     // Halaman "link di bio" Instagram (Huda 13 Nov 2026): /link, /links, /bio → /link/.
     if (["/link", "/links", "/bio"].includes(pendek) && url.pathname !== "/link/") {
       url.pathname = "/link/";
