@@ -129,8 +129,8 @@ footer{color:var(--redup);font-size:13px;text-align:center;padding:10px 16px 30p
         <small>Hapus titik-titik kotor bekas JPG.</small>
       </div>
       <div>
-        <label>Haluskan dulu <output id="oHalus">0</output></label>
-        <input type="range" id="halus" min="0" max="5" value="0">
+        <label>Haluskan dulu <output id="oHalus">1</output></label>
+        <input type="range" id="halus" min="0" max="4" value="1">
         <small>Naikkan untuk foto atau gambar buram/berbintik.</small>
       </div>
       <div>
@@ -199,12 +199,13 @@ footer{color:var(--redup);font-size:13px;text-align:center;padding:10px 16px 30p
 (function(){
   var $ = function(id){ return document.getElementById(id); };
   var PRESET = {
-    logo:      { warna: 6,  detail: 4, bintik: 8,  halus: 0, putih: true,  satu: false },
-    satu:      { warna: 2,  detail: 4, bintik: 10, halus: 0, putih: true,  satu: true  },
-    ilustrasi: { warna: 16, detail: 4, bintik: 4,  halus: 0, putih: false, satu: false },
-    foto:      { warna: 24, detail: 3, bintik: 6,  halus: 2, putih: false, satu: false }
+    logo:      { warna: 6,  detail: 4, bintik: 8,  halus: 1, rapikan: 2, gabung: 14, putih: true,  satu: false },
+    satu:      { warna: 2,  detail: 4, bintik: 10, halus: 1, rapikan: 2, gabung: 0,  putih: true,  satu: true  },
+    ilustrasi: { warna: 12, detail: 4, bintik: 6,  halus: 1, rapikan: 2, gabung: 12, putih: false, satu: false },
+    foto:      { warna: 16, detail: 3, bintik: 12, halus: 2, rapikan: 3, gabung: 7,  putih: false, satu: false }
   };
-  var DETAIL = { 1: 3, 2: 2, 3: 1.2, 4: 0.8, 5: 0.4 }; // nilai ltres/qtres imagetracer
+  var STROKE = 0.5; // garis tipis sewarna bidang: menutup celah rambut antar bidang tanpa membuat tepi gelap
+  var DETAIL = { 1: 4, 2: 2.5, 3: 1.5, 4: 1, 5: 0.5 }; // nilai ltres/qtres imagetracer
   var gambar = null, namaBerkas = 'gambar', svgTerakhir = '', pekerja = null, mode = 'logo', sibuk = false, jalanLagi = false;
 
   function tampilNilai(){
@@ -297,21 +298,14 @@ footer{color:var(--redup);font-size:13px;text-align:center;padding:10px 16px 30p
         ltres: dt, qtres: dt,
         pathomit: +$('bintik').value,
         rightangleenhance: true,
-        colorsampling: 2,
-        numberofcolors: satu ? 2 : +$('warna').value,
-        mincolorratio: 0,
-        colorquantcycles: 3,
         layering: 0,
-        strokewidth: 1,
+        strokewidth: STROKE,
         linefilter: false,
         scale: 1,
         roundcoords: 1,
         viewbox: true,
-        desc: false,
-        blurradius: +$('halus').value,
-        blurdelta: 20
+        desc: false
       };
-      if (satu) opsi.pal = [{ r: 0, g: 0, b: 0, a: 255 }, { r: 255, g: 255, b: 255, a: 255 }];
       if (!pekerja) pekerja = new Worker('pekerja.js');
       pekerja.onmessage = function(e){
         sibuk = false;
@@ -325,6 +319,11 @@ footer{color:var(--redup);font-size:13px;text-align:center;padding:10px 16px 30p
       pekerja.postMessage({
         img: { width: px.w, height: px.h, data: px.data.data },
         opsi: opsi,
+        jumlahWarna: +$('warna').value,
+        palTetap: satu ? [{ r: 0, g: 0, b: 0 }, { r: 255, g: 255, b: 255 }] : null,
+        halus: +$('halus').value,
+        rapikan: PRESET[mode].rapikan,
+        gabung: PRESET[mode].gabung,
         hapusPutih: $('hapusPutih').checked,
         ambang: 236
       });
