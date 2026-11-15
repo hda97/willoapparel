@@ -814,7 +814,7 @@ main{padding-bottom:110px}
       if (metode === "Tunai" && terima) b.push(kanan("Tunai:", rp(terima)), kanan("Kembalian:", rp(terima - t)));
       else b.push(kanan("Bayar:", metode));
       var pr2 = S.pesan || "Terima kasih :)"; while (pr2) { b.push(tengah(pr2.slice(0, L))); pr2 = pr2.slice(L); }
-      if (S.taut !== false) b.push("willoapparel.com/alat (gratis)");
+      if (S.taut !== false || !(window.LumbungSinkron && LumbungSinkron.pro())) b.push("willoapparel.com/alat (gratis)");
       return b.join("\n");
     }
     b.push(gar, "Faktur: " + no, "Jam   : " + w, "");
@@ -840,7 +840,7 @@ main{padding-bottom:110px}
     b.push(gar);
     var ps = S.pesan || ""; while (ps) { b.push(tengah(ps.slice(0, L))); ps = ps.slice(L); }
     b.push(tengah("Terima kasih :)"));
-    if (S.taut !== false) b.push("", tengah("Kasir gratis:"), tengah("willoapparel.com/alat"));
+    if (S.taut !== false || !(window.LumbungSinkron && LumbungSinkron.pro())) b.push("", tengah("Kasir gratis:"), tengah("willoapparel.com/alat"));
     return b.join("\n");
   }
   $("bySelesai").onclick = function(){

@@ -2700,14 +2700,96 @@ export class Toko extends DurableObject {
     this.sql.exec("CREATE TABLE IF NOT EXISTS jual (id TEXT PRIMARY KEY, w INTEGER, d TEXT)");
     this.sql.exec("CREATE INDEX IF NOT EXISTS jual_w ON jual(w)");
     this.sql.exec("CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT)");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS cadangan (w INTEGER PRIMARY KEY, d TEXT)");
+    // Hanya dipakai instans "pusat-lisensi": daftar kode aktivasi Lumbung Pro.
+    this.sql.exec("CREATE TABLE IF NOT EXISTS kode (kode TEXT PRIMARY KEY, hari INTEGER, dibuat INTEGER, catatan TEXT, toko TEXT, dipakai INTEGER)");
+  }
+  // Lumbung Pro (Huda 15 Nov 2026): masa coba 14 hari sejak toko pertama sinkron, lalu perlu kode aktivasi.
+  lisensi() {
+    const kini = Date.now(), dibuat = Number(this.meta("dibuat")) || kini, coba = dibuat + 14 * 864e5, pro = Number(this.meta("pro_sampai")) || 0;
+    return { aktif: kini < Math.max(coba, pro), coba, pro, selamanya: pro > 4e12 };
+  }
+  async pusat(u, request) {
+    const jalur = u.pathname.slice("/pusat/".length);
+    if (jalur === "buat" && request.method === "POST") {
+      let b = {}; try { b = await request.json(); } catch (e) {}
+      const hari = Math.max(0, Math.min(3650, Math.round(Number(b.hari) || 0))), n = Math.max(1, Math.min(50, Math.round(Number(b.jumlah) || 1)));
+      const huruf = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", hasil = [];
+      for (let i = 0; i < n; i++) {
+        const a = new Uint8Array(8); crypto.getRandomValues(a);
+        const t = [...a].map((x) => huruf[x % huruf.length]).join(""), kode = "LMB-" + t.slice(0, 4) + "-" + t.slice(4);
+        this.sql.exec("INSERT OR IGNORE INTO kode (kode, hari, dibuat, catatan, toko, dipakai) VALUES (?, ?, ?, ?, '', 0)", kode, hari, Date.now(), String(b.catatan || "").slice(0, 80));
+        hasil.push(kode);
+      }
+      return Response.json({ ok: true, kode: hasil, hari });
+    }
+    if (jalur === "daftar") return Response.json({ kode: this.sql.exec("SELECT kode, hari, dibuat, catatan, toko, dipakai FROM kode ORDER BY dibuat DESC LIMIT 500").toArray() });
+    if (jalur === "pakai" && request.method === "POST") {
+      let b = {}; try { b = await request.json(); } catch (e) {}
+      const kode = String(b.kode || ""), toko = String(b.toko || "");
+      const r = this.sql.exec("SELECT hari, toko FROM kode WHERE kode = ?", kode).toArray();
+      if (!r.length) return Response.json({ galat: "Kode tidak ditemukan. Periksa lagi hurufnya." }, { status: 404 });
+      if (r[0].toko && r[0].toko !== toko) return Response.json({ galat: "Kode ini sudah dipakai toko lain." }, { status: 409 });
+      if (r[0].toko === toko) return Response.json({ galat: "Kode ini sudah dipakai di toko ini." }, { status: 409 });
+      this.sql.exec("UPDATE kode SET toko = ?, dipakai = ? WHERE kode = ?", toko, Date.now(), kode);
+      return Response.json({ ok: true, hari: r[0].hari });
+    }
+    if (jalur === "batal" && request.method === "POST") {
+      // Kembalikan kode bila toko gagal diperpanjang setelah kode ditandai terpakai.
+      let b = {}; try { b = await request.json(); } catch (e) {}
+      this.sql.exec("UPDATE kode SET toko = '', dipakai = 0 WHERE kode = ? AND toko = ?", String(b.kode || ""), String(b.toko || ""));
+      return Response.json({ ok: true });
+    }
+    return Response.json({ galat: "alamat" }, { status: 404 });
   }
   meta(k) { const r = this.sql.exec("SELECT v FROM meta WHERE k = ?", k).toArray(); return r.length ? r[0].v : null; }
   aturMeta(k, v) { this.sql.exec("INSERT OR REPLACE INTO meta (k, v) VALUES (?, ?)", k, String(v)); }
   async fetch(request) {
     const u = new URL(request.url);
+    if (u.pathname.startsWith("/pusat/")) return this.pusat(u, request);
     const kunci = request.headers.get("x-kunci") || "";
     if (kunci.length < 24 || kunci.length > 80) return Response.json({ galat: "kunci" }, { status: 401 });
     const h = await sidikKunci(kunci), ada = this.meta("kunci");
+    if (u.pathname === "/cek") {
+      // Sebelum aktivasi: pastikan kunci benar. Toko yang belum pernah sinkron langsung didaftarkan.
+      if (ada && ada !== h) return Response.json({ galat: "kunci" }, { status: 403 });
+      if (!ada) { this.aturMeta("kunci", h); this.aturMeta("dibuat", Date.now()); }
+      return Response.json({ ok: true, lisensi: this.lisensi() });
+    }
+    if (u.pathname === "/tambah" && request.method === "POST") {
+      if (ada !== h) return Response.json({ galat: "kunci" }, { status: 403 });
+      let b = {}; try { b = await request.json(); } catch (e) {}
+      const hari = Math.round(Number(b.hari) || 0), lama = Number(this.meta("pro_sampai")) || 0;
+      const sisaCoba = this.lisensi().coba; // masa coba yang belum terpakai tidak hangus
+      this.aturMeta("pro_sampai", hari <= 0 ? 9e12 : Math.max(Date.now(), lama, sisaCoba) + hari * 864e5);
+      return Response.json({ ok: true, lisensi: this.lisensi() });
+    }
+    if (u.pathname === "/ganti" && request.method === "POST") {
+      // Ganti kunci (link lama tidak berlaku lagi) tanpa kehilangan data dan langganan Pro.
+      if (!ada || ada !== h) return Response.json({ galat: "kunci" }, { status: 403 });
+      let b = {}; try { b = await request.json(); } catch (e) {}
+      const baru = String(b.baru || "");
+      if (baru.length < 24 || baru.length > 80) return Response.json({ galat: "kunci" }, { status: 400 });
+      this.aturMeta("kunci", await sidikKunci(baru));
+      return Response.json({ ok: true, lisensi: this.lisensi() });
+    }
+    if (u.pathname === "/cadangan") {
+      if (!ada || ada !== h) return Response.json({ galat: "kunci" }, { status: 403 });
+      if (request.method === "POST") {
+        const L = this.lisensi(); if (!L.aktif) return Response.json({ galat: "pro", lisensi: L }, { status: 402 });
+        const teks = await request.text();
+        if (teks.length > 1900000) return Response.json({ galat: "Cadangan terlalu besar (lebih dari 1,9 MB). Perkecil logo/QRIS." }, { status: 413 });
+        try { JSON.parse(teks); } catch (e) { return Response.json({ galat: "json" }, { status: 400 }); }
+        const w = Date.now();
+        this.sql.exec("INSERT OR REPLACE INTO cadangan (w, d) VALUES (?, ?)", w, teks);
+        this.sql.exec("DELETE FROM cadangan WHERE w NOT IN (SELECT w FROM cadangan ORDER BY w DESC LIMIT 3)");
+        return Response.json({ ok: true, w, lisensi: L });
+      }
+      // Memulihkan tetap boleh walau langganan habis: datanya milik toko.
+      const r = this.sql.exec("SELECT w, d FROM cadangan ORDER BY w DESC LIMIT 1").toArray();
+      if (!r.length) return Response.json({ galat: "Belum ada cadangan di server untuk toko ini." }, { status: 404 });
+      return Response.json({ w: r[0].w, data: JSON.parse(r[0].d) });
+    }
     if (request.method === "POST") {
       if (ada && ada !== h) return Response.json({ galat: "kunci" }, { status: 403 });
       const teks = await request.text();
@@ -2725,21 +2807,52 @@ export class Toko extends DurableObject {
       }
       this.sql.exec("DELETE FROM jual WHERE w < ?", Date.now() - 400 * 864e5);
       this.aturMeta("sinkron", Date.now());
-      return Response.json({ ok: true, n });
+      return Response.json({ ok: true, n, lisensi: this.lisensi() });
     }
-    if (!ada || ada !== h) return Response.json({ galat: "kunci" }, { status: 403 });
+    if (ada && ada !== h) return Response.json({ galat: "kunci" }, { status: 403 });
+    if (!ada) { this.aturMeta("kunci", h); this.aturMeta("dibuat", Date.now()); } // toko baru menyalakan dashboard: masa coba mulai
+    const L = this.lisensi();
+    if (!L.aktif) return Response.json({ galat: "pro", nama: this.meta("nama") || "", lisensi: L }, { status: 402 });
     const dari = Number(u.searchParams.get("dari")) || Date.now() - 864e5, sampai = Number(u.searchParams.get("sampai")) || Date.now() + 864e5;
     const jual = this.sql.exec("SELECT d FROM jual WHERE w >= ? AND w < ? ORDER BY w LIMIT 20000", dari, sampai).toArray().map((r) => JSON.parse(r.d));
-    return Response.json({ nama: this.meta("nama") || "", sinkron: Number(this.meta("sinkron")) || 0, jual });
+    return Response.json({ nama: this.meta("nama") || "", sinkron: Number(this.meta("sinkron")) || 0, jual, lisensi: L });
   }
 }
 async function apiToko(request, url, env) {
-  const cors = { "access-control-allow-origin": "*", "access-control-allow-methods": "GET, POST, OPTIONS", "access-control-allow-headers": "content-type, x-kunci", "access-control-max-age": "86400" };
+  const cors = { "access-control-allow-origin": "*", "access-control-allow-methods": "GET, POST, OPTIONS", "access-control-allow-headers": "content-type, x-kunci, x-admin", "access-control-max-age": "86400" };
+  const jawab = (r) => new Response(r.body, { status: r.status, headers: { ...cors, "content-type": "application/json", "cache-control": "no-store" } });
+  const json = (o, st) => new Response(JSON.stringify(o), { status: st || 200, headers: { ...cors, "content-type": "application/json", "cache-control": "no-store" } });
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
-  const id = url.pathname.slice("/alat/api/toko/".length);
-  if (!/^[a-z0-9]{16,40}$/.test(id) || !env.TOKO || !["GET", "POST"].includes(request.method)) return new Response('{"galat":"alamat"}', { status: 404, headers: { ...cors, "content-type": "application/json" } });
-  const r = await env.TOKO.get(env.TOKO.idFromName(id)).fetch(new Request("https://toko/?" + url.searchParams, { method: request.method, headers: request.headers, body: request.method === "POST" ? request.body : undefined }));
-  return new Response(r.body, { status: r.status, headers: { ...cors, "content-type": "application/json", "cache-control": "no-store" } });
+  if (!env.TOKO || !["GET", "POST"].includes(request.method)) return json({ galat: "alamat" }, 404);
+  const pusat = env.TOKO.get(env.TOKO.idFromName("pusat-lisensi"));
+  // Admin Lumbung Pro: buat & lihat kode aktivasi. Rahasia LUMBUNG_ADMIN dipasang di Cloudflare (Settings > Variables and Secrets).
+  if (url.pathname.startsWith("/alat/api/pro/")) {
+    const jalur = url.pathname.slice("/alat/api/pro/".length);
+    if (!env.LUMBUNG_ADMIN || String(env.LUMBUNG_ADMIN).length < 12) return json({ galat: "Rahasia LUMBUNG_ADMIN belum dipasang di Cloudflare." }, 503);
+    if ((request.headers.get("x-admin") || "") !== String(env.LUMBUNG_ADMIN)) return json({ galat: "Kata sandi admin salah." }, 403);
+    if (!["buat", "daftar"].includes(jalur)) return json({ galat: "alamat" }, 404);
+    return jawab(await pusat.fetch(new Request("https://toko/pusat/" + jalur, { method: request.method, body: request.method === "POST" ? request.body : undefined })));
+  }
+  const m = url.pathname.slice("/alat/api/toko/".length).match(/^([a-z0-9]{16,40})(?:\/(aktifkan|cadangan|ganti))?$/);
+  if (!m) return json({ galat: "alamat" }, 404);
+  const toko = env.TOKO.get(env.TOKO.idFromName(m[1])), kunci = request.headers.get("x-kunci") || "";
+  if (m[2] === "aktifkan") {
+    if (request.method !== "POST") return json({ galat: "alamat" }, 404);
+    let b = {}; try { b = await request.json(); } catch (e) {}
+    const kode = String(b.kode || "").toUpperCase().replace(/[^A-Z0-9]/g, "").replace(/^LMB/, "");
+    if (kode.length !== 8) return json({ galat: "Kode aktivasi berbentuk LMB-XXXX-XXXX." }, 400);
+    const k = "LMB-" + kode.slice(0, 4) + "-" + kode.slice(4);
+    const cek = await toko.fetch(new Request("https://toko/cek", { headers: { "x-kunci": kunci } }));
+    if (!cek.ok) return jawab(cek);
+    const pakai = await pusat.fetch(new Request("https://toko/pusat/pakai", { method: "POST", body: JSON.stringify({ kode: k, toko: m[1] }) }));
+    if (!pakai.ok) return jawab(pakai);
+    const { hari } = await pakai.json();
+    const r = await toko.fetch(new Request("https://toko/tambah", { method: "POST", headers: { "x-kunci": kunci }, body: JSON.stringify({ hari }) }));
+    if (!r.ok) { await pusat.fetch(new Request("https://toko/pusat/batal", { method: "POST", body: JSON.stringify({ kode: k, toko: m[1] }) })); return jawab(r); }
+    const o = await r.json(); return json({ ok: true, hari, lisensi: o.lisensi });
+  }
+  const sub = m[2] === "cadangan" || m[2] === "ganti" ? m[2] : "";
+  return jawab(await toko.fetch(new Request("https://toko/" + sub + "?" + url.searchParams, { method: request.method, headers: request.headers, body: request.method === "POST" ? request.body : undefined })));
 }
 
 export default {
@@ -2783,7 +2896,7 @@ export default {
       const alat = { "/alat": "/alat/", "/kasir": "/alat/kasir/", "/alat/kasir": "/alat/kasir/", "/antrian": "/alat/antrian/", "/alat/antrian": "/alat/antrian/",
         "/kas": "/alat/buku-kas/", "/bukukas": "/alat/buku-kas/", "/alat/bukukas": "/alat/buku-kas/", "/alat/jpgkevektor": "/alat/jpg-ke-vektor/",
         "/nota": "/alat/nota/", "/alat/nota": "/alat/nota/", "/invoice": "/alat/nota/",
-        "/tagihan": "/alat/tagihan/", "/alat/tagihan": "/alat/tagihan/", "/alat/owner": "/alat/owner/", "/dashboard": "/alat/owner/", "/kos": "/alat/tagihan/", "/spp": "/alat/tagihan/" };
+        "/tagihan": "/alat/tagihan/", "/alat/tagihan": "/alat/tagihan/", "/alat/owner": "/alat/owner/", "/dashboard": "/alat/owner/", "/alat/pro": "/alat/pro/", "/lumbungpro": "/alat/pro/", "/alat/pengaturan": "/alat/pengaturan/", "/alat/stok": "/alat/stok/", "/alat/hpp": "/alat/hpp/", "/hpp": "/alat/hpp/", "/kos": "/alat/tagihan/", "/spp": "/alat/tagihan/" };
       if (alat[pendek] && url.pathname !== alat[pendek]) {
         url.pathname = alat[pendek];
         return Response.redirect(url.toString(), 301);
@@ -2818,7 +2931,7 @@ export default {
       const r = await stub.fetch("https://do/?" + q);
       return new Response(r.body, { headers: { "content-type": "application/json", "cache-control": "no-store" } });
     }
-    if (url.pathname.startsWith("/alat/api/toko/")) return apiToko(request, url, env);
+    if (url.pathname.startsWith("/alat/api/toko/") || url.pathname.startsWith("/alat/api/pro/")) return apiToko(request, url, env);
     if (url.pathname.startsWith("/duniakotak/api/")) return apiWarga(request, env, url, ctx);
     if (pendek === "/warga" || pendek === "/daftarwarga") {
       url.pathname = "/duniakotak/";
