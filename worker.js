@@ -2726,7 +2726,8 @@ export default {
     {
       const alat = { "/alat": "/alat/", "/kasir": "/alat/kasir/", "/alat/kasir": "/alat/kasir/", "/antrian": "/alat/antrian/", "/alat/antrian": "/alat/antrian/",
         "/kas": "/alat/buku-kas/", "/bukukas": "/alat/buku-kas/", "/alat/bukukas": "/alat/buku-kas/", "/alat/jpgkevektor": "/alat/jpg-ke-vektor/",
-        "/nota": "/alat/nota/", "/alat/nota": "/alat/nota/", "/invoice": "/alat/nota/" };
+        "/nota": "/alat/nota/", "/alat/nota": "/alat/nota/", "/invoice": "/alat/nota/",
+        "/tagihan": "/alat/tagihan/", "/alat/tagihan": "/alat/tagihan/", "/kos": "/alat/tagihan/", "/spp": "/alat/tagihan/" };
       if (alat[pendek] && url.pathname !== alat[pendek]) {
         url.pathname = alat[pendek];
         return Response.redirect(url.toString(), 301);
