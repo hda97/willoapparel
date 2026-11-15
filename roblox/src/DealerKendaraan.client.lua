@@ -386,7 +386,8 @@ local function aturAnimasi()
 	local char = player.Character
 	if not char then return end
 	local skrip = char:FindFirstChild("Animate")
-	if skrip and skrip:IsA("LocalScript") then skrip.Enabled = not naik end
+	-- Animate tetap mati: gerak tokoh (jalan, duduk di kendaraan) diatur GerakKotak
+	if skrip and skrip:IsA("LocalScript") then skrip.Enabled = false end
 	if naik then
 		local hum = char:FindFirstChildOfClass("Humanoid")
 		local animator = hum and hum:FindFirstChildOfClass("Animator")
