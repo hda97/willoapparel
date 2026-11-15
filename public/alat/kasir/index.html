@@ -152,9 +152,10 @@ main{padding-bottom:110px}
   <div class="struk" id="struk"></div>
   <label class="isi" style="margin-top:12px">Kirim ke WA pelanggan <small>Kosongkan untuk pilih kontak di WhatsApp</small><input type="tel" id="stWa" placeholder="08…" autocomplete="off"></label>
   <div class="baris">
-    <button class="btn dua" id="stCetak">🖨️ Cetak</button>
+    <button class="btn dua" id="stBt">🖨️ Printer Bluetooth</button>
     <button class="btn hijau" id="stWaBtn">Kirim WA</button>
   </div>
+  <p class="kecil redup" style="margin:8px 0 0">Printer USB / laptop: <a href="#" id="stCetak">cetak biasa</a>. Printer Bluetooth tidak muncul? Pasang aplikasi gratis RawBT lalu <a href="#" id="stRawbt">cetak lewat RawBT</a>.</p>
   <button class="btn lebar" id="stBaru" autofocus style="margin-top:10px">Transaksi baru</button>
 </div></dialog>
 
@@ -392,7 +393,14 @@ main{padding-bottom:110px}
     var hp = $("stWa").value.replace(/\D/g, ""); if (hp.charAt(0) === "0") hp = "62" + hp.slice(1);
     window.open("https://wa.me/" + hp + "?text=" + encodeURIComponent("```\n" + strukTeks + "\n```"), "_blank", "noopener");
   };
-  $("stCetak").onclick = function(){ $("cetakStruk").textContent = strukTeks; window.print(); };
+  $("stCetak").onclick = function(e){ e.preventDefault(); $("cetakStruk").textContent = strukTeks; window.print(); };
+  $("stRawbt").onclick = function(e){ e.preventDefault(); CetakTermal.rawbt(strukTeks); };
+  $("stBt").onclick = function(){
+    var b = this; b.disabled = true; b.textContent = "Mencetak…";
+    CetakTermal.cetak(strukTeks).then(function(){ pesan("Struk dikirim ke " + (CetakTermal.nama() || "printer")); })
+      .catch(function(e){ if (e && e.name !== "NotFoundError") pesan(e.message || "Gagal mencetak"); })
+      .then(function(){ b.disabled = false; b.textContent = "🖨️ Printer Bluetooth"; });
+  };
   $("stBaru").onclick = function(){ keranjang = []; $("dStruk").close(); gambar(); window.scrollTo({ top:0, behavior:"smooth" }); };
   $("dStruk").addEventListener("close", function(){ if (keranjang.length) { keranjang = []; gambar(); } });
 
@@ -400,5 +408,6 @@ main{padding-bottom:110px}
   gambar();
 })();
 </script>
+<script src="/alat/printer.js"></script>
 </body>
 </html>

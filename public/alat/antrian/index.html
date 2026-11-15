@@ -104,7 +104,9 @@ body.layar #layar{display:flex;flex-direction:column;min-height:100vh;padding:4v
       <label class="isi">Dipanggil ke <small>Loket, meja, kursi…</small><input type="text" id="sLoket" maxlength="20" placeholder="Loket 1"></label>
     </div>
     <label class="isi" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="sSuara" style="width:22px;height:22px;accent-color:var(--utama)"> Bacakan nomor dengan suara saat dipanggil</label>
-    <label class="isi" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="sCetak" style="width:22px;height:22px;accent-color:var(--utama)"> Cetak tiket setiap ambil nomor (printer kasir)</label>
+    <label class="isi" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="sCetak" style="width:22px;height:22px;accent-color:var(--utama)"> Cetak tiket setiap ambil nomor</label>
+    <label class="isi" id="kotakVia">Cetak lewat<select id="sVia"><option value="ble">Printer termal Bluetooth</option><option value="biasa">Cetak biasa (printer USB / laptop)</option><option value="rawbt">Aplikasi RawBT (Android)</option></select>
+      <button type="button" class="btn dua kecil" id="bTesPrinter" style="margin-top:8px">Hubungkan & tes printer</button></label>
     <div class="baris" style="margin-top:6px">
       <button class="btn dua kecil" id="bCoba">🔊 Coba suara</button>
       <button class="btn merah kecil" id="bReset">Mulai dari nomor 1</button>
@@ -198,7 +200,7 @@ body.layar #layar{display:flex;flex-direction:column;min-height:100vh;padding:4v
     if (document.activeElement !== $("sNama")) $("sNama").value = S.nama;
     if (document.activeElement !== $("sAwal")) $("sAwal").value = S.awal;
     if (document.activeElement !== $("sLoket")) $("sLoket").value = S.loket;
-    $("sSuara").checked = S.suara; $("sCetak").checked = S.cetak;
+    $("sSuara").checked = S.suara; $("sCetak").checked = S.cetak; $("sVia").value = S.via || "ble"; $("kotakVia").classList.toggle("tersembunyi", !S.cetak);
     gambarLayar();
   }
 
@@ -240,7 +242,18 @@ body.layar #layar{display:flex;flex-direction:column;min-height:100vh;padding:4v
     setTimeout(function(){ speechSynthesis.speak(u); }, 750);
   }
 
+  function teksTiket(a){
+    var t = function(s){ return s; }; // printer sudah meratakan ke tengah
+    return [t((S.antre.length - 1) + " orang sebelum Anda"), t("Diambil pukul " + jam(a.ambil)), "", t("Antrian gratis:"), t("willoapparel.com/alat")].join("\n");
+  }
   function cetakTiket(a){
+    var via = S.via || "ble";
+    if (via !== "biasa") {
+      var opsi = { atas:(S.nama ? S.nama + "\n" : "") + "Nomor antrian Anda", besar:labelNo(a.no), tengah:true };
+      if (via === "rawbt") { CetakTermal.rawbt(teksTiket(a), opsi); return; }
+      CetakTermal.cetak(teksTiket(a), opsi).catch(function(e){ if (e && e.name !== "NotFoundError") pesan(e.message || "Gagal mencetak"); });
+      return;
+    }
     $("tNama").textContent = S.nama || "";
     $("tNo").textContent = labelNo(a.no);
     $("tTunggu").textContent = (S.antre.length - 1) + " orang sebelum Anda";
@@ -282,7 +295,15 @@ body.layar #layar{display:flex;flex-direction:column;min-height:100vh;padding:4v
     });
   });
   $("sSuara").onchange = function(){ S.suara = this.checked; simpan(); };
-  $("sCetak").onchange = function(){ S.cetak = this.checked; simpan(); };
+  $("sCetak").onchange = function(){ S.cetak = this.checked; simpan(); gambar(); };
+  $("sVia").onchange = function(){ S.via = this.value; simpan(); };
+  $("bTesPrinter").onclick = function(){
+    var opsi = { atas:(S.nama || "Tes printer"), besar:labelNo(S.n + 1), tengah:true };
+    if ((S.via || "ble") === "rawbt") { CetakTermal.rawbt("Printer siap dipakai", opsi); return; }
+    if (S.via === "biasa") { window.print(); return; }
+    CetakTermal.cetak("Printer siap dipakai", opsi).then(function(){ pesan("Terhubung ke " + CetakTermal.nama()); })
+      .catch(function(e){ if (e && e.name !== "NotFoundError") pesan(e.message || "Gagal mencetak"); });
+  };
 
   // Layar pelanggan (jendela kedua, ikut berubah lewat localStorage)
   var modeLayar = /[?&]layar=1/.test(location.search);
@@ -320,5 +341,6 @@ body.layar #layar{display:flex;flex-direction:column;min-height:100vh;padding:4v
   gambar();
 })();
 </script>
+<script src="/alat/printer.js"></script>
 </body>
 </html>
