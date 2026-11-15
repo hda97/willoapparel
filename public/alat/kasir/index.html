@@ -68,6 +68,20 @@ main{padding-bottom:110px}
 .qprev{display:flex;gap:12px;align-items:center}
 .qprev img{width:84px;height:84px;object-fit:contain;border:1px solid var(--garis);border-radius:10px;background:#fff}
 #cetakStruk{display:none}
+.kat{display:flex;gap:6px;overflow-x:auto;margin:0 0 10px;padding-bottom:2px;scrollbar-width:none}
+.kat::-webkit-scrollbar{display:none}
+.kat button{flex:0 0 auto;border:1px solid var(--garis);background:#fff;border-radius:999px;padding:7px 14px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
+.kat button.pilih{background:var(--utama);border-color:var(--utama);color:#fff}
+.tahan{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.tahan button{border:1px dashed var(--utama);background:var(--biru-muda);color:var(--utama);border-radius:10px;padding:6px 10px;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
+@media (min-width:880px){
+  main.wrap{max-width:1180px}
+  .kasir-grid{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:16px;align-items:start}
+  .kasir-grid .kanan{position:sticky;top:12px}
+  .kasir-grid .kanan .kartu{margin-top:0!important;max-height:calc(100vh - 130px);overflow:auto}
+  .produk{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+  .bawah .wrap{max-width:1180px;margin:0 auto}
+}
 @media print{
   body *{visibility:hidden}
   #cetakStruk,#cetakStruk *{visibility:visible}
@@ -84,14 +98,19 @@ main{padding-bottom:110px}
 
   <div class="hariini"><span>Penjualan hari ini: <b class="angka" id="hJml">Rp0</b> · <span id="hN">0</span> transaksi</span><a href="/alat/buku-kas/" class="btn dua kecil">Buku Kas</a></div>
 
+  <div class="kasir-grid"><div class="kiri">
   <input type="text" id="cari" class="cari" placeholder="Cari produk…" autocomplete="off">
+  <div class="kat tersembunyi" id="kategori"></div>
   <div class="produk" id="produk"></div>
+  </div><div class="kanan">
 
   <section class="kartu" style="margin-top:14px">
-    <div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">Pesanan</h2><button class="btn dua kecil" id="bKosong">Kosongkan</button></div>
+    <div class="tahan tersembunyi" id="dTahanan"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:6px"><h2 style="margin:0">Pesanan</h2><span class="baris" style="gap:6px"><button class="btn dua kecil" id="bTahan" title="Simpan pesanan ini sebentar, layani pembeli lain dulu">✋ Tahan</button><button class="btn dua kecil" id="bKosong">Kosongkan</button></span></div>
     <ul class="keranjang" id="keranjang"></ul>
     <button class="btn dua kecil" id="bBebas" style="margin-top:10px">＋ Nominal bebas</button>
   </section>
+  </div></div>
 
   <section class="kartu">
     <h2>Pengaturan toko</h2>
@@ -120,7 +139,7 @@ main{padding-bottom:110px}
       <button class="btn dua kecil" id="bCsvBarang">⬇ Unduh daftar barang</button>
     </div>
     <input type="file" id="fCsv" accept=".csv,.txt,text/csv,text/plain" class="tersembunyi">
-    <p class="kecil redup" style="margin:8px 0 0">Impor: di Excel/Google Sheets buat kolom <b>Nama</b> dan <b>Harga</b> (boleh tambah kolom <b>Ikon</b>), lalu simpan sebagai CSV. Unduh daftar barang untuk melihat contohnya.</p>
+    <p class="kecil redup" style="margin:8px 0 0">Impor: di Excel/Google Sheets buat kolom <b>Nama</b> dan <b>Harga</b> (boleh tambah kolom <b>Ikon</b> dan <b>Kategori</b>), lalu simpan sebagai CSV. Unduh daftar barang untuk melihat contohnya.</p>
     <p class="kecil redup tersembunyi" id="pWillo" style="margin:6px 0 0"><a href="?contoh=willo">Isi dengan produk Willo Apparel</a> (produk yang ada sekarang diganti).</p>
   </section>
 
@@ -138,6 +157,8 @@ main{padding-bottom:110px}
   <h2 id="dpJudul">Tambah produk</h2>
   <label class="isi">Nama produk<input type="text" id="dpNama" maxlength="30" autocomplete="off" required></label>
   <label class="isi">Harga (Rp)<input type="text" inputmode="numeric" id="dpHarga" class="angka" autocomplete="off"></label>
+  <label class="isi">Kategori <small>Boleh kosong. Contoh: Kaos, Jersey, Minuman</small><input type="text" id="dpKat" maxlength="20" list="dlKat" autocomplete="off"></label>
+  <datalist id="dlKat"></datalist>
   <div class="isi" style="margin-bottom:0">Ikon</div>
   <div class="em-pilih" id="dpEm"></div>
   <div class="baris"><button class="btn merah tersembunyi" value="hapus" id="dpHapus" formnovalidate>Hapus</button><button class="btn dua" value="batal" formnovalidate>Batal</button><button class="btn" value="ok">Simpan</button></div>
@@ -257,6 +278,7 @@ main{padding-bottom:110px}
       { id:58, nama:"+ Ukuran 7XL", harga:85000, em:"➕" },
       { id:59, nama:"+ Ukuran 8XL", harga:105000, em:"➕" }
     ];
+    S.produk.forEach(function(p){ var n = p.nama; p.kat = /^Kaos (kelas|komunitas)/.test(n) ? "Paket" : /^30s/.test(n) ? "Kaos 30s" : /^24s/.test(n) ? "Kaos 24s" : /^Polos/.test(n) ? "Polos" : /^Sablon DTF/.test(n) ? "DTF" : /^\+/.test(n) ? "Tambahan" : undefined; if (!p.kat) delete p.kat; });
     // Diskon grosir per pcs untuk produk kaos (Huda 15 Nov 2026): [minimal pcs, potongan per pcs].
     S.grosir = [[12,2000],[100,2500],[300,3000],[400,4000],[500,5000]];
     simpan(); history.replaceState(null, "", location.pathname);
@@ -309,7 +331,8 @@ main{padding-bottom:110px}
 
   function gambarProduk(){
     var c = $("produk"), q = $("cari").value.trim().toLowerCase(); c.innerHTML = "";
-    S.produk.filter(function(p){ return !q || p.nama.toLowerCase().indexOf(q) >= 0; }).forEach(function(p){
+    gambarKategori();
+    S.produk.filter(function(p){ return (!q || p.nama.toLowerCase().indexOf(q) >= 0) && (q || !katPilih || (katPilih === "\u0000" ? !p.kat : p.kat === katPilih)); }).forEach(function(p){
       var b = document.createElement("button"); b.type = "button";
       b.innerHTML = '<span class="em"></span><span class="nm"></span><span class="hg angka"></span>';
       b.querySelector(".em").textContent = p.em || "📦"; b.querySelector(".nm").textContent = p.nama; b.querySelector(".hg").textContent = rp(p.harga);
@@ -328,6 +351,24 @@ main{padding-bottom:110px}
     t.onclick = function(){ bukaProduk(null); };
     c.appendChild(t);
   }
+  // Kategori: tombol di atas daftar barang (tampil bila ada barang berkategori).
+  var katPilih = "";
+  function daftarKat(){ var a = []; S.produk.forEach(function(p){ if (p.kat && a.indexOf(p.kat) < 0) a.push(p.kat); }); return a; }
+  function gambarKategori(){
+    var ks = daftarKat(), c = $("kategori"); c.innerHTML = "";
+    if (katPilih && ks.indexOf(katPilih) < 0) katPilih = "";
+    c.classList.toggle("tersembunyi", !ks.length);
+    ["", ].concat(ks).concat(S.produk.some(function(p){ return !p.kat; }) && ks.length ? ["\u0000"] : []).forEach(function(k){
+      var b = document.createElement("button"); b.type = "button";
+      var nilai = k === "\u0000" ? "" : k;
+      b.textContent = k === "" ? "Semua" : (k === "\u0000" ? "Lainnya" : k);
+      var aktif = k === "" ? katPilih === "" : (k === "\u0000" ? katPilih === "\u0000" : katPilih === k);
+      if (aktif) b.className = "pilih";
+      b.onclick = function(){ katPilih = k; gambarProduk(); };
+      c.appendChild(b);
+    });
+    $("dlKat").innerHTML = ""; ks.forEach(function(k){ var o = document.createElement("option"); o.value = k; $("dlKat").appendChild(o); });
+  }
   function tambah(p){
     var k = keranjang.filter(function(x){ return x.id === p.id; })[0];
     if (k) k.q++; else keranjang.push({ id:p.id, nama:p.nama, harga:p.harga, q:1, g:!!p.grosir });
@@ -336,7 +377,7 @@ main{padding-bottom:110px}
   }
   function gambarKeranjang(){
     var ul = $("keranjang"); ul.innerHTML = "";
-    if (!keranjang.length) { ul.innerHTML = '<li class="redup kecil" style="border:0">Belum ada. Ketuk produk di atas.</li>'; }
+    if (!keranjang.length) { ul.innerHTML = '<li class="redup kecil" style="border:0">Belum ada. Ketuk produk untuk menambah.</li>'; }
     keranjang.forEach(function(k, i){
       var li = document.createElement("li");
       li.innerHTML = '<span class="nm"><span></span><small class="angka"></small></span><button class="qb">−</button><span class="q angka"></span><button class="qb">＋</button><span class="st angka"></span>';
@@ -373,14 +414,14 @@ main{padding-bottom:110px}
     $("sQrisPrev").classList.toggle("tersembunyi", !S.qris); if (S.qris) $("sQrisPrev").src = S.qris;
     $("bHapusQris").classList.toggle("tersembunyi", !S.qris);
   }
-  function gambar(){ gambarProduk(); gambarKeranjang(); gambarHariIni(); gambarAtur(); }
+  function gambar(){ gambarProduk(); gambarKeranjang(); gambarTahan(); gambarHariIni(); gambarAtur(); }
 
   // Produk
   var dpEdit = null, dpEm = "📦";
   function bukaProduk(p){
     dpEdit = p; dpEm = p ? (p.em || "📦") : "📦";
     $("dpJudul").textContent = p ? "Ubah produk" : "Tambah produk";
-    $("dpNama").value = p ? p.nama : ""; $("dpHarga").value = p ? p.harga.toLocaleString("id-ID") : "";
+    $("dpNama").value = p ? p.nama : ""; $("dpHarga").value = p ? p.harga.toLocaleString("id-ID") : ""; $("dpKat").value = p ? (p.kat || "") : (katPilih && katPilih !== "\u0000" ? katPilih : "");
     $("dpHapus").classList.toggle("tersembunyi", !p);
     gambarEm(); $("dProduk").showModal();
   }
@@ -395,13 +436,38 @@ main{padding-bottom:110px}
     if (v === "ok") {
       var nama = $("dpNama").value.trim(), harga = angka($("dpHarga").value);
       if (!nama) return;
-      if (dpEdit) { dpEdit.nama = nama; dpEdit.harga = harga; dpEdit.em = dpEm; }
-      else S.produk.push({ id:Date.now(), nama:nama, harga:harga, em:dpEm });
+      var kat = $("dpKat").value.trim();
+      if (dpEdit) { dpEdit.nama = nama; dpEdit.harga = harga; dpEdit.em = dpEm; if (kat) dpEdit.kat = kat; else delete dpEdit.kat; }
+      else { var pb = { id:Date.now(), nama:nama, harga:harga, em:dpEm }; if (kat) pb.kat = kat; S.produk.push(pb); }
     }
     simpan(); gambar();
   });
   $("cari").addEventListener("input", gambarProduk);
   $("bKosong").onclick = function(){ keranjang = []; gambar(); };
+  // Tahan transaksi: simpan pesanan sementara, layani pembeli lain, lanjutkan nanti.
+  function gambarTahan(){
+    var c = $("dTahanan"), t = S.tahan || []; c.innerHTML = "";
+    c.classList.toggle("tersembunyi", !t.length);
+    t.forEach(function(h, i){
+      var n = h.isi.reduce(function(a,k){ return a + k.q * k.harga; }, 0);
+      var b = document.createElement("button"); b.type = "button";
+      b.textContent = "▶ " + h.nama + " · " + rp(n);
+      b.title = "Lanjutkan pesanan ini";
+      b.onclick = function(){
+        S.tahan.splice(i, 1);
+        if (keranjang.length) S.tahan.push({ nama:"Pesanan " + jam(), jam:Date.now(), isi:keranjang });
+        keranjang = h.isi; simpan(); gambar(); pesan("Pesanan " + h.nama + " dilanjutkan");
+      };
+      c.appendChild(b);
+    });
+  }
+  function jam(){ var d = new Date(); return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
+  $("bTahan").onclick = function(){
+    if (!keranjang.length) { pesan("Pesanan masih kosong"); return; }
+    var nama = (prompt("Nama/penanda pesanan (boleh kosong):", "") || "").trim().slice(0, 20) || ("Pesanan " + jam());
+    S.tahan = S.tahan || []; S.tahan.push({ nama:nama, jam:Date.now(), isi:keranjang });
+    keranjang = []; simpan(); gambar(); pesan("Pesanan " + nama + " ditahan");
+  };
   $("bBebas").onclick = function(){ $("dbNama").value = ""; $("dbJml").value = ""; $("dBebas").showModal(); };
   formatInput($("dbJml"));
   $("dBebas").addEventListener("close", function(){
@@ -451,7 +517,7 @@ main{padding-bottom:110px}
   }
   $("bCsvBarang").onclick = function(){
     var q = function(v){ return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
-    var baris = ["Nama;Harga;Ikon"].concat(S.produk.map(function(p){ return [q(p.nama), p.harga, p.em || ""].join(";"); }));
+    var baris = ["Nama;Harga;Ikon;Kategori"].concat(S.produk.map(function(p){ return [q(p.nama), p.harga, p.em || "", q(p.kat || "")].join(";"); }));
     unduh("daftar-barang.csv", "\uFEFF" + baris.join("\r\n"), "text/csv;charset=utf-8");
   };
   function bacaCsv(teks){
@@ -470,14 +536,14 @@ main{padding-bottom:110px}
       hasil.push(cur); return hasil.map(function(x){ return x.trim(); });
     };
     var kepala = pecah(baris[0]).map(function(x){ return x.toLowerCase(); });
-    var iN = kepala.findIndex(function(x){ return /nama|barang|produk|item/.test(x); }), iH = kepala.findIndex(function(x){ return /harga|price|jual/.test(x); }), iE = kepala.findIndex(function(x){ return /ikon|icon|emoji/.test(x); });
+    var iN = kepala.findIndex(function(x){ return /nama|barang|produk|item/.test(x); }), iH = kepala.findIndex(function(x){ return /harga|price|jual/.test(x); }), iE = kepala.findIndex(function(x){ return /ikon|icon|emoji/.test(x); }), iK = kepala.findIndex(function(x){ return /kategori|category|jenis|grup|group/.test(x); });
     var mulai = 1;
     if (iN < 0 || iH < 0) { iN = 0; iH = 1; mulai = 0; }
     var out = [];
     baris.slice(mulai).forEach(function(b, i){
       var k = pecah(b), nama = (k[iN] || "").slice(0, 30);
       var hs = String(k[iH] || "").replace(/[Rr][Pp]\.?/g, "").replace(/,00$|\.00$/, ""), harga = parseInt(hs.replace(/\D/g, ""), 10) || 0;
-      if (nama && harga) out.push({ id:Date.now() + i, nama:nama, harga:harga, em:(iE >= 0 && k[iE]) ? k[iE].slice(0, 4) : "📦" });
+      if (nama && harga) { var o = { id:Date.now() + i, nama:nama, harga:harga, em:(iE >= 0 && k[iE]) ? k[iE].slice(0, 4) : "📦" }; if (iK >= 0 && k[iK]) o.kat = k[iK].slice(0, 20); out.push(o); }
     });
     return out;
   }
