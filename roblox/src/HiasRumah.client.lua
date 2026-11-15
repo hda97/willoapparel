@@ -38,7 +38,7 @@ if lama then lama:Destroy() end
 local gui = Instance.new("ScreenGui")
 gui.Name = "HiasRumah"
 gui.ResetOnSpawn = false
-gui.DisplayOrder = 24
+gui.DisplayOrder = 45 -- di atas tombol "?" (TutorRaka 40)
 gui.Parent = pg
 
 local function bulat(o, r)
@@ -214,12 +214,12 @@ tulis = function()
 		if not c:IsA("UIListLayout") then c:Destroy() end
 	end
 	urutan = 0
-	saldo.Text = "💎 " .. data.permata .. "  ·  🪙 " .. data.koin .. " koin"
-	-- pilihan bayar (web: 💎 Permata / 🪙 Koin x10)
+	saldo.Text = "💎 " .. data.permata .. " permata  ·  " .. data.koin .. " koin"
+	-- pilihan bayar (web: Permata / Koin x10)
 	local fb = baris(30)
 	local lb = teks(fb, "Bayar pakai:", BIASA, 13)
 	lb.Size = UDim2.new(0.34, 0, 1, 0)
-	for i, j in ipairs({ { "permata", "💎 Permata" }, { "koin", "🪙 Koin (x" .. data.kali .. ")" } }) do
+	for i, j in ipairs({ { "permata", "💎 Permata" }, { "koin", "Koin (x" .. data.kali .. ")" } }) do
 		local b = tombolKecil(fb, j[2], bayar == j[1])
 		b.Position = UDim2.new(0.34 + (i - 1) * 0.33, 0, 0, 0)
 		b.Size = UDim2.new(0.32, 0, 1, 0)
@@ -243,7 +243,7 @@ tulis = function()
 		for i, item in ipairs(t.daftar) do
 			local punya = item.harga == 0 or table.find(data.hias.punya[jn], item.id) ~= nil
 			local pakai = data.hias[jn] == item.id
-			local label = pakai and "Dipakai" or punya and "Pakai" or bayar == "koin" and ("🪙 " .. item.harga * data.kali) or ("💎 " .. item.harga)
+			local label = pakai and "Dipakai" or punya and "Pakai" or bayar == "koin" and (item.harga * data.kali .. " koin") or ("💎 " .. item.harga)
 			local b = tombolKecil(fl, "", pakai)
 			b.LayoutOrder = i
 			if item.warna then

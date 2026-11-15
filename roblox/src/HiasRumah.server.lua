@@ -30,7 +30,7 @@ local VS = 6.25 -- 1 VS web (5 satuan) dalam stud
 local GESER_DUSUN = { wetan = Vector3.zero, kulon = Vector3.new(-10000, 0, 0), curug = Vector3.new(0, 0, -10000), tlaga = Vector3.new(0, 0, 10000) }
 local KOIN_PER_PERMATA = 10
 local TINGGI_DALAM = 1500 -- ruang dalam rumah di atas rumah
-local H = 5 -- 1 satuan interior web = 5 stud (2x ukuran rumah di map supaya lega)
+local H = 6 -- 1 satuan interior web = 6 stud (2,4x ukuran rumah di map supaya lega untuk tokoh dan kamera Roblox)
 local TINGGI_RUANG = 2.8
 local JARAK_LANTAI2 = 40
 
@@ -363,6 +363,9 @@ local function buatRuang(induk, dasar, hex, isi, lantai, dua)
 		k(.18, T, .18, "ffffff", a[1], T / 2, a[2])
 	end
 	k(1.1, .1, .16, "ffffff", 0, 1.75, 1.96)
+	-- pintu tertutup (keluar lewat tombol "Keluar rumah"); juga menahan kamera tetap di dalam ruangan
+	k(1.0, 1.7, .08, "8a5a3a", 0, .85, 1.97)
+	k(.08, .08, .04, "ffd040", .38, .85, 1.92)
 	-- jendela
 	for _, x in ipairs({ -1.6, 1.6 }) do
 		k(.8, .6, .14, "ffffff", x, 1.45, 1.96)
@@ -456,7 +459,7 @@ local function masukRumah(player)
 	if hum.SeatPart then hum.Sit = false end
 	local dasar = s.dalam and letakDalam(letakRumah(s.no)) or bangunDalam(player)
 	if not dasar then return end
-	local p = dasar * CFrame.new(0, 4, 1.2 * H)
+	local p = dasar * CFrame.new(0, 4, 1.0 * H)
 	pcall(function() player:RequestStreamAroundAsync(p.Position, 5) end)
 	char:PivotTo(CFrame.lookAt(p.Position, p.Position + Vector3.new(0, 0, -1)))
 	player:SetAttribute("DK_DiRumah", true)

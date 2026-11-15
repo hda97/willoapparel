@@ -249,7 +249,6 @@ local function buangParkir(s)
 		s.parkir:Destroy()
 		s.parkir = nil
 	end
-	tampilkanBawaan(s)
 end
 
 -- taruh kendaraan yang dipakai pada CFrame `cf` (akar = tanah, menghadap -Z); dirumah = parkir di pekarangan rumah
@@ -262,7 +261,7 @@ local function parkir(player, cf, dirumah)
 	local _, ry = cf:ToOrientation()
 	s.data.pk = { math.round(cf.X * 10) / 10, math.round(cf.Y * 10) / 10, math.round(cf.Z * 10) / 10, math.round(ry * 100) / 100 }
 	if (player:GetAttribute("DK_Naik") or "") ~= "" then return end
-	if dirumah then sembunyikanBawaan(s, cf) end
+	if dirumah and not s.bawaan then sembunyikanBawaan(s, cf) end -- tetap tersembunyi selama pemiliknya bermain
 	local model = MK.buat(k.m, WARNA[k.w + 1][2], { cf = cf })
 	model.Name = "pk_" .. player.UserId
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
@@ -529,7 +528,10 @@ end
 Players.PlayerRemoving:Connect(function(player)
 	local s = sesi[player]
 	if s and s.model then s.model:Destroy() end
-	if s then buangParkir(s) end
+	if s then
+		buangParkir(s)
+		tampilkanBawaan(s)
+	end
 	simpan(player)
 	sesi[player] = nil
 end)
