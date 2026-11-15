@@ -2722,10 +2722,11 @@ export default {
       url.pathname = "/pesan/";
       return Response.redirect(url.toString(), 301);
     }
-    // Alat usaha gratis (Huda 15 Nov 2026): /alat, /kasir, /antrian, /kas, /bukukas, /alat/kasir (tanpa garis miring) → folder-nya.
+    // Alat usaha gratis (Huda 15 Nov 2026): /alat, /kasir, /antrian, /kas, /bukukas, /nota, /invoice, /alat/kasir (tanpa garis miring) → folder-nya.
     {
       const alat = { "/alat": "/alat/", "/kasir": "/alat/kasir/", "/alat/kasir": "/alat/kasir/", "/antrian": "/alat/antrian/", "/alat/antrian": "/alat/antrian/",
-        "/kas": "/alat/buku-kas/", "/bukukas": "/alat/buku-kas/", "/alat/bukukas": "/alat/buku-kas/", "/alat/jpgkevektor": "/alat/jpg-ke-vektor/" };
+        "/kas": "/alat/buku-kas/", "/bukukas": "/alat/buku-kas/", "/alat/bukukas": "/alat/buku-kas/", "/alat/jpgkevektor": "/alat/jpg-ke-vektor/",
+        "/nota": "/alat/nota/", "/alat/nota": "/alat/nota/", "/invoice": "/alat/nota/" };
       if (alat[pendek] && url.pathname !== alat[pendek]) {
         url.pathname = alat[pendek];
         return Response.redirect(url.toString(), 301);
