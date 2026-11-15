@@ -16613,15 +16613,15 @@
     "semantic_hash": ""
   },
   "public/alat/index.html": {
-    "mtime": 1794749916.1496882,
-    "seen": 1794749964.8569717,
-    "ast_hash": "9cc74d2bb83ae70ad4499c95e6ce20d1",
+    "mtime": 1794750861.7613487,
+    "seen": 1794751987.212437,
+    "ast_hash": "c972111f3c9d18c220ec6c338ed184a2",
     "semantic_hash": ""
   },
   "public/alat/kasir/index.html": {
-    "mtime": 1794750416.7883012,
-    "seen": 1794750487.3059568,
-    "ast_hash": "88c3e63e6b46604d952d7314c56af5ab",
+    "mtime": 1794750939.5430477,
+    "seen": 1794751987.21244,
+    "ast_hash": "6cb0e8667394a7f5d353e66a05ba58df",
     "semantic_hash": ""
   },
   ".claude/skills/oil-ui/assets/vendor/alpine.min.js": {
@@ -16943,9 +16943,9 @@
     "semantic_hash": ""
   },
   "public/alat/printer.js": {
-    "mtime": 1794750416.7860134,
-    "seen": 1794750487.3039966,
-    "ast_hash": "e56fcbecb41f1dd48e3aaff6c0765a9b",
+    "mtime": 1794751925.4985127,
+    "seen": 1794751987.2100635,
+    "ast_hash": "05ff080e29f9b0b13a18adfaa1a3c6b8",
     "semantic_hash": ""
   },
   ".github/workflows/aplikasi-alat.yml": {
@@ -16979,9 +16979,9 @@
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/java/com/willoapparel/alat/PrinterWilloPlugin.java": {
-    "mtime": 1794749685.3453996,
-    "seen": 1794749964.8539646,
-    "ast_hash": "f02a8e90fb7445ef20996d861f421eec",
+    "mtime": 1794751906.7980857,
+    "seen": 1794751987.2097223,
+    "ast_hash": "702daf4543736350a80573da82603de1",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/test/java/com/getcapacitor/myapp/ExampleUnitTest.java": {

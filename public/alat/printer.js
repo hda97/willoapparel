@@ -56,15 +56,31 @@
       return new Promise(function(ok, gagal){
         var d = document.createElement("dialog");
         d.innerHTML = '<div class="isi-dialog"><h2>Pilih printer</h2><p class="kecil redup" style="margin-top:0"></p><div class="daftar-printer" style="display:grid;gap:8px;margin:10px 0"></div>' +
+          '<button class="btn lebar" data-a="cari" style="margin-bottom:10px">🔍 Cari printer di sekitar</button>' +
           '<div class="baris"><button class="btn dua" data-a="atur">Pengaturan Bluetooth</button><button class="btn dua" data-a="batal">Batal</button></div></div>';
-        d.querySelector("p").textContent = daftar.length ? "Ketuk nama printer termalmu. Pilihan ini diingat." :
-          "Belum ada printer yang dipasangkan. Nyalakan printer, buka Pengaturan Bluetooth, pasangkan printernya (PIN biasanya 0000 atau 1234), lalu coba cetak lagi.";
-        var wadah = d.querySelector(".daftar-printer"), selesai = false;
-        daftar.forEach(function(p){
-          var b = document.createElement("button"); b.className = "btn lebar dua"; b.textContent = "🖨️ " + p.nama;
-          b.onclick = function(){ selesai = true; try { localStorage.setItem(KUNCI_PRINTER, JSON.stringify(p)); } catch(e){} d.close(); ok(p); };
-          wadah.appendChild(b);
-        });
+        var info = d.querySelector("p");
+        info.textContent = daftar.length ? "Ketuk nama printer termalmu. Pilihan ini diingat. Tidak ada di daftar? Ketuk Cari printer." :
+          "Nyalakan printer, lalu ketuk “Cari printer di sekitar”.";
+        var wadah = d.querySelector(".daftar-printer"), selesai = false, ada = {};
+        function tombol(p, baru){
+          if (ada[p.alamat]) return; ada[p.alamat] = 1;
+          var b = document.createElement("button"); b.className = "btn lebar dua"; b.textContent = (p.printer || !baru ? "🖨️ " : "📶 ") + p.nama + (baru ? " (baru)" : "");
+          b.onclick = function(){ selesai = true; var s = { nama:p.nama, alamat:p.alamat }; try { localStorage.setItem(KUNCI_PRINTER, JSON.stringify(s)); } catch(e){} d.close(); ok(s); };
+          if (baru && p.printer) wadah.insertBefore(b, wadah.firstChild); else wadah.appendChild(b);
+        }
+        daftar.forEach(function(p){ tombol(p, false); });
+        var bc = d.querySelector('[data-a="cari"]');
+        bc.onclick = function(){
+          bc.disabled = true; bc.textContent = "Mencari printer… (±12 detik)";
+          C.nativePromise("PrinterWillo", "cari", {}).then(function(r){
+            var baru = ((r && r.perangkat) || []).filter(function(p){ return !ada[p.alamat]; });
+            baru.forEach(function(p){ tombol(p, true); });
+            info.textContent = baru.length ? "Ketuk nama printer (biasanya berawalan Printer, MTP, RPP, BlueTooth Printer, atau kode model). Pilihan ini diingat." :
+              "Tidak ada perangkat baru ditemukan. Pastikan printer menyala, dekat dengan HP, dan tidak sedang tersambung ke aplikasi/HP lain.";
+          }, function(e){ info.textContent = (e && e.message) || "Gagal mencari printer."; })
+          .then(function(){ bc.disabled = false; bc.textContent = "🔍 Cari lagi"; });
+        };
+        if (!daftar.length) setTimeout(function(){ bc.click(); }, 300);
         d.querySelector('[data-a="atur"]').onclick = function(){ C.nativePromise("PrinterWillo", "bukaPengaturan", {}); d.close(); };
         d.querySelector('[data-a="batal"]').onclick = function(){ d.close(); };
         d.addEventListener("close", function(){ d.remove(); if (!selesai) gagal(galat("", "BATAL")); });

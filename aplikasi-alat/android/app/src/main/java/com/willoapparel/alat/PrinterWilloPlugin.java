@@ -6,7 +6,14 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.IntentFilter;
+import android.bluetooth.BluetoothClass;
+import android.os.Handler;
+import android.os.Looper;
+import androidx.core.content.ContextCompat;
+import java.util.HashSet;
 import android.content.Intent;
 import android.os.Build;
 import android.provider.Settings;
@@ -45,7 +52,11 @@ import java.util.UUID;
  */
 @CapacitorPlugin(
     name = "PrinterWillo",
-    permissions = { @Permission(strings = { Manifest.permission.BLUETOOTH_CONNECT }, alias = "bluetooth") }
+    permissions = {
+        @Permission(strings = { Manifest.permission.BLUETOOTH_CONNECT }, alias = "bluetooth"),
+        @Permission(strings = { Manifest.permission.BLUETOOTH_SCAN }, alias = "pindai"),
+        @Permission(strings = { Manifest.permission.ACCESS_FINE_LOCATION }, alias = "lokasi")
+    }
 )
 public class PrinterWilloPlugin extends Plugin {
 
@@ -94,6 +105,74 @@ public class PrinterWilloPlugin extends Plugin {
         JSObject hasil = new JSObject();
         hasil.put("perangkat", daftar);
         call.resolve(hasil);
+    }
+
+    // ---- Cari printer di sekitar (seperti tombol Scan aplikasi kasir lain): printer tidak perlu dipasangkan dulu ----
+    private boolean izinCariKurang() {
+        if (Build.VERSION.SDK_INT >= 31) return getPermissionState("bluetooth") != PermissionState.GRANTED || getPermissionState("pindai") != PermissionState.GRANTED;
+        return getPermissionState("lokasi") != PermissionState.GRANTED;
+    }
+
+    @PluginMethod
+    public void cari(PluginCall call) {
+        if (izinCariKurang()) {
+            if (Build.VERSION.SDK_INT >= 31) requestPermissionForAliases(new String[] { "bluetooth", "pindai" }, call, "izinCari");
+            else requestPermissionForAlias("lokasi", call, "izinCari");
+            return;
+        }
+        mulaiCari(call);
+    }
+
+    @PermissionCallback
+    private void izinCari(PluginCall call) {
+        if (izinCariKurang()) {
+            call.reject(Build.VERSION.SDK_INT >= 31 ? "Izin Perangkat di sekitar ditolak. Izinkan di Setelan HP > Aplikasi > Lumbung > Izin." : "Izin Lokasi dibutuhkan Android untuk mencari printer. Izinkan di Setelan HP > Aplikasi > Lumbung > Izin.", "IZIN");
+            return;
+        }
+        mulaiCari(call);
+    }
+
+    @SuppressLint("MissingPermission")
+    private void mulaiCari(PluginCall call) {
+        final BluetoothAdapter a = adapter();
+        if (a == null) { call.reject("HP ini tidak punya Bluetooth.", "TIDAK_ADA"); return; }
+        if (!a.isEnabled()) { call.reject("Bluetooth HP belum menyala. Nyalakan Bluetooth, lalu coba lagi.", "MATI"); return; }
+        final JSArray hasil = new JSArray();
+        final Set<String> sudah = new HashSet<>();
+        final BroadcastReceiver penerima = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context ctx, Intent intent) {
+                if (!BluetoothDevice.ACTION_FOUND.equals(intent.getAction())) return;
+                BluetoothDevice d = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if (d == null || sudah.contains(d.getAddress())) return;
+                sudah.add(d.getAddress());
+                String nama = null;
+                try { nama = d.getName(); } catch (SecurityException ignored) {}
+                BluetoothClass k = null;
+                try { k = d.getBluetoothClass(); } catch (SecurityException ignored) {}
+                boolean printer = k != null && k.getMajorDeviceClass() == BluetoothClass.Device.Major.IMAGING;
+                if (nama == null && !printer) return;
+                JSObject o = new JSObject();
+                o.put("nama", nama == null ? d.getAddress() : nama);
+                o.put("alamat", d.getAddress());
+                o.put("printer", printer);
+                hasil.put(o);
+            }
+        };
+        ContextCompat.registerReceiver(getContext(), penerima, new IntentFilter(BluetoothDevice.ACTION_FOUND), ContextCompat.RECEIVER_EXPORTED);
+        a.cancelDiscovery();
+        if (!a.startDiscovery()) {
+            try { getContext().unregisterReceiver(penerima); } catch (Exception ignored) {}
+            call.reject("Gagal mencari printer. Nyalakan Lokasi HP, lalu coba lagi.", "CARI");
+            return;
+        }
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            try { a.cancelDiscovery(); } catch (SecurityException ignored) {}
+            try { getContext().unregisterReceiver(penerima); } catch (Exception ignored) {}
+            JSObject r = new JSObject();
+            r.put("perangkat", hasil);
+            call.resolve(r);
+        }, 12000);
     }
 
     @PluginMethod
@@ -163,12 +242,16 @@ public class PrinterWilloPlugin extends Plugin {
     @SuppressLint("MissingPermission")
     private BluetoothSocket sambung(BluetoothDevice d) throws IOException {
         IOException terakhir = null;
-        for (int cara = 0; cara < 3; cara++) {
+        // Printer yang belum dipasangkan (hasil Cari): coba sambungan tanpa pasangan dulu supaya tidak muncul minta PIN.
+        boolean terpasang = d.getBondState() == BluetoothDevice.BOND_BONDED;
+        int[] urutan = terpasang ? new int[] { 0, 1, 2, 3 } : new int[] { 1, 3, 0, 2 };
+        for (int cara : urutan) {
             BluetoothSocket s = null;
             try {
                 if (cara == 0) s = d.createRfcommSocketToServiceRecord(SPP);
                 else if (cara == 1) s = d.createInsecureRfcommSocketToServiceRecord(SPP);
-                else s = (BluetoothSocket) d.getClass().getMethod("createRfcommSocket", int.class).invoke(d, 1);
+                else if (cara == 2) s = (BluetoothSocket) d.getClass().getMethod("createRfcommSocket", int.class).invoke(d, 1);
+                else s = (BluetoothSocket) d.getClass().getMethod("createInsecureRfcommSocket", int.class).invoke(d, 1);
                 s.connect();
                 return s;
             } catch (Exception e) {
