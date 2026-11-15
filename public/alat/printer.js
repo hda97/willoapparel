@@ -1,0 +1,91 @@
+/* Cetak ke printer termal (58/80 mm, ESC/POS) dari alat usaha Willo.
+   1) Bluetooth langsung lewat Web Bluetooth (Chrome Android / Chrome & Edge laptop, printer BLE).
+   2) Cadangan: aplikasi gratis RawBT di Android (printer Bluetooth klasik/USB/Wi-Fi).
+   Pakai: CetakTermal.cetak(teks) → Promise. Lebar baris 32 karakter (58 mm). */
+(function(){
+  // Layanan BLE yang umum dipakai printer termal murah.
+  var LAYANAN = [
+    "000018f0-0000-1000-8000-00805f9b34fb",
+    "e7810a71-73ae-499d-8c15-faa9aef0c3f2",
+    "49535343-fe7d-4ae5-8fa9-9fafd205e455",
+    "0000ff00-0000-1000-8000-00805f9b34fb",
+    "0000ffe0-0000-1000-8000-00805f9b34fb",
+    "0000fee7-0000-1000-8000-00805f9b34fb"
+  ];
+  var karakter = null, perangkat = null;
+
+  function bisaBle(){ return !!(navigator.bluetooth && navigator.bluetooth.requestDevice); }
+  function android(){ return /Android/i.test(navigator.userAgent); }
+
+  // Teks → byte ESC/POS. Huruf di luar ASCII diganti agar printer tidak mencetak simbol aneh.
+  function ascii(teks){
+    return String(teks).normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[−–—]/g, "-").replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/×/g, "x").replace(/[^\x0a\x20-\x7e]/g, "");
+  }
+  // opsi.besar: teks pendek (mis. nomor antrian) dicetak besar di tengah sebelum teks biasa.
+  function keByte(teks, opsi){
+    var b = [0x1b, 0x40, 0x1b, 0x74, 0x00]; // reset + tabel karakter dasar
+    var tambah = function(s){ s = ascii(s); for (var i = 0; i < s.length; i++) b.push(s.charCodeAt(i)); };
+    if (opsi && opsi.atas) { b.push(0x1b, 0x61, 0x01); tambah(opsi.atas + "\n"); }
+    if (opsi && opsi.besar) { b.push(0x1b, 0x61, 0x01, 0x1d, 0x21, 0x33); tambah(opsi.besar + "\n"); b.push(0x1d, 0x21, 0x00); }
+    if (opsi && (opsi.atas || opsi.besar)) b.push(0x1b, 0x61, opsi.tengah ? 0x01 : 0x00);
+    tambah(teks);
+    b.push(0x0a, 0x0a, 0x0a, 0x0a, 0x1d, 0x56, 0x42, 0x00); // beri jarak + potong kertas (jika ada pisau)
+    return new Uint8Array(b);
+  }
+
+  function sambung(){
+    if (karakter && perangkat && perangkat.gatt.connected) return Promise.resolve(karakter);
+    var p = perangkat ? Promise.resolve(perangkat) : navigator.bluetooth.requestDevice({ acceptAllDevices:true, optionalServices:LAYANAN });
+    return p.then(function(d){
+      perangkat = d;
+      d.addEventListener("gattserverdisconnected", function(){ karakter = null; });
+      return d.gatt.connect();
+    }).then(function(server){
+      return server.getPrimaryServices();
+    }).then(function(daftar){
+      // Cari karakteristik pertama yang bisa ditulis.
+      var cari = function(i){
+        if (i >= daftar.length) throw new Error("Printer ini tidak menyediakan jalur cetak Bluetooth LE.");
+        return daftar[i].getCharacteristics().then(function(cs){
+          var c = cs.filter(function(x){ return x.properties.writeWithoutResponse || x.properties.write; })[0];
+          return c || cari(i + 1);
+        });
+      };
+      return cari(0);
+    }).then(function(c){ karakter = c; return c; });
+  }
+
+  function kirim(c, data){
+    var ukuran = 100, i = 0;
+    var langkah = function(){
+      if (i >= data.length) return Promise.resolve();
+      var potong = data.slice(i, i + ukuran); i += ukuran;
+      var tulis = c.properties.writeWithoutResponse && c.writeValueWithoutResponse ? c.writeValueWithoutResponse(potong) : c.writeValue(potong);
+      return tulis.then(function(){ return new Promise(function(r){ setTimeout(r, 25); }); }).then(langkah);
+    };
+    return langkah();
+  }
+
+  function lewatRawbt(teks, opsi){
+    var b = keByte(teks, opsi), s = "";
+    for (var i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
+    location.href = "rawbt:base64," + btoa(s);
+  }
+
+  window.CetakTermal = {
+    bisaBle: bisaBle,
+    android: android,
+    terhubung: function(){ return !!(karakter && perangkat && perangkat.gatt.connected); },
+    nama: function(){ return perangkat ? (perangkat.name || "printer") : ""; },
+    cetak: function(teks, opsi){
+      if (!bisaBle()) {
+        if (android()) { lewatRawbt(teks, opsi); return Promise.resolve("rawbt"); }
+        return Promise.reject(new Error("Browser ini belum bisa Bluetooth. Pakai Chrome di Android atau laptop."));
+      }
+      return sambung().then(function(c){ return kirim(c, keByte(teks, opsi)); }).then(function(){ return "ble"; });
+    },
+    rawbt: lewatRawbt,
+    lupakan: function(){ try { if (perangkat && perangkat.gatt.connected) perangkat.gatt.disconnect(); } catch(e){} perangkat = null; karakter = null; }
+  };
+})();

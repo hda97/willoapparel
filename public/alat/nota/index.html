@@ -153,7 +153,8 @@
         <button class="btn hijau lebar2" id="bWa">Kirim nota ke WA</button>
         <button class="btn kuning lebar2" id="bTagih">Tagih sisa lewat WA</button>
         <button class="btn dua" id="bBayar">＋ Pembayaran</button>
-        <button class="btn dua" id="bPdf">🖨️ PDF / Cetak</button>
+        <button class="btn dua" id="bPdf">📄 PDF / Cetak</button>
+        <button class="btn dua lebar2" id="bTermal">🖨️ Printer termal Bluetooth</button>
         <button class="btn dua" id="bUbah">✏️ Ubah</button>
         <button class="btn dua" id="bHapusNota">🗑 Hapus</button>
       </div>
@@ -428,6 +429,33 @@
     t += "\nTerima kasih 🙏";
     window.open("https://wa.me/" + hpWa(n.wa) + "?text=" + encodeURIComponent(t), "_blank", "noopener");
   };
+  function teksTermal(n){
+    var L = 32, gar = "-".repeat(L), t = S.toko, b = [];
+    var kanan = function(a, c){ return a + " ".repeat(Math.max(1, L - a.length - c.length)) + c; };
+    var tengah = function(s){ return " ".repeat(Math.max(0, Math.floor((L - s.length) / 2))) + s; };
+    if (t.nama) b.push(tengah(t.nama.slice(0, L)));
+    if (t.alamat) b.push(tengah(t.alamat.slice(0, L)));
+    if (t.wa) b.push(tengah("WA " + t.wa));
+    b.push(gar, kanan(noTeks(n), n.tgl.split("-").reverse().join("/")), ("Kepada: " + (n.nama || "-")).slice(0, L), gar);
+    n.item.forEach(function(i){ b.push((i.nama + (i.ket ? " " + i.ket : "")).slice(0, L)); b.push(kanan("  " + i.q + " x " + i.harga.toLocaleString("id-ID"), (i.q * i.harga).toLocaleString("id-ID"))); });
+    b.push(gar);
+    if (n.diskon) b.push(kanan("Diskon", "-" + rp(n.diskon)));
+    if (n.ongkir) b.push(kanan("Ongkir", rp(n.ongkir)));
+    b.push(kanan("TOTAL", rp(total(n))));
+    n.bayar.forEach(function(x){ b.push(kanan(x.ket + " " + x.tgl.slice(8) + "/" + x.tgl.slice(5,7), "-" + rp(x.jml))); });
+    b.push(kanan(sisa(n) ? "SISA" : "STATUS", sisa(n) ? rp(sisa(n)) : "LUNAS"));
+    if (n.tempo) b.push("Jadi: " + tglTeks(n.tempo));
+    b.push(gar);
+    if (t.rek && sisa(n)) b.push(t.rek.slice(0, 64));
+    b.push(tengah("Terima kasih"), "", tengah("Nota gratis:"), tengah("willoapparel.com/alat"));
+    return b.join("\n");
+  }
+  $("bTermal").onclick = function(){
+    var b = this; b.disabled = true;
+    CetakTermal.cetak(teksTermal(aktif)).then(function(){ pesan("Nota dikirim ke " + (CetakTermal.nama() || "printer")); })
+      .catch(function(e){ if (e && e.name !== "NotFoundError") pesan(e.message || "Gagal mencetak"); })
+      .then(function(){ b.disabled = false; });
+  };
   $("bPdf").onclick = function(){ $("cetak").innerHTML = htmlNota(aktif); document.title = "Nota " + noTeks(aktif); window.print(); setTimeout(function(){ document.title = "Nota & Invoice | Willo Apparel"; }, 1000); };
 
   formatInput($("dbJml"));
@@ -462,5 +490,6 @@
   gambarDaftar();
 })();
 </script>
+<script src="/alat/printer.js"></script>
 </body>
 </html>
