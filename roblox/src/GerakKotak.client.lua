@@ -8,7 +8,8 @@
     - badan dan kepala selalu tegak;
     - diam: kaki dan lengan lurus;
     - jalan: kaki dan lengan berayun (sin, 0,7 rad; lari 1,05 rad), sama seperti web;
-    - duduk / naik kendaraan: kaki 1,45 rad ke depan, lengan 1,1 rad ke depan, sama seperti pose naik di web.
+    - duduk / naik kendaraan / Reli: kaki dan lengan ke depan dengan sudut per kendaraan, sama seperti pose naik di web;
+    - NPC desa (workspace.DK_NPC) ikut digerakkan dengan cara yang sama.
   Gerak dihitung dari perpindahan tokoh tiap frame, jadi ikut juga saat tokoh digerakkan skrip (Pelari Kalcer).
 ]]
 local Players = game:GetService("Players")
@@ -72,6 +73,34 @@ end
 for _, p in ipairs(Players:GetPlayers()) do pantau(p) end
 Players.PlayerAdded:Connect(pantau)
 
+-- NPC desa (skrip NpcDesa): rangka R15 tanpa Animate di workspace.DK_NPC, digerakkan sama seperti tokoh pemain
+local function pantauNpc(m)
+	if not m:IsA("Model") then return end
+	task.defer(function()
+		m:WaitForChild("HumanoidRootPart", 10)
+		m:WaitForChild("Humanoid", 10)
+		task.wait(0.5)
+		if m.Parent then daftarkan(m, nil) end
+	end)
+	m.DescendantAdded:Connect(function(o)
+		if (o:IsA("Motor6D") or o:IsA("AnimationConstraint")) and tokoh[m] then task.defer(daftarkan, m, nil) end
+	end)
+end
+task.spawn(function()
+	local f = workspace:WaitForChild("DK_NPC", 60)
+	if not f then return end
+	for _, m in ipairs(f:GetChildren()) do pantauNpc(m) end
+	f.ChildAdded:Connect(pantauNpc)
+	f.ChildRemoved:Connect(function(m) tokoh[m] = nil end)
+end)
+
+-- cara duduk tiap kendaraan (sama dengan game web): kaki dan tangan ke depan
+local DUDUK = {}
+task.spawn(function()
+	local ok, MK = pcall(function() return require(game:GetService("ReplicatedStorage"):WaitForChild("DK_ModelKendaraan", 30)) end)
+	if ok and MK and MK.DUDUK then DUDUK = MK.DUDUK end
+end)
+
 local NOL = CFrame.new()
 RunService.PreSimulation:Connect(function(dt)
 	if dt <= 0 then return end
@@ -85,8 +114,12 @@ RunService.PreSimulation:Connect(function(dt)
 		t.pos = p
 		if geser > 200 then geser = 0 end -- pindah tempat (teleport/bus), bukan berjalan
 
-		local naik = t.pemain and (t.pemain:GetAttribute("DK_Naik") or "") ~= ""
+		local jenis = t.pemain and t.pemain:GetAttribute("DK_Naik") or ""
+		if jenis == "" and t.pemain and t.pemain:GetAttribute("DK_Reli") then jenis = "hatch" end
+		local naik = jenis ~= ""
 		local duduk = t.hum.Sit or naik
+		local u = DUDUK[jenis]
+		local kakiD, tanganD = u and -u[3] or 1.45, u and -u[4] or 1.1
 		t.duduk += ((duduk and 1 or 0) - t.duduk) * math.min(1, dt * 12)
 
 		local jalan = not duduk and geser > 1.5
@@ -102,10 +135,10 @@ RunService.PreSimulation:Connect(function(dt)
 		-- sudut web dibalik tandanya: tokoh web menghadap +z, tokoh Roblox menghadap -Z
 		local s = math.sin(t.ph) * t.amp
 		local sudut = {
-			kakiKiri = -s * (1 - t.duduk) + 1.45 * t.duduk,
-			kakiKanan = s * (1 - t.duduk) + 1.45 * t.duduk,
-			lenganKiri = s * 0.8 * (1 - t.duduk) + 1.1 * t.duduk,
-			lenganKanan = -s * 0.8 * (1 - t.duduk) + 1.1 * t.duduk,
+			kakiKiri = -s * (1 - t.duduk) + kakiD * t.duduk,
+			kakiKanan = s * (1 - t.duduk) + kakiD * t.duduk,
+			lenganKiri = s * 0.8 * (1 - t.duduk) + tanganD * t.duduk,
+			lenganKanan = -s * 0.8 * (1 - t.duduk) + tanganD * t.duduk,
 		}
 		for _, j in ipairs(t.sendi) do
 			local o = j.obj

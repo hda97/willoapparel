@@ -566,6 +566,25 @@ do
 	bf.Parent = SS
 end
 
+-- Pintu untuk NPC (skrip NpcDesa): ServerStorage.DK_RakitTokoh:Invoke(model, avatar) merakit tokoh kotak di rangka NPC.
+do
+	local SS = game:GetService("ServerStorage")
+	local l = SS:FindFirstChild("DK_RakitTokoh")
+	if l then l:Destroy() end
+	local bf = Instance.new("BindableFunction")
+	bf.Name = "DK_RakitTokoh"
+	bf.OnInvoke = function(char, av)
+		if typeof(char) ~= "Instance" then return false end
+		local ok, hasil = pcall(rakit, char, bersih(av))
+		if ok and hasil then
+			sembunyikan(char)
+			return true
+		end
+		return false
+	end
+	bf.Parent = SS
+end
+
 local function masuk(player)
 	local ok, tersimpan = false, nil
 	if store then
