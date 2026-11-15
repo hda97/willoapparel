@@ -235,7 +235,7 @@ main{padding-bottom:110px}
   var angka = function(s){ return parseInt(String(s).replace(/\D/g, ""), 10) || 0; };
   var pad = function(n){ return String(n).padStart(2, "0"); };
   var tglIni = function(){ var d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); };
-  function pesan(t){ var p = $("pesan"); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, 2200); }
+  function pesan(t){ var p = $("pesan"), dl = document.querySelector("dialog[open]"); (dl || document.body).appendChild(p); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, t.length > 60 ? 6000 : 2200); }
   function formatInput(el, cb){ el.addEventListener("input", function(){ var n = angka(el.value); el.value = n ? n.toLocaleString("id-ID") : ""; if (cb) cb(n); }); }
   var subtotal = function(){ return keranjang.reduce(function(a,k){ return a + k.harga * k.q; }, 0); };
   // Diskon grosir: jumlah pcs produk bertanda grosir menentukan potongan per pcs.
@@ -458,8 +458,8 @@ main{padding-bottom:110px}
   $("stRawbt").onclick = function(e){ e.preventDefault(); CetakTermal.rawbt(strukTeks); };
   $("stBt").onclick = function(){
     var b = this; b.disabled = true; b.textContent = "Mencetak…";
-    CetakTermal.cetak(strukTeks).then(function(){ pesan("Struk dikirim ke " + (CetakTermal.nama() || "printer")); })
-      .catch(function(e){ if (e && e.name !== "NotFoundError") pesan(e.message || "Gagal mencetak"); })
+    CetakTermal.cetak(strukTeks).then(function(r){ pesan(r === "rawbt" ? "Membuka aplikasi RawBT…" : "Struk dikirim ke " + (CetakTermal.nama() || "printer")); })
+      .catch(function(e){ var m = CetakTermal.pesanGagal(e); if (m) pesan(m); })
       .then(function(){ b.disabled = false; b.textContent = "🖨️ Printer Bluetooth"; });
   };
   $("stBaru").onclick = function(){ keranjang = []; $("dStruk").close(); gambar(); window.scrollTo({ top:0, behavior:"smooth" }); };
