@@ -92,6 +92,7 @@
   <div class="kepala-isi"><span>Barang</span><span>Jumlah</span><span>Harga beli /pcs</span><span></span></div>
   <div id="bIsi"></div>
   <button type="button" class="btn dua kecil" id="bTambahBrs">＋ Baris barang</button>
+  <label class="isi" style="margin-top:8px">Ongkir <small>Boleh kosong</small><input type="text" inputmode="numeric" id="bOngkir" class="angka" autocomplete="off" placeholder="0"></label>
   <div class="totbeli"><span>Total</span><span class="angka" id="bTot">Rp0</span></div>
   <div class="tab" id="bStatus"><button type="button" data-s="lunas" class="pilih">Lunas</button><button type="button" data-s="sebagian">Bayar sebagian</button><button type="button" data-s="utang">Utang</button></div>
   <label class="isi tersembunyi" id="bBayarLbl">Dibayar sekarang<input type="text" inputmode="numeric" id="bBayar" class="angka" autocomplete="off"></label>
@@ -166,15 +167,15 @@
     return Array.prototype.map.call($("bIsi").children, function(r){ return { n:r.querySelector(".n").value.trim(), q:angka(r.querySelector(".q").value), h:angka(r.querySelector(".h").value) }; }).filter(function(x){ return x.n && x.q; });
   }
   function hitung(){
-    var t = bacaIsi().reduce(function(a, x){ return a + x.q * x.h; }, 0); $("bTot").textContent = rp(t);
+    var t = bacaIsi().reduce(function(a, x){ return a + x.q * x.h; }, 0) + angka($("bOngkir").value); $("bTot").textContent = rp(t);
   }
-  uangInput($("bBayar"));
+  uangInput($("bBayar")); uangInput($("bOngkir"));
   function pilihTab(id, attr, v){ Array.prototype.forEach.call($(id).children, function(b){ b.classList.toggle("pilih", b.dataset[attr] === v); }); }
   Array.prototype.forEach.call($("bStatus").children, function(b){ b.onclick = function(){ status = b.dataset.s; pilihTab("bStatus", "s", status); $("bBayarLbl").classList.toggle("tersembunyi", status !== "sebagian"); }; });
   Array.prototype.forEach.call($("bMetode").children, function(b){ b.onclick = function(){ metode = b.dataset.m; pilihTab("bMetode", "m", metode); }; });
   $("bTambahBrs").onclick = function(){ barisIsi(); };
   $("bBaru").onclick = function(){
-    $("bSup").value = ""; $("bTgl").value = tglIni(); $("bKet").value = ""; $("bBayar").value = ""; $("bIsi").innerHTML = "";
+    $("bSup").value = ""; $("bTgl").value = tglIni(); $("bKet").value = ""; $("bBayar").value = ""; $("bOngkir").value = ""; $("bIsi").innerHTML = "";
     status = "lunas"; metode = "Tunai"; pilihTab("bStatus", "s", status); pilihTab("bMetode", "m", metode); $("bBayarLbl").classList.add("tersembunyi");
     var dl = $("dlBrg"); dl.innerHTML = ""; produk().forEach(function(p){ var o = document.createElement("option"); o.value = p.nama; dl.appendChild(o); });
     var ds = $("dlSup"); ds.innerHTML = ""; supplier().forEach(function(s){ var o = document.createElement("option"); o.value = s; ds.appendChild(o); });
@@ -272,7 +273,7 @@
   $("dBeli").addEventListener("close", function(){
     if ($("dBeli").returnValue !== "ok") return;
     var isi = bacaIsi(); if (!isi.length) { pesan("Isi minimal satu barang dengan jumlahnya"); return; }
-    var tot = isi.reduce(function(a, x){ return a + x.q * x.h; }, 0), bayar = status === "lunas" ? tot : status === "utang" ? 0 : Math.min(tot, angka($("bBayar").value));
+    var ongkir = angka($("bOngkir").value), tot = isi.reduce(function(a, x){ return a + x.q * x.h; }, 0) + ongkir, bayar = status === "lunas" ? tot : status === "utang" ? 0 : Math.min(tot, angka($("bBayar").value));
     var sup = $("bSup").value.trim() || "Tanpa nama", tgl = $("bTgl").value || tglIni(), id = Date.now();
     // Stok & modal barang Kasir
     var S = baca(KASIR, {}), log = baca(STOK, []), nStok = 0, nModal = 0;
@@ -286,11 +287,11 @@
       tulis(KASIR, S); tulis(STOK, log.slice(0, 400));
     }
     muat();
-    var t = { id:id, tgl:tgl, sup:sup, isi:isi, tot:tot, bayar:bayar, m:metode, ket:$("bKet").value.trim(), riw:bayar ? [{ w:Date.now(), jml:bayar, m:metode }] : [] };
+    var t = { id:id, tgl:tgl, sup:sup, isi:isi, tot:tot, ongkir:ongkir, bayar:bayar, m:metode, ket:$("bKet").value.trim(), riw:bayar ? [{ w:Date.now(), jml:bayar, m:metode }] : [] };
     B.tx.push(t);
     if (sup !== "Tanpa nama" && !cariSup(sup)) B.sup.push({ id:id, nama:sup, hp:"", ket:"" });
     tulis(KUNCI, B);
-    catatKas(bayar, "Pembelian " + sup + ": " + isi.map(function(x){ return x.q + " " + x.n; }).join(", "), tgl, metode, id);
+    catatKas(bayar, "Pembelian " + sup + ": " + isi.map(function(x){ return x.q + " " + x.n; }).join(", ") + (ongkir ? " + ongkir" : ""), tgl, metode, id);
     gambar();
     pesan("Pembelian " + rp(tot) + " dicatat" + (nStok ? ", stok " + nStok + " barang bertambah" : "") + (tot > bayar ? ", utang " + rp(tot - bayar) : ""));
   });
@@ -339,6 +340,7 @@
     $("lJudul").textContent = t.sup; $("lKet").textContent = tglTeks(t.tgl) + " · " + t.m + (t.ket ? " · " + t.ket : "");
     $("lIsi").innerHTML = t.isi.map(function(){ return '<tr><td></td><td class="angka"></td></tr>'; }).join("");
     Array.prototype.forEach.call($("lIsi").querySelectorAll("tr"), function(tr, i){ var x = t.isi[i]; tr.children[0].textContent = x.q + " × " + x.n + " @ " + rp(x.h); tr.children[1].textContent = rp(x.q * x.h); });
+    if (t.ongkir) { var tr = document.createElement("tr"); tr.innerHTML = '<td>Ongkir</td><td class="angka"></td>'; tr.lastChild.textContent = rp(t.ongkir); $("lIsi").appendChild(tr); }
     $("lTot").textContent = rp(t.tot);
     var s = sisa(t);
     $("lBayar").innerHTML = s ? 'Sudah dibayar ' + rp(t.bayar || 0) + '. <b style="color:var(--merah)">Sisa utang ' + rp(s) + '</b>' : '<b style="color:var(--hijau)">Lunas</b>';
