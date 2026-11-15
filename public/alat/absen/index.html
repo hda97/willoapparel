@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Absen Karyawan | Lumbung by Willo Studio</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/logo-willo.png">
+<link rel="stylesheet" href="/alat/alat.css">
+<script src="/alat/ikon.js" defer></script>
+<script src="/alat/owner.js"></script>
+<style>
+.jam{text-align:center;margin:4px 0 14px}
+.jam b{display:block;font-size:44px;line-height:1.1;font-variant-numeric:tabular-nums}
+.jam small{color:var(--redup);font-size:15px}
+.orang{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.orang button{border:2px solid var(--garis);background:#fff;border-radius:14px;padding:14px 12px;font:inherit;text-align:left;cursor:pointer;min-height:84px}
+.orang button b{display:block;font-size:17px}
+.orang button small{display:block;font-size:13px;color:var(--redup);margin-top:4px}
+.orang button.masuk{border-color:var(--hijau);background:var(--hijau-muda)}
+.orang button.masuk small{color:var(--hijau);font-weight:700}
+.orang button.pulang{background:#f1efe9}
+.lt{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:10px}
+.lt th,.lt td{padding:7px 6px;border-bottom:1px solid #f0ede6;text-align:right}
+.lt th:first-child,.lt td:first-child{text-align:left}
+.lt th{font-size:12.5px;color:var(--redup);font-weight:700}
+.bln{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.bln b{font-size:16px}
+.log{list-style:none;margin:0;padding:0;font-size:14px}
+.log li{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f0ede6}
+.log li span{flex:1}
+.kosong{color:var(--redup);text-align:center;padding:16px 0}
+.pinbesar{font-size:30px;text-align:center;letter-spacing:.4em}
+</style>
+</head>
+<body>
+<header class="atas"><div class="wrap"><a href="/alat/">← Alat Usaha Gratis</a><a class="redup" href="/alat/kasir/">Kasir</a></div></header>
+<main class="wrap">
+  <h1>👷 Absen karyawan</h1>
+  <p class="sub">Ketuk nama sendiri saat datang dan saat pulang. Jam diambil dari HP ini.</p>
+  <div class="jam"><b class="angka" id="jamNow">--:--</b><small id="tglNow"></small></div>
+
+  <section class="kartu">
+    <div class="orang" id="orang"></div>
+  </section>
+
+  <section class="kartu">
+    <h2>Hari ini</h2>
+    <ul class="log" id="logHari"></ul>
+  </section>
+
+  <section class="kartu" data-owner>
+    <div class="bln"><button class="btn dua kecil" id="blnPrev">‹</button><b id="blnJudul"></b><button class="btn dua kecil" id="blnNext">›</button></div>
+    <h2 style="margin-top:0">Rekap bulanan</h2>
+    <div style="overflow-x:auto"><table class="lt" id="rekap"></table></div>
+    <div class="baris"><button class="btn dua kecil" id="bWa">💬 Kirim rekap ke WA</button><button class="btn dua kecil" id="bCsv">⬇ Unduh (Excel)</button></div>
+  </section>
+
+  <section class="kartu" data-owner>
+    <h2>Karyawan & jam kerja</h2>
+    <div id="daftarOrang"></div>
+    <button class="btn dua kecil" id="bTambah" style="margin-top:10px">➕ Tambah karyawan</button>
+    <div class="baris" style="margin-top:14px">
+      <label class="isi">Jam masuk toko<input type="time" id="aMasuk" value="08:00"></label>
+      <label class="isi">Toleransi telat (menit)<input type="text" inputmode="numeric" id="aToleransi" class="angka" value="10"></label>
+    </div>
+  </section>
+</main>
+<footer>Lumbung by Willo Studio · data absen tersimpan di HP ini</footer>
+<div class="pesan" id="pesan"></div>
+
+<dialog id="dPin"><form method="dialog" class="isi-dialog">
+  <h2 id="pinJudul" style="margin-bottom:4px"></h2>
+  <p class="kecil redup" style="margin:0 0 10px">Masukkan PIN absen kamu.</p>
+  <input type="password" inputmode="numeric" maxlength="6" id="pinIsi" class="pinbesar angka" autocomplete="off">
+  <div class="baris" style="margin-top:12px"><button class="btn dua" value="batal" formnovalidate>Batal</button><button class="btn" value="ok">Absen</button></div>
+</form></dialog>
+
+<dialog id="dOrang"><form method="dialog" class="isi-dialog">
+  <h2 id="doJudul">Tambah karyawan</h2>
+  <label class="isi">Nama<input type="text" id="doNama" maxlength="24" autocomplete="off"></label>
+  <label class="isi">PIN absen <small>Boleh kosong. 4 angka supaya tidak bisa diabsenkan teman</small><input type="text" inputmode="numeric" maxlength="6" id="doPin" class="angka" autocomplete="off"></label>
+  <label class="isi">Gaji per hari <small>Boleh kosong. Untuk hitung gaji di rekap</small><input type="text" inputmode="numeric" id="doGaji" class="angka" autocomplete="off"></label>
+  <div class="baris" style="margin-top:6px"><button type="button" class="btn dua tersembunyi" id="doHapus">Hapus</button></div>
+  <div class="baris" style="margin-top:10px"><button class="btn dua" value="batal" formnovalidate>Batal</button><button class="btn" value="ok">Simpan</button></div>
+</form></dialog>
+
+<script src="/alat/printer.js"></script>
+<script>
+(function(){
+  "use strict";
+  var KUNCI = "willo_absen_v1", $ = function(id){ return document.getElementById(id); };
+  var A, bulan = new Date(), pilihOrang = null, edit = null;
+  function pesan(t){ var p = $("pesan"), dl = document.querySelector("dialog[open]"); (dl || document.body).appendChild(p); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, 3200); }
+  function pad(n){ return String(n).padStart(2, "0"); }
+  function rp(n){ return "Rp" + Math.round(n || 0).toLocaleString("id-ID"); }
+  function angka(s){ return parseInt(String(s).replace(/\D/g, ""), 10) || 0; }
+  function jamTeks(w){ var d = new Date(w); return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
+  function tglKey(w){ var d = new Date(w); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function esc(t){ return String(t).replace(/[&<>"]/g, function(m){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[m]; }); }
+  function muat(){ try { A = JSON.parse(localStorage.getItem(KUNCI)) || null; } catch(e){ A = null; } A = A || {}; A.orang = A.orang || []; A.log = A.log || []; A.masuk = A.masuk || "08:00"; if (A.tol == null) A.tol = 10; }
+  function simpan(){ if (A.log.length > 8000) A.log = A.log.slice(A.log.length - 8000); try { localStorage.setItem(KUNCI, JSON.stringify(A)); } catch(e){ pesan("Gagal menyimpan: memori HP penuh"); } }
+  function ownerBuka(){ return !(window.LumbungOwner && LumbungOwner.terkunci()); }
+  muat();
+
+  // Status hari ini per karyawan.
+  function hariIni(id){
+    var k = tglKey(Date.now()), r = { masuk:null, pulang:null };
+    A.log.forEach(function(l){ if (l.o === id && tglKey(l.w) === k) { if (l.t === "masuk" && !r.masuk) r.masuk = l; if (l.t === "pulang") r.pulang = l; } });
+    return r;
+  }
+  function menitTelat(w){ var d = new Date(w), m = A.masuk.split(":"), batas = new Date(d); batas.setHours(+m[0], +m[1] + (+A.tol || 0), 0, 0); return Math.max(0, Math.round((d - batas) / 60000)); }
+
+  function gambarOrang(){
+    var c = $("orang"); c.innerHTML = "";
+    if (!A.orang.length) { c.innerHTML = '<p class="kosong" style="grid-column:1/-1">Belum ada karyawan.' + (ownerBuka() ? ' Tambahkan di bagian <b>Karyawan & jam kerja</b> di bawah.' : ' Minta owner menambahkan nama kamu.') + '</p>'; return; }
+    A.orang.forEach(function(o){
+      var h = hariIni(o.id), b = document.createElement("button"); b.type = "button";
+      b.className = h.pulang ? "pulang" : h.masuk ? "masuk" : "";
+      b.innerHTML = "<b></b><small></small>";
+      b.querySelector("b").textContent = o.nama;
+      b.querySelector("small").textContent = h.pulang ? "Pulang " + jamTeks(h.pulang.w) + " · masuk " + jamTeks(h.masuk ? h.masuk.w : h.pulang.w) : h.masuk ? "Masuk " + jamTeks(h.masuk.w) + " · ketuk untuk pulang" : "Belum absen · ketuk untuk masuk";
+      b.onclick = function(){ mulaiAbsen(o); };
+      c.appendChild(b);
+    });
+  }
+  function mulaiAbsen(o){
+    var h = hariIni(o.id);
+    if (h.pulang && !confirm(o.nama + " sudah absen pulang jam " + jamTeks(h.pulang.w) + ". Absen pulang lagi (jam pulang diganti)?")) return;
+    pilihOrang = o;
+    if (o.pin) { $("pinJudul").textContent = (h.masuk ? "Pulang: " : "Masuk: ") + o.nama; $("pinIsi").value = ""; $("dPin").showModal(); setTimeout(function(){ $("pinIsi").focus(); }, 50); }
+    else catat(o);
+  }
+  $("dPin").addEventListener("close", function(){
+    if ($("dPin").returnValue !== "ok" || !pilihOrang) return;
+    if ($("pinIsi").value !== pilihOrang.pin) { pesan("PIN salah"); return; }
+    catat(pilihOrang);
+  });
+  function catat(o){
+    muat(); var h = hariIni(o.id), w = Date.now(), t = h.masuk ? "pulang" : "masuk";
+    if (t === "pulang" && h.pulang) A.log = A.log.filter(function(l){ return l !== h.pulang && !(l.o === o.id && l.t === "pulang" && tglKey(l.w) === tglKey(w)); });
+    A.log.push({ o:o.id, t:t, w:w });
+    simpan(); gambar();
+    if (t === "masuk") { var tl = menitTelat(w); pesan("Selamat bekerja, " + o.nama + "! Masuk " + jamTeks(w) + (tl ? " (telat " + tl + " menit)" : " tepat waktu")); }
+    else pesan("Hati-hati di jalan, " + o.nama + ". Pulang " + jamTeks(w) + ", kerja " + durasi(w - h.masuk.w));
+  }
+  function durasi(ms){ var m = Math.max(0, Math.round(ms / 60000)); return Math.floor(m / 60) + " jam " + (m % 60) + " menit"; }
+
+  function namaOrang(id){ var o = A.orang.filter(function(x){ return x.id === id; })[0]; return o ? o.nama : "(dihapus)"; }
+  function gambarHari(){
+    var k = tglKey(Date.now()), a = A.log.filter(function(l){ return tglKey(l.w) === k; }).sort(function(x, y){ return y.w - x.w; }), ul = $("logHari");
+    ul.innerHTML = a.length ? "" : '<li class="kosong" style="justify-content:center;border:0">Belum ada yang absen hari ini.</li>';
+    a.forEach(function(l){
+      var li = document.createElement("li"), tl = l.t === "masuk" ? menitTelat(l.w) : 0;
+      li.innerHTML = '<b class="angka"></b><span></span>';
+      li.querySelector("b").textContent = jamTeks(l.w);
+      li.querySelector("span").textContent = namaOrang(l.o) + " · " + (l.t === "masuk" ? "masuk" + (tl ? " (telat " + tl + " mnt)" : "") : "pulang");
+      if (ownerBuka()) { var x = document.createElement("button"); x.className = "btn dua kecil"; x.textContent = "Hapus"; x.setAttribute("data-owner", ""); x.onclick = function(){ if (!confirm("Hapus absen ini?")) return; muat(); A.log = A.log.filter(function(y){ return !(y.o === l.o && y.w === l.w && y.t === l.t); }); simpan(); gambar(); }; li.appendChild(x); }
+      ul.appendChild(li);
+    });
+  }
+
+  // Rekap bulanan: hari hadir, telat, total jam, gaji (hadir × gaji per hari).
+  function hitungRekap(){
+    var y = bulan.getFullYear(), m = bulan.getMonth(), awal = new Date(y, m, 1).getTime(), akhir = new Date(y, m + 1, 1).getTime();
+    return A.orang.map(function(o){
+      var hari = {};
+      A.log.forEach(function(l){ if (l.o !== o.id || l.w < awal || l.w >= akhir) return; var k = tglKey(l.w), h = hari[k] || (hari[k] = {}); if (l.t === "masuk" && !h.masuk) h.masuk = l.w; if (l.t === "pulang") h.pulang = l.w; });
+      var r = { o:o, hadir:0, telat:0, mntTelat:0, ms:0, lupa:0 };
+      Object.keys(hari).forEach(function(k){ var h = hari[k]; if (!h.masuk) return; r.hadir++; var tl = menitTelat(h.masuk); if (tl) { r.telat++; r.mntTelat += tl; } if (h.pulang && h.pulang > h.masuk) r.ms += h.pulang - h.masuk; else if (k !== tglKey(Date.now())) r.lupa++; });
+      r.gaji = (o.gaji || 0) * r.hadir;
+      return r;
+    });
+  }
+  function judulBulan(){ return bulan.toLocaleDateString("id-ID", { month:"long", year:"numeric" }); }
+  function gambarRekap(){
+    $("blnJudul").textContent = judulBulan();
+    var R = hitungRekap(), adaGaji = A.orang.some(function(o){ return o.gaji; }), t = $("rekap");
+    if (!R.length) { t.innerHTML = '<tr><td class="kosong">Belum ada karyawan.</td></tr>'; return; }
+    var h = '<tr><th>Nama</th><th>Hadir</th><th>Telat</th><th>Jam kerja</th>' + (adaGaji ? '<th>Gaji</th>' : '') + '</tr>';
+    R.forEach(function(r){ h += '<tr><td>' + esc(r.o.nama) + (r.lupa ? '<br><small class="redup">' + r.lupa + '× lupa absen pulang</small>' : '') + '</td><td class="angka">' + r.hadir + ' hari</td><td class="angka">' + (r.telat ? r.telat + '× (' + r.mntTelat + ' mnt)' : '-') + '</td><td class="angka">' + Math.round(r.ms / 36e5) + ' jam</td>' + (adaGaji ? '<td class="angka">' + (r.o.gaji ? rp(r.gaji) : '-') + '</td>' : '') + '</tr>'; });
+    if (adaGaji) h += '<tr><td><b>Total gaji</b></td><td></td><td></td><td></td><td class="angka"><b>' + rp(R.reduce(function(a, r){ return a + r.gaji; }, 0)) + '</b></td></tr>';
+    t.innerHTML = h;
+  }
+  $("blnPrev").onclick = function(){ bulan = new Date(bulan.getFullYear(), bulan.getMonth() - 1, 1); gambarRekap(); };
+  $("blnNext").onclick = function(){ bulan = new Date(bulan.getFullYear(), bulan.getMonth() + 1, 1); gambarRekap(); };
+  $("bWa").onclick = function(){
+    var R = hitungRekap(); if (!R.length) { pesan("Belum ada karyawan"); return; }
+    var t = "*Rekap absen " + judulBulan() + "*\n" + R.map(function(r){ return "- " + r.o.nama + ": hadir " + r.hadir + " hari, telat " + r.telat + "x, " + Math.round(r.ms / 36e5) + " jam" + (r.o.gaji ? ", gaji " + rp(r.gaji) : ""); }).join("\n");
+    window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank", "noopener");
+  };
+  $("bCsv").onclick = function(){
+    var y = bulan.getFullYear(), m = bulan.getMonth(), awal = new Date(y, m, 1).getTime(), akhir = new Date(y, m + 1, 1).getTime();
+    var baris = ["Tanggal;Nama;Masuk;Pulang;Telat (menit)"], per = {};
+    A.log.filter(function(l){ return l.w >= awal && l.w < akhir; }).sort(function(a, b){ return a.w - b.w; }).forEach(function(l){ var k = tglKey(l.w) + "|" + l.o, h = per[k] || (per[k] = { tgl:tglKey(l.w), o:l.o }); if (l.t === "masuk" && !h.masuk) h.masuk = l.w; if (l.t === "pulang") h.pulang = l.w; });
+    Object.keys(per).forEach(function(k){ var h = per[k]; baris.push(h.tgl + ";" + '"' + namaOrang(h.o).replace(/"/g, '""') + '";' + (h.masuk ? jamTeks(h.masuk) : "") + ";" + (h.pulang ? jamTeks(h.pulang) : "") + ";" + (h.masuk ? menitTelat(h.masuk) : "")); });
+    var isi = "﻿" + baris.join("\r\n"), nama = "absen-" + y + "-" + pad(m + 1) + ".csv";
+    if (window.Lumbung) Lumbung.unduh(nama, isi, "text/csv;charset=utf-8");
+    else { var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([isi], { type:"text/csv" })); a.download = nama; a.click(); }
+  };
+
+  // Kelola karyawan (owner)
+  function gambarDaftar(){
+    var c = $("daftarOrang"); c.innerHTML = "";
+    if (!A.orang.length) { c.innerHTML = '<p class="kecil redup" style="margin:0">Belum ada karyawan.</p>'; }
+    A.orang.forEach(function(o){
+      var r = document.createElement("div"); r.className = "log"; r.style.cssText = "display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0ede6";
+      r.innerHTML = '<span style="flex:1"><b></b><br><small class="redup"></small></span><button type="button" class="btn dua kecil">Ubah</button>';
+      r.querySelector("b").textContent = o.nama;
+      r.querySelector("small").textContent = (o.pin ? "Pakai PIN" : "Tanpa PIN") + (o.gaji ? " · " + rp(o.gaji) + "/hari" : "");
+      r.querySelector("button").onclick = function(){ bukaOrang(o); };
+      c.appendChild(r);
+    });
+    $("aMasuk").value = A.masuk; $("aToleransi").value = A.tol;
+  }
+  function bukaOrang(o){
+    edit = o; $("doJudul").textContent = o ? "Ubah karyawan" : "Tambah karyawan";
+    $("doNama").value = o ? o.nama : ""; $("doPin").value = o ? (o.pin || "") : ""; $("doGaji").value = o && o.gaji ? o.gaji.toLocaleString("id-ID") : "";
+    $("doHapus").classList.toggle("tersembunyi", !o); $("dOrang").showModal();
+  }
+  $("bTambah").onclick = function(){ bukaOrang(null); };
+  $("doGaji").addEventListener("input", function(){ var n = angka(this.value); this.value = n ? n.toLocaleString("id-ID") : ""; });
+  $("doHapus").onclick = function(){ if (!edit || !confirm("Hapus " + edit.nama + "? Riwayat absennya tetap tersimpan.")) return; muat(); A.orang = A.orang.filter(function(x){ return x.id !== edit.id; }); simpan(); $("dOrang").close(); gambar(); };
+  $("dOrang").addEventListener("close", function(){
+    if ($("dOrang").returnValue !== "ok") return;
+    var nama = $("doNama").value.trim(); if (!nama) { pesan("Nama belum diisi"); return; }
+    var pin = $("doPin").value.replace(/\D/g, ""), gaji = angka($("doGaji").value);
+    muat();
+    if (edit) A.orang.forEach(function(x){ if (x.id === edit.id) { x.nama = nama; x.pin = pin; x.gaji = gaji; } });
+    else A.orang.push({ id:Date.now(), nama:nama, pin:pin, gaji:gaji });
+    simpan(); gambar(); pesan(nama + " disimpan");
+  });
+  $("aMasuk").onchange = function(){ muat(); A.masuk = this.value || "08:00"; simpan(); gambar(); };
+  $("aToleransi").onchange = function(){ muat(); A.tol = angka(this.value); simpan(); gambar(); };
+
+  function gambar(){ gambarOrang(); gambarHari(); gambarRekap(); gambarDaftar(); }
+  function detak(){ var d = new Date(); $("jamNow").textContent = pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds()); $("tglNow").textContent = d.toLocaleDateString("id-ID", { weekday:"long", day:"numeric", month:"long", year:"numeric" }); }
+  detak(); setInterval(detak, 1000);
+  // Ganti hari / kembali ke aplikasi: segarkan status.
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden) { muat(); gambar(); } });
+  document.addEventListener("lumbung-owner", function(){ gambar(); });
+  gambar();
+})();
+</script>
+</body>
+</html>

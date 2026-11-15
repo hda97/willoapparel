@@ -46,6 +46,8 @@
     <a href="/alat/kasir/"><span class="ik" style="background:#e6f5ee">🧾</span><span><b>Kasir + QRIS</b><span class="k">Ketuk produk, hitung kembalian, tampilkan QRIS toko, struk ke WA.</span></span><span class="panah">›</span></a>
     <a href="/alat/antrian/"><span class="ik" style="background:#fff5d1">🔢</span><span><b>Antrian</b><span class="k">Ambil nomor, panggil dengan suara, layar besar untuk pelanggan.</span></span><span class="panah">›</span></a>
     <a href="/alat/nota/"><span class="ik" style="background:#f3ecff">📄</span><span><b>Nota & Invoice</b><span class="k">Catat pesanan, DP, dan sisa tagihan. Kirim nota ke WA atau PDF.</span></span><span class="panah">›</span></a>
+    <a href="/alat/pembelian/" data-owner><span class="ik" style="background:#fff4d6">🛒</span><span><b>Pembelian &amp; Belanja</b><span class="k">Catat belanja bahan ke supplier. Stok Kasir bertambah, uang keluar tercatat di Buku Kas, utang supplier terpantau.</span></span><span class="panah">›</span></a>
+    <a href="/alat/absen/"><span class="ik" style="background:#e6f5ee">👷</span><span><b>Absen Karyawan</b><span class="k">Ketuk nama saat datang dan pulang. Rekap hadir, telat, jam kerja, dan gaji per bulan.</span></span><span class="panah">›</span></a>
     <a href="/alat/tagihan/" data-owner><span class="ik" style="background:#fff0e0">📅</span><span><b>Tagihan Bulanan</b><span class="k">Kos, bimbel, TPQ, iuran RT: siapa sudah bayar, siapa telat, tagih lewat WA.</span></span><span class="panah">›</span></a>
     <a href="/alat/stok/" data-owner><span class="ik" style="background:#e9f3ff">📦</span><span><b>Stok Barang</b><span class="k">Lihat sisa stok, catat barang masuk, peringatan stok menipis dan habis.</span></span><span class="panah">›</span></a>
     <a href="/alat/hpp/" data-owner><span class="ik" style="background:#fff5d1">🧮</span><span><b>Hitung HPP & Untung</b><span class="k">Modal per barang, saran harga jual, untung per pcs. Bisa disimpan ke Kasir.</span></span><span class="panah">›</span></a>
@@ -109,7 +111,7 @@
 <script src="/alat/printer.js"></script>
 <script>
 (function(){
-  var KUNCI = /^willo_(kasir|kas|nota|antrian|tagihan|printer|jual|cetak|hpp|stok|owner)_v1$/;
+  var KUNCI = /^willo_(kasir|kas|nota|antrian|tagihan|printer|jual|cetak|hpp|stok|owner|absen|beli)_v1$/;
   document.getElementById("bCadangSemua").onclick = function(){
     var data = {};
     for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (KUNCI.test(k)) data[k] = localStorage.getItem(k); }

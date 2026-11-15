@@ -54,7 +54,7 @@
     <label class="cek"><input type="checkbox" id="cRingkas"><span>Struk ringkas <small>Satu baris per barang, tanpa baris kosong. Paling hemat kertas.</small></span></label>
     <label class="cek"><input type="checkbox" id="cLogo"><span>Cetak logo toko <small>Logo memakan ±1,5 cm kertas.</small></span></label>
     <label class="cek"><input type="checkbox" id="cBarcode"><span>Cetak barcode nomor faktur <small>Memakan ±1 cm kertas.</small></span></label>
-    <label class="cek"><input type="checkbox" id="cTebal"><span>Total, Tunai, Kembalian dicetak besar <small>Mudah dibaca, tapi tiap baris jadi dua kali lebih tinggi.</small></span></label>
+    <label class="cek"><input type="checkbox" id="cTebal"><span>Total, Tunai, Kembalian dicetak tebal <small>Lebih mudah dibaca, tidak menambah panjang struk.</small></span></label>
     <label class="cek"><input type="checkbox" id="sTaut"><span>Tulis “willoapparel.com/alat” di bawah struk <small id="tautPro"></small></span></label>
     <label class="isi">Pesan bawah struk <small>Contoh: Kalau sudah bosan, beli lagi ya</small><input type="text" id="sPesan" maxlength="64"></label>
     <label class="isi">Kertas kosong di akhir struk <small>Supaya tulisan terakhir lewat dari gigi sobek printer. Kurangi bila sisa kertas terlalu panjang.</small>
@@ -88,7 +88,7 @@
   function ubah(fn){ var s = baca(); fn(s); try { localStorage.setItem(KUNCI, JSON.stringify(s)); return true; } catch(e){ pesan("Gagal menyimpan: memori HP penuh"); return false; } }
   var C = window.CetakTermal;
   function tautAktif(S){ return S.taut !== false || !(window.LumbungSinkron && LumbungSinkron.pro()); }
-  function aturCetak(){ return C ? C.atur() : { logo:true, barcode:true, tebal:true, ringkas:true, jarak:2 }; }
+  function aturCetak(){ return C ? C.atur() : { logo:true, barcode:false, tebal:true, ringkas:true, jarak:2 }; }
   function simpanCetak(k, v){ var a = aturCetak(); a[k] = v; if (C) C.simpanAtur(a); gambarContoh(); }
 
   function gambar(){
@@ -145,10 +145,10 @@
     el.innerHTML = "";
     if (a.logo && S.logo) { var im = document.createElement("img"); im.src = S.logo; im.style.cssText = "display:block;max-height:48px;margin:0 auto 6px;filter:grayscale(1) contrast(1.6)"; el.appendChild(im); }
     var tebal = ["Total:","Tunai:","Kembalian:"];
-    baris.forEach(function(x){ var s = document.createElement("div"); s.textContent = x || " "; if (a.tebal && tebal.some(function(t){ return x.indexOf(t) === 0; })) { s.className = "t"; s.style.fontSize = "15px"; } el.appendChild(s); });
+    baris.forEach(function(x){ var s = document.createElement("div"); s.textContent = x || " "; if (a.tebal && tebal.some(function(t){ return x.indexOf(t) === 0; })) { s.className = "t"; s.style.fontWeight = "800"; } el.appendChild(s); });
     if (a.barcode) { var bc = document.createElement("div"); bc.style.cssText = "height:26px;margin:6px auto 0;width:70%;background:repeating-linear-gradient(90deg,#000 0 2px,#fff 2px 3px,#000 3px 4px,#fff 4px 7px)"; el.appendChild(bc); }
     // Perkiraan panjang kertas: 1 baris teks ±3,4 mm (24 titik @ 8 titik/mm + jarak baris).
-    var mm = baris.length * 3.4 + (a.tebal ? 3 * 3.4 : 0) + (a.logo && S.logoBit ? S.logoBit.h / 8 + 3.4 : 0) + (a.barcode ? 48 / 8 + 3.4 * 2 : 0) + (a.jarak + 1) * 3.4;
+    var mm = baris.length * 3.4 + (a.logo && S.logoBit ? S.logoBit.h / 8 + 3.4 : 0) + (a.barcode ? 40 / 8 + 3.4 * 2 : 0) + (a.jarak + 1) * 3.4;
     $("panjang").textContent = "Perkiraan panjang untuk 2 barang: ±" + (Math.round(mm / 5) / 2) + " cm. Tiap barang tambahan ±" + (a.ringkas ? "0,35" : "0,7") + " cm.";
   }
 
