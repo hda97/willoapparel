@@ -153,6 +153,7 @@ local function rakit(char, d)
 	local yTanah = -(hum.HipHeight + hrp.Size.Y / 2 + (r15 and 0 or bagian.LeftUpperLeg.Size.Y))
 	local S = (yPinggul - yTanah) / 1.37 -- pinggul tokoh web ada di 1,37
 	if S < 0.8 or S > 3 then S = 1.4 end
+	char:SetAttribute("DK_Skala", S) -- stud per satuan web tokoh ini (dipakai kendaraan supaya ukurannya pas)
 	local DASAR = CFrame.new(0, yTanah, 0) * FLIP -- titik nol tokoh web (telapak kaki) di rangka
 
 	local lama = char:FindFirstChild(NAMA_FOLDER)

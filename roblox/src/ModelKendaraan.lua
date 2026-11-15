@@ -1400,15 +1400,9 @@ end
 -- tinggi pinggul tokoh pemain yang sedang berdiri (stud dari tanah) dan skala kendaraan yang pas dengan tokoh itu.
 -- Tokoh kotak (AvatarKotak) diskalakan dari rangka Roblox, jadi bisa sedikit lebih besar dari skala peta (1 satuan web = 1,25 stud).
 function M.ukurTokoh(char)
-	local hum = char and char:FindFirstChildOfClass("Humanoid")
-	local hrp = char and char:FindFirstChild("HumanoidRootPart")
-	local lt = char and char:FindFirstChild("LowerTorso")
-	local sendi = char and char:FindFirstChild("LeftHip", true)
-	if not hum or not hrp or not lt or not sendi or not sendi:IsA("Motor6D") then return PINGGUL, 1 end
-	local tanah = hrp.Position.Y - (hum.HipHeight + hrp.Size.Y / 2)
-	local pinggul = (lt.CFrame * sendi.C0).Position.Y - tanah
-	if pinggul < 1 or pinggul > 4 then return PINGGUL, 1 end
-	return pinggul, math.clamp(pinggul / PINGGUL, 0.8, 1.6)
+	local S = char and char:GetAttribute("DK_Skala") -- diisi AvatarKotak saat merakit tokoh
+	if typeof(S) ~= "number" or S < 0.8 or S > 3 then return PINGGUL, 1 end
+	return 1.37 * S, S / 1.25
 end
 
 -- untuk kendaraan yang ditempel ke tokoh: letak titik tanah kendaraan dari kaki tokoh, dan selisih tinggi pinggul (stud)
