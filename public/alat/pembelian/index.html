@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="id" data-halaman-owner>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pembelian &amp; Belanja | Lumbung by Willo Studio</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/logo-willo.png">
+<link rel="stylesheet" href="/alat/alat.css">
+<script src="/alat/ikon.js" defer></script>
+<script src="/alat/owner.js"></script>
+<style>
+.ringkas{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.ringkas div{background:var(--kartu);border:1px solid var(--garis);border-radius:12px;padding:10px 12px}
+.ringkas small{display:block;font-size:12.5px;color:var(--redup)}
+.ringkas b{font-size:18px}
+.ringkas .h b{color:var(--merah)}
+@media(max-width:560px){.ringkas{grid-template-columns:1fr 1fr}}
+.daftar-beli{list-style:none;margin:0;padding:0}
+.daftar-beli li{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f0ede6;cursor:pointer}
+.daftar-beli .ket{flex:1;min-width:0}
+.daftar-beli .ket b{display:block;font-size:15px}
+.daftar-beli .ket small{display:block;color:var(--redup);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.daftar-beli .utang{color:var(--merah);font-weight:700;font-size:12.5px}
+.brs-isi{display:grid;grid-template-columns:1fr 70px 110px 34px;gap:6px;margin-bottom:6px;align-items:center}
+.brs-isi input{min-width:0}
+.brs-isi button{width:34px;height:40px;border:1px solid var(--garis);background:#fff;border-radius:9px;font-size:18px;cursor:pointer}
+.kepala-isi{display:grid;grid-template-columns:1fr 70px 110px 34px;gap:6px;font-size:12px;color:var(--redup);font-weight:700;margin-bottom:4px}
+.totbeli{display:flex;justify-content:space-between;font-size:20px;font-weight:800;margin:10px 0}
+.cek{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:14.5px;cursor:pointer}
+.cek input{width:20px;height:20px;margin:1px 0 0;flex:0 0 20px}
+.sup{width:100%;border-collapse:collapse;font-size:14px}
+.sup td{padding:7px 4px;border-bottom:1px solid #f0ede6}
+.sup td:last-child{text-align:right}
+.kosong{color:var(--redup);text-align:center;padding:16px 0}
+</style>
+</head>
+<body>
+<header class="atas"><div class="wrap"><a href="/alat/">← Alat Usaha Gratis</a><a class="redup" href="/alat/stok/">Stok</a></div></header>
+<main class="wrap">
+  <h1>🛒 Pembelian &amp; Belanja</h1>
+  <p class="sub">Catat belanja ke supplier. Stok barang Kasir bertambah, uang keluar masuk Buku Kas, dan utang ke supplier tercatat.</p>
+  <div class="ringkas">
+    <div><small>Belanja bulan ini</small><b class="angka" id="rBulan">Rp0</b></div>
+    <div><small>Transaksi bulan ini</small><b class="angka" id="rN">0</b></div>
+    <div class="h"><small>Utang ke supplier</small><b class="angka" id="rUtang">Rp0</b></div>
+  </div>
+  <button class="btn lebar" id="bBaru">➕ Pembelian baru</button>
+
+  <section class="kartu" style="margin-top:14px">
+    <div class="tab" id="tab"><button data-f="semua" class="pilih">Semua</button><button data-f="utang">Belum lunas</button></div>
+    <input type="text" id="cari" placeholder="🔍 Cari supplier atau barang…" autocomplete="off" style="margin-bottom:8px">
+    <ul class="daftar-beli" id="daftar"></ul>
+  </section>
+
+  <section class="kartu">
+    <h2>Utang per supplier</h2>
+    <table class="sup" id="supUtang"></table>
+  </section>
+</main>
+<footer>Lumbung by Willo Studio · data tersimpan di HP ini</footer>
+<div class="pesan" id="pesan"></div>
+
+<datalist id="dlSup"></datalist>
+<datalist id="dlBrg"></datalist>
+
+<dialog id="dBeli"><form method="dialog" class="isi-dialog">
+  <h2 id="dbJudul">Pembelian baru</h2>
+  <div class="baris">
+    <label class="isi">Supplier<input type="text" id="bSup" list="dlSup" maxlength="30" autocomplete="off" placeholder="Contoh: Musa Grafika"></label>
+    <label class="isi">Tanggal<input type="date" id="bTgl"></label>
+  </div>
+  <div class="kepala-isi"><span>Barang</span><span>Jumlah</span><span>Harga beli /pcs</span><span></span></div>
+  <div id="bIsi"></div>
+  <button type="button" class="btn dua kecil" id="bTambahBrs">＋ Baris barang</button>
+  <div class="totbeli"><span>Total</span><span class="angka" id="bTot">Rp0</span></div>
+  <div class="tab" id="bStatus"><button type="button" data-s="lunas" class="pilih">Lunas</button><button type="button" data-s="sebagian">Bayar sebagian</button><button type="button" data-s="utang">Utang</button></div>
+  <label class="isi tersembunyi" id="bBayarLbl">Dibayar sekarang<input type="text" inputmode="numeric" id="bBayar" class="angka" autocomplete="off"></label>
+  <div class="tab" id="bMetode"><button type="button" data-m="Tunai" class="pilih">Tunai</button><button type="button" data-m="Transfer">Transfer</button><button type="button" data-m="QRIS">QRIS</button></div>
+  <label class="cek"><input type="checkbox" id="bStok" checked><span>Tambahkan ke stok barang Kasir <small class="redup">(barang yang dihitung stoknya)</small></span></label>
+  <label class="cek"><input type="checkbox" id="bModal" checked><span>Pakai harga beli sebagai modal (HPP) barang</span></label>
+  <label class="isi">Catatan <small>Boleh kosong</small><input type="text" id="bKet" maxlength="60" autocomplete="off"></label>
+  <div class="baris" style="margin-top:6px"><button class="btn dua" value="batal" formnovalidate>Batal</button><button class="btn" value="ok">Simpan pembelian</button></div>
+</form></dialog>
+
+<dialog id="dLihat"><div class="isi-dialog">
+  <h2 id="lJudul"></h2>
+  <p class="kecil redup" id="lKet" style="margin:0 0 8px"></p>
+  <table class="sup" id="lIsi"></table>
+  <div class="totbeli"><span>Total</span><span class="angka" id="lTot"></span></div>
+  <p id="lBayar" style="margin:0 0 10px"></p>
+  <div id="lBayarForm" class="tersembunyi">
+    <label class="isi">Bayar utang sekarang<input type="text" inputmode="numeric" id="lJml" class="angka" autocomplete="off"></label>
+    <button class="btn hijau lebar" id="lBayarBtn">Catat pembayaran</button>
+  </div>
+  <div class="baris" style="margin-top:10px"><button class="btn dua" id="lHapus">Hapus</button><button class="btn" id="lTutup">Tutup</button></div>
+</div></dialog>
+
+<script src="/alat/printer.js"></script>
+<script>
+(function(){
+  "use strict";
+  var KUNCI = "willo_beli_v1", KASIR = "willo_kasir_v1", KAS = "willo_kas_v1", STOK = "willo_stok_v1", $ = function(id){ return document.getElementById(id); };
+  var B, filter = "semua", status = "lunas", metode = "Tunai", lihat = null;
+  function pesan(t){ var p = $("pesan"), dl = document.querySelector("dialog[open]"); (dl || document.body).appendChild(p); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, 3000); }
+  function rp(n){ return "Rp" + Math.round(n || 0).toLocaleString("id-ID"); }
+  function angka(s){ return parseInt(String(s).replace(/\D/g, ""), 10) || 0; }
+  function pad(n){ return String(n).padStart(2, "0"); }
+  function tglIni(){ var d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function tglTeks(t){ var p = String(t).split("-"); return new Date(+p[0], p[1] - 1, +p[2]).toLocaleDateString("id-ID", { day:"numeric", month:"short", year:"numeric" }); }
+  function baca(k, d){ try { return JSON.parse(localStorage.getItem(k)) || d; } catch(e){ return d; } }
+  function tulis(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch(e){ pesan("Gagal menyimpan: memori HP penuh"); return false; } }
+  function muat(){ B = baca(KUNCI, {}); B.tx = B.tx || []; }
+  function produk(){ var s = baca(KASIR, {}); return Array.isArray(s.produk) ? s.produk : []; }
+  function sisa(t){ return Math.max(0, t.tot - (t.bayar || 0)); }
+  function uangInput(el){ el.addEventListener("input", function(){ var n = angka(el.value); el.value = n ? n.toLocaleString("id-ID") : ""; hitung(); }); }
+  muat();
+
+  // Form pembelian
+  function barisIsi(x){
+    var r = document.createElement("div"); r.className = "brs-isi";
+    r.innerHTML = '<input type="text" list="dlBrg" class="n" maxlength="40" placeholder="Nama barang" autocomplete="off"><input type="text" inputmode="numeric" class="q angka" placeholder="0" autocomplete="off"><input type="text" inputmode="numeric" class="h angka" placeholder="0" autocomplete="off"><button type="button">×</button>';
+    if (x) { r.querySelector(".n").value = x.n; r.querySelector(".q").value = x.q; r.querySelector(".h").value = x.h ? x.h.toLocaleString("id-ID") : ""; }
+    r.querySelector(".q").addEventListener("input", hitung);
+    uangInput(r.querySelector(".h"));
+    // Pilih barang Kasir: isi harga beli dari modal yang tersimpan.
+    r.querySelector(".n").addEventListener("change", function(){ var p = cocok(this.value); var h = r.querySelector(".h"); if (p && p.modal && !angka(h.value)) { h.value = p.modal.toLocaleString("id-ID"); hitung(); } });
+    r.querySelector("button").onclick = function(){ r.remove(); hitung(); };
+    $("bIsi").appendChild(r);
+  }
+  function cocok(n){ n = String(n || "").trim().toLowerCase(); return produk().filter(function(p){ return p.nama.toLowerCase() === n || (p.nama + " · " + (p.kat || "")).toLowerCase() === n; })[0]; }
+  function bacaIsi(){
+    return Array.prototype.map.call($("bIsi").children, function(r){ return { n:r.querySelector(".n").value.trim(), q:angka(r.querySelector(".q").value), h:angka(r.querySelector(".h").value) }; }).filter(function(x){ return x.n && x.q; });
+  }
+  function hitung(){
+    var t = bacaIsi().reduce(function(a, x){ return a + x.q * x.h; }, 0); $("bTot").textContent = rp(t);
+  }
+  uangInput($("bBayar"));
+  function pilihTab(id, attr, v){ Array.prototype.forEach.call($(id).children, function(b){ b.classList.toggle("pilih", b.dataset[attr] === v); }); }
+  Array.prototype.forEach.call($("bStatus").children, function(b){ b.onclick = function(){ status = b.dataset.s; pilihTab("bStatus", "s", status); $("bBayarLbl").classList.toggle("tersembunyi", status !== "sebagian"); }; });
+  Array.prototype.forEach.call($("bMetode").children, function(b){ b.onclick = function(){ metode = b.dataset.m; pilihTab("bMetode", "m", metode); }; });
+  $("bTambahBrs").onclick = function(){ barisIsi(); };
+  $("bBaru").onclick = function(){
+    $("bSup").value = ""; $("bTgl").value = tglIni(); $("bKet").value = ""; $("bBayar").value = ""; $("bIsi").innerHTML = "";
+    status = "lunas"; metode = "Tunai"; pilihTab("bStatus", "s", status); pilihTab("bMetode", "m", metode); $("bBayarLbl").classList.add("tersembunyi");
+    var dl = $("dlBrg"); dl.innerHTML = ""; produk().forEach(function(p){ var o = document.createElement("option"); o.value = p.nama; dl.appendChild(o); });
+    var ds = $("dlSup"); ds.innerHTML = ""; supplier().forEach(function(s){ var o = document.createElement("option"); o.value = s; ds.appendChild(o); });
+    barisIsi(); barisIsi(); hitung(); $("dBeli").showModal();
+  };
+  function supplier(){ var a = []; B.tx.forEach(function(t){ if (t.sup && a.indexOf(t.sup) < 0) a.push(t.sup); }); return a; }
+
+  function catatKas(jml, ket, tgl, m, ref){
+    if (!jml) return;
+    var k = baca(KAS, {}); k.tx = k.tx || []; k.awal = k.awal || 0;
+    k.tx.push({ id:Date.now() + Math.floor(Math.random() * 1000), t:"keluar", jml:jml, kat:"Belanja bahan", ket:ket.slice(0, 80), tgl:tgl, metode:m, sumber:"beli", ref:ref });
+    tulis(KAS, k);
+  }
+  $("dBeli").addEventListener("close", function(){
+    if ($("dBeli").returnValue !== "ok") return;
+    var isi = bacaIsi(); if (!isi.length) { pesan("Isi minimal satu barang dengan jumlahnya"); return; }
+    var tot = isi.reduce(function(a, x){ return a + x.q * x.h; }, 0), bayar = status === "lunas" ? tot : status === "utang" ? 0 : Math.min(tot, angka($("bBayar").value));
+    var sup = $("bSup").value.trim() || "Tanpa nama", tgl = $("bTgl").value || tglIni(), id = Date.now();
+    // Stok & modal barang Kasir
+    var S = baca(KASIR, {}), log = baca(STOK, []), nStok = 0, nModal = 0;
+    if (Array.isArray(S.produk)) {
+      isi.forEach(function(x){
+        var p = S.produk.filter(function(y){ return y.nama.toLowerCase() === x.n.toLowerCase(); })[0]; if (!p) return;
+        x.id = p.id;
+        if ($("bStok").checked && p.stok != null) { p.stok += x.q; nStok++; log.unshift({ w:Date.now(), id:p.id, n:p.nama, d:x.q, s:p.stok, k:"Pembelian " + sup }); }
+        if ($("bModal").checked && x.h) { p.modal = x.h; nModal++; }
+      });
+      tulis(KASIR, S); tulis(STOK, log.slice(0, 400));
+    }
+    muat();
+    var t = { id:id, tgl:tgl, sup:sup, isi:isi, tot:tot, bayar:bayar, m:metode, ket:$("bKet").value.trim(), riw:bayar ? [{ w:Date.now(), jml:bayar, m:metode }] : [] };
+    B.tx.push(t); tulis(KUNCI, B);
+    catatKas(bayar, "Pembelian " + sup + ": " + isi.map(function(x){ return x.q + " " + x.n; }).join(", "), tgl, metode, id);
+    gambar();
+    pesan("Pembelian " + rp(tot) + " dicatat" + (nStok ? ", stok " + nStok + " barang bertambah" : "") + (tot > bayar ? ", utang " + rp(tot - bayar) : ""));
+  });
+
+  // Daftar & detail
+  function gambar(){
+    muat();
+    var q = $("cari").value.trim().toLowerCase(), d = new Date(), bl = d.getFullYear() + "-" + pad(d.getMonth() + 1);
+    var bulanIni = B.tx.filter(function(t){ return t.tgl.slice(0, 7) === bl; });
+    $("rBulan").textContent = rp(bulanIni.reduce(function(a, t){ return a + t.tot; }, 0)); $("rN").textContent = bulanIni.length;
+    $("rUtang").textContent = rp(B.tx.reduce(function(a, t){ return a + sisa(t); }, 0));
+    var a = B.tx.slice().sort(function(x, y){ return y.tgl.localeCompare(x.tgl) || y.id - x.id; }).filter(function(t){
+      if (filter === "utang" && !sisa(t)) return false;
+      return !q || (t.sup + " " + t.isi.map(function(x){ return x.n; }).join(" ") + " " + (t.ket || "")).toLowerCase().indexOf(q) >= 0;
+    });
+    var ul = $("daftar"); ul.innerHTML = "";
+    if (!a.length) ul.innerHTML = '<li class="kosong" style="justify-content:center;border:0;cursor:default">' + (B.tx.length ? "Tidak ada yang cocok." : "Belum ada pembelian. Tekan <b>Pembelian baru</b>.") + '</li>';
+    a.slice(0, 100).forEach(function(t){
+      var li = document.createElement("li");
+      li.innerHTML = '<span class="ket"><b></b><small></small></span><span style="text-align:right"><b class="angka"></b><br><span class="utang"></span></span>';
+      li.querySelector(".ket b").textContent = t.sup + " · " + tglTeks(t.tgl);
+      li.querySelector(".ket small").textContent = t.isi.map(function(x){ return x.q + " " + x.n; }).join(", ");
+      li.querySelector(".angka").textContent = rp(t.tot);
+      li.querySelector(".utang").textContent = sisa(t) ? "utang " + rp(sisa(t)) : "";
+      li.onclick = function(){ buka(t.id); };
+      ul.appendChild(li);
+    });
+    var per = {}; B.tx.forEach(function(t){ var s = sisa(t); if (s) per[t.sup] = (per[t.sup] || 0) + s; });
+    var ks = Object.keys(per).sort(function(x, y){ return per[y] - per[x]; });
+    $("supUtang").innerHTML = ks.length ? ks.map(function(k){ return '<tr><td></td><td class="angka">' + rp(per[k]) + '</td></tr>'; }).join("") : '<tr><td class="kosong">Tidak ada utang. Mantap!</td></tr>';
+    Array.prototype.forEach.call($("supUtang").querySelectorAll("tr"), function(tr, i){ if (ks[i]) tr.firstChild.textContent = ks[i]; });
+  }
+  function buka(id){
+    muat(); var t = B.tx.filter(function(x){ return x.id === id; })[0]; if (!t) return; lihat = t;
+    $("lJudul").textContent = t.sup; $("lKet").textContent = tglTeks(t.tgl) + " · " + t.m + (t.ket ? " · " + t.ket : "");
+    $("lIsi").innerHTML = t.isi.map(function(){ return '<tr><td></td><td class="angka"></td></tr>'; }).join("");
+    Array.prototype.forEach.call($("lIsi").querySelectorAll("tr"), function(tr, i){ var x = t.isi[i]; tr.children[0].textContent = x.q + " × " + x.n + " @ " + rp(x.h); tr.children[1].textContent = rp(x.q * x.h); });
+    $("lTot").textContent = rp(t.tot);
+    var s = sisa(t);
+    $("lBayar").innerHTML = s ? 'Sudah dibayar ' + rp(t.bayar || 0) + '. <b style="color:var(--merah)">Sisa utang ' + rp(s) + '</b>' : '<b style="color:var(--hijau)">Lunas</b>';
+    $("lBayarForm").classList.toggle("tersembunyi", !s); $("lJml").value = s ? s.toLocaleString("id-ID") : "";
+    $("dLihat").showModal();
+  }
+  $("lJml").addEventListener("input", function(){ var n = angka(this.value); this.value = n ? n.toLocaleString("id-ID") : ""; });
+  $("lBayarBtn").onclick = function(){
+    var t = lihat, j = Math.min(angka($("lJml").value), sisa(t)); if (!j) { pesan("Isi jumlah yang dibayar"); return; }
+    muat(); var x = B.tx.filter(function(y){ return y.id === t.id; })[0]; x.bayar = (x.bayar || 0) + j; x.riw = x.riw || []; x.riw.push({ w:Date.now(), jml:j, m:"Tunai" });
+    tulis(KUNCI, B); catatKas(j, "Bayar utang " + x.sup, tglIni(), "Tunai", x.id);
+    $("dLihat").close(); gambar(); pesan("Pembayaran " + rp(j) + " ke " + x.sup + " dicatat");
+  };
+  $("lHapus").onclick = function(){
+    var t = lihat; if (!confirm("Hapus pembelian dari " + t.sup + " (" + rp(t.tot) + ")?\nCatatan di Buku Kas ikut dihapus. Stok barang tidak dikurangi otomatis.")) return;
+    muat(); B.tx = B.tx.filter(function(y){ return y.id !== t.id; }); tulis(KUNCI, B);
+    var k = baca(KAS, {}); if (k.tx) { k.tx = k.tx.filter(function(y){ return !(y.sumber === "beli" && y.ref === t.id); }); tulis(KAS, k); }
+    $("dLihat").close(); gambar(); pesan("Pembelian dihapus");
+  };
+  $("lTutup").onclick = function(){ $("dLihat").close(); };
+  $("cari").oninput = gambar;
+  Array.prototype.forEach.call($("tab").children, function(b){ b.onclick = function(){ filter = b.dataset.f; pilihTab("tab", "f", filter); gambar(); }; });
+  window.addEventListener("pageshow", function(e){ if (e.persisted) gambar(); });
+  gambar();
+})();
+</script>
+</body>
+</html>

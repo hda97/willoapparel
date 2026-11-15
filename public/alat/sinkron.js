@@ -45,7 +45,7 @@
       .then(function(r){ if (!r.ok) throw new Error("Gagal mengganti kunci (cek internet)."); var s2 = baca(); s2.kunci = baru; tulis(s2); kabari(); });
   }
   // ---- Lumbung Pro: status langganan, aktivasi kode, cadangan ke server ----
-  var CADANG = /^willo_(kasir|kas|nota|antrian|tagihan|printer|jual|cetak|hpp|stok|owner|absen)_v1$/;
+  var CADANG = /^willo_(kasir|kas|nota|antrian|tagihan|printer|jual|cetak|hpp|stok|owner|absen|beli)_v1$/;
   function siapkanId(){ var s = baca(); if (!s.id) { s.id = acak(20); s.kunci = acak(32); tulis(s); } return s; }
   function minta(jalur, opsi){
     var s = siapkanId(); opsi = opsi || {}; opsi.headers = Object.assign({ "content-type":"application/json", "x-kunci":s.kunci }, opsi.headers || {});
