@@ -97,6 +97,7 @@ main{padding-bottom:110px}
     <input type="file" id="fQris" accept="image/*" class="tersembunyi">
     <label class="isi" style="margin-top:12px">Info transfer <small>Contoh: BRI 1234-5678 a.n. Sri Wahyuni</small><input type="text" id="sRek" maxlength="80"></label>
     <label class="isi" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="sKas" style="width:22px;height:22px;accent-color:var(--utama)"> Catat penjualan otomatis ke Buku Kas</label>
+    <label class="isi" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="sTaut" style="width:22px;height:22px;accent-color:var(--utama)"> Tulis “kasir gratis: willoapparel.com/alat” di bawah struk</label>
   </section>
 
   <div class="cta">Butuh kaos seragam untuk tim usahamu? Sablon satuan sampai lusinan di <a href="/kaos-seragam-usaha-ngawi.html">Willo Apparel</a>.</div>
@@ -175,6 +176,16 @@ main{padding-bottom:110px}
   }
   function simpan(){ try { localStorage.setItem(KUNCI, JSON.stringify(S)); return true; } catch(e){ pesan("Gagal menyimpan: memori browser penuh"); return false; } }
   muat();
+  // Isian toko Willo sendiri (Huda 15 Nov 2026): buka /alat/kasir/?contoh=willo sekali di HP Willo.
+  if (/[?&]contoh=willo/.test(location.search) && confirm("Isi kasir dengan produk Willo Apparel? Produk yang ada sekarang diganti.")) {
+    S.nama = "Willo Apparel"; S.alamat = "WA 0858-1690-0722";
+    S.produk = [
+      { id:11, nama:"Kaos sablon satuan", harga:55000, em:"👕" },
+      { id:12, nama:"Kaos kelas", harga:65000, em:"👕" },
+      { id:13, nama:"Kaos komunitas", harga:70000, em:"👕" }
+    ];
+    simpan(); history.replaceState(null, "", location.pathname);
+  }
   var keranjang = []; // {id, nama, harga, q}
   var rp = function(n){ return "Rp" + Math.round(n).toLocaleString("id-ID"); };
   var angka = function(s){ return parseInt(String(s).replace(/\D/g, ""), 10) || 0; };
@@ -236,7 +247,7 @@ main{padding-bottom:110px}
   }
   function gambarAtur(){
     ["Nama","Alamat","Rek"].forEach(function(k){ var el = $("s" + k); if (document.activeElement !== el) el.value = S[k.toLowerCase()] || ""; });
-    $("sKas").checked = S.kas !== false;
+    $("sKas").checked = S.kas !== false; $("sTaut").checked = S.taut !== false;
     $("sQrisPrev").classList.toggle("tersembunyi", !S.qris); if (S.qris) $("sQrisPrev").src = S.qris;
     $("bHapusQris").classList.toggle("tersembunyi", !S.qris);
   }
@@ -280,6 +291,7 @@ main{padding-bottom:110px}
   // Pengaturan
   ["Nama","Alamat","Rek"].forEach(function(k){ $("s" + k).addEventListener("input", function(){ S[k.toLowerCase()] = this.value.trim(); simpan(); }); });
   $("sKas").onchange = function(){ S.kas = this.checked; simpan(); };
+  $("sTaut").onchange = function(){ S.taut = this.checked; simpan(); };
   $("fQris").onchange = function(){
     var f = this.files[0]; if (!f) return; this.value = "";
     var img = new Image(), url = URL.createObjectURL(f);
@@ -357,6 +369,7 @@ main{padding-bottom:110px}
     if (metode === "Tunai" && terima) { b.push(kanan("Tunai", rp(terima)), kanan("Kembali", rp(terima - t))); }
     else b.push(kanan("Bayar", metode));
     b.push(gar, tengah("Terima kasih"));
+    if (S.taut !== false) b.push("", tengah("Kasir gratis:"), tengah("willoapparel.com/alat"));
     return b.join("\n");
   }
   $("bySelesai").onclick = function(){

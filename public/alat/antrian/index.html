@@ -207,6 +207,7 @@ body.layar #layar{display:flex;flex-direction:column;min-height:100vh;padding:4v
     var t = "Halo" + (a.nama ? " " + a.nama : "") + ", nomor antrian Anda di " + (S.nama || "tempat kami") + " adalah *" + labelNo(a.no) + "*.";
     t += S.kini ? " Saat ini dipanggil " + labelNo(S.kini.no) + "." : "";
     t += " Ada " + i + " orang sebelum Anda. Mohon datang saat nomor Anda hampir tiba ya. Terima kasih.";
+    t += "\n\n_Antrian gratis: willoapparel.com/alat_";
     return "https://wa.me/" + hp + "?text=" + encodeURIComponent(t);
   }
 
