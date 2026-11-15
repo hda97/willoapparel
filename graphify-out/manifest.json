@@ -209,9 +209,9 @@
     "semantic_hash": "bf3f8e495130df0e60287acb7ca38561"
   },
   "worker.js": {
-    "mtime": 1794738258.516134,
-    "seen": 1794738346.6808085,
-    "ast_hash": "ae85da42f4f34d1a88ccb436611ecbe2",
+    "mtime": 1794746487.5414596,
+    "seen": 1794746673.220424,
+    "ast_hash": "8c9835dd711d89ac943fa2bf43de86a5",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/musik.mp3": {
@@ -16607,15 +16607,15 @@
     "semantic_hash": ""
   },
   "public/alat/buku-kas/index.html": {
-    "mtime": 1794744052.9606202,
-    "seen": 1794744114.8703847,
-    "ast_hash": "7cd2a6236e90156020bb9ec24257aaed",
+    "mtime": 1794746481.6098008,
+    "seen": 1794746673.2215788,
+    "ast_hash": "9b1b1ac8a4fa282568cf334651747846",
     "semantic_hash": ""
   },
   "public/alat/index.html": {
-    "mtime": 1794738258.5114532,
-    "seen": 1794738346.682717,
-    "ast_hash": "5b990b0527b5f45c5bbf806ce4cdfd77",
+    "mtime": 1794746475.763438,
+    "seen": 1794746673.22158,
+    "ast_hash": "ef62e064376fd49d8e1f2db44f3d6532",
     "semantic_hash": ""
   },
   "public/alat/kasir/index.html": {
@@ -17033,9 +17033,9 @@
     "semantic_hash": ""
   },
   "aplikasi-alat/siapkan-www.mjs": {
-    "mtime": 1794744593.7562447,
-    "seen": 1794744827.3127713,
-    "ast_hash": "246f917352bfc8223fc4ad7a1b1fa024",
+    "mtime": 1794746475.7643902,
+    "seen": 1794746673.2201138,
+    "ast_hash": "5d0a1d60dd0957bd7a68dd6e2ada69c5",
     "semantic_hash": ""
   },
   "aplikasi-alat/README.md": {
@@ -17198,6 +17198,42 @@
     "mtime": 1794744541.4177876,
     "seen": 1794744827.3155465,
     "ast_hash": "134a72c7b95ab33d0b5068c15e8ba54e",
+    "semantic_hash": ""
+  },
+  "public/alat/tagihan/index.html": {
+    "mtime": 1794746621.7002418,
+    "seen": 1794746673.2215848,
+    "ast_hash": "1eb1f3d5b4da00e74010ac6d94c1487e",
+    "semantic_hash": ""
+  },
+  "tagihan1.png": {
+    "mtime": 1794746630.269468,
+    "seen": 1794746673.222546,
+    "ast_hash": "0eb6b0f85264c475c17055dd90e9034b",
+    "semantic_hash": ""
+  },
+  "tagihan2.png": {
+    "mtime": 1794746630.4294682,
+    "seen": 1794746673.222548,
+    "ast_hash": "248601b1f003a632e02d4dc4416a04e0",
+    "semantic_hash": ""
+  },
+  "tagihan3.png": {
+    "mtime": 1794746630.617468,
+    "seen": 1794746673.2225494,
+    "ast_hash": "c6d51a61f1380618649cc538537708d9",
+    "semantic_hash": ""
+  },
+  "tagihan4.png": {
+    "mtime": 1794746630.8854682,
+    "seen": 1794746673.2225509,
+    "ast_hash": "d0d8ac836eba996da039f287fe68c97a",
+    "semantic_hash": ""
+  },
+  "tagihan5.png": {
+    "mtime": 1794746631.0214682,
+    "seen": 1794746673.2225518,
+    "ast_hash": "bcbb0de33b1d8412db1351f3f7e2a561",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {

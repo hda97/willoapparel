@@ -121,7 +121,7 @@
     <p class="kecil redup" style="margin-bottom:0">Cadangkan berkala, karena data hilang kalau riwayat browser dihapus. File cadangan bisa dibuka di HP lain lewat tombol Pulihkan.</p>
   </section>
 
-  <p class="kecil redup">Penjualan dari <a href="/alat/kasir/">Kasir</a> serta DP & pelunasan dari <a href="/alat/nota/">Nota</a> otomatis tercatat di sini sebagai uang masuk.</p>
+  <p class="kecil redup">Penjualan dari <a href="/alat/kasir/">Kasir</a>, DP & pelunasan dari <a href="/alat/nota/">Nota</a>, serta pembayaran dari <a href="/alat/tagihan/">Tagihan</a> otomatis tercatat di sini sebagai uang masuk.</p>
 
   <div class="cta">Butuh kaos seragam untuk tim usahamu? Sablon satuan sampai lusinan di <a href="/kaos-seragam-usaha-ngawi.html">Willo Apparel</a>.</div>
 </main>
@@ -133,7 +133,7 @@
   var KUNCI = "willo_kas_v1";
   var $ = function(id){ return document.getElementById(id); };
   var KAT = {
-    masuk: [["Penjualan","🛒"],["Jasa","🛠️"],["Modal","🏦"],["Piutang dibayar","🤝"],["Lainnya","➕"]],
+    masuk: [["Penjualan","🛒"],["Jasa","🛠️"],["Tagihan","📅"],["Modal","🏦"],["Piutang dibayar","🤝"],["Lainnya","➕"]],
     keluar: [["Belanja bahan","📦"],["Gaji","👷"],["Sewa","🏠"],["Listrik & air","💡"],["Transport","🛵"],["Iklan","📣"],["Ambil pribadi","👛"],["Lainnya","➖"]]
   };
   var BULAN = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
@@ -211,7 +211,7 @@
         r.innerHTML = '<span class="ik ' + t.t + '"></span><span class="ket"><b></b><small></small></span><span class="jml angka"></span>';
         r.querySelector(".ik").textContent = ikon(t);
         r.querySelector("b").textContent = t.ket || t.kat;
-        r.querySelector("small").textContent = t.kat + " · " + (t.metode || "Tunai") + (t.sumber === "kasir" ? " · dari Kasir" : t.sumber === "nota" ? " · dari Nota" : "");
+        r.querySelector("small").textContent = t.kat + " · " + (t.metode || "Tunai") + (t.sumber === "kasir" ? " · dari Kasir" : t.sumber === "nota" ? " · dari Nota" : t.sumber === "tagihan" ? " · dari Tagihan" : "");
         var j = r.querySelector(".jml"); j.textContent = (t.t === "masuk" ? "+" : "−") + rp(t.jml).replace("−",""); j.className = "jml angka " + (t.t === "masuk" ? "t-hijau" : "t-merah");
         r.onclick = function(){ mulaiEdit(t); };
         h.appendChild(r);

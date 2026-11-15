@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const akar = dirname(fileURLToPath(import.meta.url));
 const pub = join(akar, "..", "public");
 const www = join(akar, "www");
-const ALAT = ["index.html", "alat.css", "printer.js", "kasir", "antrian", "nota", "buku-kas"];
+const ALAT = ["index.html", "alat.css", "printer.js", "kasir", "antrian", "nota", "tagihan", "buku-kas"];
 const SITUS = "https://willoapparel.com";
 
 rmSync(www, { recursive: true, force: true });
@@ -16,7 +16,7 @@ mkdirSync(join(www, "alat"), { recursive: true });
 for (const a of ALAT) cpSync(join(pub, "alat", a), join(www, "alat", a), { recursive: true });
 cpSync(join(pub, "logo-willo.png"), join(www, "logo-willo.png"));
 
-const lokal = new Set(["kasir", "antrian", "nota", "buku-kas"]);
+const lokal = new Set(["kasir", "antrian", "nota", "tagihan", "buku-kas"]);
 function tulisUlang(html) {
   return html
     // Analitik situs tidak dipakai di aplikasi (jalan offline).
