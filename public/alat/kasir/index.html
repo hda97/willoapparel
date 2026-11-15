@@ -79,6 +79,13 @@ main{padding-bottom:110px}
 .lap-tabel td,.lap-tabel th{padding:6px 4px;border-bottom:1px solid #f0ede6;text-align:right}
 .lap-tabel td:first-child,.lap-tabel th:first-child{text-align:left}
 .lap-tabel th{font-size:12.5px;color:var(--redup);font-weight:600}
+.produk .stk{font-size:11.5px;color:var(--redup)}
+.produk .stk.tipis{color:var(--merah);font-weight:700}
+.produk button.habis{opacity:.55}
+.riwayat li{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f0ede6;font-size:14px}
+.riwayat li .ket{flex:1;min-width:0}
+.riwayat li small{display:block;color:var(--redup);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.riwayat li.batal .ket,.riwayat li.batal .angka{text-decoration:line-through;color:var(--redup)}
 .lap-bar{height:6px;border-radius:3px;background:var(--utama);opacity:.75;margin-top:3px}
 .kat{display:flex;gap:6px;overflow-x:auto;margin:0 0 10px;padding-bottom:2px;scrollbar-width:none}
 .kat::-webkit-scrollbar{display:none}
@@ -155,7 +162,7 @@ main{padding-bottom:110px}
       <button class="btn dua kecil" id="bCsvBarang">⬇ Unduh daftar barang</button>
     </div>
     <input type="file" id="fCsv" accept=".csv,.txt,text/csv,text/plain" class="tersembunyi">
-    <p class="kecil redup" style="margin:8px 0 0">Impor: di Excel/Google Sheets buat kolom <b>Nama</b> dan <b>Harga</b> (boleh tambah kolom <b>Ikon</b>, <b>Kategori</b>, <b>Kode</b>), lalu simpan sebagai CSV. Unduh daftar barang untuk melihat contohnya.</p>
+    <p class="kecil redup" style="margin:8px 0 0">Impor: di Excel/Google Sheets buat kolom <b>Nama</b> dan <b>Harga</b> (boleh tambah kolom <b>Ikon</b>, <b>Kategori</b>, <b>Kode</b>, <b>Stok</b>), lalu simpan sebagai CSV. Unduh daftar barang untuk melihat contohnya.</p>
     <p class="kecil redup tersembunyi" id="pWillo" style="margin:6px 0 0"><a href="?contoh=willo">Isi dengan produk Willo Apparel</a> (produk yang ada sekarang diganti).</p>
   </section>
 
@@ -173,6 +180,7 @@ main{padding-bottom:110px}
   <h2 id="dpJudul">Tambah produk</h2>
   <label class="isi">Nama produk<input type="text" id="dpNama" maxlength="30" autocomplete="off" required></label>
   <label class="isi">Harga (Rp)<input type="text" inputmode="numeric" id="dpHarga" class="angka" autocomplete="off"></label>
+  <label class="isi">Stok <small>Kosongkan bila tidak mau dihitung. Berkurang otomatis saat terjual</small><input type="text" inputmode="numeric" id="dpStok" class="angka" autocomplete="off" placeholder="tidak dihitung"></label>
   <label class="isi">Kode / barcode <small>Boleh kosong. Ketik atau scan kode di kemasan</small><input type="text" id="dpKode" maxlength="32" autocomplete="off"></label>
   <label class="isi">Kategori <small>Boleh kosong. Contoh: Kaos, Jersey, Minuman</small><input type="text" id="dpKat" maxlength="20" list="dlKat" autocomplete="off"></label>
   <datalist id="dlKat"></datalist>
@@ -362,6 +370,11 @@ main{padding-bottom:110px}
       var b = document.createElement("button"); b.type = "button";
       b.innerHTML = '<span class="em"></span><span class="nm"></span><span class="hg angka"></span>';
       b.querySelector(".em").textContent = p.em || "📦"; b.querySelector(".nm").textContent = p.nama; b.querySelector(".hg").textContent = rp(p.harga);
+      if (p.stok != null) {
+        var sk = document.createElement("span"); sk.className = "stk" + (p.stok <= (S.stokMin || 5) ? " tipis" : "");
+        sk.textContent = p.stok > 0 ? "stok " + p.stok : "stok habis"; b.appendChild(sk);
+        if (p.stok <= 0) b.classList.add("habis");
+      }
       var k = keranjang.filter(function(x){ return x.id === p.id; })[0];
       if (k) { var s = document.createElement("span"); s.className = "qty"; s.textContent = k.q; b.appendChild(s); }
       b.onclick = function(){ tambah(p); };
@@ -395,8 +408,8 @@ main{padding-bottom:110px}
     return [new Date(d.getFullYear(), d.getMonth() - 1, 1).getTime(), b.getTime()];
   }
   function hitungLap(){
-    var r = rentang(lapP), js = bacaJual().filter(function(j){ return j.w >= r[0] && j.w < r[1]; });
-    var o = { js:js, omzet:0, ds:0, n:js.length, pcs:0, metode:{}, brg:{}, kat:{}, jam:{} };
+    var r = rentang(lapP), semua = bacaJual().filter(function(j){ return j.w >= r[0] && j.w < r[1]; }), js = semua.filter(function(j){ return !j.batal; });
+    var o = { semua:semua, js:js, omzet:0, ds:0, n:js.length, pcs:0, metode:{}, brg:{}, kat:{}, jam:{} };
     js.forEach(function(j){
       o.omzet += j.tot; o.ds += j.ds || 0;
       o.metode[j.m] = (o.metode[j.m] || 0) + j.tot;
@@ -415,7 +428,7 @@ main{padding-bottom:110px}
     PERIODE.forEach(function(p){ var b = document.createElement("button"); b.type = "button"; b.textContent = p[1]; if (p[0] === lapP) b.className = "pilih"; b.onclick = function(){ lapP = p[0]; gambarLap(); }; c.appendChild(b); });
     var o = hitungLap(), el = $("lapIsi"), h = "";
     var esc = function(t){ return String(t).replace(/[&<>"]/g, function(m){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[m]; }); };
-    if (!o.n) { el.innerHTML = '<p class="redup" style="text-align:center;padding:20px 0">Belum ada penjualan pada periode ini.</p>'; return; }
+    if (!o.n) { el.innerHTML = '<p class="redup" style="text-align:center;padding:20px 0">Belum ada penjualan pada periode ini.</p>'; if (o.semua.length) { el.insertAdjacentHTML("beforeend", '<h3 style="margin:0 0 4px;font-size:15px">🧾 Riwayat transaksi</h3>'); el.appendChild(gambarRiwayat(o)); } return; }
     h += '<div class="lap-angka"><div><small>Omzet</small><b class="angka">' + rp(o.omzet) + '</b></div><div><small>Transaksi</small><b class="angka">' + o.n + '</b></div>' +
          '<div><small>Rata-rata / transaksi</small><b class="angka">' + rp(Math.round(o.omzet / o.n)) + '</b></div><div><small>Barang terjual</small><b class="angka">' + o.pcs + ' pcs</b></div></div>';
     if (o.ds) h += '<p class="kecil redup" style="margin:-4px 0 12px">Diskon grosir diberikan: ' + rp(o.ds) + '</p>';
@@ -435,7 +448,52 @@ main{padding-bottom:110px}
     h += '</table>';
     var jr = Object.keys(o.jam).sort(function(a,b){ return o.jam[b] - o.jam[a]; })[0];
     if (jr != null && o.n >= 3) h += '<p class="kecil redup" style="margin:0 0 12px">⏰ Jam paling ramai: ' + pad(jr) + '.00–' + pad(+jr + 1) + '.00 (' + o.jam[jr] + ' transaksi)</p>';
+    // Stok menipis
+    var tipis = S.produk.filter(function(p){ return p.stok != null && p.stok <= (S.stokMin || 5); });
+    if (tipis.length) { h += '<h3 style="margin:0 0 4px;font-size:15px">⚠️ Stok menipis</h3><table class="lap-tabel">'; tipis.sort(function(a,b){ return a.stok - b.stok; }).forEach(function(p){ h += '<tr><td>' + esc(p.nama) + '</td><td class="angka" style="color:var(--merah)">' + p.stok + '</td></tr>'; }); h += '</table>'; }
+    h += '<h3 style="margin:0 0 4px;font-size:15px">🧾 Riwayat transaksi</h3><p class="kecil redup" style="margin:0 0 4px">Salah input atau barang dikembalikan? Ketuk Batalkan.</p>';
     el.innerHTML = h;
+    el.appendChild(gambarRiwayat(o));
+  }
+  // Stok: hanya barang yang punya angka stok. arah -1 = terjual, +1 = dibatalkan.
+  function ubahStok(isi, arah){
+    var tipis = [];
+    isi.forEach(function(x){
+      var pr = S.produk.filter(function(p){ return x.id != null ? p.id === x.id : p.nama === x.n; })[0];
+      if (pr && pr.stok != null) { pr.stok += arah * (x.q || 0); if (arah < 0 && pr.stok <= (S.stokMin || 5)) tipis.push(pr.nama + " (" + pr.stok + ")"); }
+    });
+    simpan();
+    if (tipis.length) setTimeout(function(){ pesan("⚠️ Stok menipis: " + tipis.join(", ")); }, 1200);
+  }
+  function gambarRiwayat(o){
+    var ul = document.createElement("ul"); ul.className = "riwayat"; ul.style.cssText = "list-style:none;margin:0 0 12px;padding:0";
+    o.semua.slice().reverse().slice(0, 50).forEach(function(j){
+      var li = document.createElement("li"); if (j.batal) li.className = "batal";
+      var d = new Date(j.w);
+      li.innerHTML = '<span class="ket"><b></b><small></small></span><span class="angka"></span>';
+      li.querySelector("b").textContent = j.no + " · " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + " · " + j.m + (j.batal ? " · DIBATALKAN" : "");
+      li.querySelector("small").textContent = j.isi.map(function(x){ return x.q + " " + x.n; }).join(", ");
+      li.querySelector(".angka").textContent = rp(j.tot);
+      if (!j.batal) {
+        var bt = document.createElement("button"); bt.className = "btn dua kecil"; bt.textContent = "Batalkan";
+        bt.onclick = function(){ batalkan(j.no, j.w); };
+        li.appendChild(bt);
+      }
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+  function batalkan(no, w){
+    var a = bacaJual(), j = a.filter(function(x){ return x.no === no && x.w === w; })[0];
+    if (!j || j.batal || !confirm("Batalkan transaksi " + no + " (" + rp(j.tot) + ")?\nStok dikembalikan dan penjualan dihapus dari Buku Kas.")) return;
+    j.batal = Date.now();
+    try { localStorage.setItem(JUAL, JSON.stringify(a)); } catch(e){}
+    ubahStok(j.isi, 1);
+    var k = bacaKas(), sebelum = k.tx.length;
+    if (j.kid) k.tx = k.tx.filter(function(t){ return !(t.id === j.kid && t.sumber === "kasir"); });
+    if (k.tx.length === sebelum) k.tx.push({ id:Date.now(), t:"keluar", jml:j.tot, kat:"Lainnya", ket:("Refund Kasir #" + no).slice(0, 80), tgl:tglIni(), metode:j.m, sumber:"kasir" });
+    try { localStorage.setItem(KAS, JSON.stringify(k)); } catch(e){}
+    pesan("Transaksi " + no + " dibatalkan"); gambarLap(); gambar();
   }
   $("bLaporan").onclick = function(){ gambarLap(); $("dLaporan").showModal(); };
   $("lapTutup").onclick = function(){ $("dLaporan").close(); };
@@ -475,6 +533,7 @@ main{padding-bottom:110px}
   }
   function tambah(p){
     var k = keranjang.filter(function(x){ return x.id === p.id; })[0];
+    if (p.stok != null && (k ? k.q : 0) >= p.stok) pesan("Stok " + p.nama + " tinggal " + Math.max(0, p.stok) + ". Tetap ditambahkan.");
     if (k) k.q++; else keranjang.push({ id:p.id, nama:p.nama, harga:p.harga, q:1, g:!!p.grosir });
     if (navigator.vibrate) navigator.vibrate(15);
     gambar();
@@ -525,7 +584,7 @@ main{padding-bottom:110px}
   function bukaProduk(p){
     dpEdit = p; dpEm = p ? (p.em || "📦") : "📦";
     $("dpJudul").textContent = p ? "Ubah produk" : "Tambah produk";
-    $("dpNama").value = p ? p.nama : ""; $("dpHarga").value = p ? p.harga.toLocaleString("id-ID") : ""; $("dpKode").value = p ? (p.kode || "") : ""; $("dpKat").value = p ? (p.kat || "") : (katPilih && katPilih !== "\u0000" ? katPilih : "");
+    $("dpNama").value = p ? p.nama : ""; $("dpHarga").value = p ? p.harga.toLocaleString("id-ID") : ""; $("dpKode").value = p ? (p.kode || "") : ""; $("dpStok").value = p && p.stok != null ? p.stok : ""; $("dpKat").value = p ? (p.kat || "") : (katPilih && katPilih !== "\u0000" ? katPilih : "");
     $("dpHapus").classList.toggle("tersembunyi", !p);
     gambarEm(); $("dProduk").showModal();
   }
@@ -545,6 +604,8 @@ main{padding-bottom:110px}
       pb.nama = nama; pb.harga = harga; pb.em = dpEm;
       if (kat) pb.kat = kat; else delete pb.kat;
       if (kode) pb.kode = kode; else delete pb.kode;
+      var stv = $("dpStok").value.replace(/[^\d-]/g, "");
+      if (stv !== "") pb.stok = parseInt(stv, 10) || 0; else delete pb.stok;
       if (!dpEdit) S.produk.push(pb);
     }
     simpan(); gambar();
@@ -634,7 +695,7 @@ main{padding-bottom:110px}
   }
   $("bCsvBarang").onclick = function(){
     var q = function(v){ return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
-    var baris = ["Nama;Harga;Ikon;Kategori;Kode"].concat(S.produk.map(function(p){ return [q(p.nama), p.harga, p.em || "", q(p.kat || ""), q(p.kode || "")].join(";"); }));
+    var baris = ["Nama;Harga;Ikon;Kategori;Kode;Stok"].concat(S.produk.map(function(p){ return [q(p.nama), p.harga, p.em || "", q(p.kat || ""), q(p.kode || ""), p.stok != null ? p.stok : ""].join(";"); }));
     unduh("daftar-barang.csv", "\uFEFF" + baris.join("\r\n"), "text/csv;charset=utf-8");
   };
   function bacaCsv(teks){
@@ -653,14 +714,14 @@ main{padding-bottom:110px}
       hasil.push(cur); return hasil.map(function(x){ return x.trim(); });
     };
     var kepala = pecah(baris[0]).map(function(x){ return x.toLowerCase(); });
-    var iN = kepala.findIndex(function(x){ return /nama|barang|produk|item/.test(x); }), iH = kepala.findIndex(function(x){ return /harga|price|jual/.test(x); }), iE = kepala.findIndex(function(x){ return /ikon|icon|emoji/.test(x); }), iK = kepala.findIndex(function(x){ return /kategori|category|jenis|grup|group/.test(x); }), iB = kepala.findIndex(function(x){ return /kode|barcode|sku|code/.test(x); });
+    var iN = kepala.findIndex(function(x){ return /nama|barang|produk|item/.test(x); }), iH = kepala.findIndex(function(x){ return /harga|price|jual/.test(x); }), iE = kepala.findIndex(function(x){ return /ikon|icon|emoji/.test(x); }), iK = kepala.findIndex(function(x){ return /kategori|category|jenis|grup|group/.test(x); }), iB = kepala.findIndex(function(x){ return /kode|barcode|sku|code/.test(x); }), iS = kepala.findIndex(function(x){ return /stok|stock|qty|jumlah/.test(x); });
     var mulai = 1;
     if (iN < 0 || iH < 0) { iN = 0; iH = 1; mulai = 0; }
     var out = [];
     baris.slice(mulai).forEach(function(b, i){
       var k = pecah(b), nama = (k[iN] || "").slice(0, 30);
       var hs = String(k[iH] || "").replace(/[Rr][Pp]\.?/g, "").replace(/,00$|\.00$/, ""), harga = parseInt(hs.replace(/\D/g, ""), 10) || 0;
-      if (nama && harga) { var o = { id:Date.now() + i, nama:nama, harga:harga, em:(iE >= 0 && k[iE]) ? k[iE].slice(0, 4) : "📦" }; if (iK >= 0 && k[iK]) o.kat = k[iK].slice(0, 20); if (iB >= 0 && k[iB]) o.kode = k[iB].slice(0, 32); out.push(o); }
+      if (nama && harga) { var o = { id:Date.now() + i, nama:nama, harga:harga, em:(iE >= 0 && k[iE]) ? k[iE].slice(0, 4) : "📦" }; if (iK >= 0 && k[iK]) o.kat = k[iK].slice(0, 20); if (iB >= 0 && k[iB]) o.kode = k[iB].slice(0, 32); if (iS >= 0 && /\d/.test(k[iS] || "")) o.stok = parseInt(String(k[iS]).replace(/[^\d-]/g, ""), 10) || 0; out.push(o); }
     });
     return out;
   }
@@ -784,11 +845,13 @@ main{padding-bottom:110px}
     S.no = (S.no || 0) + 1; simpan();
     var no = "A-" + String(S.no).padStart(5, "0");
     noStruk = no; strukTeks = buatStruk(no, terima);
-    catatJual({ no:no, w:Date.now(), m:metode, tot:t, ds:diskon().jml, isi:keranjang.map(function(k){ var pr = S.produk.filter(function(x){ return x.id === k.id; })[0]; return { n:k.nama, q:k.q, h:k.harga, k:(pr && pr.kat) || "" }; }) });
+    var kid = Date.now();
+    ubahStok(keranjang, -1);
+    catatJual({ kid:kid, no:no, w:Date.now(), m:metode, tot:t, ds:diskon().jml, isi:keranjang.map(function(k){ var pr = S.produk.filter(function(x){ return x.id === k.id; })[0]; return { id:k.id, n:k.nama, q:k.q, h:k.harga, k:(pr && pr.kat) || "" }; }) });
     if (S.kas !== false) {
       var k = bacaKas();
       var ket = keranjang.map(function(x){ return x.q + " " + x.nama; }).join(", ");
-      k.tx.push({ id:Date.now(), t:"masuk", jml:t, kat:"Penjualan", ket:("Kasir #" + no + ": " + ket).slice(0, 80), tgl:tglIni(), metode:metode, sumber:"kasir" });
+      k.tx.push({ id:kid, t:"masuk", jml:t, kat:"Penjualan", ket:("Kasir #" + no + ": " + ket).slice(0, 80), tgl:tglIni(), metode:metode, sumber:"kasir" });
       try { localStorage.setItem(KAS, JSON.stringify(k)); } catch(e){ pesan("Buku Kas penuh, penjualan tidak tercatat"); }
     }
     $("dBayar").close();
