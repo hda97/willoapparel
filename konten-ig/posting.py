@@ -47,31 +47,45 @@ def sidik(tok):
     return hashlib.sha256((tok or "").encode()).hexdigest()[:16]
 
 
-def simpan_token(page_token, ig_id, src=None):
+def file_token(akun=None):
+    """token.enc untuk akun utama (@duniakotak.id), token-<akun>.enc untuk akun lain."""
+    akun = (akun or AKUN).lower()
+    return TOKEN_FILE if akun == AKUN.lower() else os.path.join(DIR, f"token-{akun}.enc")
+
+
+def simpan_token(page_token, ig_id, src=None, akun=None):
     src = src or sidik(os.environ.get("IG_TOKEN"))
     blob = json.dumps({"page_token": page_token, "ig_id": ig_id, "src": src}).encode()
-    with open(TOKEN_FILE, "wb") as f:
+    with open(file_token(akun), "wb") as f:
         f.write(openssl([], blob))
 
 
-def muat_token():
+def muat_token(akun=None):
     """Token Halaman dari token.enc. Kalau secret IG_TOKEN diganti (mis. izin baru),
     token Halaman diturunkan ulang; gagal -> tetap pakai token.enc lama."""
     user = os.environ.get("IG_TOKEN")
-    if os.path.exists(TOKEN_FILE):
-        d = json.loads(openssl(["-d"], open(TOKEN_FILE, "rb").read()))
+    f = file_token(akun)
+    if os.path.exists(f):
+        d = json.loads(openssl(["-d"], open(f, "rb").read()))
         if not user or d.get("src") == sidik(user):
             return d["page_token"], d["ig_id"]
         try:
-            return turunkan(user)
+            return turunkan(user, akun)
         except SystemExit as e:
             print(f"IG_TOKEN baru tidak bisa dipakai, tetap pakai token lama: {e}")
-            simpan_token(d["page_token"], d["ig_id"])
+            simpan_token(d["page_token"], d["ig_id"], akun=akun)
             return d["page_token"], d["ig_id"]
-    return turunkan(user)
+    return turunkan(user, akun)
 
 
-def turunkan(user):
+def daftar_halaman(user):
+    """Semua Halaman + akun IG yang bisa dijangkau token pengguna (untuk cek akun)."""
+    return req("GET", "me/accounts", access_token=user,
+               fields="name,access_token,instagram_business_account{id,username}")["data"]
+
+
+def turunkan(user, akun=None):
+    akun = akun or AKUN
     if not user:
         raise SystemExit("Secret IG_TOKEN belum diisi.")
     # 1) token pengguna jangka pendek -> jangka panjang (60 hari). Token yang tidak bisa
@@ -83,21 +97,20 @@ def turunkan(user):
     except SystemExit as e:
         print(f"Tukar token dilewati: {e}")
         long_user = user
-    ig_manual = os.environ.get("IG_USER_ID", "").strip()
+    ig_manual = os.environ.get("IG_USER_ID", "").strip() if akun.lower() == AKUN.lower() else ""
     if ig_manual:
         simpan_token(long_user, ig_manual)
         return long_user, ig_manual
     # 2) token Halaman dari token pengguna jangka panjang = tidak kedaluwarsa
-    pages = req("GET", "me/accounts", access_token=long_user,
-                fields="name,access_token,instagram_business_account{id,username}")["data"]
+    pages = daftar_halaman(long_user)
     for p in pages:
         ig = p.get("instagram_business_account") or {}
-        if ig.get("username", "").lower() == AKUN.lower():
-            simpan_token(p["access_token"], ig["id"])
-            print(f"Token Halaman '{p['name']}' untuk @{AKUN} disimpan.")
+        if ig.get("username", "").lower() == akun.lower():
+            simpan_token(p["access_token"], ig["id"], akun=akun)
+            print(f"Token Halaman '{p['name']}' untuk @{akun} disimpan.")
             return p["access_token"], ig["id"]
     names = [(p.get("name"), (p.get("instagram_business_account") or {}).get("username")) for p in pages]
-    raise SystemExit(f"Akun @{AKUN} tidak ditemukan di Halaman yang diizinkan token: {names}")
+    raise SystemExit(f"Akun @{akun} tidak ditemukan di Halaman yang diizinkan token: {names}")
 
 
 def jatuh_tempo(item, now):

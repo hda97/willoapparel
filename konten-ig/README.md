@@ -16,3 +16,10 @@ Sampul reel: taruh JPG 9:16 di public/duniakotak/reel/<tanggal>-sampul.jpg (di P
 - Satu orang maksimal 1 DM per 24 jam (`dikirim-dm.json`). Private Reply hanya bisa untuk komentar ≤7 hari, 1 kali per komentar (aturan Meta).
 - Matikan DM sementara: tambahkan env `IG_DM: "0"` di workflow.
 <!-- picu posting 15 Nov (cron telat) -->
+
+## Balas kata kunci, pengganti ManyChat (16 Nov 2026)
+`kata_kunci.py` (workflow `ig-kata-kunci.yml`, tiap ±10 menit) membalas komentar dan DM yang berisi kata kunci Lumbung (KASIR, WARUNG, LAUNDRY, CUKUR, KATERING, TANI, KONTER, STEAM) dengan link willoapparel.com/alat/.
+- Ubah kata kunci, link, dan teks balasan di `kata-kunci.json`. Akun yang dilayani: kolom `"akun"` (username IG tanpa @). Jangan isi `duniakotak.id` di sini, akun itu sudah dibalas semua komentarnya oleh `komentar.py`.
+- Cek akun & izin token: Actions → "Balas Kata Kunci Instagram" → Run workflow → centang "cek".
+- Token akun lain disimpan terenkripsi di `token-<akun>.enc` (kunci = IG_APP_SECRET). Catatan pesan yang sudah dibalas disimpan di cache Actions, tidak di-commit.
+- Syarat Meta sama dengan DM di atas: balas komentar bisa langsung; DM ke orang lain menunggu Advanced Access `instagram_manage_messages`. Sebelum itu bot otomatis menulis link di balasan komentar.
