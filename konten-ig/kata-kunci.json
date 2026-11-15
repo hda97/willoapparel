@@ -1,6 +1,6 @@
 {
   "_catatan": "Balas otomatis kata kunci Instagram (kata_kunci.py). Ubah teks di sini saja. {u} = username pengirim, {link} = link kata kunci. 'akun' = username IG yang dilayani (tanpa @). Kata dicocokkan per kata utuh, huruf besar/kecil sama saja.",
-  "akun": [],
+  "akun": ["miftakhul_hda"],
   "link_umum": "https://www.willoapparel.com/alat/",
   "kata_kunci": [
     {"kata": ["kasir", "lumbung"], "link": "https://www.willoapparel.com/alat/kasir/",
