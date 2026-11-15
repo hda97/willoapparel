@@ -2,7 +2,7 @@
   "name": "kasir-willo-android",
   "private": true,
   "version": "1.0.0",
-  "description": "Aplikasi Android Kasir Willo (Capacitor): Kasir, Antrian, Nota, Buku Kas dari public/alat + cetak printer Bluetooth classic/BLE",
+  "description": "Aplikasi Android Lumbung by Willo Studio (Capacitor): Kasir, Antrian, Nota, Tagihan, Buku Kas dari public/alat + cetak printer Bluetooth classic/BLE",
   "scripts": {
     "www": "node siapkan-www.mjs",
     "sync": "node siapkan-www.mjs && cap sync android",

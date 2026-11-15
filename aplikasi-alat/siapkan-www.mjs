@@ -36,5 +36,5 @@ function jelajah(d) {
 jelajah(www);
 writeFileSync(join(www, "index.html"),
   '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
-  '<title>Kasir Willo</title><script>location.replace("/alat/index.html")</script>');
+  '<title>Lumbung by Willo Studio</title><script>location.replace("/alat/index.html")</script>');
 console.log("www siap:", ALAT.join(", "));

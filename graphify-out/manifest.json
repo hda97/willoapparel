@@ -16613,9 +16613,9 @@
     "semantic_hash": ""
   },
   "public/alat/index.html": {
-    "mtime": 1794746475.763438,
-    "seen": 1794746673.22158,
-    "ast_hash": "ef62e064376fd49d8e1f2db44f3d6532",
+    "mtime": 1794747305.041879,
+    "seen": 1794747395.1743438,
+    "ast_hash": "be0ec10c02e2929eadbbae38df0bfeef",
     "semantic_hash": ""
   },
   "public/alat/kasir/index.html": {
@@ -16943,15 +16943,15 @@
     "semantic_hash": ""
   },
   "public/alat/printer.js": {
-    "mtime": 1794744634.469082,
-    "seen": 1794744827.312972,
-    "ast_hash": "a3054be830b99aeca22957bf691b182e",
+    "mtime": 1794747311.6557102,
+    "seen": 1794747395.1725924,
+    "ast_hash": "fd1c0b0d5c25c179fe90f73ef6793d02",
     "semantic_hash": ""
   },
   ".github/workflows/aplikasi-alat.yml": {
-    "mtime": 1794744725.8994539,
-    "seen": 1794744827.3127224,
-    "ast_hash": "ae6c35acb894111c4871e7bd1ed538a7",
+    "mtime": 1794747305.0410366,
+    "seen": 1794747395.172208,
+    "ast_hash": "44ef01e4330aa6f18962e18580c11080",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/build.gradle": {
@@ -16979,9 +16979,9 @@
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/java/com/willoapparel/alat/PrinterWilloPlugin.java": {
-    "mtime": 1794744580.1497898,
-    "seen": 1794744827.31276,
-    "ast_hash": "558316a25d1186266614ac26b67c3bc7",
+    "mtime": 1794747305.03964,
+    "seen": 1794747395.1722512,
+    "ast_hash": "e659128cb5051a3f4ce12520c0ebbd51",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/test/java/com/getcapacitor/myapp/ExampleUnitTest.java": {
@@ -17021,27 +17021,27 @@
     "semantic_hash": ""
   },
   "aplikasi-alat/capacitor.config.json": {
-    "mtime": 1794744554.4897883,
-    "seen": 1794744827.312769,
-    "ast_hash": "92b09445a370bc9a31bcb54e40384b07",
+    "mtime": 1794747305.0362468,
+    "seen": 1794747395.172267,
+    "ast_hash": "a8f7ac118a2ea8276d440ef60b0d5aba",
     "semantic_hash": ""
   },
   "aplikasi-alat/package.json": {
-    "mtime": 1794744554.4930673,
-    "seen": 1794744827.3127701,
-    "ast_hash": "b0c740395e7c926f541db6b2b708414f",
+    "mtime": 1794747305.0402637,
+    "seen": 1794747395.172269,
+    "ast_hash": "8f11a6202d9ea4bf730df3db35644ffc",
     "semantic_hash": ""
   },
   "aplikasi-alat/siapkan-www.mjs": {
-    "mtime": 1794746475.7643902,
-    "seen": 1794746673.2201138,
-    "ast_hash": "5d0a1d60dd0957bd7a68dd6e2ada69c5",
+    "mtime": 1794747305.0387712,
+    "seen": 1794747395.1722717,
+    "ast_hash": "e182f9bee42494c79f09e730890665f6",
     "semantic_hash": ""
   },
   "aplikasi-alat/README.md": {
-    "mtime": 1794744765.0800369,
-    "seen": 1794744827.3148324,
-    "ast_hash": "6c2f27ce7357fc913713559fce29a60c",
+    "mtime": 1794747311.6527572,
+    "seen": 1794747395.1741488,
+    "ast_hash": "708b191033f976b6caa175656fdb3ed4",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/res/drawable-land-hdpi/splash.png": {
@@ -17204,24 +17204,6 @@
     "mtime": 1794746621.7002418,
     "seen": 1794746673.2215848,
     "ast_hash": "1eb1f3d5b4da00e74010ac6d94c1487e",
-    "semantic_hash": ""
-  },
-  "tagihan1.png": {
-    "mtime": 1794746630.269468,
-    "seen": 1794746673.222546,
-    "ast_hash": "0eb6b0f85264c475c17055dd90e9034b",
-    "semantic_hash": ""
-  },
-  "tagihan2.png": {
-    "mtime": 1794746630.4294682,
-    "seen": 1794746673.222548,
-    "ast_hash": "248601b1f003a632e02d4dc4416a04e0",
-    "semantic_hash": ""
-  },
-  "tagihan3.png": {
-    "mtime": 1794746630.617468,
-    "seen": 1794746673.2225494,
-    "ast_hash": "c6d51a61f1380618649cc538537708d9",
     "semantic_hash": ""
   },
   "tagihan4.png": {

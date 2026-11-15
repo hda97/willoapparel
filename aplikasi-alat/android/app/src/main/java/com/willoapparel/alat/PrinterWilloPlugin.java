@@ -60,7 +60,7 @@ public class PrinterWilloPlugin extends Plugin {
 
     @PermissionCallback
     private void izinDaftar(PluginCall call) {
-        if (butuhIzin()) { call.reject("Izin Perangkat di sekitar ditolak. Izinkan di Setelan HP > Aplikasi > Kasir Willo > Izin.", "IZIN"); return; }
+        if (butuhIzin()) { call.reject("Izin Perangkat di sekitar ditolak. Izinkan di Setelan HP > Aplikasi > Lumbung > Izin.", "IZIN"); return; }
         kirimDaftar(call);
     }
 
@@ -93,7 +93,7 @@ public class PrinterWilloPlugin extends Plugin {
 
     @PermissionCallback
     private void izinCetak(PluginCall call) {
-        if (butuhIzin()) { call.reject("Izin Perangkat di sekitar ditolak. Izinkan di Setelan HP > Aplikasi > Kasir Willo > Izin.", "IZIN"); return; }
+        if (butuhIzin()) { call.reject("Izin Perangkat di sekitar ditolak. Izinkan di Setelan HP > Aplikasi > Lumbung > Izin.", "IZIN"); return; }
         jalankanCetak(call);
     }
 

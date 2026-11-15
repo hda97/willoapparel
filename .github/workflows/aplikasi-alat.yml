@@ -1,8 +1,8 @@
-name: Aplikasi Kasir Willo (APK uji)
+name: Aplikasi Lumbung (APK uji)
 
-# APK Android "Kasir Willo": Kasir, Antrian, Nota & Buku Kas dari public/alat (jalan offline)
+# APK Android "Lumbung by Willo Studio": Kasir, Antrian, Nota, Tagihan & Buku Kas dari public/alat (jalan offline)
 # + cetak langsung ke printer termal Bluetooth classic (plugin PrinterWillo) tanpa RawBT.
-# Hasil diunggah ke Release "kasir-willo-uji" supaya bisa diunduh & dipasang langsung dari HP.
+# Hasil diunggah ke Release "lumbung-uji" supaya bisa diunduh & dipasang langsung dari HP.
 on:
   workflow_dispatch:
   pull_request:
@@ -21,7 +21,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: kasir-willo-${{ github.ref }}
+  group: lumbung-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -50,26 +50,26 @@ jobs:
         working-directory: aplikasi-alat/android
         run: ./gradlew assembleRelease --no-daemon
       - name: Siapkan file APK
-        run: cp android/app/build/outputs/apk/release/app-release.apk kasir-willo.apk && ls -la kasir-willo.apk
+        run: cp android/app/build/outputs/apk/release/app-release.apk lumbung.apk && ls -la lumbung.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: kasir-willo-apk
-          path: aplikasi-alat/kasir-willo.apk
+          name: lumbung-apk
+          path: aplikasi-alat/lumbung.apk
           retention-days: 14
-      - name: Unggah ke Release kasir-willo-uji
+      - name: Unggah ke Release lumbung-uji
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: kasir-willo-uji
+          tag_name: lumbung-uji
           target_commitish: ${{ github.sha }}
-          name: Kasir Willo APK uji (terbaru)
+          name: Lumbung by Willo Studio — APK uji (terbaru)
           prerelease: true
           make_latest: false
           body: |
-            APK uji **Kasir Willo** (Kasir, Antrian, Nota, Buku Kas + cetak printer Bluetooth tanpa RawBT).
-            Unduh **kasir-willo.apk** di bawah dari HP Android, ketuk, izinkan "instal dari sumber tidak dikenal", lalu Instal.
+            APK uji **Lumbung by Willo Studio** (Kasir, Antrian, Nota, Tagihan, Buku Kas + cetak printer Bluetooth tanpa RawBT).
+            Unduh **lumbung.apk** di bawah dari HP Android, ketuk, izinkan "instal dari sumber tidak dikenal", lalu Instal.
             Update berikutnya tinggal pasang di atasnya (data tetap aman).
             Printer: pasangkan dulu di Pengaturan Bluetooth HP (PIN biasanya 0000/1234), lalu tekan cetak dan pilih printernya.
             Dibangun otomatis dari commit ${{ github.sha }}.
-          files: aplikasi-alat/kasir-willo.apk
+          files: aplikasi-alat/lumbung.apk
           overwrite_files: true

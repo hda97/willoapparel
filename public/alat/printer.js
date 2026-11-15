@@ -14,7 +14,7 @@
   ];
   var karakter = null, perangkat = null;
 
-  // Di dalam aplikasi Android Kasir Willo: cetak lewat plugin asli (Bluetooth classic), tanpa RawBT.
+  // Di dalam aplikasi Android Lumbung: cetak lewat plugin asli (Bluetooth classic), tanpa RawBT.
   var KUNCI_PRINTER = "willo_printer_v1";
   function aplikasi(){
     var C = window.Capacitor;

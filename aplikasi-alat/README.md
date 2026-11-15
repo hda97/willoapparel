@@ -1,4 +1,4 @@
-# Kasir Willo (Android)
+# Lumbung by Willo Studio (Android)
 
 Aplikasi Android untuk alat usaha gratis Willo: **Kasir, Antrian, Nota & Buku Kas** (sumbernya `public/alat/`).
 
@@ -13,7 +13,7 @@ Aplikasi Android untuk alat usaha gratis Willo: **Kasir, Antrian, Nota & Buku Ka
 ## Build
 
 APK dibangun oleh `.github/workflows/aplikasi-alat.yml` dan diunggah ke Release
-[`kasir-willo-uji`](https://github.com/hda97/willoapparel/releases/tag/kasir-willo-uji).
+[`lumbung-uji`](https://github.com/hda97/willoapparel/releases/tag/lumbung-uji).
 
 ```bash
 npm ci
