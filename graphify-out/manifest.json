@@ -209,9 +209,9 @@
     "semantic_hash": "bf3f8e495130df0e60287acb7ca38561"
   },
   "worker.js": {
-    "mtime": 1794746487.5414596,
-    "seen": 1794753028.270688,
-    "ast_hash": "8c9835dd711d89ac943fa2bf43de86a5",
+    "mtime": 1794757507.1041064,
+    "seen": 1794757575.2233658,
+    "ast_hash": "a077e6c4171a6e62c550ad5ca635e83c",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/musik.mp3": {
@@ -16613,15 +16613,15 @@
     "semantic_hash": ""
   },
   "public/alat/index.html": {
-    "mtime": 1794756848.3117666,
-    "seen": 1794756915.2083085,
-    "ast_hash": "95e00a733f69f69da66068f33450fe95",
+    "mtime": 1794757397.5947826,
+    "seen": 1794757575.224446,
+    "ast_hash": "a157dff231bfb63ac4144dcf00c63909",
     "semantic_hash": ""
   },
   "public/alat/kasir/index.html": {
-    "mtime": 1794756887.682094,
-    "seen": 1794756915.2083116,
-    "ast_hash": "1a491c8c68560b5295372cd4e083cae4",
+    "mtime": 1794757397.5936987,
+    "seen": 1794757575.2244477,
+    "ast_hash": "e97e4125504ed8527dc770a5085d8264",
     "semantic_hash": ""
   },
   ".claude/skills/oil-ui/assets/vendor/alpine.min.js": {
@@ -17033,9 +17033,9 @@
     "semantic_hash": ""
   },
   "aplikasi-alat/siapkan-www.mjs": {
-    "mtime": 1794747305.0387712,
-    "seen": 1794753028.2702615,
-    "ast_hash": "e182f9bee42494c79f09e730890665f6",
+    "mtime": 1794757397.5989525,
+    "seen": 1794757575.2229652,
+    "ast_hash": "fcc7dacbb9003f0d7b8e06214308b653",
     "semantic_hash": ""
   },
   "aplikasi-alat/README.md": {
@@ -17222,6 +17222,18 @@
     "mtime": 1794756860.7191596,
     "seen": 1794756915.205445,
     "ast_hash": "ce09d0f3e26b65c95f22c3cf77b605dd",
+    "semantic_hash": ""
+  },
+  "public/alat/sinkron.js": {
+    "mtime": 1794757378.170623,
+    "seen": 1794757575.2232268,
+    "ast_hash": "cfbe82f0fb22d050326134943c57a115",
+    "semantic_hash": ""
+  },
+  "public/alat/owner/index.html": {
+    "mtime": 1794757458.1066277,
+    "seen": 1794757575.224452,
+    "ast_hash": "8231b223a3a1aac0066172cb42de2c04",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {

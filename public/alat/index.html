@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="/alat/alat.css">
 <script src="/alat/ikon.js" defer></script>
 <script src="/alat/owner.js"></script>
+<script src="/alat/sinkron.js" defer></script>
 <style>
 .daftar{display:grid;gap:10px}
 .daftar a{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--garis);border-radius:14px;padding:14px;text-decoration:none;color:var(--teks)}
@@ -57,6 +58,18 @@
       <button class="btn" id="bPinPasang">Pasang PIN owner</button>
       <button class="btn dua tersembunyi" id="bPinHapus">Hapus PIN</button>
     </div>
+  </section>
+
+  <section class="kartu" style="margin-top:16px" data-owner>
+    <h2>📊 Dashboard online di HP owner</h2>
+    <p class="sub" style="margin:0 0 10px" id="snKet">Pantau penjualan toko dari HP owner, di mana saja. Nyalakan di HP/tablet kasir, lalu kirim link dashboard ke WA owner.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" id="bSnNyala">Nyalakan</button>
+      <button class="btn dua tersembunyi" id="bSnWa">💬 Kirim link ke WA owner</button>
+      <button class="btn dua tersembunyi" id="bSnSalin">Salin link</button>
+      <button class="btn dua tersembunyi" id="bSnMati">Matikan</button>
+    </div>
+    <p class="kecil redup" style="margin:10px 0 0">Yang dikirim ke server Willo hanya catatan penjualan Kasir: barang, jumlah, harga, total, dan cara bayar. Siapa pun yang memegang link bisa melihat dashboard, jadi jangan disebar.</p>
   </section>
 
   <section class="kartu" style="margin-top:16px" data-owner>
@@ -118,6 +131,22 @@
   document.getElementById("bPinPasang").onclick = function(){ LumbungOwner.pasangPin().then(gambarPin); };
   document.getElementById("bPinHapus").onclick = function(){ if (confirm("Hapus PIN owner? Semua bagian bisa dibuka siapa saja.")) { LumbungOwner.hapusPin(); gambarPin(); } };
   document.addEventListener("lumbung-owner", gambarPin);
+
+  // Dashboard online di HP owner
+  function gambarSn(){ var L = window.LumbungSinkron; if (!L) return; var s = L.status(), on = L.aktif();
+    document.getElementById("bSnNyala").classList.toggle("tersembunyi", on);
+    ["bSnWa","bSnSalin","bSnMati"].forEach(function(id){ document.getElementById(id).classList.toggle("tersembunyi", !on); });
+    var jam = s.terakhir ? new Date(s.terakhir).toLocaleTimeString("id-ID", { hour:"2-digit", minute:"2-digit" }) : "";
+    document.getElementById("snKet").textContent = on ? ("Aktif. " + (s.galat ? "Belum terkirim (cek internet), akan dicoba lagi otomatis. " : (jam ? "Terakhir terkirim pukul " + jam + ". " : "")) + ((s.antre || []).length ? (s.antre.length + " transaksi menunggu dikirim.") : "Semua penjualan sudah terkirim."))
+      : "Pantau penjualan toko dari HP owner, di mana saja. Nyalakan di HP/tablet kasir, lalu kirim link dashboard ke WA owner."; }
+  window.addEventListener("load", function(){
+    document.getElementById("bSnNyala").onclick = function(){ LumbungSinkron.nyalakan(); gambarSn(); };
+    document.getElementById("bSnMati").onclick = function(){ if (confirm("Matikan dashboard online? Penjualan baru tidak dikirim lagi.")) { LumbungSinkron.matikan(); gambarSn(); } };
+    document.getElementById("bSnWa").onclick = function(){ window.open("https://wa.me/?text=" + encodeURIComponent("Dashboard penjualan toko (jangan disebar):\n" + LumbungSinkron.link()), "_blank"); };
+    document.getElementById("bSnSalin").onclick = function(){ var l = LumbungSinkron.link(); (navigator.clipboard ? navigator.clipboard.writeText(l) : Promise.reject()).then(function(){ alert("Link dashboard disalin."); }, function(){ prompt("Salin link ini:", l); }); };
+    gambarSn();
+  });
+  document.addEventListener("lumbung-sinkron", gambarSn);
 </script>
 </body>
 </html>

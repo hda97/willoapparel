@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="/alat/alat.css">
 <script src="/alat/ikon.js" defer></script>
 <script src="/alat/owner.js"></script>
+<script src="/alat/sinkron.js" defer></script>
 <style>
 main{padding-bottom:110px}
 .hariini{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;color:var(--redup);margin-bottom:12px}
@@ -429,6 +430,7 @@ main{padding-bottom:110px}
   function catatJual(j){
     var a = bacaJual(); a.push(j); if (a.length > 5000) a = a.slice(a.length - 5000);
     try { localStorage.setItem(JUAL, JSON.stringify(a)); } catch(e){ pesan("Memori penuh: laporan tidak tercatat"); }
+    if (window.LumbungSinkron) LumbungSinkron.antre(j);
   }
   var PERIODE = [["hari","Hari ini"],["kemarin","Kemarin"],["7","7 hari"],["bulan","Bulan ini"],["bulanlalu","Bulan lalu"]], lapP = "hari";
   function rentang(k){
@@ -521,6 +523,7 @@ main{padding-bottom:110px}
     if (!j || j.batal || !confirm("Batalkan transaksi " + no + " (" + rp(j.tot) + ")?\nStok dikembalikan dan penjualan dihapus dari Buku Kas.")) return;
     j.batal = Date.now();
     try { localStorage.setItem(JUAL, JSON.stringify(a)); } catch(e){}
+    if (window.LumbungSinkron) LumbungSinkron.antre(j);
     ubahStok(j.isi, 1);
     var k = bacaKas(), sebelum = k.tx.length;
     if (j.kid) k.tx = k.tx.filter(function(t){ return !(t.id === j.kid && t.sumber === "kasir"); });

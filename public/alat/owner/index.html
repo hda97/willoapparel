@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Owner | Lumbung by Willo Studio</title>
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="/logo-willo.png">
+<link rel="stylesheet" href="/alat/alat.css">
+<script src="/alat/ikon.js" defer></script>
+<style>
+main{padding-bottom:40px}
+.kepala{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;margin:18px 0 10px}
+.kepala h1{margin:0}
+.status{font-size:13px;color:var(--redup);display:flex;align-items:center;gap:6px}
+.status i{width:9px;height:9px;border-radius:50%;background:var(--hijau);display:inline-block}
+.status.lama i{background:var(--merah)}
+.periode{display:flex;gap:6px;overflow-x:auto;margin:0 0 12px;scrollbar-width:none}
+.periode::-webkit-scrollbar{display:none}
+.periode button{flex:0 0 auto;border:1px solid var(--garis);background:#fff;border-radius:999px;padding:7px 13px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.periode button.pilih{background:var(--teks);border-color:var(--teks);color:#fff}
+.angka4{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.angka4 div{background:#fff;border:1px solid var(--garis);border-radius:14px;padding:12px 14px}
+.angka4 div.utama{grid-column:1 / -1;background:var(--teks);color:#fff;border-color:var(--teks)}
+.angka4 small{display:block;font-size:12.5px;color:var(--redup)}
+.angka4 .utama small{color:#c9c9cf}
+.angka4 b{font-size:21px}
+.angka4 .utama b{font-size:clamp(30px,9vw,40px)}
+.angka4 em{font-style:normal;font-size:12.5px;font-weight:700;margin-left:6px}
+.naik{color:#7ee2b0}.turun{color:#ffb3a8}
+.bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center;font-size:14px;margin-bottom:8px}
+.bar .isi{grid-column:1 / -1;height:8px;border-radius:4px;background:var(--biru-muda);overflow:hidden}
+.bar .isi span{display:block;height:100%;background:var(--utama);border-radius:4px}
+.bar .isi.kuning span{background:var(--kuning)}
+.jam{display:flex;align-items:flex-end;gap:3px;height:110px;padding-top:8px}
+.jam div{flex:1;background:var(--utama);border-radius:4px 4px 0 0;min-height:2px;position:relative}
+.jam div.puncak{background:var(--kuning)}
+.jamlabel{display:flex;gap:3px;font-size:10.5px;color:var(--redup);margin-top:4px}
+.jamlabel span{flex:1;text-align:center}
+.tx{list-style:none;margin:0;padding:0}
+.tx li{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid #f0ede6;font-size:14px}
+.tx li .k{flex:1;min-width:0}
+.tx li small{display:block;color:var(--redup);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx li.batal .k,.tx li.batal b{text-decoration:line-through;color:var(--redup)}
+.lencana{font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 8px;background:var(--biru-muda);color:var(--utama)}
+.kosong{text-align:center;padding:28px 10px;color:var(--redup)}
+.dua-kolom{display:grid;gap:14px}
+@media (min-width:760px){ .dua-kolom{grid-template-columns:1fr 1fr} .angka4{grid-template-columns:repeat(4,1fr)} .angka4 div.utama{grid-column:span 2} }
+</style>
+</head>
+<body>
+<header class="atas"><div class="wrap"><span style="font-weight:700">Lumbung · Dashboard owner</span><a class="redup" href="#" id="bMuat">↻ Muat ulang</a></div></header>
+<main class="wrap">
+  <div id="belum" class="kartu tersembunyi" style="margin-top:18px">
+    <h2>Buka dari link toko</h2>
+    <p class="sub">Halaman ini dibuka dari link yang dikirim aplikasi kasir (menu utama Lumbung → Dashboard online di HP owner → Kirim link ke WA owner). Setelah dibuka sekali, HP ini mengingatnya.</p>
+  </div>
+  <div id="isi" class="tersembunyi">
+    <div class="kepala"><div><h1 id="nama">Toko</h1><div class="status" id="status"><i></i><span></span></div></div></div>
+    <div class="periode" id="periode"></div>
+    <div class="angka4">
+      <div class="utama"><small>Omzet</small><b class="angka" id="aOmzet">Rp0</b><em id="aBanding"></em></div>
+      <div><small>Transaksi</small><b class="angka" id="aTx">0</b></div>
+      <div><small>Barang terjual</small><b class="angka" id="aPcs">0</b></div>
+      <div><small>Rata-rata / transaksi</small><b class="angka" id="aRata">Rp0</b></div>
+      <div><small>Diskon & promo</small><b class="angka" id="aDiskon">Rp0</b></div>
+    </div>
+    <div class="dua-kolom">
+      <section class="kartu"><h2>🏆 Terlaris</h2><div id="laris"></div></section>
+      <section class="kartu"><h2>📦 Per kategori</h2><div id="kategori"></div></section>
+      <section class="kartu"><h2>⏰ Jam ramai</h2><div class="jam" id="jam"></div><div class="jamlabel" id="jamLabel"></div></section>
+      <section class="kartu"><h2>💳 Cara bayar</h2><div id="bayar"></div><h2 id="harianJudul" style="margin-top:16px">📅 Per hari</h2><div id="harian"></div></section>
+    </div>
+    <section class="kartu"><h2>🧾 Transaksi terbaru</h2><ul class="tx" id="tx"></ul></section>
+    <p class="kecil redup">Diperbarui otomatis tiap 30 detik selama halaman terbuka. Data dikirim dari aplikasi kasir saat ada internet.</p>
+  </div>
+</main>
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  var rp = function(n){ return "Rp" + Math.round(n || 0).toLocaleString("id-ID"); };
+  var INGAT = "willo_dash_owner_v1", API = "/alat/api/toko/";
+  function ambilLink(){
+    var h = new URLSearchParams(location.hash.slice(1)), t = h.get("t"), k = h.get("k");
+    if (t && k) { try { localStorage.setItem(INGAT, JSON.stringify({ t:t, k:k })); } catch(e){} history.replaceState(null, "", location.pathname); return { t:t, k:k }; }
+    try { return JSON.parse(localStorage.getItem(INGAT)); } catch(e){ return null; }
+  }
+  var toko = ambilLink();
+  if (!toko) { $("belum").classList.remove("tersembunyi"); return; }
+  $("isi").classList.remove("tersembunyi");
+  var PERIODE = [["hari","Hari ini"],["kemarin","Kemarin"],["7","7 hari"],["bulan","Bulan ini"],["bulanlalu","Bulan lalu"]], pil = "hari";
+  function rentang(p){
+    var d = new Date(); d.setHours(0,0,0,0); var awal = d.getTime(), satu = 864e5;
+    if (p === "hari") return [awal, awal + satu, awal - satu, awal];
+    if (p === "kemarin") return [awal - satu, awal, awal - 2 * satu, awal - satu];
+    if (p === "7") return [awal - 6 * satu, awal + satu, awal - 13 * satu, awal - 6 * satu];
+    var b = new Date(d.getFullYear(), d.getMonth(), 1).getTime(), bl = new Date(d.getFullYear(), d.getMonth() - 1, 1).getTime(), b2 = new Date(d.getFullYear(), d.getMonth() - 2, 1).getTime();
+    if (p === "bulan") return [b, awal + satu, bl, bl + (awal + satu - b)];
+    return [bl, b, b2, bl];
+  }
+  function gambarPeriode(){
+    var c = $("periode"); c.innerHTML = "";
+    PERIODE.forEach(function(x){ var b = document.createElement("button"); b.textContent = x[1]; if (x[0] === pil) b.className = "pilih"; b.onclick = function(){ pil = x[0]; gambarPeriode(); muat(); }; c.appendChild(b); });
+  }
+  function bars(el, rows, kuning){
+    el.innerHTML = ""; if (!rows.length) { el.innerHTML = '<p class="kecil redup" style="margin:0">Belum ada.</p>'; return; }
+    var maks = rows[0][1] || 1;
+    rows.forEach(function(r){ var d = document.createElement("div"); d.className = "bar";
+      d.innerHTML = '<span class="n"></span><b class="angka"></b><div class="isi' + (kuning ? " kuning" : "") + '"><span></span></div>';
+      d.querySelector(".n").textContent = r[0]; d.querySelector("b").textContent = r[2]; d.querySelector(".isi span").style.width = Math.max(2, r[1] / maks * 100) + "%"; el.appendChild(d); });
+  }
+  var NAMA_BAYAR = { tunai:"Tunai", qris:"QRIS", transfer:"Transfer" };
+  function gambar(data, banding){
+    $("nama").textContent = data.nama || "Toko";
+    var mnt = data.sinkron ? Math.round((Date.now() - data.sinkron) / 60000) : null, st = $("status");
+    st.classList.toggle("lama", mnt == null || mnt > 120);
+    st.querySelector("span").textContent = mnt == null ? "Belum ada data dari kasir" : "Kasir terakhir mengirim " + (mnt < 1 ? "baru saja" : mnt < 60 ? mnt + " menit lalu" : mnt < 1440 ? Math.round(mnt / 60) + " jam lalu" : Math.round(mnt / 1440) + " hari lalu");
+    var r = rentang(pil), sah = data.jual.filter(function(j){ return !j.batal && j.w >= r[0] && j.w < r[1]; });
+    var omzet = 0, pcs = 0, ds = 0, laris = {}, kat = {}, bayar = {}, jam = new Array(24).fill(0), hari = {};
+    sah.forEach(function(j){
+      omzet += j.tot || 0; ds += j.ds || 0; bayar[j.m || "tunai"] = (bayar[j.m || "tunai"] || 0) + (j.tot || 0);
+      var dt = new Date(j.w); jam[dt.getHours()] += j.tot || 0;
+      var hk = dt.toLocaleDateString("id-ID", { day:"numeric", month:"short" }); hari[hk] = (hari[hk] || 0) + (j.tot || 0);
+      (j.isi || []).forEach(function(x){ pcs += x.q || 0; var l = laris[x.n] = laris[x.n] || [0, 0]; l[0] += x.q || 0; l[1] += (x.q || 0) * (x.h || 0);
+        var k = x.k || "Lainnya"; kat[k] = (kat[k] || 0) + (x.q || 0) * (x.h || 0); });
+    });
+    $("aOmzet").textContent = rp(omzet); $("aTx").textContent = sah.length.toLocaleString("id-ID"); $("aPcs").textContent = pcs.toLocaleString("id-ID");
+    $("aRata").textContent = rp(sah.length ? omzet / sah.length : 0); $("aDiskon").textContent = rp(ds);
+    var bnd = banding.filter(function(j){ return !j.batal && j.w >= r[2] && j.w < r[3]; }).reduce(function(a, j){ return a + (j.tot || 0); }, 0);
+    var eb = $("aBanding"); eb.textContent = ""; eb.className = "";
+    if (bnd > 0) { var pr = Math.round((omzet - bnd) / bnd * 100); eb.textContent = (pr >= 0 ? "▲ " : "▼ ") + Math.abs(pr) + "% dari periode sebelumnya"; eb.className = pr >= 0 ? "naik" : "turun"; }
+    bars($("laris"), Object.keys(laris).map(function(n){ return [n, laris[n][0], laris[n][0] + " pcs · " + rp(laris[n][1])]; }).sort(function(a, b){ return b[1] - a[1]; }).slice(0, 10));
+    bars($("kategori"), Object.keys(kat).map(function(n){ return [n, kat[n], rp(kat[n])]; }).sort(function(a, b){ return b[1] - a[1]; }), true);
+    bars($("bayar"), Object.keys(bayar).map(function(n){ return [NAMA_BAYAR[n] || n, bayar[n], rp(bayar[n])]; }).sort(function(a, b){ return b[1] - a[1]; }));
+    var multiHari = pil === "7" || pil === "bulan" || pil === "bulanlalu";
+    $("harianJudul").classList.toggle("tersembunyi", !multiHari); $("harian").classList.toggle("tersembunyi", !multiHari);
+    if (multiHari) bars($("harian"), Object.keys(hari).map(function(n){ return [n, hari[n], rp(hari[n])]; }).sort(function(a, b){ return b[1] - a[1]; }).slice(0, 10), true);
+    var lo = 7, hi = 22; jam.forEach(function(v, i){ if (v) { lo = Math.min(lo, i); hi = Math.max(hi, i); } });
+    var mj = Math.max.apply(null, jam.slice(lo, hi + 1)) || 1, jc = $("jam"), jl = $("jamLabel"); jc.innerHTML = ""; jl.innerHTML = "";
+    for (var i = lo; i <= hi; i++) { var d = document.createElement("div"); d.style.height = (jam[i] / mj * 100) + "%"; if (jam[i] === mj && jam[i] > 0) d.className = "puncak"; d.title = i + ".00 · " + rp(jam[i]); jc.appendChild(d);
+      var s = document.createElement("span"); s.textContent = (i % 3 === 0) ? i : ""; jl.appendChild(s); }
+    var ul = $("tx"); ul.innerHTML = "";
+    var semua = data.jual.filter(function(j){ return j.w >= r[0] && j.w < r[1]; }).sort(function(a, b){ return b.w - a.w; }).slice(0, 40);
+    if (!semua.length) ul.innerHTML = '<li class="kosong" style="display:block;border:0">Belum ada penjualan pada periode ini.</li>';
+    semua.forEach(function(j){
+      var li = document.createElement("li"); if (j.batal) li.className = "batal";
+      li.innerHTML = '<span class="k"><span class="no"></span><small></small></span><span class="lencana"></span><b class="angka"></b>';
+      var dt = new Date(j.w);
+      li.querySelector(".no").textContent = (j.no || "") + " · " + dt.toLocaleTimeString("id-ID", { hour:"2-digit", minute:"2-digit" }) + (pil !== "hari" && pil !== "kemarin" ? " · " + dt.toLocaleDateString("id-ID", { day:"numeric", month:"short" }) : "") + (j.batal ? " · dibatalkan" : "");
+      li.querySelector("small").textContent = (j.isi || []).map(function(x){ return x.q + "× " + x.n; }).join(", ");
+      li.querySelector(".lencana").textContent = NAMA_BAYAR[j.m] || j.m || "Tunai"; li.querySelector("b").textContent = rp(j.tot);
+      ul.appendChild(li);
+    });
+  }
+  var sedang = false;
+  function muat(){
+    if (sedang) return; sedang = true;
+    var r = rentang(pil), dari = Math.min(r[0], r[2]);
+    fetch(API + toko.t + "?dari=" + dari + "&sampai=" + r[1], { headers: { "x-kunci": toko.k }, cache: "no-store" })
+      .then(function(x){ if (x.status === 403 || x.status === 401) throw new Error("kunci"); if (!x.ok) throw new Error("server"); return x.json(); })
+      .then(function(d){ sedang = false; gambar(d, d.jual); })
+      .catch(function(e){ sedang = false; var st = $("status"); st.classList.add("lama");
+        st.querySelector("span").textContent = e.message === "kunci" ? "Link tidak berlaku lagi. Minta link baru dari aplikasi kasir." : "Gagal memuat (cek internet). Dicoba lagi otomatis."; });
+  }
+  $("bMuat").onclick = function(e){ e.preventDefault(); muat(); };
+  gambarPeriode(); muat(); setInterval(function(){ if (!document.hidden) muat(); }, 30000);
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden) muat(); });
+})();
+</script>
+</body>
+</html>

@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const akar = dirname(fileURLToPath(import.meta.url));
 const pub = join(akar, "..", "public");
 const www = join(akar, "www");
-const ALAT = ["index.html", "alat.css", "printer.js", "ikon.js", "owner.js", "kasir", "antrian", "nota", "tagihan", "buku-kas"];
+const ALAT = ["index.html", "alat.css", "printer.js", "ikon.js", "owner.js", "sinkron.js", "kasir", "antrian", "nota", "tagihan", "buku-kas"];
 const SITUS = "https://willoapparel.com";
 
 rmSync(www, { recursive: true, force: true });

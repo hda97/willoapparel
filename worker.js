@@ -2686,6 +2686,62 @@ function log(env, request, kind, path, ref) {
   });
 }
 
+// Dashboard owner Lumbung (Huda 15 Nov 2026): satu Durable Object per toko. Tablet kasir mengirim catatan penjualan
+// (barang, jumlah, total, cara bayar; tanpa data pelanggan) dengan kunci rahasia; HP owner membacanya dengan kunci yang sama.
+// Server hanya menyimpan sidik SHA-256 kunci. Data lebih dari 400 hari dihapus.
+async function sidikKunci(k) {
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("lumbung-toko:" + k));
+  return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join("");
+}
+export class Toko extends DurableObject {
+  constructor(ctx, env) {
+    super(ctx, env);
+    this.sql = ctx.storage.sql;
+    this.sql.exec("CREATE TABLE IF NOT EXISTS jual (id TEXT PRIMARY KEY, w INTEGER, d TEXT)");
+    this.sql.exec("CREATE INDEX IF NOT EXISTS jual_w ON jual(w)");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT)");
+  }
+  meta(k) { const r = this.sql.exec("SELECT v FROM meta WHERE k = ?", k).toArray(); return r.length ? r[0].v : null; }
+  aturMeta(k, v) { this.sql.exec("INSERT OR REPLACE INTO meta (k, v) VALUES (?, ?)", k, String(v)); }
+  async fetch(request) {
+    const u = new URL(request.url);
+    const kunci = request.headers.get("x-kunci") || "";
+    if (kunci.length < 24 || kunci.length > 80) return Response.json({ galat: "kunci" }, { status: 401 });
+    const h = await sidikKunci(kunci), ada = this.meta("kunci");
+    if (request.method === "POST") {
+      if (ada && ada !== h) return Response.json({ galat: "kunci" }, { status: 403 });
+      const teks = await request.text();
+      if (teks.length > 2000000) return Response.json({ galat: "besar" }, { status: 413 });
+      let b; try { b = JSON.parse(teks); } catch (e) { return Response.json({ galat: "json" }, { status: 400 }); }
+      if (!ada) { this.aturMeta("kunci", h); this.aturMeta("dibuat", Date.now()); }
+      if (b.nama) this.aturMeta("nama", String(b.nama).slice(0, 60));
+      let n = 0;
+      for (const j of (Array.isArray(b.jual) ? b.jual : []).slice(0, 500)) {
+        const id = String(j && j.id || "").slice(0, 60), w = Number(j && j.w);
+        if (!id || !Number.isFinite(w)) continue;
+        const d = JSON.stringify(j.d || {});
+        if (d.length > 30000) continue;
+        this.sql.exec("INSERT OR REPLACE INTO jual (id, w, d) VALUES (?, ?, ?)", id, Math.round(w), d); n++;
+      }
+      this.sql.exec("DELETE FROM jual WHERE w < ?", Date.now() - 400 * 864e5);
+      this.aturMeta("sinkron", Date.now());
+      return Response.json({ ok: true, n });
+    }
+    if (!ada || ada !== h) return Response.json({ galat: "kunci" }, { status: 403 });
+    const dari = Number(u.searchParams.get("dari")) || Date.now() - 864e5, sampai = Number(u.searchParams.get("sampai")) || Date.now() + 864e5;
+    const jual = this.sql.exec("SELECT d FROM jual WHERE w >= ? AND w < ? ORDER BY w LIMIT 20000", dari, sampai).toArray().map((r) => JSON.parse(r.d));
+    return Response.json({ nama: this.meta("nama") || "", sinkron: Number(this.meta("sinkron")) || 0, jual });
+  }
+}
+async function apiToko(request, url, env) {
+  const cors = { "access-control-allow-origin": "*", "access-control-allow-methods": "GET, POST, OPTIONS", "access-control-allow-headers": "content-type, x-kunci", "access-control-max-age": "86400" };
+  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+  const id = url.pathname.slice("/alat/api/toko/".length);
+  if (!/^[a-z0-9]{16,40}$/.test(id) || !env.TOKO || !["GET", "POST"].includes(request.method)) return new Response('{"galat":"alamat"}', { status: 404, headers: { ...cors, "content-type": "application/json" } });
+  const r = await env.TOKO.get(env.TOKO.idFromName(id)).fetch(new Request("https://toko/?" + url.searchParams, { method: request.method, headers: request.headers, body: request.method === "POST" ? request.body : undefined }));
+  return new Response(r.body, { status: r.status, headers: { ...cors, "content-type": "application/json", "cache-control": "no-store" } });
+}
+
 export default {
   // Cron tiap 10 menit (wrangler.jsonc triggers): kirim notifikasi HP Dunia Kotak yang jatuh tempo (panen siap, Pasar Malam, voting, pulang kampung).
   async scheduled(event, env, ctx) {
@@ -2727,7 +2783,7 @@ export default {
       const alat = { "/alat": "/alat/", "/kasir": "/alat/kasir/", "/alat/kasir": "/alat/kasir/", "/antrian": "/alat/antrian/", "/alat/antrian": "/alat/antrian/",
         "/kas": "/alat/buku-kas/", "/bukukas": "/alat/buku-kas/", "/alat/bukukas": "/alat/buku-kas/", "/alat/jpgkevektor": "/alat/jpg-ke-vektor/",
         "/nota": "/alat/nota/", "/alat/nota": "/alat/nota/", "/invoice": "/alat/nota/",
-        "/tagihan": "/alat/tagihan/", "/alat/tagihan": "/alat/tagihan/", "/kos": "/alat/tagihan/", "/spp": "/alat/tagihan/" };
+        "/tagihan": "/alat/tagihan/", "/alat/tagihan": "/alat/tagihan/", "/alat/owner": "/alat/owner/", "/dashboard": "/alat/owner/", "/kos": "/alat/tagihan/", "/spp": "/alat/tagihan/" };
       if (alat[pendek] && url.pathname !== alat[pendek]) {
         url.pathname = alat[pendek];
         return Response.redirect(url.toString(), 301);
@@ -2762,6 +2818,7 @@ export default {
       const r = await stub.fetch("https://do/?" + q);
       return new Response(r.body, { headers: { "content-type": "application/json", "cache-control": "no-store" } });
     }
+    if (url.pathname.startsWith("/alat/api/toko/")) return apiToko(request, url, env);
     if (url.pathname.startsWith("/duniakotak/api/")) return apiWarga(request, env, url, ctx);
     if (pendek === "/warga" || pendek === "/daftarwarga") {
       url.pathname = "/duniakotak/";
