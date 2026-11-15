@@ -141,7 +141,7 @@ main{padding-bottom:110px}
   <h1>Kasir</h1>
   <p class="sub">Ketuk produk, terima tunai atau QRIS, kirim struk ke WA. Uang tidak lewat alat ini: pelanggan membayar langsung ke QRIS atau rekening tokomu.</p>
 
-  <div class="hariini"><span>Penjualan hari ini: <b class="angka" id="hJml">Rp0</b> · <span id="hN">0</span> transaksi</span><span class="baris" style="gap:6px"><button class="btn dua kecil" id="bLaporan" data-owner>📊 Laporan</button><a href="/alat/buku-kas/" class="btn dua kecil" data-owner>Buku Kas</a></span></div>
+  <div class="hariini"><span>Penjualan hari ini: <b class="angka" id="hJml">Rp0</b> · <span id="hN">0</span> transaksi</span><span class="baris" style="gap:6px"><button class="btn dua kecil" id="bRiwayat">🧾 Riwayat nota</button><button class="btn dua kecil" id="bLaporan" data-owner>📊 Laporan</button><a href="/alat/buku-kas/" class="btn dua kecil" data-owner>Buku Kas</a></span></div>
 
   <div class="kasir-grid"><div class="kiri">
   <input type="text" id="cari" class="cari" placeholder="Cari produk / scan barcode…" autocomplete="off" enterkeyhint="search">
@@ -212,6 +212,15 @@ main{padding-bottom:110px}
   <div class="baris"><button class="btn dua kecil" id="lapWa">💬 Kirim ringkasan ke WA</button><button class="btn dua kecil" id="lapCsv">⬇ Unduh rincian (CSV)</button></div>
 </div></dialog>
 
+<!-- Riwayat nota (Huda 16 Nov 2026): cari nota lama, lihat, cetak ulang / kirim WA -->
+<dialog id="dRiwayat"><div class="isi-dialog">
+  <div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">Riwayat nota</h2><button class="btn dua kecil" id="rwTutup">Tutup</button></div>
+  <input type="text" id="rwCari" placeholder="🔍 Cari nama pelanggan, nomor nota, barang…" autocomplete="off" style="margin:10px 0">
+  <div class="tab" id="rwFilter"><button type="button" data-f="semua" class="pilih">Semua</button><button type="button" data-f="hari">Hari ini</button><button type="button" data-f="dp">Belum lunas</button></div>
+  <ul class="riwayat" id="rwDaftar" style="list-style:none;margin:0;padding:0"></ul>
+  <button class="btn dua lebar kecil tersembunyi" id="rwLagi" style="margin-top:8px">Tampilkan lebih banyak</button>
+</div></dialog>
+
 <!-- Jenis usaha -->
 <dialog id="dJenis"><div class="isi-dialog">
   <h2>Usahamu apa?</h2>
@@ -263,7 +272,7 @@ main{padding-bottom:110px}
 
 <!-- Struk -->
 <dialog id="dStruk"><div class="isi-dialog">
-  <h2>✓ Pembayaran dicatat</h2>
+  <h2 id="stJudul">✓ Pembayaran dicatat</h2>
   <div class="struk" id="struk" data-teks><img id="strukLogo" alt="" class="tersembunyi"><span id="strukTeks"></span></div>
   <label class="isi" style="margin-top:12px">Kirim ke WA pelanggan <small>Kosongkan untuk pilih kontak di WhatsApp</small><input type="tel" id="stWa" placeholder="08…" autocomplete="off"></label>
   <div class="baris">
@@ -864,14 +873,16 @@ main{padding-bottom:110px}
 
   var strukTeks = "", noStruk = "";
   function opsiCetak(){ return { gambar:S.logoBit, tebal:["Total:","Tunai:","Kembalian:","Sisa:"], barcode:noStruk }; }
-  function buatStruk(no, terima){
-    var L = 32, gar = "-".repeat(L), t = total(), dp = bayarSekarang();
+  // D (opsional): data nota tersimpan untuk cetak ulang dari Riwayat nota.
+  function buatStruk(no, terima, D){
+    D = D || { w:Date.now(), isi:keranjang, sub:subtotal(), ds:diskon().jml, t:total(), dp:bayarSekarang(), mt:namaMetode(), pel:bayarNama, tunai:metode === "Tunai" };
+    var L = 32, gar = "-".repeat(L), t = D.t, dp = D.dp, isi = D.isi, pel = D.pel;
     var kanan = function(a, b){ var s = L - a.length - b.length; return a + " ".repeat(Math.max(1, s)) + b; };
     var tengah = function(s){ var p = Math.max(0, Math.floor((L - s.length) / 2)); return " ".repeat(p) + s; };
     var ki = function(s, n){ s = String(s); return s.length >= n ? s.slice(0, n) : s + " ".repeat(n - s.length); };
     var ka = function(s, n){ s = String(s); return s.length >= n ? s : " ".repeat(n - s.length) + s; };
     var ang = function(n){ return n.toLocaleString("id-ID"); };
-    var d = new Date(), w = d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+    var d = new Date(D.w), w = d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
     var b = [];
     if (S.nama) b.push(tengah(S.nama.toUpperCase().slice(0, L)));
     if (S.tagline) b.push(tengah(S.tagline.slice(0, L)));
@@ -881,43 +892,44 @@ main{padding-bottom:110px}
     if (ringkas) {
       // Struk ringkas: satu baris per barang, tanpa kolom harga satuan dan tanpa baris kosong.
       b.push(gar, kanan(no, w));
-      if (bayarNama) b.push(("Pelanggan: " + bayarNama).slice(0, L));
+      if (pel) b.push(("Pelanggan: " + pel).slice(0, L));
       var qr = 0;
-      keranjang.forEach(function(k){ qr += k.q; var r = " x" + k.q + " " + ka(ang(k.harga * k.q), 7), ru = L - r.length; if (k.nama.length <= ru) b.push(ki(k.nama, ru) + r); else b.push(k.nama.slice(0, L), ka(r.trim(), L)); });
+      isi.forEach(function(k){ qr += k.q; var r = " x" + k.q + " " + ka(ang(k.harga * k.q), 7), ru = L - r.length; if (k.nama.length <= ru) b.push(ki(k.nama, ru) + r); else b.push(k.nama.slice(0, L), ka(r.trim(), L)); });
       b.push(gar);
-      var dr = diskon();
-      if (dr.jml) b.push(kanan(qr + " pcs  Subtotal:", rp(subtotal())), kanan("Diskon:", "-" + rp(dr.jml)));
+      if (D.ds) b.push(kanan(qr + " pcs  Subtotal:", rp(D.sub)), kanan("Diskon:", "-" + rp(D.ds)));
       b.push(kanan("Total:", rp(t)));
-      if (dp < t) b.push(kanan("DP:", rp(dp)), kanan("Sisa:", rp(t - dp)));
-      if (metode === "Tunai" && terima) b.push(kanan("Tunai:", rp(terima)), kanan("Kembalian:", rp(terima - dp)));
-      else b.push(kanan("Bayar:", namaMetode()));
+      if (dp < t) b.push(kanan("DP:", rp(dp)), D.lunas ? kanan("Pelunasan:", rp(t - dp)) : kanan("Sisa:", rp(t - dp)));
+    if (D.lunas) b.push(kanan("Status:", "LUNAS " + new Date(D.lunas).toLocaleDateString("id-ID")));
+      if (D.tunai && terima) b.push(kanan("Tunai:", rp(terima)), kanan("Kembalian:", rp(terima - dp)));
+      else b.push(kanan("Bayar:", D.mt));
       var pr2 = S.pesan || "Terima kasih :)"; while (pr2) { b.push(tengah(pr2.slice(0, L))); pr2 = pr2.slice(L); }
       if (S.taut !== false || !(window.LumbungSinkron && LumbungSinkron.pro())) b.push("willoapparel.com/alat (gratis)");
       return b.join("\n");
     }
     b.push(gar, "Faktur: " + no, "Jam   : " + w);
-    if (bayarNama) b.push(("Nama  : " + bayarNama).slice(0, L));
+    if (pel) b.push(("Nama  : " + pel).slice(0, L));
     b.push("");
     // Kolom 32: Barang 11 | Qty 3 | Harga 8 | Jlh 10
     b.push(ki("Barang", 11) + ka("Qty", 3) + ka("Harga", 8) + ka("Jlh", 10), gar);
     var qty = 0;
-    keranjang.forEach(function(k){
+    isi.forEach(function(k){
       qty += k.q;
       var angka = ka(k.q, 3) + ka(ang(k.harga), 8) + ka(ang(k.harga * k.q), 10);
       if (k.nama.length <= 10) b.push(ki(k.nama, 11) + angka);
       else { var n = k.nama; while (n.length > L) { b.push(n.slice(0, L)); n = n.slice(L); } b.push(n); b.push(ki("", 11) + angka); }
     });
     b.push(gar);
-    var ds = diskon(), kiri = ["Barang: " + keranjang.length, "Qty   : " + qty], kn = [["Subtotal:", rp(subtotal())]];
-    if (ds.jml) kn.push(["Diskon:", "-" + rp(ds.jml)]);
+    var kiri = ["Barang: " + isi.length, "Qty   : " + qty], kn = [["Subtotal:", rp(D.sub)]];
+    if (D.ds) kn.push(["Diskon:", "-" + rp(D.ds)]);
     for (var i = 0; i < Math.max(kiri.length, kn.length); i++) {
       var r = kn[i] ? kn[i][0] + " " + ka(kn[i][1], 11) : "";
       b.push(ki(kiri[i] || "", L - r.length) + r);
     }
     b.push(gar, kanan("Total:", rp(t)));
-    if (dp < t) b.push(kanan("DP:", rp(dp)), kanan("Sisa:", rp(t - dp)));
-    if (metode === "Tunai" && terima) b.push(kanan("Tunai:", rp(terima)), kanan("Kembalian:", rp(terima - dp)));
-    else b.push(kanan("Bayar:", namaMetode()));
+    if (dp < t) b.push(kanan("DP:", rp(dp)), D.lunas ? kanan("Pelunasan:", rp(t - dp)) : kanan("Sisa:", rp(t - dp)));
+    if (D.lunas) b.push(kanan("Status:", "LUNAS " + new Date(D.lunas).toLocaleDateString("id-ID")));
+    if (D.tunai && terima) b.push(kanan("Tunai:", rp(terima)), kanan("Kembalian:", rp(terima - dp)));
+    else b.push(kanan("Bayar:", D.mt));
     b.push(gar);
     var ps = S.pesan || ""; while (ps) { b.push(tengah(ps.slice(0, L))); ps = ps.slice(L); }
     b.push(tengah("Terima kasih :)"));
@@ -933,6 +945,8 @@ main{padding-bottom:110px}
     ubahStok(keranjang, -1);
     var jj = { kid:kid, no:no, w:Date.now(), m:mt, tot:t, ds:diskon().jml };
     if (bayarNama) jj.pel = bayarNama;
+    if (metode === "Tunai" && terima) jj.tr = terima;
+    if (diskon().jml) jj.sub = subtotal();
     if (dp < t) { jj.dp = dp; jj.sisa = t - dp; }
     catatJual(Object.assign(jj, { isi:keranjang.map(function(k){ var pr = S.produk.filter(function(x){ return x.id === k.id; })[0]; var o = { id:k.id, n:k.nama, q:k.q, h:k.harga, k:(pr && pr.kat) || "" }; if (pr && pr.modal) o.m = pr.modal; return o; }) }));
     if (S.kas !== false) {
@@ -941,7 +955,7 @@ main{padding-bottom:110px}
       k.tx.push({ id:kid, t:"masuk", jml:dp, kat:"Penjualan", ket:((dp < t ? "DP " : "") + "Kasir #" + no + (bayarNama ? " " + bayarNama : "") + ": " + ket).slice(0, 80), tgl:tglIni(), metode:mt, sumber:"kasir" });
       try { localStorage.setItem(KAS, JSON.stringify(k)); } catch(e){ pesan("Buku Kas penuh, penjualan tidak tercatat"); }
     }
-    $("dBayar").close(); resetBayar();
+    $("dBayar").close(); resetBayar(); dariRiwayat = false; $("stJudul").textContent = "✓ Pembayaran dicatat"; $("stBaru").textContent = "Transaksi baru";
     $("strukTeks").textContent = strukTeks; $("stWa").value = "";
     $("strukLogo").classList.toggle("tersembunyi", !S.logo); if (S.logo) $("strukLogo").src = S.logo;
     $("dStruk").showModal();
@@ -962,8 +976,49 @@ main{padding-bottom:110px}
       .catch(function(e){ var m = CetakTermal.pesanGagal(e); if (m) pesan(m); })
       .then(function(){ b.disabled = false; b.textContent = "🖨️ Printer Bluetooth"; });
   };
-  $("stBaru").onclick = function(){ keranjang = []; $("dStruk").close(); gambar(); window.scrollTo({ top:0, behavior:"smooth" }); };
-  $("dStruk").addEventListener("close", function(){ if (keranjang.length) { keranjang = []; gambar(); } });
+  $("stBaru").onclick = function(){ if (dariRiwayat) { $("dStruk").close(); return; } keranjang = []; $("dStruk").close(); gambar(); window.scrollTo({ top:0, behavior:"smooth" }); };
+  $("dStruk").addEventListener("close", function(){ if (dariRiwayat) { dariRiwayat = false; return; } if (keranjang.length) { keranjang = []; gambar(); } });
+
+  // Riwayat nota: semua transaksi Kasir di HP ini (terbaru di atas), bisa dicari, dilihat, dicetak ulang.
+  var dariRiwayat = false, rwF = "semua", rwN = 40;
+  function strukDari(j){
+    var isi = (j.isi || []).map(function(x){ return { nama:x.n, harga:x.h, q:x.q }; });
+    var sub = j.sub || isi.reduce(function(a, x){ return a + x.harga * x.q; }, 0);
+    return buatStruk(j.no, j.tr || 0, { w:j.w, isi:isi, sub:sub, ds:j.ds || 0, t:j.tot, dp:j.dp || j.tot, mt:j.m, pel:j.pel || "", tunai:j.m === "Tunai", lunas:j.lunas || 0 });
+  }
+  function bukaNota(j){
+    noStruk = j.no; strukTeks = strukDari(j); dariRiwayat = true;
+    $("stJudul").textContent = "Nota " + j.no + (j.batal ? " (DIBATALKAN)" : ""); $("stBaru").textContent = "Tutup";
+    $("strukTeks").textContent = strukTeks; $("stWa").value = "";
+    $("strukLogo").classList.toggle("tersembunyi", !S.logo); if (S.logo) $("strukLogo").src = S.logo;
+    $("dStruk").showModal();
+  }
+  function gambarRw(){
+    var q = $("rwCari").value.trim().toLowerCase(), hari = new Date(); hari.setHours(0,0,0,0);
+    var a = bacaJual().slice().reverse().filter(function(j){
+      if (rwF === "hari" && j.w < hari.getTime()) return false;
+      if (rwF === "dp" && !(j.sisa > 0 && !j.batal)) return false;
+      return !q || (j.no + " " + (j.pel || "") + " " + j.m + " " + (j.isi || []).map(function(x){ return x.n; }).join(" ")).toLowerCase().indexOf(q) >= 0;
+    });
+    var ul = $("rwDaftar"); ul.innerHTML = "";
+    if (!a.length) ul.innerHTML = '<li class="redup" style="justify-content:center;border:0;padding:16px 0">Belum ada nota.</li>';
+    a.slice(0, rwN).forEach(function(j){
+      var li = document.createElement("li"), d = new Date(j.w); if (j.batal) li.className = "batal"; li.style.cursor = "pointer";
+      li.innerHTML = '<span class="ket"><b></b><small></small></span><span class="angka"></span>';
+      li.querySelector("b").textContent = j.no + " · " + d.toLocaleDateString("id-ID", { day:"numeric", month:"short", year:"2-digit" }) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + (j.pel ? " · " + j.pel : "") + (j.sisa ? " · sisa " + rp(j.sisa) : "");
+      li.querySelector("small").textContent = j.m + " · " + (j.isi || []).map(function(x){ return x.q + " " + x.n; }).join(", ");
+      li.querySelector(".angka").textContent = rp(j.tot);
+      li.onclick = function(){ bukaNota(j); };
+      ul.appendChild(li);
+    });
+    $("rwLagi").classList.toggle("tersembunyi", a.length <= rwN);
+  }
+  $("bRiwayat").onclick = function(){ rwN = 40; $("rwCari").value = ""; gambarRw(); $("dRiwayat").showModal(); };
+  $("rwTutup").onclick = function(){ $("dRiwayat").close(); };
+  $("rwCari").oninput = function(){ rwN = 40; gambarRw(); };
+  $("rwLagi").onclick = function(){ rwN += 40; gambarRw(); };
+  Array.prototype.forEach.call($("rwFilter").children, function(b){ b.onclick = function(){ rwF = b.dataset.f; Array.prototype.forEach.call($("rwFilter").children, function(x){ x.classList.toggle("pilih", x === b); }); rwN = 40; gambarRw(); }; });
+
 
   window.addEventListener("storage", function(e){ if (e.key === KAS) gambarHariIni(); });
   gambar();

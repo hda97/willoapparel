@@ -2896,7 +2896,7 @@ export default {
       const alat = { "/alat": "/alat/", "/kasir": "/alat/kasir/", "/alat/kasir": "/alat/kasir/", "/antrian": "/alat/antrian/", "/alat/antrian": "/alat/antrian/",
         "/kas": "/alat/buku-kas/", "/bukukas": "/alat/buku-kas/", "/alat/bukukas": "/alat/buku-kas/", "/alat/jpgkevektor": "/alat/jpg-ke-vektor/",
         "/nota": "/alat/nota/", "/alat/nota": "/alat/nota/", "/invoice": "/alat/nota/",
-        "/tagihan": "/alat/tagihan/", "/alat/tagihan": "/alat/tagihan/", "/alat/owner": "/alat/owner/", "/dashboard": "/alat/owner/", "/alat/pro": "/alat/pro/", "/lumbungpro": "/alat/pro/", "/alat/pengaturan": "/alat/pengaturan/", "/alat/stok": "/alat/stok/", "/alat/hpp": "/alat/hpp/", "/alat/impor": "/alat/impor/", "/hpp": "/alat/hpp/", "/kos": "/alat/tagihan/", "/spp": "/alat/tagihan/" };
+        "/tagihan": "/alat/tagihan/", "/alat/tagihan": "/alat/tagihan/", "/alat/owner": "/alat/owner/", "/dashboard": "/alat/owner/", "/alat/pro": "/alat/pro/", "/lumbungpro": "/alat/pro/", "/alat/pengaturan": "/alat/pengaturan/", "/alat/stok": "/alat/stok/", "/alat/hpp": "/alat/hpp/", "/alat/impor": "/alat/impor/", "/alat/absen": "/alat/absen/", "/absen": "/alat/absen/", "/hpp": "/alat/hpp/", "/kos": "/alat/tagihan/", "/spp": "/alat/tagihan/" };
       if (alat[pendek] && url.pathname !== alat[pendek]) {
         url.pathname = alat[pendek];
         return Response.redirect(url.toString(), 301);
