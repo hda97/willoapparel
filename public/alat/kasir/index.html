@@ -209,7 +209,8 @@ main{padding-bottom:110px}
   <p class="kecil redup" style="margin:4px 0 10px">Dari transaksi Kasir di HP ini.</p>
   <div class="lap-periode" id="lapPeriode"></div>
   <div id="lapIsi"></div>
-  <div class="baris"><button class="btn dua kecil" id="lapWa">💬 Kirim ringkasan ke WA</button><button class="btn dua kecil" id="lapCsv">⬇ Unduh rincian (CSV)</button></div>
+  <div class="baris"><button class="btn dua kecil" id="lapWa">💬 Kirim ringkasan ke WA</button><button class="btn dua kecil" id="lapCsv">⬇ Unduh rincian (CSV)</button><button class="btn dua kecil" id="lapAi">✨ Saran AI</button></div>
+  <div id="lapAiIsi" class="tersembunyi" style="margin-top:10px;padding:10px 12px;border-radius:10px;background:rgba(127,127,127,.1);white-space:pre-line;font-size:14px;line-height:1.5"></div>
 </div></dialog>
 
 <!-- Riwayat nota (Huda 16 Nov 2026): cari nota lama, lihat, cetak ulang / kirim WA -->
@@ -589,6 +590,24 @@ main{padding-bottom:110px}
     Object.keys(o.metode).forEach(function(m){ t += m + ": " + rp(o.metode[m]) + "\n"; });
     t += "\nTerlaris:\n" + brg.map(function(k, i){ return (i + 1) + ". " + k + " (" + o.brg[k].q + ")"; }).join("\n");
     window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank", "noopener");
+  };
+  // Saran AI gratis (Huda 15 Nov 2026): hanya angka ringkas laporan yang dikirim (tanpa nama pelanggan),
+  // diolah di server willoapparel.com (Gemini/Groq, kunci tersimpan di server). Lihat apiAI() di worker.js.
+  $("lapAi").onclick = function(){
+    var o = hitungLap(), box = $("lapAiIsi"), b = $("lapAi"); if (!o.n) { pesan("Belum ada penjualan pada periode ini"); return; }
+    var top = function(obj, f, n){ return Object.keys(obj).sort(function(a,c){ return f(obj[c]) - f(obj[a]); }).slice(0, n); };
+    var d = { toko: S.nama || "", periode: judulP(), omzet: o.omzet, transaksi: o.n, barang_terjual: o.pcs, diskon: o.ds,
+      perkiraan_untung: o.adaModal ? o.untung : null,
+      terlaris: top(o.brg, function(x){ return x.q; }, 8).map(function(k){ return { barang: k, qty: o.brg[k].q, rp: o.brg[k].rp }; }),
+      paling_sepi: top(o.brg, function(x){ return -x.q; }, 3).map(function(k){ return { barang: k, qty: o.brg[k].q }; }),
+      cara_bayar: o.metode, transaksi_per_jam: o.jam,
+      stok_menipis: S.produk.filter(function(p){ return p.stok != null && p.stok <= batasStok(p); }).slice(0, 8).map(function(p){ return p.nama + " (" + p.stok + ")"; }) };
+    b.disabled = true; b.textContent = "✨ Berpikir…"; box.classList.remove("tersembunyi"); box.textContent = "Sedang membaca laporanmu…";
+    fetch("https://willoapparel.com/alat/api/ai/saran", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(d) })
+      .then(function(r){ return r.json(); })
+      .then(function(j){ box.textContent = j.saran ? "✨ Saran untuk tokomu:\n" + j.saran : (j.galat || "Saran belum bisa dibuat."); })
+      .catch(function(){ box.textContent = "Butuh internet untuk Saran AI. Coba lagi saat sinyal ada ya."; })
+      .then(function(){ b.disabled = false; b.textContent = "✨ Saran AI"; });
   };
   $("lapCsv").onclick = function(){
     var o = hitungLap(); if (!o.n) { pesan("Belum ada penjualan pada periode ini"); return; }

@@ -9,6 +9,11 @@ Untuk tiap akun di kata-kunci.json -> "akun":
    Kalau DM ditolak Meta, balasan publik langsung memuat linknya.
 2. DM: pesan masuk yang berisi kata kunci -> dibalas DM berisi link.
    Pesan tanpa kata kunci dibiarkan (dibaca dan dibalas pemilik akun sendiri).
+3. AI GRATIS (ai/ai_gratis.py, Gemini lalu Groq): komentar/DM yang TIDAK memuat kata kunci
+   tapi jelas minta salah satu alat (mis. "ada aplikasi buat catat utang warung?") ditebak
+   AI ke kata kunci yang cocok, lalu dibalas TEKS YANG SAMA dari kata-kunci.json (AI tidak
+   menulis balasan sendiri). Ragu = dibiarkan. Tanpa GEMINI_API_KEY/GROQ_API_KEY, bagian ini
+   otomatis mati. Matikan manual dengan env AI_TEBAK=0.
 
 Mode cek (python3 kata_kunci.py --cek): daftar akun IG yang bisa dijangkau token
 dan izin (scope) yang dimiliki token, tanpa membalas apa pun.
@@ -24,12 +29,19 @@ Syarat dari Meta (bukan dari kode ini):
 import datetime as dt, json, os, random, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from posting import req, muat_token, daftar_halaman, DIR
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "ai"))
+try:
+    from ai_gratis import tanya, ada_kunci
+except ImportError:  # folder ai/ tidak ikut di-checkout
+    tanya, ada_kunci = (lambda *a, **k: None), (lambda: False)
 
 CONFIG = os.path.join(DIR, "kata-kunci.json")
 CATAT = os.path.join(DIR, "catatan-kata-kunci.json")  # disimpan di cache Actions, tidak di-commit
 UMUR_HARI = 7
 MAKS_PER_JALAN = int(os.environ.get("MAKS_BALAS", "40"))
 DM_AKTIF = os.environ.get("IG_DM", "1") != "0"
+AI_AKTIF = os.environ.get("AI_TEBAK", "1") != "0"
+AI_SISA = [int(os.environ.get("AI_MAKS", "20"))]  # batas panggilan AI per jalan (hemat kuota gratis)
 
 
 def waktu(s):
@@ -43,6 +55,27 @@ def cocok(teks, cfg):
         for kata in k["kata"]:
             if f" {kata.lower()} " in t:
                 return k
+    return None
+
+
+def tebak(teks, cfg):
+    """Kata kunci yang dimaksud pesan tanpa kata kunci, ditebak AI gratis. None kalau ragu."""
+    teks = (teks or "").strip()
+    if not (AI_AKTIF and ada_kunci()) or AI_SISA[0] <= 0 or len(teks) < 8:
+        return None
+    AI_SISA[0] -= 1
+    pilihan = "\n".join(f"- {k['kata'][0]}: {k['dm'].split(chr(10))[0][:140]}" for k in cfg["kata_kunci"])
+    jawab = tanya(
+        f"Pesan Instagram dari calon pengguna:\n\"\"\"{teks[:500]}\"\"\"\n\nDaftar alat:\n{pilihan}\n\n"
+        "Apakah pengirim jelas MEMINTA atau MENANYAKAN salah satu alat di atas? Jawab HANYA satu kata "
+        "kode alat (kata sebelum titik dua), atau TIDAK kalau ragu, cuma memuji, bercanda, atau di luar daftar.",
+        sistem="Kamu penyaring pesan untuk bot Instagram. Jawab satu kata saja, tanpa penjelasan.",
+        maks_token=10, suhu=0)
+    kode = re.sub(r"[^a-z0-9 ]", "", (jawab or "").lower()).strip()
+    for k in cfg["kata_kunci"]:
+        if kode and kode == k["kata"][0].lower():
+            print(f"[ai] {teks[:50]!r} -> {kode}")
+            return k
     return None
 
 
@@ -72,9 +105,11 @@ def layani_komentar(akun, token, ig_id, cfg, catat, sisa):
                 break
             if c["id"] in sudah or c.get("username", "").lower() == akun.lower():
                 continue
-            k = cocok(c.get("text"), cfg)
-            if not k or waktu(c["timestamp"]) < batas or any(
+            if waktu(c["timestamp"]) < batas or any(
                     r.get("username", "").lower() == akun.lower() for r in (c.get("replies") or {}).get("data", [])):
+                sudah.add(c["id"]); continue
+            k = cocok(c.get("text"), cfg) or tebak(c.get("text"), cfg)
+            if not k:
                 sudah.add(c["id"]); continue
             user = c.get("username", "kak")
             terkirim = False
@@ -114,7 +149,7 @@ def layani_dm(akun, token, ig_id, cfg, catat, sisa):
             sudah.add(msg["id"])
             if waktu(msg["created_time"]) < mulai:
                 continue
-            k = cocok(msg.get("message"), cfg)
+            k = cocok(msg.get("message"), cfg) or tebak(msg.get("message"), cfg)
             if not k:
                 continue
             try:
