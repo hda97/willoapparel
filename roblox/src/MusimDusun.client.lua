@@ -110,6 +110,7 @@ end
 local hitung = 0
 local waktu = 0
 local bagian, letak = {}, {}
+local tersimpan = false
 RunService.RenderStepped:Connect(function(dt)
 	kamera = workspace.CurrentCamera
 	if not kamera then return end
@@ -121,6 +122,21 @@ RunService.RenderStepped:Connect(function(dt)
 		if d ~= kini then ganti(d, p) end
 	end
 	if not jenis or #butir == 0 then return end
+	-- di dalam rumah (HiasRumah) tidak ada hujan/salju: butiran disingkirkan sekali
+	if player:GetAttribute("DK_DiRumah") then
+		if not tersimpan then
+			tersimpan = true
+			table.clear(bagian)
+			table.clear(letak)
+			for i, bt in ipairs(butir) do
+				bagian[i] = bt.part
+				letak[i] = CFrame.new(0, -4000, 0)
+			end
+			workspace:BulkMoveTo(bagian, letak, Enum.BulkMoveMode.FireCFrameChanged)
+		end
+		return
+	end
+	tersimpan = false
 	dt = math.min(dt, 0.1)
 	waktu += dt
 	table.clear(bagian)

@@ -109,7 +109,25 @@ local function hargaDari(id, jenis)
 	return harga[id] or nil
 end
 
-local TINGGI = 58
+-- gambar item: ikon yang diunggah di Creator Dashboard (pass: rbxthumb GamePass; produk: IconImageAssetId)
+local ikon = {}
+local function ikonDari(id, jenis)
+	if ikon[id] == nil then
+		ikon[id] = false
+		if jenis == "pass" then
+			ikon[id] = "rbxthumb://type=GamePass&id=" .. id .. "&w=150&h=150"
+		else
+			pcall(function()
+				local p = MarketplaceService:GetProductInfo(id, Enum.InfoType.Product)
+				if p and tonumber(p.IconImageAssetId) and p.IconImageAssetId ~= 0 then ikon[id] = "rbxassetid://" .. p.IconImageAssetId end
+			end)
+		end
+	end
+	return ikon[id] or nil
+end
+
+local TINGGI = 68
+local GAMBAR = 46
 local function segarkan()
 	local ok, d = pcall(function() return pintu:InvokeServer() end)
 	if not ok or typeof(d) ~= "table" or typeof(d.daftar) ~= "table" then return end
@@ -124,9 +142,23 @@ local function segarkan()
 		baris.Parent = isi
 		local nama = b.nama
 		if b.jenis == "produk" and b.nama:find("Bata") and d.bata > 0 then nama = nama .. "  ·  batamu " .. d.bata end
-		label(baris, nama, BERAT, 14, PUTIH, 10, 7, L - 150, 18)
-		label(baris, b.ket, TEBAL, 12, Color3.fromRGB(200, 200, 210), 10, 26, L - 150, 30)
-		local t = tombol(baris, "Segera hadir", L - 136, 12, 98, 34)
+		local g = Instance.new("ImageLabel")
+		g.Position = UDim2.fromOffset(6, (TINGGI - GAMBAR) / 2)
+		g.Size = UDim2.fromOffset(GAMBAR, GAMBAR)
+		g.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+		g.ScaleType = Enum.ScaleType.Crop
+		bulat(g, 8)
+		g.Parent = baris
+		if b.id ~= 0 then
+			task.spawn(function()
+				local gb = ikonDari(b.id, b.jenis)
+				if gb and g.Parent then g.Image = gb end
+			end)
+		end
+		local x0 = GAMBAR + 14
+		label(baris, nama, BERAT, 14, PUTIH, x0, 7, L - 150 - x0 + 10, 18)
+		label(baris, b.ket, TEBAL, 12, Color3.fromRGB(200, 200, 210), x0, 25, L - 146 - x0 + 10, 42)
+		local t = tombol(baris, "Segera hadir", L - 136, 17, 98, 34)
 		t.TextSize = 13
 		if b.id == 0 then
 			t.BackgroundColor3, t.TextColor3, t.Active = ABU, PUTIH, false
