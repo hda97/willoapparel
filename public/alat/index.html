@@ -11,14 +11,17 @@
 </script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Alat Usaha Gratis untuk UMKM: Kasir, Antrian, Nota, Buku Kas | Willo Apparel</title>
-<meta name="description" content="Kumpulan alat gratis untuk usaha kecil: kasir dengan QRIS, nomor antrian bersuara, buku kas pencatat keuangan. Tanpa daftar, jalan di HP, data tersimpan di HP sendiri.">
+<title>Alat Usaha Gratis untuk UMKM: Kasir, Antrian, Nota, Tagihan, Buku Kas | Willo Apparel</title>
+<meta name="description" content="Kumpulan alat gratis untuk usaha kecil: kasir dengan QRIS, nomor antrian bersuara, tagihan bulanan kos/bimbel, buku kas pencatat keuangan. Tanpa daftar, jalan di HP, data tersimpan di HP sendiri.">
 <link rel="canonical" href="https://willoapparel.com/alat/">
 <meta property="og:title" content="Alat Usaha Gratis untuk UMKM | Willo Apparel">
 <meta property="og:description" content="Kasir + QRIS, antrian bersuara, buku kas. Gratis, tanpa daftar, jalan di HP.">
 <meta property="og:locale" content="id_ID">
 <link rel="icon" href="/logo-willo.png">
 <link rel="stylesheet" href="/alat/alat.css">
+<script src="/alat/ikon.js" defer></script>
+<script src="/alat/owner.js"></script>
+<script src="/alat/sinkron.js" defer></script>
 <style>
 .daftar{display:grid;gap:10px}
 .daftar a{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--garis);border-radius:14px;padding:14px;text-decoration:none;color:var(--teks)}
@@ -35,16 +38,48 @@
 <header class="atas"><div class="wrap"><a href="/">← Willo Apparel</a></div></header>
 
 <main class="wrap">
-  <h1>Alat Usaha Gratis</h1>
+  <h1>Lumbung <small style="font-size:15px;font-weight:600;color:var(--redup)">by Willo Studio</small></h1>
+  <p style="margin:0 0 4px;font-weight:700">Alat Usaha Gratis</p>
   <p class="sub">Untuk warung, konter, bengkel, salon, dan usaha kecil lainnya. Tanpa daftar, tanpa pasang aplikasi, data tersimpan di HP sendiri.</p>
 
   <div class="daftar">
     <a href="/alat/kasir/"><span class="ik" style="background:#e6f5ee">🧾</span><span><b>Kasir + QRIS</b><span class="k">Ketuk produk, hitung kembalian, tampilkan QRIS toko, struk ke WA.</span></span><span class="panah">›</span></a>
     <a href="/alat/antrian/"><span class="ik" style="background:#fff5d1">🔢</span><span><b>Antrian</b><span class="k">Ambil nomor, panggil dengan suara, layar besar untuk pelanggan.</span></span><span class="panah">›</span></a>
     <a href="/alat/nota/"><span class="ik" style="background:#f3ecff">📄</span><span><b>Nota & Invoice</b><span class="k">Catat pesanan, DP, dan sisa tagihan. Kirim nota ke WA atau PDF.</span></span><span class="panah">›</span></a>
-    <a href="/alat/buku-kas/"><span class="ik" style="background:#eef2ff">📒</span><span><b>Buku Kas</b><span class="k">Catat uang masuk & keluar, lihat untung per bulan, ekspor Excel.</span></span><span class="panah">›</span></a>
+    <a href="/alat/tagihan/" data-owner><span class="ik" style="background:#fff0e0">📅</span><span><b>Tagihan Bulanan</b><span class="k">Kos, bimbel, TPQ, iuran RT: siapa sudah bayar, siapa telat, tagih lewat WA.</span></span><span class="panah">›</span></a>
+    <a href="/alat/buku-kas/" data-owner><span class="ik" style="background:#eef2ff">📒</span><span><b>Buku Kas</b><span class="k">Catat uang masuk & keluar, lihat untung per bulan, ekspor Excel.</span></span><span class="panah">›</span></a>
     <a href="/alat/jpg-ke-vektor/"><span class="ik" style="background:#fbecea">✏️</span><span><b>JPG ke Vektor</b><span class="k">Ubah logo/gambar jadi SVG untuk desain kaos dan stiker.</span></span><span class="panah">›</span></a>
   </div>
+
+  <section class="kartu" style="margin-top:16px" data-owner>
+    <h2>🔒 Mode owner & pegawai</h2>
+    <p class="sub" style="margin:0 0 10px" id="pinKet">Pasang PIN owner supaya pegawai hanya bisa berjualan. Laporan, Buku Kas, Tagihan, harga barang, dan pengaturan hanya terbuka dengan PIN.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" id="bPinPasang">Pasang PIN owner</button>
+      <button class="btn dua tersembunyi" id="bPinHapus">Hapus PIN</button>
+    </div>
+  </section>
+
+  <section class="kartu" style="margin-top:16px" data-owner>
+    <h2>📊 Dashboard online di HP owner</h2>
+    <p class="sub" style="margin:0 0 10px" id="snKet">Pantau penjualan toko dari HP owner, di mana saja. Nyalakan di HP/tablet kasir, lalu kirim link dashboard ke WA owner.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" id="bSnNyala">Nyalakan</button>
+      <button class="btn dua tersembunyi" id="bSnWa">💬 Kirim link ke WA owner</button>
+      <button class="btn dua tersembunyi" id="bSnSalin">Salin link</button>
+      <button class="btn dua tersembunyi" id="bSnMati">Matikan</button>
+    </div>
+    <p class="kecil redup" style="margin:10px 0 0">Yang dikirim ke server Willo hanya catatan penjualan Kasir: barang, jumlah, harga, total, dan cara bayar. Siapa pun yang memegang link bisa melihat dashboard, jadi jangan disebar.</p>
+  </section>
+
+  <section class="kartu" style="margin-top:16px" data-owner>
+    <h2>💾 Cadangan semua data</h2>
+    <p class="sub" style="margin:0 0 10px">Data hanya ada di HP ini. Simpan cadangan sebelum ganti HP, hapus aplikasi, atau bersihkan data browser.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" id="bCadangSemua">Simpan cadangan</button>
+      <label class="btn dua" style="cursor:pointer">Pulihkan dari file<input type="file" id="fPulihSemua" accept=".json,application/json" hidden></label>
+    </div>
+  </section>
 
   <section class="kartu" style="margin-top:16px">
     <h2>Segera menyusul</h2>
@@ -57,5 +92,61 @@
   <div class="cta">Butuh kaos seragam untuk tim usahamu? Sablon satuan sampai lusinan di <a href="/kaos-seragam-usaha-ngawi.html">Willo Apparel</a>.</div>
 </main>
 <footer>Alat gratis dari Willo Apparel</footer>
+<script src="/alat/printer.js"></script>
+<script>
+(function(){
+  var KUNCI = /^willo_(kasir|kas|nota|antrian|tagihan|printer|jual)_v1$/;
+  document.getElementById("bCadangSemua").onclick = function(){
+    var data = {};
+    for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (KUNCI.test(k)) data[k] = localStorage.getItem(k); }
+    if (!Object.keys(data).length) { alert("Belum ada data untuk dicadangkan."); return; }
+    var isi = JSON.stringify({ lumbung:1, dibuat:new Date().toISOString(), data:data });
+    var nama = "cadangan-lumbung-" + new Date().toISOString().slice(0,10) + ".json";
+    if (window.Lumbung) Lumbung.unduh(nama, isi, "application/json");
+    else { var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([isi], {type:"application/json"})); a.download = nama; a.click(); }
+  };
+  document.getElementById("fPulihSemua").onchange = function(){
+    var f = this.files[0]; this.value = ""; if (!f) return;
+    var r = new FileReader();
+    r.onload = function(){
+      try {
+        var j = JSON.parse(r.result), d = j && j.data;
+        if (!d || typeof d !== "object") throw 0;
+        var ks = Object.keys(d).filter(function(k){ return KUNCI.test(k); });
+        if (!ks.length) throw 0;
+        if (!confirm("Pulihkan " + ks.length + " bagian data? Data di HP ini akan diganti isi file cadangan.")) return;
+        ks.forEach(function(k){ JSON.parse(d[k]); localStorage.setItem(k, d[k]); });
+        alert("Data berhasil dipulihkan.");
+      } catch(e) { alert("File ini bukan cadangan Lumbung."); }
+    };
+    r.readAsText(f);
+  };
+})();
+
+  // Mode owner & pegawai
+  function gambarPin(){ var O = window.LumbungOwner; if (!O) return; var ada = O.adaPin();
+    document.getElementById("bPinPasang").textContent = ada ? "Ganti PIN owner" : "Pasang PIN owner";
+    document.getElementById("bPinHapus").classList.toggle("tersembunyi", !ada);
+    document.getElementById("pinKet").textContent = ada ? "PIN owner aktif. Tekan “Owner · Kunci” di atas sebelum tablet dipakai pegawai. Terkunci sendiri setelah 15 menit tidak disentuh." : "Pasang PIN owner supaya pegawai hanya bisa berjualan. Laporan, Buku Kas, Tagihan, harga barang, dan pengaturan hanya terbuka dengan PIN."; }
+  document.getElementById("bPinPasang").onclick = function(){ LumbungOwner.pasangPin().then(gambarPin); };
+  document.getElementById("bPinHapus").onclick = function(){ if (confirm("Hapus PIN owner? Semua bagian bisa dibuka siapa saja.")) { LumbungOwner.hapusPin(); gambarPin(); } };
+  document.addEventListener("lumbung-owner", gambarPin);
+
+  // Dashboard online di HP owner
+  function gambarSn(){ var L = window.LumbungSinkron; if (!L) return; var s = L.status(), on = L.aktif();
+    document.getElementById("bSnNyala").classList.toggle("tersembunyi", on);
+    ["bSnWa","bSnSalin","bSnMati"].forEach(function(id){ document.getElementById(id).classList.toggle("tersembunyi", !on); });
+    var jam = s.terakhir ? new Date(s.terakhir).toLocaleTimeString("id-ID", { hour:"2-digit", minute:"2-digit" }) : "";
+    document.getElementById("snKet").textContent = on ? ("Aktif. " + (s.galat ? "Belum terkirim (cek internet), akan dicoba lagi otomatis. " : (jam ? "Terakhir terkirim pukul " + jam + ". " : "")) + ((s.antre || []).length ? (s.antre.length + " transaksi menunggu dikirim.") : "Semua penjualan sudah terkirim."))
+      : "Pantau penjualan toko dari HP owner, di mana saja. Nyalakan di HP/tablet kasir, lalu kirim link dashboard ke WA owner."; }
+  window.addEventListener("load", function(){
+    document.getElementById("bSnNyala").onclick = function(){ LumbungSinkron.nyalakan(); gambarSn(); };
+    document.getElementById("bSnMati").onclick = function(){ if (confirm("Matikan dashboard online? Penjualan baru tidak dikirim lagi.")) { LumbungSinkron.matikan(); gambarSn(); } };
+    document.getElementById("bSnWa").onclick = function(){ window.open("https://wa.me/?text=" + encodeURIComponent("Dashboard penjualan toko (jangan disebar):\n" + LumbungSinkron.link()), "_blank"); };
+    document.getElementById("bSnSalin").onclick = function(){ var l = LumbungSinkron.link(); (navigator.clipboard ? navigator.clipboard.writeText(l) : Promise.reject()).then(function(){ alert("Link dashboard disalin."); }, function(){ prompt("Salin link ini:", l); }); };
+    gambarSn();
+  });
+  document.addEventListener("lumbung-sinkron", gambarSn);
+</script>
 </body>
 </html>

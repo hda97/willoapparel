@@ -19,6 +19,8 @@
 <meta property="og:locale" content="id_ID">
 <link rel="icon" href="/logo-willo.png">
 <link rel="stylesheet" href="/alat/alat.css">
+<script src="/alat/ikon.js" defer></script>
+<script src="/alat/owner.js"></script>
 <style>
 .ringkas{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .ringkas .kotak{background:var(--kartu);border:1px solid var(--garis);border-radius:14px;padding:12px 14px}
@@ -208,7 +210,7 @@
   var tglTeks = function(t){ if (!t) return ""; var d = new Date(t + "T00:00:00"); return d.getDate() + " " + BULAN[d.getMonth()] + " " + d.getFullYear(); };
   var esc = function(s){ return String(s == null ? "" : s).replace(/[&<>"]/g, function(c){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]; }); };
   var hpWa = function(s){ var h = String(s || "").replace(/\D/g, ""); if (h.charAt(0) === "0") h = "62" + h.slice(1); return h; };
-  function pesan(t){ var p = $("pesan"); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, 2200); }
+  function pesan(t){ var p = $("pesan"), dl = document.querySelector("dialog[open]"); (dl || document.body).appendChild(p); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, t.length > 60 ? 6000 : 2200); }
   function formatInput(el, cb){ el.addEventListener("input", function(){ var n = angka(el.value); el.value = n ? n.toLocaleString("id-ID") : ""; if (cb) cb(n); }); }
 
   var sub = function(n){ return n.item.reduce(function(a,i){ return a + i.q * i.harga; }, 0); };
@@ -452,11 +454,11 @@
   }
   $("bTermal").onclick = function(){
     var b = this; b.disabled = true;
-    CetakTermal.cetak(teksTermal(aktif)).then(function(){ pesan("Nota dikirim ke " + (CetakTermal.nama() || "printer")); })
-      .catch(function(e){ if (e && e.name !== "NotFoundError") pesan(e.message || "Gagal mencetak"); })
+    CetakTermal.cetak(teksTermal(aktif)).then(function(r){ pesan(r === "rawbt" ? "Membuka aplikasi RawBT…" : "Nota dikirim ke " + (CetakTermal.nama() || "printer")); })
+      .catch(function(e){ var m = CetakTermal.pesanGagal(e); if (m) pesan(m); })
       .then(function(){ b.disabled = false; });
   };
-  $("bPdf").onclick = function(){ $("cetak").innerHTML = htmlNota(aktif); document.title = "Nota " + noTeks(aktif); window.print(); setTimeout(function(){ document.title = "Nota & Invoice | Willo Apparel"; }, 1000); };
+  $("bPdf").onclick = function(){ $("cetak").innerHTML = htmlNota(aktif); document.title = "Nota " + noTeks(aktif); (window.Lumbung ? Lumbung.cetakHalaman(document.title) : window.print()); setTimeout(function(){ document.title = "Nota & Invoice | Willo Apparel"; }, 1000); };
 
   formatInput($("dbJml"));
   $("bBayar").onclick = function(){
@@ -473,7 +475,7 @@
   });
 
   // Cadangan
-  function unduh(nama, isi){ var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([isi], { type:"application/json" })); a.download = nama; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+  function unduh(nama, isi){ if (window.Lumbung) { Lumbung.unduh(nama, isi, "application/json").catch(function(e){ pesan((e && e.message) || "Gagal menyimpan file"); }); return; } var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([isi], { type:"application/json" })); a.download = nama; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500); }
   $("bCadang").onclick = function(){ unduh("cadangan-nota-" + tglIni() + ".json", JSON.stringify(S)); pesan("File cadangan diunduh"); };
   $("fPulih").onchange = function(){
     var f = this.files[0]; if (!f) return; this.value = "";

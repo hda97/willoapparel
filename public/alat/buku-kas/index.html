@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="id">
+<html lang="id" data-halaman-owner>
 <head>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-N4FLLMXDVK"></script>
@@ -19,6 +19,8 @@
 <meta property="og:locale" content="id_ID">
 <link rel="icon" href="/logo-willo.png">
 <link rel="stylesheet" href="/alat/alat.css">
+<script src="/alat/ikon.js" defer></script>
+<script src="/alat/owner.js"></script>
 <style>
 .ringkas{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .ringkas .kotak{background:var(--kartu);border:1px solid var(--garis);border-radius:14px;padding:12px 14px}
@@ -121,7 +123,7 @@
     <p class="kecil redup" style="margin-bottom:0">Cadangkan berkala, karena data hilang kalau riwayat browser dihapus. File cadangan bisa dibuka di HP lain lewat tombol Pulihkan.</p>
   </section>
 
-  <p class="kecil redup">Penjualan dari <a href="/alat/kasir/">Kasir</a> serta DP & pelunasan dari <a href="/alat/nota/">Nota</a> otomatis tercatat di sini sebagai uang masuk.</p>
+  <p class="kecil redup">Penjualan dari <a href="/alat/kasir/">Kasir</a>, DP & pelunasan dari <a href="/alat/nota/">Nota</a>, serta pembayaran dari <a href="/alat/tagihan/">Tagihan</a> otomatis tercatat di sini sebagai uang masuk.</p>
 
   <div class="cta">Butuh kaos seragam untuk tim usahamu? Sablon satuan sampai lusinan di <a href="/kaos-seragam-usaha-ngawi.html">Willo Apparel</a>.</div>
 </main>
@@ -133,7 +135,7 @@
   var KUNCI = "willo_kas_v1";
   var $ = function(id){ return document.getElementById(id); };
   var KAT = {
-    masuk: [["Penjualan","🛒"],["Jasa","🛠️"],["Modal","🏦"],["Piutang dibayar","🤝"],["Lainnya","➕"]],
+    masuk: [["Penjualan","🛒"],["Jasa","🛠️"],["Tagihan","📅"],["Modal","🏦"],["Piutang dibayar","🤝"],["Lainnya","➕"]],
     keluar: [["Belanja bahan","📦"],["Gaji","👷"],["Sewa","🏠"],["Listrik & air","💡"],["Transport","🛵"],["Iklan","📣"],["Ambil pribadi","👛"],["Lainnya","➖"]]
   };
   var BULAN = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
@@ -147,7 +149,7 @@
   var pad = function(n){ return String(n).padStart(2, "0"); };
   var tglIni = function(){ var d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); };
   var ikon = function(t){ var k = (KAT[t.t] || []).filter(function(x){ return x[0] === t.kat; })[0]; return k ? k[1] : (t.t === "masuk" ? "➕" : "➖"); };
-  function pesan(t){ var p = $("pesan"); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, 2200); }
+  function pesan(t){ var p = $("pesan"), dl = document.querySelector("dialog[open]"); (dl || document.body).appendChild(p); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, t.length > 60 ? 6000 : 2200); }
   function formatInput(el){
     el.addEventListener("input", function(){ var n = angka(el.value); el.value = n ? n.toLocaleString("id-ID") : ""; });
   }
@@ -211,7 +213,7 @@
         r.innerHTML = '<span class="ik ' + t.t + '"></span><span class="ket"><b></b><small></small></span><span class="jml angka"></span>';
         r.querySelector(".ik").textContent = ikon(t);
         r.querySelector("b").textContent = t.ket || t.kat;
-        r.querySelector("small").textContent = t.kat + " · " + (t.metode || "Tunai") + (t.sumber === "kasir" ? " · dari Kasir" : t.sumber === "nota" ? " · dari Nota" : "");
+        r.querySelector("small").textContent = t.kat + " · " + (t.metode || "Tunai") + (t.sumber === "kasir" ? " · dari Kasir" : t.sumber === "nota" ? " · dari Nota" : t.sumber === "tagihan" ? " · dari Tagihan" : "");
         var j = r.querySelector(".jml"); j.textContent = (t.t === "masuk" ? "+" : "−") + rp(t.jml).replace("−",""); j.className = "jml angka " + (t.t === "masuk" ? "t-hijau" : "t-merah");
         r.onclick = function(){ mulaiEdit(t); };
         h.appendChild(r);
@@ -290,6 +292,7 @@
   });
 
   function unduh(nama, isi, tipe){
+    if (window.Lumbung) { Lumbung.unduh(nama, isi, tipe).catch(function(e){ pesan((e && e.message) || "Gagal menyimpan file"); }); return; }
     var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([isi], { type:tipe })); a.download = nama;
     document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
@@ -323,5 +326,6 @@
   kosongkan(); gambar();
 })();
 </script>
+<script src="/alat/printer.js"></script>
 </body>
 </html>

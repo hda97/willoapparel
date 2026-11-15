@@ -19,6 +19,8 @@
 <meta property="og:locale" content="id_ID">
 <link rel="icon" href="/logo-willo.png">
 <link rel="stylesheet" href="/alat/alat.css">
+<script src="/alat/ikon.js" defer></script>
+<script src="/alat/owner.js"></script>
 <style>
 .papan{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 .papan .kotak{background:var(--kartu);border:1px solid var(--garis);border-radius:14px;padding:14px;text-align:center}
@@ -159,7 +161,7 @@ body.layar #layar{display:flex;flex-direction:column;min-height:100vh;padding:4v
 
   var labelNo = function(n){ return (S.awal || "") + String(n).padStart(3, "0"); };
   var jam = function(t){ var d = new Date(t); return String(d.getHours()).padStart(2,"0") + "." + String(d.getMinutes()).padStart(2,"0"); };
-  function pesan(t){ var p = $("pesan"); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, 2200); }
+  function pesan(t){ var p = $("pesan"), dl = document.querySelector("dialog[open]"); (dl || document.body).appendChild(p); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, t.length > 60 ? 6000 : 2200); }
 
   // Rata-rata menit per pelanggan dari jarak antar panggilan terakhir.
   function rataMenit(){
@@ -233,8 +235,11 @@ body.layar #layar{display:flex;flex-direction:column;min-height:100vh;padding:4v
   }
   function bicara(no){
     ding();
-    if (!S.suara || !("speechSynthesis" in window)) return;
-    var u = new SpeechSynthesisUtterance("Nomor antrian, " + eja(no) + ". Silakan menuju " + (S.loket || "loket") + ".");
+    if (!S.suara) return;
+    var kalimat = "Nomor antrian, " + eja(no) + ". Silakan menuju " + (S.loket || "loket") + ".";
+    if (window.Lumbung && Lumbung.aplikasi()) { setTimeout(function(){ Lumbung.bicara(kalimat); }, 750); return; }
+    if (!("speechSynthesis" in window)) return;
+    var u = new SpeechSynthesisUtterance(kalimat);
     u.lang = "id-ID"; u.rate = 0.9;
     var v = speechSynthesis.getVoices().filter(function(v){ return /^id|ind/i.test(v.lang); })[0];
     if (v) u.voice = v;
@@ -251,14 +256,14 @@ body.layar #layar{display:flex;flex-direction:column;min-height:100vh;padding:4v
     if (via !== "biasa") {
       var opsi = { atas:(S.nama ? S.nama + "\n" : "") + "Nomor antrian Anda", besar:labelNo(a.no), tengah:true };
       if (via === "rawbt") { CetakTermal.rawbt(teksTiket(a), opsi); return; }
-      CetakTermal.cetak(teksTiket(a), opsi).catch(function(e){ if (e && e.name !== "NotFoundError") pesan(e.message || "Gagal mencetak"); });
+      CetakTermal.cetak(teksTiket(a), opsi).catch(function(e){ var m = CetakTermal.pesanGagal(e); if (m) pesan(m); });
       return;
     }
     $("tNama").textContent = S.nama || "";
     $("tNo").textContent = labelNo(a.no);
     $("tTunggu").textContent = (S.antre.length - 1) + " orang sebelum Anda";
     $("tJam").textContent = "Diambil pukul " + jam(a.ambil);
-    setTimeout(function(){ window.print(); }, 50);
+    setTimeout(function(){ window.Lumbung ? Lumbung.cetakHalaman("Tiket antrian") : window.print(); }, 50);
   }
 
   // Ambil nomor
@@ -300,9 +305,9 @@ body.layar #layar{display:flex;flex-direction:column;min-height:100vh;padding:4v
   $("bTesPrinter").onclick = function(){
     var opsi = { atas:(S.nama || "Tes printer"), besar:labelNo(S.n + 1), tengah:true };
     if ((S.via || "ble") === "rawbt") { CetakTermal.rawbt("Printer siap dipakai", opsi); return; }
-    if (S.via === "biasa") { window.print(); return; }
-    CetakTermal.cetak("Printer siap dipakai", opsi).then(function(){ pesan("Terhubung ke " + CetakTermal.nama()); })
-      .catch(function(e){ if (e && e.name !== "NotFoundError") pesan(e.message || "Gagal mencetak"); });
+    if (S.via === "biasa") { window.Lumbung ? Lumbung.cetakHalaman("Tes") : window.print(); return; }
+    CetakTermal.cetak("Printer siap dipakai", opsi).then(function(r){ pesan(r === "rawbt" ? "Membuka aplikasi RawBT…" : "Terhubung ke " + CetakTermal.nama()); })
+      .catch(function(e){ var m = CetakTermal.pesanGagal(e); if (m) pesan(m); });
   };
 
   // Layar pelanggan (jendela kedua, ikut berubah lewat localStorage)
