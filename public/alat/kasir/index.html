@@ -28,6 +28,8 @@ main{padding-bottom:110px}
 .produk button{position:relative;border:1px solid var(--garis);background:#fff;border-radius:12px;padding:10px 6px;font:inherit;cursor:pointer;text-align:center;min-height:104px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
 .produk button:active{transform:scale(.97)}
 .produk .em{font-size:28px;line-height:1.1}
+.produk .em.ik{width:56px;height:56px;display:block}
+.em-pilih button.ik{padding:3px}
 .produk .nm{font-size:13.5px;font-weight:600;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .produk .hg{font-size:12.5px;color:var(--redup)}
 .produk .qty{position:absolute;top:6px;right:6px;background:var(--utama);color:#fff;border-radius:12px;min-width:24px;height:24px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 6px}
@@ -105,7 +107,8 @@ main{padding-bottom:110px}
   .kiri.ada-kat .kat{flex-direction:column;gap:4px;overflow:auto;max-height:calc(100vh - 140px);position:sticky;top:8px;margin:0}
   .kiri.ada-kat .kat button{border-radius:8px;white-space:normal;text-align:center;padding:14px 6px;font-size:13.5px;line-height:1.25;font-weight:700}
   .kiri.ada-kat .produk button{min-height:84px;border-radius:8px;padding:8px 6px;gap:6px}
-  .kiri.ada-kat .produk .em{display:none}
+  .kiri.ada-kat .produk .em{font-size:24px}
+  .kiri.ada-kat .produk .em.ik{width:54px;height:54px}
   .kiri.ada-kat .produk .nm{font-size:14.5px}
   .kiri.ada-kat .produk .hg{font-size:14px;color:var(--teks)}
   .kasir-grid .kanan .kartu{min-height:calc(100vh - 120px)}
@@ -264,6 +267,41 @@ main{padding-bottom:110px}
   var KUNCI = "willo_kasir_v1", KAS = "willo_kas_v1";
   var $ = function(id){ return document.getElementById(id); };
   var EMOJI = ["🍚","🍜","🍗","🍢","🥟","🍞","🍰","🍩","☕","🧋","🥤","🧃","🍹","🍦","🍌","🥚","🧂","🛢️","🍫","🍬","👕","👗","🧢","👟","✂️","💈","🛠️","🔧","🧴","🧼","📱","🔋","🖨️","📦","⛽","🎁"];
+  // Ikon gambar sendiri (Huda 15 Nov 2026): nilai em "ik:jenis/benang/lengan/sablon", mis. "ik:kaos/30s/pendek/sablon".
+  var IKON_PILIH = ["ik:kaos/30s/pendek/polos","ik:kaos/30s/panjang/polos","ik:kaos/24s/pendek/polos","ik:kaos/24s/panjang/polos","ik:kaos/30s/pendek/sablon","ik:kaos/24s/panjang/sablon","ik:upgrade","ik:dtf","ik:promo","ik:kelas","ik:komunitas"];
+  function ikonSvg(em){
+    var a = String(em || "").slice(3).split("/"), j = a[0], o = '<svg viewBox="0 0 64 64" width="100%" height="100%" aria-hidden="true" stroke-linejoin="round" stroke-linecap="round">';
+    var garis = "#0f1b3d", biru = "#1f4fd8", hitam = "#26262b", kuning = "#ffd23f";
+    function kaos(warna, panjang, x, y, sk){
+      var t = 'transform="translate(' + (x || 0) + ' ' + (y || 0) + ') scale(' + (sk || 1) + ')"';
+      var d = panjang ? "M22 9 L14 12 L8 23 L4 50 L11.5 51.5 L16 31 L16 56 L48 56 L48 31 L52.5 51.5 L60 50 L56 23 L50 12 L42 9 Q32 17 22 9 Z"
+                      : "M22 9 L14 12 L4 21 L10.5 29.5 L16 26 L16 56 L48 56 L48 26 L53.5 29.5 L60 21 L50 12 L42 9 Q32 17 22 9 Z";
+      return '<g ' + t + '><path d="' + d + '" fill="' + warna + '" stroke="' + garis + '" stroke-width="2.4"/><path d="M22 9 Q32 17 42 9" fill="none" stroke="' + garis + '" stroke-width="2.4"/>' +
+        (panjang ? '<path d="M5 45 L11.6 46.3 M59 45 L52.4 46.3" stroke="' + kuning + '" stroke-width="2.6"/>' : '') + '</g>';
+    }
+    function cetak(x, y, w, h){ return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="2.5" fill="' + kuning + '" stroke="' + garis + '" stroke-width="2"/><path d="M' + (x + w * .22) + ' ' + (y + h * .3) + ' L' + (x + w * .36) + ' ' + (y + h * .72) + ' L' + (x + w / 2) + ' ' + (y + h * .42) + ' L' + (x + w * .64) + ' ' + (y + h * .72) + ' L' + (x + w * .78) + ' ' + (y + h * .3) + '" fill="none" stroke="' + garis + '" stroke-width="2.2"/>'; }
+    if (j === "kaos") {
+      var w = a[1] === "24s" ? hitam : biru;
+      o += kaos(w, a[2] === "panjang");
+      if (a[3] === "sablon") o += cetak(24, 22, 16, 13);
+      var lb = a[4] || a[1] || "";
+      o += '<text x="32" y="52" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="900" font-size="' + (lb.length > 3 ? 10 : 12) + '" fill="#fff">' + lb + '</text>';
+    } else if (j === "upgrade") {
+      o += kaos("#fff", false) + cetak(21, 20, 22, 18) + '<circle cx="50" cy="48" r="10" fill="' + biru + '" stroke="' + garis + '" stroke-width="2.2"/><path d="M50 43 V53 M45 48 H55" stroke="#fff" stroke-width="3"/>';
+    } else if (j === "dtf") {
+      o += '<rect x="8" y="10" width="40" height="46" rx="3" fill="#fff" stroke="' + garis + '" stroke-width="2.4"/><path d="M48 14 Q58 14 58 22 V56 Q58 50 48 50" fill="#dfe7fb" stroke="' + garis + '" stroke-width="2.4"/>' + cetak(14, 17, 28, 22) +
+        '<text x="28" y="51" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="10" fill="' + biru + '">DTF</text>';
+    } else if (j === "promo") {
+      o += '<path d="M6 30 L30 6 H56 V32 L32 56 Z" fill="' + kuning + '" stroke="' + garis + '" stroke-width="2.4"/><circle cx="47" cy="15" r="3.6" fill="#fff" stroke="' + garis + '" stroke-width="2"/>' +
+        '<text x="32" y="35" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="900" font-size="19" fill="' + garis + '">3</text><text x="32" y="44.5" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="7.5" fill="' + garis + '">100rb</text>';
+    } else if (j === "kelas") {
+      o += kaos(biru, false, 0, 4, 1) + cetak(26, 30, 12, 10) + '<path d="M32 2 L54 10 L32 18 L10 10 Z" fill="' + hitam + '" stroke="' + garis + '" stroke-width="2"/><path d="M50 11.5 V20" stroke="' + kuning + '" stroke-width="2.6"/><circle cx="50" cy="21" r="2.4" fill="' + kuning + '"/>';
+    } else if (j === "komunitas") {
+      o += kaos(kuning, false, 18, 2, .72) + kaos(biru, false, 0, 14, .72) + cetak(14, 32, 10, 8);
+    } else o += '<rect x="10" y="10" width="44" height="44" rx="8" fill="#dfe7fb" stroke="' + garis + '" stroke-width="2.4"/>';
+    return o + '</svg>';
+  }
+  function isiIkon(el, em){ if (/^ik:/.test(em || "")) { el.innerHTML = ikonSvg(em); el.classList.add("ik"); } else { el.textContent = em || "📦"; el.classList.remove("ik"); } }
   var S;
   function muat(){
     try { S = JSON.parse(localStorage.getItem(KUNCI)) || null; } catch(e){ S = null; }
@@ -282,25 +320,25 @@ main{padding-bottom:110px}
     // Kategori sablon sudah termasuk sablon DTF A6 depan; sablon lebih besar pakai kategori "Upgrade Sablon".
     var UKURAN = [["S-XL",0],["XXL",5000],["3XL",10000],["4XL",25000],["5XL",40000],["6XL",60000],["7XL",85000],["8XL",105000]];
     var JENIS = [
-      ["Polos 30s Pendek","30s",45000,"👕",200],["Polos 30s Panjang","30s Panjang",55000,"👕",210],
-      ["Polos 24s Pendek","24s",55000,"👚",220],["Polos 24s Panjang","24s Panjang",65000,"👚",230],
-      ["Sablon 30s Pendek","30s Sablon",55000,"👕",300],["Sablon 30s Panjang","30s Pjg Sablon",65000,"👕",310],
-      ["Sablon 24s Pendek","24s Sablon",65000,"👚",320],["Sablon 24s Panjang","24s Pjg Sablon",75000,"👚",330]
+      ["Polos 30s Pendek","30s",45000,"ik:kaos/30s/pendek/polos",200],["Polos 30s Panjang","30s Panjang",55000,"ik:kaos/30s/panjang/polos",210],
+      ["Polos 24s Pendek","24s",55000,"ik:kaos/24s/pendek/polos",220],["Polos 24s Panjang","24s Panjang",65000,"ik:kaos/24s/panjang/polos",230],
+      ["Sablon 30s Pendek","30s Sablon",55000,"ik:kaos/30s/pendek/sablon",300],["Sablon 30s Panjang","30s Pjg Sablon",65000,"ik:kaos/30s/panjang/sablon",310],
+      ["Sablon 24s Pendek","24s Sablon",65000,"ik:kaos/24s/pendek/sablon",320],["Sablon 24s Panjang","24s Pjg Sablon",75000,"ik:kaos/24s/panjang/sablon",330]
     ];
     S.produk = [
-      { id:101, nama:"Kaos kelas", harga:65000, em:"🎓", kat:"Paket", grosir:true },
-      { id:102, nama:"Kaos komunitas", harga:70000, em:"🤝", kat:"Paket", grosir:true }
+      { id:101, nama:"Kaos kelas", harga:65000, em:"ik:kelas", kat:"Paket", grosir:true },
+      { id:102, nama:"Kaos komunitas", harga:70000, em:"ik:komunitas", kat:"Paket", grosir:true }
     ];
     // Promo kaos polos 35rb, tiap kelipatan 3 pcs = 100rb (Huda 15 Nov 2026).
-    S.produk.push({ id:199, nama:"30s PROMO S-XL", harga:35000, em:"🔥", kat:"Promo 3 = 100rb", paket:[3,100000] });
+    S.produk.push({ id:199, nama:"30s PROMO S-XL", harga:35000, em:"ik:promo", kat:"Promo 3 = 100rb", paket:[3,100000] });
     JENIS.forEach(function(j){ UKURAN.forEach(function(u, i){
-      S.produk.push({ id:j[4] + i + 1, nama:j[1] + " " + u[0], harga:j[2] + u[1], em:j[3], kat:j[0], grosir:true });
+      S.produk.push({ id:j[4] + i + 1, nama:j[1] + " " + u[0], harga:j[2] + u[1], em:j[3] + "/" + u[0], kat:j[0], grosir:true });
     }); });
     [["A5 depan",5000],["A4 depan",15000],["+ A4 belakang",20000],["A5 dpn + A4 blk",25000],["A3 belakang",25000],
      ["A6 dpn + A3 blk",30000],["A4 dpn + A4 blk",30000],["A3+ belakang",30000],["A4 dpn + A3 blk",35000],["A2 belakang",35000],["A3 dpn + A3 blk",45000]
-    ].forEach(function(x, i){ S.produk.push({ id:401 + i, nama:"Upgrade " + x[0], harga:x[1], em:"⬆️", kat:"Upgrade Sablon" }); });
+    ].forEach(function(x, i){ S.produk.push({ id:401 + i, nama:"Upgrade " + x[0], harga:x[1], em:"ik:upgrade", kat:"Upgrade Sablon" }); });
     [["A6",10000],["A5",15000],["A4",25000],["A3",35000],["A3+",40000],["A2",45000]].forEach(function(x, i){
-      S.produk.push({ id:501 + i, nama:"DTF " + x[0], harga:x[1], em:"🖨️", kat:"Sablon DTF saja" });
+      S.produk.push({ id:501 + i, nama:"DTF " + x[0], harga:x[1], em:"ik:dtf", kat:"Sablon DTF saja" });
     });
     // Diskon grosir per pcs untuk produk kaos (Huda 15 Nov 2026): [minimal pcs, potongan per pcs].
     S.grosir = [[12,2000],[100,2500],[300,3000],[400,4000],[500,5000]];
@@ -362,7 +400,7 @@ main{padding-bottom:110px}
     S.produk.filter(function(p){ return (!q || p.nama.toLowerCase().indexOf(q) >= 0 || (p.kode && p.kode.toLowerCase() === q)) && (q || !katPilih || (katPilih === "\u0000" ? !p.kat : p.kat === katPilih)); }).forEach(function(p){
       var b = document.createElement("button"); b.type = "button";
       b.innerHTML = '<span class="em"></span><span class="nm"></span><span class="hg angka"></span>';
-      b.querySelector(".em").textContent = p.em || "📦"; b.querySelector(".nm").textContent = p.nama; b.querySelector(".hg").textContent = rp(p.harga);
+      isiIkon(b.querySelector(".em"), p.em); b.querySelector(".nm").textContent = p.nama; b.querySelector(".hg").textContent = rp(p.harga);
       if (p.stok != null) {
         var sk = document.createElement("span"); sk.className = "stk" + (p.stok <= (S.stokMin || 5) ? " tipis" : "");
         sk.textContent = p.stok > 0 ? "stok " + p.stok : "stok habis"; b.appendChild(sk);
@@ -589,7 +627,7 @@ main{padding-bottom:110px}
   }
   function gambarEm(){
     var c = $("dpEm"); c.innerHTML = "";
-    EMOJI.forEach(function(e){ var b = document.createElement("button"); b.type = "button"; b.textContent = e; if (e === dpEm) b.className = "pilih"; b.onclick = function(){ dpEm = e; gambarEm(); }; c.appendChild(b); });
+    IKON_PILIH.concat(EMOJI).forEach(function(e){ var b = document.createElement("button"); b.type = "button"; isiIkon(b, e); if (e === dpEm) b.className = "pilih"; b.onclick = function(){ dpEm = e; gambarEm(); }; c.appendChild(b); });
   }
   formatInput($("dpHarga"));
   $("dProduk").addEventListener("close", function(){
@@ -721,7 +759,7 @@ main{padding-bottom:110px}
     baris.slice(mulai).forEach(function(b, i){
       var k = pecah(b), nama = (k[iN] || "").slice(0, 30);
       var hs = String(k[iH] || "").replace(/[Rr][Pp]\.?/g, "").replace(/,00$|\.00$/, ""), harga = parseInt(hs.replace(/\D/g, ""), 10) || 0;
-      if (nama && harga) { var o = { id:Date.now() + i, nama:nama, harga:harga, em:(iE >= 0 && k[iE]) ? k[iE].slice(0, 4) : "📦" }; if (iK >= 0 && k[iK]) o.kat = k[iK].slice(0, 20); if (iB >= 0 && k[iB]) o.kode = k[iB].slice(0, 32); if (iS >= 0 && /\d/.test(k[iS] || "")) o.stok = parseInt(String(k[iS]).replace(/[^\d-]/g, ""), 10) || 0; if (iG >= 0 && /^(ya|y|1|true|v)$/i.test(k[iG] || "")) o.grosir = true; if (iP >= 0) { var pk = bacaPaket(k[iP]); if (pk) o.paket = pk; } out.push(o); }
+      if (nama && harga) { var o = { id:Date.now() + i, nama:nama, harga:harga, em:(iE >= 0 && k[iE]) ? (/^ik:/.test(k[iE]) ? k[iE].slice(0, 48) : k[iE].slice(0, 4)) : "📦" }; if (iK >= 0 && k[iK]) o.kat = k[iK].slice(0, 20); if (iB >= 0 && k[iB]) o.kode = k[iB].slice(0, 32); if (iS >= 0 && /\d/.test(k[iS] || "")) o.stok = parseInt(String(k[iS]).replace(/[^\d-]/g, ""), 10) || 0; if (iG >= 0 && /^(ya|y|1|true|v)$/i.test(k[iG] || "")) o.grosir = true; if (iP >= 0) { var pk = bacaPaket(k[iP]); if (pk) o.paket = pk; } out.push(o); }
     });
     return out;
   }
