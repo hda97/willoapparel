@@ -180,10 +180,50 @@ main{padding-bottom:110px}
   // Isian toko Willo sendiri (Huda 15 Nov 2026): buka /alat/kasir/?contoh=willo sekali di HP Willo.
   if (/[?&]contoh=willo/.test(location.search) && confirm("Isi kasir dengan produk Willo Apparel? Produk yang ada sekarang diganti.")) {
     S.nama = "Willo Apparel"; S.alamat = "WA 0858-1690-0722";
+    // Harga dari price list Willo (paket kaos + sablon DTF, ukuran S-XL lengan pendek; tambahan ukuran/lengan terpisah).
     S.produk = [
-      { id:11, nama:"Kaos sablon satuan", harga:55000, em:"👕" },
-      { id:12, nama:"Kaos kelas", harga:65000, em:"👕" },
-      { id:13, nama:"Kaos komunitas", harga:70000, em:"👕" }
+      { id:11, nama:"Kaos kelas", harga:65000, em:"🎓" },
+      { id:12, nama:"Kaos komunitas", harga:70000, em:"🤝" },
+      { id:20, nama:"30s A6 depan", harga:55000, em:"👕" },
+      { id:21, nama:"30s A5 depan", harga:60000, em:"👕" },
+      { id:22, nama:"30s A4 depan", harga:70000, em:"👕" },
+      { id:23, nama:"30s A6 dpn + A4 blk", harga:75000, em:"👕" },
+      { id:24, nama:"30s A5 dpn + A4 blk", harga:80000, em:"👕" },
+      { id:25, nama:"30s A3 belakang", harga:80000, em:"👕" },
+      { id:26, nama:"30s A6 dpn + A3 blk", harga:85000, em:"👕" },
+      { id:27, nama:"30s A4 dpn + A4 blk", harga:85000, em:"👕" },
+      { id:28, nama:"30s A4 dpn + A3 blk", harga:90000, em:"👕" },
+      { id:29, nama:"30s A3 dpn + A3 blk", harga:100000, em:"👕" },
+      { id:30, nama:"30s A3+ belakang", harga:85000, em:"👕" },
+      { id:31, nama:"30s A2 belakang", harga:90000, em:"👕" },
+      { id:32, nama:"24s A6 depan", harga:65000, em:"👚" },
+      { id:33, nama:"24s A5 depan", harga:70000, em:"👚" },
+      { id:34, nama:"24s A4 depan", harga:80000, em:"👚" },
+      { id:35, nama:"24s A6 dpn + A4 blk", harga:85000, em:"👚" },
+      { id:36, nama:"24s A5 dpn + A4 blk", harga:90000, em:"👚" },
+      { id:37, nama:"24s A3 belakang", harga:90000, em:"👚" },
+      { id:38, nama:"24s A6 dpn + A3 blk", harga:95000, em:"👚" },
+      { id:39, nama:"24s A4 dpn + A4 blk", harga:95000, em:"👚" },
+      { id:40, nama:"24s A4 dpn + A3 blk", harga:100000, em:"👚" },
+      { id:41, nama:"24s A3 dpn + A3 blk", harga:110000, em:"👚" },
+      { id:42, nama:"24s A3+ belakang", harga:95000, em:"👚" },
+      { id:43, nama:"24s A2 belakang", harga:100000, em:"👚" },
+      { id:44, nama:"Polos 30s", harga:45000, em:"👕" },
+      { id:45, nama:"Polos 24s", harga:55000, em:"👚" },
+      { id:46, nama:"Sablon DTF A6", harga:10000, em:"🖨️" },
+      { id:47, nama:"Sablon DTF A5", harga:15000, em:"🖨️" },
+      { id:48, nama:"Sablon DTF A4", harga:25000, em:"🖨️" },
+      { id:49, nama:"Sablon DTF A3", harga:35000, em:"🖨️" },
+      { id:50, nama:"Sablon DTF A3+", harga:40000, em:"🖨️" },
+      { id:51, nama:"Sablon DTF A2", harga:45000, em:"🖨️" },
+      { id:52, nama:"+ Lengan panjang", harga:10000, em:"➕" },
+      { id:53, nama:"+ Ukuran XXL", harga:5000, em:"➕" },
+      { id:54, nama:"+ Ukuran 3XL", harga:10000, em:"➕" },
+      { id:55, nama:"+ Ukuran 4XL", harga:25000, em:"➕" },
+      { id:56, nama:"+ Ukuran 5XL", harga:40000, em:"➕" },
+      { id:57, nama:"+ Ukuran 6XL", harga:60000, em:"➕" },
+      { id:58, nama:"+ Ukuran 7XL", harga:85000, em:"➕" },
+      { id:59, nama:"+ Ukuran 8XL", harga:105000, em:"➕" }
     ];
     simpan(); history.replaceState(null, "", location.pathname);
   }
