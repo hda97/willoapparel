@@ -208,7 +208,7 @@
   var tglTeks = function(t){ if (!t) return ""; var d = new Date(t + "T00:00:00"); return d.getDate() + " " + BULAN[d.getMonth()] + " " + d.getFullYear(); };
   var esc = function(s){ return String(s == null ? "" : s).replace(/[&<>"]/g, function(c){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]; }); };
   var hpWa = function(s){ var h = String(s || "").replace(/\D/g, ""); if (h.charAt(0) === "0") h = "62" + h.slice(1); return h; };
-  function pesan(t){ var p = $("pesan"); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, 2200); }
+  function pesan(t){ var p = $("pesan"), dl = document.querySelector("dialog[open]"); (dl || document.body).appendChild(p); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, t.length > 60 ? 6000 : 2200); }
   function formatInput(el, cb){ el.addEventListener("input", function(){ var n = angka(el.value); el.value = n ? n.toLocaleString("id-ID") : ""; if (cb) cb(n); }); }
 
   var sub = function(n){ return n.item.reduce(function(a,i){ return a + i.q * i.harga; }, 0); };
@@ -452,8 +452,8 @@
   }
   $("bTermal").onclick = function(){
     var b = this; b.disabled = true;
-    CetakTermal.cetak(teksTermal(aktif)).then(function(){ pesan("Nota dikirim ke " + (CetakTermal.nama() || "printer")); })
-      .catch(function(e){ if (e && e.name !== "NotFoundError") pesan(e.message || "Gagal mencetak"); })
+    CetakTermal.cetak(teksTermal(aktif)).then(function(r){ pesan(r === "rawbt" ? "Membuka aplikasi RawBT…" : "Nota dikirim ke " + (CetakTermal.nama() || "printer")); })
+      .catch(function(e){ var m = CetakTermal.pesanGagal(e); if (m) pesan(m); })
       .then(function(){ b.disabled = false; });
   };
   $("bPdf").onclick = function(){ $("cetak").innerHTML = htmlNota(aktif); document.title = "Nota " + noTeks(aktif); window.print(); setTimeout(function(){ document.title = "Nota & Invoice | Willo Apparel"; }, 1000); };

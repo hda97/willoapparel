@@ -1,0 +1,13 @@
+{
+  "appId": "com.willoapparel.alat",
+  "appName": "Kasir Willo",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "appendUserAgent": "KasirWilloAndroid/1.0",
+  "android": {
+    "backgroundColor": "#1f4fd8",
+    "allowMixedContent": false
+  }
+}

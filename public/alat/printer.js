@@ -14,6 +14,51 @@
   ];
   var karakter = null, perangkat = null;
 
+  // Di dalam aplikasi Android Kasir Willo: cetak lewat plugin asli (Bluetooth classic), tanpa RawBT.
+  var KUNCI_PRINTER = "willo_printer_v1";
+  function aplikasi(){
+    var C = window.Capacitor;
+    try { return C && C.nativePromise && (C.isNativePlatform ? C.isNativePlatform() : (C.getPlatform && C.getPlatform() !== "web")) ? C : null; } catch(e){ return null; }
+  }
+  if (aplikasi()) document.documentElement.classList.add("app-android");
+  function simpanan(){ try { return JSON.parse(localStorage.getItem(KUNCI_PRINTER)) || null; } catch(e){ return null; } }
+  function keBase64(u8){ var s = ""; for (var i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]); return btoa(s); }
+  function galat(pesan, kode){ var e = new Error(pesan); e.code = kode; return e; }
+  // Dialog pilih printer dari daftar perangkat yang sudah dipasangkan di HP.
+  function pilihPrinter(){
+    var C = aplikasi();
+    return C.nativePromise("PrinterWillo", "daftar", {}).then(function(r){
+      var daftar = (r && r.perangkat) || [];
+      return new Promise(function(ok, gagal){
+        var d = document.createElement("dialog");
+        d.innerHTML = '<div class="isi-dialog"><h2>Pilih printer</h2><p class="kecil redup" style="margin-top:0"></p><div class="daftar-printer" style="display:grid;gap:8px;margin:10px 0"></div>' +
+          '<div class="baris"><button class="btn dua" data-a="atur">Pengaturan Bluetooth</button><button class="btn dua" data-a="batal">Batal</button></div></div>';
+        d.querySelector("p").textContent = daftar.length ? "Ketuk nama printer termalmu. Pilihan ini diingat." :
+          "Belum ada printer yang dipasangkan. Nyalakan printer, buka Pengaturan Bluetooth, pasangkan printernya (PIN biasanya 0000 atau 1234), lalu coba cetak lagi.";
+        var wadah = d.querySelector(".daftar-printer"), selesai = false;
+        daftar.forEach(function(p){
+          var b = document.createElement("button"); b.className = "btn lebar dua"; b.textContent = "🖨️ " + p.nama;
+          b.onclick = function(){ selesai = true; try { localStorage.setItem(KUNCI_PRINTER, JSON.stringify(p)); } catch(e){} d.close(); ok(p); };
+          wadah.appendChild(b);
+        });
+        d.querySelector('[data-a="atur"]').onclick = function(){ C.nativePromise("PrinterWillo", "bukaPengaturan", {}); d.close(); };
+        d.querySelector('[data-a="batal"]').onclick = function(){ d.close(); };
+        d.addEventListener("close", function(){ d.remove(); if (!selesai) gagal(galat("", "BATAL")); });
+        document.body.appendChild(d); d.showModal();
+      });
+    });
+  }
+  function cetakAsli(teks, opsi){
+    var C = aplikasi(), p = simpanan();
+    return (p ? Promise.resolve(p) : pilihPrinter()).then(function(p){
+      return C.nativePromise("PrinterWillo", "cetak", { alamat:p.alamat, data:keBase64(keByte(teks, opsi)) }).then(function(){ return "asli"; }, function(e){
+        // Gagal tersambung: lupakan pilihan supaya ketukan berikutnya bisa memilih printer lain.
+        if (e && e.code === "SAMBUNG") try { localStorage.removeItem(KUNCI_PRINTER); } catch(x){}
+        throw e;
+      });
+    });
+  }
+
   function bisaBle(){ return !!(navigator.bluetooth && navigator.bluetooth.requestDevice); }
   function android(){ return /Android/i.test(navigator.userAgent); }
 
@@ -67,25 +112,50 @@
     return langkah();
   }
 
+  // Di Android dibuka lewat intent: kalau RawBT belum terpasang, Chrome membuka Play Store.
   function lewatRawbt(teks, opsi){
     var b = keByte(teks, opsi), s = "";
     for (var i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
-    location.href = "rawbt:base64," + btoa(s);
+    var data = btoa(s);
+    location.href = android() ? "intent:base64," + data + "#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;" : "rawbt:base64," + data;
+  }
+  // Teks gagal yang bisa dimengerti pemilik toko. "" = pengguna sendiri menutup daftar printer.
+  function pesanGagal(e){
+    if (!e) return "Gagal mencetak";
+    if (e.code === "BATAL") return "";
+    if (aplikasi() && e.message) return e.message;
+    var m = String(e.message || "");
+    if (e.name === "NotFoundError" && /cancel/i.test(m)) return "";
+    if (e.name === "NotFoundError" || /adapter|availab/i.test(m)) return "Bluetooth HP belum menyala. Nyalakan Bluetooth (dan Lokasi), lalu coba lagi.";
+    if (e.name === "SecurityError" || e.name === "NotAllowedError") return "Chrome belum diizinkan memakai Bluetooth. Buka Setelan HP > Aplikasi > Chrome > Izin, izinkan Perangkat di sekitar, lalu coba lagi.";
+    if (e.name === "NetworkError") return "Printer tidak tersambung. Pastikan printer menyala dan dekat, lalu coba lagi.";
+    return m || "Gagal mencetak";
+  }
+  function siapBle(){
+    if (!navigator.bluetooth.getAvailability) return Promise.resolve();
+    return navigator.bluetooth.getAvailability().then(function(ada){
+      if (!ada) { var e = new Error("Bluetooth HP belum menyala. Nyalakan Bluetooth (dan Lokasi), lalu coba lagi."); e.name = "TidakAda"; throw e; }
+    }, function(){});
   }
 
   window.CetakTermal = {
     bisaBle: bisaBle,
     android: android,
-    terhubung: function(){ return !!(karakter && perangkat && perangkat.gatt.connected); },
-    nama: function(){ return perangkat ? (perangkat.name || "printer") : ""; },
+    terhubung: function(){ if (aplikasi()) return !!simpanan(); return !!(karakter && perangkat && perangkat.gatt.connected); },
+    nama: function(){ if (aplikasi()) { var p = simpanan(); return p ? p.nama : ""; } return perangkat ? (perangkat.name || "printer") : ""; },
     cetak: function(teks, opsi){
+      if (aplikasi()) return cetakAsli(teks, opsi);
       if (!bisaBle()) {
+        // Browser di dalam aplikasi (WA, IG, Samsung Internet) belum punya Web Bluetooth: pakai RawBT.
         if (android()) { lewatRawbt(teks, opsi); return Promise.resolve("rawbt"); }
-        return Promise.reject(new Error("Browser ini belum bisa Bluetooth. Pakai Chrome di Android atau laptop."));
+        return Promise.reject(new Error("Browser ini belum bisa Bluetooth. Buka halaman ini di Chrome (Android atau laptop)."));
       }
-      return sambung().then(function(c){ return kirim(c, keByte(teks, opsi)); }).then(function(){ return "ble"; });
+      return siapBle().then(sambung).then(function(c){ return kirim(c, keByte(teks, opsi)); }).then(function(){ return "ble"; },
+        function(e){ if (e && e.name === "NetworkError") { perangkat = null; karakter = null; } throw e; });
     },
-    rawbt: lewatRawbt,
-    lupakan: function(){ try { if (perangkat && perangkat.gatt.connected) perangkat.gatt.disconnect(); } catch(e){} perangkat = null; karakter = null; }
+    rawbt: function(teks, opsi){ if (aplikasi()) return cetakAsli(teks, opsi).catch(function(e){ var m = pesanGagal(e); if (m) alert(m); }); lewatRawbt(teks, opsi); },
+    aplikasi: function(){ return !!aplikasi(); },
+    pesanGagal: pesanGagal,
+    lupakan: function(){ if (aplikasi()) { try { localStorage.removeItem(KUNCI_PRINTER); } catch(e){} window.Capacitor.nativePromise("PrinterWillo", "putus", {}); return; } try { if (perangkat && perangkat.gatt.connected) perangkat.gatt.disconnect(); } catch(e){} perangkat = null; karakter = null; }
   };
 })();

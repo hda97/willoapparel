@@ -147,7 +147,7 @@
   var pad = function(n){ return String(n).padStart(2, "0"); };
   var tglIni = function(){ var d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); };
   var ikon = function(t){ var k = (KAT[t.t] || []).filter(function(x){ return x[0] === t.kat; })[0]; return k ? k[1] : (t.t === "masuk" ? "➕" : "➖"); };
-  function pesan(t){ var p = $("pesan"); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, 2200); }
+  function pesan(t){ var p = $("pesan"), dl = document.querySelector("dialog[open]"); (dl || document.body).appendChild(p); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, t.length > 60 ? 6000 : 2200); }
   function formatInput(el){
     el.addEventListener("input", function(){ var n = angka(el.value); el.value = n ? n.toLocaleString("id-ID") : ""; });
   }
