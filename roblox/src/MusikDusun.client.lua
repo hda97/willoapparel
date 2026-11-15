@@ -103,12 +103,22 @@ do
 	gui.Parent = player:WaitForChild("PlayerGui")
 end
 
+local detik = 0
 while true do
 	local char = player.Character
 	local hrp = char and char:FindFirstChild("HumanoidRootPart")
 	if hrp then
 		local d = dusunDi(hrp.Position)
 		if d ~= kini then atur(d) end
+	end
+	-- lagu gagal dimuat (mis. sinyal putus saat masuk): coba muat ulang tiap 10 detik
+	detik += 1
+	local s = kini and suara[kini]
+	if s and nyala and detik % 10 == 0 and not s.IsLoaded then
+		local id = s.SoundId
+		s.SoundId = ""
+		s.SoundId = id
+		s:Play()
 	end
 	task.wait(1)
 end
