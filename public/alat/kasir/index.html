@@ -97,6 +97,7 @@ main{padding-bottom:110px}
     <h2>Pengaturan toko</h2>
     <label class="isi">Nama toko<input type="text" id="sNama" maxlength="40" placeholder="Contoh: Warung Bu Sri"></label>
     <label class="isi">Tagline <small>Kalimat singkat di bawah nama toko, contoh: Enak, murah, cepat</small><input type="text" id="sTagline" maxlength="40"></label>
+    <label class="isi">Pesan bawah struk <small>Contoh: Kalau sudah bosan, beli lagi ya</small><input type="text" id="sPesan" maxlength="64"></label>
     <label class="isi">Alamat <small>Tampil di struk</small><input type="text" id="sAlamat" maxlength="80" placeholder="Contoh: Jl. Raya Ngawi No. 5"></label>
     <label class="isi">No. HP / WA toko<input type="tel" id="sHp" maxlength="20"></label>
     <div class="isi" style="font-size:14px;font-weight:600;margin-bottom:6px">Logo toko <small style="display:block;color:var(--redup);font-weight:400">Tampil di struk dan ikut tercetak hitam-putih di printer termal.</small></div>
@@ -364,7 +365,7 @@ main{padding-bottom:110px}
     $("hJml").textContent = rp(hi.reduce(function(a,t){ return a + t.jml; }, 0)); $("hN").textContent = hi.length;
   }
   function gambarAtur(){
-    ["Nama","Tagline","Alamat","Hp","Rek"].forEach(function(k){ var el = $("s" + k); if (document.activeElement !== el) el.value = S[k.toLowerCase()] || ""; });
+    ["Nama","Tagline","Alamat","Hp","Rek","Pesan"].forEach(function(k){ var el = $("s" + k); if (document.activeElement !== el) el.value = S[k.toLowerCase()] || ""; });
     $("sLogoPrev").classList.toggle("tersembunyi", !S.logo); if (S.logo) $("sLogoPrev").src = S.logo;
     $("bHapusLogo").classList.toggle("tersembunyi", !S.logo);
     $("pWillo").classList.toggle("tersembunyi", !/willo/i.test(S.nama || ""));
@@ -410,7 +411,7 @@ main{padding-bottom:110px}
   });
 
   // Pengaturan
-  ["Nama","Tagline","Alamat","Hp","Rek"].forEach(function(k){ $("s" + k).addEventListener("input", function(){ S[k.toLowerCase()] = this.value.trim(); simpan(); if (k === "Nama") gambarAtur(); }); });
+  ["Nama","Tagline","Alamat","Hp","Rek","Pesan"].forEach(function(k){ $("s" + k).addEventListener("input", function(){ S[k.toLowerCase()] = this.value.trim(); simpan(); if (k === "Nama") gambarAtur(); }); });
   // Logo: simpan versi kecil untuk layar + versi 1-bit (lebar maks. 192 titik) untuk printer termal.
   $("fLogo").onchange = function(){
     var f = this.files[0]; if (!f) return; this.value = "";
@@ -554,36 +555,52 @@ main{padding-bottom:110px}
   };
   $("byBatal").onclick = function(){ $("dBayar").close(); };
 
-  var strukTeks = "";
+  var strukTeks = "", noStruk = "";
+  function opsiCetak(){ return { gambar:S.logoBit, tebal:["Total:","Tunai:","Kembalian:"], barcode:noStruk }; }
   function buatStruk(no, terima){
     var L = 32, gar = "-".repeat(L), t = total();
     var kanan = function(a, b){ var s = L - a.length - b.length; return a + " ".repeat(Math.max(1, s)) + b; };
     var tengah = function(s){ var p = Math.max(0, Math.floor((L - s.length) / 2)); return " ".repeat(p) + s; };
-    var d = new Date(), w = pad(d.getDate()) + "/" + pad(d.getMonth()+1) + "/" + d.getFullYear() + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+    var ki = function(s, n){ s = String(s); return s.length >= n ? s.slice(0, n) : s + " ".repeat(n - s.length); };
+    var ka = function(s, n){ s = String(s); return s.length >= n ? s : " ".repeat(n - s.length) + s; };
+    var ang = function(n){ return n.toLocaleString("id-ID"); };
+    var d = new Date(), w = d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
     var b = [];
-    if (S.nama) b.push(tengah(S.nama.slice(0, L)));
+    if (S.nama) b.push(tengah(S.nama.toUpperCase().slice(0, L)));
     if (S.tagline) b.push(tengah(S.tagline.slice(0, L)));
     if (S.alamat) { var al = S.alamat; while (al) { b.push(tengah(al.slice(0, L))); al = al.slice(L); } }
     if (S.hp) b.push(tengah(("WA " + S.hp).slice(0, L)));
-    b.push(gar, kanan("No. " + no, w), gar);
+    b.push(gar, "Faktur: " + no, "Jam   : " + w, "");
+    // Kolom 32: Barang 11 | Qty 3 | Harga 8 | Jlh 10
+    b.push(ki("Barang", 11) + ka("Qty", 3) + ka("Harga", 8) + ka("Jlh", 10), gar);
+    var qty = 0;
     keranjang.forEach(function(k){
-      b.push(k.nama.slice(0, L));
-      b.push(kanan("  " + k.q + " x " + k.harga.toLocaleString("id-ID"), (k.harga * k.q).toLocaleString("id-ID")));
+      qty += k.q;
+      var angka = ka(k.q, 3) + ka(ang(k.harga), 8) + ka(ang(k.harga * k.q), 10);
+      if (k.nama.length <= 10) b.push(ki(k.nama, 11) + angka);
+      else { var n = k.nama; while (n.length > L) { b.push(n.slice(0, L)); n = n.slice(L); } b.push(n); b.push(ki("", 11) + angka); }
     });
-    var ds = diskon();
-    if (ds.jml) b.push(gar, kanan("Subtotal", rp(subtotal())), kanan("Diskon " + ds.n + "x" + ds.per.toLocaleString("id-ID"), "-" + rp(ds.jml)));
-    b.push(gar, kanan("TOTAL", rp(t)));
-    if (metode === "Tunai" && terima) { b.push(kanan("Tunai", rp(terima)), kanan("Kembali", rp(terima - t))); }
-    else b.push(kanan("Bayar", metode));
-    b.push(gar, tengah("Terima kasih"));
+    b.push(gar);
+    var ds = diskon(), kiri = ["Barang: " + keranjang.length, "Qty   : " + qty], kn = [["Subtotal:", rp(subtotal())]];
+    if (ds.jml) kn.push(["Diskon:", "-" + rp(ds.jml)]);
+    for (var i = 0; i < Math.max(kiri.length, kn.length); i++) {
+      var r = kn[i] ? kn[i][0] + " " + ka(kn[i][1], 11) : "";
+      b.push(ki(kiri[i] || "", L - r.length) + r);
+    }
+    b.push(gar, kanan("Total:", rp(t)));
+    if (metode === "Tunai" && terima) b.push(kanan("Tunai:", rp(terima)), kanan("Kembalian:", rp(terima - t)));
+    else b.push(kanan("Bayar:", metode));
+    b.push(gar);
+    var ps = S.pesan || ""; while (ps) { b.push(tengah(ps.slice(0, L))); ps = ps.slice(L); }
+    b.push(tengah("Terima kasih :)"));
     if (S.taut !== false) b.push("", tengah("Kasir gratis:"), tengah("willoapparel.com/alat"));
     return b.join("\n");
   }
   $("bySelesai").onclick = function(){
     var t = total(), terima = angka($("byTerima").value);
     S.no = (S.no || 0) + 1; simpan();
-    var no = String(S.no).padStart(4, "0");
-    strukTeks = buatStruk(no, terima);
+    var no = "A-" + String(S.no).padStart(5, "0");
+    noStruk = no; strukTeks = buatStruk(no, terima);
     if (S.kas !== false) {
       var k = bacaKas();
       var ket = keranjang.map(function(x){ return x.q + " " + x.nama; }).join(", ");
@@ -602,10 +619,10 @@ main{padding-bottom:110px}
   };
   $("stCetak").onclick = function(e){ e.preventDefault(); $("cetakStruk").textContent = strukTeks; (window.Lumbung ? Lumbung.cetakHalaman("Struk") : window.print()); };
   window.addEventListener("load", function(){ if (window.CetakTermal && CetakTermal.aplikasi()) { var gp = $("bGantiPrinter"); gp.classList.remove("tersembunyi"); gp.onclick = function(e){ e.preventDefault(); CetakTermal.lupakan(); pesan("Printer dilupakan. Pilih lagi saat mencetak."); }; } });
-  $("stRawbt").onclick = function(e){ e.preventDefault(); CetakTermal.rawbt(strukTeks, { gambar:S.logoBit }); };
+  $("stRawbt").onclick = function(e){ e.preventDefault(); CetakTermal.rawbt(strukTeks, opsiCetak()); };
   $("stBt").onclick = function(){
     var b = this; b.disabled = true; b.textContent = "Mencetak…";
-    CetakTermal.cetak(strukTeks, { gambar:S.logoBit }).then(function(r){ pesan(r === "rawbt" ? "Membuka aplikasi RawBT…" : "Struk dikirim ke " + (CetakTermal.nama() || "printer")); })
+    CetakTermal.cetak(strukTeks, opsiCetak()).then(function(r){ pesan(r === "rawbt" ? "Membuka aplikasi RawBT…" : "Struk dikirim ke " + (CetakTermal.nama() || "printer")); })
       .catch(function(e){ var m = CetakTermal.pesanGagal(e); if (m) pesan(m); })
       .then(function(){ b.disabled = false; b.textContent = "🖨️ Printer Bluetooth"; });
   };

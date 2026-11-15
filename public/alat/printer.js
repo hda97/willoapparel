@@ -107,7 +107,22 @@
     if (opsi && opsi.atas) { b.push(0x1b, 0x61, 0x01); tambah(opsi.atas + "\n"); }
     if (opsi && opsi.besar) { b.push(0x1b, 0x61, 0x01, 0x1d, 0x21, 0x33); tambah(opsi.besar + "\n"); b.push(0x1d, 0x21, 0x00); }
     if (opsi && (opsi.atas || opsi.besar)) b.push(0x1b, 0x61, opsi.tengah ? 0x01 : 0x00);
-    tambah(teks);
+    // opsi.tebal: awalan baris yang dicetak tebal + tinggi ganda (mis. Total, Tunai, Kembalian).
+    if (opsi && opsi.tebal) {
+      teks.split("\n").forEach(function(baris, i, semua){
+        var t = baris.trim(), tb = opsi.tebal.some(function(a){ return t.indexOf(a) === 0; });
+        if (tb) b.push(0x1b, 0x21, 0x18);
+        tambah(baris + (i < semua.length - 1 ? "\n" : ""));
+        if (tb) b.push(0x1b, 0x21, 0x00);
+      });
+    } else tambah(teks);
+    // opsi.barcode: kode CODE128 di tengah bawah (mis. nomor faktur).
+    if (opsi && opsi.barcode) {
+      var kode = ascii(String(opsi.barcode)).slice(0, 30);
+      b.push(0x0a, 0x1b, 0x61, 0x01, 0x1d, 0x68, 0x50, 0x1d, 0x77, 0x02, 0x1d, 0x48, 0x00, 0x1d, 0x6b, 0x49, kode.length + 2, 0x7b, 0x42);
+      for (var k = 0; k < kode.length; k++) b.push(kode.charCodeAt(k));
+      b.push(0x0a, 0x1b, 0x61, 0x00);
+    }
     b.push(0x0a, 0x0a, 0x0a, 0x0a, 0x1d, 0x56, 0x42, 0x00); // beri jarak + potong kertas (jika ada pisau)
     return new Uint8Array(b);
   }
