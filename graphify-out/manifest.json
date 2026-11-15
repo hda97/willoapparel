@@ -16601,9 +16601,9 @@
     "semantic_hash": ""
   },
   "public/alat/antrian/index.html": {
-    "mtime": 1794737089.7082918,
-    "seen": 1794737187.2283459,
-    "ast_hash": "874c528a700846b21d6ce7232f56d09c",
+    "mtime": 1794737551.4626405,
+    "seen": 1794737858.351208,
+    "ast_hash": "116a68d91d15b77bf9867a15768e7e00",
     "semantic_hash": ""
   },
   "public/alat/buku-kas/index.html": {
@@ -16619,9 +16619,321 @@
     "semantic_hash": ""
   },
   "public/alat/kasir/index.html": {
-    "mtime": 1794737120.660178,
-    "seen": 1794737187.2283516,
-    "ast_hash": "1577079fc4cda98c5ab5c6b63955750d",
+    "mtime": 1794737551.4617965,
+    "seen": 1794737858.3512158,
+    "ast_hash": "6e4a76c2a84b6dfe08f3b4c948fbfd59",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/assets/vendor/alpine.min.js": {
+    "mtime": 1794737815.2231185,
+    "seen": 1794737858.3460765,
+    "ast_hash": "f56ae0a2ca34299f59a66d5a63febfb6",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/scripts/build_explorer.py": {
+    "mtime": 1794737815.2235277,
+    "seen": 1794737858.3460803,
+    "ast_hash": "928e41795db83dab9c0e20eba3fc785c",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/scripts/check_update.py": {
+    "mtime": 1794737815.223561,
+    "seen": 1794737858.3460822,
+    "ast_hash": "39dc48aeb717d1f26e2ef05aa2ed381b",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/scripts/check_update.sh": {
+    "mtime": 1794737815.2235756,
+    "seen": 1794737858.3460844,
+    "ast_hash": "bb03300fd42581043867a7fa1403d27c",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/scripts/chrome.mjs": {
+    "mtime": 1794737815.2235863,
+    "seen": 1794737858.3460882,
+    "ast_hash": "fde78b46f00ed10caed380812483b1d9",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/scripts/curate-media.mjs": {
+    "mtime": 1794737815.2236009,
+    "seen": 1794737858.3460915,
+    "ast_hash": "7ea0650cda69d368108bdea1935100da",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/scripts/measure_reference.py": {
+    "mtime": 1794737815.2236352,
+    "seen": 1794737858.346094,
+    "ast_hash": "7f469d5829e861ba2382b7ad4de43c69",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/scripts/oiloil-image.mjs": {
+    "mtime": 1794737815.223652,
+    "seen": 1794737858.3460958,
+    "ast_hash": "04d38b5f27a4137efb692704efb0abef",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/scripts/prep-image.mjs": {
+    "mtime": 1794737815.2236712,
+    "seen": 1794737858.3460984,
+    "ast_hash": "233f6a82cbef14db2e738b6eb93949aa",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/scripts/shoot.mjs": {
+    "mtime": 1794737815.2236927,
+    "seen": 1794737858.3461008,
+    "ast_hash": "2e0a84861852ece398d63a394e10aaef",
+    "semantic_hash": ""
+  },
+  ".claude/skills/web-design/scripts/crawl_website.py": {
+    "mtime": 1794737815.2337334,
+    "seen": 1794737858.3480854,
+    "ast_hash": "cab320f01b5203346539fe5c55f16ae6",
+    "semantic_hash": ""
+  },
+  ".claude/skills/web-design/scripts/extract_design_tokens.py": {
+    "mtime": 1794737815.2337508,
+    "seen": 1794737858.348089,
+    "ast_hash": "037a75c5b35a66f53b8794500a4707ec",
+    "semantic_hash": ""
+  },
+  ".claude/skills/web-design/scripts/fetch_unsplash_images.py": {
+    "mtime": 1794737815.2337675,
+    "seen": 1794737858.3480914,
+    "ast_hash": "62382c22a87516c25f349a5259de1764",
+    "semantic_hash": ""
+  },
+  ".claude/skills/frontend-design/LICENSE.txt": {
+    "mtime": 1794737808.1135702,
+    "seen": 1794737858.349312,
+    "ast_hash": "2ee41112a44fe7014dce33e26468ba93",
+    "semantic_hash": ""
+  },
+  ".claude/skills/frontend-design/SKILL.md": {
+    "mtime": 1794737808.1136098,
+    "seen": 1794737858.349315,
+    "ast_hash": "7d6df6b2e98e38f8b86046325dc6afd0",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/README.en.md": {
+    "mtime": 1794737815.2224312,
+    "seen": 1794737858.3499334,
+    "ast_hash": "c3dac7a9aa7d757a1ebfd44a15593c36",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/README.ja.md": {
+    "mtime": 1794737815.2224433,
+    "seen": 1794737858.3499353,
+    "ast_hash": "cc392c9b26a281c0256ba37616716d90",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/README.md": {
+    "mtime": 1794737815.222461,
+    "seen": 1794737858.3499372,
+    "ast_hash": "1fdf428e123ace85cd5238ff0bb319ad",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/README.zh-CN.md": {
+    "mtime": 1794737815.22249,
+    "seen": 1794737858.3499393,
+    "ast_hash": "2fee7e5313e59994d48af72deffe20bd",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/SKILL.md": {
+    "mtime": 1794737815.222522,
+    "seen": 1794737858.3499417,
+    "ast_hash": "6011a78a21bbbbc43d54b96326d07747",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/assets/fonts/instrument-serif/OFL.txt": {
+    "mtime": 1794737815.2226527,
+    "seen": 1794737858.3499446,
+    "ast_hash": "768c3f0d6166414610edb8aab3eebfb3",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/assets/style-explorer.html": {
+    "mtime": 1794737815.2230382,
+    "seen": 1794737858.349947,
+    "ast_hash": "75ad270799956fe4a13d3e1f2ccce509",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/references/design-direction.md": {
+    "mtime": 1794737815.2231865,
+    "seen": 1794737858.349949,
+    "ast_hash": "a969e54a56f5aeb6d3c5c460e1262921",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/references/direction-persuasion.md": {
+    "mtime": 1794737815.2232134,
+    "seen": 1794737858.3499517,
+    "ast_hash": "c4363c85641edd3bdd422d2f7371293f",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/references/image-ideation.md": {
+    "mtime": 1794737815.2232242,
+    "seen": 1794737858.3499544,
+    "ast_hash": "5259770fc40483e478526398223928df",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/references/layout-and-viewport.md": {
+    "mtime": 1794737815.2232404,
+    "seen": 1794737858.3499565,
+    "ast_hash": "947220442fb9f87fc8f0e134353de11c",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/references/media.md": {
+    "mtime": 1794737815.2232513,
+    "seen": 1794737858.349959,
+    "ast_hash": "846be989a930673a1b8bb383cc24f077",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/references/motion.md": {
+    "mtime": 1794737815.2233295,
+    "seen": 1794737858.3499615,
+    "ast_hash": "dffe60029c69d56db07c77f66ed27d48",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/references/play.md": {
+    "mtime": 1794737815.2233477,
+    "seen": 1794737858.3499637,
+    "ast_hash": "b452e558952f413fb3d5f7510021585b",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/references/reviewer-manual.md": {
+    "mtime": 1794737815.2233589,
+    "seen": 1794737858.3499663,
+    "ast_hash": "151b743d30fddaa62f34f8fe4830ee0c",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/references/scroll-narrative.md": {
+    "mtime": 1794737815.2233732,
+    "seen": 1794737858.3499687,
+    "ast_hash": "d65c2937e05103de4c5c874534afd219",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/references/style-explorer.md": {
+    "mtime": 1794737815.2233858,
+    "seen": 1794737858.349971,
+    "ast_hash": "e178da51273cd1324836ce07f14c453e",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/references/task-explore.md": {
+    "mtime": 1794737815.2233984,
+    "seen": 1794737858.349973,
+    "ast_hash": "4e48774e405e92ed3dbb307dc15ad0af",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/references/task-review.md": {
+    "mtime": 1794737815.2234101,
+    "seen": 1794737858.349976,
+    "ast_hash": "dfe374215732a18b76552b3d7e7e0552",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/references/tools.md": {
+    "mtime": 1794737815.2234204,
+    "seen": 1794737858.3499787,
+    "ast_hash": "91ae70c89062f5ba87188a2e6ff0b92b",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/references/ux-review.md": {
+    "mtime": 1794737815.2234325,
+    "seen": 1794737858.3499806,
+    "ast_hash": "c19b1ded1b8785ba9034451299595684",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/references/ux-reviewer.md": {
+    "mtime": 1794737815.2234442,
+    "seen": 1794737858.3499827,
+    "ast_hash": "0136828e14c6f9171fb8a714fccc022a",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/references/visual-language.md": {
+    "mtime": 1794737815.2234585,
+    "seen": 1794737858.3499851,
+    "ast_hash": "a75d68a1ef7cc3534473d9e6a32945ec",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/references/visual-review.md": {
+    "mtime": 1794737815.2234752,
+    "seen": 1794737858.349987,
+    "ast_hash": "e3b5c1631c58210c1f993606891a5284",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/references/workdir.md": {
+    "mtime": 1794737815.2234874,
+    "seen": 1794737858.3499897,
+    "ast_hash": "73331dd047015948e2d13332597b272f",
+    "semantic_hash": ""
+  },
+  ".claude/skills/web-design/README.md": {
+    "mtime": 1794737815.23112,
+    "seen": 1794737858.3511205,
+    "ast_hash": "e19c1341a79fcaa0e2a872c29c2aa116",
+    "semantic_hash": ""
+  },
+  ".claude/skills/web-design/SKILL.md": {
+    "mtime": 1794737815.2311313,
+    "seen": 1794737858.3511238,
+    "ast_hash": "b121effccdd0ad0cd333de0f5ee4b0d5",
+    "semantic_hash": ""
+  },
+  ".claude/skills/web-design/references/design-md-template.md": {
+    "mtime": 1794737815.232243,
+    "seen": 1794737858.3511267,
+    "ast_hash": "e13e94112cb098ed9820e05a5779924c",
+    "semantic_hash": ""
+  },
+  ".claude/skills/web-design/references/icon-library.md": {
+    "mtime": 1794737815.2336,
+    "seen": 1794737858.351129,
+    "ast_hash": "20e01f304974f667721489dde2dd57c0",
+    "semantic_hash": ""
+  },
+  ".claude/skills/web-design/references/interaction-patterns.md": {
+    "mtime": 1794737815.2336116,
+    "seen": 1794737858.3511314,
+    "ast_hash": "4883ad372ee8017cf98c41707968d84e",
+    "semantic_hash": ""
+  },
+  ".claude/skills/web-design/references/motion-library.md": {
+    "mtime": 1794737815.2336297,
+    "seen": 1794737858.3511333,
+    "ast_hash": "a843ca3178bc13a8f7622b0a93b6c53c",
+    "semantic_hash": ""
+  },
+  ".claude/skills/web-design/references/quality-checklist.md": {
+    "mtime": 1794737815.2336423,
+    "seen": 1794737858.3511355,
+    "ast_hash": "d45690a5b76d5f583f8e15a2f6941bb8",
+    "semantic_hash": ""
+  },
+  ".claude/skills/web-design/references/scene-defaults.md": {
+    "mtime": 1794737815.2336526,
+    "seen": 1794737858.3511379,
+    "ast_hash": "b20800d28f809c49bf9a40296a3bf5de",
+    "semantic_hash": ""
+  },
+  ".claude/skills/web-design/references/scroll-story-patterns.md": {
+    "mtime": 1794737815.2336648,
+    "seen": 1794737858.3511398,
+    "ast_hash": "5ba83ba7287fb06942fffdc7cd1fb6bf",
+    "semantic_hash": ""
+  },
+  ".claude/skills/web-design/references/style-seeds.md": {
+    "mtime": 1794737815.2336802,
+    "seen": 1794737858.351142,
+    "ast_hash": "004ad02b2e7e0eac625a9755d3e0da50",
+    "semantic_hash": ""
+  },
+  ".claude/skills/web-design/references/text-decoration-rules.md": {
+    "mtime": 1794737815.2336986,
+    "seen": 1794737858.3511436,
+    "ast_hash": "b14307dbd4909888f20240d2affee84d",
+    "semantic_hash": ""
+  },
+  ".claude/skills/oil-ui/assets/logo.png": {
+    "mtime": 1794737815.22267,
+    "seen": 1794737858.352035,
+    "ast_hash": "7b3fc65994f42fe9300459f24d59eb6e",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {
