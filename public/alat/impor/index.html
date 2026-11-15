@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="id" data-halaman-owner>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pindah dari Kasir Lama | Lumbung by Willo Studio</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/logo-willo.png">
+<link rel="stylesheet" href="/alat/alat.css">
+<script src="/alat/ikon.js" defer></script>
+<script src="/alat/owner.js"></script>
+<style>
+.ringkas{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 14px}
+.ringkas div{background:#fff;border:1px solid var(--garis);border-radius:12px;padding:10px 12px}
+.ringkas small{display:block;font-size:12.5px;color:var(--redup)}
+.ringkas b{font-size:19px}
+@media(max-width:560px){.ringkas{grid-template-columns:1fr 1fr}}
+.pilihan{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-top:1px solid #f0ede6;cursor:pointer}
+.pilihan input{width:22px;height:22px;margin:2px 0 0;flex:0 0 22px}
+.pilihan b{display:block;font-size:15.5px}
+.pilihan small{color:var(--redup);font-size:13px}
+.kats{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 4px 32px}
+.kats label{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--garis);border-radius:20px;padding:5px 10px;font-size:13px;background:#fff;cursor:pointer}
+.kats label.sudah{opacity:.55}
+.kats input{margin:0}
+.muat{color:var(--redup);text-align:center;padding:18px 0}
+</style>
+</head>
+<body>
+<header class="atas"><div class="wrap"><a href="/alat/">← Alat Usaha Gratis</a><a class="redup" href="/alat/kasir/">Kasir</a></div></header>
+<main class="wrap">
+  <h1>📥 Pindah dari kasir lama</h1>
+  <p class="sub">Bawa daftar barang dan riwayat penjualan dari aplikasi kasir lama ke Lumbung. Barang dan penjualan yang sudah ada di Lumbung tidak diganti.</p>
+
+  <section class="kartu" id="kPilih">
+    <h2>1. Pilih file database</h2>
+    <p class="kecil redup" style="margin:0 0 10px">Di aplikasi kasir lama, buka menu cadangan (backup) lalu simpan database. Hasilnya file berakhiran <b>.db</b>, misalnya <i>Database_2026_11_16.db</i>. Pilih file itu di bawah.</p>
+    <label class="btn lebar" for="fDb">📂 Pilih file .db</label>
+    <input type="file" id="fDb" hidden>
+    <p class="muat" id="status" hidden></p>
+  </section>
+
+  <section class="kartu" id="kIsi" hidden>
+    <h2>2. Isi file</h2>
+    <p class="kecil redup" id="iToko" style="margin:0 0 10px"></p>
+    <div class="ringkas">
+      <div><small>Barang</small><b class="angka" id="iBrg">0</b></div>
+      <div><small>Transaksi</small><b class="angka" id="iTrx">0</b></div>
+      <div><small>Total omzet</small><b class="angka" id="iOmzet" style="font-size:16px">Rp0</b></div>
+    </div>
+    <label class="pilihan"><input type="checkbox" id="cBrg" checked><span><b>Daftar barang</b><small id="iBrgKet"></small></span></label>
+    <div class="kats" id="kats"></div>
+    <label class="pilihan"><input type="checkbox" id="cJual" checked><span><b>Riwayat penjualan</b><small id="iJualKet"></small></span></label>
+    <button class="btn lebar" id="bPindah" style="margin-top:12px">Pindahkan ke Lumbung</button>
+  </section>
+
+  <section class="kartu" id="kSudah" hidden>
+    <h2>Data kasir lama di Lumbung</h2>
+    <p class="kecil" id="sKet" style="margin:0 0 10px"></p>
+    <div class="baris"><a class="btn" href="/alat/kasir/">🛒 Buka Kasir</a><button class="btn dua" id="bHapus">Hapus data kasir lama</button></div>
+  </section>
+</main>
+<footer>Lumbung by Willo Studio · file dibaca di HP ini, tidak dikirim ke server</footer>
+<div class="pesan" id="pesan"></div>
+
+<script>
+(function(){
+  "use strict";
+  var KUNCI = "willo_kasir_v1", JUAL = "willo_jual_v1", MAKS = 5000, $ = function(id){ return document.getElementById(id); };
+  var hasil = null;
+  function pesan(t){ var p = $("pesan"); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, 3000); }
+  function rp(n){ return "Rp" + Math.round(n || 0).toLocaleString("id-ID"); }
+  function angka(n){ return Number(n || 0).toLocaleString("id-ID"); }
+  function tglTeks(w){ return new Date(w).toLocaleDateString("id-ID", { day:"numeric", month:"short", year:"numeric" }); }
+  function bacaToko(){ var s = null; try { s = JSON.parse(localStorage.getItem(KUNCI)); } catch(e){} return s || { nama:"", alamat:"", rek:"", qris:"", kas:true, no:0 }; }
+  function bacaJual(){ try { return JSON.parse(localStorage.getItem(JUAL)) || []; } catch(e){ return []; } }
+  function rapi(t){ return String(t == null ? "" : t).replace(/\s+/g, " ").trim(); }
+  function kunciBrg(nama, kat){ return (rapi(nama) + "|" + rapi(kat)).toLowerCase(); }
+  function status(t){ var s = $("status"); s.hidden = !t; s.textContent = t || ""; }
+
+  // Ikon barang dari nama dan kategori kasir lama (gambar sendiri lewat ikon.js / ikon kaos Kasir).
+  function ikon(nama, kat){
+    var t = (nama + " " + kat).toUpperCase();
+    if (/DTF|HOLOGRAM|BORDIR A6/.test(t)) return "ik:dtf";
+    if (/TOPI/.test(t)) return "🧢";
+    if (/JERSEY/.test(t)) return "🎽";
+    if (/BANNER|BENDERA|STIKER/.test(t)) return "🖼";
+    if (/PRESS/.test(t)) return "🖨";
+    if (/DESAIN/.test(t)) return "✏";
+    if (/TOTEBAG/.test(t)) return "👛";
+    if (/BADGE/.test(t)) return "🎁";
+    var uk = (t.match(/\b([2-8]XL|XXL|[SM] ?- ?XL)\b/) || [])[1];
+    uk = uk ? uk.replace(/\s/g, "") : "";
+    return "ik:kaos/" + (/24S/.test(t) ? "24s" : "30s") + "/" + (/PANJANG|PJG|LENGAN PANJANG/.test(t) ? "panjang" : "pendek") + "/" + (/SABLON/.test(t) ? "sablon" : "polos") + (uk ? "/" + uk : "");
+  }
+  function waktu(s){ var m = String(s || "").match(/^(\d{4})-(\d\d)-(\d\d)[ T](\d\d):(\d\d)(?::(\d\d))?/); return m ? new Date(+m[1], m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0)).getTime() : 0; }
+
+  function muatSql(){
+    if (muatSql.p) return muatSql.p;
+    muatSql.p = new Promise(function(ok, gagal){
+      var s = document.createElement("script"); s.src = "/alat/lib/sql-wasm.js";
+      s.onload = function(){
+        fetch("/alat/lib/sql-wasm.wasm").then(function(r){ if (!r.ok) throw new Error("wasm"); return r.arrayBuffer(); })
+          .then(function(b){ return window.initSqlJs({ wasmBinary:b }); }).then(ok, gagal);
+      };
+      s.onerror = function(){ gagal(new Error("Pembaca database gagal dimuat. Cek internet lalu coba lagi.")); };
+      document.head.appendChild(s);
+    });
+    muatSql.p.catch(function(){ muatSql.p = null; });
+    return muatSql.p;
+  }
+
+  // Baca database kasir lama (tabel rest_*: rest_category, rest_item, rest_order, rest_order_item, rest_order_payment).
+  function baca(SQL, buf){
+    var db = new SQL.Database(new Uint8Array(buf));
+    function q(sql){ var r = db.exec(sql); if (!r.length) return []; var c = r[0].columns; return r[0].values.map(function(v){ var o = {}; c.forEach(function(k, i){ o[k] = v[i]; }); return o; }); }
+    var tabel = q("SELECT name FROM sqlite_master WHERE type='table'").map(function(r){ return r.name; });
+    ["rest_item", "rest_category", "rest_order", "rest_order_item"].forEach(function(t){ if (tabel.indexOf(t) < 0) throw new Error("Bukan database kasir lama yang dikenali (tabel " + t + " tidak ada)."); });
+    var toko = tabel.indexOf("rest_company") >= 0 ? (q("SELECT name FROM rest_company LIMIT 1")[0] || {}).name : "";
+    var kat = q("SELECT id, name, sequence FROM rest_category ORDER BY sequence, id");
+    var namaKat = {}; kat.forEach(function(k){ namaKat[k.id] = rapi(k.name) || "Lainnya"; });
+    var brg = q("SELECT id, categoryid, name, price, cost, barCode, enable FROM rest_item ORDER BY sequence, id").filter(function(b){ return b.enable !== 0 && rapi(b.name); })
+      .map(function(b){ return { lamaId:b.id, nama:rapi(b.name), harga:Math.round(b.price || 0), modal:Math.round(b.cost || 0), kode:rapi(b.barCode), kat:namaKat[b.categoryid] || "Lainnya" }; });
+    var bayar = {};
+    if (tabel.indexOf("rest_order_payment") >= 0) q("SELECT orderid, paymentMethodName FROM rest_order_payment ORDER BY id").forEach(function(p){ if (!bayar[p.orderid]) bayar[p.orderid] = rapi(p.paymentMethodName); });
+    var isi = {};
+    q("SELECT orderId, itemId, itemName, categoryName, price, cost, qty FROM rest_order_item WHERE status = 0 OR status IS NULL ORDER BY id").forEach(function(x){
+      (isi[x.orderId] = isi[x.orderId] || []).push({ lamaId:x.itemId, n:rapi(x.itemName) || "Barang", q:x.qty || 0, h:Math.round(x.price || 0), k:rapi(x.categoryName), m:Math.round(x.cost || 0) });
+    });
+    var jual = [];
+    q("SELECT id, orderTime, orderNum, amount, discountAmt FROM rest_order WHERE status = 1 ORDER BY orderTime, id").forEach(function(o){
+      var w = waktu(o.orderTime); if (!w || !isi[o.id]) return;
+      jual.push({ lama:o.id, no:rapi(o.orderNum) || String(o.id), w:w, m:bayar[o.id] || "Tunai", tot:Math.round(o.amount || 0), ds:Math.round(o.discountAmt || 0), isi:isi[o.id] });
+    });
+    db.close();
+    var urutKat = []; brg.forEach(function(b){ if (urutKat.indexOf(b.kat) < 0) urutKat.push(b.kat); });
+    return { toko:rapi(toko), kat:urutKat, brg:brg, jual:jual };
+  }
+
+  function tampilkan(){
+    var S = bacaToko(), ada = {}, h = hasil;
+    (S.produk || []).forEach(function(p){ ada[kunciBrg(p.nama, p.kat)] = 1; });
+    $("kIsi").hidden = false;
+    $("iToko").textContent = h.toko ? "Toko di file: " + h.toko : "";
+    $("iBrg").textContent = angka(h.brg.length);
+    $("iTrx").textContent = angka(h.jual.length);
+    $("iOmzet").textContent = rp(h.jual.reduce(function(a, j){ return a + j.tot; }, 0));
+    var baru = h.brg.filter(function(b){ return !ada[kunciBrg(b.nama, b.kat)]; }).length;
+    $("iBrgKet").textContent = h.kat.length + " kategori. " + (baru < h.brg.length ? (h.brg.length - baru) + " barang sudah ada di Lumbung dan dilewati. " : "") + "Barang Lumbung yang sekarang tetap ada. Pilih kategori yang mau dibawa:";
+    var c = $("kats"); c.innerHTML = "";
+    h.kat.forEach(function(k){
+      var semua = h.brg.filter(function(b){ return b.kat === k; }), blm = semua.filter(function(b){ return !ada[kunciBrg(b.nama, b.kat)]; }).length;
+      var l = document.createElement("label"); if (!blm) l.className = "sudah";
+      l.innerHTML = '<input type="checkbox"' + (blm ? " checked" : " disabled") + '><span></span>';
+      l.querySelector("input").value = k; l.querySelector("span").textContent = k + " (" + semua.length + ")";
+      c.appendChild(l);
+    });
+    if (h.jual.length) {
+      var lebih = Math.max(0, h.jual.length + bacaJual().filter(function(j){ return !j.lama; }).length - MAKS);
+      $("iJualKet").textContent = angka(h.jual.length) + " transaksi, " + tglTeks(h.jual[0].w) + " sampai " + tglTeks(h.jual[h.jual.length - 1].w) + ". Masuk ke Laporan Kasir saja, tidak ke Buku Kas, jadi saldo kas tidak berubah." +
+        (lebih ? " Lumbung menyimpan " + angka(MAKS) + " transaksi terakhir, jadi " + angka(lebih) + " transaksi paling lama tidak ikut." : "");
+    } else { $("cJual").checked = false; $("cJual").disabled = true; $("iJualKet").textContent = "Tidak ada transaksi di file ini."; }
+    $("cBrg").onchange = function(){ c.style.opacity = this.checked ? 1 : .4; Array.prototype.forEach.call(c.querySelectorAll("input"), function(x){ x.disabled = !$("cBrg").checked || x.parentNode.className === "sudah"; }); };
+    $("kIsi").scrollIntoView({ behavior:"smooth", block:"start" });
+  }
+
+  $("fDb").onchange = function(){
+    var f = this.files[0]; this.value = ""; if (!f) return;
+    $("kIsi").hidden = true; status("Membaca " + f.name + " …");
+    var r = new FileReader();
+    r.onload = function(){
+      muatSql().then(function(SQL){
+        try { hasil = baca(SQL, r.result); }
+        catch(e){ status(/kasir lama/.test(e.message) ? e.message : "File ini tidak bisa dibaca. Pastikan memilih file database (.db) dari aplikasi kasir lama."); return; }
+        status(""); tampilkan();
+      }, function(e){ status(e.message); });
+    };
+    r.onerror = function(){ status("File tidak bisa dibuka."); };
+    r.readAsArrayBuffer(f);
+  };
+
+  $("bPindah").onclick = function(){
+    if (!hasil) return;
+    var ambilBrg = $("cBrg").checked, ambilJual = $("cJual").checked;
+    var katPilih = Array.prototype.filter.call($("kats").querySelectorAll("input"), function(x){ return x.checked && !x.disabled; }).map(function(x){ return x.value; });
+    if (!ambilBrg && !ambilJual) { pesan("Centang dulu yang mau dipindahkan"); return; }
+    var S = bacaToko(), produk = Array.isArray(S.produk) ? S.produk : [], ada = {}, peta = {}, nb = 0, nj = 0;
+    produk.forEach(function(p){ ada[kunciBrg(p.nama, p.kat)] = p.id; });
+    var idMaks = produk.reduce(function(a, p){ return Math.max(a, +p.id || 0); }, 1000);
+    // Barang yang sudah ada tetap dipakai untuk mencocokkan riwayat penjualan.
+    hasil.brg.forEach(function(b){
+      var k = kunciBrg(b.nama, b.kat);
+      if (ada[k] != null) { peta[b.lamaId] = ada[k]; return; }
+      if (!ambilBrg || katPilih.indexOf(b.kat) < 0) return;
+      var p = { id:++idMaks, nama:b.nama.slice(0, 40), harga:b.harga, em:ikon(b.nama, b.kat), kat:b.kat.slice(0, 30), lama:1 };
+      if (b.modal) p.modal = b.modal;
+      if (b.kode) p.kode = b.kode;
+      produk.push(p); ada[k] = p.id; peta[b.lamaId] = p.id; nb++;
+    });
+    if (!S.nama && hasil.toko) S.nama = hasil.toko.replace(/\b\w+/g, function(w){ return w.charAt(0) + w.slice(1).toLowerCase(); });
+    S.produk = produk;
+    var jual = bacaJual();
+    if (ambilJual) {
+      var lamaAda = {};
+      jual.forEach(function(j){ if (j.lama) lamaAda[j.lama] = 1; });
+      hasil.jual.forEach(function(j){
+        if (lamaAda[j.lama]) return;
+        jual.push({ lama:j.lama, no:j.no, w:j.w, m:j.m, tot:j.tot, ds:j.ds, isi:j.isi.map(function(x){ var o = { n:x.n, q:x.q, h:x.h, k:x.k }; if (peta[x.lamaId] != null) o.id = peta[x.lamaId]; if (x.m) o.m = x.m; return o; }) });
+        nj++;
+      });
+      jual.sort(function(a, b){ return a.w - b.w; });
+      if (jual.length > MAKS) jual = jual.slice(jual.length - MAKS);
+    }
+    try {
+      localStorage.setItem(KUNCI, JSON.stringify(S));
+      if (ambilJual) localStorage.setItem(JUAL, JSON.stringify(jual));
+    } catch(e){ pesan("Memori HP penuh. Kurangi kategori barang lalu coba lagi."); return; }
+    hasil = null; $("kIsi").hidden = true;
+    pesan(nb + " barang dan " + angka(nj) + " transaksi dipindahkan");
+    gambarSudah();
+  };
+
+  function gambarSudah(){
+    var S = bacaToko(), nb = (S.produk || []).filter(function(p){ return p.lama; }).length, js = bacaJual().filter(function(j){ return j.lama; });
+    $("kSudah").hidden = !nb && !js.length;
+    if (!nb && !js.length) return;
+    $("sKet").innerHTML = "<b>" + nb + "</b> barang dan <b>" + angka(js.length) + "</b> transaksi" + (js.length ? " (" + tglTeks(js[0].w) + " sampai " + tglTeks(js[js.length - 1].w) + ")" : "") +
+      " dari kasir lama sudah ada di Lumbung. Lihat penjualan lama di Kasir → Laporan → <b>Tahun ini</b> atau <b>Tahun lalu</b>.";
+  }
+  $("bHapus").onclick = function(){
+    if (!confirm("Hapus semua barang dan riwayat penjualan yang dibawa dari kasir lama?\nBarang dan penjualan yang dibuat di Lumbung tidak ikut terhapus.")) return;
+    var S = bacaToko(); if (Array.isArray(S.produk)) S.produk = S.produk.filter(function(p){ return !p.lama; });
+    try { localStorage.setItem(KUNCI, JSON.stringify(S)); localStorage.setItem(JUAL, JSON.stringify(bacaJual().filter(function(j){ return !j.lama; }))); } catch(e){}
+    pesan("Data kasir lama dihapus dari Lumbung"); gambarSudah();
+  };
+  gambarSudah();
+})();
+</script>
+</body>
+</html>

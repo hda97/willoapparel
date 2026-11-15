@@ -426,12 +426,14 @@ main{padding-bottom:110px}
     try { localStorage.setItem(JUAL, JSON.stringify(a)); } catch(e){ pesan("Memori penuh: laporan tidak tercatat"); }
     if (window.LumbungSinkron) LumbungSinkron.antre(j);
   }
-  var PERIODE = [["hari","Hari ini"],["kemarin","Kemarin"],["7","7 hari"],["bulan","Bulan ini"],["bulanlalu","Bulan lalu"]], lapP = "hari";
+  var PERIODE = [["hari","Hari ini"],["kemarin","Kemarin"],["7","7 hari"],["bulan","Bulan ini"],["bulanlalu","Bulan lalu"],["tahun","Tahun ini"],["tahunlalu","Tahun lalu"]], lapP = "hari";
   function rentang(k){
     var d = new Date(); d.setHours(0,0,0,0); var a = d.getTime(), day = 864e5;
     if (k === "hari") return [a, a + day];
     if (k === "kemarin") return [a - day, a];
     if (k === "7") return [a - 6 * day, a + day];
+    if (k === "tahun") return [new Date(d.getFullYear(), 0, 1).getTime(), a + day];
+    if (k === "tahunlalu") return [new Date(d.getFullYear() - 1, 0, 1).getTime(), new Date(d.getFullYear(), 0, 1).getTime()];
     var b = new Date(d.getFullYear(), d.getMonth(), 1);
     if (k === "bulan") return [b.getTime(), a + day];
     return [new Date(d.getFullYear(), d.getMonth() - 1, 1).getTime(), b.getTime()];
@@ -506,7 +508,8 @@ main{padding-bottom:110px}
       li.querySelector("b").textContent = j.no + " · " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + " · " + j.m + (j.batal ? " · DIBATALKAN" : "");
       li.querySelector("small").textContent = j.isi.map(function(x){ return x.q + " " + x.n; }).join(", ");
       li.querySelector(".angka").textContent = rp(j.tot);
-      if (!j.batal) {
+      // Penjualan dari kasir lama (menu Pindah dari kasir lama) tidak tercatat di Buku Kas & stok: tidak bisa dibatalkan di sini.
+      if (!j.batal && !j.lama) {
         var bt = document.createElement("button"); bt.className = "btn dua kecil"; bt.textContent = "Batalkan";
         bt.onclick = function(){ batalkan(j.no, j.w); };
         li.appendChild(bt);
