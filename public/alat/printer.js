@@ -108,7 +108,15 @@
       .replace(/[−–—]/g, "-").replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/×/g, "x").replace(/[^\x0a\x20-\x7e]/g, "");
   }
   // opsi.besar: teks pendek (mis. nomor antrian) dicetak besar di tengah sebelum teks biasa.
+  // Pengaturan cetak (menu Pengaturan toko): logo, barcode, huruf besar Total, struk ringkas, jarak kertas akhir.
+  var KUNCI_CETAK = "willo_cetak_v1";
+  function atur(){
+    var a = {}; try { a = JSON.parse(localStorage.getItem(KUNCI_CETAK)) || {}; } catch(e){}
+    return { logo:a.logo !== false, barcode:a.barcode !== false, tebal:a.tebal !== false, ringkas:a.ringkas !== false, jarak:a.jarak != null ? Math.max(0, Math.min(6, +a.jarak || 0)) : 2 };
+  }
   function keByte(teks, opsi){
+    var A = atur(); opsi = opsi ? Object.assign({}, opsi) : {};
+    if (!A.logo) delete opsi.gambar; if (!A.barcode) delete opsi.barcode; if (!A.tebal) delete opsi.tebal;
     var b = [0x1b, 0x40, 0x1b, 0x74, 0x00]; // reset + tabel karakter dasar
     var tambah = function(s){ s = ascii(s); for (var i = 0; i < s.length; i++) b.push(s.charCodeAt(i)); };
     // opsi.gambar: logo hitam-putih {w: byte per baris, h: tinggi titik, d: base64 bit} → GS v 0 di tengah.
@@ -135,11 +143,13 @@
     // opsi.barcode: kode CODE128 di tengah bawah (mis. nomor faktur).
     if (opsi && opsi.barcode) {
       var kode = ascii(String(opsi.barcode)).slice(0, 30);
-      b.push(0x0a, 0x1b, 0x61, 0x01, 0x1d, 0x68, 0x50, 0x1d, 0x77, 0x02, 0x1d, 0x48, 0x00, 0x1d, 0x6b, 0x49, kode.length + 2, 0x7b, 0x42);
+      b.push(0x0a, 0x1b, 0x61, 0x01, 0x1d, 0x68, 0x30, 0x1d, 0x77, 0x02, 0x1d, 0x48, 0x00, 0x1d, 0x6b, 0x49, kode.length + 2, 0x7b, 0x42);
       for (var k = 0; k < kode.length; k++) b.push(kode.charCodeAt(k));
-      b.push(0x0a, 0x1b, 0x61, 0x00);
+      b.push(0x1b, 0x61, 0x00);
     }
-    b.push(0x0a, 0x0a, 0x0a, 0x0a, 0x1d, 0x56, 0x42, 0x00); // beri jarak + potong kertas (jika ada pisau)
+    // Jarak akhir supaya tulisan terakhir lewat dari gigi sobek printer, lalu potong (jika ada pisau).
+    b.push(0x0a); for (var f = 0; f < A.jarak; f++) b.push(0x0a);
+    b.push(0x1d, 0x56, 0x42, 0x00);
     return new Uint8Array(b);
   }
 
@@ -204,6 +214,9 @@
 
   window.CetakTermal = {
     bisaBle: bisaBle,
+    atur: atur,
+    simpanAtur: function(a){ try { localStorage.setItem(KUNCI_CETAK, JSON.stringify(a)); } catch(e){} },
+    keByte: keByte,
     android: android,
     terhubung: function(){ if (aplikasi()) return !!simpanan(); return !!(karakter && perangkat && perangkat.gatt.connected); },
     nama: function(){ if (aplikasi()) { var p = simpanan(); return p ? p.nama : ""; } return perangkat ? (perangkat.name || "printer") : ""; },

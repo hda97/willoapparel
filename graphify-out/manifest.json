@@ -16613,15 +16613,15 @@
     "semantic_hash": ""
   },
   "public/alat/index.html": {
-    "mtime": 1794757397.5947826,
-    "seen": 1794757575.224446,
-    "ast_hash": "a157dff231bfb63ac4144dcf00c63909",
+    "mtime": 1794758686.9746008,
+    "seen": 1794758796.4673147,
+    "ast_hash": "04fc0a87f9aa32da8a16647bcad3ce71",
     "semantic_hash": ""
   },
   "public/alat/kasir/index.html": {
-    "mtime": 1794757397.5936987,
-    "seen": 1794757575.2244477,
-    "ast_hash": "e97e4125504ed8527dc770a5085d8264",
+    "mtime": 1794758508.8182392,
+    "seen": 1794758796.467317,
+    "ast_hash": "991342be80077d337bae8234d5074a4e",
     "semantic_hash": ""
   },
   ".claude/skills/oil-ui/assets/vendor/alpine.min.js": {
@@ -16943,9 +16943,9 @@
     "semantic_hash": ""
   },
   "public/alat/printer.js": {
-    "mtime": 1794751925.4985127,
-    "seen": 1794753028.270497,
-    "ast_hash": "05ff080e29f9b0b13a18adfaa1a3c6b8",
+    "mtime": 1794758389.4617183,
+    "seen": 1794758796.4652562,
+    "ast_hash": "9d6224844263f926c4cf6a27c799110d",
     "semantic_hash": ""
   },
   ".github/workflows/aplikasi-alat.yml": {
@@ -17033,9 +17033,9 @@
     "semantic_hash": ""
   },
   "aplikasi-alat/siapkan-www.mjs": {
-    "mtime": 1794757397.5989525,
-    "seen": 1794757575.2229652,
-    "ast_hash": "fcc7dacbb9003f0d7b8e06214308b653",
+    "mtime": 1794758681.7359037,
+    "seen": 1794758796.464822,
+    "ast_hash": "96fb4d513bee77f08654a1141db6d9f6",
     "semantic_hash": ""
   },
   "aplikasi-alat/README.md": {
@@ -17117,93 +17117,93 @@
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/res/mipmap-hdpi/ic_launcher.png": {
-    "mtime": 1794744541.3877525,
-    "seen": 1794753028.2725234,
-    "ast_hash": "a76c72d01eaf0a8108c88919759ec65b",
+    "mtime": 1794758669.733243,
+    "seen": 1794758796.4679403,
+    "ast_hash": "1e0f3efbe30ba7569b99d5a315896d3e",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png": {
-    "mtime": 1794744541.3897877,
-    "seen": 1794753028.2725244,
-    "ast_hash": "fd7f4986588024fd1ca0c92cc277540d",
+    "mtime": 1794758669.7005458,
+    "seen": 1794758796.467943,
+    "ast_hash": "aabf76d3fe8a7f00450714f657a0729b",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png": {
-    "mtime": 1794744541.3890803,
-    "seen": 1794753028.2725253,
-    "ast_hash": "4449d09efd8eefec9f6c420c9222fa7e",
+    "mtime": 1794758669.7685459,
+    "seen": 1794758796.4679456,
+    "ast_hash": "153f5189b27e389525f279894aac519e",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/res/mipmap-mdpi/ic_launcher.png": {
-    "mtime": 1794744541.382744,
-    "seen": 1794753028.2725265,
-    "ast_hash": "5611dbd93dea67fd9a2da8a885ecd98c",
+    "mtime": 1794758669.6328173,
+    "seen": 1794758796.4679484,
+    "ast_hash": "0a206dc4d033b5ebe8462c8311512ddb",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png": {
-    "mtime": 1794744541.3861506,
-    "seen": 1794753028.272528,
-    "ast_hash": "067f4b56f5a00c073d672636a57c3e29",
+    "mtime": 1794758669.600546,
+    "seen": 1794758796.4679513,
+    "ast_hash": "778b1d04b62dec25106eec5758cbcb2c",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png": {
-    "mtime": 1794744541.3843007,
-    "seen": 1794753028.272529,
-    "ast_hash": "8d821bf6a27f0944116dcc5f8a1c470b",
+    "mtime": 1794758669.668546,
+    "seen": 1794758796.4679544,
+    "ast_hash": "cf70940ceca9df93c1fd9a50a54980ab",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png": {
-    "mtime": 1794744541.3941486,
-    "seen": 1794753028.2725298,
-    "ast_hash": "14971fd4a7086fd596a2ec40fb2b4e55",
+    "mtime": 1794758669.836546,
+    "seen": 1794758796.4679573,
+    "ast_hash": "0f76243add46ee7cc3dabb704ebb42b1",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png": {
-    "mtime": 1794744541.3977876,
-    "seen": 1794753028.2725308,
-    "ast_hash": "58479a2a0b3381e5e8472258fe56e964",
+    "mtime": 1794758669.800546,
+    "seen": 1794758796.4679596,
+    "ast_hash": "e85162cea51f061e1d6a80b55fff6e03",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png": {
-    "mtime": 1794744541.3960202,
-    "seen": 1794753028.2725317,
-    "ast_hash": "cc260b5e302b8cda5339d6a5f051c829",
+    "mtime": 1794758669.8685458,
+    "seen": 1794758796.467962,
+    "ast_hash": "394b539552fe7c2e1c35fe8bae6144fc",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png": {
-    "mtime": 1794744541.4017875,
-    "seen": 1794753028.2725327,
-    "ast_hash": "aafae7da76666a4013e1fcac38550177",
+    "mtime": 1794758669.9405458,
+    "seen": 1794758796.4679644,
+    "ast_hash": "389fa69a74b07a0ccd460efeebb82668",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png": {
-    "mtime": 1794744541.4097877,
-    "seen": 1794753028.2725341,
-    "ast_hash": "b2b587e3ab96f3cc84f77d9909c3cf62",
+    "mtime": 1794758669.9045458,
+    "seen": 1794758796.4679668,
+    "ast_hash": "a6b663a01dcb9a539884417ab0ad3b11",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png": {
-    "mtime": 1794744541.4050322,
-    "seen": 1794753028.2725353,
-    "ast_hash": "8faa0146a312c82cde06334fe43f28e8",
+    "mtime": 1794758669.9725459,
+    "seen": 1794758796.4679694,
+    "ast_hash": "a7d802917c018aa6e309f7ab3fb1ff68",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png": {
-    "mtime": 1794744541.4137876,
-    "seen": 1794753028.2725363,
-    "ast_hash": "e56144e11f2a446228f8c877c446976b",
+    "mtime": 1794758670.044546,
+    "seen": 1794758796.4679723,
+    "ast_hash": "d2e4257f04bfec2e15a2fac6c0b3e558",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png": {
-    "mtime": 1794744541.4257877,
-    "seen": 1794753028.2725377,
-    "ast_hash": "a5cdf61f1165ee9bb89bd873e4821243",
+    "mtime": 1794758670.004546,
+    "seen": 1794758796.4679747,
+    "ast_hash": "cb613444a1de2f4a871ab1019ffbdda9",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png": {
-    "mtime": 1794744541.4177876,
-    "seen": 1794753028.272539,
-    "ast_hash": "134a72c7b95ab33d0b5068c15e8ba54e",
+    "mtime": 1794758670.076546,
+    "seen": 1794758796.4679778,
+    "ast_hash": "9cf34920b2525ce82653bd10f1676e1e",
     "semantic_hash": ""
   },
   "public/link/tim-willo.webp": {
@@ -17213,9 +17213,9 @@
     "semantic_hash": ""
   },
   "public/alat/ikon.js": {
-    "mtime": 1794756826.8834684,
-    "seen": 1794756915.2054415,
-    "ast_hash": "d6f918ae89b1356785eeeed159ce38ce",
+    "mtime": 1794758417.658742,
+    "seen": 1794758796.4652493,
+    "ast_hash": "9920c8944ee0c67e780ae3a8212807a9",
     "semantic_hash": ""
   },
   "public/alat/owner.js": {
@@ -17231,9 +17231,27 @@
     "semantic_hash": ""
   },
   "public/alat/owner/index.html": {
-    "mtime": 1794757458.1066277,
-    "seen": 1794757575.224452,
-    "ast_hash": "8231b223a3a1aac0066172cb42de2c04",
+    "mtime": 1794757595.7837029,
+    "seen": 1794758796.4673223,
+    "ast_hash": "d1e09346e6a552f88d3b4b0f3f8d39d1",
+    "semantic_hash": ""
+  },
+  "public/alat/hpp/index.html": {
+    "mtime": 1794758756.06147,
+    "seen": 1794758796.4673114,
+    "ast_hash": "bd5918425ece7d02c6edf16c603d1704",
+    "semantic_hash": ""
+  },
+  "public/alat/pengaturan/index.html": {
+    "mtime": 1794758717.6792145,
+    "seen": 1794758796.4673243,
+    "ast_hash": "ec6f7d207f997f28071aa6c01f321114",
+    "semantic_hash": ""
+  },
+  "public/alat/stok/index.html": {
+    "mtime": 1794758681.7330039,
+    "seen": 1794758796.467326,
+    "ast_hash": "3b82fe3d9bde82e41f10f8d618fb9429",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {
