@@ -190,6 +190,7 @@ main{padding-bottom:110px}
   <label class="isi">Nama produk<input type="text" id="dpNama" maxlength="30" autocomplete="off" required></label>
   <label class="isi">Harga (Rp)<input type="text" inputmode="numeric" id="dpHarga" class="angka" autocomplete="off"></label>
   <label class="isi">Stok <small>Kosongkan bila tidak mau dihitung. Berkurang otomatis saat terjual</small><input type="text" inputmode="numeric" id="dpStok" class="angka" autocomplete="off" placeholder="tidak dihitung"></label>
+  <label class="isi">Promo paket <small>Boleh kosong. Contoh: 3=100000 artinya tiap 3 pcs jadi Rp100.000</small><input type="text" id="dpPaket" maxlength="20" autocomplete="off"></label>
   <label class="isi">Kode / barcode <small>Boleh kosong. Ketik atau scan kode di kemasan</small><input type="text" id="dpKode" maxlength="32" autocomplete="off"></label>
   <label class="isi">Kategori <small>Boleh kosong. Contoh: Kaos, Jersey, Minuman</small><input type="text" id="dpKat" maxlength="20" list="dlKat" autocomplete="off"></label>
   <datalist id="dlKat"></datalist>
@@ -290,6 +291,8 @@ main{padding-bottom:110px}
       { id:101, nama:"Kaos kelas", harga:65000, em:"🎓", kat:"Paket", grosir:true },
       { id:102, nama:"Kaos komunitas", harga:70000, em:"🤝", kat:"Paket", grosir:true }
     ];
+    // Promo kaos polos 35rb, tiap kelipatan 3 pcs = 100rb (Huda 15 Nov 2026).
+    S.produk.push({ id:199, nama:"30s PROMO S-XL", harga:35000, em:"🔥", kat:"Promo 3 = 100rb", paket:[3,100000] });
     JENIS.forEach(function(j){ UKURAN.forEach(function(u, i){
       S.produk.push({ id:j[4] + i + 1, nama:j[1] + " " + u[0], harga:j[2] + u[1], em:j[3], kat:j[0], grosir:true });
     }); });
@@ -339,11 +342,15 @@ main{padding-bottom:110px}
   function pesan(t){ var p = $("pesan"), dl = document.querySelector("dialog[open]"); (dl || document.body).appendChild(p); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, t.length > 60 ? 6000 : 2200); }
   function formatInput(el, cb){ el.addEventListener("input", function(){ var n = angka(el.value); el.value = n ? n.toLocaleString("id-ID") : ""; if (cb) cb(n); }); }
   var subtotal = function(){ return keranjang.reduce(function(a,k){ return a + k.harga * k.q; }, 0); };
+  function bacaPaket(t){ var m = String(t || "").replace(/\./g, "").match(/(\d+)\s*[=:x×\/]\s*(?:rp)?\s*(\d+)/i); if (!m) return null; var a = +m[1], b = +m[2]; if (b > 0 && b < 1000) b *= 1000; return a > 1 && b > 0 ? [a, b] : null; }
   // Diskon grosir: jumlah pcs produk bertanda grosir menentukan potongan per pcs.
   function diskon(){
     var g = S.grosir || [], n = keranjang.reduce(function(a,k){ return a + (k.g ? k.q : 0); }, 0), per = 0, lagi = null;
     g.forEach(function(t){ if (n >= t[0]) per = t[1]; else if (!lagi) lagi = t; });
-    return { n:n, per:per, jml:n * per, lagi:lagi };
+    // Promo paket kelipatan (mis. 3 pcs = 100.000): hanya tiap kelipatan penuh, sisanya harga biasa.
+    var promo = 0, pn = 0;
+    keranjang.forEach(function(k){ if (k.pk && k.pk[0] > 1 && k.q >= k.pk[0]) { var x = Math.floor(k.q / k.pk[0]); pn += x; promo += x * Math.max(0, k.pk[0] * k.harga - k.pk[1]); } });
+    return { n:n, per:per, gr:n * per, lagi:lagi, promo:promo, pn:pn, jml:n * per + promo };
   }
   var total = function(){ return subtotal() - diskon().jml; };
 
@@ -520,7 +527,7 @@ main{padding-bottom:110px}
   function tambah(p){
     var k = keranjang.filter(function(x){ return x.id === p.id; })[0];
     if (p.stok != null && (k ? k.q : 0) >= p.stok) pesan("Stok " + p.nama + " tinggal " + Math.max(0, p.stok) + ". Tetap ditambahkan.");
-    if (k) k.q++; else keranjang.push({ id:p.id, nama:p.nama, harga:p.harga, q:1, g:!!p.grosir });
+    if (k) k.q++; else keranjang.push({ id:p.id, nama:p.nama, harga:p.harga, q:1, g:!!p.grosir, pk:p.paket || null });
     if (navigator.vibrate) navigator.vibrate(15);
     gambar();
   }
@@ -538,12 +545,18 @@ main{padding-bottom:110px}
       ul.appendChild(li);
     });
     var ds = diskon();
-    if (ds.n && (ds.jml || ds.lagi)) {
+    if (ds.promo) {
+      var lp = document.createElement("li"); lp.className = "diskon";
+      lp.innerHTML = '<span class="nm"><span></span><small></small></span><span class="st angka"></span>';
+      lp.querySelector(".nm span").textContent = "Promo paket"; lp.querySelector(".nm small").textContent = ds.pn + "× paket kelipatan";
+      lp.querySelector(".st").textContent = "−" + rp(ds.promo); ul.appendChild(lp);
+    }
+    if (ds.n && (ds.gr || ds.lagi)) {
       var li = document.createElement("li"); li.className = "diskon";
       li.innerHTML = '<span class="nm"><span></span><small></small></span><span class="st angka"></span>';
-      li.querySelector(".nm span").textContent = ds.jml ? "Diskon grosir " + ds.n + " pcs" : "Diskon grosir";
-      li.querySelector(".nm small").textContent = (ds.jml ? rp(ds.per) + "/pcs. " : "") + (ds.lagi ? "Tambah " + (ds.lagi[0] - ds.n) + " pcs lagi: hemat " + rp(ds.lagi[1]) + "/pcs" : "Diskon tertinggi");
-      li.querySelector(".st").textContent = ds.jml ? "−" + rp(ds.jml) : "";
+      li.querySelector(".nm span").textContent = ds.gr ? "Diskon grosir " + ds.n + " pcs" : "Diskon grosir";
+      li.querySelector(".nm small").textContent = (ds.gr ? rp(ds.per) + "/pcs. " : "") + (ds.lagi ? "Tambah " + (ds.lagi[0] - ds.n) + " pcs lagi: hemat " + rp(ds.lagi[1]) + "/pcs" : "Diskon tertinggi");
+      li.querySelector(".st").textContent = ds.gr ? "−" + rp(ds.gr) : "";
       ul.appendChild(li);
     }
     var n = keranjang.reduce(function(a,k){ return a + k.q; }, 0);
@@ -570,7 +583,7 @@ main{padding-bottom:110px}
   function bukaProduk(p){
     dpEdit = p; dpEm = p ? (p.em || "📦") : "📦";
     $("dpJudul").textContent = p ? "Ubah produk" : "Tambah produk";
-    $("dpNama").value = p ? p.nama : ""; $("dpHarga").value = p ? p.harga.toLocaleString("id-ID") : ""; $("dpKode").value = p ? (p.kode || "") : ""; $("dpStok").value = p && p.stok != null ? p.stok : ""; $("dpKat").value = p ? (p.kat || "") : (katPilih && katPilih !== "\u0000" ? katPilih : "");
+    $("dpNama").value = p ? p.nama : ""; $("dpHarga").value = p ? p.harga.toLocaleString("id-ID") : ""; $("dpKode").value = p ? (p.kode || "") : ""; $("dpPaket").value = p && p.paket ? p.paket[0] + "=" + p.paket[1] : ""; $("dpStok").value = p && p.stok != null ? p.stok : ""; $("dpKat").value = p ? (p.kat || "") : (katPilih && katPilih !== "\u0000" ? katPilih : "");
     $("dpHapus").classList.toggle("tersembunyi", !p);
     gambarEm(); $("dProduk").showModal();
   }
@@ -590,6 +603,7 @@ main{padding-bottom:110px}
       pb.nama = nama; pb.harga = harga; pb.em = dpEm;
       if (kat) pb.kat = kat; else delete pb.kat;
       if (kode) pb.kode = kode; else delete pb.kode;
+      var pk = bacaPaket($("dpPaket").value); if (pk) pb.paket = pk; else delete pb.paket;
       var stv = $("dpStok").value.replace(/[^\d-]/g, "");
       if (stv !== "") pb.stok = parseInt(stv, 10) || 0; else delete pb.stok;
       if (!dpEdit) S.produk.push(pb);
@@ -681,7 +695,7 @@ main{padding-bottom:110px}
   }
   $("bCsvBarang").onclick = function(){
     var q = function(v){ return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
-    var baris = ["Nama;Harga;Ikon;Kategori;Kode;Stok;Grosir"].concat(S.produk.map(function(p){ return [q(p.nama), p.harga, p.em || "", q(p.kat || ""), q(p.kode || ""), p.stok != null ? p.stok : "", p.grosir ? "ya" : ""].join(";"); }));
+    var baris = ["Nama;Harga;Ikon;Kategori;Kode;Stok;Grosir;Promo"].concat(S.produk.map(function(p){ return [q(p.nama), p.harga, p.em || "", q(p.kat || ""), q(p.kode || ""), p.stok != null ? p.stok : "", p.grosir ? "ya" : "", p.paket ? p.paket[0] + "=" + p.paket[1] : ""].join(";"); }));
     unduh("daftar-barang.csv", "\uFEFF" + baris.join("\r\n"), "text/csv;charset=utf-8");
   };
   function bacaCsv(teks){
@@ -700,14 +714,14 @@ main{padding-bottom:110px}
       hasil.push(cur); return hasil.map(function(x){ return x.trim(); });
     };
     var kepala = pecah(baris[0]).map(function(x){ return x.toLowerCase(); });
-    var iN = kepala.findIndex(function(x){ return /nama|barang|produk|item/.test(x); }), iH = kepala.findIndex(function(x){ return /harga|price|jual/.test(x); }), iE = kepala.findIndex(function(x){ return /ikon|icon|emoji/.test(x); }), iK = kepala.findIndex(function(x){ return /kategori|category|jenis|grup|group/.test(x); }), iB = kepala.findIndex(function(x){ return /kode|barcode|sku|code/.test(x); }), iS = kepala.findIndex(function(x){ return /stok|stock|qty|jumlah/.test(x); }), iG = kepala.findIndex(function(x){ return /grosir/.test(x); });
+    var iN = kepala.findIndex(function(x){ return /nama|barang|produk|item/.test(x); }), iH = kepala.findIndex(function(x){ return /harga|price|jual/.test(x); }), iE = kepala.findIndex(function(x){ return /ikon|icon|emoji/.test(x); }), iK = kepala.findIndex(function(x){ return /kategori|category|jenis|grup|group/.test(x); }), iB = kepala.findIndex(function(x){ return /kode|barcode|sku|code/.test(x); }), iS = kepala.findIndex(function(x){ return /stok|stock|qty|jumlah/.test(x); }), iG = kepala.findIndex(function(x){ return /grosir/.test(x); }), iP = kepala.findIndex(function(x){ return /promo|paket/.test(x); });
     var mulai = 1;
     if (iN < 0 || iH < 0) { iN = 0; iH = 1; mulai = 0; }
     var out = [];
     baris.slice(mulai).forEach(function(b, i){
       var k = pecah(b), nama = (k[iN] || "").slice(0, 30);
       var hs = String(k[iH] || "").replace(/[Rr][Pp]\.?/g, "").replace(/,00$|\.00$/, ""), harga = parseInt(hs.replace(/\D/g, ""), 10) || 0;
-      if (nama && harga) { var o = { id:Date.now() + i, nama:nama, harga:harga, em:(iE >= 0 && k[iE]) ? k[iE].slice(0, 4) : "📦" }; if (iK >= 0 && k[iK]) o.kat = k[iK].slice(0, 20); if (iB >= 0 && k[iB]) o.kode = k[iB].slice(0, 32); if (iS >= 0 && /\d/.test(k[iS] || "")) o.stok = parseInt(String(k[iS]).replace(/[^\d-]/g, ""), 10) || 0; if (iG >= 0 && /^(ya|y|1|true|v)$/i.test(k[iG] || "")) o.grosir = true; out.push(o); }
+      if (nama && harga) { var o = { id:Date.now() + i, nama:nama, harga:harga, em:(iE >= 0 && k[iE]) ? k[iE].slice(0, 4) : "📦" }; if (iK >= 0 && k[iK]) o.kat = k[iK].slice(0, 20); if (iB >= 0 && k[iB]) o.kode = k[iB].slice(0, 32); if (iS >= 0 && /\d/.test(k[iS] || "")) o.stok = parseInt(String(k[iS]).replace(/[^\d-]/g, ""), 10) || 0; if (iG >= 0 && /^(ya|y|1|true|v)$/i.test(k[iG] || "")) o.grosir = true; if (iP >= 0) { var pk = bacaPaket(k[iP]); if (pk) o.paket = pk; } out.push(o); }
     });
     return out;
   }
