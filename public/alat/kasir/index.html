@@ -151,22 +151,13 @@ main{padding-bottom:110px}
   </div></div>
 
   <section class="kartu" data-owner>
-    <h2>Pengaturan toko</h2>
-    <label class="isi">Nama toko<input type="text" id="sNama" maxlength="40" placeholder="Contoh: Warung Bu Sri"></label>
-    <label class="isi">Tagline <small>Kalimat singkat di bawah nama toko, contoh: Enak, murah, cepat</small><input type="text" id="sTagline" maxlength="40"></label>
-    <label class="isi">Pesan bawah struk <small>Contoh: Kalau sudah bosan, beli lagi ya</small><input type="text" id="sPesan" maxlength="64"></label>
-    <label class="isi">Alamat <small>Tampil di struk</small><input type="text" id="sAlamat" maxlength="80" placeholder="Contoh: Jl. Raya Ngawi No. 5"></label>
-    <label class="isi">No. HP / WA toko<input type="tel" id="sHp" maxlength="20"></label>
-    <div class="isi" style="font-size:14px;font-weight:600;margin-bottom:6px">Logo toko <small style="display:block;color:var(--redup);font-weight:400">Tampil di struk dan ikut tercetak hitam-putih di printer termal.</small></div>
-    <div class="qprev" style="margin-bottom:12px"><img id="sLogoPrev" alt="" class="tersembunyi"><div class="baris"><label class="btn dua kecil" for="fLogo">🖼️ Pilih logo</label><button class="btn dua kecil tersembunyi" id="bHapusLogo">Hapus</button></div></div>
-    <input type="file" id="fLogo" accept="image/*" class="tersembunyi">
-    <div class="isi" style="font-size:14px;font-weight:600;margin-bottom:6px">Gambar QRIS toko <small style="display:block;color:var(--redup);font-weight:400">Foto atau tangkapan layar QRIS dari bank/e-wallet milikmu. Disimpan di HP ini saja.</small></div>
-    <div class="qprev"><img id="sQrisPrev" alt="" class="tersembunyi"><div class="baris"><label class="btn dua kecil" for="fQris">📷 Pilih gambar QRIS</label><button class="btn dua kecil tersembunyi" id="bHapusQris">Hapus</button></div></div>
-    <input type="file" id="fQris" accept="image/*" class="tersembunyi">
-    <label class="isi" style="margin-top:12px">Info transfer <small>Contoh: BRI 1234-5678 a.n. Sri Wahyuni</small><input type="text" id="sRek" maxlength="80"></label>
-    <label class="isi" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="sKas" style="width:22px;height:22px;accent-color:var(--utama)"> Catat penjualan otomatis ke Buku Kas</label>
-    <label class="isi" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="sTaut" style="width:22px;height:22px;accent-color:var(--utama)"> Tulis “kasir gratis: willoapparel.com/alat” di bawah struk</label>
-    <p class="kecil redup" style="margin:6px 0 0"><a href="#" id="bGantiPrinter" class="tersembunyi">Ganti printer</a></p>
+    <h2>Menu owner</h2>
+    <p class="kecil redup" style="margin:0 0 10px">Nama toko, logo, QRIS, rekening, printer, dan panjang struk diatur di menu Pengaturan toko.</p>
+    <div class="baris">
+      <a class="btn dua kecil" href="/alat/pengaturan/">⚙️ Pengaturan toko</a>
+      <a class="btn dua kecil" href="/alat/stok/">📦 Stok barang</a>
+      <a class="btn dua kecil" href="/alat/hpp/">🧮 Hitung HPP & untung</a>
+    </div>
   </section>
 
   <section class="kartu" data-owner>
@@ -308,11 +299,14 @@ main{padding-bottom:110px}
   var S;
   function muat(){
     try { S = JSON.parse(localStorage.getItem(KUNCI)) || null; } catch(e){ S = null; }
-    if (!S) S = { baru:true, nama:"", alamat:"", rek:"", qris:"", kas:true, no:0, produk:[
+    if (!S) S = { baru:true, nama:"", alamat:"", rek:"", qris:"", kas:true, no:0 };
+    // Toko baru yang lebih dulu mengisi menu Pengaturan belum punya daftar barang: pakai contoh awal.
+    if (!Array.isArray(S.produk)) { S.baru = true; S.produk = [
       { id:1, nama:"Es teh", harga:5000, em:"🧋" }, { id:2, nama:"Kopi", harga:6000, em:"☕" },
       { id:3, nama:"Nasi goreng", harga:15000, em:"🍚" }, { id:4, nama:"Mie ayam", harga:13000, em:"🍜" }
-    ] };
+    ]; }
   }
+  function batasStok(p){ return p.min != null ? p.min : (S.stokMin != null ? S.stokMin : 5); }
   function simpan(){ delete S.baru; try { localStorage.setItem(KUNCI, JSON.stringify(S)); return true; } catch(e){ pesan("Gagal menyimpan: memori browser penuh"); return false; } }
   muat();
   // Isian toko Willo sendiri (Huda 15 Nov 2026): buka /alat/kasir/?contoh=willo sekali di HP Willo.
@@ -405,7 +399,7 @@ main{padding-bottom:110px}
       b.innerHTML = '<span class="em"></span><span class="nm"></span><span class="hg angka"></span>';
       isiIkon(b.querySelector(".em"), p.em); b.querySelector(".nm").textContent = p.nama; b.querySelector(".hg").textContent = rp(p.harga);
       if (p.stok != null) {
-        var sk = document.createElement("span"); sk.className = "stk" + (p.stok <= (S.stokMin || 5) ? " tipis" : "");
+        var sk = document.createElement("span"); sk.className = "stk" + (p.stok <= batasStok(p) ? " tipis" : "");
         sk.textContent = p.stok > 0 ? "stok " + p.stok : "stok habis"; b.appendChild(sk);
         if (p.stok <= 0) b.classList.add("habis");
       }
@@ -444,13 +438,14 @@ main{padding-bottom:110px}
   }
   function hitungLap(){
     var r = rentang(lapP), semua = bacaJual().filter(function(j){ return j.w >= r[0] && j.w < r[1]; }), js = semua.filter(function(j){ return !j.batal; });
-    var o = { semua:semua, js:js, omzet:0, ds:0, n:js.length, pcs:0, metode:{}, brg:{}, kat:{}, jam:{} };
+    var o = { semua:semua, js:js, omzet:0, ds:0, untung:0, adaModal:0, tanpaModal:0, n:js.length, pcs:0, metode:{}, brg:{}, kat:{}, jam:{} };
     js.forEach(function(j){
       o.omzet += j.tot; o.ds += j.ds || 0;
       o.metode[j.m] = (o.metode[j.m] || 0) + j.tot;
       var h = new Date(j.w).getHours(); o.jam[h] = (o.jam[h] || 0) + 1;
       j.isi.forEach(function(x){
         o.pcs += x.q;
+        if (x.m) { o.untung += x.q * (x.h - x.m); o.adaModal += x.q; } else o.tanpaModal += x.q;
         var b = o.brg[x.n] || (o.brg[x.n] = { q:0, rp:0 }); b.q += x.q; b.rp += x.q * x.h;
         var kk = x.k || "Lainnya"; o.kat[kk] = (o.kat[kk] || 0) + x.q * x.h;
       });
@@ -467,6 +462,8 @@ main{padding-bottom:110px}
     h += '<div class="lap-angka"><div><small>Omzet</small><b class="angka">' + rp(o.omzet) + '</b></div><div><small>Transaksi</small><b class="angka">' + o.n + '</b></div>' +
          '<div><small>Rata-rata / transaksi</small><b class="angka">' + rp(Math.round(o.omzet / o.n)) + '</b></div><div><small>Barang terjual</small><b class="angka">' + o.pcs + ' pcs</b></div></div>';
     if (o.ds) h += '<p class="kecil redup" style="margin:-4px 0 12px">Diskon grosir diberikan: ' + rp(o.ds) + '</p>';
+    if (o.adaModal) { var un = o.untung - (o.tanpaModal ? 0 : o.ds); h += '<div class="lap-angka" style="grid-template-columns:1fr"><div><small>Perkiraan untung' + (o.tanpaModal ? ' (dari ' + o.adaModal + ' pcs yang ada HPP-nya)' : ' setelah diskon') + '</small><b class="angka" style="color:var(--hijau)">' + rp(un) + '</b></div></div>'; }
+    else h += '<p class="kecil redup" style="margin:-4px 0 12px">Isi HPP barang di menu <a href="/alat/hpp/">Hitung HPP</a> supaya laporan menampilkan untung.</p>';
     var brg = Object.keys(o.brg).map(function(k){ return [k, o.brg[k]]; }).sort(function(a,b){ return b[1].q - a[1].q || b[1].rp - a[1].rp; });
     var maks = brg.length ? brg[0][1].q : 1;
     h += '<h3 style="margin:0 0 4px;font-size:15px">🏆 Barang terlaris</h3><table class="lap-tabel"><tr><th>Barang</th><th>Qty</th><th>Rupiah</th></tr>';
@@ -484,7 +481,7 @@ main{padding-bottom:110px}
     var jr = Object.keys(o.jam).sort(function(a,b){ return o.jam[b] - o.jam[a]; })[0];
     if (jr != null && o.n >= 3) h += '<p class="kecil redup" style="margin:0 0 12px">⏰ Jam paling ramai: ' + pad(jr) + '.00–' + pad(+jr + 1) + '.00 (' + o.jam[jr] + ' transaksi)</p>';
     // Stok menipis
-    var tipis = S.produk.filter(function(p){ return p.stok != null && p.stok <= (S.stokMin || 5); });
+    var tipis = S.produk.filter(function(p){ return p.stok != null && p.stok <= batasStok(p); });
     if (tipis.length) { h += '<h3 style="margin:0 0 4px;font-size:15px">⚠️ Stok menipis</h3><table class="lap-tabel">'; tipis.sort(function(a,b){ return a.stok - b.stok; }).forEach(function(p){ h += '<tr><td>' + esc(p.nama) + '</td><td class="angka" style="color:var(--merah)">' + p.stok + '</td></tr>'; }); h += '</table>'; }
     h += '<h3 style="margin:0 0 4px;font-size:15px">🧾 Riwayat transaksi</h3><p class="kecil redup" style="margin:0 0 4px">Salah input atau barang dikembalikan? Ketuk Batalkan.</p>';
     el.innerHTML = h;
@@ -495,7 +492,7 @@ main{padding-bottom:110px}
     var tipis = [];
     isi.forEach(function(x){
       var pr = S.produk.filter(function(p){ return x.id != null ? p.id === x.id : p.nama === x.n; })[0];
-      if (pr && pr.stok != null) { pr.stok += arah * (x.q || 0); if (arah < 0 && pr.stok <= (S.stokMin || 5)) tipis.push(pr.nama + " (" + pr.stok + ")"); }
+      if (pr && pr.stok != null) { pr.stok += arah * (x.q || 0); if (arah < 0 && pr.stok <= batasStok(pr)) tipis.push(pr.nama + " (" + pr.stok + ")"); }
     });
     simpan();
     if (tipis.length) setTimeout(function(){ pesan("⚠️ Stok menipis: " + tipis.join(", ")); }, 1200);
@@ -611,13 +608,7 @@ main{padding-bottom:110px}
     $("hJml").textContent = rp(hi.reduce(function(a,t){ return a + t.jml; }, 0)); $("hN").textContent = hi.length;
   }
   function gambarAtur(){
-    ["Nama","Tagline","Alamat","Hp","Rek","Pesan"].forEach(function(k){ var el = $("s" + k); if (document.activeElement !== el) el.value = S[k.toLowerCase()] || ""; });
-    $("sLogoPrev").classList.toggle("tersembunyi", !S.logo); if (S.logo) $("sLogoPrev").src = S.logo;
-    $("bHapusLogo").classList.toggle("tersembunyi", !S.logo);
     $("pWillo").classList.toggle("tersembunyi", !/willo/i.test(S.nama || ""));
-    $("sKas").checked = S.kas !== false; $("sTaut").checked = S.taut !== false;
-    $("sQrisPrev").classList.toggle("tersembunyi", !S.qris); if (S.qris) $("sQrisPrev").src = S.qris;
-    $("bHapusQris").classList.toggle("tersembunyi", !S.qris);
   }
   function gambar(){ gambarProduk(); gambarKeranjang(); gambarTahan(); gambarHariIni(); gambarAtur(); }
 
@@ -697,37 +688,6 @@ main{padding-bottom:110px}
     keranjang.push({ id:"b" + Date.now(), nama:$("dbNama").value.trim() || "Lain-lain", harga:j, q:1 }); gambar();
   });
 
-  // Pengaturan
-  ["Nama","Tagline","Alamat","Hp","Rek","Pesan"].forEach(function(k){ $("s" + k).addEventListener("input", function(){ S[k.toLowerCase()] = this.value.trim(); simpan(); if (k === "Nama") gambarAtur(); }); });
-  // Logo: simpan versi kecil untuk layar + versi 1-bit (lebar maks. 192 titik) untuk printer termal.
-  $("fLogo").onchange = function(){
-    var f = this.files[0]; if (!f) return; this.value = "";
-    var img = new Image(), url = URL.createObjectURL(f);
-    img.onload = function(){
-      URL.revokeObjectURL(url);
-      var m = Math.min(1, 300 / Math.max(img.width, img.height));
-      var c = document.createElement("canvas"); c.width = Math.round(img.width * m); c.height = Math.round(img.height * m);
-      var x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
-      var tampil = c.toDataURL("image/png");
-      var k = Math.min(192 / img.width, 96 / img.height, 1 / 0), w = Math.max(8, Math.round(img.width * k)), h = Math.max(1, Math.round(img.height * k));
-      w = Math.ceil(w / 8) * 8;
-      var c2 = document.createElement("canvas"); c2.width = w; c2.height = h;
-      var y = c2.getContext("2d"); y.fillStyle = "#fff"; y.fillRect(0, 0, w, h); y.drawImage(img, 0, 0, w, h);
-      var px = y.getImageData(0, 0, w, h).data, bpr = w / 8, bit = new Uint8Array(bpr * h);
-      for (var yy = 0; yy < h; yy++) for (var xx = 0; xx < w; xx++) {
-        var i = (yy * w + xx) * 4, l = px[i] * 0.3 + px[i+1] * 0.59 + px[i+2] * 0.11;
-        if (l < 140) bit[yy * bpr + (xx >> 3)] |= 0x80 >> (xx & 7);
-      }
-      var str = ""; for (var j = 0; j < bit.length; j++) str += String.fromCharCode(bit[j]);
-      var lama = [S.logo, S.logoBit];
-      S.logo = tampil; S.logoBit = { w:bpr, h:h, d:btoa(str) };
-      if (!simpan()) { S.logo = lama[0]; S.logoBit = lama[1]; } else pesan("Logo disimpan");
-      gambarAtur();
-    };
-    img.onerror = function(){ pesan("Gambar tidak bisa dibuka"); };
-    img.src = url;
-  };
-  $("bHapusLogo").onclick = function(){ if (confirm("Hapus logo?")) { S.logo = ""; S.logoBit = null; simpan(); gambarAtur(); } };
   // Daftar barang: contoh per jenis usaha, impor & unduh CSV.
   $("bJenis").onclick = bukaJenis;
   $("djLewati").onclick = function(){ if (S.baru) { S.produk = []; simpan(); gambar(); } $("dJenis").close(); };
@@ -783,24 +743,6 @@ main{padding-bottom:110px}
     };
     r.readAsText(f);
   };
-  $("sKas").onchange = function(){ S.kas = this.checked; simpan(); };
-  $("sTaut").onchange = function(){ S.taut = this.checked; simpan(); };
-  $("fQris").onchange = function(){
-    var f = this.files[0]; if (!f) return; this.value = "";
-    var img = new Image(), url = URL.createObjectURL(f);
-    img.onload = function(){
-      // Perkecil supaya muat di memori browser, tetap tajam untuk dipindai.
-      var m = Math.min(1, 1000 / Math.max(img.width, img.height));
-      var c = document.createElement("canvas"); c.width = Math.round(img.width * m); c.height = Math.round(img.height * m);
-      var x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
-      var lama = S.qris; S.qris = c.toDataURL("image/jpeg", 0.88); URL.revokeObjectURL(url);
-      if (!simpan()) S.qris = lama; else pesan("Gambar QRIS disimpan");
-      gambarAtur();
-    };
-    img.onerror = function(){ pesan("Gambar tidak bisa dibuka"); };
-    img.src = url;
-  };
-  $("bHapusQris").onclick = function(){ if (confirm("Hapus gambar QRIS?")) { S.qris = ""; simpan(); gambarAtur(); } };
 
   // Bayar
   var metode = "Tunai";
@@ -812,7 +754,7 @@ main{padding-bottom:110px}
     $("pTransfer").classList.toggle("tersembunyi", m !== "Transfer");
     if (m === "QRIS") {
       $("pQris").innerHTML = S.qris ? '<img alt="QRIS toko"><p class="kecil redup">Minta pelanggan memindai, lalu cek notifikasi masuk di aplikasi bank/e-wallet sebelum menekan “Sudah dibayar”.</p>'
-        : '<div class="kosongq">Belum ada gambar QRIS. Tambahkan di <b>Pengaturan toko</b> di bawah halaman.</div>';
+        : '<div class="kosongq">Belum ada gambar QRIS. Tambahkan di menu <a href="/alat/pengaturan/"><b>Pengaturan toko</b></a>.</div>';
       if (S.qris) $("pQris").querySelector("img").src = S.qris;
     }
     if (m === "Transfer") $("byRek").textContent = S.rek || "Isi info rekening di Pengaturan toko.";
@@ -859,6 +801,22 @@ main{padding-bottom:110px}
     if (S.tagline) b.push(tengah(S.tagline.slice(0, L)));
     if (S.alamat) { var al = S.alamat; while (al) { b.push(tengah(al.slice(0, L))); al = al.slice(L); } }
     if (S.hp) b.push(tengah(("WA " + S.hp).slice(0, L)));
+    var ringkas = !!(window.CetakTermal && CetakTermal.atur().ringkas);
+    if (ringkas) {
+      // Struk ringkas: satu baris per barang, tanpa kolom harga satuan dan tanpa baris kosong.
+      b.push(gar, kanan(no, w));
+      var qr = 0;
+      keranjang.forEach(function(k){ qr += k.q; var r = " x" + k.q + " " + ka(ang(k.harga * k.q), 7), ru = L - r.length; if (k.nama.length <= ru) b.push(ki(k.nama, ru) + r); else b.push(k.nama.slice(0, L), ka(r.trim(), L)); });
+      b.push(gar);
+      var dr = diskon();
+      if (dr.jml) b.push(kanan(qr + " pcs  Subtotal:", rp(subtotal())), kanan("Diskon:", "-" + rp(dr.jml)));
+      b.push(kanan("Total:", rp(t)));
+      if (metode === "Tunai" && terima) b.push(kanan("Tunai:", rp(terima)), kanan("Kembalian:", rp(terima - t)));
+      else b.push(kanan("Bayar:", metode));
+      var pr2 = S.pesan || "Terima kasih :)"; while (pr2) { b.push(tengah(pr2.slice(0, L))); pr2 = pr2.slice(L); }
+      if (S.taut !== false) b.push("willoapparel.com/alat (gratis)");
+      return b.join("\n");
+    }
     b.push(gar, "Faktur: " + no, "Jam   : " + w, "");
     // Kolom 32: Barang 11 | Qty 3 | Harga 8 | Jlh 10
     b.push(ki("Barang", 11) + ka("Qty", 3) + ka("Harga", 8) + ka("Jlh", 10), gar);
@@ -892,7 +850,7 @@ main{padding-bottom:110px}
     noStruk = no; strukTeks = buatStruk(no, terima);
     var kid = Date.now();
     ubahStok(keranjang, -1);
-    catatJual({ kid:kid, no:no, w:Date.now(), m:metode, tot:t, ds:diskon().jml, isi:keranjang.map(function(k){ var pr = S.produk.filter(function(x){ return x.id === k.id; })[0]; return { id:k.id, n:k.nama, q:k.q, h:k.harga, k:(pr && pr.kat) || "" }; }) });
+    catatJual({ kid:kid, no:no, w:Date.now(), m:metode, tot:t, ds:diskon().jml, isi:keranjang.map(function(k){ var pr = S.produk.filter(function(x){ return x.id === k.id; })[0]; var o = { id:k.id, n:k.nama, q:k.q, h:k.harga, k:(pr && pr.kat) || "" }; if (pr && pr.modal) o.m = pr.modal; return o; }) });
     if (S.kas !== false) {
       var k = bacaKas();
       var ket = keranjang.map(function(x){ return x.q + " " + x.nama; }).join(", ");
@@ -910,7 +868,9 @@ main{padding-bottom:110px}
     window.open("https://wa.me/" + hp + "?text=" + encodeURIComponent("```\n" + strukTeks + "\n```"), "_blank", "noopener");
   };
   $("stCetak").onclick = function(e){ e.preventDefault(); $("cetakStruk").textContent = strukTeks; (window.Lumbung ? Lumbung.cetakHalaman("Struk") : window.print()); };
-  window.addEventListener("load", function(){ if (window.CetakTermal && CetakTermal.aplikasi()) { var gp = $("bGantiPrinter"); gp.classList.remove("tersembunyi"); gp.onclick = function(e){ e.preventDefault(); CetakTermal.lupakan(); pesan("Printer dilupakan. Pilih lagi saat mencetak."); }; } });
+  // Kembali dari menu Pengaturan/Stok: muat ulang data supaya perubahan di sana tidak tertimpa.
+  window.addEventListener("pageshow", function(e){ if (e.persisted) { muat(); gambar(); } });
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden && !keranjang.length) { muat(); gambar(); } });
   $("stRawbt").onclick = function(e){ e.preventDefault(); CetakTermal.rawbt(strukTeks, opsiCetak()); };
   $("stBt").onclick = function(){
     var b = this; b.disabled = true; b.textContent = "Mencetak…";

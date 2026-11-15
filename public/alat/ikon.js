@@ -107,7 +107,9 @@
     hadiah: k("M4 10h16v11H4z") + p("M3 7h18v4H3zM4 11v10h16V11M12 7v14M12 7c-2-4-6-4-6-1s4 1 6 1c2 0 6 2 6-1s-4-3-6 1"),
     kasur: k("M3 11h18v6H3z") + p("M3 11h18v6H3zM3 17v3M21 17v3M5 11V7h6v4M13 11V7h6v4"),
     ban: k("M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z") + c(12, 12, 9) + c(12, 12, 4, "#fff") + p("M12 3v5M12 16v5M3 12h5M16 12h5"),
-    senbei: k("M4 7h16a2 2 0 0 1 0 10H4a2 2 0 0 1 0-10z") + p("M4 7h16a2 2 0 0 1 0 10H4a2 2 0 0 1 0-10zM9 7v10M15 7v10")
+    senbei: k("M4 7h16a2 2 0 0 1 0 10H4a2 2 0 0 1 0-10z") + p("M4 7h16a2 2 0 0 1 0 10H4a2 2 0 0 1 0-10zM9 7v10M15 7v10"),
+    gerigi: c(12, 12, 3.2, KUNING) + p("M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1") + c(12, 12, 6.5) + c(12, 12, 3.2),
+    kalkulator: k("M7 5h10v4H7z") + p("M5 2.5h14v19H5zM7 5h10v4H7zM8 12.5h.01M12 12.5h.01M16 12.5h.01M8 16h.01M12 16h.01M16 16v3M8 19h4")
   };
   // Emoji → nama ikon. Varian FE0F diabaikan.
   var PETA = {
@@ -119,7 +121,7 @@
     "💡":"lampu","🛵":"motor","👛":"dompet","📚":"tumpukanBuku","🏘":"kampung","⏰":"jam","🏆":"piala","⚡":"petir","🔌":"colokan","🔋":"baterai","📱":"hp","🔒":"gembok","🔐":"gembok","🔓":"gembokBuka",
     "👕":"kaos","🎽":"kaosOlahraga","🧥":"jaket","👗":"gaun","👚":"kaos","🧢":"topi","👟":"sepatu","🍚":"nasi","🍜":"mie","🍗":"ayam","🍢":"sate","🥟":"pangsit","🍞":"roti",
     "🍰":"kue","🍩":"donat","☕":"kopi","🧋":"esteh","🥤":"gelas","🧃":"minumanKotak","🍹":"jus","🍦":"esKrim","🍌":"pisang","🥚":"telur","🧂":"garam","🛢":"minyak",
-    "🍫":"coklat","🍬":"permen","🍘":"senbei","🍪":"kukis","💈":"potongRambut","🧴":"botol","🧼":"sabun","✂":"gunting","⛽":"bensin","🎁":"hadiah","🛏":"kasur","🛞":"ban"
+    "🍫":"coklat","🍬":"permen","🍘":"senbei","🍪":"kukis","💈":"potongRambut","🧴":"botol","🧼":"sabun","✂":"gunting","⛽":"bensin","🎁":"hadiah","🛏":"kasur","🛞":"ban","⚙":"gerigi","🧮":"kalkulator"
   };
   function svg(nama){
     return '<svg class="lik" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + G[nama] + '</svg>';
