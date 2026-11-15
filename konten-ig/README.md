@@ -18,7 +18,7 @@ Sampul reel: taruh JPG 9:16 di public/duniakotak/reel/<tanggal>-sampul.jpg (di P
 <!-- picu posting 15 Nov (cron telat) -->
 
 ## Balas kata kunci, pengganti ManyChat (16 Nov 2026)
-`kata_kunci.py` (workflow `ig-kata-kunci.yml`, tiap ±10 menit) membalas komentar dan DM yang berisi kata kunci Lumbung (KASIR, WARUNG, LAUNDRY, CUKUR, KATERING, TANI, KONTER, STEAM) dengan link willoapparel.com/alat/.
+`kata_kunci.py` (workflow `ig-kata-kunci.yml`, tiap ±10 menit) membalas komentar dan DM yang berisi kata kunci Lumbung (KASIR, WARUNG, LAUNDRY, CUKUR, KATERING, TANI, KONTER, STEAM, plus sinonimnya; juga SPLIT → Splitbill dan WARGA → Dunia Kotak) dengan link willoapparel.com/alat/.
 - Ubah kata kunci, link, dan teks balasan di `kata-kunci.json`. Akun yang dilayani: kolom `"akun"` (username IG tanpa @). Jangan isi `duniakotak.id` di sini, akun itu sudah dibalas semua komentarnya oleh `komentar.py`.
 - Cek akun & izin token: Actions → "Balas Kata Kunci Instagram" → Run workflow → centang "cek".
 - Token akun lain disimpan terenkripsi di `token-<akun>.enc` (kunci = IG_APP_SECRET). Catatan pesan yang sudah dibalas disimpan di cache Actions, tidak di-commit.
