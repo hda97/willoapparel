@@ -42,64 +42,8 @@ local DEALER = Vector3.new(-600, 0, 177.2)
 local GESER_CURUG = Vector3.new(0, 0, -10000)
 local JARAK_X, JARAK_Z = 66, 57 -- web: 10,5 x VS dan 9 x VS satuan
 
-local BAN = Color3.fromRGB(26, 26, 30)
-local KACA = Color3.fromRGB(150, 200, 230)
-local ABU = Color3.fromRGB(120, 124, 132)
-local LAMPU = Color3.fromRGB(255, 240, 180)
-local MERAH = Color3.fromRGB(200, 40, 40)
-
--- bentuk kendaraan: { ukuran, letak (y dari tanah, -Z = depan), warna ("w" = warna pilihan) }
-local function mobil(p, l, t, angkat, ban)
-	-- p = panjang, l = lebar, t = tinggi badan, angkat = jarak badan dari tanah, ban = ukuran ban
-	local b = {
-		{ Vector3.new(l, t, p), Vector3.new(0, angkat + t / 2, 0), "w" },
-		{ Vector3.new(l - 0.6, 1.5, 0.3), Vector3.new(0, angkat + t + 0.75, -p * 0.2), KACA },
-		{ Vector3.new(l - 0.6, 1.1, 0.3), Vector3.new(0, angkat + t + 0.55, p * 0.26), KACA },
-		{ Vector3.new(l - 0.4, 0.5, 0.3), Vector3.new(0, angkat + t * 0.4, -p / 2 - 0.1), ABU },
-		{ Vector3.new(1, 0.5, 0.2), Vector3.new(l / 2 - 0.8, angkat + t * 0.7, -p / 2 - 0.1), LAMPU },
-		{ Vector3.new(1, 0.5, 0.2), Vector3.new(-l / 2 + 0.8, angkat + t * 0.7, -p / 2 - 0.1), LAMPU },
-		{ Vector3.new(1, 0.5, 0.2), Vector3.new(l / 2 - 0.8, angkat + t * 0.7, p / 2 + 0.1), MERAH },
-		{ Vector3.new(1, 0.5, 0.2), Vector3.new(-l / 2 + 0.8, angkat + t * 0.7, p / 2 + 0.1), MERAH },
-	}
-	for _, sx in ipairs({ -1, 1 }) do
-		for _, sz in ipairs({ -1, 1 }) do
-			table.insert(b, { Vector3.new(1, ban, ban), Vector3.new(sx * (l / 2 - 0.2), ban / 2, sz * p * 0.32), BAN })
-		end
-	end
-	return b
-end
-
-local BENTUK = {}
-BENTUK.sedan = mobil(11, 6, 2, 0.7, 2)
-BENTUK.hatch = mobil(9.5, 6, 2.2, 0.7, 2)
-table.insert(BENTUK.hatch, { Vector3.new(5.6, 0.3, 1.2), Vector3.new(0, 4.3, 4.6), "w" }) -- sayap belakang
-BENTUK.jip = mobil(10, 6.4, 2.4, 1.3, 2.8)
-table.insert(BENTUK.jip, { Vector3.new(6.2, 0.4, 0.4), Vector3.new(0, 5.6, 1.2), ABU }) -- palang atas
-table.insert(BENTUK.jip, { Vector3.new(0.4, 2, 0.4), Vector3.new(2.9, 4.6, 1.2), ABU })
-table.insert(BENTUK.jip, { Vector3.new(0.4, 2, 0.4), Vector3.new(-2.9, 4.6, 1.2), ABU })
-BENTUK.gt = mobil(11.5, 6.2, 1.5, 0.5, 1.9)
-table.insert(BENTUK.gt, { Vector3.new(6, 0.3, 1.4), Vector3.new(0, 3.2, 5.4), "w" })
-table.insert(BENTUK.gt, { Vector3.new(0.4, 1.2, 0.4), Vector3.new(2.4, 2.5, 5.4), BAN })
-table.insert(BENTUK.gt, { Vector3.new(0.4, 1.2, 0.4), Vector3.new(-2.4, 2.5, 5.4), BAN })
-BENTUK.motor = {
-	{ Vector3.new(1.3, 1.5, 4.6), Vector3.new(0, 2, 0), "w" },
-	{ Vector3.new(1.1, 0.5, 2), Vector3.new(0, 3, 1), BAN }, -- jok
-	{ Vector3.new(0.8, 2.4, 2.4), Vector3.new(0, 1.2, -2.7), BAN },
-	{ Vector3.new(0.8, 2.4, 2.4), Vector3.new(0, 1.2, 2.7), BAN },
-	{ Vector3.new(3, 0.3, 0.3), Vector3.new(0, 3.6, -1.9), ABU }, -- setang
-	{ Vector3.new(0.4, 1.6, 0.4), Vector3.new(0, 2.9, -2.2), ABU },
-	{ Vector3.new(0.7, 0.5, 0.2), Vector3.new(0, 3.1, -2.6), LAMPU },
-	{ Vector3.new(0.3, 0.3, 2), Vector3.new(0.8, 1.2, 1.8), ABU }, -- knalpot
-}
-BENTUK.sepeda = {
-	{ Vector3.new(0.4, 0.4, 3.6), Vector3.new(0, 2.2, 0), "w" },
-	{ Vector3.new(0.4, 1.4, 0.4), Vector3.new(0, 1.6, 0.4), "w" },
-	{ Vector3.new(0.3, 2.4, 2.4), Vector3.new(0, 1.2, -2.2), BAN },
-	{ Vector3.new(0.3, 2.4, 2.4), Vector3.new(0, 1.2, 2.2), BAN },
-	{ Vector3.new(2.6, 0.25, 0.25), Vector3.new(0, 3.4, -1.7), ABU }, -- setang
-	{ Vector3.new(0.3, 1.4, 0.3), Vector3.new(0, 2.8, -1.8), ABU },
-	{ Vector3.new(0.8, 0.3, 1.2), Vector3.new(0, 3, 1), BAN }, -- sadel
-}
+-- bentuk kendaraan sama dengan game web (ReplicatedStorage.DK_ModelKendaraan, dari js/aset/mobil.js)
+local MK = require(ReplicatedStorage:WaitForChild("DK_ModelKendaraan"))
 
 local store
 do
@@ -239,6 +183,7 @@ local function turun(player)
 		hum.UseJumpPower = not l or l[2]
 		hum.JumpPower = l and l[3] or LOMPAT
 		if l then hum.JumpHeight = l[4] end
+		if l and l[5] then hum.HipHeight = l[5] end
 	end
 	if s then s.lama = nil end
 end
@@ -252,32 +197,22 @@ local function naik(player)
 	local hum = char and char:FindFirstChildOfClass("Humanoid")
 	if not hrp or not hum or hum.Health <= 0 then return "Tokohmu belum siap." end
 	turun(player)
-	local model = Instance.new("Model")
-	model.Name = "kend_" .. player.UserId
-	local tanah = -(hum.HipHeight + hrp.Size.Y / 2) -- jarak tanah dari tengah HumanoidRootPart
-	if hum.RigType == Enum.HumanoidRigType.R6 then tanah = -3 end
-	for _, b in ipairs(BENTUK[k.m]) do
-		local part = Instance.new("Part")
-		part.Size = b[1]
-		part.Color = b[3] == "w" and WARNA[k.w + 1][2] or b[3]
-		part.Material = (b[3] == KACA) and Enum.Material.Glass or (b[3] == LAMPU and Enum.Material.Neon or Enum.Material.SmoothPlastic)
-		part.Transparency = b[3] == KACA and 0.35 or 0
-		part.TopSurface = Enum.SurfaceType.Smooth
-		part.BottomSurface = Enum.SurfaceType.Smooth
-		part.CanCollide = false
-		part.CanQuery = false
-		part.CanTouch = false
-		part.Massless = true
-		part.CFrame = hrp.CFrame * CFrame.new(b[2] + Vector3.new(0, tanah, 0))
-		local w = Instance.new("WeldConstraint")
-		w.Part0 = hrp
-		w.Part1 = part
-		w.Parent = part
-		part.Parent = model
+	-- pinggul tokoh diturunkan/dinaikkan ke tinggi kursi (seperti angkat di game web), kendaraan tetap menapak tanah
+	local pinggulBerdiri, skala = MK.ukurTokoh(char)
+	local off, dPinggul = MK.naik(k.m, pinggulBerdiri, skala)
+	local hipLama = hum.HipHeight
+	local tanah
+	if hum.RigType == Enum.HumanoidRigType.R6 then
+		tanah = -3
+	else
+		hum.HipHeight = math.max(0.2, hipLama + dPinggul)
+		tanah = -(hum.HipHeight + hrp.Size.Y / 2) -- jarak tanah dari tengah HumanoidRootPart setelah pinggul diatur
 	end
+	local model = MK.buat(k.m, WARNA[k.w + 1][2], { las = hrp, cf = hrp.CFrame * CFrame.new(off + Vector3.new(0, tanah, 0)), skala = skala })
+	model.Name = "kend_" .. player.UserId
 	model.Parent = folder
 	s.model = model
-	s.lama = { hum.WalkSpeed, hum.UseJumpPower, hum.JumpPower, hum.JumpHeight }
+	s.lama = { hum.WalkSpeed, hum.UseJumpPower, hum.JumpPower, hum.JumpHeight, hipLama }
 	hum.WalkSpeed = JALAN * KEND[k.m].kec
 	hum.JumpPower = 0
 	hum.JumpHeight = 0
