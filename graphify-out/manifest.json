@@ -16601,27 +16601,27 @@
     "semantic_hash": ""
   },
   "public/alat/antrian/index.html": {
-    "mtime": 1794749705.531147,
-    "seen": 1794753028.272105,
-    "ast_hash": "4757f78b77b34cf996a00d323fb38968",
+    "mtime": 1794756599.2888734,
+    "seen": 1794756705.1757808,
+    "ast_hash": "015dd253d2b84fd0dfec619ef2a21951",
     "semantic_hash": ""
   },
   "public/alat/buku-kas/index.html": {
-    "mtime": 1794749705.5314507,
-    "seen": 1794753028.272106,
-    "ast_hash": "44e2845e9ac72e03c010b2207546193a",
+    "mtime": 1794756599.2950652,
+    "seen": 1794756705.1757824,
+    "ast_hash": "677b4c412c36380d1dbc6ab4ec00378c",
     "semantic_hash": ""
   },
   "public/alat/index.html": {
-    "mtime": 1794750861.7613487,
-    "seen": 1794753028.2721076,
-    "ast_hash": "c972111f3c9d18c220ec6c338ed184a2",
+    "mtime": 1794756599.2646058,
+    "seen": 1794756705.1757836,
+    "ast_hash": "ce77a3e9cc42ef731586d860bbecfdd3",
     "semantic_hash": ""
   },
   "public/alat/kasir/index.html": {
-    "mtime": 1794750939.5430477,
-    "seen": 1794753028.2721088,
-    "ast_hash": "6cb0e8667394a7f5d353e66a05ba58df",
+    "mtime": 1794756599.2994993,
+    "seen": 1794756705.1757858,
+    "ast_hash": "4d2055b04ee94bd1e78885be1b5e4ee2",
     "semantic_hash": ""
   },
   ".claude/skills/oil-ui/assets/vendor/alpine.min.js": {
@@ -16937,9 +16937,9 @@
     "semantic_hash": ""
   },
   "public/alat/nota/index.html": {
-    "mtime": 1794749705.5301583,
-    "seen": 1794753028.272111,
-    "ast_hash": "403d3f7d9589c6ea3bf048e4a4038bf7",
+    "mtime": 1794756599.2762856,
+    "seen": 1794756705.1757874,
+    "ast_hash": "ee7230c394ff3128757e391968eab863",
     "semantic_hash": ""
   },
   "public/alat/printer.js": {
@@ -17045,9 +17045,9 @@
     "semantic_hash": ""
   },
   "public/alat/tagihan/index.html": {
-    "mtime": 1794749705.5293856,
-    "seen": 1794753028.2721121,
-    "ast_hash": "3cf3efe1286b86426bdf6a108344abad",
+    "mtime": 1794756599.2826529,
+    "seen": 1794756705.1757889,
+    "ast_hash": "a3d5f4557f5266fd4e091ef30c47fc31",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/res/drawable-land-hdpi/splash.png": {
@@ -17210,6 +17210,12 @@
     "mtime": 1794752955.6937373,
     "seen": 1794753028.2730117,
     "ast_hash": "1e8d806e65895a9d4b12d132023d85ef",
+    "semantic_hash": ""
+  },
+  "public/alat/ikon.js": {
+    "mtime": 1794756633.8582444,
+    "seen": 1794756705.1743362,
+    "ast_hash": "2364e68d78694b0fc9a173dd7fcbec66",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {

@@ -19,6 +19,7 @@
 <meta property="og:locale" content="id_ID">
 <link rel="icon" href="/logo-willo.png">
 <link rel="stylesheet" href="/alat/alat.css">
+<script src="/alat/ikon.js" defer></script>
 <style>
 main{padding-bottom:110px}
 .hariini{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;color:var(--redup);margin-bottom:12px}
@@ -249,7 +250,7 @@ main{padding-bottom:110px}
 <!-- Struk -->
 <dialog id="dStruk"><div class="isi-dialog">
   <h2>✓ Pembayaran dicatat</h2>
-  <div class="struk" id="struk"><img id="strukLogo" alt="" class="tersembunyi"><span id="strukTeks"></span></div>
+  <div class="struk" id="struk" data-teks><img id="strukLogo" alt="" class="tersembunyi"><span id="strukTeks"></span></div>
   <label class="isi" style="margin-top:12px">Kirim ke WA pelanggan <small>Kosongkan untuk pilih kontak di WhatsApp</small><input type="tel" id="stWa" placeholder="08…" autocomplete="off"></label>
   <div class="baris">
     <button class="btn dua" id="stBt">🖨️ Printer Bluetooth</button>
