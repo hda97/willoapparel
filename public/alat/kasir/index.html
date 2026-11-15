@@ -58,6 +58,10 @@ main{padding-bottom:110px}
 .qris img{max-width:100%;max-height:52vh;border-radius:12px;border:1px solid var(--garis);background:#fff}
 .qris .kosongq{border:2px dashed var(--garis);border-radius:12px;padding:24px 14px;color:var(--redup);font-size:14px}
 .struk{font:14px/1.45 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;background:#fbfaf7;border:1px solid var(--garis);border-radius:10px;padding:12px;max-height:46vh;overflow:auto}
+.jenis-usaha{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.jenis-usaha button{border:1px solid var(--garis);background:#fff;border-radius:12px;padding:12px 8px;font:inherit;font-weight:700;font-size:14.5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+.jenis-usaha button span{font-size:26px}
+#strukLogo{display:block;max-width:140px;max-height:90px;margin:0 auto 6px;filter:grayscale(1)}
 .em-pilih{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 12px}
 .em-pilih button{width:40px;height:40px;border:1px solid var(--garis);background:#fff;border-radius:10px;font-size:20px;cursor:pointer}
 .em-pilih button.pilih{border-color:var(--utama);box-shadow:0 0 0 2px var(--utama) inset}
@@ -92,14 +96,31 @@ main{padding-bottom:110px}
   <section class="kartu">
     <h2>Pengaturan toko</h2>
     <label class="isi">Nama toko<input type="text" id="sNama" maxlength="40" placeholder="Contoh: Warung Bu Sri"></label>
-    <label class="isi">Alamat / No. HP <small>Tampil di struk</small><input type="text" id="sAlamat" maxlength="80"></label>
+    <label class="isi">Tagline <small>Kalimat singkat di bawah nama toko, contoh: Enak, murah, cepat</small><input type="text" id="sTagline" maxlength="40"></label>
+    <label class="isi">Alamat <small>Tampil di struk</small><input type="text" id="sAlamat" maxlength="80" placeholder="Contoh: Jl. Raya Ngawi No. 5"></label>
+    <label class="isi">No. HP / WA toko<input type="tel" id="sHp" maxlength="20"></label>
+    <div class="isi" style="font-size:14px;font-weight:600;margin-bottom:6px">Logo toko <small style="display:block;color:var(--redup);font-weight:400">Tampil di struk dan ikut tercetak hitam-putih di printer termal.</small></div>
+    <div class="qprev" style="margin-bottom:12px"><img id="sLogoPrev" alt="" class="tersembunyi"><div class="baris"><label class="btn dua kecil" for="fLogo">🖼️ Pilih logo</label><button class="btn dua kecil tersembunyi" id="bHapusLogo">Hapus</button></div></div>
+    <input type="file" id="fLogo" accept="image/*" class="tersembunyi">
     <div class="isi" style="font-size:14px;font-weight:600;margin-bottom:6px">Gambar QRIS toko <small style="display:block;color:var(--redup);font-weight:400">Foto atau tangkapan layar QRIS dari bank/e-wallet milikmu. Disimpan di HP ini saja.</small></div>
     <div class="qprev"><img id="sQrisPrev" alt="" class="tersembunyi"><div class="baris"><label class="btn dua kecil" for="fQris">📷 Pilih gambar QRIS</label><button class="btn dua kecil tersembunyi" id="bHapusQris">Hapus</button></div></div>
     <input type="file" id="fQris" accept="image/*" class="tersembunyi">
     <label class="isi" style="margin-top:12px">Info transfer <small>Contoh: BRI 1234-5678 a.n. Sri Wahyuni</small><input type="text" id="sRek" maxlength="80"></label>
     <label class="isi" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="sKas" style="width:22px;height:22px;accent-color:var(--utama)"> Catat penjualan otomatis ke Buku Kas</label>
     <label class="isi" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="sTaut" style="width:22px;height:22px;accent-color:var(--utama)"> Tulis “kasir gratis: willoapparel.com/alat” di bawah struk</label>
-    <p class="kecil redup" style="margin:6px 0 0">Ingin lihat contoh? <a href="?contoh=willo">Isi dengan produk Willo Apparel</a> (produk yang ada sekarang diganti). <a href="#" id="bGantiPrinter" class="tersembunyi">Ganti printer</a></p>
+    <p class="kecil redup" style="margin:6px 0 0"><a href="#" id="bGantiPrinter" class="tersembunyi">Ganti printer</a></p>
+  </section>
+
+  <section class="kartu">
+    <h2>Daftar barang</h2>
+    <div class="baris">
+      <button class="btn dua kecil" id="bJenis">🏪 Contoh sesuai jenis usaha</button>
+      <label class="btn dua kecil" for="fCsv">📥 Impor dari Excel (CSV)</label>
+      <button class="btn dua kecil" id="bCsvBarang">⬇ Unduh daftar barang</button>
+    </div>
+    <input type="file" id="fCsv" accept=".csv,.txt,text/csv,text/plain" class="tersembunyi">
+    <p class="kecil redup" style="margin:8px 0 0">Impor: di Excel/Google Sheets buat kolom <b>Nama</b> dan <b>Harga</b> (boleh tambah kolom <b>Ikon</b>), lalu simpan sebagai CSV. Unduh daftar barang untuk melihat contohnya.</p>
+    <p class="kecil redup tersembunyi" id="pWillo" style="margin:6px 0 0"><a href="?contoh=willo">Isi dengan produk Willo Apparel</a> (produk yang ada sekarang diganti).</p>
   </section>
 
   <div class="cta">Butuh kaos seragam untuk tim usahamu? Sablon satuan sampai lusinan di <a href="/kaos-seragam-usaha-ngawi.html">Willo Apparel</a>.</div>
@@ -120,6 +141,14 @@ main{padding-bottom:110px}
   <div class="em-pilih" id="dpEm"></div>
   <div class="baris"><button class="btn merah tersembunyi" value="hapus" id="dpHapus" formnovalidate>Hapus</button><button class="btn dua" value="batal" formnovalidate>Batal</button><button class="btn" value="ok">Simpan</button></div>
 </form></dialog>
+
+<!-- Jenis usaha -->
+<dialog id="dJenis"><div class="isi-dialog">
+  <h2>Usahamu apa?</h2>
+  <p class="kecil redup" style="margin-top:-6px">Pilih supaya kasir langsung terisi contoh barang. Nanti tinggal ubah nama dan harganya (tekan lama barang).</p>
+  <div class="jenis-usaha" id="djDaftar"></div>
+  <button class="btn dua lebar" id="djLewati" style="margin-top:10px">Mulai dari kosong</button>
+</div></dialog>
 
 <!-- Nominal bebas -->
 <dialog id="dBebas"><form method="dialog" class="isi-dialog">
@@ -151,7 +180,7 @@ main{padding-bottom:110px}
 <!-- Struk -->
 <dialog id="dStruk"><div class="isi-dialog">
   <h2>✓ Pembayaran dicatat</h2>
-  <div class="struk" id="struk"></div>
+  <div class="struk" id="struk"><img id="strukLogo" alt="" class="tersembunyi"><span id="strukTeks"></span></div>
   <label class="isi" style="margin-top:12px">Kirim ke WA pelanggan <small>Kosongkan untuk pilih kontak di WhatsApp</small><input type="tel" id="stWa" placeholder="08…" autocomplete="off"></label>
   <div class="baris">
     <button class="btn dua" id="stBt">🖨️ Printer Bluetooth</button>
@@ -172,16 +201,16 @@ main{padding-bottom:110px}
   var S;
   function muat(){
     try { S = JSON.parse(localStorage.getItem(KUNCI)) || null; } catch(e){ S = null; }
-    if (!S) S = { nama:"", alamat:"", rek:"", qris:"", kas:true, no:0, produk:[
+    if (!S) S = { baru:true, nama:"", alamat:"", rek:"", qris:"", kas:true, no:0, produk:[
       { id:1, nama:"Es teh", harga:5000, em:"🧋" }, { id:2, nama:"Kopi", harga:6000, em:"☕" },
       { id:3, nama:"Nasi goreng", harga:15000, em:"🍚" }, { id:4, nama:"Mie ayam", harga:13000, em:"🍜" }
     ] };
   }
-  function simpan(){ try { localStorage.setItem(KUNCI, JSON.stringify(S)); return true; } catch(e){ pesan("Gagal menyimpan: memori browser penuh"); return false; } }
+  function simpan(){ delete S.baru; try { localStorage.setItem(KUNCI, JSON.stringify(S)); return true; } catch(e){ pesan("Gagal menyimpan: memori browser penuh"); return false; } }
   muat();
   // Isian toko Willo sendiri (Huda 15 Nov 2026): buka /alat/kasir/?contoh=willo sekali di HP Willo.
   if (/[?&]contoh=willo/.test(location.search) && confirm("Isi kasir dengan produk Willo Apparel? Produk yang ada sekarang diganti.")) {
-    S.nama = "Willo Apparel"; S.alamat = "WA 0858-1690-0722";
+    S.nama = "Willo Apparel"; S.hp = "0858-1690-0722"; if (/^WA /.test(S.alamat || "")) S.alamat = "";
     // Harga dari price list Willo (paket kaos + sablon DTF, ukuran S-XL lengan pendek; tambahan ukuran/lengan terpisah).
     S.produk = [
       { id:11, nama:"Kaos kelas", harga:65000, em:"🎓", grosir:true },
@@ -230,6 +259,34 @@ main{padding-bottom:110px}
     // Diskon grosir per pcs untuk produk kaos (Huda 15 Nov 2026): [minimal pcs, potongan per pcs].
     S.grosir = [[12,2000],[100,2500],[300,3000],[400,4000],[500,5000]];
     simpan(); history.replaceState(null, "", location.pathname);
+  }
+  // Contoh barang per jenis usaha (harga perkiraan, tinggal diubah pemilik toko).
+  var JENIS = [
+    ["🍚","Warung makan",[["Nasi pecel",10000,"🍚"],["Nasi goreng",15000,"🍚"],["Mie ayam",13000,"🍜"],["Soto ayam",12000,"🍜"],["Ayam goreng",10000,"🍗"],["Gorengan",1000,"🍢"],["Es teh",4000,"🧋"],["Es jeruk",5000,"🍹"],["Kerupuk",1000,"🍘"]]],
+    ["☕","Kopi & minuman",[["Kopi hitam",5000,"☕"],["Kopi susu",8000,"☕"],["Es kopi susu gula aren",15000,"🧋"],["Teh tarik",8000,"🧋"],["Coklat",12000,"🥤"],["Matcha",15000,"🥤"],["Roti bakar",12000,"🍞"],["Pisang goreng",10000,"🍌"]]],
+    ["🛒","Toko sembako",[["Beras 1 kg",14000,"🍚"],["Minyak goreng 1 L",17000,"🛢️"],["Gula 1 kg",17000,"🧂"],["Telur 1 kg",28000,"🥚"],["Mie instan",3500,"🍜"],["Sabun mandi",4000,"🧼"],["Air mineral",3000,"🥤"],["Kopi sachet",1500,"☕"]]],
+    ["📱","Konter pulsa",[["Pulsa 10rb",12000,"📱"],["Pulsa 25rb",27000,"📱"],["Pulsa 50rb",51000,"📱"],["Paket data 10 GB",35000,"📶"],["Token listrik 50rb",52000,"⚡"],["Kartu perdana",10000,"💳"],["Kabel data",25000,"🔌"],["Charger",45000,"🔋"]]],
+    ["👕","Laundry",[["Cuci kering /kg",5000,"👕"],["Cuci setrika /kg",7000,"👕"],["Setrika saja /kg",4000,"👕"],["Express /kg",10000,"⚡"],["Bed cover",25000,"🛏️"],["Selimut",15000,"🛏️"],["Sepatu",25000,"👟"]]],
+    ["💈","Salon & barber",[["Potong rambut",20000,"✂️"],["Potong + cuci",30000,"💈"],["Cukur jenggot",10000,"💈"],["Creambath",50000,"🧴"],["Semir rambut",60000,"🧴"],["Pomade",35000,"🧴"]]],
+    ["🛵","Bengkel motor",[["Ganti oli",50000,"🛢️"],["Servis ringan",60000,"🔧"],["Tambal ban",10000,"🛞"],["Ban dalam",35000,"🛞"],["Kampas rem",45000,"🔧"],["Busi",20000,"🔧"],["Cuci motor",15000,"🧼"]]],
+    ["🎽","Sablon & konveksi",[["Kaos polos",45000,"👕"],["Sablon A4",25000,"🖨️"],["Sablon A3",35000,"🖨️"],["Kaos + sablon A4",70000,"👕"],["Hoodie",150000,"🧥"],["Topi bordir",45000,"🧢"],["+ Ukuran XXL",5000,"➕"]]],
+    ["🍰","Kue & jajanan",[["Kue basah",2500,"🍰"],["Donat",4000,"🍩"],["Brownies",35000,"🍫"],["Risoles",3000,"🥟"],["Kue kering",50000,"🍪"],["Tumpeng mini",35000,"🍚"]]]
+  ];
+  function pilihJenis(j){
+    S.produk = j[2].map(function(x, i){ return { id:Date.now() + i, nama:x[0], harga:x[1], em:x[2] }; });
+    simpan(); keranjang = []; gambar(); pesan("Contoh barang " + j[1] + " dipasang. Tekan lama untuk ubah harga.");
+  }
+  function bukaJenis(){
+    var c = $("djDaftar"); c.innerHTML = "";
+    JENIS.forEach(function(j){
+      var b = document.createElement("button"); b.type = "button"; b.innerHTML = "<span></span>"; b.querySelector("span").textContent = j[0]; b.appendChild(document.createTextNode(j[1]));
+      b.onclick = function(){
+        if (!S.baru && S.produk.length && !confirm("Ganti semua barang sekarang dengan contoh " + j[1] + "?")) return;
+        $("dJenis").close(); pilihJenis(j);
+      };
+      c.appendChild(b);
+    });
+    $("dJenis").showModal();
   }
   var keranjang = []; // {id, nama, harga, q}
   var rp = function(n){ return "Rp" + Math.round(n).toLocaleString("id-ID"); };
@@ -307,7 +364,10 @@ main{padding-bottom:110px}
     $("hJml").textContent = rp(hi.reduce(function(a,t){ return a + t.jml; }, 0)); $("hN").textContent = hi.length;
   }
   function gambarAtur(){
-    ["Nama","Alamat","Rek"].forEach(function(k){ var el = $("s" + k); if (document.activeElement !== el) el.value = S[k.toLowerCase()] || ""; });
+    ["Nama","Tagline","Alamat","Hp","Rek"].forEach(function(k){ var el = $("s" + k); if (document.activeElement !== el) el.value = S[k.toLowerCase()] || ""; });
+    $("sLogoPrev").classList.toggle("tersembunyi", !S.logo); if (S.logo) $("sLogoPrev").src = S.logo;
+    $("bHapusLogo").classList.toggle("tersembunyi", !S.logo);
+    $("pWillo").classList.toggle("tersembunyi", !/willo/i.test(S.nama || ""));
     $("sKas").checked = S.kas !== false; $("sTaut").checked = S.taut !== false;
     $("sQrisPrev").classList.toggle("tersembunyi", !S.qris); if (S.qris) $("sQrisPrev").src = S.qris;
     $("bHapusQris").classList.toggle("tersembunyi", !S.qris);
@@ -350,7 +410,88 @@ main{padding-bottom:110px}
   });
 
   // Pengaturan
-  ["Nama","Alamat","Rek"].forEach(function(k){ $("s" + k).addEventListener("input", function(){ S[k.toLowerCase()] = this.value.trim(); simpan(); }); });
+  ["Nama","Tagline","Alamat","Hp","Rek"].forEach(function(k){ $("s" + k).addEventListener("input", function(){ S[k.toLowerCase()] = this.value.trim(); simpan(); if (k === "Nama") gambarAtur(); }); });
+  // Logo: simpan versi kecil untuk layar + versi 1-bit (lebar maks. 192 titik) untuk printer termal.
+  $("fLogo").onchange = function(){
+    var f = this.files[0]; if (!f) return; this.value = "";
+    var img = new Image(), url = URL.createObjectURL(f);
+    img.onload = function(){
+      URL.revokeObjectURL(url);
+      var m = Math.min(1, 300 / Math.max(img.width, img.height));
+      var c = document.createElement("canvas"); c.width = Math.round(img.width * m); c.height = Math.round(img.height * m);
+      var x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
+      var tampil = c.toDataURL("image/png");
+      var k = Math.min(192 / img.width, 96 / img.height, 1 / 0), w = Math.max(8, Math.round(img.width * k)), h = Math.max(1, Math.round(img.height * k));
+      w = Math.ceil(w / 8) * 8;
+      var c2 = document.createElement("canvas"); c2.width = w; c2.height = h;
+      var y = c2.getContext("2d"); y.fillStyle = "#fff"; y.fillRect(0, 0, w, h); y.drawImage(img, 0, 0, w, h);
+      var px = y.getImageData(0, 0, w, h).data, bpr = w / 8, bit = new Uint8Array(bpr * h);
+      for (var yy = 0; yy < h; yy++) for (var xx = 0; xx < w; xx++) {
+        var i = (yy * w + xx) * 4, l = px[i] * 0.3 + px[i+1] * 0.59 + px[i+2] * 0.11;
+        if (l < 140) bit[yy * bpr + (xx >> 3)] |= 0x80 >> (xx & 7);
+      }
+      var str = ""; for (var j = 0; j < bit.length; j++) str += String.fromCharCode(bit[j]);
+      var lama = [S.logo, S.logoBit];
+      S.logo = tampil; S.logoBit = { w:bpr, h:h, d:btoa(str) };
+      if (!simpan()) { S.logo = lama[0]; S.logoBit = lama[1]; } else pesan("Logo disimpan");
+      gambarAtur();
+    };
+    img.onerror = function(){ pesan("Gambar tidak bisa dibuka"); };
+    img.src = url;
+  };
+  $("bHapusLogo").onclick = function(){ if (confirm("Hapus logo?")) { S.logo = ""; S.logoBit = null; simpan(); gambarAtur(); } };
+  // Daftar barang: contoh per jenis usaha, impor & unduh CSV.
+  $("bJenis").onclick = bukaJenis;
+  $("djLewati").onclick = function(){ if (S.baru) { S.produk = []; simpan(); gambar(); } $("dJenis").close(); };
+  function unduh(nama, isi, tipe){
+    var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([isi], { type:tipe })); a.download = nama;
+    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  $("bCsvBarang").onclick = function(){
+    var q = function(v){ return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
+    var baris = ["Nama;Harga;Ikon"].concat(S.produk.map(function(p){ return [q(p.nama), p.harga, p.em || ""].join(";"); }));
+    unduh("daftar-barang.csv", "\uFEFF" + baris.join("\r\n"), "text/csv;charset=utf-8");
+  };
+  function bacaCsv(teks){
+    teks = teks.replace(/^\uFEFF/, "");
+    var baris = teks.split(/\r?\n/).filter(function(b){ return b.trim(); });
+    if (!baris.length) return [];
+    var pisah = (baris[0].match(/;/g) || []).length >= (baris[0].match(/,/g) || []).length ? ";" : (baris[0].indexOf("\t") >= 0 ? "\t" : ",");
+    if (baris[0].indexOf("\t") >= 0 && baris[0].indexOf(";") < 0) pisah = "\t";
+    var pecah = function(b){
+      var hasil = [], cur = "", kutip = false;
+      for (var i = 0; i < b.length; i++) {
+        var ch = b.charAt(i);
+        if (kutip) { if (ch === '"' && b.charAt(i+1) === '"') { cur += '"'; i++; } else if (ch === '"') kutip = false; else cur += ch; }
+        else if (ch === '"') kutip = true; else if (ch === pisah) { hasil.push(cur); cur = ""; } else cur += ch;
+      }
+      hasil.push(cur); return hasil.map(function(x){ return x.trim(); });
+    };
+    var kepala = pecah(baris[0]).map(function(x){ return x.toLowerCase(); });
+    var iN = kepala.findIndex(function(x){ return /nama|barang|produk|item/.test(x); }), iH = kepala.findIndex(function(x){ return /harga|price|jual/.test(x); }), iE = kepala.findIndex(function(x){ return /ikon|icon|emoji/.test(x); });
+    var mulai = 1;
+    if (iN < 0 || iH < 0) { iN = 0; iH = 1; mulai = 0; }
+    var out = [];
+    baris.slice(mulai).forEach(function(b, i){
+      var k = pecah(b), nama = (k[iN] || "").slice(0, 30);
+      var hs = String(k[iH] || "").replace(/[Rr][Pp]\.?/g, "").replace(/,00$|\.00$/, ""), harga = parseInt(hs.replace(/\D/g, ""), 10) || 0;
+      if (nama && harga) out.push({ id:Date.now() + i, nama:nama, harga:harga, em:(iE >= 0 && k[iE]) ? k[iE].slice(0, 4) : "📦" });
+    });
+    return out;
+  }
+  $("fCsv").onchange = function(){
+    var f = this.files[0]; if (!f) return; this.value = "";
+    if (/\.xlsx?$/i.test(f.name)) { pesan("File Excel perlu disimpan sebagai CSV dulu: Simpan sebagai > CSV."); return; }
+    var r = new FileReader();
+    r.onload = function(){
+      var baru = bacaCsv(String(r.result));
+      if (!baru.length) { pesan("Tidak ada barang terbaca. Pastikan ada kolom Nama dan Harga."); return; }
+      var ganti = S.produk.length ? confirm(baru.length + " barang terbaca. Ganti semua barang lama?\n\nOK = ganti semua\nBatal = tambahkan ke daftar") : true;
+      S.produk = ganti ? baru : S.produk.concat(baru);
+      simpan(); keranjang = []; gambar(); pesan(baru.length + " barang diimpor");
+    };
+    r.readAsText(f);
+  };
   $("sKas").onchange = function(){ S.kas = this.checked; simpan(); };
   $("sTaut").onchange = function(){ S.taut = this.checked; simpan(); };
   $("fQris").onchange = function(){
@@ -419,8 +560,10 @@ main{padding-bottom:110px}
     var tengah = function(s){ var p = Math.max(0, Math.floor((L - s.length) / 2)); return " ".repeat(p) + s; };
     var d = new Date(), w = pad(d.getDate()) + "/" + pad(d.getMonth()+1) + "/" + d.getFullYear() + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
     var b = [];
-    if (S.nama) b.push(tengah(S.nama));
-    if (S.alamat) b.push(tengah(S.alamat.slice(0, L)));
+    if (S.nama) b.push(tengah(S.nama.slice(0, L)));
+    if (S.tagline) b.push(tengah(S.tagline.slice(0, L)));
+    if (S.alamat) { var al = S.alamat; while (al) { b.push(tengah(al.slice(0, L))); al = al.slice(L); } }
+    if (S.hp) b.push(tengah(("WA " + S.hp).slice(0, L)));
     b.push(gar, kanan("No. " + no, w), gar);
     keranjang.forEach(function(k){
       b.push(k.nama.slice(0, L));
@@ -447,7 +590,8 @@ main{padding-bottom:110px}
       try { localStorage.setItem(KAS, JSON.stringify(k)); } catch(e){ pesan("Buku Kas penuh, penjualan tidak tercatat"); }
     }
     $("dBayar").close();
-    $("struk").textContent = strukTeks; $("stWa").value = "";
+    $("strukTeks").textContent = strukTeks; $("stWa").value = "";
+    $("strukLogo").classList.toggle("tersembunyi", !S.logo); if (S.logo) $("strukLogo").src = S.logo;
     $("dStruk").showModal();
     gambarHariIni();
   };
@@ -457,10 +601,10 @@ main{padding-bottom:110px}
   };
   $("stCetak").onclick = function(e){ e.preventDefault(); $("cetakStruk").textContent = strukTeks; window.print(); };
   window.addEventListener("load", function(){ if (window.CetakTermal && CetakTermal.aplikasi()) { var gp = $("bGantiPrinter"); gp.classList.remove("tersembunyi"); gp.onclick = function(e){ e.preventDefault(); CetakTermal.lupakan(); pesan("Printer dilupakan. Pilih lagi saat mencetak."); }; } });
-  $("stRawbt").onclick = function(e){ e.preventDefault(); CetakTermal.rawbt(strukTeks); };
+  $("stRawbt").onclick = function(e){ e.preventDefault(); CetakTermal.rawbt(strukTeks, { gambar:S.logoBit }); };
   $("stBt").onclick = function(){
     var b = this; b.disabled = true; b.textContent = "Mencetak…";
-    CetakTermal.cetak(strukTeks).then(function(r){ pesan(r === "rawbt" ? "Membuka aplikasi RawBT…" : "Struk dikirim ke " + (CetakTermal.nama() || "printer")); })
+    CetakTermal.cetak(strukTeks, { gambar:S.logoBit }).then(function(r){ pesan(r === "rawbt" ? "Membuka aplikasi RawBT…" : "Struk dikirim ke " + (CetakTermal.nama() || "printer")); })
       .catch(function(e){ var m = CetakTermal.pesanGagal(e); if (m) pesan(m); })
       .then(function(){ b.disabled = false; b.textContent = "🖨️ Printer Bluetooth"; });
   };
@@ -469,6 +613,7 @@ main{padding-bottom:110px}
 
   window.addEventListener("storage", function(e){ if (e.key === KAS) gambarHariIni(); });
   gambar();
+  if (S.baru) bukaJenis();
 })();
 </script>
 <script src="/alat/printer.js"></script>

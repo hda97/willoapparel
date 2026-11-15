@@ -71,6 +71,15 @@
   function keByte(teks, opsi){
     var b = [0x1b, 0x40, 0x1b, 0x74, 0x00]; // reset + tabel karakter dasar
     var tambah = function(s){ s = ascii(s); for (var i = 0; i < s.length; i++) b.push(s.charCodeAt(i)); };
+    // opsi.gambar: logo hitam-putih {w: byte per baris, h: tinggi titik, d: base64 bit} → GS v 0 di tengah.
+    if (opsi && opsi.gambar && opsi.gambar.d) {
+      try {
+        var g = opsi.gambar, bit = atob(g.d);
+        b.push(0x1b, 0x61, 0x01, 0x1d, 0x76, 0x30, 0x00, g.w & 255, g.w >> 8, g.h & 255, g.h >> 8);
+        for (var j = 0; j < bit.length; j++) b.push(bit.charCodeAt(j));
+        b.push(0x0a, 0x1b, 0x61, 0x00);
+      } catch(e){}
+    }
     if (opsi && opsi.atas) { b.push(0x1b, 0x61, 0x01); tambah(opsi.atas + "\n"); }
     if (opsi && opsi.besar) { b.push(0x1b, 0x61, 0x01, 0x1d, 0x21, 0x33); tambah(opsi.besar + "\n"); b.push(0x1d, 0x21, 0x00); }
     if (opsi && (opsi.atas || opsi.besar)) b.push(0x1b, 0x61, opsi.tengah ? 0x01 : 0x00);
