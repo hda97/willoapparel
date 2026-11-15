@@ -15,3 +15,4 @@ Sampul reel: taruh JPG 9:16 di public/duniakotak/reel/<tanggal>-sampul.jpg (di P
 - Kalau DM ditolak, balasan publik otomatis kembali ke "link di bio" (tidak ada yang rusak).
 - Satu orang maksimal 1 DM per 24 jam (`dikirim-dm.json`). Private Reply hanya bisa untuk komentar ≤7 hari, 1 kali per komentar (aturan Meta).
 - Matikan DM sementara: tambahkan env `IG_DM: "0"` di workflow.
+<!-- picu posting 15 Nov (cron telat) -->
