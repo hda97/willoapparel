@@ -10,10 +10,20 @@ recipient={"comment_id": ...}. Butuh izin instagram_manage_messages pada token d
 "Izinkan akses ke pesan" menyala di pengaturan IG. Kalau DM berhasil, balasan publik
 bilang "cek DM"; kalau gagal (izin belum ada), balasan publik tetap "link di bio".
 Satu orang paling banyak 1 DM per DM_JEDA_JAM jam (catatan di dikirim-dm.json).
+
+AI gratis (ai/ai_gratis.py, Gemini lalu Groq; Huda 15 Nov 2026): komentar yang tidak cocok
+aturan mana pun dibalas AI gaya Raka, nyambung dengan isi komentar. Balasan AI disaring
+(pendek, tanpa link/angka harga/mention lain); kalau gagal saring, kunci belum ada, atau
+kuota habis, kembali ke template UMUM. Matikan dengan env AI_KOMENTAR=0.
 """
 import datetime as dt, json, os, random, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from posting import req, muat_token, AKUN, DIR
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "ai"))
+try:
+    from ai_gratis import tanya, ada_kunci
+except ImportError:  # folder ai/ tidak ikut di-checkout
+    tanya, ada_kunci = (lambda *a, **k: None), (lambda: False)
 
 CATAT = os.path.join(DIR, "dibalas.json")
 CATAT_DM = os.path.join(DIR, "dikirim-dm.json")
@@ -22,6 +32,15 @@ DM_AKTIF = os.environ.get("IG_DM", "1") != "0"
 DM_JEDA_JAM = 24
 MAKS_PER_JALAN = int(os.environ.get("MAKS_BALAS", "25"))
 UMUR_HARI = 7
+AI_AKTIF = os.environ.get("AI_KOMENTAR", "1") != "0"
+AI_SISA = [int(os.environ.get("AI_MAKS", "15"))]  # batas panggilan AI per jalan
+SISTEM_AI = (
+    "Kamu Raka, warga No. 1 di Dunia Kotak, game desa santai yang dimainkan langsung di HP tanpa instal; "
+    "warga daftar gratis, dapat rumah, dan voting fasilitas yang dibangun tiap minggu. Balas komentar Instagram "
+    "dengan bahasa Indonesia santai, ramah, 1 kalimat (maks 20 kata), boleh 1 emoji. Nyambung dengan isi komentar. "
+    "Jangan tulis link, angka harga, tanggal, atau mention akun lain. Jangan pernah menjanjikan fitur atau bangunan akan dibuat; "
+    "kalau komentar mengusulkan bangunan/fitur, bilang usulnya bisa menang lewat voting warga mingguan. Jangan menyinggung SARA/politik. "
+    "Akhiri dengan ajakan {ajakan}.")
 
 ATURAN = [
     (r"gak bisa|ga bisa|nggak bisa|tidak bisa|gk bisa|error|gagal|kok gak|kok ga|eror|nyangkut|loading", [
@@ -73,12 +92,29 @@ PESAN_DM = [
     "Ini linknya ya! 🎮 Gratis, langsung main di HP tanpa instal. Sampai ketemu di desa!\n👉 " + LINK_WARGA]
 
 
+def balasan_ai(teks, user, dm):
+    """Balasan AI untuk komentar yang tak cocok aturan, atau None (pakai template)."""
+    teks = (teks or "").strip()
+    if not (AI_AKTIF and ada_kunci()) or AI_SISA[0] <= 0 or len(teks) < 3:
+        return None
+    AI_SISA[0] -= 1
+    ajakan = "cek DM (link sudah dikirim)" if dm else "daftar lewat link di bio"
+    t = tanya(f"Komentar dari @{user}: \"{teks[:300]}\"", sistem=SISTEM_AI.format(ajakan=ajakan), maks_token=80, suhu=0.8)
+    t = re.sub(r"\s+", " ", (t or "")).strip().strip('"')
+    t = re.sub(r"@\w[\w.]*", "", t).strip()
+    if not t or len(t) > 180 or re.search(r"https?:|www\.|\.com|rp ?\d|\d{3,}", t, re.I):
+        return None
+    if not re.search(r"bio|dm", t, re.I):
+        t += " Cek DM ya 📩" if dm else " Link di bio ya!"
+    return f"@{user} {t}"
+
+
 def balasan_dm(teks, user):
     t = teks.lower()
     for pola, pilihan in ATURAN_DM:
         if re.search(pola, t):
             return random.choice(pilihan).format(u=user)
-    return random.choice(UMUM_DM).format(u=user)
+    return balasan_ai(teks, user, True) or random.choice(UMUM_DM).format(u=user)
 
 
 def kirim_dm(token, comment_id):
@@ -94,7 +130,7 @@ def balasan(teks, user):
     for pola, pilihan in ATURAN:
         if re.search(pola, t):
             return random.choice(pilihan).format(u=user)
-    return random.choice(UMUM).format(u=user)
+    return balasan_ai(teks, user, False) or random.choice(UMUM).format(u=user)
 
 
 def main():

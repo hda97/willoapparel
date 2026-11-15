@@ -2818,6 +2818,62 @@ export class Toko extends DurableObject {
     return Response.json({ nama: this.meta("nama") || "", sinkron: Number(this.meta("sinkron")) || 0, jual, lisensi: L });
   }
 }
+// ===== AI gratis bersama (Huda 15 Nov 2026: "Pasang", "Gunakan di semua proyek") =====
+// Gemini dulu (secret GEMINI_API_KEY dari aistudio.google.com/apikey), Groq cadangan (secret GROQ_API_KEY,
+// model Llama & Qwen). Pasang keduanya di Cloudflare: Workers & Pages > willoapparel > Settings > Variables and Secrets.
+// Kunci tidak pernah dikirim ke HP pengguna. Mengembalikan teks, atau null kalau kunci belum ada / semua kuota habis.
+// Versi Python untuk GitHub Actions: ai/ai_gratis.py.
+async function aiGratis(env, { sistem = "", prompt, maks = 400, suhu = 0.6 }) {
+  const coba = async (url, init) => {
+    const ac = new AbortController(), t = setTimeout(() => ac.abort(), 20000);
+    try { const r = await fetch(url, { ...init, signal: ac.signal }); return r.ok ? await r.json() : (console.log("ai", url.split("/")[2], r.status), null); }
+    catch (e) { console.log("ai", e && e.message); return null; } finally { clearTimeout(t); }
+  };
+  if (env.GEMINI_API_KEY) for (const m of ["gemini-flash-lite-latest", "gemini-flash-latest"]) {
+    const j = await coba(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
+      method: "POST", headers: { "content-type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
+      body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], ...(sistem ? { systemInstruction: { parts: [{ text: sistem }] } } : {}), generationConfig: { maxOutputTokens: Math.max(maks, 256), temperature: suhu } }) });
+    const t = (((j && j.candidates && j.candidates[0] && j.candidates[0].content) || {}).parts || []).filter((p) => !p.thought).map((p) => p.text || "").join("").trim();
+    if (t) return t;
+  }
+  if (env.GROQ_API_KEY) for (const m of ["llama-3.3-70b-versatile", "qwen/qwen3-32b", "llama-3.1-8b-instant"]) {
+    const j = await coba("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + env.GROQ_API_KEY },
+      body: JSON.stringify({ model: m, max_tokens: maks, temperature: suhu, messages: [...(sistem ? [{ role: "system", content: sistem }] : []), { role: "user", content: prompt }] }) });
+    const t = String((j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || "").replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+    if (t) return t;
+  }
+  return null;
+}
+// Batas pemakaian per IP (per instance worker, cukup untuk mencegah kuota gratis dihabiskan satu orang).
+const AI_JATAH = new Map();
+function aiBoleh(ip, maksPerJam = 12) {
+  const jam = Math.floor(Date.now() / 3600000), k = ip + ":" + jam, n = (AI_JATAH.get(k) || 0) + 1;
+  if (AI_JATAH.size > 5000) AI_JATAH.clear();
+  AI_JATAH.set(k, n);
+  return n <= maksPerJam;
+}
+// POST /alat/api/ai/saran : Lumbung (Kasir > Laporan > "✨ Saran AI"). HP hanya mengirim angka ringkas laporan
+// (omzet, terlaris, cara bayar, jam ramai, stok tipis), bukan data pelanggan. Balasan: 3 saran singkat.
+async function apiAI(request, url, env) {
+  const cors = { "access-control-allow-origin": "*", "access-control-allow-methods": "POST, OPTIONS", "access-control-allow-headers": "content-type" };
+  const json = (o, st) => new Response(JSON.stringify(o), { status: st || 200, headers: { ...cors, "content-type": "application/json", "cache-control": "no-store" } });
+  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+  if (url.pathname !== "/alat/api/ai/saran" || request.method !== "POST") return json({ galat: "alamat" }, 404);
+  if (!env.GEMINI_API_KEY && !env.GROQ_API_KEY) return json({ galat: "Fitur AI belum diaktifkan pemilik situs." }, 503);
+  if (!aiBoleh(request.headers.get("cf-connecting-ip") || "?")) return json({ galat: "Saran AI sudah sering dipakai. Coba lagi satu jam lagi ya." }, 429);
+  const teks = (await request.text()).slice(0, 4000);
+  let d; try { d = JSON.parse(teks); } catch (e) { return json({ galat: "Data tidak terbaca." }, 400); }
+  const ringkas = JSON.stringify(d).slice(0, 3000);
+  const t = await aiGratis(env, {
+    sistem: "Kamu konsultan usaha kecil (UMKM) di Indonesia yang ramah dan praktis. Jawab bahasa Indonesia sederhana. " +
+      "Beri TEPAT 3 saran bernomor, masing-masing 1-2 kalimat pendek, berdasarkan angka laporan yang diberikan saja. " +
+      "Saran harus bisa langsung dilakukan besok tanpa biaya besar (mis. stok, susun etalase, promo paket, jam ramai, cara bayar). " +
+      "Jangan mengarang angka yang tidak ada. Tanpa pembuka atau penutup.",
+    prompt: "Laporan penjualan toko (JSON):\n" + ringkas, maks: 350, suhu: 0.5 });
+  if (!t) return json({ galat: "AI sedang sibuk atau kuota gratis harian habis. Coba lagi nanti ya." }, 503);
+  return json({ saran: t.slice(0, 1500) });
+}
 async function apiToko(request, url, env) {
   const cors = { "access-control-allow-origin": "*", "access-control-allow-methods": "GET, POST, OPTIONS", "access-control-allow-headers": "content-type, x-kunci, x-admin", "access-control-max-age": "86400" };
   const jawab = (r) => new Response(r.body, { status: r.status, headers: { ...cors, "content-type": "application/json", "cache-control": "no-store" } });
@@ -2932,6 +2988,7 @@ export default {
       return new Response(r.body, { headers: { "content-type": "application/json", "cache-control": "no-store" } });
     }
     if (url.pathname.startsWith("/alat/api/toko/") || url.pathname.startsWith("/alat/api/pro/")) return apiToko(request, url, env);
+    if (url.pathname.startsWith("/alat/api/ai/")) return apiAI(request, url, env);
     if (url.pathname.startsWith("/duniakotak/api/")) return apiWarga(request, env, url, ctx);
     if (pendek === "/warga" || pendek === "/daftarwarga") {
       url.pathname = "/duniakotak/";

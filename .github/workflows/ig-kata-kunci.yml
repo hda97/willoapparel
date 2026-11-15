@@ -29,7 +29,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          sparse-checkout: konten-ig
+          sparse-checkout: |
+            konten-ig
+            ai
       # Catatan pesan yang sudah dibalas disimpan di cache (bukan commit) supaya
       # tidak memicu deploy situs tiap 10 menit.
       - uses: actions/cache/restore@v4
@@ -42,6 +44,9 @@ jobs:
           IG_TOKEN: ${{ secrets.IG_TOKEN }}
           IG_APP_ID: ${{ secrets.IG_APP_ID }}
           IG_APP_SECRET: ${{ secrets.IG_APP_SECRET }}
+          # AI gratis (ai/ai_gratis.py): Gemini dulu, Groq cadangan. Kosong = pakai template saja.
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: python3 konten-ig/kata_kunci.py ${{ inputs.cek && '--cek' || '' }}
       - uses: actions/cache/save@v4
         if: always()
