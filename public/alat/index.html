@@ -74,6 +74,24 @@
     <p class="kecil redup" style="margin:10px 0 0">Yang dikirim ke server Willo hanya catatan penjualan Kasir: barang, jumlah, harga, total, dan cara bayar. Siapa pun yang memegang link bisa melihat dashboard, jadi jangan disebar.</p>
   </section>
 
+  <section class="kartu" style="margin-top:16px" data-owner id="pro">
+    <h2>⭐ Lumbung Pro</h2>
+    <p class="sub" style="margin:0 0 10px" id="proKet">Dashboard online di HP owner dan cadangan otomatis ke server. Gratis 14 hari sejak dashboard dinyalakan.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <input type="text" id="proKode" placeholder="LMB-XXXX-XXXX" autocomplete="off" autocapitalize="characters" style="flex:1 1 180px;margin:0;text-transform:uppercase;letter-spacing:.06em">
+      <button class="btn" id="bProAktif">Aktifkan kode</button>
+      <a class="btn dua" href="/alat/pro/">Lihat paket Pro</a>
+    </div>
+    <div style="border-top:1px solid var(--garis);margin:14px 0 0;padding-top:12px">
+      <b style="font-size:15px">☁️ Cadangan di server</b>
+      <p class="kecil redup" style="margin:2px 0 8px" id="cdKet">Data dicadangkan otomatis sekali sehari selama Pro aktif. Ganti HP? Pulihkan dengan link dashboard owner.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn dua kecil" id="bCdSekarang">Cadangkan sekarang</button>
+        <button class="btn dua kecil" id="bCdPulih">Pulihkan dari server</button>
+      </div>
+    </div>
+  </section>
+
   <section class="kartu" style="margin-top:16px" data-owner>
     <h2>💾 Cadangan semua data</h2>
     <p class="sub" style="margin:0 0 10px">Data hanya ada di HP ini. Simpan cadangan sebelum ganti HP, hapus aplikasi, atau bersihkan data browser.</p>
@@ -90,7 +108,7 @@
 <script src="/alat/printer.js"></script>
 <script>
 (function(){
-  var KUNCI = /^willo_(kasir|kas|nota|antrian|tagihan|printer|jual|cetak|hpp|stok)_v1$/;
+  var KUNCI = /^willo_(kasir|kas|nota|antrian|tagihan|printer|jual|cetak|hpp|stok|owner)_v1$/;
   document.getElementById("bCadangSemua").onclick = function(){
     var data = {};
     for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (KUNCI.test(k)) data[k] = localStorage.getItem(k); }
@@ -142,6 +160,40 @@
     gambarSn();
   });
   document.addEventListener("lumbung-sinkron", gambarSn);
+
+  // Lumbung Pro: status langganan, aktivasi kode, cadangan server.
+  function tgl(w){ return new Date(w).toLocaleDateString("id-ID", { day:"numeric", month:"long", year:"numeric" }); }
+  function gambarPro(){
+    var L = window.LumbungSinkron; if (!L) return; var s = L.status(), x = s.lisensi, k = document.getElementById("proKet"), now = Date.now();
+    if (!x) k.textContent = "Dashboard online di HP owner dan cadangan otomatis ke server. Gratis 14 hari sejak dashboard dinyalakan. Sudah punya kode? Masukkan di bawah.";
+    else if (x.selamanya) k.innerHTML = "<b style='color:var(--hijau)'>Pro aktif selamanya.</b> Terima kasih!";
+    else if (x.pro > now) k.innerHTML = "<b style='color:var(--hijau)'>Pro aktif</b> sampai " + tgl(x.pro) + ". Kode baru menambah masa aktif.";
+    else if (x.coba > now) k.innerHTML = "<b>Masa coba gratis</b> sampai " + tgl(x.coba) + " (" + Math.ceil((x.coba - now) / 864e5) + " hari lagi). Setelah itu dashboard online dan cadangan server perlu kode Pro.";
+    else k.innerHTML = "<b style='color:var(--merah)'>Masa Pro habis.</b> Penjualan tetap tersimpan di server, tapi dashboard owner dan cadangan berhenti sampai kode Pro dimasukkan.";
+    var c = document.getElementById("cdKet");
+    c.textContent = s.galatCadang ? "Cadangan terakhir gagal: " + s.galatCadang : s.cadang ? "Cadangan terakhir di server: " + tgl(s.cadang) + " " + new Date(s.cadang).toLocaleTimeString("id-ID", { hour:"2-digit", minute:"2-digit" }) + ". Otomatis sekali sehari selama Pro aktif." : "Data dicadangkan otomatis sekali sehari selama Pro aktif. Ganti HP? Pulihkan dengan link dashboard owner.";
+  }
+  window.addEventListener("load", function(){
+    var L = window.LumbungSinkron; if (!L) return;
+    document.getElementById("bProAktif").onclick = function(){
+      var b = this, v = document.getElementById("proKode").value.trim(); if (!v) { alert("Masukkan kode aktivasi, contoh LMB-AB12-CD34."); return; }
+      b.disabled = true; b.textContent = "Mengaktifkan…";
+      L.aktifkan(v).then(function(d){ document.getElementById("proKode").value = ""; alert(d.hari ? "Berhasil! Pro aktif " + d.hari + " hari lagi." : "Berhasil! Pro aktif selamanya."); gambarSn(); }, function(e){ alert(e.message || "Gagal, cek internet."); })
+        .then(function(){ b.disabled = false; b.textContent = "Aktifkan kode"; gambarPro(); });
+    };
+    document.getElementById("bCdSekarang").onclick = function(){
+      if (!L.aktif()) { alert("Nyalakan dulu Dashboard online di atas."); return; }
+      var b = this; b.disabled = true; L.cadangkan().then(function(){ alert("Cadangan tersimpan di server."); }, function(e){ alert(e.status === 402 ? "Cadangan server termasuk fitur Pro. Masukkan kode Pro dulu." : e.message); }).then(function(){ b.disabled = false; });
+    };
+    document.getElementById("bCdPulih").onclick = function(){
+      var link = L.status().id ? "" : null;
+      if (link === null || confirm("Ambil cadangan dari toko lain (pakai link dashboard)?\n\nOK = tempel link dashboard\nBatal = pakai toko di HP ini")) { link = prompt("Tempel link dashboard owner (willoapparel.com/alat/owner/#t=...):", ""); if (!link) return; }
+      if (!confirm("Data di HP ini akan diganti dengan cadangan dari server. Lanjutkan?")) return;
+      L.pulihkan(link).then(function(d){ alert("Data dipulihkan dari cadangan " + tgl(d.w) + "."); location.reload(); }, function(e){ alert(e.message || "Gagal memulihkan."); });
+    };
+    gambarPro(); if (L.status().id) L.cekLisensi().then(gambarPro);
+  });
+  document.addEventListener("lumbung-sinkron", gambarPro);
 </script>
 </body>
 </html>

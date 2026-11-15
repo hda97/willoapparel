@@ -65,6 +65,8 @@ main{padding-bottom:40px}
   </div>
   <div id="isi" class="tersembunyi">
     <div class="kepala"><div><h1 id="nama">Toko</h1><div class="status" id="status"><i></i><span></span></div></div></div>
+    <div class="kartu tersembunyi" id="habis" style="border-color:var(--merah)"><h2 style="margin-bottom:4px">Masa Lumbung Pro habis</h2><p class="sub" style="margin:0 0 10px">Penjualan tetap tersimpan aman. Masukkan kode Pro di tablet kasir (menu utama → Lumbung Pro), lalu dashboard ini langsung tampil lagi.</p><a class="btn" href="/alat/pro/">Lihat paket Pro</a></div>
+    <p class="kecil tersembunyi" id="ingat" style="background:#fff5d1;border-radius:10px;padding:8px 12px;margin:0 0 10px"></p>
     <div class="periode" id="periode"></div>
     <div class="angka4">
       <div class="utama"><small>Omzet</small><b class="angka" id="aOmzet">Rp0</b><em id="aBanding"></em></div>
@@ -166,10 +168,18 @@ main{padding-bottom:40px}
     if (sedang) return; sedang = true;
     var r = rentang(pil), dari = Math.min(r[0], r[2]);
     fetch(API + toko.t + "?dari=" + dari + "&sampai=" + r[1], { headers: { "x-kunci": toko.k }, cache: "no-store" })
-      .then(function(x){ if (x.status === 403 || x.status === 401) throw new Error("kunci"); if (!x.ok) throw new Error("server"); return x.json(); })
-      .then(function(d){ sedang = false; gambar(d, d.jual); })
+      .then(function(x){ if (x.status === 403 || x.status === 401) throw new Error("kunci"); if (x.status === 402) return x.json().then(function(d){ if (d.nama) $("nama").textContent = d.nama; throw new Error("pro"); }); if (!x.ok) throw new Error("server"); return x.json(); })
+      .then(function(d){ sedang = false; $("habis").classList.add("tersembunyi"); gambar(d, d.jual); pengingat(d.lisensi); })
       .catch(function(e){ sedang = false; var st = $("status"); st.classList.add("lama");
-        st.querySelector("span").textContent = e.message === "kunci" ? "Link tidak berlaku lagi. Minta link baru dari aplikasi kasir." : "Gagal memuat (cek internet). Dicoba lagi otomatis."; });
+        $("habis").classList.toggle("tersembunyi", e.message !== "pro");
+        st.querySelector("span").textContent = e.message === "kunci" ? "Link tidak berlaku lagi. Minta link baru dari aplikasi kasir." : e.message === "pro" ? "Masa Lumbung Pro habis." : "Gagal memuat (cek internet). Dicoba lagi otomatis."; });
+  }
+  // Pengingat masa coba / langganan hampir habis (7 hari terakhir).
+  function pengingat(L){
+    var el = $("ingat"); if (!L || L.selamanya) { el.classList.add("tersembunyi"); return; }
+    var sampai = Math.max(L.coba || 0, L.pro || 0), sisa = Math.ceil((sampai - Date.now()) / 864e5);
+    el.classList.toggle("tersembunyi", sisa > 7);
+    el.innerHTML = (L.pro > L.coba ? "Lumbung Pro" : "Masa coba gratis") + " tinggal <b>" + sisa + " hari</b>. <a href=\"/alat/pro/\">Perpanjang</a>";
   }
   $("bMuat").onclick = function(e){ e.preventDefault(); muat(); };
   gambarPeriode(); muat(); setInterval(function(){ if (!document.hidden) muat(); }, 30000);

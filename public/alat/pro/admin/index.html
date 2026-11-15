@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Lumbung Pro</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/logo-willo.png">
+<link rel="stylesheet" href="/alat/alat.css">
+<style>
+.kode{font:700 17px ui-monospace,Menlo,Consolas,monospace;letter-spacing:.05em}
+.hasil li{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0ede6;flex-wrap:wrap}
+.hasil{list-style:none;margin:0;padding:0}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+td,th{padding:6px 4px;border-bottom:1px solid #f0ede6;text-align:left}
+th{color:var(--redup);font-size:12.5px}
+.pakai{color:var(--hijau);font-weight:700}
+</style>
+</head>
+<body>
+<header class="atas"><div class="wrap"><a href="/alat/pro/">← Lumbung Pro</a><span class="redup">Admin</span></div></header>
+<main class="wrap">
+  <h1>Admin Lumbung Pro</h1>
+  <p class="sub">Buat kode aktivasi setelah pembeli membayar, lalu kirim kodenya ke WA pembeli. Satu kode hanya bisa dipakai satu toko.</p>
+  <section class="kartu">
+    <label class="isi">Kata sandi admin <small>Sama dengan rahasia LUMBUNG_ADMIN di Cloudflare. Diingat di HP ini.</small><input type="password" id="sandi" autocomplete="current-password"></label>
+  </section>
+  <section class="kartu">
+    <h2>Buat kode</h2>
+    <label class="isi">Paket<select id="paket"><option value="30">Bulanan (30 hari)</option><option value="365">Tahunan (365 hari)</option><option value="14">Tambahan coba (14 hari)</option><option value="0">Selamanya</option></select></label>
+    <div class="baris">
+      <label class="isi">Jumlah kode<input type="number" id="jumlah" value="1" min="1" max="50"></label>
+      <label class="isi">Catatan <small>Nama pembeli / toko</small><input type="text" id="catatan" maxlength="80"></label>
+    </div>
+    <label class="isi">No. WA pembeli <small>Boleh kosong</small><input type="tel" id="wa" placeholder="08…"></label>
+    <button class="btn" id="bBuat">Buat kode</button>
+    <ul class="hasil" id="hasil" style="margin-top:10px"></ul>
+  </section>
+  <section class="kartu">
+    <h2>Semua kode</h2>
+    <button class="btn dua kecil" id="bDaftar">Muat daftar</button>
+    <div id="daftar" style="margin-top:10px;overflow:auto"></div>
+  </section>
+</main>
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); }, API = "/alat/api/pro/";
+  try { $("sandi").value = localStorage.getItem("willo_admin_pro") || ""; } catch(e){}
+  $("sandi").addEventListener("change", function(){ try { localStorage.setItem("willo_admin_pro", this.value); } catch(e){} });
+  function panggil(jalur, isi){
+    return fetch(API + jalur, { method:isi ? "POST" : "GET", headers:{ "content-type":"application/json", "x-admin":$("sandi").value }, body:isi ? JSON.stringify(isi) : undefined })
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){ if (!r.ok) throw new Error(d.galat || "Gagal (" + r.status + ")"); return d; }); });
+  }
+  function paket(h){ return h === 0 ? "selamanya" : h === 365 ? "1 tahun" : h + " hari"; }
+  $("bBuat").onclick = function(){
+    var b = this; b.disabled = true;
+    panggil("buat", { hari:+$("paket").value, jumlah:+$("jumlah").value || 1, catatan:$("catatan").value.trim() }).then(function(d){
+      var ul = $("hasil"); ul.innerHTML = "";
+      d.kode.forEach(function(k){
+        var li = document.createElement("li"), hp = $("wa").value.replace(/\D/g, "").replace(/^0/, "62");
+        var teks = "Terima kasih sudah berlangganan Lumbung Pro (" + paket(d.hari) + ").\nKode aktivasi: " + k + "\n\nCara pakai: buka aplikasi Lumbung → menu utama → Lumbung Pro → masukkan kode → Aktifkan kode.";
+        li.innerHTML = '<span class="kode"></span><span class="baris" style="flex:0 0 auto;gap:6px"><button class="btn dua kecil" data-a="salin">Salin</button><a class="btn kecil" target="_blank" rel="noopener">💬 Kirim WA</a></span>';
+        li.querySelector(".kode").textContent = k;
+        li.querySelector("a").href = "https://wa.me/" + hp + "?text=" + encodeURIComponent(teks);
+        li.querySelector("[data-a]").onclick = function(){ (navigator.clipboard ? navigator.clipboard.writeText(teks) : Promise.reject()).then(function(){ alert("Pesan berisi kode disalin."); }, function(){ prompt("Salin:", teks); }); };
+        ul.appendChild(li);
+      });
+    }, function(e){ alert(e.message); }).then(function(){ b.disabled = false; });
+  };
+  $("bDaftar").onclick = function(){
+    panggil("daftar").then(function(d){
+      var h = '<table><tr><th>Kode</th><th>Paket</th><th>Catatan</th><th>Dibuat</th><th>Status</th></tr>';
+      d.kode.forEach(function(k){ h += '<tr><td class="kode" style="font-size:13px">' + k.kode + '</td><td>' + paket(k.hari) + '</td><td>' + String(k.catatan || "").replace(/[<>&]/g, "") + '</td><td>' + new Date(k.dibuat).toLocaleDateString("id-ID") + '</td><td>' + (k.toko ? '<span class="pakai">Dipakai ' + new Date(k.dipakai).toLocaleDateString("id-ID") + ' · toko ' + k.toko.slice(0, 6) + '</span>' : "Belum dipakai") + '</td></tr>'; });
+      $("daftar").innerHTML = h + '</table>' + (d.kode.length ? "" : '<p class="redup">Belum ada kode.</p>');
+    }, function(e){ alert(e.message); });
+  };
+})();
+</script>
+</body>
+</html>
