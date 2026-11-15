@@ -137,6 +137,9 @@ local function pulang(player)
 	hrp.AssemblyLinearVelocity = Vector3.zero
 	c:PivotTo(CFrame.lookAt(p, Vector3.new(hadap.X, p.Y, hadap.Z)))
 	player:SetAttribute("DK_Dusun", t.dusun)
+	-- kendaraan yang sedang terparkir ikut pulang ke pekarangan (DealerKendaraan)
+	local ev = ServerStorage:FindFirstChild("DK_ParkirRumah")
+	if ev then ev:Fire(player) end
 	return { ok = true, no = t.no }
 end
 
