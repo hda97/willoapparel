@@ -93,16 +93,25 @@ main{padding-bottom:110px}
 .kat button.pilih{background:var(--utama);border-color:var(--utama);color:#fff}
 .tahan{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
 .tahan button{border:1px dashed var(--utama);background:var(--biru-muda);color:var(--utama);border-radius:10px;padding:6px 10px;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
-@media (min-width:700px){
+/* Tablet (termasuk tablet tegak ±600px): seperti kasir lama — pesanan di kiri, kolom kategori + daftar barang di kanan */
+@media (min-width:560px){
   main.wrap{max-width:1180px}
-  .kasir-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,34%);gap:16px;align-items:start}
-  .kasir-grid .kanan{position:sticky;top:12px}
-  .kasir-grid .kanan .kartu{margin-top:0!important;max-height:calc(100vh - 130px);overflow:auto}
-  .produk{grid-template-columns:repeat(auto-fill,minmax(112px,1fr))}
-  .kiri.ada-kat{display:grid;grid-template-columns:clamp(110px,14vw,160px) minmax(0,1fr);gap:0 10px;align-items:start}
+  .kasir-grid{display:grid;grid-template-columns:minmax(230px,42%) minmax(0,1fr);gap:12px;align-items:start}
+  .kasir-grid .kanan{order:-1;position:sticky;top:8px}
+  .kasir-grid .kanan .kartu{margin-top:0!important;max-height:calc(100vh - 120px);overflow:auto}
+  .produk{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+  .kiri.ada-kat{display:grid;grid-template-columns:clamp(96px,30%,150px) minmax(0,1fr);gap:0 6px;align-items:start}
   .kiri.ada-kat .cari{grid-column:1 / -1}
-  .kiri.ada-kat .kat{flex-direction:column;overflow:auto;max-height:calc(100vh - 150px);position:sticky;top:12px;margin:0}
-  .kiri.ada-kat .kat button{border-radius:10px;white-space:normal;text-align:center;padding:14px 8px;font-size:14.5px;line-height:1.25;text-transform:uppercase}
+  .kiri.ada-kat .kat{flex-direction:column;gap:4px;overflow:auto;max-height:calc(100vh - 140px);position:sticky;top:8px;margin:0}
+  .kiri.ada-kat .kat button{border-radius:8px;white-space:normal;text-align:center;padding:14px 6px;font-size:13.5px;line-height:1.25;font-weight:700}
+  .kiri.ada-kat .produk button{min-height:84px;border-radius:8px;padding:8px 6px;gap:6px}
+  .kiri.ada-kat .produk .em{display:none}
+  .kiri.ada-kat .produk .nm{font-size:14.5px}
+  .kiri.ada-kat .produk .hg{font-size:14px;color:var(--teks)}
+  .kasir-grid .kanan .kartu{min-height:calc(100vh - 120px)}
+  .kasir-grid .keranjang li{flex-wrap:wrap;gap:4px 8px}
+  .kasir-grid .keranjang .nm{flex:1 1 100%}
+  .kasir-grid .keranjang .st{flex:1;min-width:0}
   .bawah .wrap{max-width:1180px;margin:0 auto}
 }
 @media print{
@@ -129,7 +138,7 @@ main{padding-bottom:110px}
 
   <section class="kartu" style="margin-top:14px">
     <div class="tahan tersembunyi" id="dTahanan"></div>
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:6px"><h2 style="margin:0">Pesanan</h2><span class="baris" style="gap:6px"><button class="btn dua kecil" id="bTahan" title="Simpan pesanan ini sebentar, layani pembeli lain dulu">✋ Tahan</button><button class="btn dua kecil" id="bKosong">Kosongkan</button></span></div>
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px"><h2 style="margin:0">Pesanan</h2><span class="baris" style="gap:6px"><button class="btn dua kecil" id="bTahan" title="Simpan pesanan ini sebentar, layani pembeli lain dulu">✋ Tahan</button><button class="btn dua kecil" id="bKosong">Kosongkan</button></span></div>
     <ul class="keranjang" id="keranjang"></ul>
     <button class="btn dua kecil" id="bBebas" style="margin-top:10px">＋ Nominal bebas</button>
   </section>
