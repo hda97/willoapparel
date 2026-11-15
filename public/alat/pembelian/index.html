@@ -33,6 +33,15 @@
 .sup td{padding:7px 4px;border-bottom:1px solid #f0ede6}
 .sup td:last-child{text-align:right}
 .kosong{color:var(--redup);text-align:center;padding:16px 0}
+.chip-sup{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 10px}
+.chip-sup button{border:1px solid var(--garis);background:#fff;border-radius:999px;padding:6px 12px;font:inherit;font-size:13.5px;cursor:pointer}
+.chip-sup button.pilih{background:var(--utama);border-color:transparent;color:#fff}
+.daftar-sup{list-style:none;margin:0 0 10px;padding:0}
+.daftar-sup li{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f0ede6}
+.daftar-sup .ket{flex:1;min-width:0;cursor:pointer}
+.daftar-sup .ket b{display:block;font-size:15px}
+.daftar-sup .ket small{display:block;color:var(--redup);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.daftar-sup a.wa{font-size:13px;font-weight:700;text-decoration:none;border:1px solid var(--garis);border-radius:9px;padding:6px 10px;color:inherit}
 </style>
 </head>
 <body>
@@ -54,6 +63,15 @@
   </section>
 
   <section class="kartu">
+    <h2>Daftar supplier</h2>
+    <ul class="daftar-sup" id="daftarSup"></ul>
+    <button class="btn dua lebar" id="bSupBaru">➕ Tambah supplier</button>
+    <div class="baris" style="margin-top:8px"><button class="btn dua kecil" id="bSupImpor">📥 Impor CSV</button><button class="btn dua kecil" id="bSupEkspor">⬇ Unduh CSV</button></div>
+    <p class="kecil redup" style="margin:6px 0 0">Kolom CSV: <b>nama</b>, <b>wa</b>, <b>catatan</b>. Bisa dari Excel atau Google Sheets (Simpan sebagai CSV). Nama yang sudah ada diperbarui, tidak dobel.</p>
+    <input type="file" id="fSup" accept=".csv,text/csv,text/plain" hidden>
+  </section>
+
+  <section class="kartu">
     <h2>Utang per supplier</h2>
     <table class="sup" id="supUtang"></table>
   </section>
@@ -70,6 +88,7 @@
     <label class="isi">Supplier<input type="text" id="bSup" list="dlSup" maxlength="30" autocomplete="off" placeholder="Contoh: Musa Grafika"></label>
     <label class="isi">Tanggal<input type="date" id="bTgl"></label>
   </div>
+  <div class="chip-sup" id="bChip"></div>
   <div class="kepala-isi"><span>Barang</span><span>Jumlah</span><span>Harga beli /pcs</span><span></span></div>
   <div id="bIsi"></div>
   <button type="button" class="btn dua kecil" id="bTambahBrs">＋ Baris barang</button>
@@ -96,6 +115,15 @@
   <div class="baris" style="margin-top:10px"><button class="btn dua" id="lHapus">Hapus</button><button class="btn" id="lTutup">Tutup</button></div>
 </div></dialog>
 
+<dialog id="dSup"><form method="dialog" class="isi-dialog">
+  <h2 id="sJudul">Tambah supplier</h2>
+  <label class="isi">Nama supplier<input type="text" id="sNama" maxlength="30" autocomplete="off" placeholder="Contoh: Musa Grafika"></label>
+  <label class="isi">Nomor WA <small>Boleh kosong</small><input type="tel" id="sHp" maxlength="20" autocomplete="off" placeholder="08xx"></label>
+  <label class="isi">Catatan <small>Barang yang dijual, alamat, rekening</small><input type="text" id="sKet" maxlength="80" autocomplete="off"></label>
+  <div class="baris" style="margin-top:6px"><button class="btn dua" value="batal" formnovalidate>Batal</button><button class="btn" value="ok">Simpan</button></div>
+  <button type="button" class="btn dua lebar tersembunyi" id="sHapus" style="margin-top:8px;color:var(--merah)">Hapus supplier</button>
+</form></dialog>
+
 <script src="/alat/printer.js"></script>
 <script>
 (function(){
@@ -110,7 +138,12 @@
   function tglTeks(t){ var p = String(t).split("-"); return new Date(+p[0], p[1] - 1, +p[2]).toLocaleDateString("id-ID", { day:"numeric", month:"short", year:"numeric" }); }
   function baca(k, d){ try { return JSON.parse(localStorage.getItem(k)) || d; } catch(e){ return d; } }
   function tulis(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch(e){ pesan("Gagal menyimpan: memori HP penuh"); return false; } }
-  function muat(){ B = baca(KUNCI, {}); B.tx = B.tx || []; }
+  function muat(){
+    B = baca(KUNCI, {}); B.tx = B.tx || [];
+    // Daftar supplier: dibuat dari riwayat pembelian bila belum ada.
+    if (!Array.isArray(B.sup)) { B.sup = []; B.tx.forEach(function(t){ if (t.sup && t.sup !== "Tanpa nama" && !cariSup(t.sup)) B.sup.push({ id:t.id, nama:t.sup, hp:"", ket:"" }); }); }
+  }
+  function cariSup(n){ n = String(n || "").trim().toLowerCase(); return B.sup.filter(function(x){ return x.nama.toLowerCase() === n; })[0]; }
   function produk(){ var s = baca(KASIR, {}); return Array.isArray(s.produk) ? s.produk : []; }
   function sisa(t){ return Math.max(0, t.tot - (t.bayar || 0)); }
   function uangInput(el){ el.addEventListener("input", function(){ var n = angka(el.value); el.value = n ? n.toLocaleString("id-ID") : ""; hitung(); }); }
@@ -145,9 +178,90 @@
     status = "lunas"; metode = "Tunai"; pilihTab("bStatus", "s", status); pilihTab("bMetode", "m", metode); $("bBayarLbl").classList.add("tersembunyi");
     var dl = $("dlBrg"); dl.innerHTML = ""; produk().forEach(function(p){ var o = document.createElement("option"); o.value = p.nama; dl.appendChild(o); });
     var ds = $("dlSup"); ds.innerHTML = ""; supplier().forEach(function(s){ var o = document.createElement("option"); o.value = s; ds.appendChild(o); });
+    chipSup();
     barisIsi(); barisIsi(); hitung(); $("dBeli").showModal();
   };
-  function supplier(){ var a = []; B.tx.forEach(function(t){ if (t.sup && a.indexOf(t.sup) < 0) a.push(t.sup); }); return a; }
+  function supplier(){ muat(); return B.sup.map(function(x){ return x.nama; }); }
+  function chipSup(){
+    var c = $("bChip"); c.innerHTML = "";
+    supplier().forEach(function(n){ var b = document.createElement("button"); b.type = "button"; b.textContent = n; b.onclick = function(){ $("bSup").value = n; chipSup(); }; if ($("bSup").value.trim().toLowerCase() === n.toLowerCase()) b.className = "pilih"; c.appendChild(b); });
+  }
+  $("bSup").addEventListener("input", chipSup);
+
+  // Kelola supplier
+  var supEdit = null;
+  function bukaSup(x){
+    supEdit = x || null;
+    $("sJudul").textContent = x ? "Ubah supplier" : "Tambah supplier";
+    $("sNama").value = x ? x.nama : ""; $("sHp").value = x ? x.hp || "" : ""; $("sKet").value = x ? x.ket || "" : "";
+    $("sHapus").classList.toggle("tersembunyi", !x); $("dSup").showModal();
+  }
+  $("bSupBaru").onclick = function(){ bukaSup(); };
+  $("dSup").addEventListener("close", function(){
+    if ($("dSup").returnValue !== "ok") return;
+    var nama = $("sNama").value.trim(); if (!nama) { pesan("Isi nama supplier"); return; }
+    muat(); var ada = cariSup(nama);
+    if (ada && (!supEdit || ada.id !== supEdit.id)) { pesan("Supplier " + nama + " sudah ada"); return; }
+    var data = { nama:nama, hp:$("sHp").value.trim(), ket:$("sKet").value.trim() };
+    if (supEdit) {
+      var x = B.sup.filter(function(y){ return y.id === supEdit.id; })[0];
+      if (x) { var lama = x.nama; x.nama = data.nama; x.hp = data.hp; x.ket = data.ket; if (lama !== nama) B.tx.forEach(function(t){ if (t.sup === lama) t.sup = nama; }); }
+    } else { data.id = Date.now(); B.sup.push(data); }
+    tulis(KUNCI, B); gambar(); pesan("Supplier " + nama + " disimpan");
+  });
+  $("sHapus").onclick = function(){
+    var x = supEdit; if (!x || !confirm("Hapus " + x.nama + " dari daftar supplier?\nRiwayat pembelian dari supplier ini tetap ada.")) return;
+    muat(); B.sup = B.sup.filter(function(y){ return y.id !== x.id; }); tulis(KUNCI, B);
+    $("dSup").close("batal"); gambar(); pesan("Supplier dihapus dari daftar");
+  };
+  // Impor / unduh CSV supplier
+  function pecahCsv(teks){
+    teks = teks.replace(/^\uFEFF/, "");
+    var baris1 = teks.split(/\r?\n/)[0] || "", sep = (baris1.match(/;/g) || []).length > (baris1.match(/,/g) || []).length ? ";" : (baris1.indexOf("\t") >= 0 && baris1.indexOf(",") < 0 ? "\t" : ",");
+    var rows = [], row = [], sel = "", kutip = false;
+    for (var i = 0; i < teks.length; i++) {
+      var c = teks[i];
+      if (kutip) { if (c === '"') { if (teks[i + 1] === '"') { sel += '"'; i++; } else kutip = false; } else sel += c; }
+      else if (c === '"') kutip = true;
+      else if (c === sep) { row.push(sel); sel = ""; }
+      else if (c === "\n" || c === "\r") { if (c === "\r" && teks[i + 1] === "\n") i++; row.push(sel); rows.push(row); row = []; sel = ""; }
+      else sel += c;
+    }
+    if (sel || row.length) { row.push(sel); rows.push(row); }
+    return rows.map(function(r){ return r.map(function(x){ return x.trim(); }); }).filter(function(r){ return r.some(Boolean); });
+  }
+  $("bSupImpor").onclick = function(){ $("fSup").value = ""; $("fSup").click(); };
+  $("fSup").onchange = function(){
+    var f = this.files[0]; if (!f) return;
+    var fr = new FileReader();
+    fr.onload = function(){
+      var rows = pecahCsv(String(fr.result)); if (!rows.length) { pesan("File CSV kosong"); return; }
+      var h = rows[0].map(function(x){ return x.toLowerCase(); }), iN = 0, iH = 1, iK = 2, mulai = 0;
+      var cari = function(re){ for (var j = 0; j < h.length; j++) if (re.test(h[j])) return j; return -1; };
+      if (cari(/nama|supplier|suplier|toko/) >= 0) {
+        iN = cari(/nama|supplier|suplier|toko/); iH = cari(/wa|hp|telp|telepon|nomor|no\.?$|phone/); iK = cari(/catatan|ket|alamat|rekening|barang|note/); mulai = 1;
+      }
+      muat(); var baru = 0, ubah = 0;
+      rows.slice(mulai).forEach(function(r, n){
+        var nama = (r[iN] || "").slice(0, 30); if (!nama) return;
+        var hp = iH >= 0 ? (r[iH] || "").slice(0, 20) : "", ket = iK >= 0 ? (r[iK] || "").slice(0, 80) : "";
+        var x = cariSup(nama);
+        if (x) { if (hp) x.hp = hp; if (ket) x.ket = ket; ubah++; }
+        else { B.sup.push({ id:Date.now() + n, nama:nama, hp:hp, ket:ket }); baru++; }
+      });
+      tulis(KUNCI, B); gambar();
+      pesan(baru || ubah ? baru + " supplier baru" + (ubah ? ", " + ubah + " diperbarui" : "") : "Tidak ada nama supplier di file");
+    };
+    fr.readAsText(f);
+  };
+  $("bSupEkspor").onclick = function(){
+    muat(); if (!B.sup.length) { pesan("Daftar supplier masih kosong"); return; }
+    var q = function(v){ v = String(v || ""); return /[",;\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+    var csv = "nama,wa,catatan\n" + B.sup.map(function(x){ return [x.nama, x.hp, x.ket].map(q).join(","); }).join("\n");
+    if (window.Lumbung && Lumbung.unduh) { Lumbung.unduh("supplier.csv", "\uFEFF" + csv, "text/csv;charset=utf-8"); return; }
+    var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type:"text/csv" })); a.download = "supplier.csv"; document.body.appendChild(a); a.click(); a.remove();
+  };
+  function waLink(hp){ hp = String(hp || "").replace(/\D/g, ""); if (hp.charAt(0) === "0") hp = "62" + hp.slice(1); return hp ? "https://wa.me/" + hp : ""; }
 
   function catatKas(jml, ket, tgl, m, ref){
     if (!jml) return;
@@ -173,7 +287,9 @@
     }
     muat();
     var t = { id:id, tgl:tgl, sup:sup, isi:isi, tot:tot, bayar:bayar, m:metode, ket:$("bKet").value.trim(), riw:bayar ? [{ w:Date.now(), jml:bayar, m:metode }] : [] };
-    B.tx.push(t); tulis(KUNCI, B);
+    B.tx.push(t);
+    if (sup !== "Tanpa nama" && !cariSup(sup)) B.sup.push({ id:id, nama:sup, hp:"", ket:"" });
+    tulis(KUNCI, B);
     catatKas(bayar, "Pembelian " + sup + ": " + isi.map(function(x){ return x.q + " " + x.n; }).join(", "), tgl, metode, id);
     gambar();
     pesan("Pembelian " + rp(tot) + " dicatat" + (nStok ? ", stok " + nStok + " barang bertambah" : "") + (tot > bayar ? ", utang " + rp(tot - bayar) : ""));
@@ -203,6 +319,17 @@
       ul.appendChild(li);
     });
     var per = {}; B.tx.forEach(function(t){ var s = sisa(t); if (s) per[t.sup] = (per[t.sup] || 0) + s; });
+    var us = $("daftarSup"); us.innerHTML = "";
+    if (!B.sup.length) us.innerHTML = '<li class="kosong" style="justify-content:center;border:0">Belum ada supplier.</li>';
+    B.sup.slice().sort(function(x, y){ return x.nama.localeCompare(y.nama); }).forEach(function(x){
+      var li = document.createElement("li"), w = waLink(x.hp);
+      li.innerHTML = '<span class="ket"><b></b><small></small></span>' + (w ? '<a class="wa" target="_blank" rel="noopener">WA</a>' : '');
+      li.querySelector("b").textContent = x.nama;
+      li.querySelector("small").textContent = [x.hp, x.ket, per[x.nama] ? "utang " + rp(per[x.nama]) : ""].filter(Boolean).join(" · ") || "Ketuk untuk isi nomor WA dan catatan";
+      if (w) li.querySelector("a").href = w;
+      li.querySelector(".ket").onclick = function(){ bukaSup(x); };
+      us.appendChild(li);
+    });
     var ks = Object.keys(per).sort(function(x, y){ return per[y] - per[x]; });
     $("supUtang").innerHTML = ks.length ? ks.map(function(k){ return '<tr><td></td><td class="angka">' + rp(per[k]) + '</td></tr>'; }).join("") : '<tr><td class="kosong">Tidak ada utang. Mantap!</td></tr>';
     Array.prototype.forEach.call($("supUtang").querySelectorAll("tr"), function(tr, i){ if (ks[i]) tr.firstChild.textContent = ks[i]; });
