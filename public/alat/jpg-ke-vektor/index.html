@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="id">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-N4FLLMXDVK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-N4FLLMXDVK');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ubah JPG ke Vektor SVG Gratis, Langsung di HP | Willo Apparel</title>
+<meta name="description" content="Alat gratis mengubah gambar JPG/PNG jadi vektor SVG di browser HP. Atur jumlah warna, hapus latar putih, unduh SVG untuk desain kaos sablon. Gambar tidak diunggah ke server.">
+<link rel="canonical" href="https://willoapparel.com/alat/jpg-ke-vektor/">
+<meta property="og:title" content="Ubah JPG ke Vektor SVG Gratis | Willo Apparel">
+<meta property="og:description" content="Jiplak gambar jadi vektor SVG langsung di HP. Gratis, tanpa daftar, gambar tidak keluar dari HP-mu.">
+<meta property="og:locale" content="id_ID">
+<link rel="icon" href="/logo-willo.png">
+<style>
+:root{
+  --bg:#f6f4ef; --kartu:#fff; --teks:#1d1d1f; --redup:#6b6b70; --garis:#e3e0d8;
+  --utama:#1f4fd8; --utama2:#163aa3; --kuning:#ffd23f; --hijau:#11875d; --merah:#c0392b;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--teks);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--teks);color:#fff;padding:14px 16px}
+header a{color:#fff;text-decoration:none;font-weight:700}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+h1{font-size:clamp(24px,5vw,34px);line-height:1.2;margin:22px 0 6px}
+.sub{color:var(--redup);margin:0 0 18px}
+.kartu{background:var(--kartu);border:1px solid var(--garis);border-radius:14px;padding:16px;margin-bottom:16px}
+.jatuh{display:block;border:2px dashed #b9b5aa;border-radius:14px;padding:28px 16px;text-align:center;cursor:pointer;background:#fbfaf7}
+.jatuh.aktif{border-color:var(--utama);background:#eef2ff}
+.jatuh b{display:block;font-size:18px;margin-bottom:4px}
+.jatuh small{color:var(--redup)}
+input[type=file]{display:none}
+.preset{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:4px 0 14px}
+.preset button{border:1px solid var(--garis);background:#fff;border-radius:10px;padding:10px 8px;font:inherit;font-size:14px;cursor:pointer;text-align:left}
+.preset button b{display:block;font-size:15px}
+.preset button span{color:var(--redup);font-size:12.5px}
+.preset button.pilih{border-color:var(--utama);box-shadow:0 0 0 2px var(--utama) inset;background:#f2f5ff}
+.atur{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px 20px}
+.atur label{display:block;font-size:14px;font-weight:600}
+.atur label output{float:right;font-weight:700;color:var(--utama)}
+.atur small{display:block;color:var(--redup);font-size:12.5px;font-weight:400}
+input[type=range]{width:100%;accent-color:var(--utama);margin:6px 0 0}
+select{width:100%;font:inherit;font-size:15px;padding:8px;border-radius:8px;border:1px solid var(--garis);background:#fff;margin-top:6px}
+.cek{display:flex;gap:10px;align-items:flex-start;font-size:14px;font-weight:600}
+.cek input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--utama)}
+.tombol{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.btn{border:0;border-radius:10px;padding:12px 18px;font:inherit;font-weight:700;cursor:pointer;background:var(--utama);color:#fff}
+.btn:hover{background:var(--utama2)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.dua{background:#fff;color:var(--teks);border:1px solid var(--garis)}
+.btn.kuning{background:var(--kuning);color:#1d1d1f}
+.banding{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:640px){.banding{grid-template-columns:1fr}}
+.panel h3{margin:0 0 8px;font-size:15px}
+.layar{position:relative;border-radius:10px;border:1px solid var(--garis);min-height:200px;display:flex;align-items:center;justify-content:center;overflow:hidden;
+  background-color:#fff;background-image:linear-gradient(45deg,#eee 25%,transparent 25%),linear-gradient(-45deg,#eee 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#eee 75%),linear-gradient(-45deg,transparent 75%,#eee 75%);
+  background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}
+.layar img,.layar svg{max-width:100%;max-height:60vh;display:block;width:auto;height:auto}
+.layar svg{width:100%}
+.layar .kosong{color:var(--redup);font-size:14px;padding:20px;text-align:center}
+.status{font-size:14px;color:var(--redup);margin-top:8px;min-height:21px}
+.status.salah{color:var(--merah)}
+.info{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13.5px;color:var(--redup);margin-top:8px}
+.info b{color:var(--teks)}
+.palet{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.palet span{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--garis);border-radius:20px;padding:3px 10px 3px 4px;font:12.5px ui-monospace,Menlo,monospace;background:#fff}
+.palet i{width:18px;height:18px;border-radius:50%;border:1px solid rgba(0,0,0,.15);display:inline-block}
+.putar{width:28px;height:28px;border:3px solid #cfd6f5;border-top-color:var(--utama);border-radius:50%;animation:p 0.8s linear infinite}
+@keyframes p{to{transform:rotate(360deg)}}
+.tips h2{font-size:20px;margin:6px 0 10px}
+.tips li{margin-bottom:6px}
+.cta{background:var(--teks);color:#fff;border-radius:14px;padding:18px 16px;margin-bottom:24px}
+.cta a{color:var(--kuning);font-weight:700}
+footer{color:var(--redup);font-size:13px;text-align:center;padding:10px 16px 30px}
+.tersembunyi{display:none}
+</style>
+</head>
+<body>
+<header><div class="wrap"><a href="/">← Willo Apparel</a></div></header>
+
+<main class="wrap">
+  <h1>Ubah JPG ke Vektor (SVG)</h1>
+  <p class="sub">Gratis, tanpa daftar, jalan langsung di HP. Gambarmu diproses di HP sendiri, tidak diunggah ke server mana pun.</p>
+
+  <section class="kartu">
+    <label class="jatuh" id="jatuh" for="berkas">
+      <b>📷 Pilih gambar</b>
+      <small>JPG, PNG, atau WEBP. Ketuk di sini, atau seret gambar ke kotak ini.</small>
+    </label>
+    <input type="file" id="berkas" accept="image/*">
+  </section>
+
+  <section class="kartu">
+    <div style="font-weight:700;margin-bottom:6px">1. Pilih jenis gambar</div>
+    <div class="preset" id="preset">
+      <button type="button" data-p="logo" class="pilih"><b>Logo / desain kaos</b><span>Sedikit warna, tepi tegas</span></button>
+      <button type="button" data-p="satu"><b>1 warna sablon</b><span>Hitam saja, latar dibuang</span></button>
+      <button type="button" data-p="ilustrasi"><b>Ilustrasi / kartun</b><span>Warna sedang</span></button>
+      <button type="button" data-p="foto"><b>Foto</b><span>Banyak warna, gaya lukisan</span></button>
+    </div>
+
+    <div style="font-weight:700;margin-bottom:8px">2. Atur hasil (boleh dilewati)</div>
+    <div class="atur">
+      <div id="kotakWarna">
+        <label>Jumlah warna <output id="oWarna">6</output></label>
+        <input type="range" id="warna" min="2" max="32" value="6">
+        <small>Untuk sablon: tiap warna = 1 screen. Makin sedikit makin murah.</small>
+      </div>
+      <div id="kotakAmbang" class="tersembunyi">
+        <label>Batas gelap <output id="oAmbang">128</output></label>
+        <input type="range" id="ambangGelap" min="20" max="235" value="128">
+        <small>Geser kanan kalau garis tipis hilang, kiri kalau hasil terlalu hitam.</small>
+      </div>
+      <div>
+        <label>Detail garis <output id="oDetail">4</output></label>
+        <input type="range" id="detail" min="1" max="5" value="4">
+        <small>Tinggi = lengkung lebih mirip aslinya, file lebih besar.</small>
+      </div>
+      <div>
+        <label>Buang bintik kecil <output id="oBintik">8</output></label>
+        <input type="range" id="bintik" min="0" max="60" value="8">
+        <small>Hapus titik-titik kotor bekas JPG.</small>
+      </div>
+      <div>
+        <label>Haluskan dulu <output id="oHalus">1</output></label>
+        <input type="range" id="halus" min="0" max="4" value="1">
+        <small>Naikkan untuk foto atau gambar buram/berbintik.</small>
+      </div>
+      <div>
+        <label for="ketelitian">Ketelitian jiplak</label>
+        <select id="ketelitian">
+          <option value="800">Cepat (800 px)</option>
+          <option value="1400" selected>Sedang (1.400 px)</option>
+          <option value="2200">Teliti (2.200 px, agak lama)</option>
+        </select>
+      </div>
+      <div>
+        <label for="lebarUnduh">Ukuran file SVG</label>
+        <select id="lebarUnduh">
+          <option value="0">Sama seperti gambar asli</option>
+          <option value="3000">Lebar 3.000 px</option>
+          <option value="5000" selected>Lebar 5.000 px (cocok microstock)</option>
+        </select>
+      </div>
+      <div style="align-self:center">
+        <label class="cek"><input type="checkbox" id="hapusPutih" checked> <span>Buang latar putih<small>Hasil tembus pandang, siap ditaruh di kaos warna apa pun.</small></span></label>
+      </div>
+    </div>
+    <div class="tombol">
+      <button class="btn" id="proses" disabled>Ubah jadi vektor</button>
+      <button class="btn kuning" id="unduh" disabled>⬇ Unduh SVG</button>
+      <button class="btn dua" id="unduhPng" disabled>Unduh PNG transparan</button>
+    </div>
+    <div class="status" id="status">Pilih gambar dulu.</div>
+  </section>
+
+  <section class="kartu">
+    <div class="banding">
+      <div class="panel">
+        <h3>Gambar asli</h3>
+        <div class="layar" id="layarAsli"><div class="kosong">Belum ada gambar</div></div>
+      </div>
+      <div class="panel">
+        <h3>Hasil vektor</h3>
+        <div class="layar" id="layarHasil"><div class="kosong">Hasil muncul di sini</div></div>
+        <div class="info" id="info"></div>
+        <div class="palet" id="palet"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="kartu tips">
+    <h2>Biar hasilnya bagus</h2>
+    <ul>
+      <li><b>Logo dan desain kaos</b> paling cocok: warna rata, tepi jelas. Foto wajah hasilnya jadi seperti lukisan, bukan foto.</li>
+      <li>Pakai gambar sebesar mungkin. Gambar kecil dari WhatsApp yang sudah pecah akan ikut pecah.</li>
+      <li>Kalau ada bintik atau sobekan di tepi, naikkan <b>Buang bintik kecil</b> atau <b>Haluskan dulu</b>.</li>
+      <li>Kalau warna yang mirip menyatu, tambah <b>Jumlah warna</b>. Kalau terlalu banyak potongan, kurangi.</li>
+      <li>File SVG bisa dibuka di Canva, Inkscape (gratis), CorelDRAW, atau Illustrator untuk dirapikan.</li>
+    </ul>
+  </section>
+
+  <section class="cta">
+    Desainmu masih berantakan atau mau langsung dicetak jadi kaos? Tim Willo bantu rapikan desain <b>gratis</b> waktu pesan sablon.
+    <a href="https://wa.me/6285816900722?text=Halo%20Willo%2C%20saya%20mau%20tanya%20sablon%20kaos%20(dari%20alat%20JPG%20ke%20Vektor)" rel="noopener">Tanya lewat WhatsApp →</a>
+  </section>
+</main>
+
+<footer>Alat ini memakai pustaka imagetracerjs (domain publik). © Willo Apparel, Ngawi.</footer>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var PRESET = {
+    logo:      { warna: 6,  detail: 4, bintik: 8,  halus: 1, rapikan: 2, gabung: 14, putih: true,  satu: false },
+    satu:      { warna: 2,  detail: 4, bintik: 10, halus: 1, rapikan: 2, gabung: 0,  putih: true,  satu: true  },
+    ilustrasi: { warna: 12, detail: 4, bintik: 6,  halus: 1, rapikan: 2, gabung: 12, putih: false, satu: false },
+    foto:      { warna: 16, detail: 3, bintik: 12, halus: 2, rapikan: 3, gabung: 7,  putih: false, satu: false }
+  };
+  var STROKE = 0.5; // garis tipis sewarna bidang: menutup celah rambut antar bidang tanpa membuat tepi gelap
+  var DETAIL = { 1: 4, 2: 2.5, 3: 1.5, 4: 1, 5: 0.5 }; // nilai ltres/qtres imagetracer
+  var gambar = null, namaBerkas = 'gambar', svgTerakhir = '', pekerja = null, mode = 'logo', sibuk = false, jalanLagi = false;
+
+  function tampilNilai(){
+    $('oWarna').textContent = $('warna').value;
+    $('oDetail').textContent = $('detail').value;
+    $('oBintik').textContent = $('bintik').value;
+    $('oHalus').textContent = $('halus').value;
+    $('oAmbang').textContent = $('ambangGelap').value;
+  }
+  function pakaiPreset(p){
+    mode = p; var o = PRESET[p];
+    $('warna').value = o.warna; $('detail').value = o.detail; $('bintik').value = o.bintik;
+    $('halus').value = o.halus; $('hapusPutih').checked = o.putih;
+    $('kotakWarna').classList.toggle('tersembunyi', o.satu);
+    $('kotakAmbang').classList.toggle('tersembunyi', !o.satu);
+    [].forEach.call(document.querySelectorAll('#preset button'), function(b){ b.classList.toggle('pilih', b.dataset.p === p); });
+    tampilNilai();
+  }
+  function status(t, salah){ var s = $('status'); s.textContent = t; s.className = 'status' + (salah ? ' salah' : ''); }
+
+  document.querySelectorAll('#preset button').forEach(function(b){
+    b.addEventListener('click', function(){ pakaiPreset(b.dataset.p); if (gambar) jalankan(); });
+  });
+  ['warna','detail','bintik','halus','ambangGelap'].forEach(function(id){ $(id).addEventListener('input', tampilNilai); $(id).addEventListener('change', function(){ if (gambar) jalankan(); }); });
+  ['ketelitian','hapusPutih'].forEach(function(id){ $(id).addEventListener('change', function(){ if (gambar) jalankan(); }); });
+  $('lebarUnduh').addEventListener('change', function(){ if (svgTerakhir) tampilHasil(); });
+
+  // Memilih / menyeret berkas
+  $('berkas').addEventListener('change', function(e){ if (e.target.files[0]) muat(e.target.files[0]); });
+  var j = $('jatuh');
+  ['dragenter','dragover'].forEach(function(ev){ j.addEventListener(ev, function(e){ e.preventDefault(); j.classList.add('aktif'); }); });
+  ['dragleave','drop'].forEach(function(ev){ j.addEventListener(ev, function(e){ e.preventDefault(); j.classList.remove('aktif'); }); });
+  j.addEventListener('drop', function(e){ var f = e.dataTransfer.files[0]; if (f) muat(f); });
+
+  function muat(f){
+    if (!/^image\//.test(f.type)) { status('Berkas ini bukan gambar. Pilih JPG, PNG, atau WEBP.', true); return; }
+    namaBerkas = (f.name || 'gambar').replace(/\.[^.]+$/, '').replace(/[^\w\-]+/g, '-').slice(0, 60) || 'gambar';
+    var url = URL.createObjectURL(f);
+    var img = new Image();
+    img.onload = function(){
+      gambar = img;
+      $('layarAsli').innerHTML = ''; var tampil = new Image(); tampil.src = url; tampil.alt = 'Gambar asli'; $('layarAsli').appendChild(tampil);
+      $('proses').disabled = false;
+      jalankan();
+    };
+    img.onerror = function(){ status('Gambar tidak bisa dibuka. Coba simpan ulang sebagai JPG lalu pilih lagi.', true); };
+    img.src = url;
+  }
+
+  // Ambil piksel gambar pada ukuran kerja. Gambar kecil dibesarkan dulu supaya lengkungnya halus.
+  function ambilPiksel(){
+    var maks = +$('ketelitian').value;
+    var w = gambar.naturalWidth, h = gambar.naturalHeight;
+    var s = Math.min(1, maks / Math.max(w, h));
+    if (Math.max(w, h) < 900) s = Math.min(3, 1000 / Math.max(w, h));
+    var cw = Math.max(1, Math.round(w * s)), ch = Math.max(1, Math.round(h * s));
+    var c = document.createElement('canvas'); c.width = cw; c.height = ch;
+    var x = c.getContext('2d', { willReadFrequently: true });
+    x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
+    x.drawImage(gambar, 0, 0, cw, ch);
+    var d = x.getImageData(0, 0, cw, ch);
+    if (PRESET[mode].satu) {
+      // 1 warna: ubah ke hitam/putih dengan batas yang dipilih. Bagian tembus pandang dianggap putih.
+      var amb = +$('ambangGelap').value, p = d.data;
+      for (var i = 0; i < p.length; i += 4) {
+        var a = p[i+3] / 255;
+        var abu = (0.299*p[i] + 0.587*p[i+1] + 0.114*p[i+2]) * a + 255 * (1 - a);
+        var v = abu < amb ? 0 : 255;
+        p[i] = p[i+1] = p[i+2] = v; p[i+3] = 255;
+      }
+    }
+    return { data: d, w: cw, h: ch };
+  }
+
+  function jalankan(){
+    if (!gambar) return;
+    if (sibuk) { jalanLagi = true; return; }
+    sibuk = true; jalanLagi = false;
+    $('proses').disabled = true; $('unduh').disabled = true; $('unduhPng').disabled = true;
+    $('layarHasil').innerHTML = '<div class="putar"></div>';
+    $('info').innerHTML = ''; $('palet').innerHTML = '';
+    status('Sedang menjiplak... HP lama bisa butuh 10–30 detik.');
+    var mulai = Date.now();
+    setTimeout(function(){
+      var px;
+      try { px = ambilPiksel(); } catch (e) { selesaiGagal('Gambar terlalu besar untuk HP ini. Pilih ketelitian "Cepat".'); return; }
+      var dt = DETAIL[$('detail').value];
+      var satu = PRESET[mode].satu;
+      var opsi = {
+        ltres: dt, qtres: dt,
+        pathomit: +$('bintik').value,
+        rightangleenhance: true,
+        layering: 0,
+        strokewidth: STROKE,
+        linefilter: false,
+        scale: 1,
+        roundcoords: 1,
+        viewbox: true,
+        desc: false
+      };
+      if (!pekerja) pekerja = new Worker('pekerja.js');
+      pekerja.onmessage = function(e){
+        sibuk = false;
+        var r = e.data;
+        if (!r.ok) { selesaiGagal('Gagal menjiplak: ' + r.pesan); return; }
+        svgTerakhir = { svg: r.svg, w: px.w, h: px.h, warna: r.warna, detik: ((Date.now() - mulai) / 1000).toFixed(1) };
+        tampilHasil();
+        if (jalanLagi) jalankan();
+      };
+      pekerja.onerror = function(err){ sibuk = false; pekerja = null; selesaiGagal('Gagal menjiplak. Coba ketelitian "Cepat" atau gambar lebih kecil.'); };
+      pekerja.postMessage({
+        img: { width: px.w, height: px.h, data: px.data.data },
+        opsi: opsi,
+        jumlahWarna: +$('warna').value,
+        palTetap: satu ? [{ r: 0, g: 0, b: 0 }, { r: 255, g: 255, b: 255 }] : null,
+        halus: +$('halus').value,
+        rapikan: PRESET[mode].rapikan,
+        gabung: PRESET[mode].gabung,
+        hapusPutih: $('hapusPutih').checked,
+        ambang: 236
+      });
+    }, 30);
+  }
+
+  function selesaiGagal(t){
+    sibuk = false;
+    $('layarHasil').innerHTML = '<div class="kosong">Belum berhasil</div>';
+    $('proses').disabled = !gambar;
+    status(t, true);
+  }
+
+  // Rapikan SVG: buang atribut bawaan yang tidak perlu dan pasang ukuran unduhan.
+  function svgFinal(){
+    var o = svgTerakhir, s = o.svg;
+    var lebar = +$('lebarUnduh').value || gambar.naturalWidth;
+    var tinggi = Math.round(lebar * o.h / o.w);
+    s = s.replace(/ desc="[^"]*"/, '')
+         .replace(/ opacity="1"/g, '')
+         .replace('<svg ', '<svg width="' + lebar + '" height="' + tinggi + '" ');
+    return '<?xml version="1.0" encoding="UTF-8"?>\n' + s;
+  }
+
+  function tampilHasil(){
+    var o = svgTerakhir, s = svgFinal();
+    var tampil = s.replace(/<\?xml[^>]*>\s*/, '').replace(/ width="\d+" height="\d+"/, '');
+    $('layarHasil').innerHTML = tampil;
+    var jumlahPath = (s.match(/<path/g) || []).length;
+    var kb = new Blob([s]).size / 1024;
+    $('info').innerHTML = '<span>Warna: <b>' + o.warna.length + '</b></span><span>Bentuk: <b>' + jumlahPath.toLocaleString('id-ID') + '</b></span><span>Ukuran: <b>' + (kb > 1024 ? (kb/1024).toFixed(1) + ' MB' : Math.round(kb) + ' KB') + '</b></span><span>Waktu: <b>' + o.detik + ' dtk</b></span>';
+    var urut = o.warna.slice().sort(function(a, b){ return b.n - a.n; });
+    $('palet').innerHTML = urut.map(function(c){
+      var hex = '#' + [c.r, c.g, c.b].map(function(v){ return ('0' + v.toString(16)).slice(-2); }).join('').toUpperCase();
+      return '<span><i style="background:' + hex + '"></i>' + hex + '</span>';
+    }).join('');
+    $('proses').disabled = false; $('unduh').disabled = false; $('unduhPng').disabled = false;
+    var pesan = 'Selesai. ';
+    if (jumlahPath > 6000) pesan += 'Bentuknya banyak sekali; untuk sablon naikkan "Buang bintik kecil" atau kurangi warna.';
+    else pesan += 'Tekan "Unduh SVG" untuk menyimpan.';
+    status(pesan);
+  }
+
+  function unduhBlob(blob, nama){
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = nama;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
+  }
+  $('proses').addEventListener('click', jalankan);
+  $('unduh').addEventListener('click', function(){
+    if (!svgTerakhir) return;
+    unduhBlob(new Blob([svgFinal()], { type: 'image/svg+xml' }), namaBerkas + '-vektor.svg');
+    try { gtag('event', 'unduh_svg', { alat: 'jpg-ke-vektor', mode: mode }); } catch (e) {}
+  });
+  $('unduhPng').addEventListener('click', function(){
+    if (!svgTerakhir) return;
+    var o = svgTerakhir, lebar = Math.min(4000, Math.max(2000, gambar.naturalWidth)), tinggi = Math.round(lebar * o.h / o.w);
+    var s = svgFinal().replace(/ width="\d+" height="\d+"/, ' width="' + lebar + '" height="' + tinggi + '"');
+    var img = new Image();
+    img.onload = function(){
+      var c = document.createElement('canvas'); c.width = lebar; c.height = tinggi;
+      c.getContext('2d').drawImage(img, 0, 0, lebar, tinggi);
+      c.toBlob(function(b){ unduhBlob(b, namaBerkas + '-vektor.png'); }, 'image/png');
+    };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
+  });
+
+  pakaiPreset('logo');
+})();
+</script>
+</body>
+</html>
