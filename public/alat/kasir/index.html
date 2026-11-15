@@ -276,77 +276,29 @@ main{padding-bottom:110px}
   // Isian toko Willo sendiri (Huda 15 Nov 2026): buka /alat/kasir/?contoh=willo sekali di HP Willo.
   if (/[?&]contoh=willo/.test(location.search) && confirm("Isi kasir dengan produk Willo Apparel? Produk yang ada sekarang diganti.")) {
     S.nama = "Willo Apparel"; S.hp = "0858-1690-0722"; if (/^WA /.test(S.alamat || "")) S.alamat = "";
-    // Harga dari price list Willo (paket kaos + sablon DTF, ukuran S-XL lengan pendek; tambahan ukuran/lengan terpisah).
-    // Kategori sederhana (Huda 15 Nov 2026): lengan pendek/panjang × polos/sablon; lengan panjang +10.000; ukuran besar = biaya tambah per pcs.
+    // Harga per ukuran (Huda 15 Nov 2026), seperti kasir lama: tiap kategori berisi S-XL sampai 8XL.
+    // Tambahan ukuran: XXL +5rb, 3XL +10rb, 4XL +25rb, 5XL +40rb, 6XL +60rb, 7XL +85rb, 8XL +105rb. Lengan panjang +10rb.
+    // Kategori sablon sudah termasuk sablon DTF A6 depan; sablon lebih besar pakai kategori "Upgrade Sablon".
+    var UKURAN = [["S-XL",0],["XXL",5000],["3XL",10000],["4XL",25000],["5XL",40000],["6XL",60000],["7XL",85000],["8XL",105000]];
+    var JENIS = [
+      ["Polos 30s Pendek","30s",45000,"👕",200],["Polos 30s Panjang","30s Panjang",55000,"👕",210],
+      ["Polos 24s Pendek","24s",55000,"👚",220],["Polos 24s Panjang","24s Panjang",65000,"👚",230],
+      ["Sablon 30s Pendek","30s Sablon",55000,"👕",300],["Sablon 30s Panjang","30s Pjg Sablon",65000,"👕",310],
+      ["Sablon 24s Pendek","24s Sablon",65000,"👚",320],["Sablon 24s Panjang","24s Pjg Sablon",75000,"👚",330]
+    ];
     S.produk = [
       { id:101, nama:"Kaos kelas", harga:65000, em:"🎓", kat:"Paket", grosir:true },
-      { id:102, nama:"Kaos komunitas", harga:70000, em:"🤝", kat:"Paket", grosir:true },
-      { id:151, nama:"30s Lengan Pendek", harga:45000, em:"👕", kat:"Kaos Polos", grosir:true },
-      { id:152, nama:"30s Lengan Panjang", harga:55000, em:"👕", kat:"Kaos Polos", grosir:true },
-      { id:153, nama:"24s Lengan Pendek", harga:55000, em:"👚", kat:"Kaos Polos", grosir:true },
-      { id:154, nama:"24s Lengan Panjang", harga:65000, em:"👚", kat:"Kaos Polos", grosir:true },
-      { id:103, nama:"30s Pdk A6 depan", harga:55000, em:"👕", kat:"30s Pendek + Sablon", grosir:true },
-      { id:104, nama:"30s Pdk A5 depan", harga:60000, em:"👕", kat:"30s Pendek + Sablon", grosir:true },
-      { id:105, nama:"30s Pdk A4 depan", harga:70000, em:"👕", kat:"30s Pendek + Sablon", grosir:true },
-      { id:106, nama:"30s Pdk A6 dpn + A4 blk", harga:75000, em:"👕", kat:"30s Pendek + Sablon", grosir:true },
-      { id:107, nama:"30s Pdk A5 dpn + A4 blk", harga:80000, em:"👕", kat:"30s Pendek + Sablon", grosir:true },
-      { id:108, nama:"30s Pdk A3 belakang", harga:80000, em:"👕", kat:"30s Pendek + Sablon", grosir:true },
-      { id:109, nama:"30s Pdk A6 dpn + A3 blk", harga:85000, em:"👕", kat:"30s Pendek + Sablon", grosir:true },
-      { id:110, nama:"30s Pdk A4 dpn + A4 blk", harga:85000, em:"👕", kat:"30s Pendek + Sablon", grosir:true },
-      { id:111, nama:"30s Pdk A4 dpn + A3 blk", harga:90000, em:"👕", kat:"30s Pendek + Sablon", grosir:true },
-      { id:112, nama:"30s Pdk A3 dpn + A3 blk", harga:100000, em:"👕", kat:"30s Pendek + Sablon", grosir:true },
-      { id:113, nama:"30s Pdk A3+ belakang", harga:85000, em:"👕", kat:"30s Pendek + Sablon", grosir:true },
-      { id:114, nama:"30s Pdk A2 belakang", harga:90000, em:"👕", kat:"30s Pendek + Sablon", grosir:true },
-      { id:115, nama:"30s Pjg A6 depan", harga:65000, em:"👕", kat:"30s Panjang + Sablon", grosir:true },
-      { id:116, nama:"30s Pjg A5 depan", harga:70000, em:"👕", kat:"30s Panjang + Sablon", grosir:true },
-      { id:117, nama:"30s Pjg A4 depan", harga:80000, em:"👕", kat:"30s Panjang + Sablon", grosir:true },
-      { id:118, nama:"30s Pjg A6 dpn + A4 blk", harga:85000, em:"👕", kat:"30s Panjang + Sablon", grosir:true },
-      { id:119, nama:"30s Pjg A5 dpn + A4 blk", harga:90000, em:"👕", kat:"30s Panjang + Sablon", grosir:true },
-      { id:120, nama:"30s Pjg A3 belakang", harga:90000, em:"👕", kat:"30s Panjang + Sablon", grosir:true },
-      { id:121, nama:"30s Pjg A6 dpn + A3 blk", harga:95000, em:"👕", kat:"30s Panjang + Sablon", grosir:true },
-      { id:122, nama:"30s Pjg A4 dpn + A4 blk", harga:95000, em:"👕", kat:"30s Panjang + Sablon", grosir:true },
-      { id:123, nama:"30s Pjg A4 dpn + A3 blk", harga:100000, em:"👕", kat:"30s Panjang + Sablon", grosir:true },
-      { id:124, nama:"30s Pjg A3 dpn + A3 blk", harga:110000, em:"👕", kat:"30s Panjang + Sablon", grosir:true },
-      { id:125, nama:"30s Pjg A3+ belakang", harga:95000, em:"👕", kat:"30s Panjang + Sablon", grosir:true },
-      { id:126, nama:"30s Pjg A2 belakang", harga:100000, em:"👕", kat:"30s Panjang + Sablon", grosir:true },
-      { id:127, nama:"24s Pdk A6 depan", harga:65000, em:"👚", kat:"24s Pendek + Sablon", grosir:true },
-      { id:128, nama:"24s Pdk A5 depan", harga:70000, em:"👚", kat:"24s Pendek + Sablon", grosir:true },
-      { id:129, nama:"24s Pdk A4 depan", harga:80000, em:"👚", kat:"24s Pendek + Sablon", grosir:true },
-      { id:130, nama:"24s Pdk A6 dpn + A4 blk", harga:85000, em:"👚", kat:"24s Pendek + Sablon", grosir:true },
-      { id:131, nama:"24s Pdk A5 dpn + A4 blk", harga:90000, em:"👚", kat:"24s Pendek + Sablon", grosir:true },
-      { id:132, nama:"24s Pdk A3 belakang", harga:90000, em:"👚", kat:"24s Pendek + Sablon", grosir:true },
-      { id:133, nama:"24s Pdk A6 dpn + A3 blk", harga:95000, em:"👚", kat:"24s Pendek + Sablon", grosir:true },
-      { id:134, nama:"24s Pdk A4 dpn + A4 blk", harga:95000, em:"👚", kat:"24s Pendek + Sablon", grosir:true },
-      { id:135, nama:"24s Pdk A4 dpn + A3 blk", harga:100000, em:"👚", kat:"24s Pendek + Sablon", grosir:true },
-      { id:136, nama:"24s Pdk A3 dpn + A3 blk", harga:110000, em:"👚", kat:"24s Pendek + Sablon", grosir:true },
-      { id:137, nama:"24s Pdk A3+ belakang", harga:95000, em:"👚", kat:"24s Pendek + Sablon", grosir:true },
-      { id:138, nama:"24s Pdk A2 belakang", harga:100000, em:"👚", kat:"24s Pendek + Sablon", grosir:true },
-      { id:139, nama:"24s Pjg A6 depan", harga:75000, em:"👚", kat:"24s Panjang + Sablon", grosir:true },
-      { id:140, nama:"24s Pjg A5 depan", harga:80000, em:"👚", kat:"24s Panjang + Sablon", grosir:true },
-      { id:141, nama:"24s Pjg A4 depan", harga:90000, em:"👚", kat:"24s Panjang + Sablon", grosir:true },
-      { id:142, nama:"24s Pjg A6 dpn + A4 blk", harga:95000, em:"👚", kat:"24s Panjang + Sablon", grosir:true },
-      { id:143, nama:"24s Pjg A5 dpn + A4 blk", harga:100000, em:"👚", kat:"24s Panjang + Sablon", grosir:true },
-      { id:144, nama:"24s Pjg A3 belakang", harga:100000, em:"👚", kat:"24s Panjang + Sablon", grosir:true },
-      { id:145, nama:"24s Pjg A6 dpn + A3 blk", harga:105000, em:"👚", kat:"24s Panjang + Sablon", grosir:true },
-      { id:146, nama:"24s Pjg A4 dpn + A4 blk", harga:105000, em:"👚", kat:"24s Panjang + Sablon", grosir:true },
-      { id:147, nama:"24s Pjg A4 dpn + A3 blk", harga:110000, em:"👚", kat:"24s Panjang + Sablon", grosir:true },
-      { id:148, nama:"24s Pjg A3 dpn + A3 blk", harga:120000, em:"👚", kat:"24s Panjang + Sablon", grosir:true },
-      { id:149, nama:"24s Pjg A3+ belakang", harga:105000, em:"👚", kat:"24s Panjang + Sablon", grosir:true },
-      { id:150, nama:"24s Pjg A2 belakang", harga:110000, em:"👚", kat:"24s Panjang + Sablon", grosir:true },
-      { id:155, nama:"DTF A6", harga:10000, em:"🖨️", kat:"Sablon DTF saja" },
-      { id:156, nama:"DTF A5", harga:15000, em:"🖨️", kat:"Sablon DTF saja" },
-      { id:157, nama:"DTF A4", harga:25000, em:"🖨️", kat:"Sablon DTF saja" },
-      { id:158, nama:"DTF A3", harga:35000, em:"🖨️", kat:"Sablon DTF saja" },
-      { id:159, nama:"DTF A3+", harga:40000, em:"🖨️", kat:"Sablon DTF saja" },
-      { id:160, nama:"DTF A2", harga:45000, em:"🖨️", kat:"Sablon DTF saja" },
-      { id:161, nama:"Ukuran XXL", harga:5000, em:"📏", kat:"Ukuran Besar" },
-      { id:162, nama:"Ukuran 3XL", harga:10000, em:"📏", kat:"Ukuran Besar" },
-      { id:163, nama:"Ukuran 4XL", harga:25000, em:"📏", kat:"Ukuran Besar" },
-      { id:164, nama:"Ukuran 5XL", harga:40000, em:"📏", kat:"Ukuran Besar" },
-      { id:165, nama:"Ukuran 6XL", harga:60000, em:"📏", kat:"Ukuran Besar" },
-      { id:166, nama:"Ukuran 7XL", harga:85000, em:"📏", kat:"Ukuran Besar" },
-      { id:167, nama:"Ukuran 8XL", harga:105000, em:"📏", kat:"Ukuran Besar" }
+      { id:102, nama:"Kaos komunitas", harga:70000, em:"🤝", kat:"Paket", grosir:true }
     ];
+    JENIS.forEach(function(j){ UKURAN.forEach(function(u, i){
+      S.produk.push({ id:j[4] + i + 1, nama:j[1] + " " + u[0], harga:j[2] + u[1], em:j[3], kat:j[0], grosir:true });
+    }); });
+    [["A5 depan",5000],["A4 depan",15000],["+ A4 belakang",20000],["A5 dpn + A4 blk",25000],["A3 belakang",25000],
+     ["A6 dpn + A3 blk",30000],["A4 dpn + A4 blk",30000],["A3+ belakang",30000],["A4 dpn + A3 blk",35000],["A2 belakang",35000],["A3 dpn + A3 blk",45000]
+    ].forEach(function(x, i){ S.produk.push({ id:401 + i, nama:"Upgrade " + x[0], harga:x[1], em:"⬆️", kat:"Upgrade Sablon" }); });
+    [["A6",10000],["A5",15000],["A4",25000],["A3",35000],["A3+",40000],["A2",45000]].forEach(function(x, i){
+      S.produk.push({ id:501 + i, nama:"DTF " + x[0], harga:x[1], em:"🖨️", kat:"Sablon DTF saja" });
+    });
     // Diskon grosir per pcs untuk produk kaos (Huda 15 Nov 2026): [minimal pcs, potongan per pcs].
     S.grosir = [[12,2000],[100,2500],[300,3000],[400,4000],[500,5000]];
     simpan(); history.replaceState(null, "", location.pathname);
