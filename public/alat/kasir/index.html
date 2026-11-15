@@ -20,6 +20,7 @@
 <link rel="icon" href="/logo-willo.png">
 <link rel="stylesheet" href="/alat/alat.css">
 <script src="/alat/ikon.js" defer></script>
+<script src="/alat/owner.js"></script>
 <style>
 main{padding-bottom:110px}
 .hariini{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;color:var(--redup);margin-bottom:12px}
@@ -132,7 +133,7 @@ main{padding-bottom:110px}
   <h1>Kasir</h1>
   <p class="sub">Ketuk produk, terima tunai atau QRIS, kirim struk ke WA. Uang tidak lewat alat ini: pelanggan membayar langsung ke QRIS atau rekening tokomu.</p>
 
-  <div class="hariini"><span>Penjualan hari ini: <b class="angka" id="hJml">Rp0</b> · <span id="hN">0</span> transaksi</span><span class="baris" style="gap:6px"><button class="btn dua kecil" id="bLaporan">📊 Laporan</button><a href="/alat/buku-kas/" class="btn dua kecil">Buku Kas</a></span></div>
+  <div class="hariini"><span>Penjualan hari ini: <b class="angka" id="hJml">Rp0</b> · <span id="hN">0</span> transaksi</span><span class="baris" style="gap:6px"><button class="btn dua kecil" id="bLaporan" data-owner>📊 Laporan</button><a href="/alat/buku-kas/" class="btn dua kecil" data-owner>Buku Kas</a></span></div>
 
   <div class="kasir-grid"><div class="kiri">
   <input type="text" id="cari" class="cari" placeholder="Cari produk / scan barcode…" autocomplete="off" enterkeyhint="search">
@@ -148,7 +149,7 @@ main{padding-bottom:110px}
   </section>
   </div></div>
 
-  <section class="kartu">
+  <section class="kartu" data-owner>
     <h2>Pengaturan toko</h2>
     <label class="isi">Nama toko<input type="text" id="sNama" maxlength="40" placeholder="Contoh: Warung Bu Sri"></label>
     <label class="isi">Tagline <small>Kalimat singkat di bawah nama toko, contoh: Enak, murah, cepat</small><input type="text" id="sTagline" maxlength="40"></label>
@@ -167,7 +168,7 @@ main{padding-bottom:110px}
     <p class="kecil redup" style="margin:6px 0 0"><a href="#" id="bGantiPrinter" class="tersembunyi">Ganti printer</a></p>
   </section>
 
-  <section class="kartu">
+  <section class="kartu" data-owner>
     <h2>Daftar barang</h2>
     <div class="baris">
       <button class="btn dua kecil" id="bJenis">🏪 Contoh sesuai jenis usaha</button>
@@ -314,7 +315,7 @@ main{padding-bottom:110px}
   function simpan(){ delete S.baru; try { localStorage.setItem(KUNCI, JSON.stringify(S)); return true; } catch(e){ pesan("Gagal menyimpan: memori browser penuh"); return false; } }
   muat();
   // Isian toko Willo sendiri (Huda 15 Nov 2026): buka /alat/kasir/?contoh=willo sekali di HP Willo.
-  if (/[?&]contoh=willo/.test(location.search) && confirm("Isi kasir dengan produk Willo Apparel? Produk yang ada sekarang diganti.")) {
+  if (/[?&]contoh=willo/.test(location.search) && !(window.LumbungOwner && LumbungOwner.terkunci()) && confirm("Isi kasir dengan produk Willo Apparel? Produk yang ada sekarang diganti.")) {
     S.nama = "Willo Apparel"; S.hp = "0858-1690-0722"; if (/^WA /.test(S.alamat || "")) S.alamat = "";
     // Harga per ukuran (Huda 15 Nov 2026), seperti kasir lama: tiap kategori berisi S-XL sampai 8XL.
     // Tambahan ukuran: XXL +5rb, 3XL +10rb, 4XL +25rb, 5XL +40rb, 6XL +60rb, 7XL +85rb, 8XL +105rb. Lengan panjang +10rb.
@@ -411,13 +412,13 @@ main{padding-bottom:110px}
       if (k) { var s = document.createElement("span"); s.className = "qty"; s.textContent = k.q; b.appendChild(s); }
       b.onclick = function(){ tambah(p); };
       // Tekan lama untuk ubah produk
-      var tm; b.addEventListener("pointerdown", function(){ tm = setTimeout(function(){ tm = "lama"; bukaProduk(p); }, 550); });
+      var tm; b.addEventListener("pointerdown", function(){ if (window.LumbungOwner && LumbungOwner.terkunci()) return; tm = setTimeout(function(){ tm = "lama"; bukaProduk(p); }, 550); });
       ["pointerup","pointerleave","pointercancel"].forEach(function(ev){ b.addEventListener(ev, function(){ if (tm !== "lama") clearTimeout(tm); }); });
       b.addEventListener("click", function(e){ if (tm === "lama") { e.stopImmediatePropagation(); tm = null; } }, true);
       b.oncontextmenu = function(e){ e.preventDefault(); };
       c.appendChild(b);
     });
-    var t = document.createElement("button"); t.type = "button"; t.className = "tambah";
+    var t = document.createElement("button"); t.type = "button"; t.className = "tambah"; t.setAttribute("data-owner", "");
     t.innerHTML = '<span class="em">＋</span><span class="nm">Tambah produk</span><span class="hg">tekan lama produk untuk ubah</span>';
     t.onclick = function(){ bukaProduk(null); };
     c.appendChild(t);
@@ -919,7 +920,7 @@ main{padding-bottom:110px}
 
   window.addEventListener("storage", function(e){ if (e.key === KAS) gambarHariIni(); });
   gambar();
-  if (S.baru) bukaJenis();
+  if (S.baru && !(window.LumbungOwner && LumbungOwner.terkunci())) bukaJenis();
 })();
 </script>
 <script src="/alat/printer.js"></script>

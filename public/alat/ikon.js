@@ -66,6 +66,8 @@
     petir: k("M13 2 4 14h7l-1 8 9-12h-7z") + p("M13 2 4 14h7l-1 8 9-12h-7z"),
     colokan: k("M7 7h10v5a5 5 0 0 1-10 0z") + p("M7 7h10v5a5 5 0 0 1-10 0zM9.5 7V3M14.5 7V3M12 17v4"),
     baterai: k("M5 9h8v6H5z") + p("M3 7h16v10H3zM21 10.5v3"),
+    gembok: k("M5 11h14v10H5z") + p("M5 11h14v10H5zM8 11V7.5a4 4 0 0 1 8 0V11M12 15v2"),
+    gembokBuka: k("M5 11h14v10H5z") + p("M5 11h14v10H5zM8 11V7.5a4 4 0 0 1 7.7-1.5M12 15v2"),
     hp: k("M9 18h6") + p("M7 2h10v20H7zM10.5 18.5h3M10 5h4"),
     // ——— barang (untuk contoh jenis usaha) ———
     kaos: k(KAOS) + p(KAOS),
@@ -114,7 +116,7 @@
     "📢":"toa","📣":"toa","🔁":"ulang","🔄":"ulang","🖥":"layar","💻":"layar","🔊":"suara","📊":"grafik","📈":"grafik","✋":"tangan","🖼":"gambar","📷":"kamera","📸":"kamera",
     "🏪":"toko","📥":"masuk","💬":"obrolan","💵":"uang","💰":"uang","🏦":"bank","💳":"kartu","⚠":"awas","🙏":"terimakasih","🎉":"pesta","📅":"kalender","📆":"kalender",
     "📒":"buku","📕":"buku","📗":"buku","🔢":"angka","🛒":"keranjang","🛠":"perkakas","🔧":"kunci","🤝":"salaman","📦":"kotak","👷":"pekerja","🏠":"rumah","🏡":"rumah",
-    "💡":"lampu","🛵":"motor","👛":"dompet","📚":"tumpukanBuku","🏘":"kampung","⏰":"jam","🏆":"piala","⚡":"petir","🔌":"colokan","🔋":"baterai","📱":"hp",
+    "💡":"lampu","🛵":"motor","👛":"dompet","📚":"tumpukanBuku","🏘":"kampung","⏰":"jam","🏆":"piala","⚡":"petir","🔌":"colokan","🔋":"baterai","📱":"hp","🔒":"gembok","🔐":"gembok","🔓":"gembokBuka",
     "👕":"kaos","🎽":"kaosOlahraga","🧥":"jaket","👗":"gaun","👚":"kaos","🧢":"topi","👟":"sepatu","🍚":"nasi","🍜":"mie","🍗":"ayam","🍢":"sate","🥟":"pangsit","🍞":"roti",
     "🍰":"kue","🍩":"donat","☕":"kopi","🧋":"esteh","🥤":"gelas","🧃":"minumanKotak","🍹":"jus","🍦":"esKrim","🍌":"pisang","🥚":"telur","🧂":"garam","🛢":"minyak",
     "🍫":"coklat","🍬":"permen","🍘":"senbei","🍪":"kukis","💈":"potongRambut","🧴":"botol","🧼":"sabun","✂":"gunting","⛽":"bensin","🎁":"hadiah","🛏":"kasur","🛞":"ban"

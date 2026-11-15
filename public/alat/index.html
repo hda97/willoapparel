@@ -20,6 +20,7 @@
 <link rel="icon" href="/logo-willo.png">
 <link rel="stylesheet" href="/alat/alat.css">
 <script src="/alat/ikon.js" defer></script>
+<script src="/alat/owner.js"></script>
 <style>
 .daftar{display:grid;gap:10px}
 .daftar a{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--garis);border-radius:14px;padding:14px;text-decoration:none;color:var(--teks)}
@@ -44,12 +45,21 @@
     <a href="/alat/kasir/"><span class="ik" style="background:#e6f5ee">🧾</span><span><b>Kasir + QRIS</b><span class="k">Ketuk produk, hitung kembalian, tampilkan QRIS toko, struk ke WA.</span></span><span class="panah">›</span></a>
     <a href="/alat/antrian/"><span class="ik" style="background:#fff5d1">🔢</span><span><b>Antrian</b><span class="k">Ambil nomor, panggil dengan suara, layar besar untuk pelanggan.</span></span><span class="panah">›</span></a>
     <a href="/alat/nota/"><span class="ik" style="background:#f3ecff">📄</span><span><b>Nota & Invoice</b><span class="k">Catat pesanan, DP, dan sisa tagihan. Kirim nota ke WA atau PDF.</span></span><span class="panah">›</span></a>
-    <a href="/alat/tagihan/"><span class="ik" style="background:#fff0e0">📅</span><span><b>Tagihan Bulanan</b><span class="k">Kos, bimbel, TPQ, iuran RT: siapa sudah bayar, siapa telat, tagih lewat WA.</span></span><span class="panah">›</span></a>
-    <a href="/alat/buku-kas/"><span class="ik" style="background:#eef2ff">📒</span><span><b>Buku Kas</b><span class="k">Catat uang masuk & keluar, lihat untung per bulan, ekspor Excel.</span></span><span class="panah">›</span></a>
+    <a href="/alat/tagihan/" data-owner><span class="ik" style="background:#fff0e0">📅</span><span><b>Tagihan Bulanan</b><span class="k">Kos, bimbel, TPQ, iuran RT: siapa sudah bayar, siapa telat, tagih lewat WA.</span></span><span class="panah">›</span></a>
+    <a href="/alat/buku-kas/" data-owner><span class="ik" style="background:#eef2ff">📒</span><span><b>Buku Kas</b><span class="k">Catat uang masuk & keluar, lihat untung per bulan, ekspor Excel.</span></span><span class="panah">›</span></a>
     <a href="/alat/jpg-ke-vektor/"><span class="ik" style="background:#fbecea">✏️</span><span><b>JPG ke Vektor</b><span class="k">Ubah logo/gambar jadi SVG untuk desain kaos dan stiker.</span></span><span class="panah">›</span></a>
   </div>
 
-  <section class="kartu" style="margin-top:16px">
+  <section class="kartu" style="margin-top:16px" data-owner>
+    <h2>🔒 Mode owner & pegawai</h2>
+    <p class="sub" style="margin:0 0 10px" id="pinKet">Pasang PIN owner supaya pegawai hanya bisa berjualan. Laporan, Buku Kas, Tagihan, harga barang, dan pengaturan hanya terbuka dengan PIN.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" id="bPinPasang">Pasang PIN owner</button>
+      <button class="btn dua tersembunyi" id="bPinHapus">Hapus PIN</button>
+    </div>
+  </section>
+
+  <section class="kartu" style="margin-top:16px" data-owner>
     <h2>💾 Cadangan semua data</h2>
     <p class="sub" style="margin:0 0 10px">Data hanya ada di HP ini. Simpan cadangan sebelum ganti HP, hapus aplikasi, atau bersihkan data browser.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -99,6 +109,15 @@
     r.readAsText(f);
   };
 })();
+
+  // Mode owner & pegawai
+  function gambarPin(){ var O = window.LumbungOwner; if (!O) return; var ada = O.adaPin();
+    document.getElementById("bPinPasang").textContent = ada ? "Ganti PIN owner" : "Pasang PIN owner";
+    document.getElementById("bPinHapus").classList.toggle("tersembunyi", !ada);
+    document.getElementById("pinKet").textContent = ada ? "PIN owner aktif. Tekan “Owner · Kunci” di atas sebelum tablet dipakai pegawai. Terkunci sendiri setelah 15 menit tidak disentuh." : "Pasang PIN owner supaya pegawai hanya bisa berjualan. Laporan, Buku Kas, Tagihan, harga barang, dan pengaturan hanya terbuka dengan PIN."; }
+  document.getElementById("bPinPasang").onclick = function(){ LumbungOwner.pasangPin().then(gambarPin); };
+  document.getElementById("bPinHapus").onclick = function(){ if (confirm("Hapus PIN owner? Semua bagian bisa dibuka siapa saja.")) { LumbungOwner.hapusPin(); gambarPin(); } };
+  document.addEventListener("lumbung-owner", gambarPin);
 </script>
 </body>
 </html>
