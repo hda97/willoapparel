@@ -16979,9 +16979,9 @@
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/main/java/com/willoapparel/alat/PrinterWilloPlugin.java": {
-    "mtime": 1794747305.03964,
-    "seen": 1794747395.1722512,
-    "ast_hash": "e659128cb5051a3f4ce12520c0ebbd51",
+    "mtime": 1794748525.6682034,
+    "seen": 1794748561.4627042,
+    "ast_hash": "79f4ee6248d77e77fb64ce7e640ee34c",
     "semantic_hash": ""
   },
   "aplikasi-alat/android/app/src/test/java/com/getcapacitor/myapp/ExampleUnitTest.java": {
@@ -17204,18 +17204,6 @@
     "mtime": 1794746621.7002418,
     "seen": 1794746673.2215848,
     "ast_hash": "1eb1f3d5b4da00e74010ac6d94c1487e",
-    "semantic_hash": ""
-  },
-  "tagihan4.png": {
-    "mtime": 1794746630.8854682,
-    "seen": 1794746673.2225509,
-    "ast_hash": "d0d8ac836eba996da039f287fe68c97a",
-    "semantic_hash": ""
-  },
-  "tagihan5.png": {
-    "mtime": 1794746631.0214682,
-    "seen": 1794746673.2225518,
-    "ast_hash": "bcbb0de33b1d8412db1351f3f7e2a561",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {

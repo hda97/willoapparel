@@ -116,7 +116,8 @@ public class PrinterWilloPlugin extends Plugin {
                     call.resolve();
                 } catch (Exception e) {
                     tutup();
-                    call.reject("Printer tidak tersambung. Pastikan printer menyala, sudah dipasangkan, dan dekat dengan HP.", "SAMBUNG", e);
+                    String rinci = e.getMessage() == null ? "" : " (" + e.getMessage() + ")";
+                    call.reject("Printer tidak tersambung. Pastikan printer menyala, sudah dipasangkan, tidak sedang dipakai aplikasi lain, dan dekat dengan HP." + rinci, "SAMBUNG", e);
                 }
             }
         }).start();
@@ -130,15 +131,7 @@ public class PrinterWilloPlugin extends Plugin {
             tutup();
             BluetoothDevice d = a.getRemoteDevice(alamat);
             a.cancelDiscovery();
-            BluetoothSocket s;
-            try {
-                s = d.createRfcommSocketToServiceRecord(SPP);
-                s.connect();
-            } catch (IOException e) {
-                s = d.createInsecureRfcommSocketToServiceRecord(SPP);
-                s.connect();
-            }
-            soket = s;
+            soket = sambung(d);
             alamatSoket = alamat;
         }
         OutputStream out = soket.getOutputStream();
@@ -150,6 +143,30 @@ public class PrinterWilloPlugin extends Plugin {
             i += n;
             try { Thread.sleep(20); } catch (InterruptedException ignored) {}
         }
+    }
+
+    /**
+     * Printer termal murah tidak seragam: coba SPP aman, SPP tidak aman, lalu kanal RFCOMM 1
+     * lewat refleksi (cara yang dipakai banyak aplikasi printer untuk printer yang menolak SDP).
+     */
+    @SuppressLint("MissingPermission")
+    private BluetoothSocket sambung(BluetoothDevice d) throws IOException {
+        IOException terakhir = null;
+        for (int cara = 0; cara < 3; cara++) {
+            BluetoothSocket s = null;
+            try {
+                if (cara == 0) s = d.createRfcommSocketToServiceRecord(SPP);
+                else if (cara == 1) s = d.createInsecureRfcommSocketToServiceRecord(SPP);
+                else s = (BluetoothSocket) d.getClass().getMethod("createRfcommSocket", int.class).invoke(d, 1);
+                s.connect();
+                return s;
+            } catch (Exception e) {
+                if (s != null) { try { s.close(); } catch (IOException ignored) {} }
+                terakhir = e instanceof IOException ? (IOException) e : new IOException(String.valueOf(e.getMessage()), e);
+                try { Thread.sleep(300); } catch (InterruptedException ignored) {}
+            }
+        }
+        throw terakhir;
     }
 
     private synchronized void tutup() {
