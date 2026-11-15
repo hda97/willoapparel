@@ -18,11 +18,11 @@ local player = Players.LocalPlayer
 
 -- nomor audio di Roblox (0 = belum diunggah, dusun itu diam)
 local LAGU = {
-	wetan = 0,
-	kulon = 0,
-	curug = 0,
-	tlaga = 0,
-	segara = 0,
+	wetan = 79826162163086,
+	kulon = 83582853143063,
+	curug = 103038119079140,
+	tlaga = 88452590896723,
+	segara = 119769471073179,
 }
 local KERAS = 0.45 -- keras kelima lagu sudah disamakan saat direkam
 
