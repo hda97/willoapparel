@@ -71,7 +71,7 @@
 <script src="/alat/printer.js"></script>
 <script>
 (function(){
-  var KUNCI = /^willo_(kasir|kas|nota|antrian|tagihan|printer)_v1$/;
+  var KUNCI = /^willo_(kasir|kas|nota|antrian|tagihan|printer|jual)_v1$/;
   document.getElementById("bCadangSemua").onclick = function(){
     var data = {};
     for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (KUNCI.test(k)) data[k] = localStorage.getItem(k); }
