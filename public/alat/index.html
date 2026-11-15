@@ -49,6 +49,15 @@
   </div>
 
   <section class="kartu" style="margin-top:16px">
+    <h2>💾 Cadangan semua data</h2>
+    <p class="sub" style="margin:0 0 10px">Data hanya ada di HP ini. Simpan cadangan sebelum ganti HP, hapus aplikasi, atau bersihkan data browser.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" id="bCadangSemua">Simpan cadangan</button>
+      <label class="btn dua" style="cursor:pointer">Pulihkan dari file<input type="file" id="fPulihSemua" accept=".json,application/json" hidden></label>
+    </div>
+  </section>
+
+  <section class="kartu" style="margin-top:16px">
     <h2>Segera menyusul</h2>
     <ul class="segera">
       <li>Stok barang dengan peringatan stok menipis</li>
@@ -59,5 +68,36 @@
   <div class="cta">Butuh kaos seragam untuk tim usahamu? Sablon satuan sampai lusinan di <a href="/kaos-seragam-usaha-ngawi.html">Willo Apparel</a>.</div>
 </main>
 <footer>Alat gratis dari Willo Apparel</footer>
+<script src="/alat/printer.js"></script>
+<script>
+(function(){
+  var KUNCI = /^willo_(kasir|kas|nota|antrian|tagihan|printer)_v1$/;
+  document.getElementById("bCadangSemua").onclick = function(){
+    var data = {};
+    for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (KUNCI.test(k)) data[k] = localStorage.getItem(k); }
+    if (!Object.keys(data).length) { alert("Belum ada data untuk dicadangkan."); return; }
+    var isi = JSON.stringify({ lumbung:1, dibuat:new Date().toISOString(), data:data });
+    var nama = "cadangan-lumbung-" + new Date().toISOString().slice(0,10) + ".json";
+    if (window.Lumbung) Lumbung.unduh(nama, isi, "application/json");
+    else { var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([isi], {type:"application/json"})); a.download = nama; a.click(); }
+  };
+  document.getElementById("fPulihSemua").onchange = function(){
+    var f = this.files[0]; this.value = ""; if (!f) return;
+    var r = new FileReader();
+    r.onload = function(){
+      try {
+        var j = JSON.parse(r.result), d = j && j.data;
+        if (!d || typeof d !== "object") throw 0;
+        var ks = Object.keys(d).filter(function(k){ return KUNCI.test(k); });
+        if (!ks.length) throw 0;
+        if (!confirm("Pulihkan " + ks.length + " bagian data? Data di HP ini akan diganti isi file cadangan.")) return;
+        ks.forEach(function(k){ JSON.parse(d[k]); localStorage.setItem(k, d[k]); });
+        alert("Data berhasil dipulihkan.");
+      } catch(e) { alert("File ini bukan cadangan Lumbung."); }
+    };
+    r.readAsText(f);
+  };
+})();
+</script>
 </body>
 </html>

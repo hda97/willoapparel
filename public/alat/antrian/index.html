@@ -233,8 +233,11 @@ body.layar #layar{display:flex;flex-direction:column;min-height:100vh;padding:4v
   }
   function bicara(no){
     ding();
-    if (!S.suara || !("speechSynthesis" in window)) return;
-    var u = new SpeechSynthesisUtterance("Nomor antrian, " + eja(no) + ". Silakan menuju " + (S.loket || "loket") + ".");
+    if (!S.suara) return;
+    var kalimat = "Nomor antrian, " + eja(no) + ". Silakan menuju " + (S.loket || "loket") + ".";
+    if (window.Lumbung && Lumbung.aplikasi()) { setTimeout(function(){ Lumbung.bicara(kalimat); }, 750); return; }
+    if (!("speechSynthesis" in window)) return;
+    var u = new SpeechSynthesisUtterance(kalimat);
     u.lang = "id-ID"; u.rate = 0.9;
     var v = speechSynthesis.getVoices().filter(function(v){ return /^id|ind/i.test(v.lang); })[0];
     if (v) u.voice = v;
@@ -258,7 +261,7 @@ body.layar #layar{display:flex;flex-direction:column;min-height:100vh;padding:4v
     $("tNo").textContent = labelNo(a.no);
     $("tTunggu").textContent = (S.antre.length - 1) + " orang sebelum Anda";
     $("tJam").textContent = "Diambil pukul " + jam(a.ambil);
-    setTimeout(function(){ window.print(); }, 50);
+    setTimeout(function(){ window.Lumbung ? Lumbung.cetakHalaman("Tiket antrian") : window.print(); }, 50);
   }
 
   // Ambil nomor
@@ -300,7 +303,7 @@ body.layar #layar{display:flex;flex-direction:column;min-height:100vh;padding:4v
   $("bTesPrinter").onclick = function(){
     var opsi = { atas:(S.nama || "Tes printer"), besar:labelNo(S.n + 1), tengah:true };
     if ((S.via || "ble") === "rawbt") { CetakTermal.rawbt("Printer siap dipakai", opsi); return; }
-    if (S.via === "biasa") { window.print(); return; }
+    if (S.via === "biasa") { window.Lumbung ? Lumbung.cetakHalaman("Tes") : window.print(); return; }
     CetakTermal.cetak("Printer siap dipakai", opsi).then(function(r){ pesan(r === "rawbt" ? "Membuka aplikasi RawBT…" : "Terhubung ke " + CetakTermal.nama()); })
       .catch(function(e){ var m = CetakTermal.pesanGagal(e); if (m) pesan(m); });
   };

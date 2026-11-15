@@ -21,6 +21,30 @@
     try { return C && C.nativePromise && (C.isNativePlatform ? C.isNativePlatform() : (C.getPlatform && C.getPlatform() !== "web")) ? C : null; } catch(e){ return null; }
   }
   if (aplikasi()) document.documentElement.classList.add("app-android");
+  // Pengganti fitur browser yang tidak ada di WebView aplikasi: unduh file, cetak halaman, suara.
+  window.Lumbung = {
+    aplikasi: function(){ return !!aplikasi(); },
+    unduh: function(nama, isi, tipe){
+      var C = aplikasi();
+      if (C) {
+        var u8 = new TextEncoder().encode(isi);
+        return C.nativePromise("PrinterWillo", "bagikanFile", { nama:nama, data:keBase64(u8), mime:(tipe || "text/plain").split(";")[0] });
+      }
+      var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([isi], { type:tipe || "text/plain" })); a.download = nama;
+      document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+      return Promise.resolve();
+    },
+    cetakHalaman: function(judul){
+      var C = aplikasi();
+      if (C) return C.nativePromise("PrinterWillo", "cetakHalaman", { judul:judul || document.title });
+      window.print(); return Promise.resolve();
+    },
+    bicara: function(teks){
+      var C = aplikasi();
+      if (C) { C.nativePromise("PrinterWillo", "bicara", { teks:teks }); return true; }
+      return false;
+    }
+  };
   function simpanan(){ try { return JSON.parse(localStorage.getItem(KUNCI_PRINTER)) || null; } catch(e){ return null; } }
   function keBase64(u8){ var s = ""; for (var i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]); return btoa(s); }
   function galat(pesan, kode){ var e = new Error(pesan); e.code = kode; return e; }

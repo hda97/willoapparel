@@ -444,6 +444,7 @@ main{padding-bottom:110px}
   $("bJenis").onclick = bukaJenis;
   $("djLewati").onclick = function(){ if (S.baru) { S.produk = []; simpan(); gambar(); } $("dJenis").close(); };
   function unduh(nama, isi, tipe){
+    if (window.Lumbung) { Lumbung.unduh(nama, isi, tipe).catch(function(e){ pesan((e && e.message) || "Gagal menyimpan file"); }); return; }
     var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([isi], { type:tipe })); a.download = nama;
     document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
@@ -599,7 +600,7 @@ main{padding-bottom:110px}
     var hp = $("stWa").value.replace(/\D/g, ""); if (hp.charAt(0) === "0") hp = "62" + hp.slice(1);
     window.open("https://wa.me/" + hp + "?text=" + encodeURIComponent("```\n" + strukTeks + "\n```"), "_blank", "noopener");
   };
-  $("stCetak").onclick = function(e){ e.preventDefault(); $("cetakStruk").textContent = strukTeks; window.print(); };
+  $("stCetak").onclick = function(e){ e.preventDefault(); $("cetakStruk").textContent = strukTeks; (window.Lumbung ? Lumbung.cetakHalaman("Struk") : window.print()); };
   window.addEventListener("load", function(){ if (window.CetakTermal && CetakTermal.aplikasi()) { var gp = $("bGantiPrinter"); gp.classList.remove("tersembunyi"); gp.onclick = function(e){ e.preventDefault(); CetakTermal.lupakan(); pesan("Printer dilupakan. Pilih lagi saat mencetak."); }; } });
   $("stRawbt").onclick = function(e){ e.preventDefault(); CetakTermal.rawbt(strukTeks, { gambar:S.logoBit }); };
   $("stBt").onclick = function(){

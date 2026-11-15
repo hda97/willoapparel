@@ -456,7 +456,7 @@
       .catch(function(e){ var m = CetakTermal.pesanGagal(e); if (m) pesan(m); })
       .then(function(){ b.disabled = false; });
   };
-  $("bPdf").onclick = function(){ $("cetak").innerHTML = htmlNota(aktif); document.title = "Nota " + noTeks(aktif); window.print(); setTimeout(function(){ document.title = "Nota & Invoice | Willo Apparel"; }, 1000); };
+  $("bPdf").onclick = function(){ $("cetak").innerHTML = htmlNota(aktif); document.title = "Nota " + noTeks(aktif); (window.Lumbung ? Lumbung.cetakHalaman(document.title) : window.print()); setTimeout(function(){ document.title = "Nota & Invoice | Willo Apparel"; }, 1000); };
 
   formatInput($("dbJml"));
   $("bBayar").onclick = function(){
@@ -473,7 +473,7 @@
   });
 
   // Cadangan
-  function unduh(nama, isi){ var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([isi], { type:"application/json" })); a.download = nama; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+  function unduh(nama, isi){ if (window.Lumbung) { Lumbung.unduh(nama, isi, "application/json").catch(function(e){ pesan((e && e.message) || "Gagal menyimpan file"); }); return; } var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([isi], { type:"application/json" })); a.download = nama; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500); }
   $("bCadang").onclick = function(){ unduh("cadangan-nota-" + tglIni() + ".json", JSON.stringify(S)); pesan("File cadangan diunduh"); };
   $("fPulih").onchange = function(){
     var f = this.files[0]; if (!f) return; this.value = "";

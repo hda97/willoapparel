@@ -10,7 +10,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.provider.Settings;
+import android.net.Uri;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintManager;
+import android.speech.tts.TextToSpeech;
 import android.util.Base64;
+import android.webkit.WebView;
+
+import androidx.core.content.FileProvider;
 
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -22,7 +30,10 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Locale;
 import java.io.OutputStream;
 import java.util.Set;
 import java.util.UUID;
@@ -189,8 +200,81 @@ public class PrinterWilloPlugin extends Plugin {
         call.resolve();
     }
 
+    // ---- Fitur yang tidak ada di WebView Android: simpan/bagikan file, cetak halaman (PDF), suara ----
+
+    /** Unduhan blob tidak jalan di WebView: tulis file ke cache lalu buka lembar Bagikan (simpan ke Files/Drive/WA). */
+    @PluginMethod
+    public void bagikanFile(PluginCall call) {
+        String nama = call.getString("nama", "file.txt").replaceAll("[^A-Za-z0-9._-]", "_");
+        String data = call.getString("data");
+        String mime = call.getString("mime", "application/octet-stream");
+        if (data == null) { call.reject("File kosong.", "DATA"); return; }
+        try {
+            File dir = new File(getContext().getCacheDir(), "bagikan");
+            if (!dir.exists() && !dir.mkdirs()) throw new IOException("Folder cache gagal dibuat");
+            File f = new File(dir, nama);
+            try (FileOutputStream o = new FileOutputStream(f)) { o.write(Base64.decode(data, Base64.DEFAULT)); }
+            Uri uri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".fileprovider", f);
+            Intent kirim = new Intent(Intent.ACTION_SEND);
+            kirim.setType(mime);
+            kirim.putExtra(Intent.EXTRA_STREAM, uri);
+            kirim.putExtra(Intent.EXTRA_SUBJECT, nama);
+            kirim.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            Intent pilih = Intent.createChooser(kirim, "Simpan atau kirim " + nama);
+            pilih.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getContext().startActivity(pilih);
+            call.resolve();
+        } catch (Exception e) {
+            call.reject("Gagal menyiapkan file: " + e.getMessage(), "FILE", e);
+        }
+    }
+
+    /** window.print() tidak jalan di WebView: cetak halaman lewat layanan cetak Android (bisa "Simpan sebagai PDF"). */
+    @PluginMethod
+    public void cetakHalaman(PluginCall call) {
+        final String judul = call.getString("judul", "Lumbung");
+        getActivity().runOnUiThread(() -> {
+            try {
+                WebView w = getBridge().getWebView();
+                PrintManager pm = (PrintManager) getActivity().getSystemService(Context.PRINT_SERVICE);
+                PrintDocumentAdapter ad = w.createPrintDocumentAdapter(judul);
+                pm.print(judul, ad, new PrintAttributes.Builder().build());
+                call.resolve();
+            } catch (Exception e) {
+                call.reject("Gagal membuka layanan cetak: " + e.getMessage(), "CETAK", e);
+            }
+        });
+    }
+
+    private TextToSpeech tts;
+    private boolean ttsSiap;
+    private String ttsTunda;
+
+    /** speechSynthesis tidak ada di WebView: bacakan teks dengan mesin suara Android (bahasa Indonesia). */
+    @PluginMethod
+    public void bicara(PluginCall call) {
+        String teks = call.getString("teks", "");
+        if (tts == null) {
+            ttsTunda = teks;
+            tts = new TextToSpeech(getContext(), status -> {
+                ttsSiap = status == TextToSpeech.SUCCESS;
+                if (ttsSiap) {
+                    tts.setLanguage(new Locale("id", "ID"));
+                    tts.setSpeechRate(0.9f);
+                    if (ttsTunda != null) { tts.speak(ttsTunda, TextToSpeech.QUEUE_FLUSH, null, "lumbung"); ttsTunda = null; }
+                }
+            });
+        } else if (ttsSiap) {
+            tts.speak(teks, TextToSpeech.QUEUE_FLUSH, null, "lumbung");
+        } else {
+            ttsTunda = teks;
+        }
+        call.resolve();
+    }
+
     @Override
     protected void handleOnDestroy() {
         tutup();
+        if (tts != null) { tts.shutdown(); tts = null; }
     }
 }

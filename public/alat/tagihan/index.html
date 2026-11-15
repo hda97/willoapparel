@@ -439,6 +439,7 @@ dialog .isi-dialog{max-height:88vh;overflow:auto}
     b.onclick = function(){ filter = b.dataset.f; Array.prototype.forEach.call($("tab").children, function(x){ x.classList.toggle("pilih", x === b); }); gambar(); };
   });
   function unduh(nama, isi, tipe){
+    if (window.Lumbung) { Lumbung.unduh(nama, isi, tipe).catch(function(e){ pesan((e && e.message) || "Gagal menyimpan file"); }); return; }
     var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([isi], { type:tipe })); a.download = nama;
     document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
