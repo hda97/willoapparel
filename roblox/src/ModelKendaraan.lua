@@ -1321,11 +1321,13 @@ end
 -- jenis: sedan | patroli | ambulans | hatch | gt | jip | motor | sepeda
 -- opsi.las = BasePart: bagian dilas (WeldConstraint) ke part ini, Massless, tidak Anchored; letak awal = opsi.cf
 -- opsi.cf = CFrame titik tanah tengah kendaraan (bawaan CFrame.new())
+-- opsi.skala = pengali ukuran (bawaan 1 = ukuran nyata terhadap peta; untuk kendaraan pemain pakai M.ukurTokoh)
 -- Hasil: model, { sirene = { {part, merah?} }, ban = { part } }
 function M.buat(jenis, warna, opsi)
 	opsi = opsi or {}
 	local d = M.DATA[jenis] or M.DATA.sedan
 	local cf = opsi.cf or CFrame.new()
+	local k = opsi.skala or 1
 	local aksen = kontras(warna)
 	local model = Instance.new("Model")
 	model.Name = jenis
@@ -1343,9 +1345,9 @@ function M.buat(jenis, warna, opsi)
 	for _, b in ipairs(d.bagian) do
 		local p = Instance.new("Part")
 		local f = b[17]
-		p.Size = Vector3.new(b[1], b[2], b[3])
+		p.Size = Vector3.new(b[1], b[2], b[3]) * k
 		if bit32.band(f, 1) ~= 0 then p.Shape = Enum.PartType.Cylinder end
-		p.CFrame = cf * CFrame.new(b[4], b[5], b[6], b[7], b[10], b[13], b[8], b[11], b[14], b[9], b[12], b[15])
+		p.CFrame = cf * CFrame.new(b[4] * k, b[5] * k, b[6] * k, b[7], b[10], b[13], b[8], b[11], b[14], b[9], b[12], b[15])
 		p.Color = b[16] == "w" and warna or b[16] == "a" and aksen or Color3.fromHex(b[16])
 		if bit32.band(f, 2) ~= 0 then p.Transparency = 0.25 p.Material = Enum.Material.Glass
 		elseif bit32.band(f, 4) ~= 0 then p.Material = Enum.Material.Neon
@@ -1395,10 +1397,25 @@ function M.kursi(jenis)
 	return Vector3.new(d.kursi[1], u[1] * METER, z)
 end
 
+-- tinggi pinggul tokoh pemain yang sedang berdiri (stud dari tanah) dan skala kendaraan yang pas dengan tokoh itu.
+-- Tokoh kotak (AvatarKotak) diskalakan dari rangka Roblox, jadi bisa sedikit lebih besar dari skala peta (1 satuan web = 1,25 stud).
+function M.ukurTokoh(char)
+	local hum = char and char:FindFirstChildOfClass("Humanoid")
+	local hrp = char and char:FindFirstChild("HumanoidRootPart")
+	local lt = char and char:FindFirstChild("LowerTorso")
+	local sendi = char and char:FindFirstChild("LeftHip", true)
+	if not hum or not hrp or not lt or not sendi or not sendi:IsA("Motor6D") then return PINGGUL, 1 end
+	local tanah = hrp.Position.Y - (hum.HipHeight + hrp.Size.Y / 2)
+	local pinggul = (lt.CFrame * sendi.C0).Position.Y - tanah
+	if pinggul < 1 or pinggul > 4 then return PINGGUL, 1 end
+	return pinggul, math.clamp(pinggul / PINGGUL, 0.8, 1.6)
+end
+
 -- untuk kendaraan yang ditempel ke tokoh: letak titik tanah kendaraan dari kaki tokoh, dan selisih tinggi pinggul (stud)
-function M.naik(jenis)
-	local k = M.kursi(jenis)
-	return Vector3.new(-k.X, 0, -k.Z), k.Y - PINGGUL
+-- pinggulBerdiri, skala dari M.ukurTokoh
+function M.naik(jenis, pinggulBerdiri, skala)
+	local k = M.kursi(jenis) * (skala or 1)
+	return Vector3.new(-k.X, 0, -k.Z), k.Y - (pinggulBerdiri or PINGGUL)
 end
 
 -- pengemudi tokoh kotak sederhana yang duduk (untuk kendaraan hiasan lalu lintas)

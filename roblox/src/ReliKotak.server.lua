@@ -274,8 +274,9 @@ local function pasangMobil(player)
 	local warna = WARNA_MOBIL[player.UserId % #WARNA_MOBIL + 1]
 	-- bentuk mobil sama dengan game web (ReplicatedStorage.DK_ModelKendaraan): Hatch Reli, Kotak GT, atau Jip Garuk
 	local jenis = ({ "hatch", "gt", "jip" })[player.UserId % 3 + 1]
-	local off = MK.naik(jenis)
-	local mobil = MK.buat(jenis, warna, { las = hrp, cf = hrp.CFrame * CFrame.new(off + Vector3.new(0, -TINGGI, 0)) })
+	local pinggulBerdiri, skala = MK.ukurTokoh(char)
+	local off = MK.naik(jenis, pinggulBerdiri, skala)
+	local mobil = MK.buat(jenis, warna, { las = hrp, cf = hrp.CFrame * CFrame.new(off + Vector3.new(0, -TINGGI, 0)), skala = skala })
 	for _, p in ipairs(mobil:GetChildren()) do p.Parent = m end
 	mobil:Destroy()
 	m.PrimaryPart = m:FindFirstChild("Akar")

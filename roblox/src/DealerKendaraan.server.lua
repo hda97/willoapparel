@@ -198,7 +198,8 @@ local function naik(player)
 	if not hrp or not hum or hum.Health <= 0 then return "Tokohmu belum siap." end
 	turun(player)
 	-- pinggul tokoh diturunkan/dinaikkan ke tinggi kursi (seperti angkat di game web), kendaraan tetap menapak tanah
-	local off, dPinggul = MK.naik(k.m)
+	local pinggulBerdiri, skala = MK.ukurTokoh(char)
+	local off, dPinggul = MK.naik(k.m, pinggulBerdiri, skala)
 	local hipLama = hum.HipHeight
 	local tanah
 	if hum.RigType == Enum.HumanoidRigType.R6 then
@@ -207,7 +208,7 @@ local function naik(player)
 		hum.HipHeight = math.max(0.2, hipLama + dPinggul)
 		tanah = -(hum.HipHeight + hrp.Size.Y / 2) -- jarak tanah dari tengah HumanoidRootPart setelah pinggul diatur
 	end
-	local model = MK.buat(k.m, WARNA[k.w + 1][2], { las = hrp, cf = hrp.CFrame * CFrame.new(off + Vector3.new(0, tanah, 0)) })
+	local model = MK.buat(k.m, WARNA[k.w + 1][2], { las = hrp, cf = hrp.CFrame * CFrame.new(off + Vector3.new(0, tanah, 0)), skala = skala })
 	model.Name = "kend_" .. player.UserId
 	model.Parent = folder
 	s.model = model
