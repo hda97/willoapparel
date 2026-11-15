@@ -99,6 +99,7 @@ main{padding-bottom:110px}
     <label class="isi" style="margin-top:12px">Info transfer <small>Contoh: BRI 1234-5678 a.n. Sri Wahyuni</small><input type="text" id="sRek" maxlength="80"></label>
     <label class="isi" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="sKas" style="width:22px;height:22px;accent-color:var(--utama)"> Catat penjualan otomatis ke Buku Kas</label>
     <label class="isi" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="sTaut" style="width:22px;height:22px;accent-color:var(--utama)"> Tulis “kasir gratis: willoapparel.com/alat” di bawah struk</label>
+    <p class="kecil redup" style="margin:6px 0 0">Ingin lihat contoh? <a href="?contoh=willo">Isi dengan produk Willo Apparel</a> (produk yang ada sekarang diganti). <a href="#" id="bGantiPrinter" class="tersembunyi">Ganti printer</a></p>
   </section>
 
   <div class="cta">Butuh kaos seragam untuk tim usahamu? Sablon satuan sampai lusinan di <a href="/kaos-seragam-usaha-ngawi.html">Willo Apparel</a>.</div>
@@ -156,7 +157,7 @@ main{padding-bottom:110px}
     <button class="btn dua" id="stBt">🖨️ Printer Bluetooth</button>
     <button class="btn hijau" id="stWaBtn">Kirim WA</button>
   </div>
-  <p class="kecil redup" style="margin:8px 0 0">Printer USB / laptop: <a href="#" id="stCetak">cetak biasa</a>. Printer Bluetooth tidak muncul? Pasang aplikasi gratis RawBT lalu <a href="#" id="stRawbt">cetak lewat RawBT</a>.</p>
+  <p class="kecil redup" style="margin:8px 0 0">Printer USB / laptop: <a href="#" id="stCetak">cetak biasa</a>. <span class="hanya-web">Printer Bluetooth tidak muncul? Pasang aplikasi gratis RawBT lalu <a href="#" id="stRawbt">cetak lewat RawBT</a>.</span></p>
   <button class="btn lebar" id="stBaru" autofocus style="margin-top:10px">Transaksi baru</button>
 </div></dialog>
 
@@ -455,6 +456,7 @@ main{padding-bottom:110px}
     window.open("https://wa.me/" + hp + "?text=" + encodeURIComponent("```\n" + strukTeks + "\n```"), "_blank", "noopener");
   };
   $("stCetak").onclick = function(e){ e.preventDefault(); $("cetakStruk").textContent = strukTeks; window.print(); };
+  window.addEventListener("load", function(){ if (window.CetakTermal && CetakTermal.aplikasi()) { var gp = $("bGantiPrinter"); gp.classList.remove("tersembunyi"); gp.onclick = function(e){ e.preventDefault(); CetakTermal.lupakan(); pesan("Printer dilupakan. Pilih lagi saat mencetak."); }; } });
   $("stRawbt").onclick = function(e){ e.preventDefault(); CetakTermal.rawbt(strukTeks); };
   $("stBt").onclick = function(){
     var b = this; b.disabled = true; b.textContent = "Mencetak…";

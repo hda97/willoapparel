@@ -1,0 +1,75 @@
+name: Aplikasi Kasir Willo (APK uji)
+
+# APK Android "Kasir Willo": Kasir, Antrian, Nota & Buku Kas dari public/alat (jalan offline)
+# + cetak langsung ke printer termal Bluetooth classic (plugin PrinterWillo) tanpa RawBT.
+# Hasil diunggah ke Release "kasir-willo-uji" supaya bisa diunduh & dipasang langsung dari HP.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "aplikasi-alat/**"
+      - "public/alat/**"
+      - ".github/workflows/aplikasi-alat.yml"
+  push:
+    branches: [main]
+    paths:
+      - "aplikasi-alat/**"
+      - "public/alat/**"
+      - ".github/workflows/aplikasi-alat.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kasir-willo-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: aplikasi-alat
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Pasang paket Capacitor
+        run: npm ci
+      - name: Salin alat usaha ke www (offline)
+        run: node siapkan-www.mjs
+      - name: Sinkronkan Capacitor
+        run: npx cap sync android
+      - name: Build APK
+        working-directory: aplikasi-alat/android
+        run: ./gradlew assembleRelease --no-daemon
+      - name: Siapkan file APK
+        run: cp android/app/build/outputs/apk/release/app-release.apk kasir-willo.apk && ls -la kasir-willo.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kasir-willo-apk
+          path: aplikasi-alat/kasir-willo.apk
+          retention-days: 14
+      - name: Unggah ke Release kasir-willo-uji
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: kasir-willo-uji
+          target_commitish: ${{ github.sha }}
+          name: Kasir Willo APK uji (terbaru)
+          prerelease: true
+          make_latest: false
+          body: |
+            APK uji **Kasir Willo** (Kasir, Antrian, Nota, Buku Kas + cetak printer Bluetooth tanpa RawBT).
+            Unduh **kasir-willo.apk** di bawah dari HP Android, ketuk, izinkan "instal dari sumber tidak dikenal", lalu Instal.
+            Update berikutnya tinggal pasang di atasnya (data tetap aman).
+            Printer: pasangkan dulu di Pengaturan Bluetooth HP (PIN biasanya 0000/1234), lalu tekan cetak dan pilih printernya.
+            Dibangun otomatis dari commit ${{ github.sha }}.
+          files: aplikasi-alat/kasir-willo.apk
+          overwrite_files: true

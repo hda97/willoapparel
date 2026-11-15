@@ -49,3 +49,4 @@ dialog h2{margin-top:0}
 .tab button{flex:1;border:0;background:transparent;border-radius:9px;padding:9px 6px;font:inherit;font-weight:600;font-size:14.5px;cursor:pointer;color:var(--redup)}
 .tab button.pilih{background:#fff;color:var(--teks);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 @media print{header.atas,.jangan-cetak,footer,.cta{display:none !important}body{background:#fff}}
+.app-android .hanya-web{display:none}

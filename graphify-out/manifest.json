@@ -16619,9 +16619,9 @@
     "semantic_hash": ""
   },
   "public/alat/kasir/index.html": {
-    "mtime": 1794744067.954922,
-    "seen": 1794744114.8703902,
-    "ast_hash": "20dc2a28876a56a2b0df06990e377fde",
+    "mtime": 1794744661.7770529,
+    "seen": 1794744827.3150697,
+    "ast_hash": "bc58467abd43c6dc46aa4ee0c7171c68",
     "semantic_hash": ""
   },
   ".claude/skills/oil-ui/assets/vendor/alpine.min.js": {
@@ -16943,9 +16943,261 @@
     "semantic_hash": ""
   },
   "public/alat/printer.js": {
-    "mtime": 1794744039.1639163,
-    "seen": 1794744114.8683293,
-    "ast_hash": "c695eee458939f1041bc6706dadd2dc4",
+    "mtime": 1794744634.469082,
+    "seen": 1794744827.312972,
+    "ast_hash": "a3054be830b99aeca22957bf691b182e",
+    "semantic_hash": ""
+  },
+  ".github/workflows/aplikasi-alat.yml": {
+    "mtime": 1794744725.8994539,
+    "seen": 1794744827.3127224,
+    "ast_hash": "ae6c35acb894111c4871e7bd1ed538a7",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/build.gradle": {
+    "mtime": 1794744725.8930304,
+    "seen": 1794744827.3127534,
+    "ast_hash": "996ec84caca6c59250ffa250c1fe311c",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/capacitor.build.gradle": {
+    "mtime": 1794744739.1137993,
+    "seen": 1794744827.3127549,
+    "ast_hash": "b863e425fbde80251bd3c68ac8ccba02",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/androidTest/java/com/getcapacitor/myapp/ExampleInstrumentedTest.java": {
+    "mtime": 1794744481.6257207,
+    "seen": 1794744827.3127568,
+    "ast_hash": "fbaf7cc870c663eb52dcf218531c439d",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/java/com/willoapparel/alat/MainActivity.java": {
+    "mtime": 1794744593.7542522,
+    "seen": 1794744827.3127587,
+    "ast_hash": "cfe7621d6560853f5d16ac10edd47199",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/java/com/willoapparel/alat/PrinterWilloPlugin.java": {
+    "mtime": 1794744580.1497898,
+    "seen": 1794744827.31276,
+    "ast_hash": "558316a25d1186266614ac26b67c3bc7",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/test/java/com/getcapacitor/myapp/ExampleUnitTest.java": {
+    "mtime": 1794744481.8131912,
+    "seen": 1794744827.312761,
+    "ast_hash": "e91b4501c14da821682fa5c26a16d616",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/build.gradle": {
+    "mtime": 1794744481.8180318,
+    "seen": 1794744827.3127635,
+    "ast_hash": "682315a426653617c6a74fc12bef55b6",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/capacitor.settings.gradle": {
+    "mtime": 1794744739.1137993,
+    "seen": 1794744827.3127646,
+    "ast_hash": "455ebb7f9fe84a6974da6bdae43097c2",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/gradlew": {
+    "mtime": 1794744481.844252,
+    "seen": 1794744827.3127658,
+    "ast_hash": "794669d78aef1dd5c7d889ef618b311a",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/settings.gradle": {
+    "mtime": 1794744481.8538818,
+    "seen": 1794744827.312767,
+    "ast_hash": "f6cd925b3f859e23c3d819fe2459e0e4",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/variables.gradle": {
+    "mtime": 1794744481.8581483,
+    "seen": 1794744827.3127677,
+    "ast_hash": "4b3fce8ea2a515a9d2e47e74757172ec",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/capacitor.config.json": {
+    "mtime": 1794744554.4897883,
+    "seen": 1794744827.312769,
+    "ast_hash": "92b09445a370bc9a31bcb54e40384b07",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/package.json": {
+    "mtime": 1794744554.4930673,
+    "seen": 1794744827.3127701,
+    "ast_hash": "b0c740395e7c926f541db6b2b708414f",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/siapkan-www.mjs": {
+    "mtime": 1794744593.7562447,
+    "seen": 1794744827.3127713,
+    "ast_hash": "246f917352bfc8223fc4ad7a1b1fa024",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/README.md": {
+    "mtime": 1794744765.0800369,
+    "seen": 1794744827.3148324,
+    "ast_hash": "6c2f27ce7357fc913713559fce29a60c",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/drawable-land-hdpi/splash.png": {
+    "mtime": 1794744541.6257875,
+    "seen": 1794744827.3155136,
+    "ast_hash": "2b161dc7cdf8b1f8a1aaa68f94f14c40",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/drawable-land-mdpi/splash.png": {
+    "mtime": 1794744541.6537876,
+    "seen": 1794744827.3155148,
+    "ast_hash": "8371bebb9f4ac2a69b93c4580eb18e45",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/drawable-land-xhdpi/splash.png": {
+    "mtime": 1794744541.6497877,
+    "seen": 1794744827.315516,
+    "ast_hash": "eb2b84537902666418b8c7947a3cce60",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/drawable-land-xxhdpi/splash.png": {
+    "mtime": 1794744541.6897876,
+    "seen": 1794744827.3155174,
+    "ast_hash": "183180786057cb51ab976420ddbeee53",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/drawable-land-xxxhdpi/splash.png": {
+    "mtime": 1794744541.4897876,
+    "seen": 1794744827.3155184,
+    "ast_hash": "b7d4c76c3311fde98c0ed0f89d24a35d",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/drawable-port-hdpi/splash.png": {
+    "mtime": 1794744541.7017875,
+    "seen": 1794744827.3155253,
+    "ast_hash": "d91a0bf854280081f1fcabea95f0590d",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/drawable-port-mdpi/splash.png": {
+    "mtime": 1794744541.7097876,
+    "seen": 1794744827.3155272,
+    "ast_hash": "3d4a422eca8e722bd525b906df895f4b",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/drawable-port-xhdpi/splash.png": {
+    "mtime": 1794744541.5137875,
+    "seen": 1794744827.3155284,
+    "ast_hash": "d0850474d30a960729324a6fba79b8d3",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/drawable-port-xxhdpi/splash.png": {
+    "mtime": 1794744541.6137877,
+    "seen": 1794744827.3155296,
+    "ast_hash": "a5d1b0a7a8606713f23be168793de15d",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/drawable-port-xxxhdpi/splash.png": {
+    "mtime": 1794744541.5777876,
+    "seen": 1794744827.3155305,
+    "ast_hash": "b18cb6629b2c8160dc7bc71da11ba93e",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/drawable/splash.png": {
+    "mtime": 1794744541.7057877,
+    "seen": 1794744827.3155315,
+    "ast_hash": "8371bebb9f4ac2a69b93c4580eb18e45",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/mipmap-hdpi/ic_launcher.png": {
+    "mtime": 1794744541.3877525,
+    "seen": 1794744827.3155324,
+    "ast_hash": "a76c72d01eaf0a8108c88919759ec65b",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png": {
+    "mtime": 1794744541.3897877,
+    "seen": 1794744827.3155336,
+    "ast_hash": "fd7f4986588024fd1ca0c92cc277540d",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png": {
+    "mtime": 1794744541.3890803,
+    "seen": 1794744827.3155346,
+    "ast_hash": "4449d09efd8eefec9f6c420c9222fa7e",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/mipmap-mdpi/ic_launcher.png": {
+    "mtime": 1794744541.382744,
+    "seen": 1794744827.3155355,
+    "ast_hash": "5611dbd93dea67fd9a2da8a885ecd98c",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png": {
+    "mtime": 1794744541.3861506,
+    "seen": 1794744827.315537,
+    "ast_hash": "067f4b56f5a00c073d672636a57c3e29",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png": {
+    "mtime": 1794744541.3843007,
+    "seen": 1794744827.315538,
+    "ast_hash": "8d821bf6a27f0944116dcc5f8a1c470b",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png": {
+    "mtime": 1794744541.3941486,
+    "seen": 1794744827.315539,
+    "ast_hash": "14971fd4a7086fd596a2ec40fb2b4e55",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png": {
+    "mtime": 1794744541.3977876,
+    "seen": 1794744827.3155396,
+    "ast_hash": "58479a2a0b3381e5e8472258fe56e964",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png": {
+    "mtime": 1794744541.3960202,
+    "seen": 1794744827.3155406,
+    "ast_hash": "cc260b5e302b8cda5339d6a5f051c829",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png": {
+    "mtime": 1794744541.4017875,
+    "seen": 1794744827.3155415,
+    "ast_hash": "aafae7da76666a4013e1fcac38550177",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png": {
+    "mtime": 1794744541.4097877,
+    "seen": 1794744827.3155422,
+    "ast_hash": "b2b587e3ab96f3cc84f77d9909c3cf62",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png": {
+    "mtime": 1794744541.4050322,
+    "seen": 1794744827.3155437,
+    "ast_hash": "8faa0146a312c82cde06334fe43f28e8",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png": {
+    "mtime": 1794744541.4137876,
+    "seen": 1794744827.3155448,
+    "ast_hash": "e56144e11f2a446228f8c877c446976b",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png": {
+    "mtime": 1794744541.4257877,
+    "seen": 1794744827.3155456,
+    "ast_hash": "a5cdf61f1165ee9bb89bd873e4821243",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png": {
+    "mtime": 1794744541.4177876,
+    "seen": 1794744827.3155465,
+    "ast_hash": "134a72c7b95ab33d0b5068c15e8ba54e",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {
@@ -16964,6 +17216,12 @@
     "mtime": 1794581286.5859532,
     "seen": 1794730143.8826184,
     "ast_hash": "c8520a98bb6ba95e4a42b494b0817197",
+    "semantic_hash": ""
+  },
+  "aplikasi-alat/package-lock.json": {
+    "mtime": 1794744736.9257991,
+    "seen": 1794744827.3161902,
+    "ast_hash": "d3a936630f7690f16a7a1c695244c64c",
     "semantic_hash": ""
   },
   "aplikasi-android/package-lock.json": {
