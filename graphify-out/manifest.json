@@ -16367,9 +16367,9 @@
     "semantic_hash": ""
   },
   "roblox/src/DukungDesa.client.lua": {
-    "mtime": 1794673029.5260792,
-    "seen": 1794724080.4403305,
-    "ast_hash": "cb71ea1366d5e023ca840a3fc3af4b45",
+    "mtime": 1794726546.0400488,
+    "seen": 1794726820.5059125,
+    "ast_hash": "0173d645a7e956a1a62388265b25cd62",
     "semantic_hash": ""
   },
   "roblox/src/DukungDesa.server.lua": {
@@ -16550,6 +16550,48 @@
     "mtime": 1794725753.8683162,
     "seen": 1794726317.2798276,
     "ast_hash": "b3b8a086f31b0b52915a399837f1a3ba",
+    "semantic_hash": ""
+  },
+  "roblox/aset/ikon-robux/bata-1.png": {
+    "mtime": 1794726534.9892414,
+    "seen": 1794726820.5078,
+    "ast_hash": "fa8029125b7d32bc96e1fc364cb27b92",
+    "semantic_hash": ""
+  },
+  "roblox/aset/ikon-robux/bata-5.png": {
+    "mtime": 1794726535.1332414,
+    "seen": 1794726820.5078018,
+    "ast_hash": "95ce50e34fb766f6927f49ffe39c10c4",
+    "semantic_hash": ""
+  },
+  "roblox/aset/ikon-robux/gelar-pelangi.png": {
+    "mtime": 1794726535.2732413,
+    "seen": 1794726820.5078027,
+    "ast_hash": "eb05ca055622aacd83df9b28b3f7e5b4",
+    "semantic_hash": ""
+  },
+  "roblox/aset/ikon-robux/jejak-bintang.png": {
+    "mtime": 1794726535.5972414,
+    "seen": 1794726820.5078037,
+    "ast_hash": "fa7de2a575895dfd005cafa8fefe3ca8",
+    "semantic_hash": ""
+  },
+  "roblox/aset/ikon-robux/kembang-api.png": {
+    "mtime": 1794726535.7332413,
+    "seen": 1794726820.5078046,
+    "ast_hash": "b9ff340e646e6ba28e229057fd4ed165",
+    "semantic_hash": ""
+  },
+  "roblox/aset/ikon-robux/lentera-malam.png": {
+    "mtime": 1794726535.9012413,
+    "seen": 1794726820.507805,
+    "ast_hash": "226ae2da1866cf18ad018675257743c1",
+    "semantic_hash": ""
+  },
+  "roblox/aset/ikon-robux/pendukung-desa.png": {
+    "mtime": 1794726536.0652413,
+    "seen": 1794726820.5078063,
+    "ast_hash": "d39503a31f19c457947f41dd296f3330",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {
