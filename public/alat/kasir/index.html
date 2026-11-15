@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="id">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-N4FLLMXDVK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-N4FLLMXDVK');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aplikasi Kasir Gratis + QRIS untuk Warung & UMKM | Willo Apparel</title>
+<meta name="description" content="Kasir online gratis di HP: ketuk produk, hitung total dan kembalian, tampilkan QRIS toko untuk dibayar pelanggan, kirim struk ke WhatsApp. Penjualan otomatis masuk Buku Kas. Tanpa daftar.">
+<link rel="canonical" href="https://willoapparel.com/alat/kasir/">
+<meta property="og:title" content="Kasir Gratis + QRIS di HP | Willo Apparel">
+<meta property="og:description" content="Hitung total & kembalian, tampilkan QRIS, struk ke WA. Gratis, tanpa daftar.">
+<meta property="og:locale" content="id_ID">
+<link rel="icon" href="/logo-willo.png">
+<link rel="stylesheet" href="/alat/alat.css">
+<style>
+main{padding-bottom:110px}
+.hariini{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;color:var(--redup);margin-bottom:12px}
+.hariini b{color:var(--teks)}
+.cari{margin-bottom:10px}
+.produk{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.produk button{position:relative;border:1px solid var(--garis);background:#fff;border-radius:12px;padding:10px 6px;font:inherit;cursor:pointer;text-align:center;min-height:104px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.produk button:active{transform:scale(.97)}
+.produk .em{font-size:28px;line-height:1.1}
+.produk .nm{font-size:13.5px;font-weight:600;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.produk .hg{font-size:12.5px;color:var(--redup)}
+.produk .qty{position:absolute;top:6px;right:6px;background:var(--utama);color:#fff;border-radius:12px;min-width:24px;height:24px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 6px}
+.produk button.tambah{border-style:dashed;color:var(--redup)}
+.keranjang{list-style:none;margin:0;padding:0}
+.keranjang li{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0ede6}
+.keranjang .nm{flex:1;min-width:0;font-size:15px}
+.keranjang .nm small{display:block;color:var(--redup);font-size:12.5px}
+.keranjang .qb{width:34px;height:34px;border-radius:9px;border:1px solid var(--garis);background:#fff;font-size:18px;font-weight:700;cursor:pointer}
+.keranjang .q{min-width:22px;text-align:center;font-weight:700}
+.keranjang .st{min-width:78px;text-align:right;font-weight:600}
+.bawah{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--garis);padding:10px 16px calc(10px + env(safe-area-inset-bottom));z-index:20;box-shadow:0 -6px 20px rgba(0,0,0,.06)}
+.bawah .wrap{display:flex;align-items:center;gap:12px;padding:0}
+.bawah .tot{flex:1}
+.bawah .tot small{display:block;color:var(--redup);font-size:12.5px}
+.bawah .tot b{font-size:24px}
+.bawah .btn{min-width:130px;font-size:17px}
+.metode{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.metode button{border:2px solid var(--garis);background:#fff;border-radius:10px;padding:10px 4px;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.metode button.pilih{border-color:var(--utama);background:var(--biru-muda);color:var(--utama)}
+.totalbesar{text-align:center;font-size:clamp(34px,10vw,46px);font-weight:800;margin:4px 0 10px}
+.cepat{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.cepat button{flex:1 1 30%;border:1px solid var(--garis);background:#fff;border-radius:10px;padding:9px 4px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.kembali{display:flex;justify-content:space-between;align-items:center;background:var(--hijau-muda);color:var(--hijau);border-radius:12px;padding:12px 14px;font-weight:700;font-size:18px;margin-bottom:12px}
+.kembali.kurang{background:var(--merah-muda);color:var(--merah)}
+.qris{text-align:center}
+.qris img{max-width:100%;max-height:52vh;border-radius:12px;border:1px solid var(--garis);background:#fff}
+.qris .kosongq{border:2px dashed var(--garis);border-radius:12px;padding:24px 14px;color:var(--redup);font-size:14px}
+.struk{font:14px/1.45 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;background:#fbfaf7;border:1px solid var(--garis);border-radius:10px;padding:12px;max-height:46vh;overflow:auto}
+.em-pilih{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 12px}
+.em-pilih button{width:40px;height:40px;border:1px solid var(--garis);background:#fff;border-radius:10px;font-size:20px;cursor:pointer}
+.em-pilih button.pilih{border-color:var(--utama);box-shadow:0 0 0 2px var(--utama) inset}
+.qprev{display:flex;gap:12px;align-items:center}
+.qprev img{width:84px;height:84px;object-fit:contain;border:1px solid var(--garis);border-radius:10px;background:#fff}
+#cetakStruk{display:none}
+@media print{
+  body *{visibility:hidden}
+  #cetakStruk,#cetakStruk *{visibility:visible}
+  #cetakStruk{display:block;position:absolute;left:0;top:0;width:58mm;font:12px/1.4 monospace;white-space:pre-wrap;color:#000}
+}
+</style>
+</head>
+<body>
+<header class="atas"><div class="wrap"><a href="/alat/">← Alat Usaha Gratis</a><a class="redup" href="/">Willo Apparel</a></div></header>
+
+<main class="wrap">
+  <h1>Kasir</h1>
+  <p class="sub">Ketuk produk, terima tunai atau QRIS, kirim struk ke WA. Uang tidak lewat alat ini: pelanggan membayar langsung ke QRIS atau rekening tokomu.</p>
+
+  <div class="hariini"><span>Penjualan hari ini: <b class="angka" id="hJml">Rp0</b> · <span id="hN">0</span> transaksi</span><a href="/alat/buku-kas/" class="btn dua kecil">Buku Kas</a></div>
+
+  <input type="text" id="cari" class="cari" placeholder="Cari produk…" autocomplete="off">
+  <div class="produk" id="produk"></div>
+
+  <section class="kartu" style="margin-top:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">Pesanan</h2><button class="btn dua kecil" id="bKosong">Kosongkan</button></div>
+    <ul class="keranjang" id="keranjang"></ul>
+    <button class="btn dua kecil" id="bBebas" style="margin-top:10px">＋ Nominal bebas</button>
+  </section>
+
+  <section class="kartu">
+    <h2>Pengaturan toko</h2>
+    <label class="isi">Nama toko<input type="text" id="sNama" maxlength="40" placeholder="Contoh: Warung Bu Sri"></label>
+    <label class="isi">Alamat / No. HP <small>Tampil di struk</small><input type="text" id="sAlamat" maxlength="80"></label>
+    <div class="isi" style="font-size:14px;font-weight:600;margin-bottom:6px">Gambar QRIS toko <small style="display:block;color:var(--redup);font-weight:400">Foto atau tangkapan layar QRIS dari bank/e-wallet milikmu. Disimpan di HP ini saja.</small></div>
+    <div class="qprev"><img id="sQrisPrev" alt="" class="tersembunyi"><div class="baris"><label class="btn dua kecil" for="fQris">📷 Pilih gambar QRIS</label><button class="btn dua kecil tersembunyi" id="bHapusQris">Hapus</button></div></div>
+    <input type="file" id="fQris" accept="image/*" class="tersembunyi">
+    <label class="isi" style="margin-top:12px">Info transfer <small>Contoh: BRI 1234-5678 a.n. Sri Wahyuni</small><input type="text" id="sRek" maxlength="80"></label>
+    <label class="isi" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="sKas" style="width:22px;height:22px;accent-color:var(--utama)"> Catat penjualan otomatis ke Buku Kas</label>
+  </section>
+
+  <div class="cta">Butuh kaos seragam untuk tim usahamu? Sablon satuan sampai lusinan di <a href="/kaos-seragam-usaha-ngawi.html">Willo Apparel</a>.</div>
+</main>
+<footer>Alat gratis dari Willo Apparel · data tidak dikirim ke server</footer>
+
+<div class="bawah"><div class="wrap">
+  <div class="tot"><small id="bItem">0 barang</small><b class="angka" id="bTotal">Rp0</b></div>
+  <button class="btn hijau" id="bBayar" disabled>Bayar</button>
+</div></div>
+
+<!-- Tambah / ubah produk -->
+<dialog id="dProduk"><form method="dialog" class="isi-dialog">
+  <h2 id="dpJudul">Tambah produk</h2>
+  <label class="isi">Nama produk<input type="text" id="dpNama" maxlength="30" autocomplete="off" required></label>
+  <label class="isi">Harga (Rp)<input type="text" inputmode="numeric" id="dpHarga" class="angka" autocomplete="off"></label>
+  <div class="isi" style="margin-bottom:0">Ikon</div>
+  <div class="em-pilih" id="dpEm"></div>
+  <div class="baris"><button class="btn merah tersembunyi" value="hapus" id="dpHapus" formnovalidate>Hapus</button><button class="btn dua" value="batal" formnovalidate>Batal</button><button class="btn" value="ok">Simpan</button></div>
+</form></dialog>
+
+<!-- Nominal bebas -->
+<dialog id="dBebas"><form method="dialog" class="isi-dialog">
+  <h2>Nominal bebas</h2>
+  <label class="isi">Keterangan<input type="text" id="dbNama" maxlength="30" placeholder="Contoh: Ongkir" autocomplete="off"></label>
+  <label class="isi">Jumlah (Rp)<input type="text" inputmode="numeric" id="dbJml" class="angka" autocomplete="off"></label>
+  <div class="baris"><button class="btn dua" value="batal">Batal</button><button class="btn" value="ok">Tambah</button></div>
+</form></dialog>
+
+<!-- Bayar -->
+<dialog id="dBayar"><div class="isi-dialog">
+  <div class="metode" id="metode">
+    <button data-m="Tunai" class="pilih">💵 Tunai</button>
+    <button data-m="QRIS">▦ QRIS</button>
+    <button data-m="Transfer">🏦 Transfer</button>
+  </div>
+  <div class="redup kecil" style="text-align:center">Total bayar</div>
+  <div class="totalbesar angka" id="byTotal">Rp0</div>
+  <div id="pTunai">
+    <label class="isi">Uang diterima<input type="text" inputmode="numeric" id="byTerima" class="nominal angka" style="font-size:24px;font-weight:800;text-align:right" autocomplete="off"></label>
+    <div class="cepat" id="cepat"></div>
+    <div class="kembali" id="byKembali"><span>Kembalian</span><span class="angka">Rp0</span></div>
+  </div>
+  <div id="pQris" class="qris tersembunyi"></div>
+  <div id="pTransfer" class="tersembunyi"><div class="kartu" style="text-align:center;font-size:17px;font-weight:600" id="byRek"></div></div>
+  <div class="baris"><button class="btn dua" id="byBatal">Batal</button><button class="btn hijau" id="bySelesai">✓ Sudah dibayar</button></div>
+</div></dialog>
+
+<!-- Struk -->
+<dialog id="dStruk"><div class="isi-dialog">
+  <h2>✓ Pembayaran dicatat</h2>
+  <div class="struk" id="struk"></div>
+  <label class="isi" style="margin-top:12px">Kirim ke WA pelanggan <small>Kosongkan untuk pilih kontak di WhatsApp</small><input type="tel" id="stWa" placeholder="08…" autocomplete="off"></label>
+  <div class="baris">
+    <button class="btn dua" id="stCetak">🖨️ Cetak</button>
+    <button class="btn hijau" id="stWaBtn">Kirim WA</button>
+  </div>
+  <button class="btn lebar" id="stBaru" autofocus style="margin-top:10px">Transaksi baru</button>
+</div></dialog>
+
+<pre id="cetakStruk"></pre>
+<div class="pesan" id="pesan"></div>
+
+<script>
+(function(){
+  var KUNCI = "willo_kasir_v1", KAS = "willo_kas_v1";
+  var $ = function(id){ return document.getElementById(id); };
+  var EMOJI = ["🍚","🍜","🍗","🍢","🥟","🍞","🍰","🍩","☕","🧋","🥤","🧃","🍹","🍦","🍌","🥚","🧂","🛢️","🍫","🍬","👕","👗","🧢","👟","✂️","💈","🛠️","🔧","🧴","🧼","📱","🔋","🖨️","📦","⛽","🎁"];
+  var S;
+  function muat(){
+    try { S = JSON.parse(localStorage.getItem(KUNCI)) || null; } catch(e){ S = null; }
+    if (!S) S = { nama:"", alamat:"", rek:"", qris:"", kas:true, no:0, produk:[
+      { id:1, nama:"Es teh", harga:5000, em:"🧋" }, { id:2, nama:"Kopi", harga:6000, em:"☕" },
+      { id:3, nama:"Nasi goreng", harga:15000, em:"🍚" }, { id:4, nama:"Mie ayam", harga:13000, em:"🍜" }
+    ] };
+  }
+  function simpan(){ try { localStorage.setItem(KUNCI, JSON.stringify(S)); return true; } catch(e){ pesan("Gagal menyimpan: memori browser penuh"); return false; } }
+  muat();
+  var keranjang = []; // {id, nama, harga, q}
+  var rp = function(n){ return "Rp" + Math.round(n).toLocaleString("id-ID"); };
+  var angka = function(s){ return parseInt(String(s).replace(/\D/g, ""), 10) || 0; };
+  var pad = function(n){ return String(n).padStart(2, "0"); };
+  var tglIni = function(){ var d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); };
+  function pesan(t){ var p = $("pesan"); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, 2200); }
+  function formatInput(el, cb){ el.addEventListener("input", function(){ var n = angka(el.value); el.value = n ? n.toLocaleString("id-ID") : ""; if (cb) cb(n); }); }
+  var total = function(){ return keranjang.reduce(function(a,k){ return a + k.harga * k.q; }, 0); };
+
+  function bacaKas(){ try { var k = JSON.parse(localStorage.getItem(KAS)) || {}; k.tx = k.tx || []; k.awal = k.awal || 0; return k; } catch(e){ return { tx:[], awal:0 }; } }
+
+  function gambarProduk(){
+    var c = $("produk"), q = $("cari").value.trim().toLowerCase(); c.innerHTML = "";
+    S.produk.filter(function(p){ return !q || p.nama.toLowerCase().indexOf(q) >= 0; }).forEach(function(p){
+      var b = document.createElement("button"); b.type = "button";
+      b.innerHTML = '<span class="em"></span><span class="nm"></span><span class="hg angka"></span>';
+      b.querySelector(".em").textContent = p.em || "📦"; b.querySelector(".nm").textContent = p.nama; b.querySelector(".hg").textContent = rp(p.harga);
+      var k = keranjang.filter(function(x){ return x.id === p.id; })[0];
+      if (k) { var s = document.createElement("span"); s.className = "qty"; s.textContent = k.q; b.appendChild(s); }
+      b.onclick = function(){ tambah(p); };
+      // Tekan lama untuk ubah produk
+      var tm; b.addEventListener("pointerdown", function(){ tm = setTimeout(function(){ tm = "lama"; bukaProduk(p); }, 550); });
+      ["pointerup","pointerleave","pointercancel"].forEach(function(ev){ b.addEventListener(ev, function(){ if (tm !== "lama") clearTimeout(tm); }); });
+      b.addEventListener("click", function(e){ if (tm === "lama") { e.stopImmediatePropagation(); tm = null; } }, true);
+      b.oncontextmenu = function(e){ e.preventDefault(); };
+      c.appendChild(b);
+    });
+    var t = document.createElement("button"); t.type = "button"; t.className = "tambah";
+    t.innerHTML = '<span class="em">＋</span><span class="nm">Tambah produk</span><span class="hg">tekan lama produk untuk ubah</span>';
+    t.onclick = function(){ bukaProduk(null); };
+    c.appendChild(t);
+  }
+  function tambah(p){
+    var k = keranjang.filter(function(x){ return x.id === p.id; })[0];
+    if (k) k.q++; else keranjang.push({ id:p.id, nama:p.nama, harga:p.harga, q:1 });
+    if (navigator.vibrate) navigator.vibrate(15);
+    gambar();
+  }
+  function gambarKeranjang(){
+    var ul = $("keranjang"); ul.innerHTML = "";
+    if (!keranjang.length) { ul.innerHTML = '<li class="redup kecil" style="border:0">Belum ada. Ketuk produk di atas.</li>'; }
+    keranjang.forEach(function(k, i){
+      var li = document.createElement("li");
+      li.innerHTML = '<span class="nm"><span></span><small class="angka"></small></span><button class="qb">−</button><span class="q angka"></span><button class="qb">＋</button><span class="st angka"></span>';
+      li.querySelector(".nm span").textContent = k.nama; li.querySelector(".nm small").textContent = rp(k.harga);
+      li.querySelector(".q").textContent = k.q; li.querySelector(".st").textContent = rp(k.harga * k.q);
+      var bs = li.querySelectorAll(".qb");
+      bs[0].onclick = function(){ k.q--; if (k.q <= 0) keranjang.splice(i, 1); gambar(); };
+      bs[1].onclick = function(){ k.q++; gambar(); };
+      ul.appendChild(li);
+    });
+    var n = keranjang.reduce(function(a,k){ return a + k.q; }, 0);
+    $("bItem").textContent = n + " barang"; $("bTotal").textContent = rp(total());
+    $("bBayar").disabled = !n;
+  }
+  function gambarHariIni(){
+    var hi = bacaKas().tx.filter(function(t){ return t.sumber === "kasir" && t.tgl === tglIni(); });
+    $("hJml").textContent = rp(hi.reduce(function(a,t){ return a + t.jml; }, 0)); $("hN").textContent = hi.length;
+  }
+  function gambarAtur(){
+    ["Nama","Alamat","Rek"].forEach(function(k){ var el = $("s" + k); if (document.activeElement !== el) el.value = S[k.toLowerCase()] || ""; });
+    $("sKas").checked = S.kas !== false;
+    $("sQrisPrev").classList.toggle("tersembunyi", !S.qris); if (S.qris) $("sQrisPrev").src = S.qris;
+    $("bHapusQris").classList.toggle("tersembunyi", !S.qris);
+  }
+  function gambar(){ gambarProduk(); gambarKeranjang(); gambarHariIni(); gambarAtur(); }
+
+  // Produk
+  var dpEdit = null, dpEm = "📦";
+  function bukaProduk(p){
+    dpEdit = p; dpEm = p ? (p.em || "📦") : "📦";
+    $("dpJudul").textContent = p ? "Ubah produk" : "Tambah produk";
+    $("dpNama").value = p ? p.nama : ""; $("dpHarga").value = p ? p.harga.toLocaleString("id-ID") : "";
+    $("dpHapus").classList.toggle("tersembunyi", !p);
+    gambarEm(); $("dProduk").showModal();
+  }
+  function gambarEm(){
+    var c = $("dpEm"); c.innerHTML = "";
+    EMOJI.forEach(function(e){ var b = document.createElement("button"); b.type = "button"; b.textContent = e; if (e === dpEm) b.className = "pilih"; b.onclick = function(){ dpEm = e; gambarEm(); }; c.appendChild(b); });
+  }
+  formatInput($("dpHarga"));
+  $("dProduk").addEventListener("close", function(){
+    var v = $("dProduk").returnValue;
+    if (v === "hapus" && dpEdit && confirm("Hapus " + dpEdit.nama + "?")) { S.produk = S.produk.filter(function(x){ return x !== dpEdit; }); keranjang = keranjang.filter(function(k){ return k.id !== dpEdit.id; }); }
+    if (v === "ok") {
+      var nama = $("dpNama").value.trim(), harga = angka($("dpHarga").value);
+      if (!nama) return;
+      if (dpEdit) { dpEdit.nama = nama; dpEdit.harga = harga; dpEdit.em = dpEm; }
+      else S.produk.push({ id:Date.now(), nama:nama, harga:harga, em:dpEm });
+    }
+    simpan(); gambar();
+  });
+  $("cari").addEventListener("input", gambarProduk);
+  $("bKosong").onclick = function(){ keranjang = []; gambar(); };
+  $("bBebas").onclick = function(){ $("dbNama").value = ""; $("dbJml").value = ""; $("dBebas").showModal(); };
+  formatInput($("dbJml"));
+  $("dBebas").addEventListener("close", function(){
+    if ($("dBebas").returnValue !== "ok") return;
+    var j = angka($("dbJml").value); if (!j) return;
+    keranjang.push({ id:"b" + Date.now(), nama:$("dbNama").value.trim() || "Lain-lain", harga:j, q:1 }); gambar();
+  });
+
+  // Pengaturan
+  ["Nama","Alamat","Rek"].forEach(function(k){ $("s" + k).addEventListener("input", function(){ S[k.toLowerCase()] = this.value.trim(); simpan(); }); });
+  $("sKas").onchange = function(){ S.kas = this.checked; simpan(); };
+  $("fQris").onchange = function(){
+    var f = this.files[0]; if (!f) return; this.value = "";
+    var img = new Image(), url = URL.createObjectURL(f);
+    img.onload = function(){
+      // Perkecil supaya muat di memori browser, tetap tajam untuk dipindai.
+      var m = Math.min(1, 1000 / Math.max(img.width, img.height));
+      var c = document.createElement("canvas"); c.width = Math.round(img.width * m); c.height = Math.round(img.height * m);
+      var x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
+      var lama = S.qris; S.qris = c.toDataURL("image/jpeg", 0.88); URL.revokeObjectURL(url);
+      if (!simpan()) S.qris = lama; else pesan("Gambar QRIS disimpan");
+      gambarAtur();
+    };
+    img.onerror = function(){ pesan("Gambar tidak bisa dibuka"); };
+    img.src = url;
+  };
+  $("bHapusQris").onclick = function(){ if (confirm("Hapus gambar QRIS?")) { S.qris = ""; simpan(); gambarAtur(); } };
+
+  // Bayar
+  var metode = "Tunai";
+  function aturMetode(m){
+    metode = m;
+    Array.prototype.forEach.call($("metode").children, function(b){ b.classList.toggle("pilih", b.dataset.m === m); });
+    $("pTunai").classList.toggle("tersembunyi", m !== "Tunai");
+    $("pQris").classList.toggle("tersembunyi", m !== "QRIS");
+    $("pTransfer").classList.toggle("tersembunyi", m !== "Transfer");
+    if (m === "QRIS") {
+      $("pQris").innerHTML = S.qris ? '<img alt="QRIS toko"><p class="kecil redup">Minta pelanggan memindai, lalu cek notifikasi masuk di aplikasi bank/e-wallet sebelum menekan “Sudah dibayar”.</p>'
+        : '<div class="kosongq">Belum ada gambar QRIS. Tambahkan di <b>Pengaturan toko</b> di bawah halaman.</div>';
+      if (S.qris) $("pQris").querySelector("img").src = S.qris;
+    }
+    if (m === "Transfer") $("byRek").textContent = S.rek || "Isi info rekening di Pengaturan toko.";
+    hitungKembali();
+  }
+  Array.prototype.forEach.call($("metode").children, function(b){ b.onclick = function(){ aturMetode(b.dataset.m); }; });
+  function hitungKembali(){
+    var t = total(), d = angka($("byTerima").value), k = $("byKembali");
+    if (metode !== "Tunai") { $("bySelesai").disabled = false; return; }
+    k.classList.toggle("kurang", d > 0 && d < t);
+    k.firstElementChild.textContent = d && d < t ? "Kurang" : "Kembalian";
+    k.lastElementChild.textContent = d ? rp(Math.abs(d - t)) : "-";
+    $("bySelesai").disabled = d > 0 && d < t;
+  }
+  formatInput($("byTerima"), hitungKembali);
+  function tombolCepat(){
+    var t = total(), c = $("cepat"); c.innerHTML = "";
+    var opsi = [t];
+    [2000, 5000, 10000, 20000, 50000, 100000].forEach(function(p){ var v = Math.ceil(t / p) * p; if (v > t && opsi.indexOf(v) < 0) opsi.push(v); });
+    opsi.sort(function(a,b){ return a - b; }).slice(0, 6).forEach(function(v, i){
+      var b = document.createElement("button"); b.type = "button"; b.textContent = i === 0 ? "Uang pas" : rp(v);
+      b.onclick = function(){ $("byTerima").value = v.toLocaleString("id-ID"); hitungKembali(); };
+      c.appendChild(b);
+    });
+  }
+  $("bBayar").onclick = function(){
+    $("byTotal").textContent = rp(total()); $("byTerima").value = "";
+    tombolCepat(); aturMetode("Tunai"); $("dBayar").showModal();
+  };
+  $("byBatal").onclick = function(){ $("dBayar").close(); };
+
+  var strukTeks = "";
+  function buatStruk(no, terima){
+    var L = 32, gar = "-".repeat(L), t = total();
+    var kanan = function(a, b){ var s = L - a.length - b.length; return a + " ".repeat(Math.max(1, s)) + b; };
+    var tengah = function(s){ var p = Math.max(0, Math.floor((L - s.length) / 2)); return " ".repeat(p) + s; };
+    var d = new Date(), w = pad(d.getDate()) + "/" + pad(d.getMonth()+1) + "/" + d.getFullYear() + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+    var b = [];
+    if (S.nama) b.push(tengah(S.nama));
+    if (S.alamat) b.push(tengah(S.alamat.slice(0, L)));
+    b.push(gar, kanan("No. " + no, w), gar);
+    keranjang.forEach(function(k){
+      b.push(k.nama.slice(0, L));
+      b.push(kanan("  " + k.q + " x " + k.harga.toLocaleString("id-ID"), (k.harga * k.q).toLocaleString("id-ID")));
+    });
+    b.push(gar, kanan("TOTAL", rp(t)));
+    if (metode === "Tunai" && terima) { b.push(kanan("Tunai", rp(terima)), kanan("Kembali", rp(terima - t))); }
+    else b.push(kanan("Bayar", metode));
+    b.push(gar, tengah("Terima kasih"));
+    return b.join("\n");
+  }
+  $("bySelesai").onclick = function(){
+    var t = total(), terima = angka($("byTerima").value);
+    S.no = (S.no || 0) + 1; simpan();
+    var no = String(S.no).padStart(4, "0");
+    strukTeks = buatStruk(no, terima);
+    if (S.kas !== false) {
+      var k = bacaKas();
+      var ket = keranjang.map(function(x){ return x.q + " " + x.nama; }).join(", ");
+      k.tx.push({ id:Date.now(), t:"masuk", jml:t, kat:"Penjualan", ket:("Kasir #" + no + ": " + ket).slice(0, 80), tgl:tglIni(), metode:metode, sumber:"kasir" });
+      try { localStorage.setItem(KAS, JSON.stringify(k)); } catch(e){ pesan("Buku Kas penuh, penjualan tidak tercatat"); }
+    }
+    $("dBayar").close();
+    $("struk").textContent = strukTeks; $("stWa").value = "";
+    $("dStruk").showModal();
+    gambarHariIni();
+  };
+  $("stWaBtn").onclick = function(){
+    var hp = $("stWa").value.replace(/\D/g, ""); if (hp.charAt(0) === "0") hp = "62" + hp.slice(1);
+    window.open("https://wa.me/" + hp + "?text=" + encodeURIComponent("```\n" + strukTeks + "\n```"), "_blank", "noopener");
+  };
+  $("stCetak").onclick = function(){ $("cetakStruk").textContent = strukTeks; window.print(); };
+  $("stBaru").onclick = function(){ keranjang = []; $("dStruk").close(); gambar(); window.scrollTo({ top:0, behavior:"smooth" }); };
+  $("dStruk").addEventListener("close", function(){ if (keranjang.length) { keranjang = []; gambar(); } });
+
+  window.addEventListener("storage", function(e){ if (e.key === KAS) gambarHariIni(); });
+  gambar();
+})();
+</script>
+</body>
+</html>
