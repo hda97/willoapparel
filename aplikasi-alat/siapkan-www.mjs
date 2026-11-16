@@ -19,6 +19,8 @@ cpSync(join(pub, "logo-willo.png"), join(www, "logo-willo.png"));
 const lokal = new Set(["kasir", "antrian", "nota", "tagihan", "buku-kas", "pengaturan", "stok", "hpp", "pro", "impor", "absen", "pembelian"]);
 function tulisUlang(html) {
   return html
+    // Panduan cara pakai & tautan situs hanya untuk pembaca web (SEO/AdSense), tidak ditampilkan di aplikasi.
+    .replace(/<!--PANDUAN-->[\s\S]*?<!--\/PANDUAN-->/g, "")
     // Analitik situs tidak dipakai di aplikasi (jalan offline).
     .replace(/<script async src="https:\/\/www\.googletagmanager\.com[^>]*><\/script>\s*<script>[\s\S]*?<\/script>/g, "")
     .replace(/(href|src)="\/alat\/([a-z-]+)\/"/g, (m, at, nama) => lokal.has(nama) ? `${at}="/alat/${nama}/index.html"` : `${at}="${SITUS}/alat/${nama}/"`)
