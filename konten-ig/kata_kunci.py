@@ -95,7 +95,7 @@ def kirim_dm(token, penerima, teks):
 def layani_komentar(akun, token, ig_id, cfg, catat, sisa):
     sudah = set(catat.setdefault("komentar", []))
     batas = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=UMUR_HARI)
-    media = req("GET", f"{ig_id}/media", fields="id,timestamp", limit=15, access_token=token)["data"]
+    media = req("GET", f"{ig_id}/media", fields="id,timestamp", limit=int(os.environ.get("IG_MEDIA", "15")), access_token=token)["data"]
     dm_bisa, n = DM_AKTIF, 0
     for m in media:
         kom = req("GET", f"{m['id']}/comments", fields="id,text,username,timestamp,replies{username}",
