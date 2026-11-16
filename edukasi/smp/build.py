@@ -192,6 +192,7 @@ body.bermain.tegak #alamatKecil{bottom:calc(var(--sisiH,52vh) + 10px)}
 HTML = r"""<!doctype html>
 <html lang="id">
 <head>
+<meta name="robots" content="noindex, follow">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <title>{judul} · Dunia Kotak SMP</title>
@@ -367,7 +368,7 @@ def rakit_server():
 
 
 MENU = r"""<!doctype html>
-<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="id"><head><meta charset="utf-8"><meta name="robots" content="noindex, follow"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Kelas Dunia Kotak · Paket Game SMP</title>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
 <style>
