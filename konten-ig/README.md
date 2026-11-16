@@ -23,3 +23,4 @@ Sampul reel: taruh JPG 9:16 di public/duniakotak/reel/<tanggal>-sampul.jpg (di P
 - Cek akun & izin token: Actions → "Balas Kata Kunci Instagram" → Run workflow → centang "cek".
 - Token akun lain disimpan terenkripsi di `token-<akun>.enc` (kunci = IG_APP_SECRET). Catatan pesan yang sudah dibalas disimpan di cache Actions, tidak di-commit.
 - Syarat Meta sama dengan DM di atas: balas komentar bisa langsung; DM ke orang lain menunggu Advanced Access `instagram_manage_messages`. Sebelum itu bot otomatis menulis link di balasan komentar.
+<!-- picu posting 16 Nov (cron telat) -->
