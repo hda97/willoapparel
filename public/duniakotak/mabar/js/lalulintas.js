@@ -68,9 +68,14 @@ export function buatLaluLintas({sc, I, VS, tanah, warga, pose, siapAv, buatMobil
     // zebra cross di mulut simpang yang punya jalan
     for (const n of tetangga[k]) {
       const vert = n % NI === i, s = vert ? Math.sign(nz(n) - z) : Math.sign(nx(n) - x), lebar = vert ? ax : az, d0 = (vert ? az : ax) + 1.4 * M;
+      // Huda 18 Nov ("zebra cross kok gini"): di jalan menanjak tiap belang dimiringkan mengikuti kemiringan jalan,
+      // tidak lagi kotak datar yang separuh tenggelam/melayang.
+      const P = 2.2 * M, cz = (vert ? z : x) + s * d0;
       for (let q = -lebar + .35 * M; q <= lebar - .35 * M; q += .9 * M) {
-        if (vert) kotak(geo.zebra, .5 * M, .04, 2.2 * M, x + q, y0(x + q, z + s * d0) + .06, z + s * d0);
-        else kotak(geo.zebra, 2.2 * M, .04, .5 * M, x + s * d0, y0(x + s * d0, z + q) + .06, z + q);
+        const t = vert ? [x + q, cz - P / 2, x + q, cz + P / 2] : [cz - P / 2, z + q, cz + P / 2, z + q];
+        const ya = y0(t[0], t[1]), yb = y0(t[2], t[3]), b = new THREE.BoxGeometry(vert ? .5 * M : P, .04, vert ? P : .5 * M);
+        if (vert) b.rotateX(-Math.atan2(yb - ya, P)); else b.rotateZ(Math.atan2(yb - ya, P));
+        b.translate(vert ? x + q : cz, (ya + yb) / 2 + .08, vert ? cz : z + q); geo.zebra.push(b);
       }
     }
   }

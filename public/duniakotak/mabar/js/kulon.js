@@ -60,7 +60,10 @@ export function kulon(sc, o = {}) {
     lahanTeras.push({x: xo - L / 2 + SP * (s0 + 1), z: z - 10.6, y, j});
     slab(0, y + STEP / 2, z - BK - .6, L + 12, STEP, 1.2, 0x9a8a6a);   // dinding penahan tidak menutup tanjakan samping
     for (let k = 0; k < 2; k++) slab(0, y + STEP + .45, z - BK - 1.6 - k * 1.3, L, .9, 1, new THREE.Color().setHSL(.3, .5, .31 + k * .03));
-    if (j < 9) [-1, 1].forEach(sd => tanjakan(sd * (L / 2 + 9), z + .6, -(j + 1) * DEP + .4, y, y + STEP, 6));
+    if (j < 9) [-1, 1].forEach(sd => tanjakan(sd * (L / 2 + 9), z - 1.5, -(j + 1) * DEP + 2.5, y, y + STEP, 6));
+    // Huda 18 Nov ("jalannya kok putus"): celah antara tepi depan teras ini dan dinding penahan teras bawah (tempat
+    // pagar tanaman) dulu bolong sampai teras bawah, jadi di samping tanjakan tampak tebing/jurang. Sekarang diisi tanah.
+    if (j > 0) slab(0, y / 2, z + 3.7, L + 12, y, 2.4, 0x8aa860);
   }
   [-1, 1].forEach(sd => {
     for (let j = 0; j < 10; j++) for (let k = 0; k < Math.floor((BK + 1) / 2.2); k++) slab(sd * (L / 2 + 66), j * STEP + .5, -j * DEP - 2 - k * 2.2, 88, 1, 1.1, new THREE.Color().setHSL(.29, .5, .3 + (k % 2) * .03));
@@ -110,7 +113,7 @@ export function kulon(sc, o = {}) {
   info.tanah = (x, z) => {
     const lx = x / VS, lz = z / VS;
     if (Math.abs(Math.abs(lx) - (L / 2 + 9)) < 3.2) {          // tanjakan samping
-      for (let j = 0; j < 10; j++) { const z0 = -j * DEP + .6, z1 = -(j + 1) * DEP + .4; if (lz <= z0 && lz >= z1) return (j * STEP + (z0 - lz) / (z0 - z1) * STEP + .16) * VS; }
+      for (let j = 0; j < 9; j++) { const z0 = -j * DEP - 1.5, z1 = -(j + 1) * DEP + 2.5; if (lz <= z0 && lz >= z1) return (j * STEP + (z0 - lz) / (z0 - z1) * STEP + .16) * VS; }
     }
     if (Math.abs(lx) < 4.2 || Math.abs(Math.abs(lx) - (L / 2 + 9)) < 3.2) {   // tanjakan ke puncak
       const z0 = -9 * DEP + .5, z1 = zt + 26; if (lz <= z0 && lz >= z1) return (9 * STEP + (z0 - lz) / (z0 - z1) * (yt - 9 * STEP) + .16) * VS;
