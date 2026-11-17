@@ -11,7 +11,7 @@
 </script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Alat Usaha Gratis untuk UMKM: Kasir, Antrian, Nota, Tagihan, Buku Kas | Willo Apparel</title>
+<title>Alat Usaha Gratis untuk UMKM: Kasir, Antrian, Nota, Leads, Buku Kas | Willo Apparel</title>
 <meta name="description" content="Kumpulan alat gratis untuk usaha kecil: kasir dengan QRIS, nomor antrian bersuara, tagihan bulanan kos/bimbel, buku kas pencatat keuangan. Tanpa daftar, jalan di HP, data tersimpan di HP sendiri.">
 <link rel="canonical" href="https://willoapparel.com/alat/">
 <meta property="og:title" content="Alat Usaha Gratis untuk UMKM | Willo Apparel">
@@ -32,6 +32,7 @@
 .daftar .panah{margin-left:auto;color:var(--redup);font-size:22px}
 .segera{color:var(--redup);font-size:14.5px;margin:0;padding-left:20px}
 .segera li{margin-bottom:4px}
+.lencana-leads{display:inline-block;background:var(--merah);color:#fff;font-size:12.5px;border-radius:9px;padding:0 7px;margin-left:4px;vertical-align:2px}
 </style>
 </head>
 <body>
@@ -46,6 +47,7 @@
     <a href="/alat/kasir/"><span class="ik" style="background:#e6f5ee">🧾</span><span><b>Kasir + QRIS</b><span class="k">Ketuk produk, hitung kembalian, tampilkan QRIS toko, struk ke WA.</span></span><span class="panah">›</span></a>
     <a href="/alat/antrian/"><span class="ik" style="background:#fff5d1">🔢</span><span><b>Antrian</b><span class="k">Ambil nomor, panggil dengan suara, layar besar untuk pelanggan.</span></span><span class="panah">›</span></a>
     <a href="/alat/nota/"><span class="ik" style="background:#f3ecff">📄</span><span><b>Nota & Invoice</b><span class="k">Catat pesanan, DP, dan sisa tagihan. Kirim nota ke WA atau PDF.</span></span><span class="panah">›</span></a>
+    <a href="/alat/leads/"><span class="ik" style="background:#fbecea">🎯</span><span><b>Papan Leads <span class="lencana-leads tersembunyi" id="leadsN"></span></b><span class="k">CRM sederhana: calon pembeli dari WA, IG, dan FB di satu papan. Yang belum dibalas jadi merah, pengingat follow-up, balas WA sekali ketuk.</span></span><span class="panah">›</span></a>
     <a href="/alat/pembelian/" data-owner><span class="ik" style="background:#fff4d6">🛒</span><span><b>Pembelian &amp; Belanja</b><span class="k">Catat belanja bahan ke supplier. Stok Kasir bertambah, uang keluar tercatat di Buku Kas, utang supplier terpantau.</span></span><span class="panah">›</span></a>
     <a href="/alat/absen/"><span class="ik" style="background:#e6f5ee">👷</span><span><b>Absen Karyawan</b><span class="k">Ketuk nama saat datang dan pulang. Rekap hadir, telat, jam kerja, dan gaji per bulan.</span></span><span class="panah">›</span></a>
     <a href="/alat/tagihan/" data-owner><span class="ik" style="background:#fff0e0">📅</span><span><b>Tagihan Bulanan</b><span class="k">Kos, bimbel, TPQ, iuran RT: siapa sudah bayar, siapa telat, tagih lewat WA.</span></span><span class="panah">›</span></a>
@@ -112,7 +114,7 @@
 <script src="/alat/printer.js"></script>
 <script>
 (function(){
-  var KUNCI = /^willo_(kasir|kas|nota|antrian|tagihan|printer|jual|cetak|hpp|stok|owner|absen|beli)_v1$/;
+  var KUNCI = /^willo_(kasir|kas|nota|antrian|tagihan|printer|jual|cetak|hpp|stok|owner|absen|beli|leads)_v1$/;
   document.getElementById("bCadangSemua").onclick = function(){
     var data = {};
     for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (KUNCI.test(k)) data[k] = localStorage.getItem(k); }
@@ -139,6 +141,13 @@
     r.readAsText(f);
   };
 })();
+
+  // Angka merah Papan Leads: belum dibalas >1 jam + waktunya follow-up.
+  (function(){
+    var L = []; try { L = (JSON.parse(localStorage.getItem("willo_leads_v1")) || {}).leads || []; } catch(e){}
+    var now = Date.now(), n = L.filter(function(l){ if (l.tahap === "deal" || l.tahap === "batal") return false; return (l.tahap === "baru" && !l.balas && now - l.dibuat > 3600e3) || (l.fu && l.fu <= now); }).length;
+    var el = document.getElementById("leadsN"); if (n) { el.textContent = n + " perlu dibalas"; el.classList.remove("tersembunyi"); }
+  })();
 
   // Mode owner & pegawai
   function gambarPin(){ var O = window.LumbungOwner; if (!O) return; var ada = O.adaPin();

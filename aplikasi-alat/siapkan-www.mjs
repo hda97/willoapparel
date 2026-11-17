@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const akar = dirname(fileURLToPath(import.meta.url));
 const pub = join(akar, "..", "public");
 const www = join(akar, "www");
-const ALAT = ["index.html", "alat.css", "printer.js", "ikon.js", "owner.js", "sinkron.js", "kasir", "antrian", "nota", "tagihan", "buku-kas", "pengaturan", "stok", "hpp", "pro", "impor", "lib", "absen", "pembelian"];
+const ALAT = ["index.html", "alat.css", "printer.js", "ikon.js", "owner.js", "sinkron.js", "kasir", "antrian", "nota", "tagihan", "buku-kas", "pengaturan", "stok", "hpp", "pro", "impor", "lib", "absen", "pembelian", "leads"];
 const SITUS = "https://willoapparel.com";
 
 rmSync(www, { recursive: true, force: true });
@@ -16,7 +16,7 @@ mkdirSync(join(www, "alat"), { recursive: true });
 for (const a of ALAT) cpSync(join(pub, "alat", a), join(www, "alat", a), { recursive: true });
 cpSync(join(pub, "logo-willo.png"), join(www, "logo-willo.png"));
 
-const lokal = new Set(["kasir", "antrian", "nota", "tagihan", "buku-kas", "pengaturan", "stok", "hpp", "pro", "impor", "absen", "pembelian"]);
+const lokal = new Set(["kasir", "antrian", "nota", "tagihan", "buku-kas", "pengaturan", "stok", "hpp", "pro", "impor", "absen", "pembelian", "leads"]);
 function tulisUlang(html) {
   return html
     // Panduan cara pakai & tautan situs hanya untuk pembaca web (SEO/AdSense), tidak ditampilkan di aplikasi.

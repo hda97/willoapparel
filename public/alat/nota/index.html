@@ -359,6 +359,15 @@
     if (x) $("fWa").value = x.wa;
   });
   $("bBaru").onclick = function(){ bukaForm(null); };
+  // Dari Papan Leads: "Buat nota" langsung membuka nota baru berisi nama, WA, dan pesanan calon pembeli.
+  (function(){
+    var d = null; try { d = JSON.parse(sessionStorage.getItem("willo_leads_ke_nota")); sessionStorage.removeItem("willo_leads_ke_nota"); } catch(e){}
+    if (!d) return;
+    setTimeout(function(){
+      bukaForm(null); $("fNama").value = d.nama || ""; $("fWa").value = d.wa || "";
+      if (d.minat || d.nilai) { baris = [{ nama:d.minat || "Pesanan", ket:"", q:1, harga:d.nilai || 0 }]; gambarItem(); hitungForm(); }
+    }, 0);
+  })();
   $("bBatal").onclick = function(){ if (edit) buka(edit.id); else { tampil("vDaftar"); gambarDaftar(); } };
   $("bSimpan").onclick = function(){
     var item = baris.filter(function(b){ return b.nama.trim() && b.q > 0; }).map(function(b){ return { nama:b.nama.trim(), ket:b.ket.trim(), q:b.q, harga:b.harga }; });

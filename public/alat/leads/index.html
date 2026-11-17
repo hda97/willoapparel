@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Papan Leads: CRM Sederhana untuk Calon Pembeli | Lumbung by Willo Studio</title>
+<meta name="description" content="CRM gratis untuk UMKM: catat calon pembeli dari WhatsApp, Instagram, dan Facebook, lihat siapa yang belum dibalas, atur pengingat follow-up, kirim pesan WA sekali ketuk. Data tersimpan di HP sendiri.">
+<link rel="canonical" href="https://willoapparel.com/alat/leads/">
+<link rel="icon" href="/logo-willo.png">
+<link rel="stylesheet" href="/alat/alat.css">
+<script src="/alat/ikon.js" defer></script>
+<script src="/alat/owner.js"></script>
+<style>
+.wrap.lebar{max-width:1240px}
+.ringkas{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.ringkas button{background:var(--kartu);border:1px solid var(--garis);border-radius:12px;padding:10px 12px;text-align:left;font:inherit;cursor:pointer;color:var(--teks)}
+.ringkas small{display:block;font-size:12.5px;color:var(--redup)}
+.ringkas b{font-size:20px}
+.ringkas .m b{color:var(--merah)} .ringkas .o b{color:#b26a00} .ringkas .h b{color:var(--hijau)}
+@media(max-width:560px){.ringkas{grid-template-columns:1fr 1fr}}
+.alat{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.alat input{flex:1 1 200px;margin:0}
+.tab{overflow-x:auto}
+.tab button{white-space:nowrap}
+.tab .n{display:inline-block;min-width:20px;padding:0 6px;margin-left:4px;border-radius:9px;background:#ddd9cf;font-size:12.5px;color:var(--teks)}
+.tab .n.merah{background:var(--merah);color:#fff}
+.papan{display:block}
+.kolom{display:none}
+.kolom.aktif{display:block}
+.kolom > h3{display:none}
+@media(min-width:1000px){
+  .tab{display:none}
+  .papan{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;align-items:start}
+  .kolom{display:block;background:#ebe8e0;border-radius:14px;padding:8px;min-height:200px}
+  .kolom > h3{display:flex;justify-content:space-between;margin:2px 4px 8px;font-size:14.5px}
+}
+.kartu-l{background:#fff;border:1px solid var(--garis);border-left:5px solid var(--garis);border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer}
+.kartu-l.telat{border-left-color:var(--merah);background:#fff8f7}
+.kartu-l.fu{border-left-color:#e69500}
+.kartu-l.dingin{border-left-color:#8aa4d6}
+.kartu-l.deal{border-left-color:var(--hijau)}
+.kartu-l .nm{display:flex;flex-wrap:wrap;justify-content:space-between;gap:0 8px;align-items:baseline}
+.kartu-l .nm b{font-size:15.5px;min-width:0;overflow-wrap:anywhere}
+.kartu-l .nl{font-weight:800;font-size:14px;white-space:nowrap}
+.kartu-l .mn{font-size:14px;color:var(--teks);margin:2px 0 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lencana{display:inline-block;font-size:12px;font-weight:700;border-radius:8px;padding:1px 7px;margin:0 4px 4px 0;background:#f0ede6;color:var(--redup)}
+.lencana.telat{background:var(--merah);color:#fff}
+.lencana.fu{background:#fff1d6;color:#8a5200}
+.lencana.dingin{background:#e9efff;color:#2c4a8a}
+.lencana.deal{background:var(--hijau-muda);color:var(--hijau)}
+.kartu-l .aksi{display:flex;gap:6px;margin-top:6px}
+.kartu-l .aksi .btn{flex:1 1 auto;min-width:0;padding:6px 8px}
+.kartu-l .aksi{flex-wrap:wrap}
+.kosong{color:var(--redup);text-align:center;padding:18px 6px;font-size:14px}
+.pilihan{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.pilihan button{border:1px solid var(--garis);background:#fff;border-radius:20px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
+.pilihan button.pilih{background:var(--utama);border-color:var(--utama);color:#fff}
+.catatan{list-style:none;margin:0 0 10px;padding:0;font-size:14px;max-height:180px;overflow:auto}
+.catatan li{padding:6px 0;border-bottom:1px solid #f0ede6}
+.catatan small{color:var(--redup)}
+.cek{display:flex;gap:8px;align-items:center;font-size:14.5px;margin:4px 0 12px}
+.cek input{width:20px;height:20px}
+</style>
+</head>
+<body>
+<header class="atas"><div class="wrap lebar"><a href="/alat/">← Alat Usaha Gratis</a><a class="redup" href="/alat/nota/">Nota</a></div></header>
+<main class="wrap lebar">
+  <h1>🎯 Papan Leads</h1>
+  <p class="sub">Semua calon pembeli dari WhatsApp, Instagram, Facebook, dan marketplace di satu papan. Yang belum dibalas lebih dari 1 jam jadi merah, jadi tidak ada pembeli yang terlupa.</p>
+
+  <div class="ringkas">
+    <button type="button" class="m" data-ke="baru"><small>Perlu dibalas</small><b class="angka" id="rBalas">0</b></button>
+    <button type="button" class="o" data-ke="fu"><small>Waktunya follow-up</small><b class="angka" id="rFu">0</b></button>
+    <button type="button" data-ke="penawaran"><small>Nilai di penawaran</small><b class="angka" id="rNilai" style="font-size:16px">Rp0</b></button>
+    <button type="button" class="h" data-ke="deal"><small id="rDealKet">Deal bulan ini</small><b class="angka" id="rDeal" style="font-size:16px">0</b></button>
+  </div>
+
+  <div class="alat">
+    <button class="btn" id="bTambah" type="button">➕ Leads baru</button>
+    <input type="text" id="cari" placeholder="🔍 Cari nama, nomor, atau pesanan…" autocomplete="off">
+  </div>
+
+  <div class="tab" id="tab"></div>
+  <div class="papan" id="papan"></div>
+
+  <div class="baris" style="margin-top:14px"><button class="btn dua kecil" id="bCsv" type="button">⬇️ Unduh daftar leads (Excel)</button></div>
+
+  <section class="panduan hanya-web">
+    <h2>Apa itu Papan Leads?</h2>
+    <p>Leads adalah orang yang sudah bertanya tapi belum membeli: yang chat “berapa harganya?”, komentar di Instagram, atau datang menanyakan stok. Banyak usaha kehilangan pembeli bukan karena barangnya jelek, tapi karena <b>telat membalas</b> atau <b>lupa menanyakan lagi</b>. Papan Leads adalah CRM sederhana untuk mencegah itu.</p>
+    <h2>Cara pakai</h2>
+    <ol>
+      <li>Setiap ada yang bertanya, ketuk <b>Leads baru</b>. Isi nama, nomor WA, dari mana dia datang, dan apa yang dia cari.</li>
+      <li>Ketuk <b>Balas WA</b> di kartunya. WhatsApp terbuka dengan pesan yang sudah ditulis, dan kartu pindah ke <b>Dihubungi</b>.</li>
+      <li>Sudah kirim harga? Geser ke <b>Penawaran</b> dan isi perkiraan nilainya.</li>
+      <li>Atur <b>pengingat follow-up</b> (besok, 3 hari, 1 minggu). Saat waktunya tiba, kartu berubah oranye.</li>
+      <li>Jadi beli? Geser ke <b>Deal</b> lalu buat notanya. Tidak jadi? Pindahkan ke <b>Batal</b> dan tulis alasannya, supaya ketahuan pola pembeli yang lepas.</li>
+    </ol>
+    <h2>Arti warna kartu</h2>
+    <ul>
+      <li><b style="color:var(--merah)">Merah</b>: leads baru yang belum dibalas lebih dari 1 jam.</li>
+      <li><b style="color:#b26a00">Oranye</b>: sudah waktunya ditanya lagi.</li>
+      <li><b style="color:#2c4a8a">Biru pucat</b>: lebih dari 3 hari tidak ada kabar (leads mulai dingin).</li>
+    </ul>
+    <p>Data tersimpan di HP ini saja dan ikut tersimpan saat Anda membuat cadangan di beranda Lumbung.</p>
+  </section>
+
+  <div class="cta hanya-web">Mau CRM dengan nama &amp; logo usahamu sendiri, atau terhubung langsung ke WhatsApp Business? Dibuatkan oleh <a href="/studio/?utm_source=lumbung-leads">Willo Studio</a>.</div>
+</main>
+<footer>Lumbung by Willo Studio · data tidak dikirim ke server</footer>
+<div class="pesan" id="pesan"></div>
+
+<dialog id="dLead"><form method="dialog" class="isi-dialog">
+  <h2 id="dlJudul">Leads baru</h2>
+  <label class="isi">Nama<input type="text" id="dlNama" maxlength="60" autocomplete="off" placeholder="Contoh: Bu Rina SMPN 2"></label>
+  <label class="isi">Nomor WhatsApp <small>Boleh kosong untuk pembeli dari DM Instagram</small><input type="tel" id="dlWa" inputmode="tel" maxlength="20" autocomplete="off" placeholder="08…"></label>
+  <div class="isi" style="font-size:14px;font-weight:600;margin-bottom:10px">Datang dari<div class="pilihan" id="dlSumber"></div></div>
+  <label class="isi">Mencari apa? <small>Contoh: kaos kelas 32 pcs, sablon depan belakang</small><input type="text" id="dlMinat" maxlength="80" autocomplete="off"></label>
+  <label class="isi">Perkiraan nilai pesanan <small>Boleh kosong</small><input type="text" id="dlNilai" inputmode="numeric" class="angka" autocomplete="off" placeholder="Rp"></label>
+  <div id="dlBaruSaja">
+    <label class="cek"><input type="checkbox" id="dlSudah"> Sudah saya balas</label>
+  </div>
+  <div id="dlLama" class="tersembunyi">
+    <label class="isi">Tahap<select id="dlTahap"></select></label>
+    <div class="isi" style="font-size:14px;font-weight:600;margin-bottom:10px">⏰ Ingatkan follow-up <small id="dlFuKet" style="display:block;color:var(--redup);font-weight:400"></small><div class="pilihan" id="dlFu"></div></div>
+    <div class="isi" style="font-size:14px;font-weight:600;margin-bottom:4px">Catatan</div>
+    <ul class="catatan" id="dlCat"></ul>
+    <div style="display:flex;gap:6px;margin-bottom:12px"><input type="text" id="dlCatBaru" maxlength="140" autocomplete="off" placeholder="Contoh: minta contoh desain dulu" style="margin:0"><button type="button" class="btn dua" id="dlCatTambah">Tambah</button></div>
+    <div class="baris"><a class="btn dua kecil" id="dlNota" href="/alat/nota/">📄 Buat nota</a><button type="button" class="btn dua kecil" id="dlHapus">🗑 Hapus</button></div>
+  </div>
+  <div class="baris" style="margin-top:12px"><button class="btn dua" value="batal" formnovalidate>Batal</button><button class="btn" value="ok">Simpan</button></div>
+</form></dialog>
+
+<script src="/alat/printer.js"></script>
+<script>
+(function(){
+  "use strict";
+  var KUNCI = "willo_leads_v1", JAM = 3600e3, HARI = 24 * JAM, $ = function(id){ return document.getElementById(id); };
+  var TAHAP = [
+    { id:"baru", nama:"Baru" }, { id:"dihubungi", nama:"Dihubungi" }, { id:"penawaran", nama:"Penawaran" },
+    { id:"deal", nama:"Deal" }, { id:"batal", nama:"Batal" }
+  ];
+  var SUMBER = ["WhatsApp", "Instagram", "Facebook", "TikTok", "Marketplace", "Datang langsung", "Teman/kenalan", "Lainnya"];
+  var FU = [ { t:"Nanti sore", f:function(){ var d = new Date(); d.setHours(16,0,0,0); if (d <= new Date()) d = new Date(Date.now() + 3 * JAM); return +d; } },
+    { t:"Besok", f:function(){ var d = new Date(); d.setDate(d.getDate() + 1); d.setHours(9,0,0,0); return +d; } },
+    { t:"3 hari", f:function(){ var d = new Date(); d.setDate(d.getDate() + 3); d.setHours(9,0,0,0); return +d; } },
+    { t:"1 minggu", f:function(){ var d = new Date(); d.setDate(d.getDate() + 7); d.setHours(9,0,0,0); return +d; } },
+    { t:"Tanpa pengingat", f:function(){ return null; } } ];
+  var aktif = "baru", sedang = null, sumberPilih = "WhatsApp", fuPilih;
+
+  function pesan(t){ var p = $("pesan"), dl = document.querySelector("dialog[open]"); (dl || document.body).appendChild(p); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, 2600); }
+  function rp(n){ return "Rp" + Math.round(n || 0).toLocaleString("id-ID"); }
+  function esc(t){ return String(t == null ? "" : t).replace(/[&<>"]/g, function(m){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[m]; }); }
+  function baca(){ var s = null; try { s = JSON.parse(localStorage.getItem(KUNCI)); } catch(e){} return s && Array.isArray(s.leads) ? s : { leads:[] }; }
+  function tulis(s){ try { localStorage.setItem(KUNCI, JSON.stringify(s)); return true; } catch(e){ pesan("Gagal menyimpan: memori HP penuh"); return false; } }
+  function ubah(id, fn){ var S = baca(), l = S.leads.filter(function(x){ return x.id === id; })[0]; if (!l) return null; fn(l, S); return tulis(S) ? l : null; }
+  function hpWa(s){ var h = String(s || "").replace(/\D/g, ""); if (h.charAt(0) === "0") h = "62" + h.slice(1); else if (h.charAt(0) === "8") h = "62" + h; return h; }
+  function namaToko(){ try { return (JSON.parse(localStorage.getItem("willo_kasir_v1")) || {}).nama || ""; } catch(e){ return ""; } }
+  function lalu(w){
+    var d = Date.now() - w; if (d < 60e3) return "baru saja";
+    if (d < JAM) return Math.floor(d / 60e3) + " menit"; if (d < HARI) return Math.floor(d / JAM) + " jam";
+    return Math.floor(d / HARI) + " hari";
+  }
+  function waktu(w){ var d = new Date(w); return d.toLocaleDateString("id-ID", { day:"numeric", month:"short" }) + " " + d.toLocaleTimeString("id-ID", { hour:"2-digit", minute:"2-digit" }); }
+  // Status kartu: telat (baru, belum dibalas >1 jam), fu (pengingat sudah lewat), dingin (>3 hari tanpa kabar).
+  function status(l){
+    var now = Date.now();
+    if (l.tahap === "deal") return "deal";
+    if (l.tahap === "batal") return "";
+    if (l.tahap === "baru" && !l.balas && now - l.dibuat > JAM) return "telat";
+    if (l.fu && l.fu <= now) return "fu";
+    if (!l.fu && (l.tahap === "dihubungi" || l.tahap === "penawaran") && now - (l.balas || l.dibuat) > 3 * HARI) return "dingin";
+    return "";
+  }
+  function perluBalas(l){ return l.tahap === "baru" && !l.balas; }
+
+  function teksWa(l){
+    var nm = l.nama ? " " + l.nama : "", tk = namaToko(), mn = l.minat || "pesanannya";
+    if (l.tahap === "baru") return "Halo Kak" + nm + ", terima kasih sudah menghubungi" + (tk ? " " + tk : " kami") + ". Untuk " + mn + ", boleh tahu jumlah dan kapan dibutuhkan?";
+    if (l.tahap === "penawaran") return "Halo Kak" + nm + ", penawaran untuk " + mn + (l.nilai ? " (" + rp(l.nilai) + ")" : "") + " masih berlaku. Mau langsung kami proses?";
+    if (l.tahap === "deal") return "Terima kasih Kak" + nm + " sudah order " + mn + ". Kami kabari lagi saat pesanan siap ya.";
+    return "Halo Kak" + nm + ", mau lanjut soal " + mn + " kemarin? Kalau ada yang ingin ditanyakan, kabari saja ya.";
+  }
+  function balasWa(id){
+    var S = baca(), l = S.leads.filter(function(x){ return x.id === id; })[0]; if (!l) return;
+    if (!l.wa) { pesan("Nomor WA belum diisi. Buka kartunya untuk menambahkan."); return; }
+    var url = "https://wa.me/" + hpWa(l.wa) + "?text=" + encodeURIComponent(teksWa(l));
+    ubah(id, function(x){
+      x.balas = Date.now();
+      if (x.tahap === "baru") { x.tahap = "dihubungi"; if (!x.fu) x.fu = FU[2].f(); }
+      else if (x.fu && x.fu <= Date.now()) x.fu = FU[2].f();
+      (x.cat = x.cat || []).unshift({ w:Date.now(), t:"Dihubungi lewat WA" });
+    });
+    window.open(url, "_blank", "noopener");
+    gambar();
+  }
+  function geser(id){
+    var urut = ["baru", "dihubungi", "penawaran", "deal"];
+    ubah(id, function(x){
+      var i = urut.indexOf(x.tahap); if (i < 0 || i >= urut.length - 1) return;
+      x.tahap = urut[i + 1]; if (!x.balas) x.balas = Date.now();
+      if (x.tahap === "deal") { x.deal = Date.now(); x.fu = null; }
+      (x.cat = x.cat || []).unshift({ w:Date.now(), t:"Pindah ke " + namaTahap(x.tahap) });
+    });
+    gambar();
+  }
+  function namaTahap(id){ return (TAHAP.filter(function(t){ return t.id === id; })[0] || {}).nama || id; }
+
+  function kartu(l){
+    var st = status(l), d = document.createElement("div"); d.className = "kartu-l " + st;
+    var lc = "";
+    if (st === "telat") lc += '<span class="lencana telat">Belum dibalas ' + lalu(l.dibuat) + '</span>';
+    else if (perluBalas(l)) lc += '<span class="lencana fu">Belum dibalas · ' + lalu(l.dibuat) + '</span>';
+    if (st === "fu") lc += '<span class="lencana fu">⏰ Waktunya follow-up</span>';
+    if (st === "dingin") lc += '<span class="lencana dingin">Dingin · ' + lalu(l.balas || l.dibuat) + ' tanpa kabar</span>';
+    if (st === "deal" && l.deal) lc += '<span class="lencana deal">Deal ' + waktu(l.deal).split(" ").slice(0, 2).join(" ") + '</span>';
+    if (st !== "fu" && l.fu && l.tahap !== "deal" && l.tahap !== "batal") lc += '<span class="lencana">⏰ ' + waktu(l.fu) + '</span>';
+    lc += '<span class="lencana">' + esc(l.sumber || "Lainnya") + '</span>';
+    if (l.tahap !== "baru" && l.balas && st !== "dingin") lc += '<span class="lencana">dibalas ' + lalu(l.balas) + ' lalu</span>';
+    var akhir = l.tahap === "batal" && l.cat && l.cat[0] ? '<div class="kecil redup">' + esc(l.cat[0].t) + '</div>' : "";
+    d.innerHTML = '<div class="nm"><b>' + esc(l.nama || "Tanpa nama") + '</b>' + (l.nilai ? '<span class="nl angka">' + rp(l.nilai) + '</span>' : '') + '</div>' +
+      '<div class="mn">' + esc(l.minat || "—") + '</div><div>' + lc + '</div>' + akhir +
+      (l.tahap === "batal" ? "" : '<div class="aksi"><button type="button" class="btn kecil' + (st === "telat" || st === "fu" ? "" : " dua") + '" data-a="wa">💬 Balas WA</button>' +
+        (l.tahap !== "deal" ? '<button type="button" class="btn dua kecil" data-a="geser">' + namaTahap(["baru","dihubungi","penawaran","deal"][["baru","dihubungi","penawaran"].indexOf(l.tahap) + 1]) + ' →</button>' : '') + '</div>');
+    d.onclick = function(e){
+      var a = e.target.closest("[data-a]");
+      if (a) { e.stopPropagation(); if (a.dataset.a === "wa") balasWa(l.id); else geser(l.id); return; }
+      buka(l.id);
+    };
+    return d;
+  }
+  function urutkan(a, b){
+    var bobot = { telat:0, fu:1, dingin:3, deal:4, "":2 };
+    var x = bobot[status(a)], y = bobot[status(b)]; if (x !== y) return x - y;
+    if (a.tahap === "deal" || a.tahap === "batal") return (b.deal || b.ubah || b.dibuat) - (a.deal || a.ubah || a.dibuat);
+    return (a.fu || a.dibuat) - (b.fu || b.dibuat);
+  }
+
+  function gambar(){
+    var S = baca(), q = $("cari").value.trim().toLowerCase(), now = new Date();
+    var awalBulan = +new Date(now.getFullYear(), now.getMonth(), 1);
+    var nBalas = 0, nTelat = 0, nFu = 0, nilai = 0, nDeal = 0, totDeal = 0;
+    S.leads.forEach(function(l){
+      var st = status(l);
+      if (perluBalas(l)) nBalas++; if (st === "telat") nTelat++; if (st === "fu") nFu++;
+      if (l.tahap === "penawaran") nilai += l.nilai || 0;
+      if (l.tahap === "deal" && (l.deal || 0) >= awalBulan) { nDeal++; totDeal += l.nilai || 0; }
+    });
+    $("rBalas").textContent = nBalas; $("rFu").textContent = nFu; $("rNilai").textContent = rp(nilai);
+    $("rDeal").textContent = nDeal + (totDeal ? " · " + rp(totDeal) : "");
+    document.title = (nTelat + nFu ? "(" + (nTelat + nFu) + ") " : "") + "Papan Leads | Lumbung by Willo Studio";
+
+    var cocok = S.leads.filter(function(l){ return !q || [l.nama, l.wa, l.minat, l.sumber].join(" ").toLowerCase().indexOf(q) >= 0; });
+    var tab = $("tab"), papan = $("papan"); tab.innerHTML = ""; papan.innerHTML = "";
+    TAHAP.forEach(function(t){
+      var isi = cocok.filter(function(l){ return l.tahap === t.id; }).sort(urutkan);
+      var merah = isi.filter(function(l){ var s = status(l); return s === "telat" || s === "fu"; }).length;
+      var b = document.createElement("button"); b.type = "button"; b.className = t.id === aktif ? "pilih" : "";
+      b.innerHTML = esc(t.nama) + '<span class="n' + (merah ? " merah" : "") + '">' + isi.length + '</span>';
+      b.onclick = function(){ aktif = t.id; gambar(); };
+      tab.appendChild(b);
+      var k = document.createElement("div"); k.className = "kolom" + (t.id === aktif ? " aktif" : "");
+      k.innerHTML = '<h3><span>' + esc(t.nama) + '</span><span class="redup">' + isi.length + '</span></h3>';
+      if (!isi.length) {
+        var kos = { baru:S.leads.length ? "Tidak ada leads baru. Ketuk “Leads baru” setiap ada yang bertanya." : "Belum ada leads. Setiap ada yang bertanya harga lewat WA, DM, atau datang langsung, ketuk “Leads baru”.",
+          dihubungi:"Belum ada yang dihubungi.", penawaran:"Belum ada penawaran berjalan.", deal:"Belum ada deal.", batal:"Tidak ada yang batal." }[t.id];
+        k.insertAdjacentHTML("beforeend", '<p class="kosong">' + (q ? "Tidak ditemukan." : kos) + '</p>');
+      }
+      isi.forEach(function(l){ k.appendChild(kartu(l)); });
+      papan.appendChild(k);
+    });
+  }
+
+  // ——— Dialog tambah & ubah ———
+  function gambarPilihan(el, daftar, pilih, saat){
+    el.innerHTML = "";
+    daftar.forEach(function(x, i){
+      var b = document.createElement("button"); b.type = "button"; b.textContent = typeof x === "string" ? x : x.t;
+      if (pilih === i || pilih === x) b.className = "pilih";
+      b.onclick = function(){ Array.prototype.forEach.call(el.children, function(c){ c.classList.remove("pilih"); }); b.classList.add("pilih"); saat(x, i); };
+      el.appendChild(b);
+    });
+  }
+  function angka(s){ var v = String(s || "").replace(/\D/g, ""); return v ? parseInt(v, 10) : 0; }
+  function gambarCatatan(l){
+    var el = $("dlCat"); el.innerHTML = "";
+    (l.cat || []).forEach(function(c){ var li = document.createElement("li"); li.innerHTML = esc(c.t) + '<br><small>' + waktu(c.w) + '</small>'; el.appendChild(li); });
+    if (!el.children.length) el.innerHTML = '<li class="redup">Belum ada catatan.</li>';
+  }
+  function buka(id){
+    var S = baca(), l = id ? S.leads.filter(function(x){ return x.id === id; })[0] : null;
+    sedang = l ? l.id : null; fuPilih = undefined;
+    $("dlJudul").textContent = l ? (l.nama || "Leads") : "Leads baru";
+    $("dlNama").value = l ? l.nama || "" : ""; $("dlWa").value = l ? l.wa || "" : "";
+    $("dlMinat").value = l ? l.minat || "" : ""; $("dlNilai").value = l && l.nilai ? l.nilai.toLocaleString("id-ID") : "";
+    sumberPilih = l ? l.sumber || "Lainnya" : sumberPilih;
+    gambarPilihan($("dlSumber"), SUMBER, sumberPilih, function(x){ sumberPilih = x; });
+    $("dlBaruSaja").classList.toggle("tersembunyi", !!l); $("dlLama").classList.toggle("tersembunyi", !l); $("dlSudah").checked = false;
+    if (l) {
+      $("dlTahap").innerHTML = TAHAP.map(function(t){ return '<option value="' + t.id + '"' + (t.id === l.tahap ? " selected" : "") + '>' + t.nama + '</option>'; }).join("");
+      $("dlFuKet").textContent = l.fu ? "Sekarang: " + waktu(l.fu) : "Belum ada pengingat.";
+      gambarPilihan($("dlFu"), FU, -1, function(x){ fuPilih = x.f(); });
+      gambarCatatan(l); $("dlCatBaru").value = "";
+    }
+    $("dLead").returnValue = ""; $("dLead").showModal();
+    if (!l) setTimeout(function(){ $("dlNama").focus(); }, 60);
+  }
+  $("dlNilai").addEventListener("input", function(){ var v = angka(this.value); this.value = v ? v.toLocaleString("id-ID") : ""; });
+  $("dlCatTambah").onclick = function(){
+    var t = $("dlCatBaru").value.trim(); if (!t || !sedang) return;
+    var l = ubah(sedang, function(x){ (x.cat = x.cat || []).unshift({ w:Date.now(), t:t }); }); $("dlCatBaru").value = "";
+    if (l) gambarCatatan(l);
+  };
+  $("dlHapus").onclick = function(){
+    if (!sedang || !confirm("Hapus leads ini?")) return;
+    var S = baca(); S.leads = S.leads.filter(function(x){ return x.id !== sedang; }); tulis(S); $("dLead").close("batal"); gambar();
+  };
+  $("dlNota").onclick = function(){
+    var S = baca(), l = S.leads.filter(function(x){ return x.id === sedang; })[0];
+    if (l) try { sessionStorage.setItem("willo_leads_ke_nota", JSON.stringify({ nama:l.nama || "", wa:l.wa || "", minat:l.minat || "", nilai:l.nilai || 0 })); } catch(e){}
+  };
+  $("dLead").querySelector("form").addEventListener("submit", function(e){
+    if (e.submitter && e.submitter.value === "ok" && !$("dlNama").value.trim() && !$("dlWa").value.trim()) { e.preventDefault(); pesan("Isi nama atau nomor WA dulu"); $("dlNama").focus(); }
+  });
+  $("dLead").addEventListener("close", function(){
+    if ($("dLead").returnValue !== "ok") return;
+    var nama = $("dlNama").value.trim(), wa = $("dlWa").value.trim(), minat = $("dlMinat").value.trim(), nilai = angka($("dlNilai").value);
+    if (!nama && !wa) { pesan("Isi nama atau nomor WA dulu"); return; }
+    if (!sedang) {
+      var S = baca(), now = Date.now(), sudah = $("dlSudah").checked;
+      S.leads.unshift({ id:now.toString(36) + Math.random().toString(36).slice(2, 6), nama:nama, wa:wa, sumber:sumberPilih, minat:minat, nilai:nilai,
+        tahap: sudah ? "dihubungi" : "baru", dibuat:now, balas: sudah ? now : null, fu: sudah ? FU[2].f() : null, cat:[{ w:now, t:"Leads masuk dari " + sumberPilih }] });
+      if (tulis(S)) { aktif = sudah ? "dihubungi" : "baru"; pesan(sudah ? "Tersimpan. Pengingat follow-up dipasang 3 hari lagi." : "Tersimpan. Balas sebelum 1 jam supaya tidak merah."); }
+    } else {
+      var tahapBaru = $("dlTahap").value;
+      ubah(sedang, function(x){
+        x.nama = nama; x.wa = wa; x.minat = minat; x.nilai = nilai; x.sumber = sumberPilih; x.ubah = Date.now();
+        if (tahapBaru !== x.tahap) {
+          if (tahapBaru === "batal") { var why = prompt("Kenapa batal? (boleh kosong)", "") || ""; x.cat = x.cat || []; x.cat.unshift({ w:Date.now(), t:"Batal" + (why ? ": " + why : "") }); x.fu = null; }
+          else (x.cat = x.cat || []).unshift({ w:Date.now(), t:"Pindah ke " + namaTahap(tahapBaru) });
+          if (tahapBaru === "deal") { x.deal = Date.now(); x.fu = null; }
+          if (tahapBaru !== "baru" && !x.balas) x.balas = Date.now();
+          x.tahap = tahapBaru;
+        }
+        if (fuPilih !== undefined) x.fu = fuPilih;
+      });
+      aktif = tahapBaru;
+    }
+    gambar();
+  });
+
+  $("bTambah").onclick = function(){ buka(null); };
+  $("cari").addEventListener("input", gambar);
+  Array.prototype.forEach.call(document.querySelectorAll(".ringkas button"), function(b){
+    b.onclick = function(){
+      var k = b.dataset.ke;
+      if (k === "fu") { var S = baca(), l = S.leads.filter(function(x){ return status(x) === "fu"; })[0]; aktif = l ? l.tahap : "dihubungi"; }
+      else aktif = k;
+      gambar(); $("papan").scrollIntoView({ behavior:"smooth", block:"start" });
+    };
+  });
+  $("bCsv").onclick = function(){
+    var S = baca(), q = function(v){ return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
+    var baris = ["Nama;WhatsApp;Dari;Mencari;Nilai;Tahap;Masuk;Terakhir dibalas;Follow-up;Catatan terakhir"].concat(S.leads.map(function(l){
+      return [q(l.nama), q(l.wa), q(l.sumber), q(l.minat), l.nilai || "", namaTahap(l.tahap), q(waktu(l.dibuat)), q(l.balas ? waktu(l.balas) : ""), q(l.fu ? waktu(l.fu) : ""), q(l.cat && l.cat[0] ? l.cat[0].t : "")].join(";"); }));
+    var isi = "﻿" + baris.join("\r\n"), nama = "leads.csv";
+    if (window.Lumbung) Lumbung.unduh(nama, isi, "text/csv;charset=utf-8"); else { var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([isi], { type:"text/csv" })); a.download = nama; a.click(); }
+  };
+  window.addEventListener("pageshow", gambar);
+  window.addEventListener("storage", function(e){ if (e.key === KUNCI) gambar(); });
+  setInterval(gambar, 60e3);
+  gambar();
+})();
+</script>
+</body>
+</html>
