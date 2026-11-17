@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="id"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bakso Urat Pak Darmo · Contoh Landing Page Willo Studio</title>
+<meta name="description" content="Contoh landing page untuk warung makan buatan Willo Studio. Usaha di halaman ini fiktif.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--m:#B3261E;--m2:#7A1712;--k:#FFF7EC;--kun:#FFC83D;--t:#1E1410;--a:#6E5E55}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:var(--t);background:var(--k);line-height:1.5}
+a{color:inherit}
+.w{max-width:1040px;margin:0 auto;padding:0 20px}
+h1,h2{font-family:"Baloo 2",sans-serif;line-height:1.05}
+header{background:var(--m);color:#fff}
+.nav{display:flex;align-items:center;justify-content:space-between;padding-top:14px;padding-bottom:14px}
+.nav b{font-family:"Baloo 2";font-size:22px}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--kun);color:var(--t);font-weight:800;text-decoration:none;padding:14px 22px;border-radius:14px}
+.btn.s{padding:9px 14px;border-radius:10px;font-size:14px}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center;padding-top:36px;padding-bottom:56px}
+.hero h1{font-size:clamp(40px,7vw,68px)}
+.hero p{font-size:18px;opacity:.9;margin:14px 0 24px;max-width:480px}
+.mangkok{aspect-ratio:1;max-width:420px;width:100%;margin:0 auto;height:auto;object-fit:cover;border-radius:50%;border:10px solid rgba(255,255,255,.15);box-shadow:0 30px 60px rgba(0,0,0,.35)}
+.lencana{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;font-size:14px;font-weight:700}
+.lencana span{background:rgba(255,255,255,.15);padding:6px 12px;border-radius:999px}
+section{padding:56px 0}
+h2{font-size:clamp(30px,5vw,44px);margin-bottom:8px}
+.sub{color:var(--a);margin-bottom:26px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.kart{background:#fff;border-radius:20px;padding:22px;border:1px solid #F0E2CF}
+.kart .ik{width:48px;height:48px;border-radius:14px;background:#FFE9B8;display:grid;place-items:center;margin-bottom:12px}
+.kart h3{font-size:19px;margin-bottom:4px}
+.kart p{color:var(--a);font-size:15px}
+.menu{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.mn{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:16px;padding:16px 18px;border:1px solid #F0E2CF}
+.mn b{display:block}.mn small{color:var(--a)}
+.mn .h{font-family:"Baloo 2";font-size:24px;color:var(--m)}
+.testi{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.testi blockquote{background:#fff;border-radius:20px;padding:20px;border:1px solid #F0E2CF;font-size:15px}
+.testi cite{display:block;margin-top:10px;font-style:normal;font-weight:700;color:var(--m)}
+.bintang{color:#E8A400;letter-spacing:2px}
+.lok{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
+.peta{border-radius:20px;background:repeating-linear-gradient(45deg,#F3E6D3 0 14px,#EFDFC8 14px 28px);min-height:240px;position:relative;overflow:hidden}
+.peta:after{content:"";position:absolute;left:50%;top:44%;width:34px;height:34px;background:var(--m);border-radius:50% 50% 50% 0;transform:translate(-50%,-50%) rotate(-45deg);box-shadow:0 0 0 8px rgba(179,38,30,.2)}
+.info li{list-style:none;padding:10px 0;border-bottom:1px dashed #E6D3BA}
+.ajak{background:var(--m2);color:#fff;border-radius:28px;padding:40px 28px;text-align:center}
+.ajak p{opacity:.85;margin:8px 0 22px}
+.unggul{display:grid;grid-template-columns:1fr 1fr;gap:14px}.unggul figure{background:#fff;border-radius:22px;overflow:hidden;border:1px solid #F0E2CF}.unggul img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}.unggul figcaption{padding:14px 16px;position:relative}.unggul b{display:block;font-size:18px}.unggul span{color:var(--a);font-size:14px}.unggul em{position:absolute;right:14px;top:-22px;background:var(--kun);font:800 20px "Baloo 2";font-style:normal;padding:6px 12px;border-radius:12px}@media(max-width:760px){.unggul{grid-template-columns:1fr}}
+footer{text-align:center;color:var(--a);font-size:14px;padding:30px 0}
+@media(max-width:760px){.hero,.lok{grid-template-columns:1fr}.grid3,.testi{grid-template-columns:1fr}.menu{grid-template-columns:1fr}.hero{padding-top:12px!important}.mangkok{max-width:300px}}
+</style></head>
+<body data-demo="landing page">
+<header>
+  <div class="w nav"><b>Bakso Pak Darmo</b><a class="btn s" href="#pesan">Pesan</a></div>
+  <div class="w hero">
+    <div>
+      <h1>Bakso urat kuah kaldu sapi asli</h1>
+      <p>Dimasak sejak subuh, pentol urat digiling sendiri setiap hari. Makan di tempat atau pesan antar lewat WA.</p>
+      <a class="btn" href="#pesan">Pesan lewat WhatsApp</a>
+      <div class="lencana"><span>Buka 09.00–21.00</span><span>Antar radius 5 km</span><span>Halal</span></div>
+    </div>
+    <img class="mangkok" src="img/bakso-urat.jpg" alt="Semangkuk bakso urat dengan mi dan sawi" width="900" height="900">
+  </div>
+</header>
+
+<section><div class="w">
+  <h2>Kenapa pelanggan balik lagi</h2>
+  <p class="sub">Tiga hal yang kami jaga sejak hari pertama.</p>
+  <div class="grid3">
+    <div class="kart"><div class="ik"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#B3261E" stroke-width="2.4"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg></div><h3>Kaldu 6 jam</h3><p>Tulang sapi direbus pelan sejak subuh, tanpa penyedap berlebihan.</p></div>
+    <div class="kart"><div class="ik"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#B3261E" stroke-width="2.4"><circle cx="9" cy="12" r="5"/><circle cx="16" cy="10" r="4"/></svg></div><h3>Pentol giling sendiri</h3><p>Daging pilihan, urat terasa, tekstur kenyal.</p></div>
+    <div class="kart"><div class="ik"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#B3261E" stroke-width="2.4"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg></div><h3>Antar masih panas</h3><p>Kuah dan isi dipisah supaya sampai rumah tetap segar.</p></div>
+  </div>
+</div></section>
+
+<section style="background:#fff"><div class="w">
+  <h2>Menu andalan</h2>
+  <p class="sub">Harga sudah termasuk kuah, mi, dan sayur.</p>
+  <div class="unggul">
+    <figure><img src="img/bakso-urat.jpg" alt="Bakso urat jumbo" loading="lazy"><figcaption><b>Bakso urat jumbo</b><span>1 pentol jumbo + 4 kecil, mi, sawi</span><em>18rb</em></figcaption></figure>
+    <figure><img src="img/mi-ayam-bakso.jpg" alt="Mi ayam bakso" loading="lazy"><figcaption><b>Mi ayam bakso</b><span>Mi ayam kecap + 3 pentol</span><em>16rb</em></figcaption></figure>
+  </div>
+  <div class="menu" style="margin-top:12px">
+    <div class="mn"><div><b>Bakso campur</b><small>Urat, halus, tahu, siomay</small></div><div class="h">15rb</div></div>
+    <div class="mn"><div><b>Es teh jumbo</b><small>Gula batu</small></div><div class="h">4rb</div></div>
+  </div>
+</div></section>
+
+<section><div class="w">
+  <h2>Kata pelanggan</h2>
+  <p class="sub">Contoh tampilan ulasan.</p>
+  <div class="testi">
+    <blockquote><div class="bintang">★★★★★</div>Kuahnya gurih tapi tidak bikin haus. Langganan tiap pulang kerja.<cite>Pelanggan A</cite></blockquote>
+    <blockquote><div class="bintang">★★★★★</div>Pesan antar lewat WA, datang masih panas. Uratnya mantap.<cite>Pelanggan B</cite></blockquote>
+    <blockquote><div class="bintang">★★★★★</div>Porsi jumbo beneran jumbo. Anak-anak suka.<cite>Pelanggan C</cite></blockquote>
+  </div>
+</div></section>
+
+<section style="background:#fff"><div class="w lok">
+  <div class="peta" role="img" aria-label="Peta lokasi"></div>
+  <div>
+    <h2>Lokasi</h2>
+    <ul class="info">
+      <li><b>Alamat:</b> Jl. Contoh No. 1, Kota Anda</li>
+      <li><b>Jam buka:</b> setiap hari 09.00–21.00</li>
+      <li><b>Parkir:</b> motor dan mobil</li>
+      <li><b>Bayar:</b> tunai, QRIS, transfer</li>
+    </ul>
+  </div>
+</div></section>
+
+<section id="pesan"><div class="w"><div class="ajak">
+  <h2>Lapar? Pesan sekarang</h2>
+  <p>Tulis menu dan alamat, kami balas secepatnya.</p>
+  <a class="btn" href="#" onclick="alert('Di website asli, tombol ini membuka chat WA warung.');return false">Chat WhatsApp</a>
+</div></div></section>
+<footer>Bakso Pak Darmo adalah usaha fiktif untuk contoh. Dibuat oleh Willo Studio.</footer>
+<script src="../pita.js"></script>
+</body></html>
