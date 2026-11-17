@@ -131,7 +131,7 @@ CSS_RPG = open(AKAR / 'src' / 'hitung-rpg' / 'rpg.css').read() if (AKAR / 'src' 
 UI_RPG = open(AKAR / 'src' / 'hitung-rpg' / 'rpg.html').read() if (AKAR / 'src' / 'hitung-rpg' / 'rpg.html').exists() else ''
 
 BERANDA = r"""<!doctype html>
-<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="id"><head><meta charset="utf-8"><meta name="robots" content="noindex, follow"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Game Edukasi SD Voxel 3D · Willo</title>
 <meta name="description" content="Game edukasi SD Kurikulum Merdeka bergaya voxel 3D untuk fase A, B, dan C. Soal bisa diubah guru dan ditempel dari Excel, jalan tanpa internet.">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">

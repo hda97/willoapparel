@@ -50,3 +50,11 @@ dialog h2{margin-top:0}
 .tab button.pilih{background:#fff;color:var(--teks);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 @media print{header.atas,.jangan-cetak,footer,.cta{display:none !important}body{background:#fff}}
 .app-android .hanya-web{display:none}
+
+/* Panduan cara pakai (hanya di situs; dihapus saat membangun APK) */
+.panduan{background:var(--kartu);border:1px solid var(--garis);border-radius:14px;padding:18px;margin:18px 0;line-height:1.65}
+.panduan h2{font-size:20px;margin:22px 0 8px}
+.panduan h2:first-child{margin-top:0}
+.panduan ol,.panduan ul{padding-left:20px}
+.panduan li{margin:6px 0}
+.foot-links a{color:var(--redup);margin:0 6px;display:inline-block}

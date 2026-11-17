@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Gambar AI Willo</title>
+<link rel="icon" href="/logo-willo.png">
+<link rel="stylesheet" href="/alat/alat.css">
+<style>
+textarea{width:100%;min-height:110px;font:inherit;padding:10px;border:1px solid var(--garis);border-radius:10px;box-sizing:border-box;resize:vertical}
+input[type=password]{width:100%;font:inherit;padding:10px;border:1px solid var(--garis);border-radius:10px;box-sizing:border-box}
+.cek{display:flex;gap:8px;align-items:center;margin:10px 0}
+#hasil img{width:100%;border-radius:12px;display:block;margin-bottom:10px}
+#status{margin:10px 0;min-height:1.4em}
+.contoh{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+</style>
+</head>
+<body>
+<header class="atas"><div class="wrap"><a href="/alat/">← Alat Usaha</a><a class="redup" href="/">Willo Apparel</a></div></header>
+<main class="wrap">
+  <h1>🎨 Gambar AI</h1>
+  <p class="redup">Model Flux, jalan di server Cloudflare Willo (gratis, kuota harian). Sekitar 5–15 detik per gambar.</p>
+  <section class="kartu" id="kPin">
+    <label>PIN<input type="password" id="pin" inputmode="numeric" autocomplete="off"></label>
+  </section>
+  <section class="kartu">
+    <label for="prompt">Mau gambar apa? (boleh bahasa Indonesia)</label>
+    <textarea id="prompt" placeholder="contoh: foto produk kaos putih polos digantung di rak kayu, cahaya pagi, latar toko sablon"></textarea>
+    <div class="contoh">
+      <button class="btn dua kecil" type="button" data-p="foto produk kaos hitam polos dilipat rapi di meja kayu, cahaya lembut, gaya katalog">Kaos katalog</button>
+      <button class="btn dua kecil" type="button" data-p="ilustrasi kartun lucu kucing oranye duduk di jendela, warna cerah">Kucing kartun</button>
+      <button class="btn dua kecil" type="button" data-p="latar video vertikal pemandangan sawah pedesaan Jawa saat matahari terbit, sinematik">Latar sawah</button>
+    </div>
+    <label class="cek"><input type="checkbox" id="kirim" checked> Kirim juga ke bot Telegram @Willo_video_bot</label>
+    <button class="btn lebar" type="button" id="buat">✨ Buat gambar</button>
+    <div id="status" class="redup"></div>
+  </section>
+  <section class="kartu" id="hasil" hidden></section>
+</main>
+<footer>Willo Studio · gambar AI gratis</footer>
+<script>
+const $ = (id) => document.getElementById(id);
+const simpan = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+const ambil = (k) => { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } };
+$("pin").value = ambil("gambarPin");
+document.querySelectorAll("[data-p]").forEach((b) => b.onclick = () => { $("prompt").value = b.dataset.p; });
+$("buat").onclick = async () => {
+  const prompt = $("prompt").value.trim(), pin = $("pin").value.trim();
+  if (!pin) { $("status").textContent = "Isi PIN dulu."; return; }
+  if (prompt.length < 3) { $("status").textContent = "Tulis dulu gambar yang diinginkan."; return; }
+  $("buat").disabled = true; $("status").textContent = "Sedang menggambar… (5–15 detik)";
+  try {
+    const r = await fetch("/alat/api/ai/gambar", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ prompt, pin, kirim: $("kirim").checked }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.gambar) { $("status").textContent = j.galat || "Gagal membuat gambar."; return; }
+    simpan("gambarPin", pin);
+    const src = "data:image/jpeg;base64," + j.gambar, nama = "gambar-ai-" + Date.now() + ".jpg";
+    const kartu = document.createElement("div");
+    kartu.innerHTML = '<img alt="Hasil gambar AI"><a class="btn dua lebar" download>⬇️ Simpan gambar</a>';
+    kartu.querySelector("img").src = src;
+    const a = kartu.querySelector("a"); a.href = src; a.download = nama;
+    $("hasil").hidden = false; $("hasil").prepend(kartu);
+    $("status").textContent = j.terkirim ? "Selesai, sudah terkirim ke bot Telegram." : ($("kirim").checked ? "Selesai. (Belum terkirim ke bot: token bot belum dipasang di Cloudflare.)" : "Selesai.");
+  } catch (e) { $("status").textContent = "Koneksi gagal. Coba lagi."; }
+  finally { $("buat").disabled = false; }
+};
+</script>
+</body>
+</html>

@@ -2859,6 +2859,7 @@ async function apiAI(request, url, env) {
   const cors = { "access-control-allow-origin": "*", "access-control-allow-methods": "POST, OPTIONS", "access-control-allow-headers": "content-type" };
   const json = (o, st) => new Response(JSON.stringify(o), { status: st || 200, headers: { ...cors, "content-type": "application/json", "cache-control": "no-store" } });
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+  if (url.pathname === "/alat/api/ai/gambar" && request.method === "POST") return apiGambar(request, env, json);
   if (url.pathname !== "/alat/api/ai/saran" || request.method !== "POST") return json({ galat: "alamat" }, 404);
   if (!env.GEMINI_API_KEY && !env.GROQ_API_KEY) return json({ galat: "Fitur AI belum diaktifkan pemilik situs." }, 503);
   if (!aiBoleh(request.headers.get("cf-connecting-ip") || "?")) return json({ galat: "Saran AI sudah sering dipakai. Coba lagi satu jam lagi ya." }, 429);
@@ -2873,6 +2874,42 @@ async function apiAI(request, url, env) {
     prompt: "Laporan penjualan toko (JSON):\n" + ringkas, maks: 350, suhu: 0.5 });
   if (!t) return json({ galat: "AI sedang sibuk atau kuota gratis harian habis. Coba lagi nanti ya." }, 503);
   return json({ saran: t.slice(0, 1500) });
+}
+// ===== Gambar AI gratis (Huda 16 Nov 2026: "Dua-duanya" → Flux lewat Cloudflare Workers AI) =====
+// POST /alat/api/ai/gambar {prompt, pin, kirim}. Halaman: /alat/gambar/. Model Flux.1 Schnell (Apache 2.0, boleh komersial),
+// kuota gratis harian Workers AI akun Cloudflare Willo. Dikunci PIN (secret GAMBAR_PIN) supaya kuota tidak dipakai orang lain.
+// Opsional kirim ke @Willo_video_bot: secret TG_VIDEO (token bot) + var TG_CHAT_ID. Token tidak pernah dikirim ke HP.
+async function apiGambar(request, env, json) {
+  if (!env.AI) return json({ galat: "Workers AI belum tersambung (binding AI)." }, 503);
+  if (!env.GAMBAR_PIN) return json({ galat: "PIN gambar belum dipasang pemilik situs (secret GAMBAR_PIN)." }, 503);
+  if (!aiBoleh("gbr:" + (request.headers.get("cf-connecting-ip") || "?"), 40)) return json({ galat: "Sudah terlalu banyak gambar dalam satu jam. Coba lagi nanti." }, 429);
+  let d; try { d = JSON.parse((await request.text()).slice(0, 6000)); } catch (e) { return json({ galat: "Data tidak terbaca." }, 400); }
+  if (String(d.pin || "") !== String(env.GAMBAR_PIN)) return json({ galat: "PIN salah." }, 403);
+  let prompt = String(d.prompt || "").trim().slice(0, 1500);
+  if (prompt.length < 3) return json({ galat: "Tulis dulu gambar yang diinginkan." }, 400);
+  // Flux paling paham bahasa Inggris: terjemahkan & perjelas dulu dengan AI teks gratis (kalau gagal, pakai teks asli).
+  if (d.terjemah !== false) {
+    const en = await aiGratis(env, { sistem: "Translate the user's image request into one detailed English prompt for an image model. Keep every subject, text in quotes, colors and style. Output the prompt only.", prompt, maks: 300, suhu: 0.3 });
+    if (en) prompt = en.replace(/^["']|["']$/g, "").slice(0, 2000);
+  }
+  let hasil;
+  try { hasil = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", { prompt, steps: 8 }); }
+  catch (e) { console.log("gambar", e && e.message); return json({ galat: "Kuota gambar gratis hari ini habis atau server sibuk. Coba lagi nanti." }, 503); }
+  const b64 = hasil && hasil.image;
+  if (!b64) return json({ galat: "Gambar gagal dibuat. Coba ubah kalimatnya." }, 502);
+  let terkirim = false;
+  if (d.kirim && env.TG_VIDEO && env.TG_CHAT_ID) {
+    try {
+      const bin = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+      const f = new FormData();
+      f.append("chat_id", String(env.TG_CHAT_ID));
+      f.append("caption", ("Flux (Cloudflare): " + String(d.prompt || "")).slice(0, 1000));
+      f.append("document", new Blob([bin], { type: "image/jpeg" }), "flux-" + Date.now() + ".jpg");
+      const r = await fetch("https://api.telegram.org/bot" + env.TG_VIDEO + "/sendDocument", { method: "POST", body: f });
+      terkirim = r.ok;
+    } catch (e) { console.log("tg", e && e.message); }
+  }
+  return json({ gambar: b64, prompt, terkirim });
 }
 async function apiToko(request, url, env) {
   const cors = { "access-control-allow-origin": "*", "access-control-allow-methods": "GET, POST, OPTIONS", "access-control-allow-headers": "content-type, x-kunci, x-admin", "access-control-max-age": "86400" };
