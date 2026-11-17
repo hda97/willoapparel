@@ -190,7 +190,35 @@ def terbitkan(token, ig_id, item):
     return mid, link
 
 
+def uji(video, sampul, gambar):
+    """Uji jalur posting TANPA menerbitkan: token, izin terbit, dan Instagram mau memproses
+    media (reel + carousel). Kontainer yang tidak diterbitkan hangus sendiri dalam 24 jam."""
+    token, ig_id = muat_token()
+    print(f"Token OK untuk IG id {ig_id}.")
+    me = req("GET", ig_id, fields="username", access_token=token)
+    print(f"Akun: @{me.get('username')}")
+    lim = req("GET", f"{ig_id}/content_publishing_limit", fields="quota_usage,config", access_token=token)
+    print(f"Izin terbit OK, kuota 24 jam: {lim}")
+    p = dict(media_type="REELS", video_url=video, access_token=token)
+    if sampul:
+        p["cover_url"] = sampul
+    cid = req("POST", f"{ig_id}/media", **p)["id"]
+    tunggu(token, cid)
+    print("Reel: diproses Instagram (FINISHED), TIDAK diterbitkan.")
+    if gambar:
+        anak = [req("POST", f"{ig_id}/media", image_url=u, is_carousel_item="true", access_token=token)["id"] for u in gambar]
+        for c in anak:
+            tunggu(token, c)
+        cid = req("POST", f"{ig_id}/media", media_type="CAROUSEL", children=",".join(anak), access_token=token)["id"]
+        tunggu(token, cid)
+        print("Carousel: diproses Instagram (FINISHED), TIDAK diterbitkan.")
+    print("UJI LULUS")
+
+
 def main():
+    if os.environ.get("UJI_VIDEO"):
+        return uji(os.environ["UJI_VIDEO"], os.environ.get("UJI_SAMPUL"),
+                   [u for u in os.environ.get("UJI_GAMBAR", "").split() if u])
     paksa = os.environ.get("PAKSA_TANGGAL", "").strip()
     now = dt.datetime.now(WIB)
     folder = os.path.join(DIR, "antrean" if AKUN.lower() == UTAMA else f"antrean-{AKUN.lower()}")
