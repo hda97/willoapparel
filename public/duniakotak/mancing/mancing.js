@@ -10,6 +10,7 @@
 import '../mabar/js/putar.js'; // HP tegak -> tampil mendatar, sama seperti game desa & Reli Kotak
 import * as THREE from 'three';
 import {warga, pose} from '../mabar/js/aset/avatar.js';
+import {ikanMesh, perahu} from './model.js?v=20261118m';   // ikan per jenis & perahu
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
@@ -121,6 +122,7 @@ const rumah = (x, z, ry = 0, s = 1) => { const g = new THREE.Group(), c = [0xf4e
   g.add(kotak(5, 3.2, 5, c, 0, 1.6, 0), kotak(5.8, 1, 5.8, a, 0, 3.6, 0), kotak(3.6, .8, 3.6, a, 0, 4.4, 0), kotak(1.1, 1.9, .1, 0x7a5232, 0, .95, 2.52));
   g.position.set(x, 0, z); g.rotation.y = ry; g.scale.setScalar(s); sc.add(g); return g; };
 const darat = (x, z, w, d, c = 0x6aae4c, y = .25) => { const m = kotak(w, 1.2, d, c, x, y - .6, z); m.castShadow = false; sc.add(m); return m; };
+const PERAHU = [];   // perahu yang terayun ombak
 if (LT.jenis === 'danau') {
   // danau elips: tepi rumput & pasir di sekeliling, rumah warga & pohon di tepi seberang, bukit di belakang
   const rx = 95, rz = 70, cz = AIR_Z + 10;
@@ -129,8 +131,9 @@ if (LT.jenis === 'danau') {
     if (z < 6 || Math.abs(x) > 18) { pohon(Math.cos(a) * (rx + 9 + rnd() * 6), cz + Math.sin(a) * (rz + 9 + rnd() * 6), .9 + rnd() * .5); if (k % 3 === 0) rumah(Math.cos(a) * (rx + 20), cz + Math.sin(a) * (rz + 20), -a - Math.PI / 2, .9); } }
   for (let k = 0; k < 7; k++) { const b = kotak(60 + rnd() * 40, 14 + rnd() * 18, 30, [0x4f8a48, 0x5a9a52, 0x46804a][k % 3], -180 + k * 60, 4, cz - rz - 60 - rnd() * 30); b.castShadow = false; sc.add(b); }
   for (let k = 0; k < 14; k++) { const t = kotak(1.6, .08, 1.6, 0x4caa50, -24 + rnd() * 48, .1, -6 - rnd() * 40); t.rotation.y = rnd() * 3; sc.add(t); }   // daun teratai
-  const pr = new THREE.Group(); pr.add(kotak(2.6, .8, 6, 0xc8553d, 0, .3, 0), kotak(2.1, .25, 5.4, 0x8a5a2a, 0, .7, 0)); pr.position.set(-22, 0, -30); pr.rotation.y = .6; sc.add(pr);
+  const pr = perahu('sampan', 0x3a9a8a); pr.position.set(-22, .05, -30); pr.rotation.y = .6; sc.add(pr); const p2 = perahu('sampan', 0xe0a020); p2.position.set(30, .05, -48); p2.rotation.y = -1.1; sc.add(p2); PERAHU.push(pr, p2);
 } else if (LT.jenis === 'sungai') {
+  { const pr = perahu('sampan', 0x3a7ad8); pr.position.set(-26, .05, -6); pr.rotation.y = 1.4; sc.add(pr); PERAHU.push(pr); }
   // sungai mengalir ke samping: tepi dekat (tempat dermaga) & tepi seberang dengan sawah, pohon, rumah, gunung
   darat(0, 30, 900, 40, 0x6aae4c); darat(0, -66, 900, 60, 0x6aae4c);
   for (let k = 0; k < 30; k++) { const s = kotak(14, .3, 10, k % 2 ? 0x8ccf4a : 0x9ad85a, -200 + k * 14, .32, -48); s.castShadow = false; sc.add(s); }   // petak sawah seberang
@@ -145,7 +148,7 @@ if (LT.jenis === 'danau') {
   for (let k = 0; k < 16; k++) pohon(-80 + k * 10 + rnd() * 4, 24 + rnd() * 6, .9, true);
   for (let k = 0; k < 6; k++) { const h = 22 + rnd() * 30, g = kotak(12, h, 12, [0xe8eef4, 0xd8e4f0, 0xf4ecd8][k % 3], 70 + k * 16, h / 2, -10 - k * 22); sc.add(g); sc.add(kotak(12.4, 1, 12.4, 0x3a7ad8, 70 + k * 16, h + .5, -10 - k * 22)); }
   for (let k = 0; k < 3; k++) { const x = -120 + k * 110, z = -230 - rnd() * 60; const p = kotak(40 + rnd() * 30, 10, 26, 0x5a9a52, x, 2, z); p.castShadow = false; sc.add(p); pohon(x, z, 1.4, true); }
-  for (let k = 0; k < 3; k++) { const pr = new THREE.Group(); pr.add(kotak(2.6, .9, 7, [0x3a7ad8, 0xe0a020, 0x2a9a9a][k], 0, .3, 0), kotak(1.6, 1.4, 1.6, 0xf4f4f0, 0, 1.4, 1)); pr.position.set(-50 + k * 45, 0, -70 - k * 30); pr.rotation.y = k; sc.add(pr); }
+  for (let k = 0; k < 3; k++) { const pr = perahu(k === 1 ? 'jukung' : 'kapal', [0x3a7ad8, 0xe0a020, 0x2a9a9a][k], k === 2 ? 0xe0503a : 0xf4f0e6); pr.position.set(-50 + k * 45, .1, -70 - k * 30); pr.rotation.y = k + .4; sc.add(pr); PERAHU.push(pr); }
 }
 
 // ---- dermaga kayu: dari darat (z +24) menjorok ke air sampai z 0 ----
@@ -160,7 +163,9 @@ const DERMAGA_Y = .75, DZ1 = LT.jenis === 'sungai' ? 12 : 24;
   // papan nama lokasi di pangkal dermaga
   const pap = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 1), new THREE.MeshBasicMaterial({map: teksTex(512, 116, '🎣 MANCING KOTAK · ' + LT.nama.toUpperCase(), '#2c3150', '#f2c14a')}));
   for (const x of [-2.3, 2.3]) g.add(kotak(.25, 3.2, .25, 0x6a4426, x, DERMAGA_Y + 1.5, DZ1 - 1)); pap.position.set(0, DERMAGA_Y + 2.7, DZ1 - 1.15); pap.rotation.y = Math.PI; g.add(pap);
-  g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); sc.add(g); }
+  g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); sc.add(g);
+  // sampan warga ditambat di samping dermaga
+  const sp = perahu(LT.jenis === 'laut' ? 'jukung' : 'sampan', LT.jenis === 'laut' ? 0x2a9a9a : 0xc8553d); sp.position.set(LT.jenis === 'laut' ? -6.2 : -4.3, .05, 7.5); sp.rotation.y = .06; sc.add(sp); PERAHU.push(sp); }
 
 // ---- avatar warga (asli dari akun) + joran ----
 const JORAN = [{id: 'bambu', nama: 'Joran Bambu', ikon: '🎋', batang: 0xc8a050, ruas: 0x8a6a2a}, {id: 'karbon', nama: 'Joran Karbon', ikon: '🎣', batang: 0x2a2c34, ruas: 0xe0503a},
@@ -203,17 +208,8 @@ const SERU = new THREE.Sprite(new THREE.SpriteMaterial({map: (() => { const c = 
 const RIAK = []; for (let k = 0; k < 4; k++) { const m = new THREE.Mesh(new THREE.RingGeometry(.8, 1, 24), new THREE.MeshBasicMaterial({color: 0xffffff, transparent: true, opacity: 0, depthWrite: false})); m.rotation.x = -Math.PI / 2; m.userData.t = 9; sc.add(m); RIAK.push(m); }
 function riak(x, z, besar = 1) { const m = RIAK.find(r => r.userData.t > 1.2) || RIAK[0]; m.position.set(x, .12, z); m.userData.t = 0; m.userData.b = besar; }
 // ikan yang sedang ditarik (muncul saat dekat) & ikan di tangan saat tertangkap
-function ikanMesh(f) {
-  const g = new THREE.Group(), s = f.pj * (.55 + Math.min(1.4, f.g / 2500) * .5);
-  if (!f.g) { g.add(kotak(.5 * s, .35 * s, .9 * s, f.warna, 0, 0, 0), kotak(.52 * s, .12 * s, .5 * s, f.perut, 0, -.12 * s, .2 * s)); return g; }   // sampah
-  g.add(kotak(.32 * s, .5 * s, 1.1 * s, f.warna, 0, 0, 0), kotak(.3 * s, .2 * s, .9 * s, f.perut, 0, -.17 * s, .02 * s));
-  const ekor = kotak(.08 * s, .5 * s, .4 * s, f.warna, 0, 0, -.72 * s); ekor.rotation.x = .2; g.add(ekor); g.userData.ekor = ekor;
-  g.add(kotak(.06 * s, .22 * s, .36 * s, f.warna, 0, .32 * s, -.05 * s));
-  for (const x of [-1, 1]) g.add(kotak(.04, .1 * s, .1 * s, 0x1d1e24, x * .17 * s, .08 * s, .4 * s), kotak(.03, .05 * s, .05 * s, 0xffffff, x * .19 * s, .1 * s, .42 * s));
-  return g;
-}
 let IKAN3D = null;
-function pasangIkan3D(f) { if (IKAN3D) sc.remove(IKAN3D); IKAN3D = ikanMesh(f); IKAN3D.visible = false; IKAN3D.traverse(m => { if (m.isMesh) m.castShadow = true; }); sc.add(IKAN3D); }
+function pasangIkan3D(f) { if (IKAN3D) sc.remove(IKAN3D); IKAN3D = ikanMesh(f); IKAN3D.userData.s0 = IKAN3D.scale.x; IKAN3D.visible = false; IKAN3D.traverse(m => { if (m.isMesh) { m.castShadow = true; for (const mt of [].concat(m.material)) if (mt.emissive) mt.emissive.setHex(0x303030); } }); sc.add(IKAN3D); }
 
 // =====================================================================
 // 3. PERMAINAN
@@ -321,7 +317,12 @@ function langkah(dt, t) {
     if (MODE === 'tarik' && Math.random() < dt * (S.lawan > 0 ? 6 : 1.5)) riak(S.tx, S.tz, S.lawan > 0 ? 1.4 : .8);
   }
   if (MODE === 'dapat') {
-    S.tDapat -= dt; if (IKAN3D) { UJUNG.getWorldPosition(_v); IKAN3D.visible = true; IKAN3D.position.set(_v.x, _v.y - .9 + Math.sin(t * 6) * .05, _v.z); IKAN3D.rotation.set(Math.PI / 2 - .2, t * 2, Math.sin(t * 14) * .5); }
+    S.tDapat -= dt; if (IKAN3D) { UJUNG.getWorldPosition(_v); IKAN3D.visible = true; const s0 = IKAN3D.userData.s0, k = THREE.MathUtils.smoothstep(1.5 - S.tDapat, .25, .7);   // ikan naik dari ujung joran lalu dipamerkan dekat kamera, tampak samping
+      _v.y -= .45 + .5 * s0; cam.getWorldDirection(_u); _u.y = 0; _u.normalize(); const dx = cam.position.x + _u.x * 3.4 - _u.z * .7, dz = cam.position.z + _u.z * 3.4 + _u.x * .7;
+      IKAN3D.position.set(_v.x + (dx - _v.x) * k, _v.y + (cam.position.y - .75 - _v.y) * k + Math.sin(t * 6) * .05, _v.z + (dz - _v.z) * k);
+      IKAN3D.scale.setScalar(s0 * (1 + k * (Math.min(1.25, 1.5 / (1.1 * s0)) - 1)));
+      IKAN3D.rotation.set((-Math.PI / 2 + .12) * (1 - k) + Math.sin(t * 3) * .12 * k, Math.atan2(_u.x, _u.z) + Math.PI / 2 * k + Math.sin(t * 14) * .2 * (1 - k), (t * 1.6) * (1 - k));
+      if (IKAN3D.userData.ekor) IKAN3D.userData.ekor.rotation.y = Math.sin(t * 16) * .45; }
     if (S.tDapat <= 0) { if (IKAN3D) IKAN3D.visible = false; if (sisa <= 0) return selesaiSesi(); keSiap(); }
   }
   // ayunan joran: siap = tegak condong ke depan, isi = ditarik ke belakang, terbang = maju, tarik = melengkung naik-turun
@@ -420,7 +421,7 @@ let lama = performance.now(), fr = 0;
 function loop(now) {
   requestAnimationFrame(loop);
   const dt = Math.min(.05, (now - lama) / 1000), t = now / 1000; lama = now; fr++;
-  if (fr % 2 === 0) ombak(t);
+  if (fr % 2 === 0) { ombak(t); for (const pr of PERAHU) { const y0 = pr.userData.y0 ??= pr.position.y; pr.position.y = y0 + tinggiAir(pr.position.x, pr.position.z, t); pr.rotation.z = Math.sin(t * 1.3 + pr.position.x) * .04; pr.rotation.x = Math.cos(t * 1.1 + pr.position.z) * .025; } }
   langkah(dt, t); kamera(dt, t);
   R.render(sc, cam);
 }
