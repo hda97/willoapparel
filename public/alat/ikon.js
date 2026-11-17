@@ -111,6 +111,7 @@
     gerigi: c(12, 12, 3.2, KUNING) + p("M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1") + c(12, 12, 6.5) + c(12, 12, 3.2),
     bintang: k("M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z") + p("M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"),
     awan: k("M7 18a4 4 0 0 1-.5-8 5.5 5.5 0 0 1 10.6 1.5A3.3 3.3 0 0 1 17 18z") + p("M7 18a4 4 0 0 1-.5-8 5.5 5.5 0 0 1 10.6 1.5A3.3 3.3 0 0 1 17 18zM12 11v5M9.8 13.2 12 11l2.2 2.2"),
+    target: c(12, 12, 9, KUNING) + c(12, 12, 9) + c(12, 12, 5.5, "#fff") + c(12, 12, 5.5) + c(12, 12, 2, BIRU) + p("M12 12l7-7M16 5h3v3"),
     kalkulator: k("M7 5h10v4H7z") + p("M5 2.5h14v19H5zM7 5h10v4H7zM8 12.5h.01M12 12.5h.01M16 12.5h.01M8 16h.01M12 16h.01M16 16v3M8 19h4")
   };
   // Emoji → nama ikon. Varian FE0F diabaikan.
@@ -123,7 +124,7 @@
     "💡":"lampu","🛵":"motor","👛":"dompet","📚":"tumpukanBuku","🏘":"kampung","⏰":"jam","🏆":"piala","⚡":"petir","🔌":"colokan","🔋":"baterai","📱":"hp","🔒":"gembok","🔐":"gembok","🔓":"gembokBuka",
     "👕":"kaos","🎽":"kaosOlahraga","🧥":"jaket","👗":"gaun","👚":"kaos","🧢":"topi","👟":"sepatu","🍚":"nasi","🍜":"mie","🍗":"ayam","🍢":"sate","🥟":"pangsit","🍞":"roti",
     "🍰":"kue","🍩":"donat","☕":"kopi","🧋":"esteh","🥤":"gelas","🧃":"minumanKotak","🍹":"jus","🍦":"esKrim","🍌":"pisang","🥚":"telur","🧂":"garam","🛢":"minyak",
-    "🍫":"coklat","🍬":"permen","🍘":"senbei","🍪":"kukis","💈":"potongRambut","🧴":"botol","🧼":"sabun","✂":"gunting","⛽":"bensin","🎁":"hadiah","🛏":"kasur","🛞":"ban","⚙":"gerigi","🧮":"kalkulator","⭐":"bintang","🌟":"bintang","☁":"awan"
+    "🍫":"coklat","🍬":"permen","🍘":"senbei","🍪":"kukis","💈":"potongRambut","🧴":"botol","🧼":"sabun","✂":"gunting","⛽":"bensin","🎁":"hadiah","🛏":"kasur","🛞":"ban","⚙":"gerigi","🧮":"kalkulator","⭐":"bintang","🌟":"bintang","☁":"awan","🎯":"target"
   };
   function svg(nama){
     return '<svg class="lik" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + G[nama] + '</svg>';
