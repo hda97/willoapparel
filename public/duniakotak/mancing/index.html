@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Mancing Kotak · Dunia Kotak</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#13141f">
+<link rel="icon" href="/duniakotak/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap">
+<style>
+/* Mancing Kotak (Huda 18 Nov 2026): lomba mancing 90 detik dari gapura Dermaga Kotak Tlaga. Pola halaman = Reli Kotak:
+   kanvas 3D penuh layar, lobi ringkas muat satu layar tanpa geser, panel kaca navy, pop up hasil berupa kotak angka sebaris. */
+:root{--navy:#2c3150;--kaca:rgba(30,33,56,.8);--teks:#f4f2ff;--redup:rgba(244,242,255,.68);--kuning:#f2c14a;--hijau:#3aa860;--merah:#e0503a;--f:"Montserrat",system-ui,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:#8fd0f2;color:var(--teks);font-family:var(--f);overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:none;-webkit-touch-callout:none}
+#kanvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+[hidden]{display:none!important}
+button,a.tombol{font-family:var(--f);cursor:pointer;border:0;color:inherit;text-decoration:none}
+button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
+.kaca{background:var(--kaca);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:16px}
+.utama{display:block;width:100%;text-align:center;background:var(--kuning);color:#1d1d22;font-weight:900;font-size:17px;padding:13px;border-radius:14px;box-shadow:0 4px 0 #b88a1e}
+.utama:active{transform:translateY(3px);box-shadow:0 1px 0 #b88a1e}
+.kedua{display:block;width:100%;text-align:center;background:rgba(255,255,255,.12);font-weight:800;font-size:13px;padding:10px;border-radius:12px}
+/* LOBI: ringkas, muat satu layar HP mendatar tanpa geser (aturan Huda 10 Nov) */
+#lobi{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:max(12px,env(safe-area-inset-left,0px));width:min(290px,calc(100vw - 24px));display:flex;flex-direction:column;gap:7px;overflow:hidden}
+.judul small{display:block;font-size:9.5px;font-weight:800;letter-spacing:.16em;color:var(--kuning);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.judul h1{margin:1px 0 0;font-size:28px;font-weight:900;line-height:1;color:#fff;text-shadow:0 2px 0 rgba(19,20,31,.35)}
+.judul h1 span{color:var(--kuning)}
+.status{padding:8px 11px;display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}
+.status div{min-width:0}.status small{display:block;font-size:9px;font-weight:800;color:var(--redup);letter-spacing:.05em}
+.status b{display:block;font-size:15px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lokasi{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.lokasi button{padding:4px 2px;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:3px;border-radius:10px;white-space:nowrap;overflow:hidden}
+.lokasi button i{font-style:normal;font-size:13px}
+.lokasi button.pilih{background:var(--kuning);color:#1d1d22}
+.lokasi button.kunci{opacity:.6}
+.warna{display:flex;gap:5px;align-items:center;padding:5px 8px}
+.warna .titik{flex:0 0 auto;width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
+.warna .titik.pilih{box-shadow:0 0 0 3px #fff}
+#lJoran{margin-right:auto;min-width:0;flex:1 1 auto;display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:9px;background:rgba(255,255,255,.14);font-size:11.5px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#lJoran i{font-style:normal;font-size:14px}#lJoran::after{content:'▸';margin-left:auto;padding-left:4px;color:var(--kuning)}
+.aksi{display:grid;grid-template-columns:1fr auto;gap:7px}
+.aksi .kedua{width:auto;padding:0 12px;display:flex;align-items:center}
+.aturan{font-size:10.5px;font-weight:700;color:#fff;padding:6px 10px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.teladan{display:flex;gap:5px;overflow:hidden}
+.teladan span{flex:0 1 auto;min-width:0;font-size:10.5px;font-weight:800;padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.teladan span.saya{background:rgba(242,193,74,.55);color:#1d1d22}
+#dompet{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:max(14px,env(safe-area-inset-right,0px));padding:8px 13px;font-weight:900;font-size:15px}
+/* HUD MANCING: jam di atas tengah, hasil tangkapan kanan atas, tombol aksi besar kanan bawah, meter tegangan di sebelahnya */
+#keluar{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:max(10px,env(safe-area-inset-left,0px));padding:8px 12px;font-size:12px;font-weight:800}
+#jam{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);padding:5px 16px 6px;text-align:center;border-radius:10px;background:rgba(19,20,31,.82)}
+#jam b{display:block;font-size:24px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.05}
+#jam small{display:block;font-size:9px;font-weight:900;letter-spacing:.12em;color:var(--redup);white-space:nowrap}
+#jam.habis b{color:#ffb35a}
+#tangkap{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));right:max(10px,env(safe-area-inset-right,0px));padding:6px 12px;text-align:right;border-radius:12px}
+#tangkap b{display:block;font-size:17px;font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap}
+#tangkap small{display:block;font-size:9px;font-weight:900;letter-spacing:.1em;color:var(--redup);white-space:nowrap}
+#petunjuk{position:fixed;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));max-width:min(330px,calc(100vw - 210px));padding:8px 12px;font-size:12px;font-weight:800;line-height:1.3}
+#kendali{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));display:flex;align-items:flex-end;gap:10px}
+#meter{position:relative;width:24px;height:122px;border-radius:12px;background:rgba(19,20,31,.65);border:2px solid rgba(255,255,255,.45);overflow:hidden}
+#meter i{position:absolute;left:0;right:0;bottom:0;height:0;background:var(--hijau)}
+#meter.kuat i{background:linear-gradient(0deg,#7ad0ff,#f2c14a)}
+#meter.awas i{background:#f2a33a}#meter.bahaya i{background:var(--merah)}
+#meter::after{content:'';position:absolute;left:0;right:0;top:18%;border-top:2px dashed rgba(255,255,255,.6)}
+#meter.kuat::after{display:none}
+#meterL{position:absolute;bottom:128px;right:0;font-size:10px;font-weight:900;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+#bAksi{width:122px;height:122px;border-radius:50%;background:rgba(242,193,74,.92);color:#1d1d22;font-size:15px;font-weight:900;border:4px solid #fff;box-shadow:0 5px 0 #b88a1e,0 6px 16px rgba(0,0,0,.25);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;touch-action:none}
+#bAksi i{font-style:normal;font-size:34px;margin-bottom:2px}
+#bAksi small{font-size:9px;font-weight:900;letter-spacing:.06em;opacity:.8;margin-top:2px}
+#bAksi.tekan{transform:translateY(3px) scale(.97);box-shadow:0 2px 0 #b88a1e}
+#bAksi.tarik{background:#e0503a;color:#fff;animation:denyut .45s ease-in-out infinite alternate}
+#bAksi.gulung{background:#3aa860;color:#fff}
+#bAksi.tunggu{background:rgba(30,33,56,.75);color:#fff;box-shadow:none}
+@keyframes denyut{to{transform:scale(1.08)}}
+#hitung{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+#hitung b{font-size:84px;font-weight:900;color:#fff;text-shadow:0 4px 0 rgba(19,20,31,.5);animation:dentum .9s ease-out}
+@keyframes dentum{0%{transform:scale(1.7);opacity:0}25%{transform:scale(1);opacity:1}100%{opacity:.85}}
+#kabar{position:fixed;left:50%;top:78px;transform:translateX(-50%);display:grid;gap:6px;justify-items:center;pointer-events:none}
+#kabar div{padding:7px 14px;font-size:13px;font-weight:900;animation:muncul 2.2s forwards;white-space:nowrap}
+#kabar div.ikan{font-size:16px;background:rgba(242,193,74,.92);color:#1d1d22}
+@keyframes muncul{0%{opacity:0;transform:translateY(8px) scale(.9)}10%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
+/* HASIL: pop up ringkas tanpa geser, muat layar HP */
+.popup{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,12,24,.45);padding:10px}
+.popup .isi{width:min(370px,100%);max-height:calc(100% - 8px);padding:12px 14px;display:grid;gap:8px;overflow:hidden}
+.popup h2{margin:0;font-size:19px;font-weight:900;text-align:center}
+.angka{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.angka div{background:rgba(255,255,255,.08);border-radius:10px;padding:6px 2px;text-align:center;min-width:0}
+.angka b{display:block;font-size:15px;font-weight:900;white-space:nowrap}.angka small{display:block;font-size:9px;font-weight:800;color:var(--redup)}
+.angka div.utamaA{background:rgba(242,193,74,.25)}
+.hadiah{text-align:center;font-weight:800;font-size:11.5px;color:var(--redup)}
+.dua{display:grid;grid-template-columns:1fr 1.6fr;gap:8px}
+.dua .utama{padding:10px;font-size:15px}.dua .kedua{display:flex;align-items:center;justify-content:center}
+@media (max-height:330px){#lobi{gap:5px}.judul h1{font-size:22px}.status{padding:5px 10px}.utama{padding:9px;font-size:15px}.warna{padding:4px 8px}.lokasi button{padding:2px 0}
+ #bAksi{width:100px;height:100px;font-size:13px}#bAksi i{font-size:28px}#meter{height:100px}#meterL{bottom:106px}#jam b{font-size:20px}#tangkap b{font-size:15px}#kabar{top:62px}#petunjuk{font-size:11px;padding:6px 10px}}
+</style>
+<script type="importmap">{"imports":{"three":"/duniakotak/three/0.169.0/three.module.min.js","three/addons/geometries/RoundedBoxGeometry.js":"/duniakotak/mabar/js/kotakBulat.js?v=20261108r","three/addons/":"/duniakotak/three/0.169.0/jsm/"}}</script>
+</head>
+<body>
+<canvas id="kanvas"></canvas>
+<div id="lobi">
+ <div class="judul"><small id="lJudul">🎣 DERMAGA KOTAK TLAGA</small><h1>Mancing <span>Kotak</span></h1></div>
+ <div class="lokasi" id="lLokasi"></div>
+ <div class="kaca status"><div><small>REKORMU</small><b id="lRekor">–</b></div><div><small>POSISI</small><b id="lPos">–</b></div></div>
+ <div class="kaca warna" id="lWarna"><button id="lJoran" type="button"></button></div>
+ <div class="aksi"><button class="utama" id="bMulai">🎣 MULAI MANCING</button><a class="kedua tombol kaca" id="bDesa" href="/duniakotak/mabar/?dusun=tlaga&amp;ke=mancing">← Desa</a></div>
+ <div class="kaca aturan" id="lAturan">90 detik, kejar ikan terberat · +10 🪙 (3x sehari)</div>
+ <div class="teladan" id="lTop"></div>
+</div>
+<div id="dompet" class="kaca" hidden></div>
+
+<button id="keluar" class="kaca" hidden>✕ Keluar</button>
+<div id="jam" hidden><b id="jWaktu">1:30</b><small id="jKet">SISA WAKTU</small></div>
+<div id="tangkap" class="kaca" hidden><b id="tBerat">0,00 kg</b><small id="tEkor">0 EKOR</small></div>
+<div id="petunjuk" class="kaca" hidden></div>
+<div id="kendali" hidden><div id="meter"><i></i><span id="meterL"></span></div><button id="bAksi" type="button"><i>🎣</i><span id="bAksiT">LEMPAR</span><small id="bAksiK">TAHAN · LEPAS</small></button></div>
+<div id="hitung" hidden></div>
+<div id="kabar"></div>
+<div id="hasil" class="popup" hidden>
+ <div class="isi kaca">
+  <h2 id="hsJudul">WAKTU HABIS! 🎣</h2>
+  <div class="angka" id="hsRinci"></div>
+  <div class="hadiah" id="hsHadiah"></div>
+  <div class="dua"><a class="kedua tombol" id="bDesa2" href="/duniakotak/mabar/?dusun=tlaga&amp;ke=mancing">Ke desa</a><button class="utama" id="bLagi">🎣 MANCING LAGI</button></div>
+ </div>
+</div>
+<script type="module" src="mancing.js?v=20261118a"></script>
+</body>
+</html>

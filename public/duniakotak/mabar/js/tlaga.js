@@ -61,6 +61,8 @@ export function tlaga(sc, o = {}) {
   const perahu = (x, z, ry, c) => { const g = new THREE.Group(); const b = box(3, .9, 7, c, .3); b.position.y = .45; g.add(b); const ds = box(2.4, .3, 6.2, 0x8a5a2a, .1); ds.position.y = .8; g.add(ds);
     g.position.set(x, .1, z); g.rotation.y = ry; g.traverse(m => { if (m.isMesh) m.castShadow = true; }); G.add(g); };
   perahu(DERMAGA.x0 - 3, DERMAGA.z0 + 6, .1, 0xc8553d); perahu(DERMAGA.x1 + 3.4, DERMAGA.z0 + 9, -.15, 0x3a7ad8); perahu(-30, ZC + 8, 1.2, 0xe0a020); perahu(40, ZC - 18, 2.3, 0x2a9a9a);
+  // gapura Mancing Kotak di pangkal dermaga (Huda 18 Nov 2026) → tombol 🏆 Lomba membuka /duniakotak/mancing/
+  { const m = F.gapuraMancing(); m.position.set((DERMAGA.x0 + DERMAGA.x1) / 2, .5, DERMAGA.z1 - 3); G.add(m); }
   { const g = new THREE.Group(); [[0, 0], [5, 0], [0, 5], [5, 5]].forEach(([a, b]) => { const t = box(.3, 3, .3, 0x8a6a3a, .05); t.position.set(a - 2.5, 0, b - 2.5); g.add(t); });
     const lt = box(6, .3, 6, 0xc8a070, .05); lt.position.y = .6; g.add(lt); g.position.set(-55, 0, ZC - 6); G.add(g); }   // keramba ikan
   // sungai masuk dari utara (x≈0) & keluar ke timur (z≈ZC), sampai menembus hutan; jembatan di tiap jalan
@@ -115,7 +117,7 @@ export function tlaga(sc, o = {}) {
   { const f = fasum(BANDARA.x, BANDARA.z, 46, 66); lahanKosong.push({x: BANDARA.x, z: BANDARA.z, y: 0, g: f, ry: -Math.PI / 2, besar: 3.2});
     road(BANDARA.x + 26, BANDARA.z, 4, 66); road((BANDARA.x + 26 + 0) / 2, BANDARA.z, -BANDARA.x - 26, 4); }
   bangunan.push({position: V3(0, 0, (ZC - 4) * VS), nama: '🛶 Danau Tlaga', tinggi: 4 * VS, rect: null});
-  bangunan.push({position: V3(19 * VS, 0, (DERMAGA.z0 + 4) * VS), nama: '⚓ Dermaga', tinggi: 3 * VS, rect: null});
+  bangunan.push({position: V3(19 * VS, 0, (DERMAGA.z0 + 4) * VS), nama: '🎣 Dermaga · Mancing Kotak', tinggi: 3 * VS, rect: null});
   bangunan.push({position: V3(0, 0, ZT * VS), nama: '🚌 Terminal & Gapura Kotak Tlaga', tinggi: 3 * VS, rect: null});
 
   // ---- kavling bertahap: warga No. 661+ ----
@@ -133,6 +135,7 @@ export function tlaga(sc, o = {}) {
     info.lots[no] = {c: V3(l.cx * VS, 0, l.cz * VS), gate: V3((l.cx - 2 * dir) * VS, 0, (l.cz + hd * dir) * VS), stone: V3((l.cx - 2 * dir) * VS, 0, (l.cz + (hd - 1.3) * dir) * VS), dir, lokal: l.n};
   });
   info.buildLot = no => { const l = LOTS[no - AWAL_TLAGA - 1]; return l ? bl(l) : null; };
+  info.dermaga = {x0: DERMAGA.x0 * VS, x1: DERMAGA.x1 * VS, z0: DERMAGA.z0 * VS, z1: DERMAGA.z1 * VS};   // area tombol 🏆 Lomba (Mancing Kotak)
   info.batas = {x0: -(XS + 4) * VS, x1: (XS + 4) * VS, z0: (ZU - 14) * VS, z1: (BANDARA.z + 36) * VS};   // sampai kawasan bandara
   info.spawn = V3(0, 0, (ZT - 14) * VS);
   // air tidak bisa diinjak (kecuali dermaga & jembatan) — dipakai bebas() dan navigasi di game.js
