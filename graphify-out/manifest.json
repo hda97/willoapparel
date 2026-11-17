@@ -113,9 +113,9 @@
     "semantic_hash": "16f7aa92d3e9468edf41dd30b4c182d1"
   },
   "public/duniakotak/mabar/game.js": {
-    "mtime": 1794955481.6200159,
-    "seen": 1794955647.0628903,
-    "ast_hash": "db522eb420511ea3b23d4e293bb74c3a",
+    "mtime": 1794955924.156042,
+    "seen": 1794956009.2387571,
+    "ast_hash": "4f24772210e8e76fb1c2805621b69f62",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/avatar.js": {
@@ -126,7 +126,7 @@
   },
   "public/duniakotak/mabar/js/aset/fasum.js": {
     "mtime": 1794953575.0382187,
-    "seen": 1794955050.213338,
+    "seen": 1794956009.2387605,
     "ast_hash": "33e946422ff519f6c0d8f30f6ed7516f",
     "semantic_hash": ""
   },
@@ -162,7 +162,7 @@
   },
   "public/duniakotak/mabar/js/kulon.js": {
     "mtime": 1794954861.7923648,
-    "seen": 1794955050.2133527,
+    "seen": 1794956009.2387755,
     "ast_hash": "855cab1bc14aad8b697ba1c6ee3c7bef",
     "semantic_hash": ""
   },
@@ -209,9 +209,9 @@
     "semantic_hash": "bf3f8e495130df0e60287acb7ca38561"
   },
   "worker.js": {
-    "mtime": 1794955481.624405,
-    "seen": 1794955647.0631297,
-    "ast_hash": "1424eb43280f841990a0aef3bf7187be",
+    "mtime": 1794955915.6778245,
+    "seen": 1794956009.2389357,
+    "ast_hash": "8da81b31737a0500132ccdda13cc975c",
     "semantic_hash": ""
   },
   "public/kantor-agen-ai/demo-kantor-ai.mp4": {
@@ -648,7 +648,7 @@
   },
   "public/duniakotak/mabar/js/tlaga.js": {
     "mtime": 1794953575.0389154,
-    "seen": 1794955050.2133667,
+    "seen": 1794956009.2387931,
     "ast_hash": "35d4b8af77075e2a4db9612eee17f005",
     "semantic_hash": ""
   },
@@ -971,9 +971,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/index.html": {
-    "mtime": 1794955468.670651,
-    "seen": 1794955647.065212,
-    "ast_hash": "a5305ec51ecde9d4160f44a7cb7174f4",
+    "mtime": 1794955915.6785243,
+    "seen": 1794956009.2402496,
+    "ast_hash": "14ef641af1cefd2fb908511fcf8a4334",
     "semantic_hash": ""
   },
   "public/duniakotak/privasi.html": {
@@ -9000,7 +9000,7 @@
   },
   "public/duniakotak/mabar/js/lalulintas.js": {
     "mtime": 1794954861.7944784,
-    "seen": 1794955050.2133543,
+    "seen": 1794956009.2387774,
     "ast_hash": "48bc1eba7a3cab32c93681254a9ffd2e",
     "semantic_hash": ""
   },
@@ -14700,7 +14700,7 @@
   },
   "konten-ig/insight/terbaru.json": {
     "mtime": 1794954861.7344785,
-    "seen": 1794955050.2132573,
+    "seen": 1794956009.2386487,
     "ast_hash": "d4c6b0903e98856cc8ceb9fac1008d2f",
     "semantic_hash": ""
   },
@@ -16596,25 +16596,25 @@
   },
   "public/alat/antrian/index.html": {
     "mtime": 1794952682.0450232,
-    "seen": 1794955050.2147162,
+    "seen": 1794956009.240195,
     "ast_hash": "14243aa337c90b2debf17d20c82d5f72",
     "semantic_hash": ""
   },
   "public/alat/buku-kas/index.html": {
     "mtime": 1794952682.0450232,
-    "seen": 1794955050.2147174,
+    "seen": 1794956009.240197,
     "ast_hash": "043b61d67a3e0a27b3dc6aa250146b7a",
     "semantic_hash": ""
   },
   "public/alat/index.html": {
     "mtime": 1794952682.0450232,
-    "seen": 1794955050.214723,
+    "seen": 1794956009.240205,
     "ast_hash": "48a93b560fa12791ce7f90725f7934d2",
     "semantic_hash": ""
   },
   "public/alat/kasir/index.html": {
     "mtime": 1794952682.0450232,
-    "seen": 1794955050.2147243,
+    "seen": 1794956009.2402074,
     "ast_hash": "88760ff428e3bf750bf404ff7d7e8d55",
     "semantic_hash": ""
   },
@@ -16932,7 +16932,7 @@
   },
   "public/alat/nota/index.html": {
     "mtime": 1794952682.0490232,
-    "seen": 1794955050.2147274,
+    "seen": 1794956009.2402115,
     "ast_hash": "812a9ca7fe22c6b3343640eb023d7148",
     "semantic_hash": ""
   },
@@ -17028,7 +17028,7 @@
   },
   "aplikasi-alat/siapkan-www.mjs": {
     "mtime": 1794952681.9270232,
-    "seen": 1794955050.2130437,
+    "seen": 1794956009.2384791,
     "ast_hash": "47001a2eb9cc5fa2c6636f8d42169f8e",
     "semantic_hash": ""
   },
@@ -17040,7 +17040,7 @@
   },
   "public/alat/tagihan/index.html": {
     "mtime": 1794952682.0490232,
-    "seen": 1794955050.2147362,
+    "seen": 1794956009.2402234,
     "ast_hash": "ba90956593cc54d34806b09d040313c8",
     "semantic_hash": ""
   },
@@ -17208,7 +17208,7 @@
   },
   "public/alat/ikon.js": {
     "mtime": 1794952682.0450232,
-    "seen": 1794955050.2133152,
+    "seen": 1794956009.2387369,
     "ast_hash": "5efa0cdaefdd26d857290b5838b8ae0a",
     "semantic_hash": ""
   },
@@ -17220,7 +17220,7 @@
   },
   "public/alat/sinkron.js": {
     "mtime": 1794952682.0490232,
-    "seen": 1794955050.213325,
+    "seen": 1794956009.238747,
     "ast_hash": "38465c540d13617f47414eae5ac47129",
     "semantic_hash": ""
   },
@@ -17232,7 +17232,7 @@
   },
   "public/alat/hpp/index.html": {
     "mtime": 1794952682.0450232,
-    "seen": 1794955050.2147202,
+    "seen": 1794956009.240201,
     "ast_hash": "c1261f2060e140b55bff4d7c08ed9a57",
     "semantic_hash": ""
   },
@@ -17256,7 +17256,7 @@
   },
   "public/alat/pro/index.html": {
     "mtime": 1794952682.0490232,
-    "seen": 1794955050.214734,
+    "seen": 1794956009.2402196,
     "ast_hash": "a5876118b07610f7c49cb99a2309b8ca",
     "semantic_hash": ""
   },
@@ -17292,7 +17292,7 @@
   },
   "konten-ig/kata-kunci.json": {
     "mtime": 1794952682.0450232,
-    "seen": 1794955050.213259,
+    "seen": 1794956009.2386503,
     "ast_hash": "6ab488ed5d525ca590e518710ab103a6",
     "semantic_hash": ""
   },
@@ -17484,199 +17484,199 @@
   },
   "lumbung-ig/katering-kuis-sampul.jpg": {
     "mtime": 1794954861.7384784,
-    "seen": 1794955050.2152586,
+    "seen": 1794956009.2408135,
     "ast_hash": "42e051931b0e430be357cfed7717fd80",
     "semantic_hash": ""
   },
   "lumbung-ig/warung-kiri-kanan-sampul.jpg": {
     "mtime": 1794954861.7664783,
-    "seen": 1794955050.2152603,
+    "seen": 1794956009.2408154,
     "ast_hash": "25b46afaca0489c3aed84c340f9ba7f6",
     "semantic_hash": ""
   },
   "lumbung-ig/katering-kuis.mp4": {
     "mtime": 1794954861.7664783,
-    "seen": 1794955050.2158525,
+    "seen": 1794956009.241469,
     "ast_hash": "b62c8090a3e184217c36a3ba3fdf8801",
     "semantic_hash": ""
   },
   "lumbung-ig/warung-kiri-kanan.mp4": {
     "mtime": 1794954861.7864783,
-    "seen": 1794955050.215854,
+    "seen": 1794956009.2414699,
     "ast_hash": "35b0cf314a79f553ecbdb3674543659f",
     "semantic_hash": ""
   },
   ".claude/skills/ig-caption/caption.py": {
     "mtime": 1794952681.9257495,
-    "seen": 1794955050.211761,
+    "seen": 1794956009.2367103,
     "ast_hash": "7c2a1e63ca7fd8a97bd8130dacad0cf3",
     "semantic_hash": ""
   },
   ".claude/skills/ig-human/detect.py": {
     "mtime": 1794952681.9260514,
-    "seen": 1794955050.2117646,
+    "seen": 1794956009.2367163,
     "ast_hash": "2efcf4e02af6f2cbd9aae48087adeb43",
     "semantic_hash": ""
   },
   ".claude/skills/ig-human/humanize.py": {
     "mtime": 1794952681.9260514,
-    "seen": 1794955050.2117672,
+    "seen": 1794956009.2367196,
     "ast_hash": "0828aacb082d5cda1454aaf6e001e33b",
     "semantic_hash": ""
   },
   ".claude/skills/ig-human/slop.json": {
     "mtime": 1794952681.9260514,
-    "seen": 1794955050.2117693,
+    "seen": 1794956009.2367227,
     "ast_hash": "42e1af04c5b1531c641494d66f16446c",
     "semantic_hash": ""
   },
   ".claude/skills/ig-profile/rubric.json": {
     "mtime": 1794952681.9263701,
-    "seen": 1794955050.211772,
+    "seen": 1794956009.2367253,
     "ast_hash": "d9c735ba6492b2914cb4456d1d838d70",
     "semantic_hash": ""
   },
   ".claude/skills/ig-reel/beats.py": {
     "mtime": 1794952681.926466,
-    "seen": 1794955050.211774,
+    "seen": 1794956009.2367275,
     "ast_hash": "f12d10371caffc8e000648ffe6a0dfaa",
     "semantic_hash": ""
   },
   ".claude/skills/ig-reel/hooks.json": {
     "mtime": 1794952681.926466,
-    "seen": 1794955050.2117767,
+    "seen": 1794956009.23673,
     "ast_hash": "ce0fad6f6a2b7ce3b947b7e48bc6e6b4",
     "semantic_hash": ""
   },
   ".claude/skills/ig-reel/hookscore.py": {
     "mtime": 1794952681.926466,
-    "seen": 1794955050.2117784,
+    "seen": 1794956009.236732,
     "ast_hash": "9eabaf71c2a585a0dd14b059d5f9028a",
     "semantic_hash": ""
   },
   ".claude/skills/ig-viral/swipe.py": {
     "mtime": 1794952681.9270232,
-    "seen": 1794955050.2117798,
+    "seen": 1794956009.2367337,
     "ast_hash": "24674d05ac839fd35efec28529facb0e",
     "semantic_hash": ""
   },
   ".claude/instagram/ATURAN.md": {
     "mtime": 1794952681.9210231,
-    "seen": 1794955050.2135234,
+    "seen": 1794956009.2389529,
     "ast_hash": "58d058964f06a67a5c497a88bf193dc5",
     "semantic_hash": ""
   },
   ".claude/instagram/README.md": {
     "mtime": 1794952681.9250536,
-    "seen": 1794955050.213525,
+    "seen": 1794956009.2389543,
     "ast_hash": "abc9f2fe752d090f304d561596954e57",
     "semantic_hash": ""
   },
   ".claude/instagram/_template-voice-asli.md": {
     "mtime": 1794952681.9250536,
-    "seen": 1794955050.2135265,
+    "seen": 1794956009.238956,
     "ast_hash": "07ec3e7b66468aef8e2e5890538d8eef",
     "semantic_hash": ""
   },
   ".claude/instagram/duniakotak.id/voice.md": {
     "mtime": 1794952681.9250536,
-    "seen": 1794955050.2135282,
+    "seen": 1794956009.2389574,
     "ast_hash": "c9ad4135b3c96ce1896a1a9b3a5d7b78",
     "semantic_hash": ""
   },
   ".claude/instagram/miftakhul_hda/voice.md": {
     "mtime": 1794952681.9250536,
-    "seen": 1794955050.2135293,
+    "seen": 1794956009.2389586,
     "ast_hash": "7fabfd153d57763c622814b45532e54f",
     "semantic_hash": ""
   },
   ".claude/skills/LICENSE-instagram-agent-skill.txt": {
     "mtime": 1794952681.9250536,
-    "seen": 1794955050.213542,
+    "seen": 1794956009.2389774,
     "ast_hash": "622e7d44acfeccd5b4663ef32c58b090",
     "semantic_hash": ""
   },
   ".claude/skills/ig-audit/SKILL.md": {
     "mtime": 1794952681.9250536,
-    "seen": 1794955050.2138646,
+    "seen": 1794956009.2392507,
     "ast_hash": "59e8e38fb6236e6b24e27bda6aa66893",
     "semantic_hash": ""
   },
   ".claude/skills/ig-caption/SKILL.md": {
     "mtime": 1794952681.9250536,
-    "seen": 1794955050.213866,
+    "seen": 1794956009.2392519,
     "ast_hash": "7a3538b23ff256f7997423bbabbf37aa",
     "semantic_hash": ""
   },
   ".claude/skills/ig-carousel/SKILL.md": {
     "mtime": 1794952681.9257495,
-    "seen": 1794955050.213867,
+    "seen": 1794956009.239253,
     "ast_hash": "b348084aadf66a59f7a7292122be77d4",
     "semantic_hash": ""
   },
   ".claude/skills/ig-comment/SKILL.md": {
     "mtime": 1794952681.9257495,
-    "seen": 1794955050.2138684,
+    "seen": 1794956009.2392542,
     "ast_hash": "88bfc367df8cb0d7f1c05330970dd19d",
     "semantic_hash": ""
   },
   ".claude/skills/ig-dm/SKILL.md": {
     "mtime": 1794952681.9257495,
-    "seen": 1794955050.2138693,
+    "seen": 1794956009.2392552,
     "ast_hash": "184ea5507d29a0aa9f3bb24b5e175057",
     "semantic_hash": ""
   },
   ".claude/skills/ig-human/SKILL.md": {
     "mtime": 1794952681.9257495,
-    "seen": 1794955050.2138703,
+    "seen": 1794956009.2392566,
     "ast_hash": "b9af9b30ccac63cf3072c643c21db648",
     "semantic_hash": ""
   },
   ".claude/skills/ig-plan/SKILL.md": {
     "mtime": 1794952681.9260514,
-    "seen": 1794955050.213872,
+    "seen": 1794956009.2392578,
     "ast_hash": "aa19ac5478448f7e83ad668d39b68072",
     "semantic_hash": ""
   },
   ".claude/skills/ig-profile/SKILL.md": {
     "mtime": 1794952681.9260514,
-    "seen": 1794955050.2138731,
+    "seen": 1794956009.2392588,
     "ast_hash": "15fea8dc56b8f34eeebdbf3935f41e49",
     "semantic_hash": ""
   },
   ".claude/skills/ig-reel/SKILL.md": {
     "mtime": 1794952681.9263701,
-    "seen": 1794955050.2138743,
+    "seen": 1794956009.2392602,
     "ast_hash": "cfdf427bb1915a6b8ca9f09e23c44482",
     "semantic_hash": ""
   },
   ".claude/skills/ig-reply/SKILL.md": {
     "mtime": 1794952681.926466,
-    "seen": 1794955050.2138758,
+    "seen": 1794956009.2392612,
     "ast_hash": "8b0877a6a529a128609c782f0369b1a6",
     "semantic_hash": ""
   },
   ".claude/skills/ig-repurpose/SKILL.md": {
     "mtime": 1794952681.926466,
-    "seen": 1794955050.213877,
+    "seen": 1794956009.2392619,
     "ast_hash": "189f78abcc64052b132b2ca96dc5b57c",
     "semantic_hash": ""
   },
   ".claude/skills/ig-story/SKILL.md": {
     "mtime": 1794952681.926466,
-    "seen": 1794955050.213878,
+    "seen": 1794956009.2392633,
     "ast_hash": "980096951a64880470563bb550b2fa03",
     "semantic_hash": ""
   },
   ".claude/skills/ig-terbit/SKILL.md": {
     "mtime": 1794952681.926466,
-    "seen": 1794955050.213879,
+    "seen": 1794956009.2392642,
     "ast_hash": "8f41c0c2a94a9d858ca4ec6b17369b55",
     "semantic_hash": ""
   },
   ".claude/skills/ig-viral/SKILL.md": {
     "mtime": 1794952681.926466,
-    "seen": 1794955050.2138803,
+    "seen": 1794956009.2392654,
     "ast_hash": "2729eab94e057c007230d1c12ccd2b2a",
     "semantic_hash": ""
   },
@@ -17964,62 +17964,68 @@
   },
   "public/alat/leads/index.html": {
     "mtime": 1794952682.0450232,
-    "seen": 1794955050.2147264,
+    "seen": 1794956009.2402096,
     "ast_hash": "322f482418a51658f4e8016335fa8e6b",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/suara.js": {
     "mtime": 1794954861.7944784,
-    "seen": 1794955050.2133653,
+    "seen": 1794956009.2387893,
     "ast_hash": "b21aa02742b961756c354f639b5170fe",
     "semantic_hash": ""
   },
   "konten-ig/insight/2026-11-18.json": {
     "mtime": 1794954861.7344785,
-    "seen": 1794955050.213256,
+    "seen": 1794956009.238647,
     "ast_hash": "d4c6b0903e98856cc8ceb9fac1008d2f",
     "semantic_hash": ""
   },
   "public/duniakotak/sawah/sawah.js": {
-    "mtime": 1794954963.1502202,
-    "seen": 1794955050.2133834,
-    "ast_hash": "ecc2dc16c9d9dbb25f15dcf7683236c6",
+    "mtime": 1794955896.0440404,
+    "seen": 1794956009.2388086,
+    "ast_hash": "654e8b7bf98b73bc921b89bb9f97d377",
     "semantic_hash": ""
   },
   "public/duniakotak/sawah/index.html": {
-    "mtime": 1794954963.1464844,
-    "seen": 1794955050.2147639,
-    "ast_hash": "f0f906b21c51249bb007137c9a05bfa5",
+    "mtime": 1794955896.0440404,
+    "seen": 1794956009.2402585,
+    "ast_hash": "66100bd6a01b2ce9f2d83a8ee4f57410",
     "semantic_hash": ""
   },
   "konten-ig/antrean/2026-11-18.json": {
     "mtime": 1794954963.1104844,
-    "seen": 1794955050.2132387,
+    "seen": 1794956009.2386312,
     "ast_hash": "d7a7cc8eeee6b8c029289f3ae4a888fa",
     "semantic_hash": ""
   },
   "public/duniakotak/mancing/mancing.js": {
     "mtime": 1794955459.7584238,
-    "seen": 1794955647.0629437,
+    "seen": 1794956009.2388,
     "ast_hash": "ee6b34ce4f224d4ccad0cb58dfd35be3",
     "semantic_hash": ""
   },
   "public/duniakotak/mancing/index.html": {
     "mtime": 1794955468.6720152,
-    "seen": 1794955647.0652144,
+    "seen": 1794956009.240252,
     "ast_hash": "b1f7fa37e332c4445e8c6316eccbf59e",
     "semantic_hash": ""
   },
   "public/duniakotak/reel/2026-11-18-sampul.jpg": {
     "mtime": 1794954963.1193707,
-    "seen": 1794955050.215618,
+    "seen": 1794956009.2412174,
     "ast_hash": "9f58079e9d4ba310c4da8ad2a1491d78",
     "semantic_hash": ""
   },
   "public/duniakotak/reel/2026-11-18.mp4": {
     "mtime": 1794954963.1464844,
-    "seen": 1794955050.215876,
+    "seen": 1794956009.2414906,
     "ast_hash": "34ba18706ed41311d1f1737d330d6b7e",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/mabar/js/tanamanSawah.js": {
+    "mtime": 1794955896.0440404,
+    "seen": 1794956009.2387917,
+    "ast_hash": "f638cde17240adfe308b12b1e941cc8a",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {

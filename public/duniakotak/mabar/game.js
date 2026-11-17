@@ -23,6 +23,7 @@ import {buatNav, pecahRute} from './js/navigasi.js';
 import {pasangDesaGabung, LETAK} from './js/desaGabung.js?v=20261111bus';
 import {musimDusun, musimkan, buatCuaca} from './js/musim.js?v=20261114ms';
 import {buatMusik, buatSuaraKendaraan} from './js/suara.js?v=20261118bs';
+import {buatKebun} from './js/tanamanSawah.js?v=20261118a';
 
 const $ = id => document.getElementById(id);
 const VS = D.VS;
@@ -414,6 +415,24 @@ const DUSUN_SAWAH = 'wetan';
 const dekatSawah = me => { if (DI !== DUSUN_SAWAH || !I || !I.sungai || !I.batas) return false; const x = me.position.x, z = me.position.z;
   return x > I.sungai.x1 + .5 && x < I.batas.x1 + 1 && z > I.batas.z0 && z < I.batas.z1; };
 function keSawah() { if (DI !== DUSUN_SAWAH) { if (confirm(`Sawah Wetan ada di Dusun ${NAMA_DUSUN[DUSUN_SAWAH]}. Naik bus ke sana?` + teksTiket())) naikBus(DUSUN_SAWAH, 'sawah'); return; } keTempat('sawah'); }
+// Tanaman warga di sawah dunia (Huda 18 Nov 2026 "Lanjutkan idemu"): petak yang ditanami di mini-game ikut tumbuh di sawah
+// Kotak Wetan. Sawah dunia (40 × panjang dusun) dibagi 4 lajur × 20 baris = 80 petak, urut dari utara. Data: GET publik ber-cache.
+let KEBUN_SAWAH = null, SAWAH_DATA = null, SAWAH_T = 0;
+async function segarSawahDunia() {
+  if (DI !== DUSUN_SAWAH || !I || !I.sungai || document.hidden) return;
+  try { const j = await (await fetch('/duniakotak/api/sawah')).json(); if (j && j.petak) { SAWAH_DATA = j; SAWAH_DATA.selisih = j.kini - Date.now(); } } catch (e) { return; }
+  gambarSawahDunia();
+}
+function gambarSawahDunia() {
+  if (!SAWAH_DATA || !I || !I.sungai) return;
+  if (!KEBUN_SAWAH) KEBUN_SAWAH = buatKebun(sc, {maks: [5000, 1800, 2200], bayangan: false});
+  const x0 = I.sungai.x1 + 1.5 * VS, lebar = 40 * VS, z0 = I.oz * VS, panjang = I.TD * VS, kol = 4, bar = 20;
+  const pw = lebar / kol, pd = panjang / bar, k = pw / 6 * .6, t = Date.now() + (SAWAH_DATA.selisih || 0), tanam = [];
+  for (const pt of SAWAH_DATA.petak) { if (!pt.b) continue; const tot = Math.max(1, pt.siap - pt.t);
+    tanam.push({x: x0 + (pt.p % kol + .5) * pw, z: z0 + (Math.floor(pt.p / kol) + .5) * pd, b: pt.b, f: Math.min(1, Math.max(0, (t - pt.t) / tot)), siap: t >= pt.siap, kunci: pt.p}); }
+  KEBUN_SAWAH.isi(tanam, {uk: 6 * .85 / .6, ukZ: pd / k * .85, k, y: .15 * VS});
+}
+setInterval(() => { if (DI === DUSUN_SAWAH) { if (++SAWAH_T % 6 === 0) segarSawahDunia(); else gambarSawahDunia(); } }, 10000);
 function ikutSawah() { bunyi('masuk'); toast('🌾 Menuju petak sawah…', 1500); setTimeout(() => { location.href = '/duniakotak/sawah/?dari=desa'; }, 500); }
 // ---------- Mancing Kotak (Huda 18 Nov 2026: game mancing seperti Pelari Kalcer & Reli) ----------
 // Gapura Mancing Kotak di pangkal Dermaga Kotak Tlaga (dipasang tlaga.js, I.dermaga). Warga di atas dermaga dapat tombol 🏆 Lomba
@@ -739,6 +758,7 @@ async function bangunDunia() {
   // dek jembatan (lebih tinggi dari jalan): avatar naik ke atasnya, tidak tenggelam
   I.dek = {x0: (ox + I.TW + 6 - 2) * VS, x1: (ox + I.TW + 6 + 14 + 2) * VS, y: .65 * VS, z: I.hroads.filter(([a, b]) => b - a >= 3.9).map(([a, b]) => [(a + oz - .5) * VS, (b + oz + .5) * VS])};
   I.sungai = {x0: (ox + I.TW + 6 - 1.5) * VS, x1: (ox + I.TW + 6 + 14 + 1.5) * VS, jembatan: I.hroads.filter(([a, b]) => b - a >= 3.9).map(([a, b]) => [(a + oz) * VS + 2, (b + oz) * VS - 2])};
+  segarSawahDunia();   // tanaman warga di sawah Kotak Wetan (perlu I.sungai)
 }
 
 const GEO_RINGAN = new RoundedBoxGeometry(1, 1, 1, 1, .07), GEO_DATAR = new THREE.BoxGeometry(1, 1, 1);
@@ -1215,18 +1235,22 @@ const KOLAM_MISI = [
   {id: 'dusun', ikon: '🗺️', judul: 'Jelajah dusun yang berbeda (naik bus di terminal)', t: [2, 3], satuan: 'dusun', koin: 15},
   {id: 'khas', ikon: '📍', judul: 'Kunjungi fasum khas hari ini', t: [1], koin: 15},
   // Mancing Kotak (Huda 18 Nov 2026: "Masuk misi harian?"): selesai 1 sesi lomba di /duniakotak/mancing/ (progres ditulis halaman itu ke dk_misi)
-  {id: 'lombamancing', ikon: '🏆', judul: 'Ikut Lomba Mancing Kotak sampai waktu habis', t: [1], koin: 10, info: 'Gapura Mancing Kotak ada di Dermaga Dusun Kotak Tlaga. Naik ke dermaga, tekan 🏆 Lomba.', ke: ['tlaga', 'Mancing Kotak']},
 ];
+const MISI_MANCING = {id: 'lombamancing', ikon: '🏆', judul: 'Ikut Lomba Mancing Kotak sampai waktu habis', t: [1], koin: 10, info: 'Gapura Mancing Kotak ada di Dermaga Dusun Kotak Tlaga. Naik ke dermaga, tekan 🏆 Lomba.', ke: ['tlaga', 'Mancing Kotak']};
+const MISI_SAWAH = {id: 'sawah', ikon: '🌾', judul: 'Rawat Sawah Wetan: beli petak, tanam, siram, atau panen', t: [2], satuan: 'kali', koin: 10, info: 'Sawah di seberang sungai Kotak Wetan. Belum punya petak? Siram tanaman tetangga juga dihitung.', sawah: 1};
 function undiMisi(hari) {
   let h = 2166136261; for (const c of 'dk' + hari) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
   const r = () => { h = (h + 0x6D2B79F5) >>> 0; let t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   const a = KOLAM_MISI.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
   const pilih = a.slice(0, 6).map(m => ({...m, target: m.t[Math.floor(r() * m.t.length)]}));
-  // Lomba Mancing Kotak SELALU ada tiap hari (Huda 18 Nov 2026): kalau tidak terundi, menggantikan misi ke-6. Sama dengan misiHari() di worker.js.
-  if (!pilih.some(m => m.id === 'lombamancing')) { const lm = KOLAM_MISI.find(m => m.id === 'lombamancing'); pilih[5] = {...lm, target: lm.t[0]}; }
   const kh = pilih.find(m => m.id === 'khas');
   if (kh) { const d = FASUM_KHAS(); let h2 = 0; for (const c of hari) h2 = (h2 * 31 + c.charCodeAt(0)) >>> 0; const [dd, nm] = d[h2 % d.length];
     Object.assign(kh, {judul: `Kunjungi ${nm} di Dusun ${NAMA_DUSUN[dd] || dd}`, info: `Fasum khas Dusun ${NAMA_DUSUN[dd] || dd}. Besok fasum lain!`, ke: [dd, nm]}); }
+  // Misi harian tetap (Huda 18 Nov 2026 "Jadikan misi harian"): tiap hari ada misi Sawah Wetan, di luar undian (worker.js misiHari).
+  // Dihitung di mini-game /duniakotak/sawah/ (beli/tanam/siram/panen menambah dk_misi.p.sawah lalu klaim ke server).
+  pilih.push({...MISI_SAWAH, target: MISI_SAWAH.t[0]});
+  // Lomba Mancing Kotak juga misi tetap (Huda 18 Nov 2026), dihitung di /duniakotak/mancing/ (dk_misi.p.lombamancing), diklaim saat kembali ke desa.
+  pilih.push({...MISI_MANCING, target: MISI_MANCING.t[0]});
   return pilih;
 }
 let MISI = [];
@@ -1277,7 +1301,7 @@ function tulisMisi() {
   $('isiMisi').innerHTML = MISI.map(m => {
     const p = progresMisi(m), ok = MS.selesai.has(m.id);
     return `<div class="misi ${ok ? 'ok' : ''}"><span class="mi">${ok ? '✅' : m.ikon}</span><div><b>${esc(m.judul)}</b>
-      <div class="bar"><i style="width:${Math.round(100 * (ok ? 1 : p / m.target))}%"></i></div><small>${ok ? 'Selesai' : m.target > 1 ? `${p}/${m.target} ${m.satuan || ''}` : 'Belum'}</small>${!ok && m.info ? `<small class="info">📍 ${esc(m.info)}</small>` : ''}${!ok && m.antar ? `<button class="antar" data-antar="${m.antar}">🧭 Antar ke sana</button>` : ''}${!ok && m.ke ? `<button class="antar" data-ke="${m.ke[0]}" data-kenama="${esc(m.ke[1])}">${m.ke[0] === DI ? '🧭 Antar ke sana' : `🚌 Naik bus ke Dusun ${esc(NAMA_DUSUN[m.ke[0]] || m.ke[0])}`}</button>` : ''}</div><span class="koin">+${m.koin * kaliKoin()} 🪙</span></div>`;
+      <div class="bar"><i style="width:${Math.round(100 * (ok ? 1 : p / m.target))}%"></i></div><small>${ok ? 'Selesai' : m.target > 1 ? `${p}/${m.target} ${m.satuan || ''}` : 'Belum'}</small>${!ok && m.info ? `<small class="info">📍 ${esc(m.info)}</small>` : ''}${!ok && m.antar ? `<button class="antar" data-antar="${m.antar}">🧭 Antar ke sana</button>` : ''}${!ok && m.sawah ? `<button class="antar" data-kesawah="1">🧭 Antar ke Sawah</button>` : ''}${!ok && m.ke ? `<button class="antar" data-ke="${m.ke[0]}" data-kenama="${esc(m.ke[1])}">${m.ke[0] === DI ? '🧭 Antar ke sana' : `🚌 Naik bus ke Dusun ${esc(NAMA_DUSUN[m.ke[0]] || m.ke[0])}`}</button>` : ''}</div><span class="koin">+${m.koin * kaliKoin()} 🪙</span></div>`;
   }).join('') + `<div class="misi bonus ${MS.selesai.has('bonus') ? 'ok' : ''}"><span class="mi">🎁</span><div><b>Bonus: selesaikan semua misi</b><small>${MS.selesai.has('bonus') ? 'Sudah diambil' : `Otomatis masuk setelah ${MISI.length} misi selesai`}</small></div><span class="koin">+${BONUS_MISI * kaliKoin()} 🪙 +3 💎</span></div>`;
   // Misi tetap tiap hari (Huda 8 Nov): ikut lari Pelari Kalcer sampai finish, selesai otomatis di server saat finish.
   const okLari = MS.selesai.has('pelari');
@@ -1298,6 +1322,7 @@ function tulisMisi() {
 document.addEventListener('click', e => { if (e.target.closest?.('[data-lari]')) ikutLari(); });
 document.addEventListener('click', e => { if (e.target.closest?.('[data-arena]')) { $('panelMisi').hidden = true; keArenaLari(); } });
 document.addEventListener('click', e => { if (e.target.closest?.('[data-bangun]')) ikutBangun(); });
+document.addEventListener('click', e => { const b = e.target.closest?.('[data-kesawah]'); if (!b) return; $('panelMisi').hidden = true; keSawah(); });
 document.addEventListener('click', e => { const b = e.target.closest?.('[data-antar]'); if (!b) return; $('panelMisi').hidden = true; pergiKe(+b.dataset.antar); });
 // misi di dusun lain: naik bus (pindah dusun, misi lanjut di sana) atau diantar ke fasumnya bila sudah di dusun itu
 document.addEventListener('click', e => { const b = e.target.closest?.('[data-ke]'); if (!b) return; $('panelMisi').hidden = true;

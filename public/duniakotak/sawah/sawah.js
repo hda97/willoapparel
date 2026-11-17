@@ -8,6 +8,7 @@
 import '../mabar/js/putar.js'; // HP tegak -> tampil mendatar, sama seperti game desa
 import * as THREE from 'three';
 import {warga} from '../mabar/js/aset/avatar.js';
+import {buatKebun} from '../mabar/js/tanamanSawah.js?v=20261118a';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
@@ -111,43 +112,10 @@ BINTANG.count = TETES.count = 0; sc.add(BINTANG, TETES);
 // =====================================================================
 // 2. TANAMAN: 3 InstancedMesh (daun, batang, buah) diisi ulang tiap keadaan berubah → ringan untuk HP (3 draw call)
 // =====================================================================
-const MAKS_DAUN = 7000, MAKS_BTG = 2600, MAKS_BUAH = 3000;
-const DAUN = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({roughness: .8, flatShading: true}), MAKS_DAUN);
-const BATANG = new THREE.InstancedMesh(new THREE.CylinderGeometry(.5, .5, 1, 5), new THREE.MeshStandardMaterial({roughness: .8, flatShading: true}), MAKS_BTG);
-const BUAH = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(.5, 0), new THREE.MeshStandardMaterial({roughness: .6, flatShading: true}), MAKS_BUAH);
-for (const m of [DAUN, BATANG, BUAH]) { m.castShadow = true; m.setColorAt(0, C.set(0xffffff)); m.count = 0; sc.add(m); }
-let nD = 0, nB = 0, nF = 0;
-const daun = (x, y, z, sx, sy, sz, c, ry = 0, rx = 0, rz = 0) => { if (nD >= MAKS_DAUN) return; taruh(DAUN, nD, x, y, z, sx, sy, sz, ry, rx, rz); DAUN.setColorAt(nD++, C.set(c)); };
-const batang = (x, y0, z, h, r, c) => { if (nB >= MAKS_BTG) return; taruh(BATANG, nB, x, y0 + h / 2, z, r * 2, h, r * 2); BATANG.setColorAt(nB++, C.set(c)); };
-const buah = (x, y, z, sx, sy, sz, c, ry = 0) => { if (nF >= MAKS_BUAH) return; taruh(BUAH, nF, x, y, z, sx, sy, sz, ry); BUAH.setColorAt(nF++, C.set(c)); };
-const acak = s => { const x = Math.sin(s * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
-const HIJAU = [0x4caf50, 0x3f9a3a, 0x5cbf4a];
-// Bentuk tiap tanaman. f = 0..1 tumbuh, siap = sudah bisa dipanen. (x,z) = titik tanam, s = benih acak.
-const BENTUK = {
-  sawi: (x, z, f, siap, s) => { const k = .35 + .65 * f; for (let i = 0; i < 4; i++) daun(x, .35 + .25 * k, z, .38 * k, .7 * k, .9 * k, i % 2 ? 0x8fd45a : 0x6cc04a, i * Math.PI / 2 + s, -.5); },
-  kangkung: (x, z, f, siap, s) => { const k = .35 + .65 * f; for (let i = 0; i < 5; i++) { const a = i * 1.26 + s; daun(x + Math.cos(a) * .25 * k, .3 + .45 * k, z + Math.sin(a) * .25 * k, .16 * k, .9 * k, .3 * k, 0x4cb04a, a, .35); } },
-  wortel: (x, z, f, siap, s) => { const k = .3 + .7 * f; for (let i = 0; i < 3; i++) daun(x, .3 + .5 * k, z, .12, 1.1 * k, .4 * k, 0x5cbf4a, i * 1.05 + s, .25);
-    if (siap) buah(x, .3, z, .5, .55, .5, 0xf08a24); },
-  tomat: (x, z, f, siap, s) => { const h = .3 + 1.5 * f; batang(x, .2, z, h, .07, 0x3f8a3a); for (let i = 0; i < 3; i++) daun(x, .3 + h * (.4 + i * .22), z, .9 * f + .2, .1, .4, HIJAU[i % 3], i * 2.1 + s);
-    if (f > .6) for (let i = 0; i < 4; i++) { const a = i * 1.6 + s; buah(x + Math.cos(a) * .35, .4 + h * (.35 + (i % 2) * .25), z + Math.sin(a) * .35, .42, .4, .42, siap ? 0xe0402a : 0x8fcf5a); } },
-  cabai: (x, z, f, siap, s) => { const h = .3 + 1.2 * f; batang(x, .2, z, h, .06, 0x3f8a3a); for (let i = 0; i < 3; i++) daun(x, .3 + h * (.45 + i * .2), z, .7 * f + .2, .08, .32, HIJAU[(i + 1) % 3], i * 2.3 + s);
-    if (f > .55) for (let i = 0; i < 5; i++) { const a = i * 1.3 + s; buah(x + Math.cos(a) * .3, .35 + h * (.4 + (i % 3) * .15), z + Math.sin(a) * .3, .15, .55, .15, siap ? 0xd8251c : 0x5aa83a, 0); } },
-  terong: (x, z, f, siap, s) => { const h = .3 + 1.3 * f; batang(x, .2, z, h, .07, 0x4a6a3a); for (let i = 0; i < 3; i++) daun(x, .3 + h * (.45 + i * .2), z, 1 * f + .2, .1, .5, 0x4a9a3a, i * 2 + s);
-    if (f > .6) for (let i = 0; i < 3; i++) { const a = i * 2.1 + s; buah(x + Math.cos(a) * .38, .3 + h * .35, z + Math.sin(a) * .38, .32, .75, .32, siap ? 0x6a2a8a : 0x9a7ab0); } },
-  jagung: (x, z, f, siap, s) => { const h = .4 + 2.6 * f; batang(x, .2, z, h, .1, siap ? 0x9aa84a : 0x5aa83a); for (let i = 0; i < 4; i++) daun(x, .4 + h * (.25 + i * .18), z, 1.1 * f + .2, .08, .28, siap ? 0xa8b85a : 0x58b04a, i * 1.7 + s, 0, .35);
-    if (f > .5) buah(x + .22, .3 + h * .55, z, .28, .7, .28, siap ? 0xf2c43a : 0x9ad06a); if (siap) daun(x, .3 + h, z, .12, .5, .12, 0xd8c070); },
-  padi: (x, z, f, siap, s) => { const h = .35 + 1.2 * f, c = siap ? 0xe8c25a : f > .7 ? 0x9ac84a : 0x5cc04a;
-    for (let i = 0; i < 4; i++) daun(x + (i % 2 - .5) * .22, .25 + h / 2, z + ((i >> 1) - .5) * .22, .08, h, .08, c, s + i, (i % 2 - .5) * .3, ((i >> 1) - .5) * .3);
-    if (siap) buah(x, .25 + h, z, .3, .22, .3, 0xd8a83a); },
-  kacang: (x, z, f, siap, s) => { const k = .35 + .65 * f; buah(x, .3 + .35 * k, z, 1.1 * k, .8 * k, 1.1 * k, siap ? 0x9ab84a : 0x4caf50, s); if (siap) for (let i = 0; i < 3; i++) buah(x + (i - 1) * .35, .35, z + .45, .2, .14, .14, 0xc8a070); },
-  semangka: (x, z, f, siap, s) => { const k = .3 + .7 * f; for (let i = 0; i < 4; i++) { const a = i * 1.57 + s; daun(x + Math.cos(a) * .55 * k, .3, z + Math.sin(a) * .55 * k, .7 * k, .1, .5 * k, 0x3f9a3a, a); }
-    if (f > .45) buah(x + .1, .3 + .45 * f, z, 1.25 * f, .95 * f, .9 * f, siap ? 0x2f7a2a : 0x6ab04a, s); },
-  matahari: (x, z, f, siap, s) => { const h = .4 + 2.8 * f; batang(x, .2, z, h, .09, 0x4a9a3a); daun(x, .4 + h * .4, z, .9 * f + .2, .08, .45, 0x4caf50, s); daun(x, .4 + h * .65, z, .8 * f + .2, .08, .4, 0x58b04a, s + 1.6);
-    if (f > .5) { const r = siap ? 1 : .5; buah(x, .3 + h, z + .15, 1.05 * r, 1.05 * r, .25, siap ? 0xffc81e : 0x6ab04a); if (siap) buah(x, .3 + h, z + .3, .5, .5, .12, 0x6a3a1a); } },
-};
+const KEBUN = buatKebun(sc);
 function tahap(pt, t = kini()) { if (!pt || !pt.b) return null; const tot = Math.max(1, pt.siap - pt.t); return {f: Math.min(1, Math.max(0, (t - pt.t) / tot)), siap: t >= pt.siap, sisa: Math.max(0, pt.siap - t)}; }
 function bangunTanaman() {
-  if (!D) return; nD = nB = nF = 0; const t = kini(); let nT = 0, nS = 0;
+  if (!D) return; const t = kini(); let nT = 0, nS = 0; const tanam = [];
   const milik = new Map(D.petak.map(x => [x.p, x]));
   for (let p = 0; p < KOLOM * BARIS; p++) {
     const c = p % KOLOM, r = Math.floor(p / KOLOM), x = PX(c), z = PZ(r), pt = milik.get(p), saya = SAYA && pt && pt.no === SAYA.no;
@@ -158,14 +126,12 @@ function bangunTanaman() {
     if (saya) taruh(BENDERA, p, x - UK / 2 + .55 + .55, 1.45, z + UK / 2 - .5); else taruh(BENDERA, p, 0, -9, 0, .01, .01, .01);
     if (saya) taruh(TIANG, p, x - UK / 2 + .5, 1, z + UK / 2 - .5);
     const th = tahap(pt, t);
-    if (th) { const fn = BENTUK[pt.b] || BENTUK.sawi, padat = pt.b === 'padi', nx = padat ? 5 : 3, nz = padat ? 5 : 3, jr = UK / (nx + .2);
-      for (let i = 0; i < nx; i++) for (let j = 0; j < nz; j++) { const s = acak(p * 31 + i * 7 + j); fn(x + (i - (nx - 1) / 2) * jr, z + (j - (nz - 1) / 2) * (UK / (nz + .2)), Math.max(.08, th.f), th.siap, s * 6.28); } }
+    if (th) tanam.push({x, z, b: pt.b, f: th.f, siap: th.siap, kunci: p});
     if (th && th.siap && saya) BINTANG.userData[nT++] = [x, z];
     if (th && !th.siap && !pt.s) TETES.userData[nS++] = [x, z];
   }
-  BINTANG.count = nT; TETES.count = nS; DAUN.count = nD; BATANG.count = nB; BUAH.count = nF;
-  for (const m of [TANAH, TIANG, PAPAN, BENDERA, DAUN, BATANG, BUAH]) { m.instanceMatrix.needsUpdate = true; if (m.instanceColor) m.instanceColor.needsUpdate = true; }
-  for (const m of [DAUN, BATANG, BUAH]) m.computeBoundingSphere();
+  BINTANG.count = nT; TETES.count = nS; KEBUN.isi(tanam, {uk: UK, k: 1, y: 0});
+  for (const m of [TANAH, TIANG, PAPAN, BENDERA]) { m.instanceMatrix.needsUpdate = true; if (m.instanceColor) m.instanceColor.needsUpdate = true; }
   if (PILIH >= 0) { BINGKAI.visible = true; BINGKAI.position.set(PX(PILIH % KOLOM), 0, PZ(Math.floor(PILIH / KOLOM))); } else BINGKAI.visible = false;
 }
 
@@ -238,6 +204,7 @@ function tulisPanel() {
       <p class="ket">👆 <b>Ketuk petak</b> di sawah. Papan kuning = masih dijual.</p>
       ${pk.length ? `<div class="mini">${pk.map(x => { const th = tahap(x); return `<button data-pk="${x.p}">${x.b ? D.tanaman[x.b].ikon : '🟫'} Petak ${x.p + 1}${th && th.siap ? ' ⭐' : ''}</button>`; }).join('')}</div>` : ''}
       <div class="legenda"><span><em style="background:#f2c14a"></em>Dijual</span><span><em style="background:#e0803a"></em>Petakku</span><span>⭐ Siap panen</span><span>💧 Butuh disiram</span></div>
+      <p class="ket">📋 <b>Misi harian:</b> ${MISI_SAWAH_T} kegiatan di sawah (beli, tanam, siram, panen).</p>
       <p class="ket">💧 Siram tanaman tetangga: tumbuh lebih cepat & kamu dapat +${D.siram.koin} 🪙 (${D.siram.hari}x sehari).</p>
       <div class="bawah">${AKUN ? '' : '<a class="utama tombol" href="/duniakotak/">Daftar / Masuk warga</a>'}</div>`;
     return;
@@ -270,11 +237,23 @@ function tulisPanel() {
   }
   P.innerHTML = `${judul}${isi}<div class="bawah">${tombol}</div>`;
 }
+// Misi harian 🌾 Sawah (Huda 18 Nov 2026 "Jadikan misi harian"): tiap beli/tanam/siram/panen yang berhasil = 1 langkah.
+// Progres disimpan di dk_misi (format sama dengan misi harian di game desa), target MISI_SAWAH_T, lalu diklaim ke server.
+const MISI_SAWAH_T = 2;
+async function misiSawah() {
+  if (!AKUN) return; const hari = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+  let l = baca('dk_misi'); if (!l || l.t !== hari || l.no !== AKUN.no) l = {t: hari, no: AKUN.no, p: {}}; l.p = l.p || {};
+  l.p.sawah = (+l.p.sawah || 0) + 1; simpan('dk_misi', l);
+  if (l.p.sawah < MISI_SAWAH_T) { if (l.p.sawah === 1) setTimeout(() => toast(`📋 Misi harian Sawah: ${l.p.sawah}/${MISI_SAWAH_T}. Satu kegiatan lagi!`), 1200); return; }
+  if (l.p.sawah > MISI_SAWAH_T + 3) return;   // sudah diklaim sebelumnya
+  try { const r = await fetch('/duniakotak/api/misi', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({kunci: AKUN.kunci, id: 'sawah'})});
+    const j = await r.json(); if (j && j.dapat) { if (SAYA) { SAYA.koin = j.koin; tulisAtas(); } setTimeout(() => { toast(`✅ Misi harian selesai: Rawat Sawah Wetan. +${j.dapat} 🪙`, 3500); nada(784, 988, 1318); }, 1200); } } catch (e) {}
+}
 let SIBUK = false;
 async function aksi(op, data, lalu) {
   if (SIBUK || !AKUN) return; SIBUK = true; bunyi(600, .04);
   const j = await api(op, {p: PILIH, ...data}); SIBUK = false;
-  if (j.galat) toast(j.galat, 3500); else if (lalu) lalu(j);
+  if (j.galat) toast(j.galat, 3500); else { if (lalu) lalu(j); if (op !== 'lepas') misiSawah(); }
   terima(j);
 }
 $('panel').addEventListener('click', e => {
