@@ -399,6 +399,9 @@ async function selesaiSesi() {
   if (j && j.saya) { if (j.saya.rekor) LOKAL.rk[L_NO] = j.saya.rekor; LOKAL.pos[L_NO] = j.saya.pos || LOKAL.pos[L_NO]; if (j.saya.buka > LOKAL.buka) LOKAL.buka = j.saya.buka; if (j.saya.avatar) LOKAL.av = j.saya.avatar;
     $('dompet').textContent = `🪙 ${j.saya.koin ?? 0}  💎 ${j.saya.permata ?? 0}`; }
   simpan('dk_mancing', LOKAL);
+  // misi harian "Ikut Lomba Mancing Kotak": progres ditulis ke dk_misi (sama dengan game desa), diklaim saat warga kembali ke desa
+  if (AKUN && j && j.saya && !j.galat) { const hari = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10), m = baca('dk_misi') || {};
+    const ms = m.t === hari && m.no === AKUN.no ? m : {t: hari, no: AKUN.no, p: {}}; ms.p = ms.p || {}; ms.p.lombamancing = (+ms.p.lombamancing || 0) + 1; simpan('dk_misi', ms); }
   $('hsJudul').textContent = baruLokal && rekorLama ? 'REKOR BARU! 🎣🎉' : 'WAKTU HABIS! 🎣';
   $('hsRinci').innerHTML = `<div class="utamaA"><b>${kgPendek(totalG)}</b><small>TOTAL BERAT</small></div><div><b>${kgPendek(LOKAL.rk[L_NO])}</b><small>REKORMU</small></div>` +
     `<div><b>${j && j.saya && j.saya.pos ? '#' + j.saya.pos : '–'}</b><small>POSISI</small></div><div><b>${j && j.dapat ? '+' + j.dapat + ' 🪙' : '0 🪙'}</b><small>KOIN</small></div>`;
