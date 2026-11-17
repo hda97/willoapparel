@@ -60,6 +60,10 @@
 .catatan small{color:var(--redup)}
 .cek{display:flex;gap:8px;align-items:center;font-size:14.5px;margin:4px 0 12px}
 .cek input{width:20px;height:20px}
+textarea{min-height:70px;resize:vertical}
+.tempel{background:var(--biru-muda);border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.tempel textarea{min-height:56px;margin:4px 0 6px}
+.minat-cepat{margin:-4px 0 10px}
 </style>
 </head>
 <body>
@@ -78,6 +82,7 @@
   <div class="alat">
     <button class="btn" id="bTambah" type="button">➕ Leads baru</button>
     <input type="text" id="cari" placeholder="🔍 Cari nama, nomor, atau pesanan…" autocomplete="off">
+    <button class="btn dua" id="bAtur" type="button" data-owner>⚙️ Pesan &amp; pilihan</button>
   </div>
 
   <div class="tab" id="tab"></div>
@@ -112,10 +117,16 @@
 
 <dialog id="dLead"><form method="dialog" class="isi-dialog">
   <h2 id="dlJudul">Leads baru</h2>
+  <div class="tempel" id="dlTempelKotak">
+    <b style="font-size:14px">💬 Tempel chat pembeli</b> <small class="redup">(boleh dilewati)</small>
+    <textarea id="dlTempel" placeholder="Salin pesan pertama pembeli dari WA/DM, tempel di sini. Jumlah, pesanan, dan asal iklan terisi sendiri."></textarea>
+  </div>
   <label class="isi">Nama<input type="text" id="dlNama" maxlength="60" autocomplete="off" placeholder="Contoh: Bu Rina SMPN 2"></label>
   <label class="isi">Nomor WhatsApp <small>Boleh kosong untuk pembeli dari DM Instagram</small><input type="tel" id="dlWa" inputmode="tel" maxlength="20" autocomplete="off" placeholder="08…"></label>
   <div class="isi" style="font-size:14px;font-weight:600;margin-bottom:10px">Datang dari<div class="pilihan" id="dlSumber"></div></div>
-  <label class="isi">Mencari apa? <small>Contoh: kaos kelas 32 pcs, sablon depan belakang</small><input type="text" id="dlMinat" maxlength="80" autocomplete="off"></label>
+  <label class="isi">Mencari apa? <small>Contoh: kaos kelas, sablon depan belakang</small><input type="text" id="dlMinat" maxlength="80" autocomplete="off"></label>
+  <div class="pilihan minat-cepat" id="dlMinatCepat"></div>
+  <label class="isi">Jumlah <small>Boleh kosong</small><input type="text" id="dlJml" inputmode="numeric" class="angka" autocomplete="off" placeholder="pcs"></label>
   <label class="isi">Perkiraan nilai pesanan <small>Boleh kosong</small><input type="text" id="dlNilai" inputmode="numeric" class="angka" autocomplete="off" placeholder="Rp"></label>
   <div id="dlBaruSaja">
     <label class="cek"><input type="checkbox" id="dlSudah"> Sudah saya balas</label>
@@ -131,6 +142,18 @@
   <div class="baris" style="margin-top:12px"><button class="btn dua" value="batal" formnovalidate>Batal</button><button class="btn" value="ok">Simpan</button></div>
 </form></dialog>
 
+<dialog id="dAtur"><form method="dialog" class="isi-dialog">
+  <h2>Pesan &amp; pilihan</h2>
+  <p class="kecil redup" style="margin:-4px 0 12px">Kata di dalam kurung kurawal diganti otomatis: {nama} {toko} {minat} {jumlah} {nilai}</p>
+  <label class="isi">Pesan untuk leads <b>Baru</b><textarea id="daBaru"></textarea></label>
+  <label class="isi">Pesan follow-up (<b>Dihubungi</b>)<textarea id="daDihubungi"></textarea></label>
+  <label class="isi">Pesan <b>Penawaran</b><textarea id="daPenawaran"></textarea></label>
+  <label class="isi">Pesan <b>Deal</b><textarea id="daDeal"></textarea></label>
+  <label class="isi">Pilihan pesanan cepat <small>Satu per baris. Tambahkan harga per pcs setelah tanda | supaya nilai terhitung sendiri. Contoh: Kaos kelas | 65000</small><textarea id="daMinat" style="min-height:110px"></textarea></label>
+  <div class="baris"><button type="button" class="btn dua kecil" id="daBawaan">Kembalikan bawaan</button></div>
+  <div class="baris" style="margin-top:12px"><button class="btn dua" value="batal" formnovalidate>Batal</button><button class="btn" value="ok">Simpan</button></div>
+</form></dialog>
+
 <script src="/alat/printer.js"></script>
 <script>
 (function(){
@@ -140,7 +163,23 @@
     { id:"baru", nama:"Baru" }, { id:"dihubungi", nama:"Dihubungi" }, { id:"penawaran", nama:"Penawaran" },
     { id:"deal", nama:"Deal" }, { id:"batal", nama:"Batal" }
   ];
-  var SUMBER = ["WhatsApp", "Instagram", "Facebook", "TikTok", "Marketplace", "Datang langsung", "Teman/kenalan", "Lainnya"];
+  var SUMBER = ["WhatsApp", "Instagram", "Facebook", "TikTok", "Iklan IG/FB", "Google", "Marketplace", "Datang langsung", "Teman/kenalan", "Lainnya"];
+  var PESAN_BAWAAN = {
+    baru:"Halo Kak {nama}, terima kasih sudah menghubungi {toko}. Untuk {minat}, boleh tahu jumlah dan kapan dibutuhkan?",
+    dihubungi:"Halo Kak {nama}, mau lanjut soal {minat} kemarin? Kalau ada yang ingin ditanyakan, kabari saja ya.",
+    penawaran:"Halo Kak {nama}, penawaran untuk {minat} ({nilai}) masih berlaku. Mau langsung kami proses?",
+    deal:"Terima kasih Kak {nama} sudah order {minat}. Kami kabari lagi saat pesanan siap ya."
+  };
+  // Isian Willo Apparel sendiri (Huda 18 Nov 2026): buka /alat/leads/?contoh=willo sekali di HP Willo.
+  var WILLO = {
+    pesan:{
+      baru:"Halo Kak {nama}, terima kasih sudah menghubungi Willo Apparel. Untuk {minat}{jumlah}, boleh info ukuran yang dibutuhkan dan kapan mau dipakai? Desainnya kami buatkan GRATIS dulu, contoh-contohnya bisa dilihat di willoapparel.com/kelas/",
+      dihubungi:"Halo Kak {nama}, mau lanjut soal {minat} kemarin? Kalau jumlah dan ukurannya sudah ada, desainnya bisa langsung kami buatkan gratis untuk dicek dulu.",
+      penawaran:"Halo Kak {nama}, penawaran {minat}{jumlah} ({nilai}) masih berlaku. Kalau desainnya sudah oke, cukup DP dan langsung kami jadwalkan produksinya.",
+      deal:"Terima kasih Kak {nama} sudah order {minat} di Willo Apparel. Nanti kami kabari progres desain dan produksinya ya."
+    },
+    minat:[ { n:"Kaos kelas", h:65000 }, { n:"Kaos komunitas", h:70000 }, { n:"Kaos satuan", h:55000 }, { n:"Seragam usaha", h:65000 }, { n:"Polo", h:0 }, { n:"Jaket / hoodie", h:0 } ]
+  };
   var FU = [ { t:"Nanti sore", f:function(){ var d = new Date(); d.setHours(16,0,0,0); if (d <= new Date()) d = new Date(Date.now() + 3 * JAM); return +d; } },
     { t:"Besok", f:function(){ var d = new Date(); d.setDate(d.getDate() + 1); d.setHours(9,0,0,0); return +d; } },
     { t:"3 hari", f:function(){ var d = new Date(); d.setDate(d.getDate() + 3); d.setHours(9,0,0,0); return +d; } },
@@ -174,13 +213,14 @@
   }
   function perluBalas(l){ return l.tahap === "baru" && !l.balas; }
 
-  function teksWa(l){
-    var nm = l.nama ? " " + l.nama : "", tk = namaToko(), mn = l.minat || "pesanannya";
-    if (l.tahap === "baru") return "Halo Kak" + nm + ", terima kasih sudah menghubungi" + (tk ? " " + tk : " kami") + ". Untuk " + mn + ", boleh tahu jumlah dan kapan dibutuhkan?";
-    if (l.tahap === "penawaran") return "Halo Kak" + nm + ", penawaran untuk " + mn + (l.nilai ? " (" + rp(l.nilai) + ")" : "") + " masih berlaku. Mau langsung kami proses?";
-    if (l.tahap === "deal") return "Terima kasih Kak" + nm + " sudah order " + mn + ". Kami kabari lagi saat pesanan siap ya.";
-    return "Halo Kak" + nm + ", mau lanjut soal " + mn + " kemarin? Kalau ada yang ingin ditanyakan, kabari saja ya.";
+  function atur(S){ var a = (S || baca()).atur || {}; return { pesan:a.pesan || PESAN_BAWAAN, minat:a.minat || [] }; }
+  function isiPesan(tpl, l){
+    var tk = namaToko();
+    var t = String(tpl || "").replace(/\{nama\}/g, l.nama || "").replace(/\{toko\}/g, tk || "kami").replace(/\{minat\}/g, l.minat || "pesanannya")
+      .replace(/\{jumlah\}/g, l.jml ? " " + l.jml + " pcs" : "").replace(/\{nilai\}/g, l.nilai ? rp(l.nilai) : "");
+    return t.replace(/\(\s*\)/g, "").replace(/[ \t]{2,}/g, " ").replace(/ ([,.?!])/g, "$1").trim();
   }
+  function teksWa(l){ var P = atur().pesan; return isiPesan(P[l.tahap] || P.dihubungi, l); }
   function balasWa(id){
     var S = baca(), l = S.leads.filter(function(x){ return x.id === id; })[0]; if (!l) return;
     if (!l.wa) { pesan("Nomor WA belum diisi. Buka kartunya untuk menambahkan."); return; }
@@ -219,7 +259,7 @@
     if (l.tahap !== "baru" && l.balas && st !== "dingin") lc += '<span class="lencana">dibalas ' + lalu(l.balas) + ' lalu</span>';
     var akhir = l.tahap === "batal" && l.cat && l.cat[0] ? '<div class="kecil redup">' + esc(l.cat[0].t) + '</div>' : "";
     d.innerHTML = '<div class="nm"><b>' + esc(l.nama || "Tanpa nama") + '</b>' + (l.nilai ? '<span class="nl angka">' + rp(l.nilai) + '</span>' : '') + '</div>' +
-      '<div class="mn">' + esc(l.minat || "—") + '</div><div>' + lc + '</div>' + akhir +
+      '<div class="mn">' + esc(l.minat || "—") + (l.jml ? " · " + l.jml + " pcs" : "") + '</div><div>' + lc + '</div>' + akhir +
       (l.tahap === "batal" ? "" : '<div class="aksi"><button type="button" class="btn kecil' + (st === "telat" || st === "fu" ? "" : " dua") + '" data-a="wa">💬 Balas WA</button>' +
         (l.tahap !== "deal" ? '<button type="button" class="btn dua kecil" data-a="geser">' + namaTahap(["baru","dihubungi","penawaran","deal"][["baru","dihubungi","penawaran"].indexOf(l.tahap) + 1]) + ' →</button>' : '') + '</div>');
     d.onclick = function(e){
@@ -282,6 +322,45 @@
     });
   }
   function angka(s){ var v = String(s || "").replace(/\D/g, ""); return v ? parseInt(v, 10) : 0; }
+  function hargaMinat(teks){
+    var t = String(teks || "").toLowerCase(), M = atur().minat, h = 0;
+    M.forEach(function(m){ if (m.h && t.indexOf(m.n.toLowerCase()) >= 0 && !h) h = m.h; });
+    return h;
+  }
+  function hitungNilai(cukupTandai){
+    var j = angka($("dlJml").value), h = hargaMinat($("dlMinat").value), m = $("dlMinat").value.trim().toLowerCase();
+    if (j && h && cukupTandai !== true) $("dlNilai").value = (j * h).toLocaleString("id-ID");
+    Array.prototype.forEach.call($("dlMinatCepat").children, function(c){ c.classList.toggle("pilih", c.textContent.toLowerCase() === m); });
+  }
+  function gambarMinatCepat(S){
+    var M = atur(S).minat, el = $("dlMinatCepat"); el.innerHTML = ""; el.classList.toggle("tersembunyi", !M.length);
+    M.forEach(function(m){ var b = document.createElement("button"); b.type = "button"; b.textContent = m.n;
+      b.onclick = function(){ $("dlMinat").value = m.n; hitungNilai(); };
+      el.appendChild(b); });
+  }
+  // Baca chat yang ditempel: nomor HP, jumlah pcs, jenis pesanan (dari pilihan cepat), dan penanda iklan "(dari IG/FB)" / "(dari Google)".
+  function bacaTempel(t){
+    var hasil = {}, kecil = t.toLowerCase();
+    var hp = t.match(/(\+?62|0)8[\d\s-]{7,14}\d/); if (hp) hasil.wa = hp[0].replace(/[\s-]/g, "");
+    var j = kecil.match(/(\d{1,4})\s*(pcs|pc|biji|buah|potong|lembar|kaos|orang|anak|siswa|murid|lusin)/);
+    if (j) hasil.jml = parseInt(j[1], 10) * (j[2] === "lusin" ? 12 : 1);
+    if (/\(dari ig\/fb\)/.test(kecil)) hasil.sumber = "Iklan IG/FB"; else if (/\(dari google\)/.test(kecil)) hasil.sumber = "Google";
+    atur().minat.forEach(function(m){ if (!hasil.minat && kecil.indexOf(m.n.toLowerCase()) >= 0) hasil.minat = m.n; });
+    if (!hasil.minat) { var k = t.match(/(?:mau|minta|pesan|order|tanya|butuh|bikin|buat)\s+([^.,?!\n]{4,50})/i); if (k) hasil.minat = k[1].trim(); }
+    var nm = t.match(/(?:saya|nama saya|aku|ini)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/); if (nm) hasil.nama = nm[1];
+    return hasil;
+  }
+  $("dlTempel").addEventListener("input", function(){
+    var h = bacaTempel(this.value);
+    if (h.wa && !$("dlWa").value) $("dlWa").value = h.wa;
+    if (h.nama && !$("dlNama").value) $("dlNama").value = h.nama;
+    if (h.minat) $("dlMinat").value = h.minat;
+    if (h.jml) $("dlJml").value = h.jml;
+    if (h.sumber) { sumberPilih = h.sumber; gambarPilihan($("dlSumber"), SUMBER, sumberPilih, function(x){ sumberPilih = x; }); }
+    hitungNilai();
+  });
+  $("dlJml").addEventListener("input", function(){ var v = angka(this.value); this.value = v || ""; hitungNilai(); });
+  $("dlMinat").addEventListener("input", hitungNilai);
   function gambarCatatan(l){
     var el = $("dlCat"); el.innerHTML = "";
     (l.cat || []).forEach(function(c){ var li = document.createElement("li"); li.innerHTML = esc(c.t) + '<br><small>' + waktu(c.w) + '</small>'; el.appendChild(li); });
@@ -293,6 +372,8 @@
     $("dlJudul").textContent = l ? (l.nama || "Leads") : "Leads baru";
     $("dlNama").value = l ? l.nama || "" : ""; $("dlWa").value = l ? l.wa || "" : "";
     $("dlMinat").value = l ? l.minat || "" : ""; $("dlNilai").value = l && l.nilai ? l.nilai.toLocaleString("id-ID") : "";
+    $("dlJml").value = l && l.jml ? l.jml : ""; $("dlTempel").value = ""; $("dlTempelKotak").classList.toggle("tersembunyi", !!l);
+    gambarMinatCepat(S); hitungNilai(true);
     sumberPilih = l ? l.sumber || "Lainnya" : sumberPilih;
     gambarPilihan($("dlSumber"), SUMBER, sumberPilih, function(x){ sumberPilih = x; });
     $("dlBaruSaja").classList.toggle("tersembunyi", !!l); $("dlLama").classList.toggle("tersembunyi", !l); $("dlSudah").checked = false;
@@ -317,24 +398,24 @@
   };
   $("dlNota").onclick = function(){
     var S = baca(), l = S.leads.filter(function(x){ return x.id === sedang; })[0];
-    if (l) try { sessionStorage.setItem("willo_leads_ke_nota", JSON.stringify({ nama:l.nama || "", wa:l.wa || "", minat:l.minat || "", nilai:l.nilai || 0 })); } catch(e){}
+    if (l) try { sessionStorage.setItem("willo_leads_ke_nota", JSON.stringify({ nama:l.nama || "", wa:l.wa || "", minat:l.minat || "", nilai:l.nilai || 0, jml:l.jml || 0 })); } catch(e){}
   };
   $("dLead").querySelector("form").addEventListener("submit", function(e){
     if (e.submitter && e.submitter.value === "ok" && !$("dlNama").value.trim() && !$("dlWa").value.trim()) { e.preventDefault(); pesan("Isi nama atau nomor WA dulu"); $("dlNama").focus(); }
   });
   $("dLead").addEventListener("close", function(){
     if ($("dLead").returnValue !== "ok") return;
-    var nama = $("dlNama").value.trim(), wa = $("dlWa").value.trim(), minat = $("dlMinat").value.trim(), nilai = angka($("dlNilai").value);
+    var nama = $("dlNama").value.trim(), wa = $("dlWa").value.trim(), minat = $("dlMinat").value.trim(), nilai = angka($("dlNilai").value), jml = angka($("dlJml").value), tempel = $("dlTempel").value.trim();
     if (!nama && !wa) { pesan("Isi nama atau nomor WA dulu"); return; }
     if (!sedang) {
       var S = baca(), now = Date.now(), sudah = $("dlSudah").checked;
-      S.leads.unshift({ id:now.toString(36) + Math.random().toString(36).slice(2, 6), nama:nama, wa:wa, sumber:sumberPilih, minat:minat, nilai:nilai,
-        tahap: sudah ? "dihubungi" : "baru", dibuat:now, balas: sudah ? now : null, fu: sudah ? FU[2].f() : null, cat:[{ w:now, t:"Leads masuk dari " + sumberPilih }] });
+      S.leads.unshift({ id:now.toString(36) + Math.random().toString(36).slice(2, 6), nama:nama, wa:wa, sumber:sumberPilih, minat:minat, nilai:nilai, jml:jml,
+        tahap: sudah ? "dihubungi" : "baru", dibuat:now, balas: sudah ? now : null, fu: sudah ? FU[2].f() : null, cat:(tempel ? [{ w:now, t:"Chat: " + tempel.slice(0, 300) }] : []).concat([{ w:now, t:"Leads masuk dari " + sumberPilih }]) });
       if (tulis(S)) { aktif = sudah ? "dihubungi" : "baru"; pesan(sudah ? "Tersimpan. Pengingat follow-up dipasang 3 hari lagi." : "Tersimpan. Balas sebelum 1 jam supaya tidak merah."); }
     } else {
       var tahapBaru = $("dlTahap").value;
       ubah(sedang, function(x){
-        x.nama = nama; x.wa = wa; x.minat = minat; x.nilai = nilai; x.sumber = sumberPilih; x.ubah = Date.now();
+        x.nama = nama; x.wa = wa; x.minat = minat; x.nilai = nilai; x.jml = jml; x.sumber = sumberPilih; x.ubah = Date.now();
         if (tahapBaru !== x.tahap) {
           if (tahapBaru === "batal") { var why = prompt("Kenapa batal? (boleh kosong)", "") || ""; x.cat = x.cat || []; x.cat.unshift({ w:Date.now(), t:"Batal" + (why ? ": " + why : "") }); x.fu = null; }
           else (x.cat = x.cat || []).unshift({ w:Date.now(), t:"Pindah ke " + namaTahap(tahapBaru) });
@@ -349,6 +430,26 @@
     gambar();
   });
 
+  function isiAtur(A){
+    ["baru","dihubungi","penawaran","deal"].forEach(function(k){ $("da" + k.charAt(0).toUpperCase() + k.slice(1)).value = A.pesan[k] || ""; });
+    $("daMinat").value = A.minat.map(function(m){ return m.n + (m.h ? " | " + m.h : ""); }).join("\n");
+  }
+  $("bAtur").onclick = function(){ isiAtur(atur()); $("dAtur").returnValue = ""; $("dAtur").showModal(); };
+  $("daBawaan").onclick = function(){ isiAtur({ pesan:PESAN_BAWAAN, minat:[] }); };
+  $("dAtur").addEventListener("close", function(){
+    if ($("dAtur").returnValue !== "ok") return;
+    var S = baca(), P = {};
+    ["baru","dihubungi","penawaran","deal"].forEach(function(k){ P[k] = $("da" + k.charAt(0).toUpperCase() + k.slice(1)).value.trim() || PESAN_BAWAAN[k]; });
+    var M = $("daMinat").value.split("\n").map(function(b){ var x = b.split("|"); return { n:x[0].trim(), h:angka(x[1]) }; }).filter(function(m){ return m.n; });
+    S.atur = { pesan:P, minat:M }; if (tulis(S)) pesan("Pesan & pilihan disimpan");
+  });
+  if (/[?&]contoh=willo\b/.test(location.search)) {
+    var Sw = baca();
+    if (!Sw.atur || confirm("Pakai pesan WA dan pilihan pesanan Willo Apparel? Pengaturan pesan yang sekarang diganti (leads tidak terhapus).")) {
+      Sw.atur = JSON.parse(JSON.stringify(WILLO)); tulis(Sw); pesan("Papan Leads siap untuk Willo Apparel");
+    }
+    try { history.replaceState(null, "", location.pathname); } catch(e){}
+  }
   $("bTambah").onclick = function(){ buka(null); };
   $("cari").addEventListener("input", gambar);
   Array.prototype.forEach.call(document.querySelectorAll(".ringkas button"), function(b){
@@ -361,8 +462,8 @@
   });
   $("bCsv").onclick = function(){
     var S = baca(), q = function(v){ return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
-    var baris = ["Nama;WhatsApp;Dari;Mencari;Nilai;Tahap;Masuk;Terakhir dibalas;Follow-up;Catatan terakhir"].concat(S.leads.map(function(l){
-      return [q(l.nama), q(l.wa), q(l.sumber), q(l.minat), l.nilai || "", namaTahap(l.tahap), q(waktu(l.dibuat)), q(l.balas ? waktu(l.balas) : ""), q(l.fu ? waktu(l.fu) : ""), q(l.cat && l.cat[0] ? l.cat[0].t : "")].join(";"); }));
+    var baris = ["Nama;WhatsApp;Dari;Mencari;Jumlah;Nilai;Tahap;Masuk;Terakhir dibalas;Follow-up;Catatan terakhir"].concat(S.leads.map(function(l){
+      return [q(l.nama), q(l.wa), q(l.sumber), q(l.minat), l.jml || "", l.nilai || "", namaTahap(l.tahap), q(waktu(l.dibuat)), q(l.balas ? waktu(l.balas) : ""), q(l.fu ? waktu(l.fu) : ""), q(l.cat && l.cat[0] ? l.cat[0].t : "")].join(";"); }));
     var isi = "﻿" + baris.join("\r\n"), nama = "leads.csv";
     if (window.Lumbung) Lumbung.unduh(nama, isi, "text/csv;charset=utf-8"); else { var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([isi], { type:"text/csv" })); a.download = nama; a.click(); }
   };

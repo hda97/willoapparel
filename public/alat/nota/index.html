@@ -365,7 +365,7 @@
     if (!d) return;
     setTimeout(function(){
       bukaForm(null); $("fNama").value = d.nama || ""; $("fWa").value = d.wa || "";
-      if (d.minat || d.nilai) { baris = [{ nama:d.minat || "Pesanan", ket:"", q:1, harga:d.nilai || 0 }]; gambarItem(); hitungForm(); }
+      if (d.minat || d.nilai) { var j = d.jml || 1; baris = [{ nama:d.minat || "Pesanan", ket:"", q:j, harga:Math.round((d.nilai || 0) / j) }]; gambarItem(); hitungForm(); }
     }, 0);
   })();
   $("bBatal").onclick = function(){ if (edit) buka(edit.id); else { tampil("vDaftar"); gambarDaftar(); } };
