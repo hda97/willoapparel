@@ -46,7 +46,7 @@
 - steps
 - 0.169.0/three.module.min.js
 - curate-media.mjs
-- simpan
+- tulisMisi
 - Vox
 - PMREMGenerator
 - Vector3
@@ -291,7 +291,7 @@
 - jp
 - mac_draft.py
 - Di
-- t
+- Ap
 - carve.mjs
 - parseCFFTable
 - Dr
@@ -309,6 +309,7 @@
 - wm
 - dither.mjs
 - v
+- FontLoader.js
 - Qc
 - Qc
 - template/package.json
@@ -641,8 +642,8 @@ Cohesion: 0.03
 Nodes (76): AI_JATAH, aiBoleh(), aiGratis(), AKHIRAN, ALBUM_IKAN, apiAI(), apiGambar(), apiToko() (+68 more)
 
 ### Community 3 - "paud/src/inti.js"
-Cohesion: 0.04
-Nodes (63): animasi(), aturMusik(), aturVolMusik(), batasUI(), bersihRonde(), bingkaiDrone(), bisaKetuk, bunyiAlat() (+55 more)
+Cohesion: 0.05
+Nodes (31): aturMusik(), bersihRonde(), bisaKetuk, _bx, daftarKetuk(), DATA_BAWAAN, efek, FONT (+23 more)
 
 ### Community 4 - "clip.py"
 Cohesion: 0.02
@@ -686,7 +687,7 @@ Nodes (24): bibit(), cabai(), CG, cubes(), DAFTAR_TANAMAN, grassBed(), hsl(), is
 
 ### Community 14 - "main.js"
 Cohesion: 0.03
-Nodes (83): A, akar(), AKOR, ATAP, aturSuara(), BALAS, BALON, balon() (+75 more)
+Nodes (86): A, akar(), AKOR, ATAP, aturSuara(), BALAS, BALON, balon() (+78 more)
 
 ### Community 15 - "security-check.yml"
 Cohesion: 0.09
@@ -697,8 +698,8 @@ Cohesion: 0.03
 Nodes (57): main(), probe(), ease(), load_plan(), main(), rounded_device(), eye_offset(), main() (+49 more)
 
 ### Community 17 - "bangunDunia"
-Cohesion: 0.11
-Nodes (35): aturProyek(), bakeGroup(), bangunAktif(), bangunCurug(), bangunDunia(), bangunKulon(), bangunProksi(), bangunSegara() (+27 more)
+Cohesion: 0.09
+Nodes (41): aturProyek(), bakeGroup(), bangunAktif(), bangunCurug(), bangunDunia(), bangunKulon(), bangunProksi(), bangunSegara() (+33 more)
 
 ### Community 18 - "bentuk/game.js"
 Cohesion: 0.18
@@ -730,7 +731,7 @@ Nodes (17): addStops(), buildGradientTexture(), computeLocalBBox(), addCapGeomet
 
 ### Community 25 - "hitung-rpg/game.js"
 Cohesion: 0.04
-Nodes (47): AIR, ANTRE, _arah, awan, balai, BARANG, BATAS, buatNpc() (+39 more)
+Nodes (64): AIR, ambilSoal(), ANTRE, _arah, awan, balai, BARANG, BATAS (+56 more)
 
 ### Community 26 - "three.module.js"
 Cohesion: 0.01
@@ -829,8 +830,8 @@ Cohesion: 0.07
 Nodes (9): ArrayCamera, ExternalTexture, WebGLAnimation(), WebXRDepthSensing, WebXRManager, onAnimationFrame(), onInputSourcesChange(), onSessionEnd() (+1 more)
 
 ### Community 51 - "isiMenu"
-Cohesion: 0.13
-Nodes (28): aktif, apiPk(), aturWarga(), bayar(), cukup(), daftarMisi(), gantiPemain(), hargaPm() (+20 more)
+Cohesion: 0.27
+Nodes (13): aktif, aturWarga(), bayar(), cukup(), gantiPemain(), hargaPm(), hargaTeks(), isiDompet() (+5 more)
 
 ### Community 52 - "time"
 Cohesion: 0.07
@@ -841,8 +842,8 @@ Cohesion: 0.14
 Nodes (33): adaEmoji(), AYO, bacaKelompok(), benarPT(), DEPAN, esc(), JENIS_UMUM, KANAN (+25 more)
 
 ### Community 54 - "$"
-Cohesion: 0.09
-Nodes (43): aksiBooth(), avatar(), biayaUpgrade(), buka(), cari(), cfgSaya(), chatMasuk(), gambarBooth() (+35 more)
+Cohesion: 0.07
+Nodes (67): aksiBooth(), ambil(), ambilIsotonik(), aturMain(), aturUlangAngin(), audio(), avatar(), bersihkanEfek() (+59 more)
 
 ### Community 55 - "reli.js"
 Cohesion: 0.04
@@ -869,8 +870,8 @@ Cohesion: 0.04
 Nodes (78): ada_kunci(), _gemini(), _groq(), _post(), tanya(), digest(), download(), main() (+70 more)
 
 ### Community 61 - "mulaiTarung"
-Cohesion: 0.18
-Nodes (24): aturFokusTarung(), banner(), bebas(), bicaraKoki(), bicaraSari(), bukaTas(), bukaToko(), kalah() (+16 more)
+Cohesion: 0.15
+Nodes (30): aturFokusTarung(), banner(), bebas(), bicara(), bicaraKoki(), bukaTas(), bukaToko(), catatJawab() (+22 more)
 
 ### Community 62 - "bangun.js"
 Cohesion: 0.06
@@ -889,12 +890,12 @@ Cohesion: 0.16
 Nodes (19): aturPosisi(), bangunKapal(), bangunPeta(), gx(), gz(), jarakRuas(), jawabanKini(), kapalVoxel() (+11 more)
 
 ### Community 66 - "kotak"
-Cohesion: 0.10
-Nodes (28): buatPemain(), fmtWaktu(), fotoMedali(), gapura(), gengsiAktif(), isiPapan(), kerucut(), kotak() (+20 more)
+Cohesion: 0.11
+Nodes (25): buatPemain(), fmtWaktu(), fotoMedali(), gapura(), hud(), isiPapan(), kerucut(), kotak() (+17 more)
 
 ### Community 67 - "simpan"
-Cohesion: 0.19
-Nodes (19): akhirCerita(), aturMisi(), bangunJembatan(), bicara(), bicaraLurah(), bicaraMbah(), bicaraTukang(), bukaGerbang() (+11 more)
+Cohesion: 0.22
+Nodes (16): akhirCerita(), aturMisi(), bangunJembatan(), bicaraLurah(), bicaraMbah(), bicaraSari(), bicaraTukang(), bukaGerbang() (+8 more)
 
 ### Community 68 - "coding-quest.js"
 Cohesion: 0.20
@@ -977,7 +978,7 @@ Cohesion: 0.05
 Nodes (11): Ad(), Cd(), gd, lc, mm, n, qn(), Rd() (+3 more)
 
 ### Community 88 - "Ruang"
-Cohesion: 0.24
+Cohesion: 0.19
 Nodes (5): kataKasar(), rapatKata(), Ruang, saringChat(), teksKaos()
 
 ### Community 89 - "notif.js"
@@ -1021,8 +1022,8 @@ Cohesion: 0.04
 Nodes (50): crop_rect(), load_cuts(), load_faces(), main(), probe_display_size(), probe_fps(), snap(), source_envelope() (+42 more)
 
 ### Community 102 - "langkah"
-Cohesion: 0.10
-Nodes (39): ambil(), ambilAir(), bangunDunia(), buang(), buatNPC(), bukaLaci(), bukaRayakan(), bunyi() (+31 more)
+Cohesion: 0.11
+Nodes (37): ambil(), ambilAir(), apiPk(), bangunDunia(), buang(), bukaLaci(), bukaRayakan(), bunyi() (+29 more)
 
 ### Community 104 - "ref_three"
 Cohesion: 0.12
@@ -1241,8 +1242,8 @@ Cohesion: 0.07
 Nodes (59): addVeg(), BANNER_COL, bannerGeo(), bannerProp(), bannerTex(), barkMat(), Batch, boxes (+51 more)
 
 ### Community 170 - "scripts/svgkit.py"
-Cohesion: 0.12
-Nodes (13): catmull(), clamp(), contact_sheet(), ease_in(), ease_in_out(), ease_out(), P(), poly() (+5 more)
+Cohesion: 0.05
+Nodes (34): add(), Canvas, catmull(), circle_pts(), clamp(), clip_convex(), contact_sheet(), dist() (+26 more)
 
 ### Community 171 - "zc"
 Cohesion: 0.05
@@ -1454,7 +1455,7 @@ Nodes (31): musikSiap(), putarMusik(), siapAudio(), tandaMusik(), volEfek(), vol
 
 ### Community 227 - "gsap.min.js"
 Cohesion: 0.04
-Nodes (87): _a(), Aa(), Ab(), ac(), Animation(), _assertThisInitialized(), Bb(), be() (+79 more)
+Nodes (88): _a(), Aa(), Ab(), ac(), Animation(), _assertThisInitialized(), Bb(), be() (+80 more)
 
 ### Community 228 - "Qs"
 Cohesion: 0.09
@@ -2301,8 +2302,8 @@ Cohesion: 0.05
 Nodes (95): biquad(), bp(), colored(), convolve_st(), fades(), hp(), lp(), make_ir() (+87 more)
 
 ### Community 492 - "transcribe.mjs"
-Cohesion: 0.18
-Nodes (13): launchingCliInvocation(), resolveNpxCliPath(), resolveNpxInvocation(), mergeTokensToWords(), dist, root, atomicWrite(), inputPath (+5 more)
+Cohesion: 0.22
+Nodes (11): launchingCliInvocation(), resolveNpxCliPath(), resolveNpxInvocation(), mergeTokensToWords(), atomicWrite(), inputPath, outPath, report() (+3 more)
 
 ### Community 493 - "App.js"
 Cohesion: 0.26
