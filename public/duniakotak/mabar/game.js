@@ -415,6 +415,14 @@ const dekatSawah = me => { if (DI !== DUSUN_SAWAH || !I || !I.sungai || !I.batas
   return x > I.sungai.x1 + .5 && x < I.batas.x1 + 1 && z > I.batas.z0 && z < I.batas.z1; };
 function keSawah() { if (DI !== DUSUN_SAWAH) { if (confirm(`Sawah Wetan ada di Dusun ${NAMA_DUSUN[DUSUN_SAWAH]}. Naik bus ke sana?` + teksTiket())) naikBus(DUSUN_SAWAH, 'sawah'); return; } keTempat('sawah'); }
 function ikutSawah() { bunyi('masuk'); toast('🌾 Menuju petak sawah…', 1500); setTimeout(() => { location.href = '/duniakotak/sawah/?dari=desa'; }, 500); }
+// ---------- Mancing Kotak (Huda 18 Nov 2026: game mancing seperti Pelari Kalcer & Reli) ----------
+// Gapura Mancing Kotak di pangkal Dermaga Kotak Tlaga (dipasang tlaga.js, I.dermaga). Warga di atas dermaga dapat tombol 🏆 Lomba
+// → game lomba mancing terpisah /duniakotak/mancing/. Tombol 🎣 Mancing biasa (ikan masuk tas) tetap ada.
+const DUSUN_MANCING = 'tlaga';
+const dekatLombaMancing = me => { if (DI !== DUSUN_MANCING || !I || !I.dermaga) return false; const d = I.dermaga;
+  return me.position.x > d.x0 - 1.5 * VS && me.position.x < d.x1 + 1.5 * VS && me.position.z > d.z0 && me.position.z < d.z1 + 3 * VS; };
+function keDermagaMancing() { if (DI !== DUSUN_MANCING) { if (confirm(`Mancing Kotak ada di Dermaga Dusun ${NAMA_DUSUN[DUSUN_MANCING]}. Naik bus ke sana?` + teksTiket())) naikBus(DUSUN_MANCING, 'mancing'); return; } keTempat('mancing'); }
+function ikutMancingKotak() { bunyi('masuk'); toast('🎣 Siapkan joran, menuju ujung dermaga…', 1500); setTimeout(() => { location.href = '/duniakotak/mancing/?dari=desa'; }, 500); }
 // ---------- Dealer Kendaraan & kendaraan warga (Huda 11 Nov 2026) ----------
 // Dealer di Dusun Kotak Curug (aset F.dealer, sebelah Sirkuit Reli). Sepeda, motor & mobil dibeli pakai KOIN (harga = KENDARAAN
 // di worker.js), diparkir di pekarangan rumah, dan bisa dikendarai keliling desa (tombol 🚗 Naik di dekat kendaraanmu).
@@ -1535,7 +1543,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {musim: 'dk_kabar_musim1', tandajuara: 'dk_kabar_tandajuara1', hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', sawah: 'dk_kabar_sawah1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2', musik: 'dk_kabar_musik1'};
+const KABAR_LAMA = {musim: 'dk_kabar_musim1', tandajuara: 'dk_kabar_tandajuara1', hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', mancingkotak: 'dk_kabar_mancingkotak1', sawah: 'dk_kabar_sawah1', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2', musik: 'dk_kabar_musik1'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   if (window.DK_APP) simpan(KABAR_LAMA.notif, '1');   // aplikasi Android belum bisa notifikasi web
@@ -1546,7 +1554,7 @@ function kabarBaru(n = 0) {
   const sibuk = tutorBuka || sedangJalan() || [...document.querySelectorAll('.layarPenuh')].some(e => !e.hidden) || (typeof pemulaKini === 'function' && pemulaKini() && n < 40);
   if (sibuk) { if (n < 120) setTimeout(() => kabarBaru(n + 1), 5000); return; }
   document.querySelectorAll('#panelKabar .kbItem[data-k]').forEach(e => { e.hidden = !baru.includes(e); });
-  $('kbNotifBtn').hidden = !baru.some(e => e.dataset.k === 'notif'); $('kbTutorBtn').hidden = !baru.some(e => e.dataset.k === 'tutor'); $('kbTamanBtn').hidden = !baru.some(e => e.dataset.k === 'taman'); $('kbHadiahPkBtn').hidden = !baru.some(e => e.dataset.k === 'hadiahpk'); $('kbLevelBtn').hidden = S.tamu || !baru.some(e => e.dataset.k === 'level'); $('kbDealerBtn').hidden = !baru.some(e => e.dataset.k === 'dealer'); $('kbReliBtn').hidden = !baru.some(e => e.dataset.k === 'reli' || e.dataset.k === 'mobil') || baru.some(e => e.dataset.k === 'dealer'); $('kbArenaBtn').hidden = !baru.some(e => e.dataset.k === 'arena'); $('kbSawahBtn').hidden = !baru.some(e => e.dataset.k === 'sawah'); $('kbTukangBtn').hidden = !baru.some(e => e.dataset.k === 'tukang'); $('kbAjakBtn').hidden = !baru.some(e => e.dataset.k === 'ajak'); $('kbRumahBtn').hidden = !baru.some(e => e.dataset.k === 'rumah'); $('kbAlbumBtn').hidden = !baru.some(e => e.dataset.k === 'album'); $('kbPasarBtn').hidden = !baru.some(e => e.dataset.k === 'pasar'); $('kbVotingBtn').hidden = !baru.some(e => e.dataset.k === 'tersebar' || e.dataset.k === 'berantai'); $('kbNpcBtn').hidden = !baru.some(e => e.dataset.k === 'npc') || DI !== 'wetan' || !I.fas?.[11];
+  $('kbNotifBtn').hidden = !baru.some(e => e.dataset.k === 'notif'); $('kbTutorBtn').hidden = !baru.some(e => e.dataset.k === 'tutor'); $('kbTamanBtn').hidden = !baru.some(e => e.dataset.k === 'taman'); $('kbHadiahPkBtn').hidden = !baru.some(e => e.dataset.k === 'hadiahpk'); $('kbLevelBtn').hidden = S.tamu || !baru.some(e => e.dataset.k === 'level'); $('kbDealerBtn').hidden = !baru.some(e => e.dataset.k === 'dealer'); $('kbReliBtn').hidden = !baru.some(e => e.dataset.k === 'reli' || e.dataset.k === 'mobil') || baru.some(e => e.dataset.k === 'dealer'); $('kbArenaBtn').hidden = !baru.some(e => e.dataset.k === 'arena'); $('kbMancingBtn').hidden = !baru.some(e => e.dataset.k === 'mancingkotak'); $('kbSawahBtn').hidden = !baru.some(e => e.dataset.k === 'sawah'); $('kbTukangBtn').hidden = !baru.some(e => e.dataset.k === 'tukang'); $('kbAjakBtn').hidden = !baru.some(e => e.dataset.k === 'ajak'); $('kbRumahBtn').hidden = !baru.some(e => e.dataset.k === 'rumah'); $('kbAlbumBtn').hidden = !baru.some(e => e.dataset.k === 'album'); $('kbPasarBtn').hidden = !baru.some(e => e.dataset.k === 'pasar'); $('kbVotingBtn').hidden = !baru.some(e => e.dataset.k === 'tersebar' || e.dataset.k === 'berantai'); $('kbNpcBtn').hidden = !baru.some(e => e.dataset.k === 'npc') || DI !== 'wetan' || !I.fas?.[11];
   baru.forEach(e => simpan(KABAR_LAMA[e.dataset.k], '1')); bunyi('masuk');
   ambilAjakSingkat();
   $('panelKabar').hidden = false;
@@ -1557,6 +1565,7 @@ function kabarBaru(n = 0) {
   $('kbPasarBtn').onclick = () => { $('panelKabar').hidden = true; bukaPasar(); };
   $('kbTukangBtn').onclick = () => { $('panelKabar').hidden = true; ikutBangun(); };
   $('kbArenaBtn').onclick = () => { $('panelKabar').hidden = true; keArenaLari(); };
+  $('kbMancingBtn').onclick = () => { $('panelKabar').hidden = true; keDermagaMancing(); };
   $('kbReliBtn').onclick = () => { $('panelKabar').hidden = true; keSirkuitReli(); }; $('kbSawahBtn').onclick = () => { $('panelKabar').hidden = true; keSawah(); }; $('kbDealerBtn').onclick = () => { $('panelKabar').hidden = true; keDealer(); };
   $('kbHadiahPkBtn').onclick = () => { $('panelKabar').hidden = true; PK_MODE = 'minggu'; $('panelPeringkat').hidden = false; tabPeringkat('koin'); };
   $('kbTamanBtn').onclick = () => { $('panelKabar').hidden = true; keTamanHiburan(); };
@@ -2146,7 +2155,7 @@ function animSkill(dt, me) {
   // tombol skill menyala bila bisa dipakai
   const t = now | 0; if (t % 4 === 0 || !animSkill.t || now - animSkill.t > 300) { animSkill.t = now;
     // tombol hanya muncul saat skill bisa dipakai; joran sedang dipakai = tombol Mancing hilang
-    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sSuka: !!rumahTetangga(me), sLari: dekatGapuraCFD(me), sReli: dekatReli(me), sSawah: dekatSawah(me), sBangun: dekatProyek(me), sPasar: dekatPasar(me), sKafe: !!tokoDekat(me), sWahana: !!dekatHiburan(me), sJog: !!dekatTaman(me) && !TM.jog && !TM.jogOk && !S.tamu, sWillo: dekatTokoWillo(me), sDealer: dekatDealer(me), sNaik: dekatParkiranSaya(me), sNebeng: !!mobilDekat(me), sTurun: !!NAIK || !!NEBENG, sLompat: !NAIK && !NEBENG, sLift: !!(I.gedung && I.gedung.dekatLift(me.position.x, me.position.z))};
+    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sSuka: !!rumahTetangga(me), sLari: dekatGapuraCFD(me), sReli: dekatReli(me), sLomba: dekatLombaMancing(me), sSawah: dekatSawah(me), sBangun: dekatProyek(me), sPasar: dekatPasar(me), sKafe: !!tokoDekat(me), sWahana: !!dekatHiburan(me), sJog: !!dekatTaman(me) && !TM.jog && !TM.jogOk && !S.tamu, sWillo: dekatTokoWillo(me), sDealer: dekatDealer(me), sNaik: dekatParkiranSaya(me), sNebeng: !!mobilDekat(me), sTurun: !!NAIK || !!NEBENG, sLompat: !NAIK && !NEBENG, sLift: !!(I.gedung && I.gedung.dekatLift(me.position.x, me.position.z))};
     for (const id in bisa) { const b = $(id); if (b.classList.contains('siap') !== bisa[id] || b.hidden === bisa[id]) { b.classList.toggle('siap', bisa[id]); b.hidden = !bisa[id]; } }
     if (air) misiMaju('sungai'); }
 }
@@ -2461,6 +2470,7 @@ function keTempat(tempat) {
   const me = tokoh.saya; if (!me || !I) return;
   let x, z, ry = Math.PI, nama;
   if (tempat === 'reli') { const f = sirkuitReli(); if (!f) return; x = f.position.x; z = f.position.z - 10.2 * VS; ry = 0; yaw = Math.PI; nama = 'Sirkuit Reli Kotak. Masuk gerbang & tekan 🏁 Reli'; }   // kamera menghadap gerbang
+  else if (tempat === 'mancing') { const d = I.dermaga; if (!d) return; x = (d.x0 + d.x1) / 2; z = d.z1 - 6 * VS; ry = Math.PI; yaw = 0; nama = 'Dermaga Mancing Kotak. Tekan 🏆 Lomba'; }   // menghadap danau
   else if (tempat === 'dealer') { const f = dealerKend(); if (!f) return; x = f.position.x; z = f.position.z - 7.4 * VS; ry = 0; yaw = Math.PI; nama = 'Dealer Kendaraan. Masuk & tekan 🚗 Dealer'; }
   else if (tempat === 'pelari') { const f = arenaLari(); if (!f) return; x = f.position.x; z = f.position.z + 10.2 * VS; nama = 'Arena Pelari Kalcer. Masuk gerbang & tekan 🏃 Ikut Lari'; }
   else if (tempat === 'sawah' && I.sungai) { const s = I.sungai, j = s.jembatan[Math.floor(s.jembatan.length / 2)] || [me.position.z, me.position.z]; x = s.x1 + 4 * VS; z = (j[0] + j[1]) / 2; ry = Math.PI / 2; nama = 'Sawah Wetan. Tekan 🌾 Sawah'; }
@@ -3501,7 +3511,7 @@ function aturHUD() {
   $('bDusun').onclick = pilihDusun;
   musikSiap();
   // pointerdown (bukan click): click tidak terpicu di HP saat jari lain masih menahan joystick -> bisa lompat sambil lari
-  $('sLari').onclick = ikutLari; $('sReli').onclick = ikutReli; $('sSawah').onclick = ikutSawah; $('sBangun').onclick = ikutBangun; $('sPasar').onclick = bukaPasar; $('sKafe').onclick = bukaBelanja; $('sWahana').onclick = bukaWahana; $('sJog').onclick = mulaiJog; $('tutupWahana').onclick = () => { $('panelWahana').hidden = true; }; $('tutupBelanja').onclick = () => { $('panelBelanja').hidden = true; }; $('sWillo').onclick = () => bukaWillo('tombol'); $('sDealer').onclick = bukaDealer; $('sNaik').onclick = naikKendaraan; $('sTurun').onclick = () => NEBENG ? turunNebeng() : turunKendaraan(); $('sNebeng').onclick = naikNebeng;
+  $('sLari').onclick = ikutLari; $('sReli').onclick = ikutReli; $('sLomba').onclick = ikutMancingKotak; $('sSawah').onclick = ikutSawah; $('sBangun').onclick = ikutBangun; $('sPasar').onclick = bukaPasar; $('sKafe').onclick = bukaBelanja; $('sWahana').onclick = bukaWahana; $('sJog').onclick = mulaiJog; $('tutupWahana').onclick = () => { $('panelWahana').hidden = true; }; $('tutupBelanja').onclick = () => { $('panelBelanja').hidden = true; }; $('sWillo').onclick = () => bukaWillo('tombol'); $('sDealer').onclick = bukaDealer; $('sNaik').onclick = naikKendaraan; $('sTurun').onclick = () => NEBENG ? turunNebeng() : turunKendaraan(); $('sNebeng').onclick = naikNebeng;
   $('bPasar').onclick = () => { $('panelAtur').hidden = true; bukaPasar(); }; $('tutupPasar').onclick = () => { $('panelPasar').hidden = true; };
   $('bWillo').onclick = () => bukaWillo('atur'); $('bDealer').onclick = bukaDealer; $('tutupWillo').onclick = () => { $('panelWillo').hidden = true; };
   $('sLift').onclick = () => { const d = I.gedung && I.gedung.dekatLift(tokoh.saya.position.x, tokoh.saya.position.z); if (d) bukaLift(d); };
