@@ -113,9 +113,9 @@
     "semantic_hash": "16f7aa92d3e9468edf41dd30b4c182d1"
   },
   "public/duniakotak/mabar/game.js": {
-    "mtime": 1794954747.328456,
-    "seen": 1794954790.7107925,
-    "ast_hash": "87ad56f993722971293bbc7e90c973f4",
+    "mtime": 1794955169.4104662,
+    "seen": 1794955269.5771477,
+    "ast_hash": "2d2e433465003a673bc72263237f036a",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/avatar.js": {
@@ -209,9 +209,9 @@
     "semantic_hash": "bf3f8e495130df0e60287acb7ca38561"
   },
   "worker.js": {
-    "mtime": 1794953999.107622,
-    "seen": 1794954790.7109056,
-    "ast_hash": "eb3417b26ebce39d8294885dcefb25ad",
+    "mtime": 1794954980.989098,
+    "seen": 1794955269.5773175,
+    "ast_hash": "75ace090fdf1e938623dedc2282248d1",
     "semantic_hash": ""
   },
   "public/kantor-agen-ai/demo-kantor-ai.mp4": {
@@ -971,9 +971,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/index.html": {
-    "mtime": 1794954747.3311176,
-    "seen": 1794954790.7121005,
-    "ast_hash": "e690fc167691196923c1a2956faaa802",
+    "mtime": 1794955007.9153514,
+    "seen": 1794955269.57885,
+    "ast_hash": "c2c2112f850c0e72336ac77609ef6621",
     "semantic_hash": ""
   },
   "public/duniakotak/privasi.html": {
@@ -17981,15 +17981,21 @@
     "semantic_hash": ""
   },
   "public/duniakotak/sawah/sawah.js": {
-    "mtime": 1794953999.111336,
-    "seen": 1794954790.7108243,
-    "ast_hash": "ecc2dc16c9d9dbb25f15dcf7683236c6",
+    "mtime": 1794955001.7302728,
+    "seen": 1794955269.577197,
+    "ast_hash": "654e8b7bf98b73bc921b89bb9f97d377",
     "semantic_hash": ""
   },
   "public/duniakotak/sawah/index.html": {
-    "mtime": 1794953999.102237,
-    "seen": 1794954790.7121067,
-    "ast_hash": "f0f906b21c51249bb007137c9a05bfa5",
+    "mtime": 1794955001.7343032,
+    "seen": 1794955269.5788586,
+    "ast_hash": "66100bd6a01b2ce9f2d83a8ee4f57410",
+    "semantic_hash": ""
+  },
+  "public/duniakotak/mabar/js/tanamanSawah.js": {
+    "mtime": 1794954935.168088,
+    "seen": 1794955269.577183,
+    "ast_hash": "f638cde17240adfe308b12b1e941cc8a",
     "semantic_hash": ""
   },
   ".claude/skills/video-shotcraft/package-lock.json": {
