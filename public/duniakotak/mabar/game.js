@@ -22,7 +22,7 @@ import {segara, AWAL_SEGARA, kodeUnit} from './js/segara.js';
 import {buatNav, pecahRute} from './js/navigasi.js';
 import {pasangDesaGabung, LETAK} from './js/desaGabung.js?v=20261111bus';
 import {musimDusun, musimkan, buatCuaca} from './js/musim.js?v=20261114ms';
-import {buatMusik, buatSuaraKendaraan} from './js/suara.js?v=20261115bs';
+import {buatMusik, buatSuaraKendaraan} from './js/suara.js?v=20261118bs';
 
 const $ = id => document.getElementById(id);
 const VS = D.VS;

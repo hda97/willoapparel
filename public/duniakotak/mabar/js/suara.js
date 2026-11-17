@@ -180,7 +180,7 @@ export function buatMusik(c, keluar, dusun) {
 // Mesin mobil/motor NPC terdekat (maks 3 sekaligus), mesin kendaraan sendiri, sirene ambulans, klakson saat jalannya
 // dihalangi pemain, bel sepeda. Keras-pelan menurut jarak, kiri-kanan menurut letak di layar. Semua lewat jalur EFEK.
 const M = 4.12 / 1.7;   // 1 meter dalam satuan dunia
-const DENGAR = 32 * M, DENGAR_SIRENE = 70 * M;
+const DENGAR = 45 * M, DENGAR_SIRENE = 90 * M;   // jarak dengar (diperbesar 18 Nov: mobil di desa jarang)
 const JENIS = {   // [frekuensi dasar, tambahan saat ngebut, filter, filter tambahan, bentuk, keras]
   sedan: [34, 34, 260, 420, 'sawtooth', .07], hatch: [38, 40, 300, 520, 'sawtooth', .07], jip: [30, 28, 220, 360, 'sawtooth', .085],
   patroli: [36, 36, 280, 450, 'sawtooth', .07], ambulans: [32, 30, 250, 400, 'sawtooth', .075], gt: [48, 62, 380, 900, 'sawtooth', .075],
