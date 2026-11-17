@@ -3,7 +3,9 @@
 // Sawah di seberang sungai Dusun Kotak Wetan dibagi 80 petak (10 kolom × 8 baris). Warga membeli petak pakai koin (maks 2),
 // lalu menanam bibit apa saja (11 tanaman, 30 menit s.d. 24 jam, waktu nyata). Panen = koin langsung. Siapa saja boleh MENYIRAM
 // tanaman yang belum disiram (tumbuh lebih cepat); menyiram sawah tetangga dapat koin kecil → warga saling bantu.
-// Gaya santai: tidak ada gagal panen / hama. Hemat API (paket gratis Cloudflare): lihat sawah = 1 GET publik ber-cache,
+// Sawah v2 (Huda 18 Nov 2026 "Game play sawah kurang menarik"): ulat/gulma/burung datang di 3 tahap tumbuh → ketuk untuk mengusir
+// (bonus panen; mengusir di petak tetangga dapat koin), panen pakai mini-game ketepatan + peluang Panen Raya ×2, Level Petani membuka
+// tanaman baru, dan 3 pesanan warga tiap hari. Tetap santai: gangguan yang dibiarkan tidak merusak tanaman, hanya bonusnya hilang. Hemat API (paket gratis Cloudflare): lihat sawah = 1 GET publik ber-cache,
 // tiap aksi = 1 POST. Masuk dari tombol 🌾 Sawah di Kotak Wetan (seperti 🏁 Reli di Curug). Tamu boleh melihat saja.
 import '../mabar/js/putar.js'; // HP tegak -> tampil mendatar, sama seperti game desa
 import * as THREE from 'three';
@@ -107,7 +109,26 @@ const BINGKAI = new THREE.Group(); { const k = 0xffe066, t = .35, L = UK + .7;
 // penanda melayang: ⭐ siap panen (petakku) & 💧 belum disiram (boleh dibantu siapa saja)
 const BINTANG = new THREE.InstancedMesh(new THREE.OctahedronGeometry(.55, 0), new THREE.MeshBasicMaterial({color: 0xffd23a}), KOLOM * BARIS);
 const TETES = new THREE.InstancedMesh(new THREE.SphereGeometry(.38, 8, 6), new THREE.MeshBasicMaterial({color: 0x56b8ff}), KOLOM * BARIS);
-BINTANG.count = TETES.count = 0; sc.add(BINTANG, TETES);
+BINTANG.count = TETES.count = 0; BINTANG.frustumCulled = TETES.frustumCulled = false; sc.add(BINTANG, TETES);
+// gangguan: 0 ulat (hijau, menggeliat), 1 gulma (rumpun gelap, bergoyang), 2 burung pipit (cokelat, melompat). Maks 3 per petak.
+const GG_IKON = ['🐛', '🌿', '🐦'], GG_NAMA = ['ulat', 'gulma', 'burung'], GG_OFS = [[-1.7, -1.5], [1.6, .3], [-.4, 1.8]];
+const GG = [
+  new THREE.InstancedMesh(new THREE.CapsuleGeometry(.42, 1.3, 2, 6).rotateZ(Math.PI / 2), new THREE.MeshStandardMaterial({color: 0xc8f03a, roughness: .5, emissive: 0x2a3a00}), KOLOM * BARIS * 3),
+  new THREE.InstancedMesh(new THREE.ConeGeometry(.8, 2.2, 5), new THREE.MeshStandardMaterial({color: 0x24501f, roughness: .9, flatShading: true}), KOLOM * BARIS * 3),
+  new THREE.InstancedMesh(new THREE.BoxGeometry(1.1, .85, .8), new THREE.MeshStandardMaterial({color: 0x6a3f1e, roughness: .8, flatShading: true}), KOLOM * BARIS * 3)];
+GG.forEach(m => { m.count = 0; m.castShadow = true; m.frustumCulled = false; m.userData.l = []; sc.add(m); });   // posisi berubah tiap bingkai → jangan dipotong bola batas lama
+// cincin merah kecil di bawah tiap gangguan → mudah dilihat & diketuk
+const CINCIN = new THREE.InstancedMesh(new THREE.TorusGeometry(1.05, .17, 6, 20).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({color: 0xff3a2a}), KOLOM * BARIS * 3);
+CINCIN.count = 0; CINCIN.frustumCulled = false; sc.add(CINCIN);
+// tanda seru merah melayang di atas tiap gangguan (terlihat dari jauh)
+const SERU = new THREE.InstancedMesh(new THREE.OctahedronGeometry(.42, 0), new THREE.MeshBasicMaterial({color: 0xff3a2a}), KOLOM * BARIS * 3);
+SERU.count = 0; SERU.frustumCulled = false; sc.add(SERU);
+let GG_AKTIF = [];   // [{p, i, jenis, x, z}]
+const jenisGG = (pt, i) => (pt.p * 7 + i + (pt.t % 3)) % 3;
+function gangguanAktif(pt, t = kini()) { const out = []; if (!pt || !pt.b || !D.ganggu) return out;
+  D.ganggu.tahap.forEach((f, i) => { if (!((pt.g || 0) & (1 << i)) && t >= pt.t + f * (pt.siap - pt.t)) out.push(i); }); return out; }
+const bonusGG = tn => Math.max(1, Math.round(tn.jual * ((D.ganggu && D.ganggu.bagian) || .1)));
+const jmlBit = g => (g & 1) + ((g >> 1) & 1) + ((g >> 2) & 1);
 
 // =====================================================================
 // 2. TANAMAN: 3 InstancedMesh (daun, batang, buah) diisi ulang tiap keadaan berubah → ringan untuk HP (3 draw call)
@@ -131,6 +152,9 @@ function bangunTanaman() {
     if (th && !th.siap && !pt.s) TETES.userData[nS++] = [x, z];
   }
   BINTANG.count = nT; TETES.count = nS; KEBUN.isi(tanam, {uk: UK, k: 1, y: 0});
+  GG_AKTIF = []; for (const pt of D.petak) for (const i of gangguanAktif(pt, t)) { const c = pt.p % KOLOM, r = Math.floor(pt.p / KOLOM);
+    GG_AKTIF.push({p: pt.p, i, jenis: jenisGG(pt, i), x: PX(c) + GG_OFS[i][0], z: PZ(r) + GG_OFS[i][1]}); }
+  GG.forEach(m => m.userData.l = []); GG_AKTIF.forEach(g => GG[g.jenis].userData.l.push(g)); GG.forEach(m => m.count = m.userData.l.length); CINCIN.count = SERU.count = GG_AKTIF.length;
   for (const m of [TANAH, TIANG, PAPAN, BENDERA]) { m.instanceMatrix.needsUpdate = true; if (m.instanceColor) m.instanceColor.needsUpdate = true; }
   if (PILIH >= 0) { BINGKAI.visible = true; BINGKAI.position.set(PX(PILIH % KOLOM), 0, PZ(Math.floor(PILIH / KOLOM))); } else BINGKAI.visible = false;
 }
@@ -177,12 +201,21 @@ let turun = null;
 $('kanvas').addEventListener('pointerdown', e => { turun = {x: e.clientX, y: e.clientY}; });
 $('kanvas').addEventListener('pointerup', e => {
   if (!turun || Math.hypot(e.clientX - turun.x, e.clientY - turun.y) > 12) return; turun = null;
+  let dekat = null, jd = 40; for (const g of GG_AKTIF) { const q = V.set(g.x, 1.5, g.z).project(cam), sx = (q.x + 1) / 2 * innerWidth, sy = (1 - q.y) / 2 * innerHeight, d = Math.hypot(sx - e.clientX, sy - e.clientY); if (d < jd) { jd = d; dekat = g; } }
+  if (dekat) return usir(dekat);
   TITIK.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); RAY.setFromCamera(TITIK, cam);
   if (!RAY.ray.intersectPlane(BIDANG, HIT)) return;
   const c = Math.round(HIT.x / LANGKAH + (KOLOM - 1) / 2), r = Math.round((BARIS - 1) / 2 - HIT.z / LANGKAH);
   if (c < 0 || c >= KOLOM || r < 0 || r >= BARIS) { pilih(-1); return; }
   pilih(r * KOLOM + c);
 });
+async function usir(g) {
+  if (!AKUN) return toast(`${GG_IKON[g.jenis]} Masuk sebagai warga dulu untuk mengusir ${GG_NAMA[g.jenis]}.`);
+  if (PILIH !== g.p) { PILIH = g.p; MODE = 'info'; avatarKe(g.p); }
+  const pt = petakDi(g.p), saya = SAYA && pt && pt.no === SAYA.no, tn = pt && D.tanaman[pt.b];
+  aksi('usir', {p: g.p, i: g.i}, j => { LONCAT = .4; semprot(g.p, [0x9ae03a, 0x2f6a2a, 0x8a5a32][g.jenis], 12, 6); nada(988, 1175);
+    toast(j.usir && j.usir.dapat ? `${GG_IKON[g.jenis]} ${GG_NAMA[g.jenis][0].toUpperCase() + GG_NAMA[g.jenis].slice(1)} tetangga diusir! Kamu +${j.usir.dapat} 🪙` : saya ? `${GG_IKON[g.jenis]} ${GG_NAMA[g.jenis][0].toUpperCase() + GG_NAMA[g.jenis].slice(1)} pergi! Panen nanti +${tn ? bonusGG(tn) : 1} 🪙` : `${GG_IKON[g.jenis]} Diusir! Tetangga senang.`, 2200); });
+}
 function pilih(p) { PILIH = p; MODE = 'info'; bunyi(p >= 0 ? 760 : 420, .05); if (p >= 0 && AKUN) avatarKe(p); bangunTanaman(); tulisPanel(); }
 
 // =====================================================================
@@ -190,7 +223,9 @@ function pilih(p) { PILIH = p; MODE = 'info'; bunyi(p >= 0 ? 760 : 420, .05); if
 // =====================================================================
 function tulisAtas() {
   $('cKoin').textContent = '🪙 ' + (SAYA ? SAYA.koin : AKUN ? '…' : 'tamu');
-  $('cPetak').textContent = '🌾 Petakku ' + (SAYA ? SAYA.punya : 0) + '/' + (D ? D.maks : 2);
+  $('cPetak').textContent = '🌾 ' + (SAYA ? SAYA.punya : 0) + '/' + (D ? D.maks : 2) + ' petak';
+  const L = D && D.level, lv = SAYA ? SAYA.lv || 1 : 1; $('cLv').hidden = !SAYA;
+  if (SAYA && L) $('cLv').textContent = '👨‍🌾 Lv ' + lv + (L[lv] ? ' · ' + SAYA.xp + '/' + L[lv] + ' XP' : ' · MAKS');
   $('cJual').textContent = '🏷️ ' + (D ? D.jumlah - D.petak.length : '–') + ' dijual';
 }
 const petakku = () => SAYA && D ? D.petak.filter(x => x.no === SAYA.no) : [];
@@ -200,22 +235,28 @@ function tulisPanel() {
   if (PILIH < 0) {
     const pk = petakku();
     P.innerHTML = `<div class="pAtas"><h2>🌾 Sawah Wetan</h2>${kembali}</div>
-      <p class="ket">Sawah Kotak Wetan kini <b>dijual per petak</b>. Beli petak, tanam apa saja, lalu panen jadi koin. ${AKUN ? '' : '<b>Masuk sebagai warga</b> dulu untuk membeli.'}</p>
-      <p class="ket">👆 <b>Ketuk petak</b> di sawah. Papan kuning = masih dijual.</p>
-      ${pk.length ? `<div class="mini">${pk.map(x => { const th = tahap(x); return `<button data-pk="${x.p}">${x.b ? D.tanaman[x.b].ikon : '🟫'} Petak ${x.p + 1}${th && th.siap ? ' ⭐' : ''}</button>`; }).join('')}</div>` : ''}
+      <p class="ket">${AKUN ? '👆 <b>Ketuk petak</b>. Papan kuning = dijual.' : 'Beli petak, tanam, panen jadi koin. <b>Masuk sebagai warga</b> dulu.'} Usir <b>🐛🌿🐦</b> yang datang (petak tetangga juga, dapat koin).</p>
+      ${pk.length ? `<div class="mini">${pk.map(x => { const th = tahap(x), ng = gangguanAktif(x).length; return `<button data-pk="${x.p}">${x.b ? D.tanaman[x.b].ikon : '🟫'} Petak ${x.p + 1}${th && th.siap ? ' ⭐' : ''}${ng ? ' ❗' : ''}</button>`; }).join('')}</div>` : ''}
+      ${SAYA && SAYA.pesanan ? `<p class="ket">📦 <b>Pesanan warga hari ini</b> (panen untuk mengirim)</p><div class="pesan">${SAYA.pesanan.map(o => { const t = D.tanaman[o.b] || {}; return `<span class="${o.d >= o.n ? 'ok' : ''}"><i>${t.ikon || '❔'}</i><b>${o.d >= o.n ? '✓ Terkirim' : o.d + '/' + o.n + ' ' + esc(t.nama || '')}</b><small>+${o.h} 🪙</small></span>`; }).join('')}</div>` : ''}
       <div class="legenda"><span><em style="background:#f2c14a"></em>Dijual</span><span><em style="background:#e0803a"></em>Petakku</span><span>⭐ Siap panen</span><span>💧 Butuh disiram</span></div>
-      <p class="ket">📋 <b>Misi harian:</b> ${MISI_SAWAH_T} kegiatan di sawah (beli, tanam, siram, panen).</p>
-      <p class="ket">💧 Siram tanaman tetangga: tumbuh lebih cepat & kamu dapat +${D.siram.koin} 🪙 (${D.siram.hari}x sehari).</p>
-      <div class="bawah">${AKUN ? '' : '<a class="utama tombol" href="/duniakotak/">Daftar / Masuk warga</a>'}</div>`;
+      <div class="bawah">${AKUN ? `<p class="ket">📋 Misi harian: ${MISI_SAWAH_T} kegiatan di sawah · 💧/🐛 tetangga +${D.siram.koin} 🪙</p>` : '<a class="utama tombol" href="/duniakotak/">Daftar / Masuk warga</a>'}</div>`;
     return;
   }
   const pt = petakDi(PILIH), saya = SAYA && pt && pt.no === SAYA.no, th = tahap(pt), tn = pt && pt.b ? D.tanaman[pt.b] : null;
   const judul = `<div class="pAtas"><h2>Petak ${PILIH + 1}</h2><button id="bTutup">✕</button></div>`;
   if (MODE === 'bibit' && saya && !pt.b) {
     P.innerHTML = `${judul}<p class="ket">Pilih bibit · koinmu <b>${SAYA.koin} 🪙</b></p>
-      <div class="bibit">${Object.entries(D.tanaman).map(([id, t]) => `<button data-bibit="${id}" class="${SAYA.koin < t.bibit ? 'mahal' : ''}" aria-label="${esc(t.nama)}, bibit ${t.bibit} koin, ${lamaTn(t)}, panen ${t.jual} koin"><i>${t.ikon}</i><b>${esc(t.nama)}</b><small>${t.bibit}🪙·${lamaTn(t)}→${t.jual}🪙</small></button>`).join('')}</div>
+      <div class="bibit">${Object.entries(D.tanaman).map(([id, t]) => { const kunci = (t.lv || 1) > (SAYA.lv || 1); return `<button data-bibit="${id}" class="${kunci || SAYA.koin < t.bibit ? 'mahal' : ''}" aria-label="${esc(t.nama)}${kunci ? ', terkunci sampai level ' + t.lv : ', bibit ' + t.bibit + ' koin, ' + lamaTn(t) + ', panen ' + t.jual + ' koin'}"><i>${kunci ? '🔒' : t.ikon}</i><b>${esc(t.nama)}</b><small>${kunci ? 'Level ' + t.lv : t.bibit + '🪙·' + lamaTn(t) + '→' + t.jual + '🪙'}</small></button>`; }).join('')}</div>
       <div class="bawah"><button class="kedua" id="bBatal">Batal</button></div>`;
     return;
+  }
+  if (MODE === 'panen' && saya && tn && th.siap) {
+    const ng = jmlBit(pt.g || 0);
+    P.innerHTML = `${judul}<div class="besar"><i>${tn.ikon}</i><div><b>Panen ${esc(tn.nama)}!</b><small>Tekan saat jarum di zona emas</small></div></div>
+      <div class="timing"><em class="z1"></em><em class="z2"></em><i id="jarum"></i></div>
+      <p class="ket">Kuning = bagus <b>+${Math.round(tn.jual * D.panenQ[1])} 🪙</b> · emas = sempurna <b>+${Math.round(tn.jual * D.panenQ[2])} 🪙</b>${ng ? ` · gangguan diusir +${ng * bonusGG(tn)} 🪙` : ''} · peluang ✨ Panen Raya ×2</p>
+      <div class="bawah"><button class="utama" id="bTarik">🧺 PANEN SEKARANG!</button></div>`;
+    JARUM_T0 = performance.now(); return;
   }
   let isi = '', tombol = '';
   if (!pt) {
@@ -228,12 +269,14 @@ function tulisPanel() {
     if (!tn) isi = `<div class="besar"><i>🟫</i><div><b>${pemilik}</b><small>Tanah siap ditanami</small></div></div>`;
     else isi = `<div class="besar"><i>${tn.ikon}</i><div><b>${esc(tn.nama)} · ${pemilik}</b><small id="sisa">${th.siap ? 'Siap panen! ⭐' : 'Panen ' + durasi(th.sisa) + ' lagi'}</small></div></div>
       <div class="bar"><i id="barI" style="width:${Math.round(th.f * 100)}%"></i></div>
-      <p class="ket">${pt.s ? '💧 Sudah disiram.' : th.siap ? '' : '💧 Belum disiram. Siram supaya ' + Math.round(D.siram.bagian * 100) + '% lebih cepat.'} ${saya ? 'Hasil panen: <b>' + tn.jual + ' 🪙</b>' : ''}</p>`;
+      <p class="ket">${pt.s ? '💧 Sudah disiram.' : th.siap ? '' : '💧 Belum disiram. Siram supaya ' + Math.round(D.siram.bagian * 100) + '% lebih cepat.'} ${saya ? 'Hasil: <b>' + tn.jual + ' 🪙</b>' + (jmlBit(pt.g || 0) ? ' + ' + jmlBit(pt.g || 0) * bonusGG(tn) + ' 🪙 bonus' : '') : ''}</p>
+      <p class="ket">${GG_IKON.map((ik, i) => { const g = D.ganggu ? pt.t + D.ganggu.tahap[i] * (pt.siap - pt.t) : 0, ok = (pt.g || 0) & (1 << i); return ok ? '✅' : kini() >= g ? '<b>' + GG_IKON[jenisGG(pt, i)] + '❗</b>' : '·'; }).join(' ')} gangguan diusir ${jmlBit(pt.g || 0)}/3${saya ? ' (tiap usir +' + bonusGG(tn) + ' 🪙 panen)' : ''}</p>`;
     if (saya) {
       if (!tn) tombol = `<button class="utama hijau" id="bTanam">🌱 TANAM BIBIT</button><button class="kedua" id="bLepas">Lepas petak (tanpa uang kembali)</button>`;
-      else if (th.siap) tombol = `<button class="utama" id="bPanen">🧺 PANEN · +${tn.jual} 🪙</button>`;
+      else if (th.siap) tombol = `<button class="utama" id="bPanen">🧺 PANEN · ${tn.jual}+ 🪙</button>`;
       else if (!pt.s) tombol = `<button class="utama biru" id="bSiram">💧 SIRAM</button>`;
     } else if (AKUN && tn && !th.siap && !pt.s) tombol = `<button class="utama biru" id="bSiram">💧 SIRAMKAN TETANGGA${SAYA && SAYA.siramHari < D.siram.hari ? ' · +' + D.siram.koin + ' 🪙' : ''}</button>`;
+    const ga = gangguanAktif(pt); if (AKUN && ga.length) tombol = `<button class="utama hijau" id="bUsir">${GG_IKON[jenisGG(pt, ga[0])]} USIR ${GG_NAMA[jenisGG(pt, ga[0])].toUpperCase()}${!saya && SAYA && SAYA.siramHari < D.siram.hari ? ' · +' + D.siram.koin + ' 🪙' : ''}</button>` + tombol;
   }
   P.innerHTML = `${judul}${isi}<div class="bawah">${tombol}</div>`;
 }
@@ -261,18 +304,30 @@ $('panel').addEventListener('click', e => {
   if (b.dataset.pk) return pilih(+b.dataset.pk);
   if (b.id === 'bTutup') return pilih(-1);
   if (b.id === 'bBatal') { MODE = 'info'; return tulisPanel(); }
+  if (b.dataset.bibit && (D.tanaman[b.dataset.bibit].lv || 1) > (SAYA.lv || 1)) { const t = D.tanaman[b.dataset.bibit]; return toast(`🔒 ${t.nama} terbuka di Level Petani ${t.lv}. Panen terus untuk dapat XP!`); }
   if (b.id === 'bTanam') { MODE = 'bibit'; bunyi(700, .04); return tulisPanel(); }
   if (b.dataset.bibit) { const t = D.tanaman[b.dataset.bibit]; if (SAYA && SAYA.koin < t.bibit) return toast(`Koinmu kurang untuk bibit ${t.nama} (${t.bibit} 🪙).`);
     return aksi('tanam', {b: b.dataset.bibit}, () => { MODE = 'info'; LONCAT = .5; semprot(PILIH, 0x6cc04a, 12, 4); nada(523, 659, 784); toast(`🌱 ${t.nama} ditanam! Panen ${durasi(t.menit * 60e3)} lagi.`); }); }
   if (b.id === 'bBeli') return aksi('beli', {}, j => { LONCAT = .5; semprot(PILIH, 0xf2c14a, 18); nada(523, 659, 784, 1046); toast(`🎉 Petak ${PILIH + 1} jadi milikmu! Sekarang tanam bibit.`); });
   if (b.id === 'bSiram') return aksi('siram', {}, j => { LONCAT = .4; semprot(PILIH, 0x56b8ff, 20, 5); nada(880, 988); toast(j.siram && j.siram.dapat ? `💧 Disiram! Tetangga senang, kamu +${j.siram.dapat} 🪙` : `💧 Disiram! Tumbuh ${durasi(j.siram.cepat * 60e3)} lebih cepat.`); });
-  if (b.id === 'bPanen') return aksi('panen', {}, j => { LONCAT = .6; semprot(PILIH, 0xffd23a, 22, 7); nada(659, 784, 988, 1318); toast(`🧺 Panen ${D.tanaman[j.panen.b].ikon} ${D.tanaman[j.panen.b].nama}! +${j.panen.dapat} 🪙`); });
+  if (b.id === 'bUsir') { const pt = petakDi(PILIH), ga = gangguanAktif(pt); if (ga.length) return usir({p: PILIH, i: ga[0], jenis: jenisGG(pt, ga[0])}); return; }
+  if (b.id === 'bPanen') { MODE = 'panen'; bunyi(700, .04); return tulisPanel(); }
+  if (b.id === 'bTarik') { const pos = posJarum(), dz = Math.abs(pos - .5), q = dz <= .07 ? 2 : dz <= .17 ? 1 : 0; JARUM_T0 = -1; b.disabled = true;
+    return aksi('panen', {q}, j => { MODE = 'info'; const pn = j.panen, r = pn.rinci || {}, tn = D.tanaman[pn.b];
+      LONCAT = .6; semprot(PILIH, 0xffd23a, r.raya ? 40 : 22, r.raya ? 10 : 7); nada(659, 784, 988, 1318);
+      toast(`${['🧺 Panen', '👍 Panen bagus', '🎯 PANEN SEMPURNA'][q]} ${tn.ikon} ${tn.nama}! +${pn.dapat} 🪙`, 3200);
+      if (r.raya) setTimeout(() => { toast(`✨ PANEN RAYA! Hasil ${tn.nama} dobel +${r.raya} 🪙`, 3500); nada(784, 988, 1318, 1568); semprot(PILIH, 0xfff07a, 30, 11); }, 500);
+      if (pn.pesanan) setTimeout(() => { toast(`📦 Pesanan ${D.tanaman[pn.pesanan.b].ikon} terkirim! +${pn.pesanan.h} 🪙`, 3200); nada(659, 880, 1046); }, r.raya ? 1500 : 700);
+      if (pn.naik) setTimeout(() => { toast(`🎉 Naik ke Level Petani ${pn.naik}!${pn.buka && pn.buka.length ? ' Bibit baru: ' + pn.buka.map(k => D.tanaman[k].ikon + ' ' + D.tanaman[k].nama).join(', ') : ''}`, 4500); nada(523, 659, 784, 1046, 1318); }, 2200);
+    }).then(() => { if (MODE === 'panen') { MODE = 'info'; tulisPanel(); } }); }
   if (b.id === 'bLepas') { if (!confirm(`Lepas Petak ${PILIH + 1}? Koin tidak kembali dan petak dijual lagi ke warga lain.`)) return; return aksi('lepas', {}, () => toast('Petak dilepas.')); }
 });
 
 // =====================================================================
 // 6. JALAN: animasi, hitung mundur, segarkan data tetangga tiap 30 dtk
 // =====================================================================
+// jarum panen bolak-balik (makin lama sedikit makin cepat supaya tidak membosankan)
+let JARUM_T0 = -1; const posJarum = () => { const d = (performance.now() - JARUM_T0) / 1000, f = d * (.75 + Math.min(.5, d * .05)); return 1 - Math.abs((f % 2) - 1); };
 const jam = new THREE.Clock(); let tBangun = 0, tDetik = 0;
 function loop() {
   requestAnimationFrame(loop); const dt = Math.min(.05, jam.getDelta()), t = jam.elapsedTime;
@@ -285,6 +340,14 @@ function loop() {
   for (let i = 0; i < BINTANG.count; i++) { const [x, z] = BINTANG.userData[i]; taruh(BINTANG, i, x, 3.2 + Math.sin(t * 3 + i) * .25, z, 1, 1, 1, t * 2); }
   for (let i = 0; i < TETES.count; i++) { const [x, z] = TETES.userData[i]; taruh(TETES, i, x + 2, 2.6 + Math.sin(t * 2.5 + i) * .2, z - 2, .8, 1.15, .8); }
   BINTANG.instanceMatrix.needsUpdate = TETES.instanceMatrix.needsUpdate = true;
+  let nc = 0; GG.forEach((m, jenis) => { m.userData.l.forEach((g, k) => { const s = t * 3 + g.p + g.i * 2;
+    if (jenis === 0) taruh(m, k, g.x + Math.sin(s) * .25, .85, g.z, 1 + Math.sin(s * 2) * .15, 1, 1, Math.sin(s * .7) * .6);
+    else if (jenis === 1) taruh(m, k, g.x, 1.4, g.z, 1, 1 + Math.sin(s) * .08, 1, 0, Math.sin(s * 1.3) * .15, Math.cos(s) * .15);
+    else taruh(m, k, g.x, .9 + Math.abs(Math.sin(s * 1.6)) * .9, g.z, 1, 1, 1, s * .4);
+    taruh(SERU, nc, g.x, 3.4 + Math.sin(t * 4 + k) * .25, g.z, .8, 1.5, .8, t * 2);
+    taruh(CINCIN, nc++, g.x, .42, g.z, 1 + Math.sin(t * 5 + k) * .12, 1, 1 + Math.sin(t * 5 + k) * .12); }); m.instanceMatrix.needsUpdate = true; });
+  CINCIN.instanceMatrix.needsUpdate = SERU.instanceMatrix.needsUpdate = true;
+  if (JARUM_T0 > 0 && $('jarum')) $('jarum').style.left = (posJarum() * 100).toFixed(1) + '%';
   for (let i = PART.length - 1; i >= 0; i--) { const m = PART[i]; m.userData.t -= dt; m.userData.v.y -= 16 * dt; m.position.addScaledVector(m.userData.v, dt); m.rotation.x += dt * 5;
     if (m.userData.t <= 0) { sc.remove(m); m.material.dispose(); PART.splice(i, 1); } }
   // tanaman tumbuh: bangun ulang tiap 5 dtk, hitung mundur panel tiap 1 dtk
@@ -304,4 +367,4 @@ async function segar() { if (document.hidden || SIBUK) return; const j = await a
   setInterval(segar, 30000);
 })();
 loop();
-window.__sawah = {D: () => D, SAYA: () => SAYA, pilih, terima};
+window.__sawah = {D: () => D, SAYA: () => SAYA, pilih, terima, GG: () => GG_AKTIF, usir};

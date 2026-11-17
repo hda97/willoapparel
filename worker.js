@@ -112,13 +112,34 @@ const BANGUN_SEKARANG = [{ id: "taman", nama: "🌳 Taman Kota", aset: "tamanKot
 // hari kembali ke desa (dijual lagi). Koin bersih per jam ±4–6 (setara kebun rumah), tanaman pendek sedikit lebih tinggi untuk yang rajin.
 const SW_PETAK = 80, SW_KOLOM = 10, SW_HARGA = [100, 200], SW_MAKS = 2, SW_SIRAM = 0.25, SW_KOIN_SIRAM = 2, SW_SIRAM_HARI = 10, SW_TERLANTAR = 7 * 864e5;
 const SW_TANAMAN = {
-  sawi: { nama: "Sawi", ikon: "🥬", bibit: 2, menit: 30, jual: 5 }, kangkung: { nama: "Kangkung", ikon: "🌿", bibit: 3, menit: 60, jual: 9 },
-  wortel: { nama: "Wortel", ikon: "🥕", bibit: 5, menit: 120, jual: 15 }, tomat: { nama: "Tomat", ikon: "🍅", bibit: 6, menit: 180, jual: 20 },
-  jagung: { nama: "Jagung", ikon: "🌽", bibit: 8, menit: 240, jual: 26 }, cabai: { nama: "Cabai", ikon: "🌶️", bibit: 10, menit: 300, jual: 32 },
-  terong: { nama: "Terong", ikon: "🍆", bibit: 10, menit: 360, jual: 36 }, padi: { nama: "Padi", ikon: "🌾", bibit: 12, menit: 480, jual: 46 },
-  kacang: { nama: "Kacang tanah", ikon: "🥜", bibit: 14, menit: 600, jual: 55 }, semangka: { nama: "Semangka", ikon: "🍉", bibit: 18, menit: 720, jual: 66 },
-  matahari: { nama: "Matahari", ikon: "🌻", bibit: 20, menit: 1440, jual: 116 },
+  sawi: { nama: "Sawi", ikon: "🥬", bibit: 2, menit: 30, jual: 5, lv: 1 }, kangkung: { nama: "Kangkung", ikon: "🌿", bibit: 3, menit: 60, jual: 9, lv: 1 },
+  wortel: { nama: "Wortel", ikon: "🥕", bibit: 5, menit: 120, jual: 15, lv: 1 }, tomat: { nama: "Tomat", ikon: "🍅", bibit: 6, menit: 180, jual: 20, lv: 2 },
+  jagung: { nama: "Jagung", ikon: "🌽", bibit: 8, menit: 240, jual: 26, lv: 2 }, cabai: { nama: "Cabai", ikon: "🌶️", bibit: 10, menit: 300, jual: 32, lv: 3 },
+  terong: { nama: "Terong", ikon: "🍆", bibit: 10, menit: 360, jual: 36, lv: 3 }, padi: { nama: "Padi", ikon: "🌾", bibit: 12, menit: 480, jual: 46, lv: 4 },
+  kacang: { nama: "Kacang tanah", ikon: "🥜", bibit: 14, menit: 600, jual: 55, lv: 5 }, semangka: { nama: "Semangka", ikon: "🍉", bibit: 18, menit: 720, jual: 66, lv: 6 },
+  matahari: { nama: "Matahari", ikon: "🌻", bibit: 20, menit: 1440, jual: 116, lv: 7 },
 };
+// Sawah v2 (Huda 18 Nov 2026 "Game play sawah kurang menarik"): supaya ada yang dikerjakan tiap mampir —
+// 1) GANGGUAN: tiap tanaman didatangi ulat/gulma/burung di 3 tahap tumbuh (SW_GANGGU_TAHAP). Ketuk untuk mengusir → tiap gangguan yang
+//    diusir menambah hasil panen SW_GANGGU bagian (pemilik). Tetangga yang mengusir dapat SW_KOIN_SIRAM koin (kuota harian sama dengan siram).
+//    Tidak diusir pun tidak rugi (santai tanpa kalah), hanya bonusnya hilang.
+// 2) PANEN pakai mini-game ketepatan (q: 0 biasa, 1 bagus, 2 sempurna → +SW_PANEN_Q). Peluang 1/SW_RAYA_P "Panen Raya" = hasil dasar ×2.
+// 3) LEVEL PETANI: XP = hasil dasar panen, tanaman terbuka sesuai level (lv di SW_TANAMAN), ambang XP di SW_LEVEL.
+// 4) PESANAN HARIAN: 3 pesanan warga per hari WIB (acak per warga dari tanaman yang sudah terbuka), selesai = SW_PESAN_HADIAH koin.
+const SW_GANGGU_TAHAP = [0.2, 0.5, 0.8], SW_GANGGU = 0.1, SW_PANEN_Q = [0, 0.1, 0.2], SW_RAYA_P = 8, SW_LEVEL = [0, 30, 80, 160, 280, 450, 700, 1000], SW_PESAN_HADIAH = [6, 9, 12];
+const swLevel = (xp) => SW_LEVEL.filter((x) => (xp || 0) >= x).length;
+const swBonusGanggu = (jual) => Math.max(1, Math.round(jual * SW_GANGGU));
+function swPesanan(no, hari, lv) {
+  let h = 2166136261; for (const c of hari + ":" + no) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
+  const buka = Object.keys(SW_TANAMAN).filter((k) => SW_TANAMAN[k].lv <= lv), out = [];
+  for (let i = 0; i < 3; i++) {
+    h = (Math.imul(h, 1103515245) + 12345) >>> 0; let j = h % buka.length;
+    for (let g = 0; g < buka.length && out.some((o) => o.b === buka[j]); g++) j = (j + 1) % buka.length;
+    const b = buka[j]; out.push({ b, n: SW_TANAMAN[b].menit <= 120 ? 2 : 1, d: 0, h: 0 });
+  }
+  out.sort((x, y) => SW_TANAMAN[x.b].jual * x.n - SW_TANAMAN[y.b].jual * y.n).forEach((o, i) => { o.h = SW_PESAN_HADIAH[i]; });   // pesanan termudah hadiah terkecil
+  return out;
+}
 const RL_KOIN = 10, RL_SESI_KOIN = 3, RL_MIN_MS = [0, 33e3, 29e3, 24e3, 27e3, 27e3], RL_LINTASAN = 5;
 // Mancing Kotak (Huda 18 Nov 2026: "game mancing untuk Dunia Kotak persis seperti Pelari Kalcer & Reli"): lomba mancing 90 detik di
 // /duniakotak/mancing/, masuk dari gapura Dermaga Kotak Tlaga. Rekor = total berat ikan terbanyak (gram) dalam satu sesi, per lokasi.
@@ -418,6 +439,11 @@ export class Warga extends DurableObject {
     this.sql.exec("CREATE TABLE IF NOT EXISTS sawah (p INTEGER PRIMARY KEY, no INTEGER, b TEXT, t INTEGER, siap INTEGER, s INTEGER, a INTEGER, beli INTEGER)");
     // h = hari WIB, sn = siram sawah tetangga hari ini (dapat koin)
     this.sql.exec("CREATE TABLE IF NOT EXISTS sawahWarga (no INTEGER PRIMARY KEY, h TEXT, sn INTEGER DEFAULT 0)");
+    // Sawah v2: g = gangguan yang sudah diusir (bit 0..2); xp = XP petani, ph = hari pesanan, po = pesanan hari itu (JSON)
+    try { this.sql.exec("ALTER TABLE sawah ADD COLUMN g INTEGER DEFAULT 0"); } catch (e) { /* kolom sudah ada */ }
+    try { this.sql.exec("ALTER TABLE sawahWarga ADD COLUMN xp INTEGER DEFAULT 0"); } catch (e) { /* kolom sudah ada */ }
+    try { this.sql.exec("ALTER TABLE sawahWarga ADD COLUMN ph TEXT"); } catch (e) { /* kolom sudah ada */ }
+    try { this.sql.exec("ALTER TABLE sawahWarga ADD COLUMN po TEXT"); } catch (e) { /* kolom sudah ada */ }
     // rekor tercepat (ms) tiap warga per lintasan
     this.sql.exec("CREATE TABLE IF NOT EXISTS reliRekor (no INTEGER, l INTEGER, r INTEGER, PRIMARY KEY (no, l))");
     // Mancing Kotak: sama seperti reli (h, n, m, ml, buka 1 atau 3); rekor r = total berat terbaik (gram) per lokasi, e = jumlah ekor sesi itu
@@ -848,9 +874,9 @@ export class Warga extends DurableObject {
   // Sawah Wetan: semua petak terjual (pemilik, tanaman, siap) + katalog. Petak terlantar dikembalikan ke desa di sini.
   infoSawah(kini = Date.now()) {
     this.sql.exec("DELETE FROM sawah WHERE a < ?", kini - SW_TERLANTAR);
-    const petak = this.sql.exec("SELECT x.p, x.no, x.b, x.t, x.siap, x.s, w.ig, w.tiktok, w.nama FROM sawah x LEFT JOIN warga w ON w.no = x.no ORDER BY x.p").toArray()
-      .map((x) => ({ p: x.p, no: x.no, u: this.nm(x), b: x.b || null, t: x.t || 0, siap: x.siap || 0, s: x.s ? 1 : 0 }));
-    return { kini, jumlah: SW_PETAK, kolom: SW_KOLOM, harga: SW_HARGA, maks: SW_MAKS, siram: { bagian: SW_SIRAM, koin: SW_KOIN_SIRAM, hari: SW_SIRAM_HARI }, terlantarHari: SW_TERLANTAR / 864e5, tanaman: SW_TANAMAN, petak };
+    const petak = this.sql.exec("SELECT x.p, x.no, x.b, x.t, x.siap, x.s, x.g, w.ig, w.tiktok, w.nama FROM sawah x LEFT JOIN warga w ON w.no = x.no ORDER BY x.p").toArray()
+      .map((x) => ({ p: x.p, no: x.no, u: this.nm(x), b: x.b || null, t: x.t || 0, siap: x.siap || 0, s: x.s ? 1 : 0, g: x.g || 0 }));
+    return { kini, jumlah: SW_PETAK, kolom: SW_KOLOM, harga: SW_HARGA, maks: SW_MAKS, siram: { bagian: SW_SIRAM, koin: SW_KOIN_SIRAM, hari: SW_SIRAM_HARI }, terlantarHari: SW_TERLANTAR / 864e5, tanaman: SW_TANAMAN, ganggu: { tahap: SW_GANGGU_TAHAP, bagian: SW_GANGGU }, panenQ: SW_PANEN_Q, raya: SW_RAYA_P, level: SW_LEVEL, petak };
   }
   // Mancing Kotak: papan rekor publik (5 berat terbanyak sepanjang masa) + jumlah pemancing
   infoMancing(l = 1) {
@@ -1437,13 +1463,16 @@ export class Warga extends DurableObject {
     }
     if (aksi === "sawah-publik") return Response.json(this.infoSawah());
     if (aksi === "sawah") {
-      // op: saya | beli {p} | tanam {p, b} | siram {p} | panen {p} | lepas {p}
+      // op: saya | beli {p} | tanam {p, b} | siram {p} | usir {p, i} | panen {p, q} | lepas {p}
       const q = await request.json(), kini = Date.now(), hari = hariWib(kini), p = Math.floor(+q.p);
       const r = this.sql.exec("SELECT no, ig, tiktok, nama, koin, permata, avatar FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
       if (!r) return Response.json({ ...this.infoSawah(kini), galat: "Masuk dulu sebagai warga Dunia Kotak." }, { status: 401 });
       this.sql.exec("DELETE FROM sawah WHERE a < ?", kini - SW_TERLANTAR);
-      const sw = this.sql.exec("SELECT h, sn FROM sawahWarga WHERE no = ?", r.no).toArray()[0] || { h: hari, sn: 0 };
+      const sw = this.sql.exec("SELECT h, sn, xp, ph, po FROM sawahWarga WHERE no = ?", r.no).toArray()[0] || { h: hari, sn: 0, xp: 0 };
       if (sw.h !== hari) { sw.h = hari; sw.sn = 0; }
+      sw.xp = sw.xp || 0; let lv = swLevel(sw.xp), pesan = null;
+      try { pesan = sw.ph === hari && sw.po ? JSON.parse(sw.po) : null; } catch (e) { pesan = null; }
+      if (!pesan) { pesan = swPesanan(r.no, hari, lv); sw.ph = hari; }
       const milik = () => this.sql.exec("SELECT COUNT(*) AS n FROM sawah WHERE no = ?", r.no).toArray()[0].n;
       const ptk = (p >= 0 && p < SW_PETAK) ? (this.sql.exec("SELECT * FROM sawah WHERE p = ?", p).toArray()[0] || null) : undefined;
       let koin = r.koin || 0, galat = null; const info = {};
@@ -1460,10 +1489,11 @@ export class Warga extends DurableObject {
         const tn = SW_TANAMAN[q.b];
         if (!ptk || ptk.no !== r.no) galat = "Ini bukan petakmu.";
         else if (!tn) galat = "Bibit tidak ada.";
+        else if (tn.lv > lv) galat = tn.nama + " terbuka di Level Petani " + tn.lv + ". Panen terus untuk naik level!";
         else if (ptk.b) galat = "Petak ini masih ada tanamannya. Panen dulu.";
         else if (koin < tn.bibit) galat = "Koinmu kurang untuk bibit " + tn.nama + " (" + tn.bibit + " 🪙).";
         else { koin -= tn.bibit; this.sql.exec("UPDATE warga SET koin = ? WHERE no = ?", koin, r.no); this.arus("-koin:bibit-sawah", tn.bibit);
-          this.sql.exec("UPDATE sawah SET b = ?, t = ?, siap = ?, s = NULL, a = ? WHERE p = ?", q.b, kini, kini + tn.menit * 60e3, kini, p); info.tanam = { p, b: q.b }; }
+          this.sql.exec("UPDATE sawah SET b = ?, t = ?, siap = ?, s = NULL, g = 0, a = ? WHERE p = ?", q.b, kini, kini + tn.menit * 60e3, kini, p); info.tanam = { p, b: q.b }; }
       } else if (q.op === "siram") {
         const tn = ptk && SW_TANAMAN[ptk.b];
         if (!ptk || !tn) galat = "Petak ini belum ditanami.";
@@ -1472,19 +1502,35 @@ export class Warga extends DurableObject {
         else { const siap = Math.max(kini, ptk.siap - Math.round(tn.menit * 60e3 * SW_SIRAM));
           this.sql.exec("UPDATE sawah SET siap = ?, s = ? WHERE p = ?", siap, r.no, p); info.siram = { p, cepat: Math.round(tn.menit * SW_SIRAM) };
           if (ptk.no !== r.no && sw.sn < SW_SIRAM_HARI) { sw.sn++; koinMasuk(SW_KOIN_SIRAM, "siram-sawah"); info.siram.dapat = SW_KOIN_SIRAM; } }
+      } else if (q.op === "usir") {
+        const tn = ptk && SW_TANAMAN[ptk.b], i = Math.floor(+q.i), g = (ptk && ptk.g) || 0;
+        if (!ptk || !tn) galat = "Petak ini belum ditanami.";
+        else if (!(i >= 0 && i < SW_GANGGU_TAHAP.length)) galat = "Gangguannya tidak ada.";
+        else if (g & (1 << i)) galat = "Sudah diusir warga lain.";
+        else if (kini < ptk.t + SW_GANGGU_TAHAP[i] * (ptk.siap - ptk.t)) galat = "Gangguannya belum datang.";
+        else { this.sql.exec("UPDATE sawah SET g = ? WHERE p = ?", g | (1 << i), p); info.usir = { p, i, bonus: swBonusGanggu(tn.jual) };
+          if (ptk.no !== r.no && sw.sn < SW_SIRAM_HARI) { sw.sn++; koinMasuk(SW_KOIN_SIRAM, "usir-sawah"); info.usir.dapat = SW_KOIN_SIRAM; } }
       } else if (q.op === "panen") {
         const tn = ptk && SW_TANAMAN[ptk.b];
         if (!ptk || ptk.no !== r.no) galat = "Ini bukan petakmu.";
         else if (!tn) galat = "Petak ini belum ditanami.";
         else if (kini < ptk.siap) galat = "Belum siap panen. Sabar ya, atau siram dulu biar cepat.";
-        else { this.sql.exec("UPDATE sawah SET b = NULL, t = 0, siap = 0, s = NULL, a = ? WHERE p = ?", kini, p); koinMasuk(tn.jual, "panen-sawah"); info.panen = { p, b: ptk.b, dapat: tn.jual }; }
+        else {
+          const qq = Math.max(0, Math.min(2, Math.floor(+q.q) || 0)), g = ptk.g || 0, nG = (g & 1) + ((g >> 1) & 1) + ((g >> 2) & 1), raya = Math.random() * SW_RAYA_P < 1;
+          const rinci = { dasar: tn.jual, raya: raya ? tn.jual : 0, ganggu: nG * swBonusGanggu(tn.jual), nG, q: qq, tepat: Math.round(tn.jual * SW_PANEN_Q[qq]) };
+          const dapat = rinci.dasar + rinci.raya + rinci.ganggu + rinci.tepat;
+          this.sql.exec("UPDATE sawah SET b = NULL, t = 0, siap = 0, s = NULL, g = 0, a = ? WHERE p = ?", kini, p); koinMasuk(dapat, "panen-sawah");
+          const lvLama = lv; sw.xp += tn.jual; lv = swLevel(sw.xp);
+          info.panen = { p, b: ptk.b, dapat, rinci, xp: tn.jual, ...(lv > lvLama ? { naik: lv, buka: Object.keys(SW_TANAMAN).filter((k) => SW_TANAMAN[k].lv === lv) } : {}) };
+          for (const o of pesan) if (o.b === ptk.b && o.d < o.n) { o.d++; if (o.d >= o.n) { koinMasuk(o.h, "pesanan-sawah"); info.panen.pesanan = { b: o.b, h: o.h }; } break; }
+        }
       } else if (q.op === "lepas") {
         if (!ptk || ptk.no !== r.no) galat = "Ini bukan petakmu.";
         else { this.sql.exec("DELETE FROM sawah WHERE p = ?", p); info.lepas = { p }; }
       }
-      this.sql.exec("INSERT INTO sawahWarga (no, h, sn) VALUES (?, ?, ?) ON CONFLICT (no) DO UPDATE SET h = excluded.h, sn = excluded.sn", r.no, sw.h, sw.sn);
+      this.sql.exec("INSERT INTO sawahWarga (no, h, sn, xp, ph, po) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (no) DO UPDATE SET h = excluded.h, sn = excluded.sn, xp = excluded.xp, ph = excluded.ph, po = excluded.po", r.no, sw.h, sw.sn, sw.xp, sw.ph, JSON.stringify(pesan));
       const n = milik();
-      return Response.json({ ...this.infoSawah(kini), ...info, ...(galat ? { galat } : {}), saya: { no: r.no, u: this.nm(r), koin, permata: r.permata || 0, avatar: (() => { try { return r.avatar ? JSON.parse(r.avatar) : null; } catch (e) { return null; } })(), punya: n, hargaBerikut: n < SW_MAKS ? SW_HARGA[Math.min(n, SW_HARGA.length - 1)] : 0, siramHari: sw.sn } }, { status: galat ? 400 : 200 });
+      return Response.json({ ...this.infoSawah(kini), ...info, ...(galat ? { galat } : {}), saya: { no: r.no, u: this.nm(r), koin, permata: r.permata || 0, avatar: (() => { try { return r.avatar ? JSON.parse(r.avatar) : null; } catch (e) { return null; } })(), punya: n, hargaBerikut: n < SW_MAKS ? SW_HARGA[Math.min(n, SW_HARGA.length - 1)] : 0, siramHari: sw.sn, xp: sw.xp, lv, pesanan: pesan } }, { status: galat ? 400 : 200 });
     }
     const lokasiMc = (v) => Math.max(1, Math.min(MC_LOKASI, Math.floor(+v || 1)));
     if (aksi === "mancing-publik") return Response.json(this.infoMancing(lokasiMc(u.searchParams.get("l"))));
@@ -2595,7 +2641,7 @@ async function apiWargaInti(request, env, url) {
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "sawah") {
-    const r = await stub.fetch("https://do/sawah", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 8), p: Number.isFinite(+body.p) && body.p !== null ? Math.floor(+body.p) : -1, b: String(body.b || "").slice(0, 12) }) });
+    const r = await stub.fetch("https://do/sawah", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), op: String(body.op || "").slice(0, 8), p: Number.isFinite(+body.p) && body.p !== null ? Math.floor(+body.p) : -1, b: String(body.b || "").slice(0, 12), i: Math.floor(+body.i) || 0, q: Math.floor(+body.q) || 0 }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "mancing") {
