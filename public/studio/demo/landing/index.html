@@ -14,14 +14,14 @@ a{color:inherit}
 .w{max-width:1040px;margin:0 auto;padding:0 20px}
 h1,h2{font-family:"Baloo 2",sans-serif;line-height:1.05}
 header{background:var(--m);color:#fff}
-.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+.nav{display:flex;align-items:center;justify-content:space-between;padding-top:14px;padding-bottom:14px}
 .nav b{font-family:"Baloo 2";font-size:22px}
 .btn{display:inline-flex;align-items:center;gap:8px;background:var(--kun);color:var(--t);font-weight:800;text-decoration:none;padding:14px 22px;border-radius:14px}
 .btn.s{padding:9px 14px;border-radius:10px;font-size:14px}
-.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center;padding:36px 0 56px}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center;padding-top:36px;padding-bottom:56px}
 .hero h1{font-size:clamp(40px,7vw,68px)}
 .hero p{font-size:18px;opacity:.9;margin:14px 0 24px;max-width:480px}
-.mangkok{aspect-ratio:1;max-width:380px;width:100%;margin:0 auto}
+.mangkok{aspect-ratio:1;max-width:420px;width:100%;margin:0 auto;height:auto;object-fit:cover;border-radius:50%;border:10px solid rgba(255,255,255,.15);box-shadow:0 30px 60px rgba(0,0,0,.35)}
 .lencana{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;font-size:14px;font-weight:700}
 .lencana span{background:rgba(255,255,255,.15);padding:6px 12px;border-radius:999px}
 section{padding:56px 0}
@@ -46,8 +46,9 @@ h2{font-size:clamp(30px,5vw,44px);margin-bottom:8px}
 .info li{list-style:none;padding:10px 0;border-bottom:1px dashed #E6D3BA}
 .ajak{background:var(--m2);color:#fff;border-radius:28px;padding:40px 28px;text-align:center}
 .ajak p{opacity:.85;margin:8px 0 22px}
+.unggul{display:grid;grid-template-columns:1fr 1fr;gap:14px}.unggul figure{background:#fff;border-radius:22px;overflow:hidden;border:1px solid #F0E2CF}.unggul img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}.unggul figcaption{padding:14px 16px;position:relative}.unggul b{display:block;font-size:18px}.unggul span{color:var(--a);font-size:14px}.unggul em{position:absolute;right:14px;top:-22px;background:var(--kun);font:800 20px "Baloo 2";font-style:normal;padding:6px 12px;border-radius:12px}@media(max-width:760px){.unggul{grid-template-columns:1fr}}
 footer{text-align:center;color:var(--a);font-size:14px;padding:30px 0}
-@media(max-width:760px){.hero,.lok{grid-template-columns:1fr}.grid3,.testi{grid-template-columns:1fr}.menu{grid-template-columns:1fr}.hero{padding-top:12px}.mangkok{max-width:200px}}
+@media(max-width:760px){.hero,.lok{grid-template-columns:1fr}.grid3,.testi{grid-template-columns:1fr}.menu{grid-template-columns:1fr}.hero{padding-top:12px!important}.mangkok{max-width:300px}}
 </style></head>
 <body data-demo="landing page">
 <header>
@@ -59,14 +60,7 @@ footer{text-align:center;color:var(--a);font-size:14px;padding:30px 0}
       <a class="btn" href="#pesan">Pesan lewat WhatsApp</a>
       <div class="lencana"><span>Buka 09.00–21.00</span><span>Antar radius 5 km</span><span>Halal</span></div>
     </div>
-    <svg class="mangkok" viewBox="0 0 200 200" aria-hidden="true">
-      <circle cx="100" cy="100" r="96" fill="#FFC83D"/>
-      <path d="M36 98h128c0 40-29 66-64 66s-64-26-64-66z" fill="#fff"/>
-      <path d="M36 98h128" stroke="#7A1712" stroke-width="8" stroke-linecap="round"/>
-      <circle cx="78" cy="90" r="17" fill="#8A5A3C"/><circle cx="108" cy="84" r="20" fill="#9B6646"/><circle cx="133" cy="92" r="14" fill="#8A5A3C"/>
-      <path d="M58 92c10-6 20-6 30 0M120 96c8-5 18-5 26 0" stroke="#3E8E3A" stroke-width="5" stroke-linecap="round" fill="none"/>
-      <path d="M86 40c-4 8 4 12 0 20M104 34c-4 8 4 12 0 20M122 40c-4 8 4 12 0 20" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity=".8"/>
-    </svg>
+    <img class="mangkok" src="img/bakso-urat.jpg" alt="Semangkuk bakso urat dengan mi dan sawi" width="900" height="900">
   </div>
 </header>
 
@@ -83,10 +77,12 @@ footer{text-align:center;color:var(--a);font-size:14px;padding:30px 0}
 <section style="background:#fff"><div class="w">
   <h2>Menu andalan</h2>
   <p class="sub">Harga sudah termasuk kuah, mi, dan sayur.</p>
-  <div class="menu">
-    <div class="mn"><div><b>Bakso urat jumbo</b><small>1 pentol jumbo + 4 kecil</small></div><div class="h">18rb</div></div>
+  <div class="unggul">
+    <figure><img src="img/bakso-urat.jpg" alt="Bakso urat jumbo" loading="lazy"><figcaption><b>Bakso urat jumbo</b><span>1 pentol jumbo + 4 kecil, mi, sawi</span><em>18rb</em></figcaption></figure>
+    <figure><img src="img/mi-ayam-bakso.jpg" alt="Mi ayam bakso" loading="lazy"><figcaption><b>Mi ayam bakso</b><span>Mi ayam kecap + 3 pentol</span><em>16rb</em></figcaption></figure>
+  </div>
+  <div class="menu" style="margin-top:12px">
     <div class="mn"><div><b>Bakso campur</b><small>Urat, halus, tahu, siomay</small></div><div class="h">15rb</div></div>
-    <div class="mn"><div><b>Mi ayam bakso</b><small>Mi ayam + 3 pentol</small></div><div class="h">16rb</div></div>
     <div class="mn"><div><b>Es teh jumbo</b><small>Gula batu</small></div><div class="h">4rb</div></div>
   </div>
 </div></section>
