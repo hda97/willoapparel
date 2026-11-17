@@ -653,6 +653,18 @@ export function stasiun(){const g=G();const W=0xf3eee2,M=0xb8322a,AB=0x5a5e66,K=
 export const SEMUA={masjid,gereja,katedral,pura,vihara,klenteng,sekolah,warung,supermarket,rumahSakit,stadion,kampus,tamanKota,kafe,hiburan,polisi,tokoWillo,arenaLari,sirkuitReli,dealer,damkar,bandara,bandaraBesar,stasiun};
 // Dipakai game: pisahkan bagian "atas" (dinding atas, atap, lantai 2) supaya bisa disembunyikan saat warga di dalam,
 // dan hitung kotak tabrakan per dinding (pintu & ruang dalam bisa dilewati). m sudah diskalakan & diposisikan.
+// Gapura Mancing Kotak (Huda 18 Nov 2026): pintu masuk lomba mancing /duniakotak/mancing/ di pangkal Dermaga Kotak Tlaga.
+// Satuan lokal dusun (skala VS di pemanggil), tiang di luar jalur dermaga (lebar 6) supaya warga tetap bisa lewat; papan menghadap darat (+z).
+export function gapuraMancing(){const g=G(),K=0x6a4426,N='#2c3150';
+ for(const x of[-3.4,3.4]){g.ad(box(.5,5,.5,K,.05),x,2.5,0);g.ad(box(.8,.3,.8,0x4a2e18,.03),x,.15,0)}
+ g.ad(box(7.6,.5,.6,0x8a5a2a,.05),0,5,0);
+ const p=papanTeks(6.4,1.3,'🎣 MANCING KOTAK','#2c3150','#f2c14a');p.position.set(0,4,.32);g.add(p);
+ const b=papanTeks(6.4,1.3,'🎣 MANCING KOTAK','#2c3150','#f2c14a');b.position.set(0,4,-.32);b.rotation.y=Math.PI;g.add(b);
+ g.ad(box(6.6,1.5,.3,0x1d1e24,.03),0,4,0);
+ // rak joran & ember di sisi kanan gapura (di luar jalur)
+ for(let k=0;k<3;k++){const j=new THREE.Mesh(new THREE.CylinderGeometry(.05,.08,3.4,6),new THREE.MeshStandardMaterial({color:[0xc8a050,0x2a2c34,0xf2c14a][k],roughness:.5}));j.position.set(4.3+k*.35,1.9,-.6);j.rotation.z=-.12;g.add(j)}
+ g.ad(box(1.6,.2,.4,K,.02),4.65,.9,-.6);g.ad(box(.8,.8,.8,0x3a7ad8,.06),4.6,.4,1);void N;
+ return fin(g)}
 export function pisahFasum(m){
  m.updateMatrixWorld(true);const sk=m.scale.x,y0=m.position.y,zl=m.userData.zona||[];
  const zona=zl.map(([a,b,c,d,f])=>{const p=new THREE.Vector3(a,0,c).applyMatrix4(m.matrixWorld),q=new THREE.Vector3(b,0,d).applyMatrix4(m.matrixWorld);return [Math.min(p.x,q.x),Math.max(p.x,q.x),Math.min(p.z,q.z),Math.max(p.z,q.z),y0+f*sk]});
