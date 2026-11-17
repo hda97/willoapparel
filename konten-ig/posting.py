@@ -1,4 +1,9 @@
-"""Posting reel Dunia Kotak ke Instagram @duniakotak.id lewat Instagram Graph API resmi.
+"""Posting reel/carousel ke Instagram lewat Instagram Graph API resmi.
+
+Akun utama @duniakotak.id (antrean konten-ig/antrean/). Akun lain dipilih dengan env IG_USERNAME
+dan memakai antrean konten-ig/antrean-<akun>/ (mis. Lumbung di @miftakhul_hda). Satu tanggal boleh
+punya beberapa file: YYYY-MM-DD.json, YYYY-MM-DD-1.json, YYYY-MM-DD-2.json, ... masing-masing dengan "jam".
+Carousel: {"jenis": "CAROUSEL", "gambar": ["https://...1.jpg", ...], "caption": ..., "jam": ...}.
 
 Dijalankan oleh .github/workflows/ig-posting.yml. Tanpa layanan pihak ketiga, gratis.
 
@@ -20,7 +25,8 @@ API = "https://graph.facebook.com/v21.0"
 DIR = os.path.dirname(os.path.abspath(__file__))
 TOKEN_FILE = os.path.join(DIR, "token.enc")
 WIB = dt.timezone(dt.timedelta(hours=7))
-AKUN = os.environ.get("IG_USERNAME", "duniakotak.id")
+UTAMA = "duniakotak.id"  # akun yang token-nya di token.enc dan antrean-nya di antrean/
+AKUN = os.environ.get("IG_USERNAME") or UTAMA
 
 
 def req(method, path, **params):
@@ -50,7 +56,7 @@ def sidik(tok):
 def file_token(akun=None):
     """token.enc untuk akun utama (@duniakotak.id), token-<akun>.enc untuk akun lain."""
     akun = (akun or AKUN).lower()
-    return TOKEN_FILE if akun == AKUN.lower() else os.path.join(DIR, f"token-{akun}.enc")
+    return TOKEN_FILE if akun == UTAMA else os.path.join(DIR, f"token-{akun}.enc")
 
 
 def simpan_token(page_token, ig_id, src=None, akun=None):
@@ -97,7 +103,7 @@ def turunkan(user, akun=None):
     except SystemExit as e:
         print(f"Tukar token dilewati: {e}")
         long_user = user
-    ig_manual = os.environ.get("IG_USER_ID", "").strip() if akun.lower() == AKUN.lower() else ""
+    ig_manual = os.environ.get("IG_USER_ID", "").strip() if akun.lower() == UTAMA else ""
     if ig_manual:
         simpan_token(long_user, ig_manual)
         return long_user, ig_manual
@@ -131,7 +137,35 @@ def tebak_sampul(video):
         return None
 
 
+def tunggu(token, cid):
+    for _ in range(60):  # tunggu Instagram memproses media, maks ±10 menit
+        st = req("GET", cid, fields="status_code,status", access_token=token)
+        if st.get("status_code") == "FINISHED":
+            return
+        if st.get("status_code") == "ERROR":
+            raise SystemExit(f"Instagram menolak media: {st}")
+        time.sleep(10)
+    raise SystemExit("Media tidak selesai diproses dalam 10 menit.")
+
+
+def terbitkan_carousel(token, ig_id, item):
+    gambar = item["gambar"]
+    if not 2 <= len(gambar) <= 10:
+        raise SystemExit("Carousel butuh 2–10 gambar.")
+    anak = [req("POST", f"{ig_id}/media", image_url=u, is_carousel_item="true", access_token=token)["id"] for u in gambar]
+    for c in anak:
+        tunggu(token, c)
+    cid = req("POST", f"{ig_id}/media", media_type="CAROUSEL", children=",".join(anak),
+              caption=item.get("caption", ""), access_token=token)["id"]
+    tunggu(token, cid)
+    mid = req("POST", f"{ig_id}/media_publish", creation_id=cid, access_token=token)["id"]
+    link = req("GET", mid, fields="permalink", access_token=token).get("permalink", "")
+    return mid, link
+
+
 def terbitkan(token, ig_id, item):
+    if item.get("jenis", "").upper() == "CAROUSEL":
+        return terbitkan_carousel(token, ig_id, item)
     p = dict(media_type="REELS", video_url=item["video"], caption=item.get("caption", ""),
              share_to_feed="true", access_token=token)
     # Sampul: "sampul" = URL gambar JPG 9:16 (dipasang sebagai cover_url, tidak bisa diganti lewat API setelah terbit).
@@ -156,11 +190,42 @@ def terbitkan(token, ig_id, item):
     return mid, link
 
 
+def uji(video, sampul, gambar):
+    """Uji jalur posting TANPA menerbitkan: token, izin terbit, dan Instagram mau memproses
+    media (reel + carousel). Kontainer yang tidak diterbitkan hangus sendiri dalam 24 jam."""
+    token, ig_id = muat_token()
+    print(f"Token OK untuk IG id {ig_id}.")
+    me = req("GET", ig_id, fields="username", access_token=token)
+    print(f"Akun: @{me.get('username')}")
+    lim = req("GET", f"{ig_id}/content_publishing_limit", fields="quota_usage,config", access_token=token)
+    print(f"Izin terbit OK, kuota 24 jam: {lim}")
+    p = dict(media_type="REELS", video_url=video, access_token=token)
+    if sampul:
+        p["cover_url"] = sampul
+    cid = req("POST", f"{ig_id}/media", **p)["id"]
+    tunggu(token, cid)
+    print("Reel: diproses Instagram (FINISHED), TIDAK diterbitkan.")
+    if gambar:
+        anak = [req("POST", f"{ig_id}/media", image_url=u, is_carousel_item="true", access_token=token)["id"] for u in gambar]
+        for c in anak:
+            tunggu(token, c)
+        cid = req("POST", f"{ig_id}/media", media_type="CAROUSEL", children=",".join(anak), access_token=token)["id"]
+        tunggu(token, cid)
+        print("Carousel: diproses Instagram (FINISHED), TIDAK diterbitkan.")
+    print("UJI LULUS")
+
+
 def main():
+    if os.environ.get("UJI_VIDEO"):
+        return uji(os.environ["UJI_VIDEO"], os.environ.get("UJI_SAMPUL"),
+                   [u for u in os.environ.get("UJI_GAMBAR", "").split() if u])
     paksa = os.environ.get("PAKSA_TANGGAL", "").strip()
     now = dt.datetime.now(WIB)
-    files = [os.path.join(DIR, "antrean", f"{paksa}.json")] if paksa else \
-        [os.path.join(DIR, "antrean", f"{now:%Y-%m-%d}.json")]
+    folder = os.path.join(DIR, "antrean" if AKUN.lower() == UTAMA else f"antrean-{AKUN.lower()}")
+    tgl = paksa or f"{now:%Y-%m-%d}"
+    files = sorted(set(glob.glob(os.path.join(folder, f"{tgl}.json")) + glob.glob(os.path.join(folder, f"{tgl}-*.json"))))
+    if not files:
+        files = [os.path.join(folder, f"{tgl}.json")]
     todo = []
     for f in files:
         if not os.path.exists(f):
