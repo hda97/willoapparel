@@ -1,0 +1,162 @@
+{
+ "_catatan": "Balas otomatis kata kunci Instagram (kata_kunci.py). Ubah teks di sini saja. {u} = username pengirim, {link} = link kata kunci. 'akun' = username IG yang dilayani (tanpa @). Kata dicocokkan per kata utuh, huruf besar/kecil sama saja.",
+ "akun": [
+  "miftakhul_hda"
+ ],
+ "link_umum": "https://www.willoapparel.com/alat/",
+ "kata_kunci": [
+  {
+   "kata": [
+    "split",
+    "splitbill",
+    "spilt",
+    "splt",
+    "patungan",
+    "bagi rata"
+   ],
+   "link": "https://www.willoapparel.com/splitbill/coba/",
+   "dm": "Ini dia Splitbill Cerdas! 🧾 Bagi tagihan makan bareng sesuai pesanan masing-masing, pajak & ongkir ikut terbagi adil.\n👉 {link}\nBisa dicoba gratis dulu."
+  },
+  {
+   "kata": [
+    "warga",
+    "duniakotak",
+    "dunia kotak"
+   ],
+   "link": "https://www.willoapparel.com/warga",
+   "dm": "Halo, calon warga! 🏠 Daftar gratis di Dunia Kotak, dapat rumah sendiri & ikut voting bangun desa. Main langsung di HP tanpa instal.\n👉 {link}"
+  },
+  {
+   "kata": [
+    "steam",
+    "cuci motor",
+    "cucian motor",
+    "cucimotor",
+    "cuci mobil"
+   ],
+   "link": "https://www.willoapparel.com/alat/antrian/",
+   "dm": "Buat cuci motor/steam 🏍️ Antrian motor, absen & bagi hasil karyawan, dan catat belanja sabun biar nggak habis mendadak.\n👉 {link}\nGratis, langsung di HP."
+  },
+  {
+   "kata": [
+    "kasir",
+    "lumbung",
+    "struk",
+    "nota",
+    "bon",
+    "utang"
+   ],
+   "link": "https://www.willoapparel.com/alat/kasir/",
+   "dm": "Halo! 👋 Ini Lumbung, aplikasi kasir GRATIS buat usaha kecil: kasir + struk Bluetooth, stok, nota WA, buku kas, sampai laporan untung.\n👉 {link}\nGratis, langsung jalan di HP."
+  },
+  {
+   "kata": [
+    "warung",
+    "angkringan",
+    "kelontong",
+    "wedang",
+    "wedangan",
+    "kopi",
+    "warkop",
+    "hik",
+    "toko"
+   ],
+   "link": "https://www.willoapparel.com/alat/kasir/",
+   "dm": "Siap, buat warung/angkringan! ☕ Kasir cepat pas ramai, stok kopi & gula ada pengingat menipis, catat bon pelanggan + Lunasi, dan untung hari ini langsung kelihatan.\n👉 {link}\nGratis, langsung di HP."
+  },
+  {
+   "kata": [
+    "laundry",
+    "londri",
+    "loundry",
+    "laundri",
+    "cuci",
+    "setrika"
+   ],
+   "link": "https://www.willoapparel.com/alat/antrian/",
+   "dm": "Buat laundry kiloan 🧺 Nomor antrian, nota lewat WA (nggak ada lagi nota kertas hilang), dan kabari pelanggan \"siap diambil\" sekali klik.\n👉 {link}\nGratis, langsung di HP."
+  },
+  {
+   "kata": [
+    "cukur",
+    "barber",
+    "barbershop",
+    "pangkas",
+    "kapster",
+    "potong rambut"
+   ],
+   "link": "https://www.willoapparel.com/alat/antrian/",
+   "dm": "Buat barbershop 💈 Antrian biar nggak rebutan, absen kapster, dan rekap bagi hasil otomatis.\n👉 {link}\nGratis, langsung di HP."
+  },
+  {
+   "kata": [
+    "katering",
+    "catering",
+    "nasi kotak",
+    "nasbox",
+    "nasikotak",
+    "snack box",
+    "hajatan"
+   ],
+   "link": "https://www.willoapparel.com/alat/hpp/",
+   "dm": "Buat katering 🍱 Catat DP & pelunasan, belanja bahan, dan hitung HPP per kotak biar harga jual nggak asal tebak.\n👉 {link}\nGratis, langsung di HP."
+  },
+  {
+   "kata": [
+    "tani",
+    "pupuk",
+    "toko tani",
+    "panen",
+    "petani"
+   ],
+   "link": "https://www.willoapparel.com/alat/pembelian/",
+   "dm": "Buat toko tani 🌾 Catat utang petani yang bayar pas panen + Lunasi, dan utang ke tiap supplier biar nggak numpuk.\n👉 {link}\nGratis, langsung di HP."
+  },
+  {
+   "kata": [
+    "konter",
+    "servis hp",
+    "service hp",
+    "counter",
+    "servis",
+    "service",
+    "pulsa"
+   ],
+   "link": "https://www.willoapparel.com/alat/antrian/",
+   "dm": "Buat konter HP 📱 Antrian servis, stok aksesori (ketahuan kalau ada yang hilang), dan riwayat nota.\n👉 {link}\nGratis, langsung di HP."
+  },
+  {
+   "kata": [
+    "web",
+    "website",
+    "situs",
+    "undangan",
+    "studio",
+    "custom",
+    "jasa"
+   ],
+   "link": "https://www.willoapparel.com/studio/?utm_source=ig_kata_kunci",
+   "dm": "Halo! 👋 Ini Willo Studio: bikin website, undangan digital, dan aplikasi kasir dengan NAMA & LOGO usahamu sendiri.\n👉 {link}\nAda contoh demo & harga pemula. Promo −50% untuk 3 klien pertama, chat WA 0857-3027-5488."
+  },
+  {
+   "kata": [
+    "aplikasi",
+    "apk",
+    "gratis",
+    "umkm",
+    "usaha"
+   ],
+   "link": "https://www.willoapparel.com/alat/",
+   "dm": "Halo! 👋 Ini Lumbung, aplikasi usaha GRATIS: kasir + struk Bluetooth, antrian, stok, nota WA, buku kas, HPP, absen, sampai laporan untung.\n👉 {link}\nGratis, langsung jalan di HP."
+  }
+ ],
+ "publik_dm": [
+  "Siap, @{u}! Linknya udah aku kirim ke DM ya 📩",
+  "Cek DM ya, @{u} 📩 Udah meluncur!",
+  "Terkirim ke DM, @{u}! 🙌"
+ ],
+ "publik_tanpa_dm": [
+  "Siap, @{u}! Buka {link_pendek} ya, gratis 🙌",
+  "Ini dia, @{u}: {link_pendek} (gratis, langsung di HP) 🙌"
+ ]
+}

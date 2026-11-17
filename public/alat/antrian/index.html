@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="id">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-N4FLLMXDVK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-N4FLLMXDVK');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aplikasi Antrian Gratis untuk Usaha, Pakai HP | Willo Apparel</title>
+<meta name="description" content="Nomor antrian online gratis untuk warung, bengkel, salon, klinik, dan konter. Ambil nomor, panggil dengan suara, layar besar untuk pelanggan, kirim nomor ke WhatsApp. Tanpa daftar, jalan di HP.">
+<link rel="canonical" href="https://willoapparel.com/alat/antrian/">
+<meta property="og:title" content="Aplikasi Antrian Gratis, Pakai HP | Willo Apparel">
+<meta property="og:description" content="Ambil nomor, panggil dengan suara, tampilkan di layar besar. Gratis, tanpa daftar.">
+<meta property="og:locale" content="id_ID">
+<link rel="icon" href="/logo-willo.png">
+<link rel="stylesheet" href="/alat/alat.css">
+<script src="/alat/ikon.js" defer></script>
+<script src="/alat/owner.js"></script>
+<style>
+.papan{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.papan .kotak{background:var(--kartu);border:1px solid var(--garis);border-radius:14px;padding:14px;text-align:center}
+.papan .kotak.utama{background:var(--teks);color:#fff;border-color:var(--teks);grid-column:1/-1}
+.papan small{display:block;font-size:13px;color:var(--redup)}
+.papan .utama small{color:#c9c9cf}
+.besar{font-size:clamp(64px,22vw,120px);font-weight:800;line-height:1;letter-spacing:-2px;margin:6px 0}
+.sedang{font-size:34px;font-weight:800;line-height:1.1}
+.aksi{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.aksi .btn{min-height:58px;font-size:17px}
+.aksi .lebar2{grid-column:1/-1}
+.daftar{list-style:none;margin:0;padding:0}
+.daftar li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--garis)}
+.daftar li:first-child{border-top:0}
+.daftar .no{font-weight:800;font-size:20px;min-width:66px}
+.daftar .ket{flex:1;min-width:0;font-size:14px;color:var(--redup);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.daftar .ket b{color:var(--teks)}
+.kosong{color:var(--redup);font-size:14px;padding:6px 0}
+.flash{animation:fl 1s ease 2}
+@keyframes fl{50%{background:#ffd23f;color:#1d1d1f}}
+#layar .tengah.flash{animation:fl2 .6s ease 4}
+@keyframes fl2{50%{box-shadow:0 0 0 10px #ffd23f inset;background:#2c2a1d}}
+/* Mode layar pelanggan */
+body.layar{background:#111;color:#fff;min-height:100vh}
+body.layar header.atas,body.layar main,body.layar footer,body.layar .cta{display:none}
+#layar{display:none}
+body.layar #layar{display:flex;flex-direction:column;min-height:100vh;padding:4vh 4vw;gap:3vh}
+#layar .nama{font-size:clamp(22px,4vw,44px);font-weight:700;text-align:center;opacity:.9}
+#layar .tengah{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1d1d1f;border-radius:24px;padding:3vh 2vw}
+#layar .label{font-size:clamp(20px,3.6vw,40px);color:#c9c9cf}
+#layar .nomor{font-size:clamp(110px,28vw,340px);font-weight:900;line-height:1;letter-spacing:-4px;color:#ffd23f}
+#layar .loket{font-size:clamp(24px,4.4vw,52px);font-weight:700}
+#layar .berikut{display:flex;gap:2vw;justify-content:center;flex-wrap:wrap;font-size:clamp(18px,3vw,34px)}
+#layar .berikut span{background:#1d1d1f;border-radius:14px;padding:1vh 2.4vw;font-weight:800}
+#layar .tutup{position:fixed;top:10px;right:10px;background:rgba(255,255,255,.12);color:#fff;border:0;border-radius:10px;padding:8px 12px;font:inherit;font-size:13px;cursor:pointer}
+#layar .ketuk{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;font-size:22px;text-align:center;padding:20px;cursor:pointer}
+/* Tiket cetak */
+#tiket{display:none}
+@media print{
+  body *{visibility:hidden}
+  #tiket,#tiket *{visibility:visible}
+  #tiket{display:block;position:absolute;left:0;top:0;width:58mm;text-align:center;font-family:monospace;color:#000}
+  #tiket .tno{font-size:44px;font-weight:900;margin:6px 0}
+}
+</style>
+</head>
+<body>
+<header class="atas"><div class="wrap"><a href="/alat/">← Alat Usaha Gratis</a><a class="redup" href="/">Willo Apparel</a></div></header>
+
+<main class="wrap">
+  <h1>Antrian</h1>
+  <p class="sub">Ambil nomor, panggil dengan suara, tampilkan di layar besar. Data tersimpan di HP ini saja.</p>
+
+  <div class="papan">
+    <div class="kotak utama" id="kotakDipanggil">
+      <small>Sedang dipanggil</small>
+      <div class="besar angka" id="noDipanggil">-</div>
+      <small id="ketDipanggil">Belum ada yang dipanggil</small>
+    </div>
+    <div class="kotak"><small>Menunggu</small><div class="sedang angka" id="jmlTunggu">0</div><small id="estimasi">orang</small></div>
+    <div class="kotak"><small>Nomor terakhir diambil</small><div class="sedang angka" id="noTerakhir">-</div><small id="jmlHariIni">0 dilayani</small></div>
+  </div>
+
+  <section class="kartu">
+    <div class="aksi">
+      <button class="btn kuning lebar2" id="bAmbil">＋ Ambil nomor baru</button>
+      <button class="btn hijau lebar2" id="bPanggil">📢 Panggil berikutnya</button>
+      <button class="btn dua" id="bUlang">🔁 Panggil ulang</button>
+      <button class="btn dua" id="bLayar">🖥️ Layar pelanggan</button>
+    </div>
+  </section>
+
+  <section class="kartu">
+    <h2>Daftar menunggu</h2>
+    <ul class="daftar" id="daftar"></ul>
+  </section>
+
+  <section class="kartu">
+    <h2>Pengaturan</h2>
+    <label class="isi">Nama usaha <small>Tampil di layar pelanggan dan pesan WA</small><input type="text" id="sNama" placeholder="Contoh: Bengkel Maju Jaya" maxlength="40"></label>
+    <div class="baris">
+      <label class="isi">Huruf awalan <small>A, B, C… atau kosong</small><input type="text" id="sAwal" maxlength="2" placeholder="A"></label>
+      <label class="isi">Dipanggil ke <small>Loket, meja, kursi…</small><input type="text" id="sLoket" maxlength="20" placeholder="Loket 1"></label>
+    </div>
+    <label class="isi" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="sSuara" style="width:22px;height:22px;accent-color:var(--utama)"> Bacakan nomor dengan suara saat dipanggil</label>
+    <label class="isi" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="sCetak" style="width:22px;height:22px;accent-color:var(--utama)"> Cetak tiket setiap ambil nomor</label>
+    <label class="isi" id="kotakVia">Cetak lewat<select id="sVia"><option value="ble">Printer termal Bluetooth</option><option value="biasa">Cetak biasa (printer USB / laptop)</option><option value="rawbt">Aplikasi RawBT (Android)</option></select>
+      <button type="button" class="btn dua kecil" id="bTesPrinter" style="margin-top:8px">Hubungkan & tes printer</button></label>
+    <div class="baris" style="margin-top:6px">
+      <button class="btn dua kecil" id="bCoba">🔊 Coba suara</button>
+      <button class="btn merah kecil" id="bReset">Mulai dari nomor 1</button>
+    </div>
+  </section>
+
+  <section class="kartu kecil redup">
+    <b style="color:var(--teks)">Cara pakai layar besar:</b> sambungkan laptop ke TV/monitor, buka tombol <b>Layar pelanggan</b>, lalu geser jendelanya ke TV. Layar ikut berubah setiap kamu memanggil dari jendela ini. Untuk pelanggan yang menunggu di luar, kirim nomornya lewat WA dari daftar menunggu.
+  </section>
+
+  <!--PANDUAN-->
+  <section class="panduan">
+<h2>Cara memakai Antrian</h2>
+<ol>
+<li><b>Atur nama usaha dan awalan.</b> Di Pengaturan, isi nama usaha, huruf awalan nomor (misalnya A untuk servis dan B untuk pengambilan), dan tujuan panggilan seperti Loket 1 atau Meja 2.</li>
+<li><b>Ambil nomor untuk pelanggan.</b> Setiap pelanggan datang, tekan Ambil nomor baru. Nama dan nomor WhatsApp boleh diisi supaya nomornya bisa dikirim ke HP pelanggan.</li>
+<li><b>Panggil berikutnya.</b> Tekan Panggil berikutnya, dan nomor dibacakan dengan suara. Kalau pelanggan belum datang, tekan Panggil ulang.</li>
+<li><b>Tampilkan di layar besar.</b> Sambungkan laptop ke TV atau monitor, buka Layar pelanggan, lalu geser jendelanya ke TV. Layar ikut berubah setiap kali kamu memanggil.</li>
+</ol>
+<h2>Pelanggan tidak perlu menunggu di depan</h2>
+<p>Untuk bengkel, barbershop, atau konter servis, pelanggan sering lebih suka menunggu di warung sebelah. Kirim nomor antriannya lewat WhatsApp dari daftar menunggu, sehingga mereka tahu kapan harus kembali tanpa takut terlewat.</p>
+<h2>Cetak tiket antrian</h2>
+<p>Kalau ingin tiket kertas, aktifkan Cetak tiket setiap ambil nomor. Pilih printer termal Bluetooth, printer biasa lewat laptop, atau aplikasi RawBT di Android. Tekan Hubungkan &amp; tes printer sebelum toko buka supaya tidak repot saat ramai.</p>
+<h2>Cocok untuk usaha apa?</h2>
+<p>Bengkel motor, barbershop dan salon, klinik kecil, konter HP, laundry, pelayanan desa, sampai pembagian sembako. Semua berjalan di browser HP atau laptop tanpa daftar akun dan tanpa biaya.</p>
+<h2>Mulai dari nol setiap hari</h2>
+<p>Tekan Mulai dari nomor 1 setiap pagi agar nomor kembali ke awal. Data antrian disimpan di HP ini saja, tidak dikirim ke server. Untuk mencatat pembayaran setelah pelanggan dilayani, pakai <a href="/alat/kasir/">Kasir</a> atau <a href="/alat/nota/">Nota</a>.</p>
+  </section>
+  <!--/PANDUAN-->
+
+  <div class="cta">Butuh kaos seragam untuk tim usahamu? Sablon satuan sampai lusinan di <a href="/kaos-seragam-usaha-ngawi.html">Willo Apparel</a>.</div>
+</main>
+<footer>Alat gratis dari Willo Apparel · data tidak dikirim ke server<!--PANDUAN--><div class="foot-links"><a href="/studio/?utm_source=lumbung">Bikin versi custom</a><a href="/artikel.html">Artikel</a><a href="/tentang.html">Tentang Kami</a><a href="/kontak.html">Kontak</a><a href="/kebijakan-privasi.html">Kebijakan Privasi</a></div><!--/PANDUAN--></footer>
+
+<div id="layar">
+  <div class="nama" id="lNama">Antrian</div>
+  <div class="tengah" id="lTengah">
+    <div class="label">Nomor antrian</div>
+    <div class="nomor angka" id="lNomor">-</div>
+    <div class="loket" id="lLoket"></div>
+  </div>
+  <div class="berikut" id="lBerikut"></div>
+  <button class="tutup" id="lTutup">Tutup layar</button>
+</div>
+
+<div id="tiket"><div id="tNama"></div><div>Nomor antrian Anda</div><div class="tno" id="tNo"></div><div id="tTunggu"></div><div id="tJam"></div></div>
+
+<dialog id="dAmbil"><form method="dialog" class="isi-dialog">
+  <h2>Nomor <span id="dNo"></span></h2>
+  <p class="redup kecil" style="margin-top:-6px">Isi kalau mau. Boleh langsung simpan.</p>
+  <label class="isi">Nama pelanggan<input type="text" id="dNama" maxlength="30" autocomplete="off"></label>
+  <label class="isi">Nomor WA <small>Untuk kirim nomor antrian ke HP pelanggan</small><input type="tel" id="dWa" placeholder="08…" autocomplete="off"></label>
+  <div class="baris"><button class="btn dua" value="batal">Batal</button><button class="btn" value="ok" id="dOk">Simpan</button></div>
+</form></dialog>
+
+<div class="pesan" id="pesan"></div>
+
+<script>
+(function(){
+  var KUNCI = "willo_antrian_v1";
+  var $ = function(id){ return document.getElementById(id); };
+  var hariIni = function(){ var d = new Date(); return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate(); };
+  var awal = { nama:"", awal:"A", loket:"Loket 1", suara:true, cetak:false, tgl:hariIni(), n:0, antre:[], selesai:[], kini:null };
+  var S;
+  function muat(){ try { S = JSON.parse(localStorage.getItem(KUNCI)) || null; } catch(e){ S = null; } S = Object.assign({}, awal, S || {}); }
+  function simpan(){ try { localStorage.setItem(KUNCI, JSON.stringify(S)); } catch(e){} }
+  muat();
+  // Ganti hari: nomor kembali ke 1, pengaturan tetap.
+  if (S.tgl !== hariIni()) { S.tgl = hariIni(); S.n = 0; S.antre = []; S.selesai = []; S.kini = null; simpan(); }
+
+  var labelNo = function(n){ return (S.awal || "") + String(n).padStart(3, "0"); };
+  var jam = function(t){ var d = new Date(t); return String(d.getHours()).padStart(2,"0") + "." + String(d.getMinutes()).padStart(2,"0"); };
+  function pesan(t){ var p = $("pesan"), dl = document.querySelector("dialog[open]"); (dl || document.body).appendChild(p); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, t.length > 60 ? 6000 : 2200); }
+
+  // Rata-rata menit per pelanggan dari jarak antar panggilan terakhir.
+  function rataMenit(){
+    var t = S.selesai.map(function(x){ return x.panggil; }).concat(S.kini ? [S.kini.panggil] : []).slice(-11);
+    if (t.length < 3) return null;
+    var jarak = [];
+    for (var i = 1; i < t.length; i++) { var m = (t[i] - t[i-1]) / 60000; if (m > 0.2 && m < 90) jarak.push(m); }
+    if (jarak.length < 2) return null;
+    return jarak.reduce(function(a,b){ return a+b; }, 0) / jarak.length;
+  }
+
+  function gambar(){
+    $("noDipanggil").textContent = S.kini ? labelNo(S.kini.no) : "-";
+    $("ketDipanggil").textContent = S.kini ? ((S.kini.nama ? S.kini.nama + " · " : "") + "ke " + (S.loket || "loket") + " · " + jam(S.kini.panggil)) : "Belum ada yang dipanggil";
+    $("jmlTunggu").textContent = S.antre.length;
+    var r = rataMenit();
+    $("estimasi").textContent = S.antre.length && r ? "± " + Math.round(r * S.antre.length) + " menit lagi habis" : "orang";
+    $("noTerakhir").textContent = S.n ? labelNo(S.n) : "-";
+    $("jmlHariIni").textContent = (S.selesai.length + (S.kini ? 1 : 0)) + " dilayani";
+    $("bPanggil").disabled = !S.antre.length;
+    $("bUlang").disabled = !S.kini;
+    var ul = $("daftar"); ul.innerHTML = "";
+    if (!S.antre.length) { ul.innerHTML = '<li class="kosong">Belum ada yang menunggu. Ketuk “Ambil nomor baru”.</li>'; }
+    S.antre.forEach(function(a, i){
+      var li = document.createElement("li");
+      var tunggu = r ? " · ± " + Math.max(1, Math.round(r * (i + 1))) + " mnt" : "";
+      li.innerHTML = '<span class="no angka"></span><span class="ket"></span>';
+      li.querySelector(".no").textContent = labelNo(a.no);
+      li.querySelector(".ket").innerHTML = (a.nama ? "<b></b> · " : "") + "ambil " + jam(a.ambil) + tunggu;
+      if (a.nama) li.querySelector(".ket b").textContent = a.nama;
+      if (a.wa) { var w = document.createElement("a"); w.className = "btn dua kecil"; w.textContent = "WA"; w.target = "_blank"; w.rel = "noopener"; w.href = linkWa(a, i); li.appendChild(w); }
+      var x = document.createElement("button"); x.className = "btn dua kecil"; x.textContent = "✕"; x.title = "Hapus dari antrian";
+      x.onclick = function(){ if (confirm("Hapus " + labelNo(a.no) + " dari antrian?")) { S.antre.splice(i, 1); simpan(); gambar(); } };
+      li.appendChild(x);
+      ul.appendChild(li);
+    });
+    // Pengaturan
+    if (document.activeElement !== $("sNama")) $("sNama").value = S.nama;
+    if (document.activeElement !== $("sAwal")) $("sAwal").value = S.awal;
+    if (document.activeElement !== $("sLoket")) $("sLoket").value = S.loket;
+    $("sSuara").checked = S.suara; $("sCetak").checked = S.cetak; $("sVia").value = S.via || "ble"; $("kotakVia").classList.toggle("tersembunyi", !S.cetak);
+    gambarLayar();
+  }
+
+  function linkWa(a, i){
+    var hp = String(a.wa).replace(/\D/g, ""); if (hp.charAt(0) === "0") hp = "62" + hp.slice(1);
+    var t = "Halo" + (a.nama ? " " + a.nama : "") + ", nomor antrian Anda di " + (S.nama || "tempat kami") + " adalah *" + labelNo(a.no) + "*.";
+    t += S.kini ? " Saat ini dipanggil " + labelNo(S.kini.no) + "." : "";
+    t += " Ada " + i + " orang sebelum Anda. Mohon datang saat nomor Anda hampir tiba ya. Terima kasih.";
+    t += "\n\n_Antrian gratis: willoapparel.com/alat_";
+    return "https://wa.me/" + hp + "?text=" + encodeURIComponent(t);
+  }
+
+  // Suara
+  var konteks;
+  function ding(){
+    try {
+      konteks = konteks || new (window.AudioContext || window.webkitAudioContext)();
+      [880, 660].forEach(function(f, i){
+        var o = konteks.createOscillator(), g = konteks.createGain();
+        o.frequency.value = f; o.type = "sine"; o.connect(g); g.connect(konteks.destination);
+        var t0 = konteks.currentTime + i * 0.35;
+        g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.4, t0 + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.5);
+        o.start(t0); o.stop(t0 + 0.55);
+      });
+    } catch(e){}
+  }
+  function eja(no){
+    // "A012" → "A, dua belas" supaya mesin suara tidak membaca nol di depan.
+    return (S.awal ? S.awal.split("").join(" ") + ", " : "") + String(no);
+  }
+  function bicara(no){
+    ding();
+    if (!S.suara) return;
+    var kalimat = "Nomor antrian, " + eja(no) + ". Silakan menuju " + (S.loket || "loket") + ".";
+    if (window.Lumbung && Lumbung.aplikasi()) { setTimeout(function(){ Lumbung.bicara(kalimat); }, 750); return; }
+    if (!("speechSynthesis" in window)) return;
+    var u = new SpeechSynthesisUtterance(kalimat);
+    u.lang = "id-ID"; u.rate = 0.9;
+    var v = speechSynthesis.getVoices().filter(function(v){ return /^id|ind/i.test(v.lang); })[0];
+    if (v) u.voice = v;
+    speechSynthesis.cancel();
+    setTimeout(function(){ speechSynthesis.speak(u); }, 750);
+  }
+
+  function teksTiket(a){
+    var t = function(s){ return s; }; // printer sudah meratakan ke tengah
+    return [t((S.antre.length - 1) + " orang sebelum Anda"), t("Diambil pukul " + jam(a.ambil)), "", t("Antrian gratis:"), t("willoapparel.com/alat")].join("\n");
+  }
+  function cetakTiket(a){
+    var via = S.via || "ble";
+    if (via !== "biasa") {
+      var opsi = { atas:(S.nama ? S.nama + "\n" : "") + "Nomor antrian Anda", besar:labelNo(a.no), tengah:true };
+      if (via === "rawbt") { CetakTermal.rawbt(teksTiket(a), opsi); return; }
+      CetakTermal.cetak(teksTiket(a), opsi).catch(function(e){ var m = CetakTermal.pesanGagal(e); if (m) pesan(m); });
+      return;
+    }
+    $("tNama").textContent = S.nama || "";
+    $("tNo").textContent = labelNo(a.no);
+    $("tTunggu").textContent = (S.antre.length - 1) + " orang sebelum Anda";
+    $("tJam").textContent = "Diambil pukul " + jam(a.ambil);
+    setTimeout(function(){ window.Lumbung ? Lumbung.cetakHalaman("Tiket antrian") : window.print(); }, 50);
+  }
+
+  // Ambil nomor
+  $("bAmbil").onclick = function(){
+    $("dNo").textContent = labelNo(S.n + 1); $("dNama").value = ""; $("dWa").value = "";
+    $("dAmbil").showModal(); setTimeout(function(){ $("dNama").focus(); }, 50);
+  };
+  $("dAmbil").addEventListener("close", function(){
+    if ($("dAmbil").returnValue !== "ok") return;
+    S.n += 1;
+    var a = { no:S.n, ambil:Date.now(), nama:$("dNama").value.trim(), wa:$("dWa").value.trim() };
+    S.antre.push(a); simpan(); gambar();
+    pesan("Nomor " + labelNo(a.no) + " masuk antrian");
+    if (S.cetak) cetakTiket(a);
+  });
+
+  $("bPanggil").onclick = function(){
+    if (!S.antre.length) return;
+    if (S.kini) S.selesai.push(S.kini);
+    S.kini = S.antre.shift(); S.kini.panggil = Date.now(); S.kini.ke = (S.kini.ke || 0) + 1;
+    simpan(); gambar(); bicara(S.kini.no);
+    var k = $("kotakDipanggil"); k.classList.remove("flash"); void k.offsetWidth; k.classList.add("flash");
+  };
+  $("bUlang").onclick = function(){ if (S.kini) { S.kini.ulang = Date.now(); simpan(); bicara(S.kini.no); } };
+  $("bCoba").onclick = function(){ var s = S.suara; S.suara = true; bicara(S.n + 1 || 1); S.suara = s; };
+  $("bReset").onclick = function(){
+    if (!confirm("Kosongkan antrian dan mulai lagi dari nomor 1?")) return;
+    S.n = 0; S.antre = []; S.selesai = []; S.kini = null; simpan(); gambar(); pesan("Antrian dikosongkan");
+  };
+  ["sNama","sAwal","sLoket"].forEach(function(id){
+    $(id).addEventListener("input", function(){
+      S.nama = $("sNama").value.trim(); S.awal = $("sAwal").value.trim().toUpperCase(); S.loket = $("sLoket").value.trim();
+      simpan(); gambar();
+    });
+  });
+  $("sSuara").onchange = function(){ S.suara = this.checked; simpan(); };
+  $("sCetak").onchange = function(){ S.cetak = this.checked; simpan(); gambar(); };
+  $("sVia").onchange = function(){ S.via = this.value; simpan(); };
+  $("bTesPrinter").onclick = function(){
+    var opsi = { atas:(S.nama || "Tes printer"), besar:labelNo(S.n + 1), tengah:true };
+    if ((S.via || "ble") === "rawbt") { CetakTermal.rawbt("Printer siap dipakai", opsi); return; }
+    if (S.via === "biasa") { window.Lumbung ? Lumbung.cetakHalaman("Tes") : window.print(); return; }
+    CetakTermal.cetak("Printer siap dipakai", opsi).then(function(r){ pesan(r === "rawbt" ? "Membuka aplikasi RawBT…" : "Terhubung ke " + CetakTermal.nama()); })
+      .catch(function(e){ var m = CetakTermal.pesanGagal(e); if (m) pesan(m); });
+  };
+
+  // Layar pelanggan (jendela kedua, ikut berubah lewat localStorage)
+  var modeLayar = /[?&]layar=1/.test(location.search);
+  $("bLayar").onclick = function(){
+    var w = window.open(location.pathname + "?layar=1", "layar_antrian", "width=1200,height=700");
+    if (!w) location.search = "?layar=1";
+  };
+  var terakhirTampil = null;
+  function gambarLayar(){
+    if (!modeLayar) return;
+    $("lNama").textContent = S.nama || "Antrian";
+    $("lNomor").textContent = S.kini ? labelNo(S.kini.no) : "-";
+    $("lLoket").textContent = S.kini ? "Silakan ke " + (S.loket || "loket") : "Mohon menunggu";
+    var b = $("lBerikut"); b.innerHTML = "";
+    if (S.antre.length) { var l = document.createElement("div"); l.style.cssText = "width:100%;text-align:center;color:#c9c9cf"; l.textContent = "Berikutnya"; b.appendChild(l); }
+    S.antre.slice(0, 4).forEach(function(a){ var s = document.createElement("span"); s.textContent = labelNo(a.no); b.appendChild(s); });
+    var tanda = S.kini ? S.kini.no + ":" + (S.kini.ulang || S.kini.panggil) : null;
+    if (terakhirTampil !== null && tanda && tanda !== terakhirTampil) {
+      var t = $("lTengah"); t.classList.remove("flash"); void t.offsetWidth; t.classList.add("flash");
+    }
+    terakhirTampil = tanda;
+  }
+  if (modeLayar) {
+    document.body.classList.add("layar");
+    document.title = "Layar Antrian";
+    $("lTutup").onclick = function(){ if (window.opener) window.close(); else location.search = ""; };
+    // Ketuk sekali untuk layar penuh (bunyi & suara keluar dari jendela kasir).
+    var k = document.createElement("div"); k.className = "ketuk"; k.textContent = "Ketuk untuk layar penuh";
+    k.onclick = function(){ k.remove(); if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function(){}); };
+    $("layar").appendChild(k);
+  }
+  window.addEventListener("storage", function(e){ if (e.key === KUNCI) { muat(); gambar(); } });
+  if ("speechSynthesis" in window) speechSynthesis.getVoices();
+  setInterval(gambar, 30000);
+  gambar();
+})();
+</script>
+<script src="/alat/printer.js"></script>
+</body>
+</html>

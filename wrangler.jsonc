@@ -19,17 +19,22 @@
       // Daftar warga Dunia Kotak (lihat class Warga di worker.js).
       { "name": "WARGA", "class_name": "Warga" },
       // Ruang online game mabar per dusun (lihat class Ruang di worker.js).
-      { "name": "RUANG", "class_name": "Ruang" }
+      { "name": "RUANG", "class_name": "Ruang" },
+      // Dashboard owner Lumbung: penjualan per toko (lihat class Toko di worker.js).
+      { "name": "TOKO", "class_name": "Toko" }
     ]
   },
   "migrations": [
     { "tag": "v1", "new_sqlite_classes": ["Pengunjung"] },
     { "tag": "v2", "new_sqlite_classes": ["Warga"] },
-    { "tag": "v3", "new_sqlite_classes": ["Ruang"] }
+    { "tag": "v3", "new_sqlite_classes": ["Ruang"] },
+    { "tag": "v4", "new_sqlite_classes": ["Toko"] }
   ],
   // Client ID Google (publik, bukan rahasia) untuk tombol "Lanjut dengan Google" di /duniakotak/.
   // Kosong = tombol belum aktif. Isi dengan Client ID dari Google Cloud Console.
-  "vars": { "GOOGLE_CLIENT_ID": "1082997408742-9515voc2uflmub1q0bfr9o0htuvof5dn.apps.googleusercontent.com" },
+  "vars": { "GOOGLE_CLIENT_ID": "1082997408742-9515voc2uflmub1q0bfr9o0htuvof5dn.apps.googleusercontent.com", "TG_CHAT_ID": "5667928446" },
+  // Workers AI (kuota gratis harian) untuk gambar Flux di /alat/gambar/ (lihat apiGambar di worker.js).
+  "ai": { "binding": "AI" },
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",

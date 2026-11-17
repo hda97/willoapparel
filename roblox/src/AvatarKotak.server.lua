@@ -153,6 +153,7 @@ local function rakit(char, d)
 	local yTanah = -(hum.HipHeight + hrp.Size.Y / 2 + (r15 and 0 or bagian.LeftUpperLeg.Size.Y))
 	local S = (yPinggul - yTanah) / 1.37 -- pinggul tokoh web ada di 1,37
 	if S < 0.8 or S > 3 then S = 1.4 end
+	char:SetAttribute("DK_Skala", S) -- stud per satuan web tokoh ini (dipakai kendaraan supaya ukurannya pas)
 	local DASAR = CFrame.new(0, yTanah, 0) * FLIP -- titik nol tokoh web (telapak kaki) di rangka
 
 	local lama = char:FindFirstChild(NAMA_FOLDER)
@@ -562,6 +563,25 @@ do
 			task.spawn(function() pcall(function() store:SetAsync("p_" .. player.UserId, rapi) end) end)
 		end
 		return true
+	end
+	bf.Parent = SS
+end
+
+-- Pintu untuk NPC (skrip NpcDesa): ServerStorage.DK_RakitTokoh:Invoke(model, avatar) merakit tokoh kotak di rangka NPC.
+do
+	local SS = game:GetService("ServerStorage")
+	local l = SS:FindFirstChild("DK_RakitTokoh")
+	if l then l:Destroy() end
+	local bf = Instance.new("BindableFunction")
+	bf.Name = "DK_RakitTokoh"
+	bf.OnInvoke = function(char, av)
+		if typeof(char) ~= "Instance" then return false end
+		local ok, hasil = pcall(rakit, char, bersih(av))
+		if ok and hasil then
+			sembunyikan(char)
+			return true
+		end
+		return false
 	end
 	bf.Parent = SS
 end

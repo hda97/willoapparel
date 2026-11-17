@@ -1,0 +1,82 @@
+name: Balas Kata Kunci Instagram (pengganti ManyChat)
+
+# Komentar/DM berisi kata kunci (KASIR, WARUNG, LAUNDRY, ...) dibalas link Lumbung.
+# Daftar kata kunci & teks: konten-ig/kata-kunci.json. Kode: konten-ig/kata_kunci.py.
+#
+# Jadwal cron GitHub sering telat berjam-jam, jadi satu run berjalan ±5,5 jam dan
+# mengecek tiap 3 menit, lalu memicu dirinya sendiri lagi (workflow_dispatch boleh
+# dipicu GITHUB_TOKEN). Cron per jam hanya cadangan kalau rantainya putus.
+on:
+  push:
+    branches: [main]
+    paths: ["konten-ig/kata_kunci.py", "konten-ig/kata-kunci.json", ".github/workflows/ig-kata-kunci.yml"]
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+    inputs:
+      cek:
+        description: "Hanya cek akun & izin token (tidak membalas)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: ig-kata-kunci
+  cancel-in-progress: false
+
+jobs:
+  balas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            konten-ig
+            ai
+      # Catatan pesan yang sudah dibalas disimpan di cache (bukan commit) supaya
+      # tidak memicu deploy situs tiap 10 menit.
+      - uses: actions/cache/restore@v4
+        with:
+          path: konten-ig/catatan-kata-kunci.json
+          key: ig-kata-kunci-${{ github.run_id }}
+          restore-keys: ig-kata-kunci-
+      - name: Balas kata kunci
+        env:
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          IG_APP_ID: ${{ secrets.IG_APP_ID }}
+          IG_APP_SECRET: ${{ secrets.IG_APP_SECRET }}
+          # AI gratis (ai/ai_gratis.py): Gemini dulu, Groq cadangan. Kosong = pakai template saja.
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          IG_MEDIA: "10"
+        run: |
+          if [ "${{ inputs.cek }}" = "true" ]; then python3 konten-ig/kata_kunci.py --cek; exit 0; fi
+          selesai=$((SECONDS + 330*60))
+          while [ $SECONDS -lt $selesai ]; do
+            python3 konten-ig/kata_kunci.py || echo "Putaran gagal, coba lagi 3 menit lagi."
+            sleep 180
+          done
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: konten-ig/catatan-kata-kunci.json
+          key: ig-kata-kunci-${{ github.run_id }}
+      - name: Simpan token akun baru
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898499+github-actions[bot]@users.noreply.github.com"
+          git add konten-ig/token-*.enc 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m "IG: token akun kata kunci"
+            for i in 1 2 3; do git pull --rebase -q origin main && git push -q origin HEAD:main && break; sleep 5; done
+          fi
+      - name: Sambung run berikutnya
+        if: ${{ !cancelled() && inputs.cek != true }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run ig-kata-kunci.yml --repo "${{ github.repository }}" --ref main

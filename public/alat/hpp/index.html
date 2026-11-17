@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="id" data-halaman-owner>
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-N4FLLMXDVK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-N4FLLMXDVK');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kalkulator HPP & Harga Jual Gratis untuk UMKM | Willo Apparel</title>
+<meta name="description" content="Hitung HPP (modal per barang), saran harga jual sesuai target untung, untung per pcs, dan titik balik modal. Gratis, tanpa daftar, data di HP sendiri.">
+<link rel="canonical" href="https://willoapparel.com/alat/hpp/">
+<meta property="og:title" content="Kalkulator HPP & Harga Jual Gratis untuk UMKM">
+<meta property="og:description" content="Modal per barang, saran harga jual, untung per pcs. Gratis, tanpa daftar.">
+<meta property="og:locale" content="id_ID">
+<link rel="icon" href="/logo-willo.png">
+<link rel="stylesheet" href="/alat/alat.css">
+<script src="/alat/ikon.js" defer></script>
+<script src="/alat/owner.js"></script>
+<style>
+.biaya{display:grid;grid-template-columns:1fr 130px 36px;gap:6px;align-items:center;margin-bottom:6px}
+.biaya input{margin-top:0}
+.biaya button{width:36px;height:40px;border:0;background:none;color:var(--merah);font-size:20px;cursor:pointer}
+.hasil{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 12px}
+.hasil div{background:var(--bg);border-radius:12px;padding:10px 12px}
+.hasil .besar{grid-column:1/-1;background:var(--teks);color:#fff}
+.hasil small{display:block;font-size:12.5px;color:var(--redup)}
+.hasil .besar small{color:#c9c9cf}
+.hasil b{font-size:20px}
+.hasil .besar b{font-size:30px;color:var(--kuning)}
+.target{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 12px}
+.target button{border:1px solid var(--garis);background:#fff;border-radius:999px;padding:6px 12px;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.target button.pilih{background:var(--utama);border-color:var(--utama);color:#fff}
+.t-hijau{color:var(--hijau)} .t-merah{color:var(--merah)}
+.simpanan li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0ede6;font-size:14.5px}
+.simpanan{list-style:none;margin:0;padding:0}
+.simpanan a{cursor:pointer;color:var(--teks);font-weight:700;text-decoration:none}
+.simpanan button{border:0;background:none;color:var(--merah);cursor:pointer;font-size:16px}
+</style>
+</head>
+<body>
+<header class="atas"><div class="wrap"><a href="/alat/">← Alat Usaha Gratis</a><a class="redup" href="/">Willo Apparel</a></div></header>
+<main class="wrap">
+  <h1>🧮 Hitung HPP & untung</h1>
+  <p class="sub">HPP (Harga Pokok Penjualan) = modal untuk membuat atau membeli satu barang. Dari sini kelihatan harga jual yang aman dan untung bersih per pcs.</p>
+
+  <section class="kartu">
+    <label class="isi">Nama barang<input type="text" id="hNama" maxlength="40" placeholder="Contoh: Kaos sablon 30s"></label>
+    <h2 style="margin-top:6px">1. Bahan untuk sekali produksi / belanja</h2>
+    <p class="kecil redup" style="margin:-6px 0 8px">Contoh: kain 1 rol, tinta, atau belanja 1 dus barang dari supplier.</p>
+    <div id="lBahan"></div>
+    <button class="btn dua kecil" type="button" id="tBahan">➕ Tambah bahan</button>
+    <label class="isi" style="margin-top:12px">Jadi berapa pcs dari bahan di atas?<input type="text" inputmode="numeric" id="hPcs" class="angka" value="1"></label>
+
+    <h2 style="margin-top:16px">2. Biaya tambahan per pcs</h2>
+    <p class="kecil redup" style="margin:-6px 0 8px">Contoh: plastik, label, ongkos jahit, ongkos sablon per pcs.</p>
+    <div id="lPcs"></div>
+    <button class="btn dua kecil" type="button" id="tPcs">➕ Tambah biaya per pcs</button>
+
+    <h2 style="margin-top:16px">3. Biaya tetap bulanan <small class="redup" style="font-weight:500;font-size:13px">(boleh dilewati)</small></h2>
+    <p class="kecil redup" style="margin:-6px 0 8px">Sewa, listrik, gaji, internet. Dibagi ke setiap barang yang terjual sebulan.</p>
+    <div class="baris">
+      <label class="isi">Total per bulan<input type="text" inputmode="numeric" id="hTetap" class="angka" placeholder="0"></label>
+      <label class="isi">Perkiraan terjual / bulan (pcs)<input type="text" inputmode="numeric" id="hJualBln" class="angka" placeholder="0"></label>
+    </div>
+  </section>
+
+  <section class="kartu">
+    <h2>Hasil</h2>
+    <div class="hasil">
+      <div class="besar"><small>HPP / modal per pcs</small><b class="angka" id="oHpp">Rp0</b></div>
+      <div><small>Bahan per pcs</small><b class="angka" id="oBahan">Rp0</b></div>
+      <div><small>Biaya tetap per pcs</small><b class="angka" id="oTetap">Rp0</b></div>
+    </div>
+    <div style="font-size:14px;font-weight:600">Target untung</div>
+    <div class="target" id="target"></div>
+    <p style="margin:0 0 12px">Saran harga jual: <b class="angka" id="oSaran" style="font-size:20px">Rp0</b> <span class="kecil redup">(dibulatkan)</span></p>
+    <label class="isi">Harga jual yang kamu pakai<input type="text" inputmode="numeric" id="hHarga" class="angka" placeholder="Kosongkan untuk pakai saran"></label>
+    <div class="hasil">
+      <div><small>Untung per pcs</small><b class="angka" id="oUntung">Rp0</b></div>
+      <div><small>Margin (untung ÷ harga jual)</small><b class="angka" id="oMargin">0%</b></div>
+      <div><small>Untung sebulan (perkiraan)</small><b class="angka" id="oBulan">Rp0</b></div>
+      <div><small>Balik modal biaya tetap</small><b class="angka" id="oBep" style="font-size:16px">-</b></div>
+    </div>
+    <div class="baris">
+      <button class="btn" type="button" id="bSimpan">💾 Simpan hitungan</button>
+      <button class="btn dua" type="button" id="bKeKasir">🧾 Pakai di barang Kasir</button>
+    </div>
+  </section>
+
+  <section class="kartu">
+    <h2>Hitungan tersimpan</h2>
+    <ul class="simpanan" id="lSimpan"></ul>
+  </section>
+
+  <!--PANDUAN-->
+  <section class="panduan">
+<h2>Apa itu HPP?</h2>
+<p>HPP atau Harga Pokok Penjualan adalah modal untuk membuat atau membeli satu barang. Banyak usaha menentukan harga jual dengan meniru harga tetangga, padahal modal tiap usaha berbeda. Dengan menghitung HPP, kamu tahu harga terendah yang masih aman dan berapa untung bersih dari setiap barang.</p>
+<h2>Cara memakai kalkulator ini</h2>
+<ol>
+<li><b>Isi bahan untuk sekali produksi atau belanja.</b> Contohnya satu rol kain, tinta, atau satu dus barang dari supplier, lalu isi berapa pcs barang yang jadi dari bahan tersebut.</li>
+<li><b>Tambahkan biaya per pcs.</b> Misalnya plastik, label, ongkos jahit, atau ongkos sablon per barang.</li>
+<li><b>Masukkan biaya tetap bulanan bila ada.</b> Sewa, listrik, gaji, dan internet dibagi ke perkiraan jumlah barang yang terjual sebulan. Bagian ini boleh dilewati untuk hitungan cepat.</li>
+<li><b>Pilih target untung.</b> Kalkulator memberi saran harga jual yang sudah dibulatkan. Kamu tetap bisa memasukkan harga jual sendiri untuk melihat untung per pcs dan marginnya.</li>
+</ol>
+<h2>Contoh sederhana</h2>
+<p>Misalnya belanja bahan Rp300.000 menghasilkan 20 pcs, berarti bahan per pcs Rp15.000. Ditambah kemasan Rp1.000 per pcs, modalnya Rp16.000. Jika sewa dan listrik Rp400.000 sebulan dan kamu menjual 200 pcs, biaya tetap per pcs Rp2.000, sehingga HPP menjadi Rp18.000. Dengan harga jual Rp25.000, untung per pcs Rp7.000 atau margin 28%.</p>
+<h2>Balik modal</h2>
+<p>Kalkulator juga menghitung berapa barang yang harus terjual supaya biaya tetap bulanan tertutup. Angka ini membantu menentukan target harian yang masuk akal.</p>
+<h2>Sambungkan ke Kasir</h2>
+<p>Tekan Pakai di barang Kasir untuk menyimpan HPP sebagai modal barang di <a href="/alat/kasir/">Kasir</a>. Setelah itu, laporan penjualan menampilkan untung, bukan hanya omzet. Hitungan juga bisa disimpan untuk dibuka lagi saat harga bahan naik.</p>
+  </section>
+  <!--/PANDUAN-->
+
+  <div class="cta">Butuh kaos seragam untuk tim usahamu? Sablon satuan sampai lusinan di <a href="/kaos-seragam-usaha-ngawi.html">Willo Apparel</a>.</div>
+</main>
+<footer>Alat gratis dari Willo Apparel · data tidak dikirim ke server<!--PANDUAN--><div class="foot-links"><a href="/studio/?utm_source=lumbung">Bikin versi custom</a><a href="/artikel.html">Artikel</a><a href="/tentang.html">Tentang Kami</a><a href="/kontak.html">Kontak</a><a href="/kebijakan-privasi.html">Kebijakan Privasi</a></div><!--/PANDUAN--></footer>
+<div class="pesan" id="pesan"></div>
+
+<dialog id="dKasir"><form method="dialog" class="isi-dialog">
+  <h2>Pakai di barang Kasir</h2>
+  <p class="kecil redup" style="margin-top:0">HPP disimpan sebagai modal barang, supaya Laporan Kasir menampilkan untung.</p>
+  <label class="isi">Barang<select id="dkBarang"></select></label>
+  <label class="isi" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="dkHarga" style="width:22px;height:22px;accent-color:var(--utama)"> <span>Ubah juga harga jualnya menjadi <b id="dkHargaTeks"></b></span></label>
+  <div class="baris"><button class="btn dua" value="batal" formnovalidate>Batal</button><button class="btn" value="ok">Simpan</button></div>
+</form></dialog>
+
+<script src="/alat/printer.js"></script>
+<script>
+(function(){
+  "use strict";
+  var KUNCI = "willo_hpp_v1", KASIR = "willo_kasir_v1", $ = function(id){ return document.getElementById(id); };
+  var target = 30, akhir = null;
+  function pesan(t){ var p = $("pesan"), dl = document.querySelector("dialog[open]"); (dl || document.body).appendChild(p); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, 2600); }
+  function rp(n){ return (n < 0 ? "-Rp" : "Rp") + Math.abs(Math.round(n || 0)).toLocaleString("id-ID"); }
+  function angka(v){ return parseInt(String(v || "").replace(/\D/g, ""), 10) || 0; }
+  function esc(t){ return String(t).replace(/[&<>"]/g, function(m){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[m]; }); }
+  function format(el){ el.addEventListener("input", function(){ var n = angka(el.value); el.value = n ? n.toLocaleString("id-ID") : ""; hitung(); }); }
+  function bacaSimpan(){ try { return JSON.parse(localStorage.getItem(KUNCI)) || []; } catch(e){ return []; } }
+
+  function baris(wadah, nama, nilai, contoh){
+    var d = document.createElement("div"); d.className = "biaya";
+    d.innerHTML = '<input type="text" maxlength="30" placeholder="' + contoh + '"><input type="text" inputmode="numeric" class="angka" placeholder="Rp"><button type="button" aria-label="Hapus">✕</button>';
+    var i = d.querySelectorAll("input"); i[0].value = nama || ""; i[1].value = nilai ? nilai.toLocaleString("id-ID") : "";
+    format(i[1]); i[0].addEventListener("input", hitung);
+    d.querySelector("button").onclick = function(){ d.remove(); hitung(); };
+    $(wadah).appendChild(d); return d;
+  }
+  function ambil(wadah){ return Array.prototype.map.call($(wadah).children, function(d){ var i = d.querySelectorAll("input"); return [i[0].value.trim(), angka(i[1].value)]; }).filter(function(x){ return x[0] || x[1]; }); }
+  function bulat(n){ var k = n < 10000 ? 500 : 1000; return Math.ceil(n / k) * k; }
+
+  function hitung(){
+    var bahan = ambil("lBahan").reduce(function(a, x){ return a + x[1]; }, 0), pcs = Math.max(1, angka($("hPcs").value));
+    var perPcs = ambil("lPcs").reduce(function(a, x){ return a + x[1]; }, 0);
+    var tetap = angka($("hTetap").value), jualBln = angka($("hJualBln").value), tetapPcs = jualBln ? tetap / jualBln : 0;
+    var hpp = bahan / pcs + perPcs + tetapPcs;
+    var saran = hpp ? bulat(hpp / (1 - target / 100)) : 0;
+    var harga = angka($("hHarga").value) || saran, untung = harga - hpp;
+    $("oHpp").textContent = rp(hpp); $("oBahan").textContent = rp(bahan / pcs + perPcs); $("oTetap").textContent = rp(tetapPcs);
+    $("oSaran").textContent = rp(saran);
+    $("oUntung").textContent = rp(untung); $("oUntung").className = "angka " + (untung < 0 ? "t-merah" : "t-hijau");
+    $("oMargin").textContent = harga ? Math.round(untung / harga * 100) + "%" : "0%";
+    $("oBulan").textContent = jualBln ? rp(untung * jualBln) : "-";
+    var kotor = harga - (bahan / pcs + perPcs);
+    $("oBep").textContent = tetap ? (kotor > 0 ? Math.ceil(tetap / kotor).toLocaleString("id-ID") + " pcs / bulan" : "Harga di bawah modal") : "-";
+    akhir = { nama:$("hNama").value.trim(), bahan:ambil("lBahan"), pcs:pcs, perPcs:ambil("lPcs"), tetap:tetap, jualBln:jualBln, target:target, harga:angka($("hHarga").value), hpp:Math.round(hpp), jual:harga };
+  }
+  function gambarTarget(){
+    var t = $("target"); t.innerHTML = "";
+    [10, 20, 30, 40, 50, 100].forEach(function(v){ var b = document.createElement("button"); b.type = "button"; b.textContent = v + "%"; if (v === target) b.className = "pilih"; b.onclick = function(){ target = v; gambarTarget(); hitung(); }; t.appendChild(b); });
+  }
+  function isi(h){
+    $("hNama").value = h.nama || ""; $("lBahan").innerHTML = ""; $("lPcs").innerHTML = "";
+    (h.bahan && h.bahan.length ? h.bahan : [["", 0]]).forEach(function(x){ baris("lBahan", x[0], x[1], "Nama bahan"); });
+    (h.perPcs && h.perPcs.length ? h.perPcs : [["", 0]]).forEach(function(x){ baris("lPcs", x[0], x[1], "Contoh: plastik"); });
+    $("hPcs").value = h.pcs || 1; $("hTetap").value = h.tetap ? h.tetap.toLocaleString("id-ID") : ""; $("hJualBln").value = h.jualBln ? h.jualBln.toLocaleString("id-ID") : "";
+    $("hHarga").value = h.harga ? h.harga.toLocaleString("id-ID") : ""; target = h.target || 30; gambarTarget(); hitung();
+  }
+  function gambarSimpan(){
+    var l = bacaSimpan(), el = $("lSimpan"); el.innerHTML = l.length ? "" : '<li class="redup">Belum ada. Tekan “Simpan hitungan” untuk menyimpan.</li>';
+    l.forEach(function(h, i){
+      var li = document.createElement("li");
+      li.innerHTML = '<a>' + esc(h.nama || "Tanpa nama") + '</a><span class="kecil redup" style="flex:1;text-align:right">HPP ' + rp(h.hpp) + ' · jual ' + rp(h.jual) + '</span><button type="button" aria-label="Hapus">✕</button>';
+      li.querySelector("a").onclick = function(){ isi(h); window.scrollTo({ top:0, behavior:"smooth" }); };
+      li.querySelector("button").onclick = function(){ if (!confirm("Hapus hitungan " + (h.nama || "ini") + "?")) return; var a = bacaSimpan(); a.splice(i, 1); localStorage.setItem(KUNCI, JSON.stringify(a)); gambarSimpan(); };
+      el.appendChild(li);
+    });
+  }
+  $("bSimpan").onclick = function(){
+    hitung(); if (!akhir.hpp) { pesan("Isi biaya bahan dulu."); return; }
+    if (!akhir.nama) { pesan("Isi nama barang dulu."); $("hNama").focus(); return; }
+    var l = bacaSimpan().filter(function(h){ return h.nama !== akhir.nama; }); l.unshift(akhir);
+    try { localStorage.setItem(KUNCI, JSON.stringify(l.slice(0, 100))); pesan("Hitungan disimpan"); } catch(e){ pesan("Gagal menyimpan"); }
+    gambarSimpan();
+  };
+  $("bKeKasir").onclick = function(){
+    hitung(); if (!akhir.hpp) { pesan("Isi biaya bahan dulu."); return; }
+    var S = null; try { S = JSON.parse(localStorage.getItem(KASIR)); } catch(e){}
+    if (!S || !Array.isArray(S.produk) || !S.produk.length) { pesan("Belum ada barang di Kasir."); return; }
+    var sel = $("dkBarang"); sel.innerHTML = "";
+    var nm = akhir.nama.toLowerCase(), cocok = null;
+    S.produk.forEach(function(p){ var o = document.createElement("option"); o.value = p.id; o.textContent = (p.kat ? p.kat + " · " : "") + p.nama + " · " + rp(p.harga) + (p.modal ? " (modal " + rp(p.modal) + ")" : ""); sel.appendChild(o); var pn = p.nama.toLowerCase(); if (cocok == null && nm && (pn.indexOf(nm) >= 0 || nm.indexOf(pn) >= 0)) cocok = p.id; });
+    if (cocok != null) sel.value = cocok;
+    $("dkHargaTeks").textContent = rp(akhir.jual); $("dkHarga").checked = false;
+    $("dKasir").showModal();
+  };
+  $("dKasir").addEventListener("close", function(){
+    if ($("dKasir").returnValue !== "ok") return;
+    var S = null; try { S = JSON.parse(localStorage.getItem(KASIR)); } catch(e){} if (!S) return;
+    var id = $("dkBarang").value, p = S.produk.filter(function(x){ return String(x.id) === id; })[0]; if (!p) return;
+    p.modal = akhir.hpp; if ($("dkHarga").checked && akhir.jual) p.harga = akhir.jual;
+    try { localStorage.setItem(KASIR, JSON.stringify(S)); pesan("Modal " + p.nama + " disimpan: " + rp(p.modal)); } catch(e){ pesan("Gagal menyimpan"); }
+  });
+
+  $("tBahan").onclick = function(){ baris("lBahan", "", 0, "Nama bahan").querySelector("input").focus(); };
+  $("tPcs").onclick = function(){ baris("lPcs", "", 0, "Contoh: plastik").querySelector("input").focus(); };
+  ["hPcs","hTetap","hJualBln","hHarga"].forEach(function(id){ format($(id)); });
+  $("hNama").addEventListener("input", hitung);
+  isi({ pcs:1 }); gambarSimpan();
+})();
+</script>
+</body>
+</html>

@@ -7,7 +7,7 @@
   Jaringan jalan tiap dusun (xs, zs, tinggi simpang) diambil dari game web lewat peramban (I.jalur atau vroads/hroads),
   dalam satuan web. Ke Roblox dikali 1,25 lalu digeser ke letak dusun.
 
-  Kendaraan hanya hiasan: dibuat dan digerakkan di tiap HP sendiri (tidak membebani server), tidak bisa ditabrak, dan
+  Kendaraan hanya hiasan: dibuat dan digerakkan di tiap HP sendiri, bentuknya sama dengan game web (DK_ModelKendaraan) (tidak membebani server), tidak bisa ditabrak, dan
   hanya dusun tempat pemain berada yang digerakkan. Lampu lalu lintas belum ikut (kendaraan tidak berhenti di simpang).
 ]]
 
@@ -39,81 +39,14 @@ local function rgb(h) return Color3.fromRGB(bit32.rshift(h, 16), bit32.band(bit3
 -- { model, warna, laju (x jalan kaki) } urutan sama dengan ARMADA game web
 local ARMADA = {
 	{ "sedan", 0x2f6fd8, 1.5 }, { "motor", 0xb8252c, 1.7 }, { "sepeda", 0x2f9a54, 0.95 }, { "patroli", 0xf4f4f4, 1.5 }, { "hatch", 0xf2b62a, 1.6 },
-	{ "motor", 0x2a2b33, 1.7 }, { "ambulans", 0xf6f6f6, 1.35 }, { "jip", 0xeeeee8, 1.45 },
+	{ "motor", 0x2a2b33, 1.7 }, { "ambulans", 0xf6f6f6, 1.35 }, { "jip", 0xeeeee8, 1.45 }, { "sepeda", 0xf2b62a, 0.95 }, { "sedan", 0xd8402a, 1.5 },
+	{ "motor", 0x2f6fd8, 1.7 }, { "gt", 0xb8252c, 1.75 },
 }
-local PANJANG = { sepeda = 1.8, motor = 2.1, sedan = 4.4, patroli = 4.4, ambulans = 5.2, hatch = 4.0, jip = 4.3 }
+local PANJANG = { sepeda = 1.8, motor = 2.1, sedan = 4.4, patroli = 4.4, ambulans = 5.2, hatch = 4.0, jip = 4.3, gt = 4.3 }
 local KULIT = { 0xf2c7a0, 0xe0aa7e, 0xc98e5e, 0x8a5a3a }
 local BAJU = { 0x3a7bd5, 0xd0442f, 0x2a9a5a, 0xf2c14e, 0x8a5ad8, 0x1d1d22, 0xe06a9a }
 
-local BAN, KACA, ABU = Color3.fromRGB(26, 26, 30), Color3.fromRGB(150, 200, 230), Color3.fromRGB(120, 124, 132)
-local LAMPU, MERAH, BIRU = Color3.fromRGB(255, 240, 180), Color3.fromRGB(220, 40, 40), Color3.fromRGB(40, 90, 230)
-
--- bentuk kendaraan: { ukuran, letak (y dari tanah, -Z = depan), warna ("w" = warna badan), tanda }
-local function mobil(p, l, t, angkat, ban)
-	local b = {
-		{ Vector3.new(l, t, p), Vector3.new(0, angkat + t / 2, 0), "w" },
-		{ Vector3.new(l - 0.4, 1.7, p * 0.5), Vector3.new(0, angkat + t + 0.85, p * 0.06), KACA },
-		{ Vector3.new(l - 0.2, 0.3, p * 0.5 + 0.2), Vector3.new(0, angkat + t + 1.85, p * 0.06), "w" },
-		{ Vector3.new(l - 0.4, 0.5, 0.3), Vector3.new(0, angkat + t * 0.4, -p / 2 - 0.1), ABU },
-		{ Vector3.new(1, 0.5, 0.2), Vector3.new(l / 2 - 0.8, angkat + t * 0.7, -p / 2 - 0.1), LAMPU },
-		{ Vector3.new(1, 0.5, 0.2), Vector3.new(-l / 2 + 0.8, angkat + t * 0.7, -p / 2 - 0.1), LAMPU },
-		{ Vector3.new(1, 0.5, 0.2), Vector3.new(l / 2 - 0.8, angkat + t * 0.7, p / 2 + 0.1), MERAH },
-		{ Vector3.new(1, 0.5, 0.2), Vector3.new(-l / 2 + 0.8, angkat + t * 0.7, p / 2 + 0.1), MERAH },
-	}
-	for _, sx in ipairs({ -1, 1 }) do
-		for _, sz in ipairs({ -1, 1 }) do
-			table.insert(b, { Vector3.new(1, ban, ban), Vector3.new(sx * (l / 2 - 0.2), ban / 2, sz * p * 0.32), BAN })
-		end
-	end
-	return b
-end
-
-local BENTUK = {}
-BENTUK.sedan = mobil(11, 6, 2, 0.7, 2)
-BENTUK.hatch = mobil(9.5, 6, 2.2, 0.7, 2)
-BENTUK.jip = mobil(10, 6.4, 2.4, 1.3, 2.8)
-BENTUK.patroli = mobil(11, 6, 2, 0.7, 2)
-table.insert(BENTUK.patroli, { Vector3.new(6.1, 0.7, 11.1), Vector3.new(0, 1.5, 0), BIRU })       -- garis biru di badan
-table.insert(BENTUK.patroli, { Vector3.new(1.6, 0.5, 0.8), Vector3.new(-1, 5, 0.6), MERAH, "sm" }) -- lampu atap
-table.insert(BENTUK.patroli, { Vector3.new(1.6, 0.5, 0.8), Vector3.new(1, 5, 0.6), BIRU, "sb" })
-BENTUK.ambulans = {
-	{ Vector3.new(6.2, 5, 9), Vector3.new(0, 3.4, 2), "w" },                 -- kotak belakang
-	{ Vector3.new(6.2, 3, 4), Vector3.new(0, 2.4, -4.5), "w" },              -- kabin
-	{ Vector3.new(5.6, 1.6, 0.3), Vector3.new(0, 3.2, -6.5), KACA },
-	{ Vector3.new(6.3, 0.8, 9.1), Vector3.new(0, 3, 2), MERAH },             -- garis merah
-	{ Vector3.new(0.5, 2, 0.2), Vector3.new(0, 4.6, 6.55), MERAH },          -- palang di pintu belakang
-	{ Vector3.new(2, 0.5, 0.2), Vector3.new(0, 4.6, 6.56), MERAH },
-	{ Vector3.new(1, 0.5, 0.2), Vector3.new(2.3, 1.6, -6.55), LAMPU },
-	{ Vector3.new(1, 0.5, 0.2), Vector3.new(-2.3, 1.6, -6.55), LAMPU },
-	{ Vector3.new(1.8, 0.6, 1), Vector3.new(-1.2, 6.2, -1.6), MERAH, "sm" }, -- sirene
-	{ Vector3.new(1.8, 0.6, 1), Vector3.new(1.2, 6.2, -1.6), BIRU, "sb" },
-}
-for _, sx in ipairs({ -1, 1 }) do
-	for _, sz in ipairs({ -4.2, 4.4 }) do
-		table.insert(BENTUK.ambulans, { Vector3.new(1, 2.2, 2.2), Vector3.new(sx * 2.9, 1.1, sz), BAN })
-	end
-end
-BENTUK.motor = {
-	{ Vector3.new(1.3, 1.5, 4.6), Vector3.new(0, 2, 0), "w" },
-	{ Vector3.new(1.1, 0.5, 2), Vector3.new(0, 3, 1), BAN },
-	{ Vector3.new(0.8, 2.4, 2.4), Vector3.new(0, 1.2, -2.7), BAN },
-	{ Vector3.new(0.8, 2.4, 2.4), Vector3.new(0, 1.2, 2.7), BAN },
-	{ Vector3.new(3, 0.3, 0.3), Vector3.new(0, 3.6, -1.9), ABU },
-	{ Vector3.new(0.4, 1.6, 0.4), Vector3.new(0, 2.9, -2.2), ABU },
-	{ Vector3.new(0.7, 0.5, 0.2), Vector3.new(0, 3.1, -2.6), LAMPU },
-}
-BENTUK.sepeda = {
-	{ Vector3.new(0.4, 0.4, 3.6), Vector3.new(0, 2.2, 0), "w" },
-	{ Vector3.new(0.4, 1.4, 0.4), Vector3.new(0, 1.6, 0.4), "w" },
-	{ Vector3.new(0.3, 2.4, 2.4), Vector3.new(0, 1.2, -2.2), BAN },
-	{ Vector3.new(0.3, 2.4, 2.4), Vector3.new(0, 1.2, 2.2), BAN },
-	{ Vector3.new(2.6, 0.25, 0.25), Vector3.new(0, 3.4, -1.7), ABU },
-	{ Vector3.new(0.3, 1.4, 0.3), Vector3.new(0, 2.8, -1.8), ABU },
-	{ Vector3.new(0.8, 0.3, 1.2), Vector3.new(0, 3, 1), BAN },
-}
--- letak pengemudi (pinggul): { x, y, z }; pengemudi mobil kelihatan dari kaca
-local SOPIR = { sedan = { 1.4, 1.1, -0.6 }, patroli = { 1.4, 1.1, -0.6 }, hatch = { 1.4, 1.3, -0.4 }, jip = { 1.5, 2.3, -0.4 },
-	ambulans = { 1.5, 0.5, -4.6 }, motor = { 0, 3.3, 0.8 }, sepeda = { 0, 3.2, 0.9 } }
+local MK = require(game:GetService("ReplicatedStorage"):WaitForChild("DK_ModelKendaraan"))
 
 local lama = workspace:FindFirstChild("DK_LaluLintas")
 if lama then lama:Destroy() end
@@ -128,41 +61,14 @@ local function acak()
 end
 local function pilih(a) return a[math.floor(acak() * #a) + 1] end
 
-local sirene = {} -- { merah = {part...}, biru = {part...} }
-local function bagian(model, ukuran, letak, warna, neon)
-	local p = Instance.new("Part")
-	p.Anchored = true
-	p.CanCollide = false
-	p.CanTouch = false
-	p.CanQuery = false
-	p.CastShadow = false
-	p.Size = ukuran
-	p.CFrame = CFrame.new(letak)
-	p.Color = warna
-	p.Material = neon and Enum.Material.Neon or Enum.Material.SmoothPlastic
-	p.TopSurface = Enum.SurfaceType.Smooth
-	p.BottomSurface = Enum.SurfaceType.Smooth
-	p.Parent = model
-	return p
-end
+local sirene = {} -- { part, merah? }
+-- bentuk kendaraan sama dengan game web (ReplicatedStorage.DK_ModelKendaraan, dari js/aset/mobil.js)
 local function buatKendaraan(jenis, warna)
-	local model = Instance.new("Model")
-	model.Name = jenis
-	local akar = bagian(model, Vector3.new(1, 1, 1), Vector3.new(0, 0, 0), BAN)
-	akar.Transparency = 1
-	model.PrimaryPart = akar
-	for _, b in ipairs(BENTUK[jenis]) do
-		local p = bagian(model, b[1], b[2], b[3] == "w" and warna or b[3], b[3] == LAMPU or b[4] ~= nil)
-		if b[3] == KACA then p.Transparency = 0.45 end
-		if b[4] == "sm" then table.insert(sirene, { p, true }) elseif b[4] == "sb" then table.insert(sirene, { p, false }) end
-	end
-	local s = SOPIR[jenis]
+	local model, info = MK.buat(jenis, warna)
+	for _, s in ipairs(info.sirene) do table.insert(sirene, s) end
 	local baju = jenis == "patroli" and rgb(0x8a6a3a) or jenis == "ambulans" and rgb(0xf4f4f4) or rgb(pilih(BAJU))
-	bagian(model, Vector3.new(1.7, 1.9, 1), Vector3.new(s[1], s[2] + 0.95, s[3]), baju)
-	bagian(model, Vector3.new(1.3, 1.3, 1.3), Vector3.new(s[1], s[2] + 2.55, s[3]), rgb(pilih(KULIT)))
-	if jenis == "motor" or jenis == "sepeda" then
-		bagian(model, Vector3.new(1.5, 0.7, 1.5), Vector3.new(s[1], s[2] + 3.3, s[3]), BAN) -- helm
-	end
+	MK.sopir(model, jenis, { baju = baju, kulit = rgb(pilih(KULIT)), rambut = rgb(0x1a1410), helm = jenis == "motor" or jenis == "sepeda",
+		helmWarna = jenis == "sepeda" and rgb(0xf2c14e) or rgb(0x1d1e24) })
 	model.Parent = folder
 	return model
 end

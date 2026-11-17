@@ -3,10 +3,13 @@
   Tempat: StarterPlayer.StarterPlayerScripts.DealerKendaraan.
   Pasangannya: ServerScriptService.DealerKendaraan (DK_Dealer, DK_DealerBuka).
   Panel terbuka saat pemain menekan "Lihat kendaraan" di lahan dealer (Dusun Curug).
-  Tombol "Naik" ada di kiri bawah, di sebelah "Tokoh", "Bus", dan "Rumah".
+  Tombol "Naik" di kiri bawah (sebelah "Tokoh", "Bus", "Rumah") HANYA muncul saat dekat kendaraan sendiri yang terparkir
+  (workspace.DK_Parkir.pk_<UserId>), dan berubah jadi "Turun" saat sedang naik. Huda 15 Nov 2026: tidak ada lagi
+  naik kendaraan dari mana saja.
 ]]
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local DEKAT_NAIK = 14 -- sedikit lebih dekat dari batas server (16) supaya tombol tidak muncul lalu ditolak
 
 local player = Players.LocalPlayer
 local pintu = ReplicatedStorage:WaitForChild("DK_Dealer")
@@ -79,6 +82,7 @@ tombol.TextColor3 = Color3.new(1, 1, 1)
 tombol.FontFace = TEBAL
 tombol.TextSize = 15
 tombol.Text = "Naik"
+tombol.Visible = false
 bulat(tombol, 10)
 tombol.Parent = gui
 
@@ -217,7 +221,6 @@ local function kirim(...)
 	end
 	data = r
 	if r.pesan then pesan(r.pesan) end
-	tombol.Text = r.naik ~= "" and "Turun" or "Naik"
 	return r
 end
 
@@ -355,25 +358,37 @@ end
 
 bukaEv.OnClientEvent:Connect(buka)
 tombol.Activated:Connect(function()
-	if latar.Visible then
-		latar.Visible = false
-		return
-	end
+	if latar.Visible then latar.Visible = false end
 	if (player:GetAttribute("DK_Naik") or "") ~= "" then
-		kirim("turun")
+		if kirim("turun") then pesan("🅿️ Kendaraanmu diparkir di sini.") end
 		return
 	end
-	local r = kirim("buka")
-	if not r then return end
-	if #r.garasi == 0 then
-		pesan("Belum punya kendaraan. Beli di Dealer Kendaraan, Dusun Curug.")
-	elseif r.garasi[r.pakai] then
-		kirim("naik")
-	else
-		local k = r.garasi[1]
-		pilihM, pilihW = k.m, k.w
-		tulis()
-		latar.Visible = true
+	kirim("naik")
+end)
+
+-- tombol Naik muncul hanya saat dekat kendaraan sendiri yang terparkir
+local function kendaraanDekat()
+	local f = workspace:FindFirstChild("DK_Parkir")
+	local m = f and f:FindFirstChild("pk_" .. player.UserId)
+	local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	local p = m and m:GetAttribute("pos")
+	if not hrp or typeof(p) ~= "Vector3" then return nil end
+	local d = (Vector3.new(p.X, 0, p.Z) - Vector3.new(hrp.Position.X, 0, hrp.Position.Z)).Magnitude
+	if d > DEKAT_NAIK or math.abs(p.Y - hrp.Position.Y) > 18 then return nil end
+	return m:GetAttribute("ikon") or ""
+end
+task.spawn(function()
+	while true do
+		local naik = (player:GetAttribute("DK_Naik") or "") ~= ""
+		if naik then
+			tombol.Text = "Turun"
+			tombol.Visible = true
+		else
+			local ikon = not player:GetAttribute("DK_DiRumah") and kendaraanDekat()
+			tombol.Visible = ikon ~= nil and ikon ~= false
+			if tombol.Visible then tombol.Text = (ikon ~= "" and ikon .. " " or "") .. "Naik" end
+		end
+		task.wait(0.2)
 	end
 end)
 tutup.Activated:Connect(function() latar.Visible = false end)
@@ -382,11 +397,11 @@ latar.Activated:Connect(function() latar.Visible = false end)
 -- saat naik kendaraan, ayunan jalan dihentikan supaya tokoh tampak duduk diam di kendaraan
 local function aturAnimasi()
 	local naik = (player:GetAttribute("DK_Naik") or "") ~= ""
-	tombol.Text = naik and "Turun" or "Naik"
 	local char = player.Character
 	if not char then return end
 	local skrip = char:FindFirstChild("Animate")
-	if skrip and skrip:IsA("LocalScript") then skrip.Enabled = not naik end
+	-- Animate tetap mati: gerak tokoh (jalan, duduk di kendaraan) diatur GerakKotak
+	if skrip and skrip:IsA("LocalScript") then skrip.Enabled = false end
 	if naik then
 		local hum = char:FindFirstChildOfClass("Humanoid")
 		local animator = hum and hum:FindFirstChildOfClass("Animator")

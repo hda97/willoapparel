@@ -1,0 +1,1070 @@
+<!doctype html>
+<html lang="id">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-N4FLLMXDVK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-N4FLLMXDVK');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aplikasi Kasir Gratis + QRIS untuk Warung & UMKM | Willo Apparel</title>
+<meta name="description" content="Kasir online gratis di HP: ketuk produk, hitung total dan kembalian, tampilkan QRIS toko untuk dibayar pelanggan, kirim struk ke WhatsApp. Penjualan otomatis masuk Buku Kas. Tanpa daftar.">
+<link rel="canonical" href="https://willoapparel.com/alat/kasir/">
+<meta property="og:title" content="Kasir Gratis + QRIS di HP | Willo Apparel">
+<meta property="og:description" content="Hitung total & kembalian, tampilkan QRIS, struk ke WA. Gratis, tanpa daftar.">
+<meta property="og:locale" content="id_ID">
+<link rel="icon" href="/logo-willo.png">
+<link rel="stylesheet" href="/alat/alat.css">
+<script src="/alat/ikon.js" defer></script>
+<script src="/alat/owner.js"></script>
+<script src="/alat/sinkron.js" defer></script>
+<style>
+main{padding-bottom:110px}
+.hariini{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;color:var(--redup);margin-bottom:12px}
+.hariini b{color:var(--teks)}
+.cari{margin-bottom:10px}
+.produk{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.produk button{position:relative;border:1px solid var(--garis);background:#fff;border-radius:12px;padding:10px 6px;font:inherit;cursor:pointer;text-align:center;min-height:104px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.produk button:active{transform:scale(.97)}
+.produk .em{font-size:28px;line-height:1.1}
+.produk .em.ik{width:56px;height:56px;display:block}
+.em-pilih button.ik{padding:3px}
+.produk .nm{font-size:13.5px;font-weight:600;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.produk .hg{font-size:12.5px;color:var(--redup)}
+.produk .qty{position:absolute;top:6px;right:6px;background:var(--utama);color:#fff;border-radius:12px;min-width:24px;height:24px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 6px}
+.keranjang li.diskon .nm span,.keranjang li.diskon .st{color:var(--hijau)}
+.produk button.tambah{border-style:dashed;color:var(--redup)}
+.keranjang{list-style:none;margin:0;padding:0}
+.keranjang li{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0ede6}
+.keranjang .nm{flex:1;min-width:0;font-size:15px}
+.keranjang .nm small{display:block;color:var(--redup);font-size:12.5px}
+.keranjang .qb{width:34px;height:34px;border-radius:9px;border:1px solid var(--garis);background:#fff;font-size:18px;font-weight:700;cursor:pointer}
+.keranjang .q{width:48px;height:34px;text-align:center;font:inherit;font-weight:700;border:1px solid var(--garis);border-radius:9px;padding:0 2px;background:#fff}
+.bank{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 8px}
+.bank button{flex:1 1 18%;border:1px solid var(--garis);background:#fff;border-radius:10px;padding:8px 4px;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.bank button.pilih{border-color:var(--utama);background:var(--biru-muda);color:var(--utama)}
+.dsrow{display:flex;gap:8px;align-items:flex-end}
+.dsrow .isi{flex:1;margin-bottom:8px}
+.dsrow .tab{flex:0 0 96px;margin-bottom:8px}
+.sisa{display:flex;justify-content:space-between;background:#fff1d6;color:#8a5200;border-radius:12px;padding:10px 14px;font-weight:700;margin-bottom:10px}
+.keranjang .st{min-width:78px;text-align:right;font-weight:600}
+.bawah{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--garis);padding:10px 16px calc(10px + env(safe-area-inset-bottom));z-index:20;box-shadow:0 -6px 20px rgba(0,0,0,.06)}
+.bawah .wrap{display:flex;align-items:center;gap:12px;padding:0}
+.bawah .tot{flex:1}
+.bawah .tot small{display:block;color:var(--redup);font-size:12.5px}
+.bawah .tot b{font-size:24px}
+.bawah .btn{min-width:130px;font-size:17px}
+.metode{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.metode button{border:2px solid var(--garis);background:#fff;border-radius:10px;padding:10px 4px;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.metode button.pilih{border-color:var(--utama);background:var(--biru-muda);color:var(--utama)}
+.totalbesar{text-align:center;font-size:clamp(34px,10vw,46px);font-weight:800;margin:4px 0 10px}
+.cepat{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.cepat button{flex:1 1 30%;border:1px solid var(--garis);background:#fff;border-radius:10px;padding:9px 4px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.kembali{display:flex;justify-content:space-between;align-items:center;background:var(--hijau-muda);color:var(--hijau);border-radius:12px;padding:12px 14px;font-weight:700;font-size:18px;margin-bottom:12px}
+.kembali.kurang{background:var(--merah-muda);color:var(--merah)}
+.qris{text-align:center}
+.qris img{max-width:100%;max-height:52vh;border-radius:12px;border:1px solid var(--garis);background:#fff}
+.qris .kosongq{border:2px dashed var(--garis);border-radius:12px;padding:24px 14px;color:var(--redup);font-size:14px}
+.struk{font:14px/1.45 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;background:#fbfaf7;border:1px solid var(--garis);border-radius:10px;padding:12px;max-height:46vh;overflow:auto}
+.jenis-usaha{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.jenis-usaha button{border:1px solid var(--garis);background:#fff;border-radius:12px;padding:12px 8px;font:inherit;font-weight:700;font-size:14.5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+.jenis-usaha button span{font-size:26px}
+#strukLogo{display:block;max-width:140px;max-height:90px;margin:0 auto 6px;filter:grayscale(1)}
+.em-pilih{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 12px}
+.em-pilih button{width:40px;height:40px;border:1px solid var(--garis);background:#fff;border-radius:10px;font-size:20px;cursor:pointer}
+.em-pilih button.pilih{border-color:var(--utama);box-shadow:0 0 0 2px var(--utama) inset}
+.qprev{display:flex;gap:12px;align-items:center}
+.qprev img{width:84px;height:84px;object-fit:contain;border:1px solid var(--garis);border-radius:10px;background:#fff}
+#cetakStruk{display:none}
+.lap-periode{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px}
+.lap-periode button{flex:0 0 auto;border:1px solid var(--garis);background:#fff;border-radius:999px;padding:7px 12px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+.lap-periode button.pilih{background:var(--utama);border-color:var(--utama);color:#fff}
+.lap-angka{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.lap-angka div{background:#fbfaf7;border:1px solid var(--garis);border-radius:12px;padding:10px 12px}
+.lap-angka small{display:block;color:var(--redup);font-size:12.5px}
+.lap-angka b{font-size:19px}
+.lap-tabel{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:12px}
+.lap-tabel td,.lap-tabel th{padding:6px 4px;border-bottom:1px solid #f0ede6;text-align:right}
+.lap-tabel td:first-child,.lap-tabel th:first-child{text-align:left}
+.lap-tabel th{font-size:12.5px;color:var(--redup);font-weight:600}
+.produk .stk{font-size:11.5px;color:var(--redup)}
+.produk .stk.tipis{color:var(--merah);font-weight:700}
+.produk button.habis{opacity:.55}
+.riwayat li{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f0ede6;font-size:14px}
+.riwayat li .ket{flex:1;min-width:0}
+.riwayat li small{display:block;color:var(--redup);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.riwayat li.batal .ket,.riwayat li.batal .angka{text-decoration:line-through;color:var(--redup)}
+.lap-bar{height:6px;border-radius:3px;background:var(--utama);opacity:.75;margin-top:3px}
+.kat{display:flex;gap:6px;overflow-x:auto;margin:0 0 10px;padding-bottom:2px;scrollbar-width:none}
+.kat::-webkit-scrollbar{display:none}
+.kat button{flex:0 0 auto;border:1px solid var(--garis);background:#fff;border-radius:999px;padding:7px 14px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
+.kat button.pilih{background:var(--utama);border-color:var(--utama);color:#fff}
+.tahan{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.tahan button{border:1px dashed var(--utama);background:var(--biru-muda);color:var(--utama);border-radius:10px;padding:6px 10px;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
+/* Tablet (termasuk tablet tegak ±600px): seperti kasir lama — pesanan di kiri, kolom kategori + daftar barang di kanan */
+@media (min-width:560px){
+  main.wrap{max-width:1180px}
+  .kasir-grid{display:grid;grid-template-columns:minmax(230px,42%) minmax(0,1fr);gap:12px;align-items:start}
+  .kasir-grid .kanan{order:-1;position:sticky;top:8px}
+  .kasir-grid .kanan .kartu{margin-top:0!important;max-height:calc(100vh - 120px);overflow:auto}
+  .produk{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+  .kiri.ada-kat{display:grid;grid-template-columns:clamp(96px,30%,150px) minmax(0,1fr);gap:0 6px;align-items:start}
+  .kiri.ada-kat .cari{grid-column:1 / -1}
+  .kiri.ada-kat .kat{flex-direction:column;gap:4px;overflow:auto;max-height:calc(100vh - 140px);position:sticky;top:8px;margin:0}
+  .kiri.ada-kat .kat button{border-radius:8px;white-space:normal;text-align:center;padding:14px 6px;font-size:13.5px;line-height:1.25;font-weight:700}
+  .kiri.ada-kat .produk button{min-height:84px;border-radius:8px;padding:8px 6px;gap:6px}
+  .kiri.ada-kat .produk .em{font-size:24px}
+  .kiri.ada-kat .produk .em.ik{width:54px;height:54px}
+  .kiri.ada-kat .produk .nm{font-size:14.5px}
+  .kiri.ada-kat .produk .hg{font-size:14px;color:var(--teks)}
+  .kasir-grid .kanan .kartu{min-height:calc(100vh - 120px)}
+  .kasir-grid .keranjang li{flex-wrap:wrap;gap:4px 8px}
+  .kasir-grid .keranjang .nm{flex:1 1 100%}
+  .kasir-grid .keranjang .st{flex:1;min-width:0}
+  .bawah .wrap{max-width:1180px;margin:0 auto}
+}
+@media print{
+  body *{visibility:hidden}
+  #cetakStruk,#cetakStruk *{visibility:visible}
+  #cetakStruk{display:block;position:absolute;left:0;top:0;width:58mm;font:12px/1.4 monospace;white-space:pre-wrap;color:#000}
+}
+</style>
+</head>
+<body>
+<header class="atas"><div class="wrap"><a href="/alat/">← Alat Usaha Gratis</a><a class="redup" href="/">Willo Apparel</a></div></header>
+
+<main class="wrap">
+  <h1>Kasir</h1>
+  <p class="sub">Ketuk produk, terima tunai atau QRIS, kirim struk ke WA. Uang tidak lewat alat ini: pelanggan membayar langsung ke QRIS atau rekening tokomu.</p>
+
+  <div class="hariini"><span>Penjualan hari ini: <b class="angka" id="hJml">Rp0</b> · <span id="hN">0</span> transaksi</span><span class="baris" style="gap:6px"><button class="btn dua kecil" id="bRiwayat">🧾 Riwayat nota</button><button class="btn dua kecil" id="bLaporan" data-owner>📊 Laporan</button><a href="/alat/buku-kas/" class="btn dua kecil" data-owner>Buku Kas</a></span></div>
+
+  <div class="kasir-grid"><div class="kiri">
+  <input type="text" id="cari" class="cari" placeholder="Cari produk / scan barcode…" autocomplete="off" enterkeyhint="search">
+  <div class="kat tersembunyi" id="kategori"></div>
+  <div class="produk" id="produk"></div>
+  </div><div class="kanan">
+
+  <section class="kartu" style="margin-top:14px">
+    <div class="tahan tersembunyi" id="dTahanan"></div>
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px"><h2 style="margin:0">Pesanan</h2><span class="baris" style="gap:6px"><button class="btn dua kecil" id="bTahan" title="Simpan pesanan ini sebentar, layani pembeli lain dulu">✋ Tahan</button><button class="btn dua kecil" id="bKosong">Kosongkan</button></span></div>
+    <ul class="keranjang" id="keranjang"></ul>
+    <button class="btn dua kecil" id="bBebas" style="margin-top:10px">＋ Nominal bebas</button>
+  </section>
+  </div></div>
+
+  <section class="kartu" data-owner>
+    <h2>Menu owner</h2>
+    <p class="kecil redup" style="margin:0 0 10px">Nama toko, logo, QRIS, rekening, printer, dan panjang struk diatur di menu Pengaturan toko.</p>
+    <div class="baris">
+      <a class="btn dua kecil" href="/alat/pengaturan/">⚙️ Pengaturan toko</a>
+      <a class="btn dua kecil" href="/alat/stok/">📦 Stok barang</a>
+      <a class="btn dua kecil" href="/alat/hpp/">🧮 Hitung HPP & untung</a>
+    </div>
+  </section>
+
+  <section class="kartu" data-owner>
+    <h2>Daftar barang</h2>
+    <div class="baris">
+      <button class="btn dua kecil" id="bJenis">🏪 Contoh sesuai jenis usaha</button>
+      <label class="btn dua kecil" for="fCsv">📥 Impor dari Excel (CSV)</label>
+      <button class="btn dua kecil" id="bCsvBarang">⬇ Unduh daftar barang</button>
+    </div>
+    <input type="file" id="fCsv" accept=".csv,.txt,text/csv,text/plain" class="tersembunyi">
+    <p class="kecil redup" style="margin:8px 0 0">Impor: di Excel/Google Sheets buat kolom <b>Nama</b> dan <b>Harga</b> (boleh tambah kolom <b>Ikon</b>, <b>Kategori</b>, <b>Kode</b>, <b>Stok</b>), lalu simpan sebagai CSV. Unduh daftar barang untuk melihat contohnya.</p>
+    <p class="kecil redup tersembunyi" id="pWillo" style="margin:6px 0 0"><a href="?contoh=willo">Isi dengan produk Willo Apparel</a> (produk yang ada sekarang diganti).</p>
+  </section>
+
+  <!--PANDUAN-->
+  <section class="panduan">
+<h2>Cara memakai Kasir</h2>
+<ol>
+<li><b>Isi daftar barang.</b> Ketuk Tambah produk, isi nama dan harga. Stok, kode barcode, kategori, dan promo paket boleh dikosongkan. Kalau barangnya sudah ada di Excel atau Google Sheets, buat kolom Nama dan Harga, simpan sebagai CSV, lalu pakai Impor dari Excel.</li>
+<li><b>Atur toko sekali saja.</b> Di Pengaturan toko, isi nama toko, logo, gambar QRIS, nomor rekening, dan printer. Data ini muncul di struk.</li>
+<li><b>Layani pembeli.</b> Ketuk barang yang dibeli sampai jumlahnya pas. Untuk harga yang tidak ada di daftar, pakai Nominal bebas. Kalau pembeli masih memilih, tekan Tahan supaya bisa melayani pembeli berikutnya dulu.</li>
+<li><b>Terima pembayaran.</b> Tekan Bayar, pilih tunai, QRIS, atau transfer. Untuk tunai, kembalian dihitung otomatis. Untuk QRIS, tunjukkan layar ke pembeli supaya mereka memindai kode milik tokomu.</li>
+<li><b>Kirim atau cetak struk.</b> Struk bisa dikirim ke WhatsApp pembeli atau dicetak lewat printer termal Bluetooth.</li>
+</ol>
+<h2>Uangnya lewat mana?</h2>
+<p>Kasir ini tidak menampung uang. Pembeli membayar langsung ke QRIS atau rekening tokomu sendiri, jadi tidak ada potongan dari kami. Alat ini hanya mencatat transaksi supaya kamu tahu berapa yang sudah masuk hari ini.</p>
+<h2>Laporan dan untung</h2>
+<p>Setiap penjualan masuk ke Laporan penjualan dan otomatis tercatat sebagai uang masuk di <a href="/alat/buku-kas/">Buku Kas</a>. Kalau modal tiap barang diisi lewat <a href="/alat/hpp/">Hitung HPP</a>, laporan juga menampilkan untung, bukan hanya omzet. Stok berkurang sendiri setiap barang terjual, sehingga kamu tahu kapan harus belanja lagi.</p>
+<h2>Cocok untuk usaha apa?</h2>
+<p>Warung kelontong, angkringan, kedai kopi, konter pulsa, toko pakaian, laundry, sampai stan bazar. Kasir berjalan di HP atau tablet Android dan iPhone lewat browser, tanpa daftar akun. Untuk tablet di meja kasir, tampilan otomatis berubah menjadi dua kolom: pesanan di kiri, barang di kanan.</p>
+<h2>Data aman di HP sendiri</h2>
+<p>Daftar barang dan riwayat penjualan disimpan di penyimpanan browser HP ini, tidak dikirim ke server. Karena itu, jangan hapus data browser. Unduh daftar barang secara berkala sebagai cadangan, atau aktifkan <a href="/alat/pro/">Lumbung Pro</a> bila ingin cadangan otomatis dan memantau penjualan dari HP owner.</p>
+  </section>
+  <!--/PANDUAN-->
+
+  <div class="cta">Butuh kaos seragam untuk tim usahamu? Sablon satuan sampai lusinan di <a href="/kaos-seragam-usaha-ngawi.html">Willo Apparel</a>.</div>
+</main>
+<footer>Alat gratis dari Willo Apparel · data tidak dikirim ke server<!--PANDUAN--><div class="foot-links"><a href="/studio/?utm_source=lumbung">Bikin versi custom</a><a href="/artikel.html">Artikel</a><a href="/tentang.html">Tentang Kami</a><a href="/kontak.html">Kontak</a><a href="/kebijakan-privasi.html">Kebijakan Privasi</a></div><!--/PANDUAN--></footer>
+
+<div class="bawah"><div class="wrap">
+  <div class="tot"><small id="bItem">0 barang</small><b class="angka" id="bTotal">Rp0</b></div>
+  <button class="btn hijau" id="bBayar" disabled>Bayar</button>
+</div></div>
+
+<!-- Tambah / ubah produk -->
+<dialog id="dProduk"><form method="dialog" class="isi-dialog">
+  <h2 id="dpJudul">Tambah produk</h2>
+  <label class="isi">Nama produk<input type="text" id="dpNama" maxlength="30" autocomplete="off" required></label>
+  <label class="isi">Harga (Rp)<input type="text" inputmode="numeric" id="dpHarga" class="angka" autocomplete="off"></label>
+  <label class="isi">Stok <small>Kosongkan bila tidak mau dihitung. Berkurang otomatis saat terjual</small><input type="text" inputmode="numeric" id="dpStok" class="angka" autocomplete="off" placeholder="tidak dihitung"></label>
+  <label class="isi">Promo paket <small>Boleh kosong. Contoh: 3=100000 artinya tiap 3 pcs jadi Rp100.000</small><input type="text" id="dpPaket" maxlength="20" autocomplete="off"></label>
+  <label class="isi">Kode / barcode <small>Boleh kosong. Ketik atau scan kode di kemasan</small><input type="text" id="dpKode" maxlength="32" autocomplete="off"></label>
+  <label class="isi">Kategori <small>Boleh kosong. Contoh: Kaos, Jersey, Minuman</small><input type="text" id="dpKat" maxlength="20" list="dlKat" autocomplete="off"></label>
+  <datalist id="dlKat"></datalist>
+  <div class="isi" style="margin-bottom:0">Ikon</div>
+  <div class="em-pilih" id="dpEm"></div>
+  <div class="baris"><button class="btn merah tersembunyi" value="hapus" id="dpHapus" formnovalidate>Hapus</button><button class="btn dua" value="batal" formnovalidate>Batal</button><button class="btn" value="ok">Simpan</button></div>
+</form></dialog>
+
+<!-- Laporan penjualan -->
+<dialog id="dLaporan"><div class="isi-dialog">
+  <div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">Laporan penjualan</h2><button class="btn dua kecil" id="lapTutup">Tutup</button></div>
+  <p class="kecil redup" style="margin:4px 0 10px">Dari transaksi Kasir di HP ini.</p>
+  <div class="lap-periode" id="lapPeriode"></div>
+  <div id="lapIsi"></div>
+  <div class="baris"><button class="btn dua kecil" id="lapWa">💬 Kirim ringkasan ke WA</button><button class="btn dua kecil" id="lapCsv">⬇ Unduh rincian (CSV)</button><button class="btn dua kecil" id="lapAi">✨ Saran AI</button></div>
+  <div id="lapAiIsi" class="tersembunyi" style="margin-top:10px;padding:10px 12px;border-radius:10px;background:rgba(127,127,127,.1);white-space:pre-line;font-size:14px;line-height:1.5"></div>
+</div></dialog>
+
+<!-- Riwayat nota (Huda 16 Nov 2026): cari nota lama, lihat, cetak ulang / kirim WA -->
+<dialog id="dRiwayat"><div class="isi-dialog">
+  <div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">Riwayat nota</h2><button class="btn dua kecil" id="rwTutup">Tutup</button></div>
+  <input type="text" id="rwCari" placeholder="🔍 Cari nama pelanggan, nomor nota, barang…" autocomplete="off" style="margin:10px 0">
+  <div class="tab" id="rwFilter"><button type="button" data-f="semua" class="pilih">Semua</button><button type="button" data-f="hari">Hari ini</button><button type="button" data-f="dp">Belum lunas</button></div>
+  <ul class="riwayat" id="rwDaftar" style="list-style:none;margin:0;padding:0"></ul>
+  <button class="btn dua lebar kecil tersembunyi" id="rwLagi" style="margin-top:8px">Tampilkan lebih banyak</button>
+</div></dialog>
+
+<!-- Jenis usaha -->
+<dialog id="dJenis"><div class="isi-dialog">
+  <h2>Usahamu apa?</h2>
+  <p class="kecil redup" style="margin-top:-6px">Pilih supaya kasir langsung terisi contoh barang. Nanti tinggal ubah nama dan harganya (tekan lama barang).</p>
+  <div class="jenis-usaha" id="djDaftar"></div>
+  <button class="btn dua lebar" id="djLewati" style="margin-top:10px">Mulai dari kosong</button>
+</div></dialog>
+
+<!-- Nominal bebas -->
+<dialog id="dBebas"><form method="dialog" class="isi-dialog">
+  <h2>Nominal bebas</h2>
+  <label class="isi">Keterangan<input type="text" id="dbNama" maxlength="30" placeholder="Contoh: Ongkir" autocomplete="off"></label>
+  <label class="isi">Jumlah (Rp)<input type="text" inputmode="numeric" id="dbJml" class="angka" autocomplete="off"></label>
+  <div class="baris"><button class="btn dua" value="batal">Batal</button><button class="btn" value="ok">Tambah</button></div>
+</form></dialog>
+
+<!-- Bayar -->
+<dialog id="dBayar"><div class="isi-dialog">
+  <label class="isi">Nama pelanggan <small>Boleh kosong. Ditulis di struk</small><input type="text" id="byNama" maxlength="30" autocomplete="off"></label>
+  <div class="metode" id="metode">
+    <button data-m="Tunai" class="pilih">💵 Tunai</button>
+    <button data-m="QRIS">▦ QRIS</button>
+    <button data-m="Transfer">🏦 Transfer</button>
+  </div>
+  <div class="redup kecil" style="text-align:center">Total bayar</div>
+  <div class="totalbesar angka" id="byTotal">Rp0</div>
+  <div class="dsrow">
+    <label class="isi">Diskon <small>Boleh kosong</small><input type="text" inputmode="numeric" id="byDiskon" class="angka" autocomplete="off" placeholder="0"></label>
+    <div class="tab" id="byDsJenis"><button type="button" data-j="rp" class="pilih">Rp</button><button type="button" data-j="persen">%</button></div>
+  </div>
+  <label class="pilihan-dp" style="display:flex;gap:8px;align-items:center;margin:0 0 8px;font-weight:600;cursor:pointer"><input type="checkbox" id="byDpCek" style="width:20px;height:20px;margin:0"> DP / bayar sebagian dulu</label>
+  <div id="pDp" class="tersembunyi">
+    <label class="isi">Jumlah DP<input type="text" inputmode="numeric" id="byDp" class="angka" style="font-size:20px;font-weight:800;text-align:right" autocomplete="off"></label>
+    <div class="sisa"><span>Sisa dibayar nanti</span><span class="angka" id="bySisa">Rp0</span></div>
+  </div>
+  <div id="pTunai">
+    <label class="isi">Uang diterima<input type="text" inputmode="numeric" id="byTerima" class="nominal angka" style="font-size:24px;font-weight:800;text-align:right" autocomplete="off"></label>
+    <div class="cepat" id="cepat"></div>
+    <div class="kembali" id="byKembali"><span>Kembalian</span><span class="angka">Rp0</span></div>
+  </div>
+  <div id="pQris" class="qris tersembunyi"></div>
+  <div id="pTransfer" class="tersembunyi"><div class="kartu" style="text-align:center;font-size:17px;font-weight:600" id="byRek"></div>
+    <div class="kecil redup">Masuk ke bank</div>
+    <div class="bank" id="byBank"></div>
+    <label class="isi">Nama bank / keterangan<input type="text" id="byBankNama" maxlength="24" autocomplete="off" placeholder="Contoh: BCA"></label>
+  </div>
+  <div class="baris"><button class="btn dua" id="byBatal">Batal</button><button class="btn hijau" id="bySelesai">✓ Sudah dibayar</button></div>
+</div></dialog>
+
+<!-- Struk -->
+<dialog id="dStruk"><div class="isi-dialog">
+  <h2 id="stJudul">✓ Pembayaran dicatat</h2>
+  <div class="struk" id="struk" data-teks><img id="strukLogo" alt="" class="tersembunyi"><span id="strukTeks"></span></div>
+  <label class="isi" style="margin-top:12px">Kirim ke WA pelanggan <small>Kosongkan untuk pilih kontak di WhatsApp</small><input type="tel" id="stWa" placeholder="08…" autocomplete="off"></label>
+  <div class="baris">
+    <button class="btn dua" id="stBt">🖨️ Printer Bluetooth</button>
+    <button class="btn hijau" id="stWaBtn">Kirim WA</button>
+  </div>
+  <p class="kecil redup" style="margin:8px 0 0">Printer USB / laptop: <a href="#" id="stCetak">cetak biasa</a>. <span class="hanya-web">Printer Bluetooth tidak muncul? Pasang aplikasi gratis RawBT lalu <a href="#" id="stRawbt">cetak lewat RawBT</a>.</span></p>
+  <button class="btn lebar" id="stBaru" autofocus style="margin-top:10px">Transaksi baru</button>
+</div></dialog>
+
+<pre id="cetakStruk"></pre>
+<div class="pesan" id="pesan"></div>
+
+<script>
+(function(){
+  var KUNCI = "willo_kasir_v1", KAS = "willo_kas_v1";
+  var $ = function(id){ return document.getElementById(id); };
+  var EMOJI = ["🍚","🍜","🍗","🍢","🥟","🍞","🍰","🍩","☕","🧋","🥤","🧃","🍹","🍦","🍌","🥚","🧂","🛢️","🍫","🍬","👕","👗","🧢","👟","✂️","💈","🛠️","🔧","🧴","🧼","📱","🔋","🖨️","📦","⛽","🎁"];
+  // Ikon gambar sendiri (Huda 15 Nov 2026): nilai em "ik:jenis/benang/lengan/sablon", mis. "ik:kaos/30s/pendek/sablon".
+  var IKON_PILIH = ["ik:kaos/30s/pendek/polos","ik:kaos/30s/panjang/polos","ik:kaos/24s/pendek/polos","ik:kaos/24s/panjang/polos","ik:kaos/30s/pendek/sablon","ik:kaos/24s/panjang/sablon","ik:upgrade","ik:dtf","ik:promo","ik:kelas","ik:komunitas"];
+  function ikonSvg(em){
+    var a = String(em || "").slice(3).split("/"), j = a[0], o = '<svg viewBox="0 0 64 64" width="100%" height="100%" aria-hidden="true" stroke-linejoin="round" stroke-linecap="round">';
+    var garis = "#0f1b3d", biru = "#1f4fd8", hitam = "#26262b", kuning = "#ffd23f";
+    function kaos(warna, panjang, x, y, sk){
+      var t = 'transform="translate(' + (x || 0) + ' ' + (y || 0) + ') scale(' + (sk || 1) + ')"';
+      var d = panjang ? "M22 9 L14 12 L8 23 L4 50 L11.5 51.5 L16 31 L16 56 L48 56 L48 31 L52.5 51.5 L60 50 L56 23 L50 12 L42 9 Q32 17 22 9 Z"
+                      : "M22 9 L14 12 L4 21 L10.5 29.5 L16 26 L16 56 L48 56 L48 26 L53.5 29.5 L60 21 L50 12 L42 9 Q32 17 22 9 Z";
+      return '<g ' + t + '><path d="' + d + '" fill="' + warna + '" stroke="' + garis + '" stroke-width="2.4"/><path d="M22 9 Q32 17 42 9" fill="none" stroke="' + garis + '" stroke-width="2.4"/>' +
+        (panjang ? '<path d="M5 45 L11.6 46.3 M59 45 L52.4 46.3" stroke="' + kuning + '" stroke-width="2.6"/>' : '') + '</g>';
+    }
+    function cetak(x, y, w, h){ return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="2.5" fill="' + kuning + '" stroke="' + garis + '" stroke-width="2"/><path d="M' + (x + w * .22) + ' ' + (y + h * .3) + ' L' + (x + w * .36) + ' ' + (y + h * .72) + ' L' + (x + w / 2) + ' ' + (y + h * .42) + ' L' + (x + w * .64) + ' ' + (y + h * .72) + ' L' + (x + w * .78) + ' ' + (y + h * .3) + '" fill="none" stroke="' + garis + '" stroke-width="2.2"/>'; }
+    if (j === "kaos") {
+      var w = a[1] === "24s" ? hitam : biru;
+      o += kaos(w, a[2] === "panjang");
+      if (a[3] === "sablon") o += cetak(24, 22, 16, 13);
+      var lb = a[4] || a[1] || "";
+      o += '<text x="32" y="52" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="900" font-size="' + (lb.length > 3 ? 10 : 12) + '" fill="#fff">' + lb + '</text>';
+    } else if (j === "upgrade") {
+      o += kaos("#fff", false) + cetak(21, 20, 22, 18) + '<circle cx="50" cy="48" r="10" fill="' + biru + '" stroke="' + garis + '" stroke-width="2.2"/><path d="M50 43 V53 M45 48 H55" stroke="#fff" stroke-width="3"/>';
+    } else if (j === "dtf") {
+      o += '<rect x="8" y="10" width="40" height="46" rx="3" fill="#fff" stroke="' + garis + '" stroke-width="2.4"/><path d="M48 14 Q58 14 58 22 V56 Q58 50 48 50" fill="#dfe7fb" stroke="' + garis + '" stroke-width="2.4"/>' + cetak(14, 17, 28, 22) +
+        '<text x="28" y="51" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="10" fill="' + biru + '">DTF</text>';
+    } else if (j === "promo") {
+      o += '<path d="M6 30 L30 6 H56 V32 L32 56 Z" fill="' + kuning + '" stroke="' + garis + '" stroke-width="2.4"/><circle cx="47" cy="15" r="3.6" fill="#fff" stroke="' + garis + '" stroke-width="2"/>' +
+        '<text x="32" y="35" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="900" font-size="19" fill="' + garis + '">3</text><text x="32" y="44.5" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="7.5" fill="' + garis + '">100rb</text>';
+    } else if (j === "kelas") {
+      o += kaos(biru, false, 0, 4, 1) + cetak(26, 30, 12, 10) + '<path d="M32 2 L54 10 L32 18 L10 10 Z" fill="' + hitam + '" stroke="' + garis + '" stroke-width="2"/><path d="M50 11.5 V20" stroke="' + kuning + '" stroke-width="2.6"/><circle cx="50" cy="21" r="2.4" fill="' + kuning + '"/>';
+    } else if (j === "komunitas") {
+      o += kaos(kuning, false, 18, 2, .72) + kaos(biru, false, 0, 14, .72) + cetak(14, 32, 10, 8);
+    } else o += '<rect x="10" y="10" width="44" height="44" rx="8" fill="#dfe7fb" stroke="' + garis + '" stroke-width="2.4"/>';
+    return o + '</svg>';
+  }
+  function isiIkon(el, em){ if (/^ik:/.test(em || "")) { el.innerHTML = ikonSvg(em); el.classList.add("ik"); } else { el.textContent = em || "📦"; el.classList.remove("ik"); } }
+  var S;
+  var dsMan = { v:0, persen:false }, bayarNama = "", bank = "";
+  function muat(){
+    try { S = JSON.parse(localStorage.getItem(KUNCI)) || null; } catch(e){ S = null; }
+    if (!S) S = { baru:true, nama:"", alamat:"", rek:"", qris:"", kas:true, no:0 };
+    // Toko baru yang lebih dulu mengisi menu Pengaturan belum punya daftar barang: pakai contoh awal.
+    if (!Array.isArray(S.produk)) { S.baru = true; S.produk = [
+      { id:1, nama:"Es teh", harga:5000, em:"🧋" }, { id:2, nama:"Kopi", harga:6000, em:"☕" },
+      { id:3, nama:"Nasi goreng", harga:15000, em:"🍚" }, { id:4, nama:"Mie ayam", harga:13000, em:"🍜" }
+    ]; }
+  }
+  function batasStok(p){ return p.min != null ? p.min : (S.stokMin != null ? S.stokMin : 5); }
+  function simpan(){ delete S.baru; try { localStorage.setItem(KUNCI, JSON.stringify(S)); return true; } catch(e){ pesan("Gagal menyimpan: memori browser penuh"); return false; } }
+  muat();
+  // Isian toko Willo sendiri (Huda 15 Nov 2026): buka /alat/kasir/?contoh=willo sekali di HP Willo.
+  if (/[?&]contoh=willo/.test(location.search) && !(window.LumbungOwner && LumbungOwner.terkunci()) && confirm("Isi kasir dengan produk Willo Apparel? Produk yang ada sekarang diganti.")) {
+    S.nama = "Willo Apparel"; S.hp = "0858-1690-0722"; if (/^WA /.test(S.alamat || "")) S.alamat = "";
+    // Harga per ukuran (Huda 15 Nov 2026), seperti kasir lama: tiap kategori berisi S-XL sampai 8XL.
+    // Tambahan ukuran: XXL +5rb, 3XL +10rb, 4XL +25rb, 5XL +40rb, 6XL +60rb, 7XL +85rb, 8XL +105rb. Lengan panjang +10rb.
+    // Kategori sablon sudah termasuk sablon DTF A6 depan; sablon lebih besar pakai kategori "Upgrade Sablon".
+    var UKURAN = [["S-XL",0],["XXL",5000],["3XL",10000],["4XL",25000],["5XL",40000],["6XL",60000],["7XL",85000],["8XL",105000]];
+    var JENIS = [
+      ["Polos 30s Pendek","30s",45000,"ik:kaos/30s/pendek/polos",200],["Polos 30s Panjang","30s Panjang",55000,"ik:kaos/30s/panjang/polos",210],
+      ["Polos 24s Pendek","24s",55000,"ik:kaos/24s/pendek/polos",220],["Polos 24s Panjang","24s Panjang",65000,"ik:kaos/24s/panjang/polos",230],
+      ["Sablon 30s Pendek","30s Sablon",55000,"ik:kaos/30s/pendek/sablon",300],["Sablon 30s Panjang","30s Pjg Sablon",65000,"ik:kaos/30s/panjang/sablon",310],
+      ["Sablon 24s Pendek","24s Sablon",65000,"ik:kaos/24s/pendek/sablon",320],["Sablon 24s Panjang","24s Pjg Sablon",75000,"ik:kaos/24s/panjang/sablon",330]
+    ];
+    S.produk = [
+      { id:101, nama:"Kaos kelas", harga:65000, em:"ik:kelas", kat:"Paket", grosir:true },
+      { id:102, nama:"Kaos komunitas", harga:70000, em:"ik:komunitas", kat:"Paket", grosir:true }
+    ];
+    // Promo kaos polos 35rb, tiap kelipatan 3 pcs = 100rb (Huda 15 Nov 2026).
+    S.produk.push({ id:199, nama:"30s PROMO S-XL", harga:35000, em:"ik:promo", kat:"Promo 3 = 100rb", paket:[3,100000] });
+    JENIS.forEach(function(j){ UKURAN.forEach(function(u, i){
+      S.produk.push({ id:j[4] + i + 1, nama:j[1] + " " + u[0], harga:j[2] + u[1], em:j[3] + "/" + u[0], kat:j[0], grosir:true });
+    }); });
+    [["A5 depan",5000],["A4 depan",15000],["+ A4 belakang",20000],["A5 dpn + A4 blk",25000],["A3 belakang",25000],
+     ["A6 dpn + A3 blk",30000],["A4 dpn + A4 blk",30000],["A3+ belakang",30000],["A4 dpn + A3 blk",35000],["A2 belakang",35000],["A3 dpn + A3 blk",45000]
+    ].forEach(function(x, i){ S.produk.push({ id:401 + i, nama:"Upgrade " + x[0], harga:x[1], em:"ik:upgrade", kat:"Upgrade Sablon" }); });
+    [["A6",10000],["A5",15000],["A4",25000],["A3",35000],["A3+",40000],["A2",45000]].forEach(function(x, i){
+      S.produk.push({ id:501 + i, nama:"DTF " + x[0], harga:x[1], em:"ik:dtf", kat:"Sablon DTF saja" });
+    });
+    // Diskon grosir per pcs untuk produk kaos (Huda 15 Nov 2026): [minimal pcs, potongan per pcs].
+    S.grosir = [[12,2000],[100,2500],[300,3000],[400,4000],[500,5000]];
+    simpan(); history.replaceState(null, "", location.pathname);
+  }
+  // Contoh barang per jenis usaha (harga perkiraan, tinggal diubah pemilik toko).
+  var JENIS = [
+    ["🍚","Warung makan",[["Nasi pecel",10000,"🍚"],["Nasi goreng",15000,"🍚"],["Mie ayam",13000,"🍜"],["Soto ayam",12000,"🍜"],["Ayam goreng",10000,"🍗"],["Gorengan",1000,"🍢"],["Es teh",4000,"🧋"],["Es jeruk",5000,"🍹"],["Kerupuk",1000,"🍘"]]],
+    ["☕","Kopi & minuman",[["Kopi hitam",5000,"☕"],["Kopi susu",8000,"☕"],["Es kopi susu gula aren",15000,"🧋"],["Teh tarik",8000,"🧋"],["Coklat",12000,"🥤"],["Matcha",15000,"🥤"],["Roti bakar",12000,"🍞"],["Pisang goreng",10000,"🍌"]]],
+    ["🛒","Toko sembako",[["Beras 1 kg",14000,"🍚"],["Minyak goreng 1 L",17000,"🛢️"],["Gula 1 kg",17000,"🧂"],["Telur 1 kg",28000,"🥚"],["Mie instan",3500,"🍜"],["Sabun mandi",4000,"🧼"],["Air mineral",3000,"🥤"],["Kopi sachet",1500,"☕"]]],
+    ["📱","Konter pulsa",[["Pulsa 10rb",12000,"📱"],["Pulsa 25rb",27000,"📱"],["Pulsa 50rb",51000,"📱"],["Paket data 10 GB",35000,"📶"],["Token listrik 50rb",52000,"⚡"],["Kartu perdana",10000,"💳"],["Kabel data",25000,"🔌"],["Charger",45000,"🔋"]]],
+    ["👕","Laundry",[["Cuci kering /kg",5000,"👕"],["Cuci setrika /kg",7000,"👕"],["Setrika saja /kg",4000,"👕"],["Express /kg",10000,"⚡"],["Bed cover",25000,"🛏️"],["Selimut",15000,"🛏️"],["Sepatu",25000,"👟"]]],
+    ["💈","Salon & barber",[["Potong rambut",20000,"✂️"],["Potong + cuci",30000,"💈"],["Cukur jenggot",10000,"💈"],["Creambath",50000,"🧴"],["Semir rambut",60000,"🧴"],["Pomade",35000,"🧴"]]],
+    ["🛵","Bengkel motor",[["Ganti oli",50000,"🛢️"],["Servis ringan",60000,"🔧"],["Tambal ban",10000,"🛞"],["Ban dalam",35000,"🛞"],["Kampas rem",45000,"🔧"],["Busi",20000,"🔧"],["Cuci motor",15000,"🧼"]]],
+    ["🎽","Sablon & konveksi",[["Kaos polos",45000,"👕"],["Sablon A4",25000,"🖨️"],["Sablon A3",35000,"🖨️"],["Kaos + sablon A4",70000,"👕"],["Hoodie",150000,"🧥"],["Topi bordir",45000,"🧢"],["+ Ukuran XXL",5000,"➕"]]],
+    ["🍰","Kue & jajanan",[["Kue basah",2500,"🍰"],["Donat",4000,"🍩"],["Brownies",35000,"🍫"],["Risoles",3000,"🥟"],["Kue kering",50000,"🍪"],["Tumpeng mini",35000,"🍚"]]]
+  ];
+  function pilihJenis(j){
+    S.produk = j[2].map(function(x, i){ return { id:Date.now() + i, nama:x[0], harga:x[1], em:x[2] }; });
+    simpan(); keranjang = []; gambar(); pesan("Contoh barang " + j[1] + " dipasang. Tekan lama untuk ubah harga.");
+  }
+  function bukaJenis(){
+    var c = $("djDaftar"); c.innerHTML = "";
+    JENIS.forEach(function(j){
+      var b = document.createElement("button"); b.type = "button"; b.innerHTML = "<span></span>"; b.querySelector("span").textContent = j[0]; b.appendChild(document.createTextNode(j[1]));
+      b.onclick = function(){
+        if (!S.baru && S.produk.length && !confirm("Ganti semua barang sekarang dengan contoh " + j[1] + "?")) return;
+        $("dJenis").close(); pilihJenis(j);
+      };
+      c.appendChild(b);
+    });
+    $("dJenis").showModal();
+  }
+  var keranjang = []; // {id, nama, harga, q}
+  var rp = function(n){ return "Rp" + Math.round(n).toLocaleString("id-ID"); };
+  var angka = function(s){ return parseInt(String(s).replace(/\D/g, ""), 10) || 0; };
+  var pad = function(n){ return String(n).padStart(2, "0"); };
+  var tglIni = function(){ var d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); };
+  function pesan(t){ var p = $("pesan"), dl = document.querySelector("dialog[open]"); (dl || document.body).appendChild(p); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, t.length > 60 ? 6000 : 2200); }
+  function formatInput(el, cb){ el.addEventListener("input", function(){ var n = angka(el.value); el.value = n ? n.toLocaleString("id-ID") : ""; if (cb) cb(n); }); }
+  var subtotal = function(){ return keranjang.reduce(function(a,k){ return a + k.harga * k.q; }, 0); };
+  function bacaPaket(t){ var m = String(t || "").replace(/\./g, "").match(/(\d+)\s*[=:x×\/]\s*(?:rp)?\s*(\d+)/i); if (!m) return null; var a = +m[1], b = +m[2]; if (b > 0 && b < 1000) b *= 1000; return a > 1 && b > 0 ? [a, b] : null; }
+  // Diskon grosir: jumlah pcs produk bertanda grosir menentukan potongan per pcs.
+  function diskon(){
+    var g = S.grosir || [], n = keranjang.reduce(function(a,k){ return a + (k.g ? k.q : 0); }, 0), per = 0, lagi = null;
+    g.forEach(function(t){ if (n >= t[0]) per = t[1]; else if (!lagi) lagi = t; });
+    // Promo paket kelipatan (mis. 3 pcs = 100.000): hanya tiap kelipatan penuh, sisanya harga biasa.
+    var promo = 0, pn = 0;
+    keranjang.forEach(function(k){ if (k.pk && k.pk[0] > 1 && k.q >= k.pk[0]) { var x = Math.floor(k.q / k.pk[0]); pn += x; promo += x * Math.max(0, k.pk[0] * k.harga - k.pk[1]); } });
+    // Diskon manual dari layar bayar (Rp atau %), dihitung dari sisa setelah grosir & promo.
+    var dasar = Math.max(0, subtotal() - n * per - promo), man = dsMan.persen ? Math.round(dasar * Math.min(dsMan.v, 100) / 100) : Math.min(dsMan.v, dasar);
+    return { n:n, per:per, gr:n * per, lagi:lagi, promo:promo, pn:pn, man:man, jml:n * per + promo + man };
+  }
+  function resetBayar(){ dsMan = { v:0, persen:false }; bayarNama = ""; }
+  var total = function(){ return subtotal() - diskon().jml; };
+
+  function bacaKas(){ try { var k = JSON.parse(localStorage.getItem(KAS)) || {}; k.tx = k.tx || []; k.awal = k.awal || 0; return k; } catch(e){ return { tx:[], awal:0 }; } }
+
+  function gambarProduk(){
+    var c = $("produk"), q = $("cari").value.trim().toLowerCase(); c.innerHTML = "";
+    gambarKategori();
+    S.produk.filter(function(p){ return (!q || p.nama.toLowerCase().indexOf(q) >= 0 || (p.kode && p.kode.toLowerCase() === q)) && (q || !katPilih || (katPilih === "\u0000" ? !p.kat : p.kat === katPilih)); }).forEach(function(p){
+      var b = document.createElement("button"); b.type = "button";
+      b.innerHTML = '<span class="em"></span><span class="nm"></span><span class="hg angka"></span>';
+      isiIkon(b.querySelector(".em"), p.em); b.querySelector(".nm").textContent = p.nama; b.querySelector(".hg").textContent = rp(p.harga);
+      if (p.stok != null) {
+        var sk = document.createElement("span"); sk.className = "stk" + (p.stok <= batasStok(p) ? " tipis" : "");
+        sk.textContent = p.stok > 0 ? "stok " + p.stok : "stok habis"; b.appendChild(sk);
+        if (p.stok <= 0) b.classList.add("habis");
+      }
+      var k = keranjang.filter(function(x){ return x.id === p.id; })[0];
+      if (k) { var s = document.createElement("span"); s.className = "qty"; s.textContent = k.q; b.appendChild(s); }
+      b.onclick = function(){ tambah(p); };
+      // Tekan lama untuk ubah produk
+      var tm; b.addEventListener("pointerdown", function(){ if (window.LumbungOwner && LumbungOwner.terkunci()) return; tm = setTimeout(function(){ tm = "lama"; bukaProduk(p); }, 550); });
+      ["pointerup","pointerleave","pointercancel"].forEach(function(ev){ b.addEventListener(ev, function(){ if (tm !== "lama") clearTimeout(tm); }); });
+      b.addEventListener("click", function(e){ if (tm === "lama") { e.stopImmediatePropagation(); tm = null; } }, true);
+      b.oncontextmenu = function(e){ e.preventDefault(); };
+      c.appendChild(b);
+    });
+    var t = document.createElement("button"); t.type = "button"; t.className = "tambah"; t.setAttribute("data-owner", "");
+    t.innerHTML = '<span class="em">＋</span><span class="nm">Tambah produk</span><span class="hg">tekan lama produk untuk ubah</span>';
+    t.onclick = function(){ bukaProduk(null); };
+    c.appendChild(t);
+  }
+  // Laporan: tiap transaksi Kasir disimpan ringkas di willo_jual_v1 (maks 5.000 terakhir).
+  var JUAL = "willo_jual_v1";
+  function bacaJual(){ try { return JSON.parse(localStorage.getItem(JUAL)) || []; } catch(e){ return []; } }
+  function catatJual(j){
+    var a = bacaJual(); a.push(j); if (a.length > 5000) a = a.slice(a.length - 5000);
+    try { localStorage.setItem(JUAL, JSON.stringify(a)); } catch(e){ pesan("Memori penuh: laporan tidak tercatat"); }
+    if (window.LumbungSinkron) LumbungSinkron.antre(j);
+  }
+  var PERIODE = [["hari","Hari ini"],["kemarin","Kemarin"],["7","7 hari"],["bulan","Bulan ini"],["bulanlalu","Bulan lalu"],["tahun","Tahun ini"],["tahunlalu","Tahun lalu"]], lapP = "hari";
+  function rentang(k){
+    var d = new Date(); d.setHours(0,0,0,0); var a = d.getTime(), day = 864e5;
+    if (k === "hari") return [a, a + day];
+    if (k === "kemarin") return [a - day, a];
+    if (k === "7") return [a - 6 * day, a + day];
+    if (k === "tahun") return [new Date(d.getFullYear(), 0, 1).getTime(), a + day];
+    if (k === "tahunlalu") return [new Date(d.getFullYear() - 1, 0, 1).getTime(), new Date(d.getFullYear(), 0, 1).getTime()];
+    var b = new Date(d.getFullYear(), d.getMonth(), 1);
+    if (k === "bulan") return [b.getTime(), a + day];
+    return [new Date(d.getFullYear(), d.getMonth() - 1, 1).getTime(), b.getTime()];
+  }
+  function hitungLap(){
+    var r = rentang(lapP), semua = bacaJual().filter(function(j){ return j.w >= r[0] && j.w < r[1]; }), js = semua.filter(function(j){ return !j.batal; });
+    var o = { semua:semua, js:js, omzet:0, ds:0, untung:0, adaModal:0, tanpaModal:0, n:js.length, pcs:0, metode:{}, brg:{}, kat:{}, jam:{} };
+    js.forEach(function(j){
+      o.omzet += j.tot; o.ds += j.ds || 0;
+      o.metode[j.m] = (o.metode[j.m] || 0) + j.tot;
+      var h = new Date(j.w).getHours(); o.jam[h] = (o.jam[h] || 0) + 1;
+      j.isi.forEach(function(x){
+        o.pcs += x.q;
+        if (x.m) { o.untung += x.q * (x.h - x.m); o.adaModal += x.q; } else o.tanpaModal += x.q;
+        var b = o.brg[x.n] || (o.brg[x.n] = { q:0, rp:0 }); b.q += x.q; b.rp += x.q * x.h;
+        var kk = x.k || "Lainnya"; o.kat[kk] = (o.kat[kk] || 0) + x.q * x.h;
+      });
+    });
+    return o;
+  }
+  function judulP(){ return PERIODE.filter(function(p){ return p[0] === lapP; })[0][1]; }
+  function gambarLap(){
+    var c = $("lapPeriode"); c.innerHTML = "";
+    PERIODE.forEach(function(p){ var b = document.createElement("button"); b.type = "button"; b.textContent = p[1]; if (p[0] === lapP) b.className = "pilih"; b.onclick = function(){ lapP = p[0]; gambarLap(); }; c.appendChild(b); });
+    var o = hitungLap(), el = $("lapIsi"), h = "";
+    var esc = function(t){ return String(t).replace(/[&<>"]/g, function(m){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[m]; }); };
+    if (!o.n) { el.innerHTML = '<p class="redup" style="text-align:center;padding:20px 0">Belum ada penjualan pada periode ini.</p>'; if (o.semua.length) { el.insertAdjacentHTML("beforeend", '<h3 style="margin:0 0 4px;font-size:15px">🧾 Riwayat transaksi</h3>'); el.appendChild(gambarRiwayat(o)); } return; }
+    h += '<div class="lap-angka"><div><small>Omzet</small><b class="angka">' + rp(o.omzet) + '</b></div><div><small>Transaksi</small><b class="angka">' + o.n + '</b></div>' +
+         '<div><small>Rata-rata / transaksi</small><b class="angka">' + rp(Math.round(o.omzet / o.n)) + '</b></div><div><small>Barang terjual</small><b class="angka">' + o.pcs + ' pcs</b></div></div>';
+    if (o.ds) h += '<p class="kecil redup" style="margin:-4px 0 12px">Diskon grosir diberikan: ' + rp(o.ds) + '</p>';
+    if (o.adaModal) { var un = o.untung - (o.tanpaModal ? 0 : o.ds); h += '<div class="lap-angka" style="grid-template-columns:1fr"><div><small>Perkiraan untung' + (o.tanpaModal ? ' (dari ' + o.adaModal + ' pcs yang ada HPP-nya)' : ' setelah diskon') + '</small><b class="angka" style="color:var(--hijau)">' + rp(un) + '</b></div></div>'; }
+    else h += '<p class="kecil redup" style="margin:-4px 0 12px">Isi HPP barang di menu <a href="/alat/hpp/">Hitung HPP</a> supaya laporan menampilkan untung.</p>';
+    var brg = Object.keys(o.brg).map(function(k){ return [k, o.brg[k]]; }).sort(function(a,b){ return b[1].q - a[1].q || b[1].rp - a[1].rp; });
+    var maks = brg.length ? brg[0][1].q : 1;
+    h += '<h3 style="margin:0 0 4px;font-size:15px">🏆 Barang terlaris</h3><table class="lap-tabel"><tr><th>Barang</th><th>Qty</th><th>Rupiah</th></tr>';
+    brg.slice(0, 10).forEach(function(x, i){ h += '<tr><td>' + (i + 1) + '. ' + esc(x[0]) + '<div class="lap-bar" style="width:' + Math.max(4, Math.round(x[1].q / maks * 100)) + '%"></div></td><td class="angka">' + x[1].q + '</td><td class="angka">' + rp(x[1].rp) + '</td></tr>'; });
+    h += '</table>';
+    var kat = Object.keys(o.kat);
+    if (kat.length > 1) {
+      h += '<h3 style="margin:0 0 4px;font-size:15px">Per kategori</h3><table class="lap-tabel">';
+      kat.sort(function(a,b){ return o.kat[b] - o.kat[a]; }).forEach(function(k){ h += '<tr><td>' + esc(k) + '</td><td class="angka">' + rp(o.kat[k]) + '</td></tr>'; });
+      h += '</table>';
+    }
+    h += '<h3 style="margin:0 0 4px;font-size:15px">Per cara bayar</h3><table class="lap-tabel">';
+    Object.keys(o.metode).forEach(function(m){ h += '<tr><td>' + esc(m) + '</td><td class="angka">' + rp(o.metode[m]) + '</td></tr>'; });
+    h += '</table>';
+    var jr = Object.keys(o.jam).sort(function(a,b){ return o.jam[b] - o.jam[a]; })[0];
+    if (jr != null && o.n >= 3) h += '<p class="kecil redup" style="margin:0 0 12px">⏰ Jam paling ramai: ' + pad(jr) + '.00–' + pad(+jr + 1) + '.00 (' + o.jam[jr] + ' transaksi)</p>';
+    // Stok menipis
+    var tipis = S.produk.filter(function(p){ return p.stok != null && p.stok <= batasStok(p); });
+    if (tipis.length) { h += '<h3 style="margin:0 0 4px;font-size:15px">⚠️ Stok menipis</h3><table class="lap-tabel">'; tipis.sort(function(a,b){ return a.stok - b.stok; }).forEach(function(p){ h += '<tr><td>' + esc(p.nama) + '</td><td class="angka" style="color:var(--merah)">' + p.stok + '</td></tr>'; }); h += '</table>'; }
+    h += '<h3 style="margin:0 0 4px;font-size:15px">🧾 Riwayat transaksi</h3><p class="kecil redup" style="margin:0 0 4px">Salah input atau barang dikembalikan? Ketuk Batalkan.</p>';
+    el.innerHTML = h;
+    el.appendChild(gambarRiwayat(o));
+  }
+  // Stok: hanya barang yang punya angka stok. arah -1 = terjual, +1 = dibatalkan.
+  function ubahStok(isi, arah){
+    var tipis = [];
+    isi.forEach(function(x){
+      var pr = S.produk.filter(function(p){ return x.id != null ? p.id === x.id : p.nama === x.n; })[0];
+      if (pr && pr.stok != null) { pr.stok += arah * (x.q || 0); if (arah < 0 && pr.stok <= batasStok(pr)) tipis.push(pr.nama + " (" + pr.stok + ")"); }
+    });
+    simpan();
+    if (tipis.length) setTimeout(function(){ pesan("⚠️ Stok menipis: " + tipis.join(", ")); }, 1200);
+  }
+  function gambarRiwayat(o){
+    var ul = document.createElement("ul"); ul.className = "riwayat"; ul.style.cssText = "list-style:none;margin:0 0 12px;padding:0";
+    o.semua.slice().reverse().slice(0, 50).forEach(function(j){
+      var li = document.createElement("li"); if (j.batal) li.className = "batal";
+      var d = new Date(j.w);
+      li.innerHTML = '<span class="ket"><b></b><small></small></span><span class="angka"></span>';
+      li.querySelector("b").textContent = j.no + " · " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + " · " + j.m + (j.pel ? " · " + j.pel : "") + (j.sisa ? " · sisa " + rp(j.sisa) : "") + (j.batal ? " · DIBATALKAN" : "");
+      li.querySelector("small").textContent = j.isi.map(function(x){ return x.q + " " + x.n; }).join(", ");
+      li.querySelector(".angka").textContent = rp(j.tot);
+      // Penjualan dari kasir lama (menu Pindah dari kasir lama) tidak tercatat di Buku Kas & stok: tidak bisa dibatalkan di sini.
+      if (!j.batal && j.sisa) {
+        var bl = document.createElement("button"); bl.className = "btn kecil"; bl.textContent = "Lunasi";
+        bl.onclick = function(){ lunasi(j.no, j.w); };
+        li.appendChild(bl);
+      }
+      if (!j.batal && !j.lama) {
+        var bt = document.createElement("button"); bt.className = "btn dua kecil"; bt.textContent = "Batalkan";
+        bt.onclick = function(){ batalkan(j.no, j.w); };
+        li.appendChild(bt);
+      }
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+  // Pelunasan sisa DP: masuk Buku Kas sebagai penjualan baru, transaksi ditandai lunas.
+  function lunasi(no, w){
+    var a = bacaJual(), j = a.filter(function(x){ return x.no === no && x.w === w; })[0];
+    if (!j || !j.sisa || !confirm("Pelunasan " + no + (j.pel ? " (" + j.pel + ")" : "") + " sebesar " + rp(j.sisa) + " sudah diterima?")) return;
+    var sisa = j.sisa; j.sisa = 0; j.lunas = Date.now();
+    try { localStorage.setItem(JUAL, JSON.stringify(a)); } catch(e){}
+    if (window.LumbungSinkron) LumbungSinkron.antre(j);
+    if (S.kas !== false) { var k = bacaKas(); k.tx.push({ id:Date.now(), ref:j.kid, t:"masuk", jml:sisa, kat:"Penjualan", ket:("Pelunasan Kasir #" + no + (j.pel ? " " + j.pel : "")).slice(0, 80), tgl:tglIni(), metode:j.m, sumber:"kasir" }); try { localStorage.setItem(KAS, JSON.stringify(k)); } catch(e){} }
+    pesan("Pelunasan " + no + " " + rp(sisa) + " dicatat"); gambarLap(); gambarHariIni();
+  }
+  function batalkan(no, w){
+    var a = bacaJual(), j = a.filter(function(x){ return x.no === no && x.w === w; })[0];
+    if (!j || j.batal || !confirm("Batalkan transaksi " + no + " (" + rp(j.tot) + ")?\nStok dikembalikan dan penjualan dihapus dari Buku Kas.")) return;
+    j.batal = Date.now();
+    try { localStorage.setItem(JUAL, JSON.stringify(a)); } catch(e){}
+    if (window.LumbungSinkron) LumbungSinkron.antre(j);
+    ubahStok(j.isi, 1);
+    var k = bacaKas(), sebelum = k.tx.length;
+    if (j.kid) k.tx = k.tx.filter(function(t){ return !((t.id === j.kid || t.ref === j.kid) && t.sumber === "kasir"); });
+    if (k.tx.length === sebelum) k.tx.push({ id:Date.now(), t:"keluar", jml:j.tot, kat:"Lainnya", ket:("Refund Kasir #" + no).slice(0, 80), tgl:tglIni(), metode:j.m, sumber:"kasir" });
+    try { localStorage.setItem(KAS, JSON.stringify(k)); } catch(e){}
+    pesan("Transaksi " + no + " dibatalkan"); gambarLap(); gambar();
+  }
+  $("bLaporan").onclick = function(){ gambarLap(); $("dLaporan").showModal(); };
+  $("lapTutup").onclick = function(){ $("dLaporan").close(); };
+  $("lapWa").onclick = function(){
+    var o = hitungLap(); if (!o.n) { pesan("Belum ada penjualan pada periode ini"); return; }
+    var brg = Object.keys(o.brg).sort(function(a,b){ return o.brg[b].q - o.brg[a].q; }).slice(0, 5);
+    var t = "*Laporan " + (S.nama || "toko") + "* (" + judulP() + ")\nOmzet: " + rp(o.omzet) + "\nTransaksi: " + o.n + "\nBarang terjual: " + o.pcs + " pcs\n";
+    Object.keys(o.metode).forEach(function(m){ t += m + ": " + rp(o.metode[m]) + "\n"; });
+    t += "\nTerlaris:\n" + brg.map(function(k, i){ return (i + 1) + ". " + k + " (" + o.brg[k].q + ")"; }).join("\n");
+    window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank", "noopener");
+  };
+  // Saran AI gratis (Huda 15 Nov 2026): hanya angka ringkas laporan yang dikirim (tanpa nama pelanggan),
+  // diolah di server willoapparel.com (Gemini/Groq, kunci tersimpan di server). Lihat apiAI() di worker.js.
+  $("lapAi").onclick = function(){
+    var o = hitungLap(), box = $("lapAiIsi"), b = $("lapAi"); if (!o.n) { pesan("Belum ada penjualan pada periode ini"); return; }
+    var top = function(obj, f, n){ return Object.keys(obj).sort(function(a,c){ return f(obj[c]) - f(obj[a]); }).slice(0, n); };
+    var d = { toko: S.nama || "", periode: judulP(), omzet: o.omzet, transaksi: o.n, barang_terjual: o.pcs, diskon: o.ds,
+      perkiraan_untung: o.adaModal ? o.untung : null,
+      terlaris: top(o.brg, function(x){ return x.q; }, 8).map(function(k){ return { barang: k, qty: o.brg[k].q, rp: o.brg[k].rp }; }),
+      paling_sepi: top(o.brg, function(x){ return -x.q; }, 3).map(function(k){ return { barang: k, qty: o.brg[k].q }; }),
+      cara_bayar: o.metode, transaksi_per_jam: o.jam,
+      stok_menipis: S.produk.filter(function(p){ return p.stok != null && p.stok <= batasStok(p); }).slice(0, 8).map(function(p){ return p.nama + " (" + p.stok + ")"; }) };
+    b.disabled = true; b.textContent = "✨ Berpikir…"; box.classList.remove("tersembunyi"); box.textContent = "Sedang membaca laporanmu…";
+    fetch("https://willoapparel.com/alat/api/ai/saran", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(d) })
+      .then(function(r){ return r.json(); })
+      .then(function(j){ box.textContent = j.saran ? "✨ Saran untuk tokomu:\n" + j.saran : (j.galat || "Saran belum bisa dibuat."); })
+      .catch(function(){ box.textContent = "Butuh internet untuk Saran AI. Coba lagi saat sinyal ada ya."; })
+      .then(function(){ b.disabled = false; b.textContent = "✨ Saran AI"; });
+  };
+  $("lapCsv").onclick = function(){
+    var o = hitungLap(); if (!o.n) { pesan("Belum ada penjualan pada periode ini"); return; }
+    var q = function(v){ return '"' + String(v).replace(/"/g, '""') + '"'; }, rows = ["Faktur;Waktu;Cara bayar;Barang;Kategori;Qty;Harga;Jumlah"];
+    o.js.forEach(function(j){ var d = new Date(j.w), w = d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+      j.isi.forEach(function(x){ rows.push([j.no, w, j.m, q(x.n), q(x.k || ""), x.q, x.h, x.q * x.h].join(";")); }); });
+    unduh("laporan-penjualan.csv", "\uFEFF" + rows.join("\r\n"), "text/csv;charset=utf-8");
+  };
+
+  // Kategori: tombol di atas daftar barang (tampil bila ada barang berkategori).
+  var katPilih = "";
+  function daftarKat(){ var a = []; S.produk.forEach(function(p){ if (p.kat && a.indexOf(p.kat) < 0) a.push(p.kat); }); return a; }
+  function gambarKategori(){
+    var ks = daftarKat(), c = $("kategori"); c.innerHTML = "";
+    if (katPilih && ks.indexOf(katPilih) < 0) katPilih = "";
+    c.classList.toggle("tersembunyi", !ks.length); c.parentNode.classList.toggle("ada-kat", !!ks.length);
+    ["", ].concat(ks).concat(S.produk.some(function(p){ return !p.kat; }) && ks.length ? ["\u0000"] : []).forEach(function(k){
+      var b = document.createElement("button"); b.type = "button";
+      var nilai = k === "\u0000" ? "" : k;
+      b.textContent = k === "" ? "Semua" : (k === "\u0000" ? "Lainnya" : k);
+      var aktif = k === "" ? katPilih === "" : (k === "\u0000" ? katPilih === "\u0000" : katPilih === k);
+      if (aktif) b.className = "pilih";
+      b.onclick = function(){ katPilih = k; gambarProduk(); };
+      c.appendChild(b);
+    });
+    $("dlKat").innerHTML = ""; ks.forEach(function(k){ var o = document.createElement("option"); o.value = k; $("dlKat").appendChild(o); });
+  }
+  function tambah(p){
+    var k = keranjang.filter(function(x){ return x.id === p.id; })[0];
+    if (p.stok != null && (k ? k.q : 0) >= p.stok) pesan("Stok " + p.nama + " tinggal " + Math.max(0, p.stok) + ". Tetap ditambahkan.");
+    if (k) k.q++; else keranjang.push({ id:p.id, nama:p.nama, harga:p.harga, q:1, g:!!p.grosir, pk:p.paket || null });
+    if (navigator.vibrate) navigator.vibrate(15);
+    gambar();
+  }
+  function gambarKeranjang(){
+    var ul = $("keranjang"); ul.innerHTML = "";
+    if (!keranjang.length) { ul.innerHTML = '<li class="redup kecil" style="border:0">Belum ada. Ketuk produk untuk menambah.</li>'; }
+    keranjang.forEach(function(k, i){
+      var li = document.createElement("li");
+      li.innerHTML = '<span class="nm"><span></span><small class="angka"></small></span><button class="qb">−</button><input class="q angka" inputmode="numeric" enterkeyhint="done" aria-label="Jumlah"><button class="qb">＋</button><span class="st angka"></span>';
+      li.querySelector(".nm span").textContent = k.nama; li.querySelector(".nm small").textContent = rp(k.harga);
+      var iq = li.querySelector(".q"); iq.value = k.q; li.querySelector(".st").textContent = rp(k.harga * k.q);
+      // Jumlah bisa diketik langsung (Huda 16 Nov 2026), mis. pesanan 120 pcs.
+      iq.onfocus = function(){ iq.select(); };
+      iq.onkeydown = function(e){ if (e.key === "Enter") iq.blur(); };
+      iq.onchange = function(){ var n = angka(iq.value); if (n <= 0) { if (confirm("Hapus " + k.nama + " dari pesanan?")) keranjang.splice(keranjang.indexOf(k), 1); } else k.q = Math.min(n, 99999); gambar(); };
+      var bs = li.querySelectorAll(".qb");
+      bs[0].onclick = function(){ k.q--; if (k.q <= 0) keranjang.splice(i, 1); gambar(); };
+      bs[1].onclick = function(){ k.q++; gambar(); };
+      ul.appendChild(li);
+    });
+    var ds = diskon();
+    if (ds.promo) {
+      var lp = document.createElement("li"); lp.className = "diskon";
+      lp.innerHTML = '<span class="nm"><span></span><small></small></span><span class="st angka"></span>';
+      lp.querySelector(".nm span").textContent = "Promo paket"; lp.querySelector(".nm small").textContent = ds.pn + "× paket kelipatan";
+      lp.querySelector(".st").textContent = "−" + rp(ds.promo); ul.appendChild(lp);
+    }
+    if (ds.n && (ds.gr || ds.lagi)) {
+      var li = document.createElement("li"); li.className = "diskon";
+      li.innerHTML = '<span class="nm"><span></span><small></small></span><span class="st angka"></span>';
+      li.querySelector(".nm span").textContent = ds.gr ? "Diskon grosir " + ds.n + " pcs" : "Diskon grosir";
+      li.querySelector(".nm small").textContent = (ds.gr ? rp(ds.per) + "/pcs. " : "") + (ds.lagi ? "Tambah " + (ds.lagi[0] - ds.n) + " pcs lagi: hemat " + rp(ds.lagi[1]) + "/pcs" : "Diskon tertinggi");
+      li.querySelector(".st").textContent = ds.gr ? "−" + rp(ds.gr) : "";
+      ul.appendChild(li);
+    }
+    if (ds.man) {
+      var lm = document.createElement("li"); lm.className = "diskon";
+      lm.innerHTML = '<span class="nm"><span>Diskon</span><small></small></span><span class="st angka"></span>';
+      lm.querySelector("small").textContent = dsMan.persen ? dsMan.v + "%" : "potongan harga";
+      lm.querySelector(".st").textContent = "−" + rp(ds.man); ul.appendChild(lm);
+    }
+    var n = keranjang.reduce(function(a,k){ return a + k.q; }, 0);
+    $("bItem").textContent = n + " barang"; $("bTotal").textContent = rp(total());
+    $("bBayar").disabled = !n;
+  }
+  function gambarHariIni(){
+    var hi = bacaKas().tx.filter(function(t){ return t.sumber === "kasir" && t.tgl === tglIni(); });
+    $("hJml").textContent = rp(hi.reduce(function(a,t){ return a + t.jml; }, 0)); $("hN").textContent = hi.length;
+  }
+  function gambarAtur(){
+    $("pWillo").classList.toggle("tersembunyi", !/willo/i.test(S.nama || ""));
+  }
+  function gambar(){ gambarProduk(); gambarKeranjang(); gambarTahan(); gambarHariIni(); gambarAtur(); }
+
+  // Produk
+  var dpEdit = null, dpEm = "📦";
+  function bukaProduk(p){
+    dpEdit = p; dpEm = p ? (p.em || "📦") : "📦";
+    $("dpJudul").textContent = p ? "Ubah produk" : "Tambah produk";
+    $("dpNama").value = p ? p.nama : ""; $("dpHarga").value = p ? p.harga.toLocaleString("id-ID") : ""; $("dpKode").value = p ? (p.kode || "") : ""; $("dpPaket").value = p && p.paket ? p.paket[0] + "=" + p.paket[1] : ""; $("dpStok").value = p && p.stok != null ? p.stok : ""; $("dpKat").value = p ? (p.kat || "") : (katPilih && katPilih !== "\u0000" ? katPilih : "");
+    $("dpHapus").classList.toggle("tersembunyi", !p);
+    gambarEm(); $("dProduk").showModal();
+  }
+  function gambarEm(){
+    var c = $("dpEm"); c.innerHTML = "";
+    IKON_PILIH.concat(EMOJI).forEach(function(e){ var b = document.createElement("button"); b.type = "button"; isiIkon(b, e); if (e === dpEm) b.className = "pilih"; b.onclick = function(){ dpEm = e; gambarEm(); }; c.appendChild(b); });
+  }
+  formatInput($("dpHarga"));
+  $("dProduk").addEventListener("close", function(){
+    var v = $("dProduk").returnValue;
+    if (v === "hapus" && dpEdit && confirm("Hapus " + dpEdit.nama + "?")) { S.produk = S.produk.filter(function(x){ return x !== dpEdit; }); keranjang = keranjang.filter(function(k){ return k.id !== dpEdit.id; }); }
+    if (v === "ok") {
+      var nama = $("dpNama").value.trim(), harga = angka($("dpHarga").value);
+      if (!nama) return;
+      var kat = $("dpKat").value.trim(), kode = $("dpKode").value.trim();
+      var pb = dpEdit || { id:Date.now() };
+      pb.nama = nama; pb.harga = harga; pb.em = dpEm;
+      if (kat) pb.kat = kat; else delete pb.kat;
+      if (kode) pb.kode = kode; else delete pb.kode;
+      var pk = bacaPaket($("dpPaket").value); if (pk) pb.paket = pk; else delete pb.paket;
+      var stv = $("dpStok").value.replace(/[^\d-]/g, "");
+      if (stv !== "") pb.stok = parseInt(stv, 10) || 0; else delete pb.stok;
+      if (!dpEdit) S.produk.push(pb);
+    }
+    simpan(); gambar();
+  });
+  $("cari").addEventListener("input", gambarProduk);
+  // Alat scan barcode mengetik kode lalu menekan Enter: langsung masuk pesanan.
+  $("cari").addEventListener("keydown", function(e){
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    var q = this.value.trim().toLowerCase(); if (!q) return;
+    var pas = S.produk.filter(function(p){ return p.kode && p.kode.toLowerCase() === q; });
+    if (!pas.length) pas = S.produk.filter(function(p){ return p.nama.toLowerCase().indexOf(q) >= 0; });
+    if (pas.length === 1) { tambah(pas[0]); this.value = ""; gambarProduk(); }
+    else if (!pas.length) pesan("Kode " + this.value.trim() + " belum ada. Tambahkan di barang (tekan lama).");
+  });
+  $("bKosong").onclick = function(){ keranjang = []; resetBayar(); gambar(); };
+  // Tahan transaksi: simpan pesanan sementara, layani pembeli lain, lanjutkan nanti.
+  function gambarTahan(){
+    var c = $("dTahanan"), t = S.tahan || []; c.innerHTML = "";
+    c.classList.toggle("tersembunyi", !t.length);
+    t.forEach(function(h, i){
+      var n = h.isi.reduce(function(a,k){ return a + k.q * k.harga; }, 0);
+      var b = document.createElement("button"); b.type = "button";
+      b.textContent = "▶ " + h.nama + " · " + rp(n);
+      b.title = "Lanjutkan pesanan ini";
+      b.onclick = function(){
+        S.tahan.splice(i, 1);
+        if (keranjang.length) S.tahan.push({ nama:"Pesanan " + jam(), jam:Date.now(), isi:keranjang });
+        keranjang = h.isi; simpan(); gambar(); pesan("Pesanan " + h.nama + " dilanjutkan");
+      };
+      c.appendChild(b);
+    });
+  }
+  function jam(){ var d = new Date(); return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
+  $("bTahan").onclick = function(){
+    if (!keranjang.length) { pesan("Pesanan masih kosong"); return; }
+    var nama = (prompt("Nama/penanda pesanan (boleh kosong):", "") || "").trim().slice(0, 20) || ("Pesanan " + jam());
+    S.tahan = S.tahan || []; S.tahan.push({ nama:nama, jam:Date.now(), isi:keranjang });
+    keranjang = []; simpan(); gambar(); pesan("Pesanan " + nama + " ditahan");
+  };
+  $("bBebas").onclick = function(){ $("dbNama").value = ""; $("dbJml").value = ""; $("dBebas").showModal(); };
+  formatInput($("dbJml"));
+  $("dBebas").addEventListener("close", function(){
+    if ($("dBebas").returnValue !== "ok") return;
+    var j = angka($("dbJml").value); if (!j) return;
+    keranjang.push({ id:"b" + Date.now(), nama:$("dbNama").value.trim() || "Lain-lain", harga:j, q:1 }); gambar();
+  });
+
+  // Daftar barang: contoh per jenis usaha, impor & unduh CSV.
+  $("bJenis").onclick = bukaJenis;
+  $("djLewati").onclick = function(){ if (S.baru) { S.produk = []; simpan(); gambar(); } $("dJenis").close(); };
+  function unduh(nama, isi, tipe){
+    if (window.Lumbung) { Lumbung.unduh(nama, isi, tipe).catch(function(e){ pesan((e && e.message) || "Gagal menyimpan file"); }); return; }
+    var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([isi], { type:tipe })); a.download = nama;
+    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  $("bCsvBarang").onclick = function(){
+    var q = function(v){ return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
+    var baris = ["Nama;Harga;Ikon;Kategori;Kode;Stok;Grosir;Promo"].concat(S.produk.map(function(p){ return [q(p.nama), p.harga, p.em || "", q(p.kat || ""), q(p.kode || ""), p.stok != null ? p.stok : "", p.grosir ? "ya" : "", p.paket ? p.paket[0] + "=" + p.paket[1] : ""].join(";"); }));
+    unduh("daftar-barang.csv", "\uFEFF" + baris.join("\r\n"), "text/csv;charset=utf-8");
+  };
+  function bacaCsv(teks){
+    teks = teks.replace(/^\uFEFF/, "");
+    var baris = teks.split(/\r?\n/).filter(function(b){ return b.trim(); });
+    if (!baris.length) return [];
+    var pisah = (baris[0].match(/;/g) || []).length >= (baris[0].match(/,/g) || []).length ? ";" : (baris[0].indexOf("\t") >= 0 ? "\t" : ",");
+    if (baris[0].indexOf("\t") >= 0 && baris[0].indexOf(";") < 0) pisah = "\t";
+    var pecah = function(b){
+      var hasil = [], cur = "", kutip = false;
+      for (var i = 0; i < b.length; i++) {
+        var ch = b.charAt(i);
+        if (kutip) { if (ch === '"' && b.charAt(i+1) === '"') { cur += '"'; i++; } else if (ch === '"') kutip = false; else cur += ch; }
+        else if (ch === '"') kutip = true; else if (ch === pisah) { hasil.push(cur); cur = ""; } else cur += ch;
+      }
+      hasil.push(cur); return hasil.map(function(x){ return x.trim(); });
+    };
+    var kepala = pecah(baris[0]).map(function(x){ return x.toLowerCase(); });
+    var iN = kepala.findIndex(function(x){ return /nama|barang|produk|item/.test(x); }), iH = kepala.findIndex(function(x){ return /harga|price|jual/.test(x); }), iE = kepala.findIndex(function(x){ return /ikon|icon|emoji/.test(x); }), iK = kepala.findIndex(function(x){ return /kategori|category|jenis|grup|group/.test(x); }), iB = kepala.findIndex(function(x){ return /kode|barcode|sku|code/.test(x); }), iS = kepala.findIndex(function(x){ return /stok|stock|qty|jumlah/.test(x); }), iG = kepala.findIndex(function(x){ return /grosir/.test(x); }), iP = kepala.findIndex(function(x){ return /promo|paket/.test(x); });
+    var mulai = 1;
+    if (iN < 0 || iH < 0) { iN = 0; iH = 1; mulai = 0; }
+    var out = [];
+    baris.slice(mulai).forEach(function(b, i){
+      var k = pecah(b), nama = (k[iN] || "").slice(0, 30);
+      var hs = String(k[iH] || "").replace(/[Rr][Pp]\.?/g, "").replace(/,00$|\.00$/, ""), harga = parseInt(hs.replace(/\D/g, ""), 10) || 0;
+      if (nama && harga) { var o = { id:Date.now() + i, nama:nama, harga:harga, em:(iE >= 0 && k[iE]) ? (/^ik:/.test(k[iE]) ? k[iE].slice(0, 48) : k[iE].slice(0, 4)) : "📦" }; if (iK >= 0 && k[iK]) o.kat = k[iK].slice(0, 20); if (iB >= 0 && k[iB]) o.kode = k[iB].slice(0, 32); if (iS >= 0 && /\d/.test(k[iS] || "")) o.stok = parseInt(String(k[iS]).replace(/[^\d-]/g, ""), 10) || 0; if (iG >= 0 && /^(ya|y|1|true|v)$/i.test(k[iG] || "")) o.grosir = true; if (iP >= 0) { var pk = bacaPaket(k[iP]); if (pk) o.paket = pk; } out.push(o); }
+    });
+    return out;
+  }
+  $("fCsv").onchange = function(){
+    var f = this.files[0]; if (!f) return; this.value = "";
+    if (/\.xlsx?$/i.test(f.name)) { pesan("File Excel perlu disimpan sebagai CSV dulu: Simpan sebagai > CSV."); return; }
+    var r = new FileReader();
+    r.onload = function(){
+      var baru = bacaCsv(String(r.result));
+      if (!baru.length) { pesan("Tidak ada barang terbaca. Pastikan ada kolom Nama dan Harga."); return; }
+      var ganti = S.produk.length ? confirm(baru.length + " barang terbaca. Ganti semua barang lama?\n\nOK = ganti semua\nBatal = tambahkan ke daftar") : true;
+      S.produk = ganti ? baru : S.produk.concat(baru);
+      // Barang bertanda Grosir dari CSV toko Willo: pakai tingkat diskon grosir Willo bila belum ada.
+      if (!(S.grosir && S.grosir.length) && S.produk.some(function(p){ return p.grosir; }) && /willo/i.test(S.nama || "")) S.grosir = [[12,2000],[100,2500],[300,3000],[400,4000],[500,5000]];
+      simpan(); keranjang = []; gambar(); pesan(baru.length + " barang diimpor");
+    };
+    r.readAsText(f);
+  };
+
+  // Bayar
+  var metode = "Tunai";
+  function aturMetode(m){
+    metode = m;
+    Array.prototype.forEach.call($("metode").children, function(b){ b.classList.toggle("pilih", b.dataset.m === m); });
+    $("pTunai").classList.toggle("tersembunyi", m !== "Tunai");
+    $("pQris").classList.toggle("tersembunyi", m !== "QRIS");
+    $("pTransfer").classList.toggle("tersembunyi", m !== "Transfer");
+    if (m === "QRIS") {
+      $("pQris").innerHTML = S.qris ? '<img alt="QRIS toko"><p class="kecil redup">Minta pelanggan memindai, lalu cek notifikasi masuk di aplikasi bank/e-wallet sebelum menekan “Sudah dibayar”.</p>'
+        : '<div class="kosongq">Belum ada gambar QRIS. Tambahkan di menu <a href="/alat/pengaturan/"><b>Pengaturan toko</b></a>.</div>';
+      if (S.qris) $("pQris").querySelector("img").src = S.qris;
+    }
+    if (m === "Transfer") { $("byRek").textContent = S.rek || "Isi info rekening di Pengaturan toko."; gambarBank(); }
+    hitungKembali();
+  }
+  Array.prototype.forEach.call($("metode").children, function(b){ b.onclick = function(){ aturMetode(b.dataset.m); }; });
+  // Transfer: catat nama bank (Huda 16 Nov 2026). Tercatat sebagai "Transfer BCA" di struk & laporan.
+  var BANK = ["BCA", "BRI", "Mandiri", "BNI", "BSI", "DANA", "ShopeePay", "GoPay"];
+  function gambarBank(){
+    var c = $("byBank"); c.innerHTML = "";
+    BANK.forEach(function(nm){ var b = document.createElement("button"); b.type = "button"; b.textContent = nm; if (nm === bank) b.className = "pilih"; b.onclick = function(){ bank = bank === nm ? "" : nm; $("byBankNama").value = bank; gambarBank(); }; c.appendChild(b); });
+    $("byBankNama").value = bank;
+  }
+  $("byBankNama").oninput = function(){ bank = this.value.trim(); Array.prototype.forEach.call($("byBank").children, function(b){ b.classList.toggle("pilih", b.textContent === bank); }); };
+  function namaMetode(){ return metode === "Transfer" && bank ? ("Transfer " + bank).slice(0, 30) : metode; }
+  // Diskon manual & DP
+  function bayarSekarang(){ var t = total(), dp = $("byDpCek").checked ? angka($("byDp").value) : 0; return dp > 0 && dp < t ? dp : t; }
+  function segarBayar(){
+    var t = total(); $("byTotal").textContent = rp(t);
+    var dp = bayarSekarang(); $("bySisa").textContent = rp(t - dp);
+    tombolCepat(); hitungKembali(); gambarKeranjang();
+  }
+  formatInput($("byDiskon"), function(n){ dsMan.v = n; segarBayar(); });
+  Array.prototype.forEach.call($("byDsJenis").children, function(b){ b.onclick = function(){ dsMan.persen = b.dataset.j === "persen"; Array.prototype.forEach.call($("byDsJenis").children, function(x){ x.classList.toggle("pilih", x === b); }); segarBayar(); }; });
+  $("byDpCek").onchange = function(){ $("pDp").classList.toggle("tersembunyi", !this.checked); if (this.checked) $("byDp").focus(); segarBayar(); };
+  formatInput($("byDp"), segarBayar);
+  $("byNama").oninput = function(){ bayarNama = this.value.trim(); };
+  function hitungKembali(){
+    var t = bayarSekarang(), d = angka($("byTerima").value), k = $("byKembali");
+    if (metode !== "Tunai") { $("bySelesai").disabled = false; return; }
+    k.classList.toggle("kurang", d > 0 && d < t);
+    k.firstElementChild.textContent = d && d < t ? "Kurang" : "Kembalian";
+    k.lastElementChild.textContent = d ? rp(Math.abs(d - t)) : "-";
+    $("bySelesai").disabled = d > 0 && d < t;
+  }
+  formatInput($("byTerima"), hitungKembali);
+  function tombolCepat(){
+    var t = bayarSekarang(), c = $("cepat"); c.innerHTML = "";
+    var opsi = [t];
+    [2000, 5000, 10000, 20000, 50000, 100000].forEach(function(p){ var v = Math.ceil(t / p) * p; if (v > t && opsi.indexOf(v) < 0) opsi.push(v); });
+    opsi.sort(function(a,b){ return a - b; }).slice(0, 6).forEach(function(v, i){
+      var b = document.createElement("button"); b.type = "button"; b.textContent = i === 0 ? "Uang pas" : rp(v);
+      b.onclick = function(){ $("byTerima").value = v.toLocaleString("id-ID"); hitungKembali(); };
+      c.appendChild(b);
+    });
+  }
+  $("bBayar").onclick = function(){
+    $("byTerima").value = ""; $("byDp").value = ""; $("byDpCek").checked = false; $("pDp").classList.add("tersembunyi");
+    $("byNama").value = bayarNama; $("byDiskon").value = dsMan.v ? dsMan.v.toLocaleString("id-ID") : "";
+    Array.prototype.forEach.call($("byDsJenis").children, function(x){ x.classList.toggle("pilih", (x.dataset.j === "persen") === dsMan.persen); });
+    bank = ""; aturMetode("Tunai"); segarBayar(); $("dBayar").showModal();
+  };
+  $("byBatal").onclick = function(){ $("dBayar").close(); };
+
+  var strukTeks = "", noStruk = "";
+  function opsiCetak(){ return { gambar:S.logoBit, tebal:["Total:","Tunai:","Kembalian:","Sisa:"], barcode:noStruk }; }
+  // D (opsional): data nota tersimpan untuk cetak ulang dari Riwayat nota.
+  function buatStruk(no, terima, D){
+    D = D || { w:Date.now(), isi:keranjang, sub:subtotal(), ds:diskon().jml, t:total(), dp:bayarSekarang(), mt:namaMetode(), pel:bayarNama, tunai:metode === "Tunai" };
+    var L = 32, gar = "-".repeat(L), t = D.t, dp = D.dp, isi = D.isi, pel = D.pel;
+    var kanan = function(a, b){ var s = L - a.length - b.length; return a + " ".repeat(Math.max(1, s)) + b; };
+    var tengah = function(s){ var p = Math.max(0, Math.floor((L - s.length) / 2)); return " ".repeat(p) + s; };
+    var ki = function(s, n){ s = String(s); return s.length >= n ? s.slice(0, n) : s + " ".repeat(n - s.length); };
+    var ka = function(s, n){ s = String(s); return s.length >= n ? s : " ".repeat(n - s.length) + s; };
+    var ang = function(n){ return n.toLocaleString("id-ID"); };
+    var d = new Date(D.w), w = d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+    var b = [];
+    if (S.nama) b.push(tengah(S.nama.toUpperCase().slice(0, L)));
+    if (S.tagline) b.push(tengah(S.tagline.slice(0, L)));
+    if (S.alamat) { var al = S.alamat; while (al) { b.push(tengah(al.slice(0, L))); al = al.slice(L); } }
+    if (S.hp) b.push(tengah(("WA " + S.hp).slice(0, L)));
+    var ringkas = !!(window.CetakTermal && CetakTermal.atur().ringkas);
+    if (ringkas) {
+      // Struk ringkas: satu baris per barang, tanpa kolom harga satuan dan tanpa baris kosong.
+      b.push(gar, kanan(no, w));
+      if (pel) b.push(("Pelanggan: " + pel).slice(0, L));
+      var qr = 0;
+      isi.forEach(function(k){ qr += k.q; var r = " x" + k.q + " " + ka(ang(k.harga * k.q), 7), ru = L - r.length; if (k.nama.length <= ru) b.push(ki(k.nama, ru) + r); else b.push(k.nama.slice(0, L), ka(r.trim(), L)); });
+      b.push(gar);
+      if (D.ds) b.push(kanan(qr + " pcs  Subtotal:", rp(D.sub)), kanan("Diskon:", "-" + rp(D.ds)));
+      b.push(kanan("Total:", rp(t)));
+      if (dp < t) b.push(kanan("DP:", rp(dp)), D.lunas ? kanan("Pelunasan:", rp(t - dp)) : kanan("Sisa:", rp(t - dp)));
+    if (D.lunas) b.push(kanan("Status:", "LUNAS " + new Date(D.lunas).toLocaleDateString("id-ID")));
+      if (D.tunai && terima) b.push(kanan("Tunai:", rp(terima)), kanan("Kembalian:", rp(terima - dp)));
+      else b.push(kanan("Bayar:", D.mt));
+      var pr2 = S.pesan || "Terima kasih :)"; while (pr2) { b.push(tengah(pr2.slice(0, L))); pr2 = pr2.slice(L); }
+      if (S.taut !== false || !(window.LumbungSinkron && LumbungSinkron.pro())) b.push("willoapparel.com/alat (gratis)");
+      return b.join("\n");
+    }
+    b.push(gar, "Faktur: " + no, "Jam   : " + w);
+    if (pel) b.push(("Nama  : " + pel).slice(0, L));
+    b.push("");
+    // Kolom 32: Barang 11 | Qty 3 | Harga 8 | Jlh 10
+    b.push(ki("Barang", 11) + ka("Qty", 3) + ka("Harga", 8) + ka("Jlh", 10), gar);
+    var qty = 0;
+    isi.forEach(function(k){
+      qty += k.q;
+      var angka = ka(k.q, 3) + ka(ang(k.harga), 8) + ka(ang(k.harga * k.q), 10);
+      if (k.nama.length <= 10) b.push(ki(k.nama, 11) + angka);
+      else { var n = k.nama; while (n.length > L) { b.push(n.slice(0, L)); n = n.slice(L); } b.push(n); b.push(ki("", 11) + angka); }
+    });
+    b.push(gar);
+    var kiri = ["Barang: " + isi.length, "Qty   : " + qty], kn = [["Subtotal:", rp(D.sub)]];
+    if (D.ds) kn.push(["Diskon:", "-" + rp(D.ds)]);
+    for (var i = 0; i < Math.max(kiri.length, kn.length); i++) {
+      var r = kn[i] ? kn[i][0] + " " + ka(kn[i][1], 11) : "";
+      b.push(ki(kiri[i] || "", L - r.length) + r);
+    }
+    b.push(gar, kanan("Total:", rp(t)));
+    if (dp < t) b.push(kanan("DP:", rp(dp)), D.lunas ? kanan("Pelunasan:", rp(t - dp)) : kanan("Sisa:", rp(t - dp)));
+    if (D.lunas) b.push(kanan("Status:", "LUNAS " + new Date(D.lunas).toLocaleDateString("id-ID")));
+    if (D.tunai && terima) b.push(kanan("Tunai:", rp(terima)), kanan("Kembalian:", rp(terima - dp)));
+    else b.push(kanan("Bayar:", D.mt));
+    b.push(gar);
+    var ps = S.pesan || ""; while (ps) { b.push(tengah(ps.slice(0, L))); ps = ps.slice(L); }
+    b.push(tengah("Terima kasih :)"));
+    if (S.taut !== false || !(window.LumbungSinkron && LumbungSinkron.pro())) b.push("", tengah("Kasir gratis:"), tengah("willoapparel.com/alat"));
+    return b.join("\n");
+  }
+  $("bySelesai").onclick = function(){
+    var t = total(), terima = angka($("byTerima").value), dp = bayarSekarang(), mt = namaMetode();
+    S.no = (S.no || 0) + 1; simpan();
+    var no = "A-" + String(S.no).padStart(5, "0");
+    noStruk = no; strukTeks = buatStruk(no, terima);
+    var kid = Date.now();
+    ubahStok(keranjang, -1);
+    var jj = { kid:kid, no:no, w:Date.now(), m:mt, tot:t, ds:diskon().jml };
+    if (bayarNama) jj.pel = bayarNama;
+    if (metode === "Tunai" && terima) jj.tr = terima;
+    if (diskon().jml) jj.sub = subtotal();
+    if (dp < t) { jj.dp = dp; jj.sisa = t - dp; }
+    catatJual(Object.assign(jj, { isi:keranjang.map(function(k){ var pr = S.produk.filter(function(x){ return x.id === k.id; })[0]; var o = { id:k.id, n:k.nama, q:k.q, h:k.harga, k:(pr && pr.kat) || "" }; if (pr && pr.modal) o.m = pr.modal; return o; }) }));
+    if (S.kas !== false) {
+      var k = bacaKas();
+      var ket = keranjang.map(function(x){ return x.q + " " + x.nama; }).join(", ");
+      k.tx.push({ id:kid, t:"masuk", jml:dp, kat:"Penjualan", ket:((dp < t ? "DP " : "") + "Kasir #" + no + (bayarNama ? " " + bayarNama : "") + ": " + ket).slice(0, 80), tgl:tglIni(), metode:mt, sumber:"kasir" });
+      try { localStorage.setItem(KAS, JSON.stringify(k)); } catch(e){ pesan("Buku Kas penuh, penjualan tidak tercatat"); }
+    }
+    $("dBayar").close(); resetBayar(); dariRiwayat = false; $("stJudul").textContent = "✓ Pembayaran dicatat"; $("stBaru").textContent = "Transaksi baru";
+    $("strukTeks").textContent = strukTeks; $("stWa").value = "";
+    $("strukLogo").classList.toggle("tersembunyi", !S.logo); if (S.logo) $("strukLogo").src = S.logo;
+    $("dStruk").showModal();
+    gambarHariIni();
+  };
+  $("stWaBtn").onclick = function(){
+    var hp = $("stWa").value.replace(/\D/g, ""); if (hp.charAt(0) === "0") hp = "62" + hp.slice(1);
+    window.open("https://wa.me/" + hp + "?text=" + encodeURIComponent("```\n" + strukTeks + "\n```"), "_blank", "noopener");
+  };
+  $("stCetak").onclick = function(e){ e.preventDefault(); $("cetakStruk").textContent = strukTeks; (window.Lumbung ? Lumbung.cetakHalaman("Struk") : window.print()); };
+  // Kembali dari menu Pengaturan/Stok: muat ulang data supaya perubahan di sana tidak tertimpa.
+  window.addEventListener("pageshow", function(e){ if (e.persisted) { muat(); gambar(); } });
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden && !keranjang.length) { muat(); gambar(); } });
+  $("stRawbt").onclick = function(e){ e.preventDefault(); CetakTermal.rawbt(strukTeks, opsiCetak()); };
+  $("stBt").onclick = function(){
+    var b = this; b.disabled = true; b.textContent = "Mencetak…";
+    CetakTermal.cetak(strukTeks, opsiCetak()).then(function(r){ pesan(r === "rawbt" ? "Membuka aplikasi RawBT…" : "Struk dikirim ke " + (CetakTermal.nama() || "printer")); })
+      .catch(function(e){ var m = CetakTermal.pesanGagal(e); if (m) pesan(m); })
+      .then(function(){ b.disabled = false; b.textContent = "🖨️ Printer Bluetooth"; });
+  };
+  $("stBaru").onclick = function(){ if (dariRiwayat) { $("dStruk").close(); return; } keranjang = []; $("dStruk").close(); gambar(); window.scrollTo({ top:0, behavior:"smooth" }); };
+  $("dStruk").addEventListener("close", function(){ if (dariRiwayat) { dariRiwayat = false; return; } if (keranjang.length) { keranjang = []; gambar(); } });
+
+  // Riwayat nota: semua transaksi Kasir di HP ini (terbaru di atas), bisa dicari, dilihat, dicetak ulang.
+  var dariRiwayat = false, rwF = "semua", rwN = 40;
+  function strukDari(j){
+    var isi = (j.isi || []).map(function(x){ return { nama:x.n, harga:x.h, q:x.q }; });
+    var sub = j.sub || isi.reduce(function(a, x){ return a + x.harga * x.q; }, 0);
+    return buatStruk(j.no, j.tr || 0, { w:j.w, isi:isi, sub:sub, ds:j.ds || 0, t:j.tot, dp:j.dp || j.tot, mt:j.m, pel:j.pel || "", tunai:j.m === "Tunai", lunas:j.lunas || 0 });
+  }
+  function bukaNota(j){
+    noStruk = j.no; strukTeks = strukDari(j); dariRiwayat = true;
+    $("stJudul").textContent = "Nota " + j.no + (j.batal ? " (DIBATALKAN)" : ""); $("stBaru").textContent = "Tutup";
+    $("strukTeks").textContent = strukTeks; $("stWa").value = "";
+    $("strukLogo").classList.toggle("tersembunyi", !S.logo); if (S.logo) $("strukLogo").src = S.logo;
+    $("dStruk").showModal();
+  }
+  function gambarRw(){
+    var q = $("rwCari").value.trim().toLowerCase(), hari = new Date(); hari.setHours(0,0,0,0);
+    var a = bacaJual().slice().reverse().filter(function(j){
+      if (rwF === "hari" && j.w < hari.getTime()) return false;
+      if (rwF === "dp" && !(j.sisa > 0 && !j.batal)) return false;
+      return !q || (j.no + " " + (j.pel || "") + " " + j.m + " " + (j.isi || []).map(function(x){ return x.n; }).join(" ")).toLowerCase().indexOf(q) >= 0;
+    });
+    var ul = $("rwDaftar"); ul.innerHTML = "";
+    if (!a.length) ul.innerHTML = '<li class="redup" style="justify-content:center;border:0;padding:16px 0">Belum ada nota.</li>';
+    a.slice(0, rwN).forEach(function(j){
+      var li = document.createElement("li"), d = new Date(j.w); if (j.batal) li.className = "batal"; li.style.cursor = "pointer";
+      li.innerHTML = '<span class="ket"><b></b><small></small></span><span class="angka"></span>';
+      li.querySelector("b").textContent = j.no + " · " + d.toLocaleDateString("id-ID", { day:"numeric", month:"short", year:"2-digit" }) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + (j.pel ? " · " + j.pel : "") + (j.sisa ? " · sisa " + rp(j.sisa) : "");
+      li.querySelector("small").textContent = j.m + " · " + (j.isi || []).map(function(x){ return x.q + " " + x.n; }).join(", ");
+      li.querySelector(".angka").textContent = rp(j.tot);
+      li.onclick = function(){ bukaNota(j); };
+      ul.appendChild(li);
+    });
+    $("rwLagi").classList.toggle("tersembunyi", a.length <= rwN);
+  }
+  $("bRiwayat").onclick = function(){ rwN = 40; $("rwCari").value = ""; gambarRw(); $("dRiwayat").showModal(); };
+  $("rwTutup").onclick = function(){ $("dRiwayat").close(); };
+  $("rwCari").oninput = function(){ rwN = 40; gambarRw(); };
+  $("rwLagi").onclick = function(){ rwN += 40; gambarRw(); };
+  Array.prototype.forEach.call($("rwFilter").children, function(b){ b.onclick = function(){ rwF = b.dataset.f; Array.prototype.forEach.call($("rwFilter").children, function(x){ x.classList.toggle("pilih", x === b); }); rwN = 40; gambarRw(); }; });
+
+
+  window.addEventListener("storage", function(e){ if (e.key === KAS) gambarHariIni(); });
+  gambar();
+  if (S.baru && !(window.LumbungOwner && LumbungOwner.terkunci())) bukaJenis();
+})();
+</script>
+<script src="/alat/printer.js"></script>
+</body>
+</html>

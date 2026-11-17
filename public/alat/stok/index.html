@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="id" data-halaman-owner>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stok Barang | Lumbung by Willo Studio</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/logo-willo.png">
+<link rel="stylesheet" href="/alat/alat.css">
+<script src="/alat/ikon.js" defer></script>
+<script src="/alat/owner.js"></script>
+<style>
+.ringkas{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.ringkas div{background:var(--kartu);border:1px solid var(--garis);border-radius:12px;padding:10px 12px}
+.ringkas small{display:block;font-size:12.5px;color:var(--redup)}
+.ringkas b{font-size:20px}
+.ringkas .m b{color:#b26a00} .ringkas .h b{color:var(--merah)}
+@media(max-width:560px){.ringkas{grid-template-columns:1fr 1fr}}
+.kat{font-size:13px;font-weight:800;color:var(--redup);text-transform:uppercase;letter-spacing:.04em;margin:14px 0 4px}
+.brs{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f0ede6}
+.brs .nm{flex:1;min-width:0;cursor:pointer}
+.brs .nm b{display:block;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brs .nm small{color:var(--redup);font-size:12.5px}
+.jml{min-width:58px;text-align:center;font-weight:800;font-size:17px;border-radius:10px;padding:4px 6px;background:var(--biru-muda);color:var(--utama)}
+.jml.tipis{background:#fff1d6;color:#8a5200}
+.jml.habis{background:var(--merah-muda);color:var(--merah)}
+.jml.mati{background:#ebe8e0;color:var(--redup);font-size:13px;font-weight:600}
+.pm{width:40px;height:40px;border-radius:10px;border:1px solid var(--garis);background:#fff;font:inherit;font-size:20px;font-weight:800;cursor:pointer;flex:0 0 40px}
+.log{list-style:none;margin:0;padding:0;font-size:13.5px}
+.log li{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #f0ede6}
+.plus{color:var(--hijau);font-weight:700} .min{color:var(--merah);font-weight:700}
+.kosong{color:var(--redup);text-align:center;padding:18px 0}
+</style>
+</head>
+<body>
+<header class="atas"><div class="wrap"><a href="/alat/">← Alat Usaha Gratis</a><a class="redup" href="/alat/kasir/">Kasir</a></div></header>
+<main class="wrap">
+  <h1>📦 Stok barang</h1>
+  <p class="sub">Stok berkurang sendiri setiap barang terjual di Kasir, dan kembali bila transaksi dibatalkan. Catat barang masuk di sini.</p>
+  <div class="ringkas">
+    <div><small>Dihitung stoknya</small><b class="angka" id="rDihitung">0</b></div>
+    <div class="m"><small>Menipis</small><b class="angka" id="rTipis">0</b></div>
+    <div class="h"><small>Habis</small><b class="angka" id="rHabis">0</b></div>
+    <div><small id="rNilaiKet">Nilai stok</small><b class="angka" id="rNilai" style="font-size:16px">Rp0</b></div>
+  </div>
+  <section class="kartu">
+    <div class="tab" id="tab">
+      <button data-f="semua" class="pilih">Dihitung</button><button data-f="tipis">Menipis</button><button data-f="habis">Habis</button><button data-f="mati">Tidak dihitung</button>
+    </div>
+    <input type="text" id="cari" placeholder="🔍 Cari barang…" autocomplete="off">
+    <div id="daftar"></div>
+    <div class="baris" style="margin-top:12px"><button class="btn dua kecil" id="bCsv">⬇️ Unduh daftar stok (Excel)</button><a class="btn dua kecil" href="/alat/pengaturan/">⚙️ Batas stok menipis</a></div>
+  </section>
+  <section class="kartu">
+    <h2>Riwayat perubahan stok</h2>
+    <ul class="log" id="log"></ul>
+  </section>
+</main>
+<footer>Lumbung by Willo Studio · data tidak dikirim ke server</footer>
+<div class="pesan" id="pesan"></div>
+
+<dialog id="dBrg"><form method="dialog" class="isi-dialog">
+  <h2 id="dbNama" style="margin-bottom:2px"></h2>
+  <p class="kecil redup" id="dbKet" style="margin:0 0 12px"></p>
+  <div class="tab" id="dbMode"><button type="button" data-m="masuk" class="pilih">Barang masuk</button><button type="button" data-m="koreksi">Hitung ulang</button><button type="button" data-m="keluar">Rusak/hilang</button></div>
+  <label class="isi" id="dbLabel">Jumlah masuk<input type="text" inputmode="numeric" id="dbJml" class="angka" autocomplete="off" style="font-size:24px;text-align:center"></label>
+  <label class="isi">Catatan <small>Boleh kosong. Contoh: kiriman supplier, stok opname</small><input type="text" id="dbCat" maxlength="40"></label>
+  <label class="isi">Batas menipis khusus barang ini <small>Kosongkan untuk ikut batas toko</small><input type="text" inputmode="numeric" id="dbMin" class="angka" autocomplete="off"></label>
+  <div class="baris" style="margin-top:6px"><button type="button" class="btn dua" id="dbMati">Berhenti hitung stok</button></div>
+  <div class="baris" style="margin-top:10px"><button class="btn dua" value="batal" formnovalidate>Batal</button><button class="btn" value="ok" id="dbOk">Simpan</button></div>
+</form></dialog>
+
+<script src="/alat/printer.js"></script>
+<script>
+(function(){
+  "use strict";
+  var KUNCI = "willo_kasir_v1", LOG = "willo_stok_v1", $ = function(id){ return document.getElementById(id); };
+  var filter = "semua", pilih = null, mode = "masuk";
+  function pesan(t){ var p = $("pesan"), dl = document.querySelector("dialog[open]"); (dl || document.body).appendChild(p); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, 2600); }
+  function rp(n){ return "Rp" + Math.round(n || 0).toLocaleString("id-ID"); }
+  function esc(t){ return String(t).replace(/[&<>"]/g, function(m){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[m]; }); }
+  function baca(){ var s = null; try { s = JSON.parse(localStorage.getItem(KUNCI)); } catch(e){} return s && Array.isArray(s.produk) ? s : { produk:[] }; }
+  function tulis(s){ try { localStorage.setItem(KUNCI, JSON.stringify(s)); return true; } catch(e){ pesan("Gagal menyimpan: memori HP penuh"); return false; } }
+  function bacaLog(){ try { return JSON.parse(localStorage.getItem(LOG)) || []; } catch(e){ return []; } }
+  function catat(p, beda, ket){ var l = bacaLog(); l.unshift({ w:Date.now(), id:p.id, n:p.nama, d:beda, s:p.stok, k:ket || "" }); try { localStorage.setItem(LOG, JSON.stringify(l.slice(0, 400))); } catch(e){} }
+  function batas(S, p){ return p.min != null ? p.min : (S.stokMin != null ? S.stokMin : 5); }
+  function status(S, p){ if (p.stok == null) return "mati"; if (p.stok <= 0) return "habis"; if (p.stok <= batas(S, p)) return "tipis"; return "ok"; }
+  // Ubah satu barang: selalu baca ulang data terbaru supaya penjualan di Kasir tidak tertimpa.
+  function ubahBarang(id, fn){ var S = baca(), p = S.produk.filter(function(x){ return x.id === id; })[0]; if (!p) return null; fn(p, S); return tulis(S) ? p : null; }
+
+  function gambar(){
+    var S = baca(), q = $("cari").value.trim().toLowerCase(), n = { semua:0, tipis:0, habis:0 }, nilai = 0, pakaiModal = true;
+    S.produk.forEach(function(p){
+      var st = status(S, p); if (st === "mati") return;
+      n.semua++; if (st === "tipis") n.tipis++; if (st === "habis") n.habis++;
+      if (p.stok > 0) { if (!p.modal) pakaiModal = false; nilai += p.stok * (p.modal || p.harga || 0); }
+    });
+    $("rDihitung").textContent = n.semua; $("rTipis").textContent = n.tipis; $("rHabis").textContent = n.habis; $("rNilai").textContent = rp(nilai);
+    $("rNilaiKet").textContent = pakaiModal ? "Nilai stok (modal)" : "Nilai stok (harga jual)";
+    var daftar = S.produk.filter(function(p){
+      var st = status(S, p);
+      if (filter === "semua" && st === "mati") return false;
+      if (filter === "tipis" && st !== "tipis") return false;
+      if (filter === "habis" && st !== "habis") return false;
+      if (filter === "mati" && st !== "mati") return false;
+      return !q || (p.nama + " " + (p.kat || "") + " " + (p.kode || "")).toLowerCase().indexOf(q) >= 0;
+    });
+    var el = $("daftar"); el.innerHTML = "";
+    if (!daftar.length) {
+      el.innerHTML = '<p class="kosong">' + (filter === "semua" && !n.semua ? (S.produk.length ? "Belum ada barang yang dihitung stoknya. Buka tab <b>Tidak dihitung</b>, ketuk barang, lalu isi jumlahnya." : 'Belum ada barang. Tambahkan di <a href="/alat/kasir/">Kasir</a>.') : "Tidak ada barang di sini.") + '</p>';
+      return;
+    }
+    var kat = null;
+    daftar.forEach(function(p){
+      var k = p.kat || "Lainnya";
+      if (k !== kat) { kat = k; var h = document.createElement("div"); h.className = "kat"; h.textContent = k; el.appendChild(h); }
+      var st = status(S, p), r = document.createElement("div"); r.className = "brs";
+      r.innerHTML = '<div class="nm"><b>' + esc(p.nama) + '</b><small>' + (st === "mati" ? "Ketuk untuk mulai menghitung stok" : (st === "habis" ? "Habis" : st === "tipis" ? "Menipis (batas " + batas(S, p) + ")" : "Aman") + " · " + rp(p.harga)) + '</small></div>' +
+        (st === "mati" ? '<span class="jml mati">-</span>' : '<button class="pm" type="button" data-d="-1">−</button><span class="jml ' + (st === "ok" ? "" : st) + '">' + p.stok + '</span><button class="pm" type="button" data-d="1">+</button>');
+      r.querySelector(".nm").onclick = function(){ buka(p.id); };
+      Array.prototype.forEach.call(r.querySelectorAll(".pm"), function(b){ b.onclick = function(){ var d = +b.dataset.d; ubahBarang(p.id, function(x){ x.stok += d; catat(x, d, d > 0 ? "Tambah cepat" : "Kurang cepat"); }); gambar(); }; });
+      el.appendChild(r);
+    });
+    gambarLog();
+  }
+  function gambarLog(){
+    var l = bacaLog().slice(0, 40), el = $("log");
+    el.innerHTML = l.length ? "" : '<li class="redup">Belum ada catatan. Barang masuk dan hitung ulang stok akan tercatat di sini.</li>';
+    l.forEach(function(x){
+      var w = new Date(x.w), t = w.toLocaleDateString("id-ID", { day:"numeric", month:"short" }) + " " + w.toLocaleTimeString("id-ID", { hour:"2-digit", minute:"2-digit" });
+      var li = document.createElement("li");
+      li.innerHTML = '<span>' + esc(x.n) + (x.k ? ' <span class="redup">· ' + esc(x.k) + '</span>' : '') + '<br><small class="redup">' + t + ' · sisa ' + x.s + '</small></span><span class="' + (x.d >= 0 ? "plus" : "min") + '">' + (x.d >= 0 ? "+" : "") + x.d + '</span>';
+      el.appendChild(li);
+    });
+  }
+
+  function aturMode(m){
+    mode = m;
+    Array.prototype.forEach.call($("dbMode").children, function(b){ b.classList.toggle("pilih", b.dataset.m === m); });
+    $("dbLabel").firstChild.nodeValue = m === "masuk" ? "Jumlah masuk" : m === "koreksi" ? "Jumlah stok sebenarnya sekarang" : "Jumlah rusak/hilang";
+  }
+  Array.prototype.forEach.call($("dbMode").children, function(b){ b.onclick = function(){ aturMode(b.dataset.m); $("dbJml").focus(); }; });
+  function buka(id){
+    var S = baca(), p = S.produk.filter(function(x){ return x.id === id; })[0]; if (!p) return;
+    pilih = id; var hitung = p.stok != null;
+    $("dbNama").textContent = p.nama;
+    $("dbKet").textContent = hitung ? "Stok sekarang: " + p.stok : "Stok barang ini belum dihitung. Isi jumlah stok yang ada sekarang.";
+    $("dbMode").classList.toggle("tersembunyi", !hitung); aturMode(hitung ? "masuk" : "koreksi");
+    $("dbJml").value = ""; $("dbCat").value = ""; $("dbMin").value = p.min != null ? p.min : "";
+    $("dbMati").classList.toggle("tersembunyi", !hitung);
+    $("dBrg").showModal(); setTimeout(function(){ $("dbJml").focus(); }, 60);
+  }
+  $("dbMati").onclick = function(){
+    if (!confirm("Berhenti menghitung stok barang ini? Barang tetap bisa dijual.")) return;
+    ubahBarang(pilih, function(p){ delete p.stok; delete p.min; }); $("dBrg").close("batal"); gambar();
+  };
+  $("dBrg").addEventListener("close", function(){
+    if ($("dBrg").returnValue !== "ok") return;
+    var v = $("dbJml").value.replace(/\D/g, ""), mv = $("dbMin").value.replace(/\D/g, ""), cat = $("dbCat").value.trim();
+    ubahBarang(pilih, function(p){
+      if (mv === "") delete p.min; else p.min = parseInt(mv, 10);
+      if (v === "") return;
+      var j = parseInt(v, 10), lama = p.stok != null ? p.stok : 0, baru = lama;
+      if (p.stok == null || mode === "koreksi") baru = j; else if (mode === "masuk") baru = lama + j; else baru = lama - j;
+      p.stok = baru; catat(p, baru - lama, cat || (mode === "masuk" ? "Barang masuk" : mode === "koreksi" ? "Hitung ulang" : "Rusak/hilang"));
+    });
+    pesan("Stok disimpan"); gambar();
+  });
+
+  Array.prototype.forEach.call($("tab").children, function(b){ b.onclick = function(){ filter = b.dataset.f; Array.prototype.forEach.call($("tab").children, function(x){ x.classList.toggle("pilih", x === b); }); gambar(); }; });
+  $("cari").addEventListener("input", gambar);
+  $("bCsv").onclick = function(){
+    var S = baca(), q = function(v){ return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
+    var baris = ["Nama;Kategori;Stok;Batas menipis;Status;Harga jual;Modal"].concat(S.produk.filter(function(p){ return p.stok != null; }).map(function(p){
+      return [q(p.nama), q(p.kat || ""), p.stok, batas(S, p), { habis:"Habis", tipis:"Menipis", ok:"Aman" }[status(S, p)], p.harga, p.modal || ""].join(";"); }));
+    var isi = "﻿" + baris.join("\r\n"), nama = "stok-barang.csv";
+    if (window.Lumbung) Lumbung.unduh(nama, isi, "text/csv;charset=utf-8"); else { var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([isi], { type:"text/csv" })); a.download = nama; a.click(); }
+  };
+  window.addEventListener("pageshow", gambar);
+  gambar();
+})();
+</script>
+</body>
+</html>

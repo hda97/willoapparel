@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="id" data-halaman-owner>
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-N4FLLMXDVK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-N4FLLMXDVK');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tagihan Kos, Bimbel & Iuran Bulanan Gratis | Willo Apparel</title>
+<meta name="description" content="Catat tagihan bulanan kos, bimbel, SPP TPQ, iuran RT, dan sewa kios gratis: siapa sudah bayar, siapa telat, kirim pengingat WA sekali ketuk, cetak kuitansi. Tanpa daftar, data di HP sendiri.">
+<link rel="canonical" href="https://willoapparel.com/alat/tagihan/">
+<meta property="og:title" content="Tagihan Kos, Bimbel & Iuran Bulanan Gratis | Willo Apparel">
+<meta property="og:description" content="Siapa sudah bayar, siapa telat, pengingat WA sekali ketuk. Gratis, tanpa daftar.">
+<meta property="og:locale" content="id_ID">
+<link rel="icon" href="/logo-willo.png">
+<link rel="stylesheet" href="/alat/alat.css">
+<script src="/alat/ikon.js" defer></script>
+<script src="/alat/owner.js"></script>
+<style>
+.bulan{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.bulan button{width:44px;flex:0 0 44px}
+.bulan .nama{flex:1;text-align:center;font-weight:700;font-size:17px}
+.ringkas{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.ringkas .kotak{background:var(--kartu);border:1px solid var(--garis);border-radius:14px;padding:12px 14px}
+.ringkas .kotak.besar{grid-column:1/-1;background:var(--teks);color:#fff;border-color:var(--teks)}
+.ringkas small{display:block;font-size:13px;color:var(--redup)}
+.ringkas .besar small{color:#c9c9cf}
+.ringkas b{display:block;font-size:22px;line-height:1.25}
+.ringkas .besar b{font-size:clamp(28px,8vw,38px)}
+.rel{height:8px;background:rgba(255,255,255,.18);border-radius:4px;overflow:hidden;margin-top:8px}
+.rel i{display:block;height:100%;background:var(--kuning);border-radius:4px;width:0}
+.t-hijau{color:var(--hijau)} .t-merah{color:var(--merah)}
+.org{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f0ede6;cursor:pointer}
+.org .av{width:40px;height:40px;border-radius:50%;flex:0 0 40px;display:flex;align-items:center;justify-content:center;font-weight:800;background:var(--biru-muda);color:var(--utama)}
+.org .ket{flex:1;min-width:0}
+.org .ket b{display:block;font-size:15.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.org .ket small{color:var(--redup);font-size:12.5px}
+.org .kn{text-align:right;white-space:nowrap}
+.org .kn b{display:block;font-size:15px}
+.lencana{display:inline-block;font-size:12px;font-weight:700;border-radius:20px;padding:2px 9px}
+.lencana.lunas{background:var(--hijau-muda);color:var(--hijau)}
+.lencana.sebagian{background:#fff5d1;color:#8a6200}
+.lencana.belum{background:#ebe8e0;color:var(--redup)}
+.lencana.telat{background:var(--merah-muda);color:var(--merah)}
+.kosong{color:var(--redup);font-size:14px;padding:16px 0;text-align:center}
+.jenis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:6px 0 12px}
+.jenis button{border:2px solid var(--garis);background:#fff;border-radius:12px;padding:10px;font:inherit;font-weight:700;cursor:pointer;font-size:14.5px}
+.jenis button.pilih{border-color:var(--utama);background:var(--biru-muda);color:var(--utama)}
+.riwayat{list-style:none;padding:0;margin:6px 0 12px;font-size:14px}
+.riwayat li{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #f0ede6}
+.riwayat button{border:0;background:none;color:var(--merah);font-size:15px;cursor:pointer;padding:0 4px}
+.daftar-tagih .org{cursor:default}
+dialog .isi-dialog{max-height:88vh;overflow:auto}
+</style>
+</head>
+<body>
+<header class="atas"><div class="wrap"><a href="/alat/">← Alat Usaha Gratis</a><a class="redup" href="/">Willo Apparel</a></div></header>
+
+<main class="wrap">
+  <h1 id="judul">Tagihan Bulanan</h1>
+  <p class="sub">Untuk kos, bimbel, TPQ, iuran RT, sewa kios, dan langganan. Lihat siapa yang sudah bayar, kirim pengingat WA sekali ketuk. Data tersimpan di HP ini.</p>
+
+  <div class="bulan">
+    <button class="btn dua" id="bSebelum" aria-label="Bulan sebelumnya">‹</button>
+    <div class="nama" id="namaBulan"></div>
+    <button class="btn dua" id="bSesudah" aria-label="Bulan berikutnya">›</button>
+  </div>
+
+  <div class="ringkas">
+    <div class="kotak besar"><small>Terkumpul bulan ini</small><b class="angka" id="rMasuk">Rp0</b><small id="rDari"></small><div class="rel"><i id="rBatang"></i></div></div>
+    <div class="kotak"><small>Belum masuk</small><b class="angka t-merah" id="rSisa">Rp0</b></div>
+    <div class="kotak"><small id="lBelum">Belum lunas</small><b class="angka" id="rBelum">0</b></div>
+  </div>
+
+  <section class="kartu">
+    <div class="tab" id="tab">
+      <button class="pilih" data-f="semua">Semua</button>
+      <button data-f="belum">Belum lunas</button>
+      <button data-f="lunas">Lunas</button>
+    </div>
+    <div id="vDaftar"></div>
+    <div class="baris" style="margin-top:12px">
+      <button class="btn" id="bTambah">＋ Tambah <span id="lOrang">penghuni</span></button>
+      <button class="btn hijau" id="bTagihSemua">💬 Tagih yang belum</button>
+    </div>
+  </section>
+
+  <section class="kartu">
+    <h2>Pengaturan</h2>
+    <div class="isi" style="margin-bottom:0;font-size:14px;font-weight:600">Jenis usaha</div>
+    <div class="jenis" id="pJenis"></div>
+    <label class="isi">Nama usaha <small>Tampil di pesan WA dan kuitansi</small><input type="text" id="pNama" maxlength="40" placeholder="Contoh: Kos Melati"></label>
+    <label class="isi">No. WA pengelola<input type="tel" id="pWa" maxlength="20"></label>
+    <label class="isi">Rekening / QRIS <small>Contoh: BRI 1234-56-789 a.n. Huda</small><input type="text" id="pRek" maxlength="80"></label>
+    <label class="isi" style="display:flex;gap:8px;align-items:center;font-weight:500"><input type="checkbox" id="pKas" style="width:20px;height:20px"> Catat pembayaran otomatis ke Buku Kas</label>
+  </section>
+
+  <section class="kartu">
+    <h2>Simpan & pindah HP</h2>
+    <div class="baris">
+      <button class="btn dua kecil" id="bCsv">⬇ Excel (CSV) bulan ini</button>
+      <button class="btn dua kecil" id="bCadang">💾 Cadangkan</button>
+      <label class="btn dua kecil" for="fPulih">📂 Pulihkan</label>
+      <input type="file" id="fPulih" accept=".json,application/json" class="tersembunyi">
+    </div>
+    <p class="kecil redup" style="margin-bottom:0">Cadangkan berkala, karena data hilang kalau riwayat browser dihapus. Pembayaran yang dicatat di sini juga masuk ke <a href="/alat/buku-kas/">Buku Kas</a>.</p>
+  </section>
+
+  <!--PANDUAN-->
+  <section class="panduan">
+<h2>Cara memakai Tagihan Bulanan</h2>
+<ol>
+<li><b>Atur usaha.</b> Pilih jenis usaha, isi nama usaha, nomor WhatsApp pengelola, dan nomor rekening atau QRIS. Data ini muncul di pesan tagihan dan kuitansi.</li>
+<li><b>Tambah penghuni atau anggota.</b> Isi nama, kamar atau kelas bila ada, nomor WhatsApp, besar tagihan per bulan, tanggal jatuh tempo, dan bulan mulai ditagih.</li>
+<li><b>Catat pembayaran.</b> Saat seseorang membayar, buka namanya, isi jumlah, tanggal, dan cara bayar, lalu tekan Catat pembayaran.</li>
+<li><b>Tagih yang belum lunas.</b> Tekan Tagih yang belum, lalu ketuk tombol WhatsApp satu per satu. Pesan pengingat sudah berisi nama, jumlah, dan cara bayar.</li>
+</ol>
+<h2>Cocok untuk siapa?</h2>
+<p>Pemilik kos dan kontrakan, bimbel dan les privat, pengelola TPQ, bendahara RT atau arisan, penyewa kios, sampai usaha langganan seperti katering bulanan atau galon. Intinya, siapa pun yang menagih jumlah yang sama setiap bulan.</p>
+<h2>Kuitansi tanpa kertas</h2>
+<p>Setelah pembayaran dicatat, kirim kuitansi lewat WhatsApp atau cetak lewat printer. Penyewa atau wali murid punya bukti bayar, dan kamu tidak perlu menulis kuitansi manual.</p>
+<h2>Ringkasan setiap bulan</h2>
+<p>Bagian atas menunjukkan uang yang sudah terkumpul, yang belum masuk, dan berapa orang yang belum lunas. Filter Belum lunas membantu kamu fokus menagih yang tertinggal. Setiap pembayaran juga otomatis tercatat di <a href="/alat/buku-kas/">Buku Kas</a>, sehingga laporan keuangan tidak perlu diisi dua kali.</p>
+<h2>Data tetap di HP sendiri</h2>
+<p>Daftar penghuni dan riwayat pembayaran disimpan di HP ini. Unduh catatan bulanan sebagai file Excel (CSV), dan tekan Cadangkan secara berkala supaya data bisa dipulihkan di HP lain.</p>
+  </section>
+  <!--/PANDUAN-->
+
+  <div class="cta">Butuh kaos seragam untuk bimbel, TPQ, atau warga RT? Sablon satuan sampai lusinan di <a href="/kaos-seragam-usaha-ngawi.html">Willo Apparel</a>.</div>
+</main>
+<footer>Alat gratis dari Willo Apparel · data tidak dikirim ke server<!--PANDUAN--><div class="foot-links"><a href="/studio/?utm_source=lumbung">Bikin versi custom</a><a href="/artikel.html">Artikel</a><a href="/tentang.html">Tentang Kami</a><a href="/kontak.html">Kontak</a><a href="/kebijakan-privasi.html">Kebijakan Privasi</a></div><!--/PANDUAN--></footer>
+<div class="pesan" id="pesan"></div>
+
+<dialog id="dlgOrang"><form method="dialog" class="isi-dialog" id="formOrang">
+  <h2 id="doJudul">Tambah</h2>
+  <label class="isi"><span id="doLNama">Nama</span><input type="text" id="doNama" maxlength="40" autocomplete="off" required></label>
+  <label class="isi"><span id="doLKet">Kamar</span> <small>Boleh dikosongkan</small><input type="text" id="doKet" maxlength="30" autocomplete="off"></label>
+  <label class="isi">No. WA<input type="tel" id="doWa" maxlength="20" placeholder="08…" autocomplete="off"></label>
+  <div class="baris">
+    <label class="isi">Tagihan per bulan (Rp)<input type="text" inputmode="numeric" id="doJml" class="angka" autocomplete="off"></label>
+    <label class="isi">Jatuh tempo tiap tgl<select id="doTgl"></select></label>
+  </div>
+  <label class="isi">Mulai ditagih bulan<input type="month" id="doMulai"></label>
+  <div class="baris">
+    <button type="button" class="btn merah tersembunyi" id="doHapus">Berhenti</button>
+    <button type="button" class="btn dua" id="doBatal">Batal</button>
+    <button type="submit" class="btn" id="doSimpan">Simpan</button>
+  </div>
+</form></dialog>
+
+<dialog id="dlgDetail"><div class="isi-dialog">
+  <h2 id="ddNama"></h2>
+  <p class="kecil redup" id="ddInfo" style="margin-top:-6px"></p>
+  <div id="ddStatus" style="margin-bottom:8px"></div>
+  <ul class="riwayat" id="ddRiwayat"></ul>
+  <div id="ddBayarBox">
+    <label class="isi">Terima pembayaran (Rp)<input type="text" inputmode="numeric" id="ddJml" class="angka" style="font-size:22px;font-weight:800;text-align:right" autocomplete="off"></label>
+    <div class="baris">
+      <label class="isi">Tanggal<input type="date" id="ddTgl"></label>
+      <label class="isi">Lewat<select id="ddMetode"><option>Tunai</option><option>Transfer</option><option>QRIS</option><option>E-wallet</option></select></label>
+    </div>
+    <button class="btn hijau lebar" id="ddBayar">✓ Catat pembayaran</button>
+  </div>
+  <div class="baris" style="margin-top:10px">
+    <button class="btn dua kecil" id="ddTagih">💬 Tagih WA</button>
+    <button class="btn dua kecil" id="ddKuitansi">🧾 Kuitansi WA</button>
+    <button class="btn dua kecil" id="ddCetak">🖨️ Cetak</button>
+  </div>
+  <div class="baris" style="margin-top:10px">
+    <button class="btn dua kecil" id="ddUbah">✏️ Ubah data</button>
+    <button class="btn dua kecil" id="ddTutup">Tutup</button>
+  </div>
+</div></dialog>
+
+<dialog id="dlgTagih"><div class="isi-dialog">
+  <h2>Tagih yang belum lunas</h2>
+  <p class="kecil redup" style="margin-top:-6px">Ketuk tombol WA satu per satu. Tombol yang sudah diketuk berubah jadi ✓.</p>
+  <div class="daftar-tagih" id="dtDaftar"></div>
+  <button class="btn dua lebar" id="dtTutup" style="margin-top:12px">Tutup</button>
+</div></dialog>
+
+<script src="/alat/printer.js"></script>
+<script>
+(function(){
+  var KUNCI = "willo_tagihan_v1", KAS = "willo_kas_v1";
+  var $ = function(id){ return document.getElementById(id); };
+  var BULAN = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  var JENIS = {
+    kos:   { label:"🏠 Kos / kontrakan", judul:"Tagihan Kos", orang:"penghuni", nama:"Nama penghuni", ket:"Kamar", apa:"sewa kamar" },
+    bimbel:{ label:"📚 Bimbel / les", judul:"SPP Bimbel", orang:"murid", nama:"Nama murid", ket:"Kelas", apa:"SPP les" },
+    iuran: { label:"🏘️ Iuran / arisan", judul:"Iuran Bulanan", orang:"anggota", nama:"Nama anggota", ket:"Blok / rumah", apa:"iuran" },
+    lain:  { label:"🔁 Langganan lain", judul:"Tagihan Bulanan", orang:"pelanggan", nama:"Nama pelanggan", ket:"Keterangan", apa:"tagihan" }
+  };
+  var S;
+  function muat(){
+    try { S = JSON.parse(localStorage.getItem(KUNCI)) || {}; } catch(e){ S = {}; }
+    S.jenis = JENIS[S.jenis] ? S.jenis : "kos"; S.org = S.org || []; S.bayar = S.bayar || [];
+    S.toko = S.toko || { nama:"", wa:"", rek:"" }; if (S.kas === undefined) S.kas = true;
+    if (!S.toko.nama) try { var k = JSON.parse(localStorage.getItem("willo_kasir_v1")); if (k && k.nama) { S.toko.nama = k.nama; S.toko.rek = S.toko.rek || k.rek || ""; } } catch(e){}
+  }
+  function simpan(){ try { localStorage.setItem(KUNCI, JSON.stringify(S)); } catch(e){ pesan("Gagal menyimpan: memori browser penuh"); } }
+  muat();
+
+  var rp = function(n){ return "Rp" + Math.round(n).toLocaleString("id-ID"); };
+  var angka = function(s){ return parseInt(String(s).replace(/\D/g, ""), 10) || 0; };
+  var pad = function(n){ return String(n).padStart(2, "0"); };
+  var tglIni = function(){ var d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); };
+  var hpWa = function(s){ var h = String(s || "").replace(/\D/g, ""); if (h.charAt(0) === "0") h = "62" + h.slice(1); return h; };
+  var J = function(){ return JENIS[S.jenis]; };
+  function pesan(t){ var p = $("pesan"), dl = document.querySelector("dialog[open]"); (dl || document.body).appendChild(p); p.textContent = t; p.classList.add("tampil"); clearTimeout(pesan.t); pesan.t = setTimeout(function(){ p.classList.remove("tampil"); }, t.length > 60 ? 6000 : 2200); }
+  function formatInput(el){ el.addEventListener("input", function(){ var n = angka(el.value); el.value = n ? n.toLocaleString("id-ID") : ""; }); }
+  formatInput($("doJml")); formatInput($("ddJml"));
+  for (var i = 1; i <= 28; i++) { var o = document.createElement("option"); o.value = i; o.textContent = i; $("doTgl").appendChild(o); }
+
+  var kini = new Date(), thn = kini.getFullYear(), bln = kini.getMonth(), filter = "semua", aktif = null;
+  var kb = function(){ return thn + "-" + pad(bln + 1); };
+  var namaBulan = function(k){ return BULAN[+k.slice(5) - 1] + " " + k.slice(0, 4); };
+  var bulanIni = function(){ return kini.getFullYear() + "-" + pad(kini.getMonth() + 1); };
+
+  // Orang yang ditagih di bulan k: sudah mulai dan belum berhenti.
+  function ditagih(k){ return S.org.filter(function(o){ return o.mulai <= k && (!o.henti || o.henti > k); }); }
+  function bayarOrg(o, k){ return S.bayar.filter(function(b){ return b.o === o.id && b.bln === k; }); }
+  function dibayar(o, k){ return bayarOrg(o, k).reduce(function(a, b){ return a + b.jml; }, 0); }
+  function status(o, k){
+    var d = dibayar(o, k);
+    if (d >= o.jml) return "lunas";
+    var lewat = k < bulanIni() || (k === bulanIni() && new Date().getDate() > o.tgl);
+    if (lewat) return "telat";
+    return d > 0 ? "sebagian" : "belum";
+  }
+  var LABEL = { lunas:"Lunas", sebagian:"Sebagian", belum:"Belum bayar", telat:"Telat" };
+  // Tunggakan bulan-bulan sebelumnya (maks. 12 bulan ke belakang).
+  function tunggakan(o, k){
+    var hasil = [], y = +k.slice(0,4), m = +k.slice(5) - 1;
+    for (var n = 0; n < 12; n++) {
+      m--; if (m < 0) { m = 11; y--; }
+      var kk = y + "-" + pad(m + 1);
+      if (kk < o.mulai) break;
+      if (o.henti && o.henti <= kk) continue;
+      var s = o.jml - dibayar(o, kk); if (s > 0) hasil.push({ bln:kk, sisa:s });
+    }
+    return hasil;
+  }
+
+  function gambar(){
+    var j = J(), k = kb();
+    $("judul").textContent = j.judul;
+    $("namaBulan").textContent = namaBulan(k);
+    $("lOrang").textContent = j.orang;
+    var arr = ditagih(k), target = 0, masuk = 0, belum = 0;
+    arr.forEach(function(o){ target += o.jml; var d = Math.min(o.jml, dibayar(o, k)); masuk += d; if (d < o.jml) belum++; });
+    $("rMasuk").textContent = rp(masuk);
+    $("rDari").textContent = arr.length ? "dari " + rp(target) + " · " + arr.length + " " + j.orang : "Belum ada " + j.orang + " yang ditagih bulan ini";
+    $("rBatang").style.width = target ? (masuk / target * 100) + "%" : "0";
+    $("rSisa").textContent = rp(target - masuk);
+    $("rBelum").textContent = belum + " " + j.orang;
+    $("bTagihSemua").disabled = !belum;
+    var v = $("vDaftar"); v.innerHTML = "";
+    var urut = arr.slice().sort(function(a, b){
+      var p = { telat:0, sebagian:1, belum:2, lunas:3 }; var sa = p[status(a, k)], sb = p[status(b, k)];
+      return sa - sb || a.nama.localeCompare(b.nama);
+    }).filter(function(o){ var s = status(o, k); return filter === "semua" || (filter === "lunas" ? s === "lunas" : s !== "lunas"); });
+    if (!S.org.length) { v.innerHTML = '<div class="kosong">Belum ada ' + j.orang + '. Ketuk “＋ Tambah ' + j.orang + '” untuk mulai.</div>'; return; }
+    if (!urut.length) { v.innerHTML = '<div class="kosong">' + (filter === "lunas" ? "Belum ada yang lunas." : filter === "belum" ? "Semua sudah lunas 🎉" : "Tidak ada tagihan di bulan ini.") + '</div>'; return; }
+    urut.forEach(function(o){
+      var s = status(o, k), d = dibayar(o, k), tg = tunggakan(o, k);
+      var r = document.createElement("div"); r.className = "org";
+      r.innerHTML = '<span class="av"></span><span class="ket"><b></b><small></small></span><span class="kn"><b class="angka"></b><span class="lencana"></span></span>';
+      r.querySelector(".av").textContent = (o.nama.trim().charAt(0) || "?").toUpperCase();
+      r.querySelector(".ket b").textContent = o.nama;
+      r.querySelector(".ket small").textContent = [o.ket, "tempo tgl " + o.tgl, tg.length ? "nunggak " + tg.length + " bln" : ""].filter(Boolean).join(" · ");
+      r.querySelector(".kn b").textContent = s === "lunas" ? rp(o.jml) : rp(o.jml - d);
+      r.querySelector(".kn b").className = "angka " + (s === "lunas" ? "t-hijau" : s === "telat" ? "t-merah" : "");
+      var l = r.querySelector(".lencana"); l.className = "lencana " + s; l.textContent = LABEL[s];
+      r.onclick = function(){ bukaDetail(o); };
+      v.appendChild(r);
+    });
+  }
+
+  // ---- Pengaturan ----
+  function gambarJenis(){
+    var c = $("pJenis"); c.innerHTML = "";
+    Object.keys(JENIS).forEach(function(key){
+      var b = document.createElement("button"); b.type = "button"; b.textContent = JENIS[key].label;
+      if (key === S.jenis) b.className = "pilih";
+      b.onclick = function(){ S.jenis = key; simpan(); gambarJenis(); gambar(); };
+      c.appendChild(b);
+    });
+  }
+  [["pNama","nama"],["pWa","wa"],["pRek","rek"]].forEach(function(p){
+    $(p[0]).value = S.toko[p[1]] || "";
+    $(p[0]).addEventListener("input", function(){ S.toko[p[1]] = this.value.trim(); simpan(); });
+  });
+  $("pKas").checked = S.kas !== false;
+  $("pKas").onchange = function(){ S.kas = this.checked; simpan(); };
+
+  // ---- Tambah / ubah orang ----
+  var editOrg = null;
+  function bukaForm(o){
+    var j = J(); editOrg = o || null;
+    $("doJudul").textContent = o ? "Ubah data" : "Tambah " + j.orang;
+    $("doLNama").textContent = j.nama; $("doLKet").textContent = j.ket;
+    $("doNama").value = o ? o.nama : ""; $("doKet").value = o ? o.ket || "" : ""; $("doWa").value = o ? o.wa || "" : "";
+    $("doJml").value = o ? o.jml.toLocaleString("id-ID") : (S.org.length ? S.org[S.org.length - 1].jml.toLocaleString("id-ID") : "");
+    $("doTgl").value = o ? o.tgl : Math.min(28, new Date().getDate());
+    $("doMulai").value = o ? o.mulai : kb();
+    $("doHapus").classList.toggle("tersembunyi", !o);
+    $("dlgOrang").showModal();
+  }
+  $("bTambah").onclick = function(){ bukaForm(null); };
+  $("doBatal").onclick = function(){ $("dlgOrang").close(); };
+  $("formOrang").addEventListener("submit", function(e){
+    var nama = $("doNama").value.trim(), jml = angka($("doJml").value);
+    if (!nama) { e.preventDefault(); pesan("Isi nama dulu"); return; }
+    if (!jml) { e.preventDefault(); pesan("Isi tagihan per bulan"); $("doJml").focus(); return; }
+    var data = { nama:nama, ket:$("doKet").value.trim(), wa:$("doWa").value.trim(), jml:jml, tgl:+$("doTgl").value || 1, mulai:$("doMulai").value || kb() };
+    if (editOrg) { Object.assign(editOrg, data); pesan("Data diubah"); }
+    else { data.id = Date.now(); S.org.push(data); pesan(nama + " ditambahkan"); }
+    simpan(); gambar();
+    if (editOrg && $("dlgDetail").open) bukaDetail(editOrg);
+  });
+  $("doHapus").onclick = function(){
+    var o = editOrg; if (!o) return;
+    var punya = S.bayar.some(function(b){ return b.o === o.id; });
+    if (punya) {
+      if (!confirm("Berhenti menagih " + o.nama + " mulai " + namaBulan(kb()) + "? Riwayat pembayaran lama tetap tersimpan.")) return;
+      o.henti = kb();
+    } else {
+      if (!confirm("Hapus " + o.nama + " dari daftar?")) return;
+      S.org = S.org.filter(function(x){ return x !== o; });
+    }
+    simpan(); $("dlgOrang").close(); if ($("dlgDetail").open) $("dlgDetail").close(); gambar(); pesan("Sudah tidak ditagih lagi");
+  };
+
+  // ---- Detail & pembayaran ----
+  function bukaDetail(o){
+    aktif = o; var k = kb(), s = status(o, k), d = dibayar(o, k), tg = tunggakan(o, k);
+    $("ddNama").textContent = o.nama;
+    $("ddInfo").textContent = [o.ket, o.wa, rp(o.jml) + "/bulan", "tempo tgl " + o.tgl].filter(Boolean).join(" · ");
+    $("ddStatus").innerHTML = '<span class="lencana ' + s + '">' + LABEL[s] + "</span> <b>" + namaBulan(k) + "</b>" + (s !== "lunas" ? ' · kurang <b class="angka">' + rp(o.jml - d) + "</b>" : "") +
+      (tg.length ? '<div class="kecil t-merah" style="margin-top:4px">Tunggakan: ' + tg.map(function(t){ return namaBulan(t.bln) + " " + rp(t.sisa); }).join(", ") + "</div>" : "");
+    var ul = $("ddRiwayat"); ul.innerHTML = "";
+    bayarOrg(o, k).forEach(function(b){
+      var li = document.createElement("li");
+      li.innerHTML = '<span></span><span><b class="angka"></b> <button title="Hapus">✕</button></span>';
+      li.querySelector("span").textContent = b.tgl.split("-").reverse().join("/") + " · " + b.metode;
+      li.querySelector("b").textContent = rp(b.jml);
+      li.querySelector("button").onclick = function(){
+        if (!confirm("Hapus pembayaran " + rp(b.jml) + "? Catatan di Buku Kas ikut dihapus.")) return;
+        S.bayar = S.bayar.filter(function(x){ return x !== b; }); kasHapus(b.id); simpan(); gambar(); bukaDetail(o);
+      };
+      ul.appendChild(li);
+    });
+    $("ddBayarBox").classList.toggle("tersembunyi", s === "lunas");
+    $("ddJml").value = s === "lunas" ? "" : (o.jml - d).toLocaleString("id-ID");
+    $("ddTgl").value = tglIni();
+    $("ddTagih").classList.toggle("tersembunyi", s === "lunas" && !tg.length);
+    $("ddKuitansi").classList.toggle("tersembunyi", d <= 0);
+    $("ddCetak").classList.toggle("tersembunyi", d <= 0);
+    if (!$("dlgDetail").open) $("dlgDetail").showModal();
+  }
+  $("ddTutup").onclick = function(){ $("dlgDetail").close(); };
+  $("ddUbah").onclick = function(){ bukaForm(aktif); };
+  $("ddBayar").onclick = function(){
+    var o = aktif, jml = angka($("ddJml").value);
+    if (!jml) { pesan("Isi jumlah pembayaran"); return; }
+    var b = { id:Date.now(), o:o.id, bln:kb(), jml:jml, tgl:$("ddTgl").value || tglIni(), metode:$("ddMetode").value };
+    S.bayar.push(b); kasTambah(o, b); simpan(); gambar(); bukaDetail(o);
+    pesan(status(o, kb()) === "lunas" ? o.nama + " lunas " + namaBulan(kb()) + " ✓" : "Pembayaran " + rp(jml) + " dicatat");
+  };
+
+  // ---- Buku Kas ----
+  function kasTambah(o, b){
+    if (S.kas === false) return;
+    try {
+      var k = JSON.parse(localStorage.getItem(KAS)) || {}; k.tx = k.tx || []; k.awal = k.awal || 0;
+      k.tx.push({ id:b.id, t:"masuk", jml:b.jml, kat:"Tagihan", ket:(J().apa.charAt(0).toUpperCase() + J().apa.slice(1) + " " + namaBulan(b.bln) + " · " + o.nama).slice(0, 80), tgl:b.tgl, metode:b.metode, sumber:"tagihan", ref:o.id });
+      localStorage.setItem(KAS, JSON.stringify(k));
+    } catch(e){}
+  }
+  function kasHapus(id){
+    try {
+      var k = JSON.parse(localStorage.getItem(KAS)); if (!k || !k.tx) return;
+      k.tx = k.tx.filter(function(t){ return !(t.sumber === "tagihan" && t.id === id); });
+      localStorage.setItem(KAS, JSON.stringify(k));
+    } catch(e){}
+  }
+
+  // ---- WhatsApp ----
+  function teksTagih(o){
+    var k = kb(), sisa = o.jml - dibayar(o, k), tg = tunggakan(o, k), j = J(), usaha = S.toko.nama || "kami";
+    var b = ["Halo " + o.nama + " 🙏", "", "Mengingatkan " + j.apa + " di " + usaha + ":"];
+    if (sisa > 0) b.push("• " + namaBulan(k) + ": " + rp(sisa) + " (jatuh tempo tgl " + o.tgl + ")");
+    tg.forEach(function(t){ b.push("• " + namaBulan(t.bln) + ": " + rp(t.sisa)); });
+    var tot = Math.max(0, sisa) + tg.reduce(function(a, t){ return a + t.sisa; }, 0);
+    if (tg.length) b.push("*Total: " + rp(tot) + "*");
+    if (S.toko.rek) b.push("", "Pembayaran bisa ke: " + S.toko.rek);
+    b.push("", "Kalau sudah bayar, abaikan pesan ini ya. Terima kasih 🙏");
+    return b.join("\n");
+  }
+  function teksKuitansi(o){
+    var k = kb(), d = dibayar(o, k), sisa = o.jml - d, j = J();
+    var b = ["*KUITANSI " + j.apa.toUpperCase() + "*" + (S.toko.nama ? " · " + S.toko.nama : ""), "", "Diterima dari: " + o.nama + (o.ket ? " (" + o.ket + ")" : ""), "Untuk: " + j.apa + " " + namaBulan(k)];
+    bayarOrg(o, k).forEach(function(x){ b.push("• " + x.tgl.split("-").reverse().join("/") + " " + x.metode + ": " + rp(x.jml)); });
+    b.push("*" + (sisa > 0 ? "Kurang: " + rp(sisa) : "LUNAS ✅") + "*", "", "Terima kasih 🙏", "_Kuitansi gratis: willoapparel.com/alat_");
+    return b.join("\n");
+  }
+  function bukaWa(o, teks){
+    if (!o.wa) { pesan("Nomor WA " + o.nama + " belum diisi. Ketuk Ubah data untuk menambahkan."); return false; }
+    window.open("https://wa.me/" + hpWa(o.wa) + "?text=" + encodeURIComponent(teks), "_blank", "noopener"); return true;
+  }
+  $("ddTagih").onclick = function(){ bukaWa(aktif, teksTagih(aktif)); };
+  $("ddKuitansi").onclick = function(){ bukaWa(aktif, teksKuitansi(aktif)); };
+  $("bTagihSemua").onclick = function(){
+    var k = kb(), v = $("dtDaftar"); v.innerHTML = "";
+    ditagih(k).filter(function(o){ return status(o, k) !== "lunas"; }).forEach(function(o){
+      var r = document.createElement("div"); r.className = "org";
+      r.innerHTML = '<span class="ket"><b></b><small></small></span><button class="btn hijau kecil">💬 WA</button>';
+      r.querySelector("b").textContent = o.nama;
+      var tg = tunggakan(o, k);
+      r.querySelector("small").textContent = "kurang " + rp(o.jml - dibayar(o, k)) + (tg.length ? " + nunggak " + tg.length + " bln" : "") + (o.wa ? "" : " · nomor WA kosong");
+      var t = r.querySelector("button");
+      if (!o.wa) t.disabled = true;
+      t.onclick = function(){ if (bukaWa(o, teksTagih(o))) { t.textContent = "✓ Terkirim"; t.className = "btn dua kecil"; } };
+      v.appendChild(r);
+    });
+    $("dlgTagih").showModal();
+  };
+  $("dtTutup").onclick = function(){ $("dlgTagih").close(); };
+
+  // ---- Cetak kuitansi ----
+  function teksTermal(o){
+    var L = 32, gar = "-".repeat(L), k = kb(), d = dibayar(o, k), sisa = o.jml - d, j = J(), b = [];
+    var kanan = function(a, c){ return a + " ".repeat(Math.max(1, L - a.length - c.length)) + c; };
+    var tengah = function(s){ return " ".repeat(Math.max(0, Math.floor((L - s.length) / 2))) + s; };
+    if (S.toko.nama) b.push(tengah(S.toko.nama.slice(0, L)));
+    if (S.toko.wa) b.push(tengah("WA " + S.toko.wa));
+    b.push(gar, tengah("KUITANSI"), gar, ("Dari : " + o.nama).slice(0, L));
+    if (o.ket) b.push((j.ket + ": " + o.ket).slice(0, L));
+    b.push(("Untuk: " + j.apa + " " + namaBulan(k)).slice(0, L), gar);
+    bayarOrg(o, k).forEach(function(x){ b.push(kanan(x.tgl.split("-").reverse().join("/") + " " + x.metode, rp(x.jml))); });
+    b.push(gar, kanan("TAGIHAN", rp(o.jml)), kanan(sisa > 0 ? "KURANG" : "STATUS", sisa > 0 ? rp(sisa) : "LUNAS"), gar, tengah("Terima kasih"), "", tengah("Kuitansi gratis:"), tengah("willoapparel.com/alat"));
+    return b.join("\n");
+  }
+  $("ddCetak").onclick = function(){
+    var t = this; t.disabled = true;
+    CetakTermal.cetak(teksTermal(aktif)).then(function(r){ pesan(r === "rawbt" ? "Membuka aplikasi RawBT…" : "Kuitansi dikirim ke " + (CetakTermal.nama() || "printer")); })
+      .catch(function(e){ var m = CetakTermal.pesanGagal(e); if (m) pesan(m); })
+      .then(function(){ t.disabled = false; });
+  };
+
+  // ---- Navigasi, filter, ekspor ----
+  $("bSebelum").onclick = function(){ bln--; if (bln < 0) { bln = 11; thn--; } gambar(); };
+  $("bSesudah").onclick = function(){ bln++; if (bln > 11) { bln = 0; thn++; } gambar(); };
+  Array.prototype.forEach.call($("tab").children, function(b){
+    b.onclick = function(){ filter = b.dataset.f; Array.prototype.forEach.call($("tab").children, function(x){ x.classList.toggle("pilih", x === b); }); gambar(); };
+  });
+  function unduh(nama, isi, tipe){
+    if (window.Lumbung) { Lumbung.unduh(nama, isi, tipe).catch(function(e){ pesan((e && e.message) || "Gagal menyimpan file"); }); return; }
+    var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([isi], { type:tipe })); a.download = nama;
+    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  $("bCsv").onclick = function(){
+    var k = kb(), q = function(s){ return '"' + String(s == null ? "" : s).replace(/"/g, '""') + '"'; }, j = J();
+    var baris = [["Nama", j.ket, "No WA", "Tagihan", "Dibayar", "Kurang", "Status", "Jatuh tempo"].join(";")];
+    ditagih(k).forEach(function(o){ var d = dibayar(o, k); baris.push([q(o.nama), q(o.ket), q(o.wa), o.jml, d, Math.max(0, o.jml - d), LABEL[status(o, k)], o.tgl].join(";")); });
+    unduh("tagihan-" + k + ".csv", "﻿" + baris.join("\r\n"), "text/csv;charset=utf-8");
+  };
+  $("bCadang").onclick = function(){ unduh("cadangan-tagihan-" + tglIni() + ".json", JSON.stringify(S), "application/json"); pesan("File cadangan diunduh"); };
+  $("fPulih").onchange = function(){
+    var f = this.files[0]; if (!f) return;
+    var r = new FileReader();
+    r.onload = function(){
+      try {
+        var d = JSON.parse(r.result);
+        if (!d || !Array.isArray(d.org) || !Array.isArray(d.bayar)) throw 0;
+        if (!confirm("Ganti semua data tagihan di HP ini dengan isi file cadangan (" + d.org.length + " orang)?")) return;
+        localStorage.setItem(KUNCI, JSON.stringify(d)); muat(); gambarJenis(); gambar(); pesan("Data dipulihkan");
+      } catch(e){ pesan("File cadangan tidak dikenali"); }
+    };
+    r.readAsText(f); this.value = "";
+  };
+  window.addEventListener("storage", function(e){ if (e.key === KUNCI) { muat(); gambar(); } });
+
+  gambarJenis(); gambar();
+})();
+</script>
+</body>
+</html>

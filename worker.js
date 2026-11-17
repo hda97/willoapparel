@@ -2686,6 +2686,268 @@ function log(env, request, kind, path, ref) {
   });
 }
 
+// Dashboard owner Lumbung (Huda 15 Nov 2026): satu Durable Object per toko. Tablet kasir mengirim catatan penjualan
+// (barang, jumlah, total, cara bayar; tanpa data pelanggan) dengan kunci rahasia; HP owner membacanya dengan kunci yang sama.
+// Server hanya menyimpan sidik SHA-256 kunci. Data lebih dari 400 hari dihapus.
+async function sidikKunci(k) {
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("lumbung-toko:" + k));
+  return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join("");
+}
+export class Toko extends DurableObject {
+  constructor(ctx, env) {
+    super(ctx, env);
+    this.sql = ctx.storage.sql;
+    this.sql.exec("CREATE TABLE IF NOT EXISTS jual (id TEXT PRIMARY KEY, w INTEGER, d TEXT)");
+    this.sql.exec("CREATE INDEX IF NOT EXISTS jual_w ON jual(w)");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT)");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS cadangan (w INTEGER PRIMARY KEY, d TEXT)");
+    // Hanya dipakai instans "pusat-lisensi": daftar kode aktivasi Lumbung Pro.
+    this.sql.exec("CREATE TABLE IF NOT EXISTS kode (kode TEXT PRIMARY KEY, hari INTEGER, dibuat INTEGER, catatan TEXT, toko TEXT, dipakai INTEGER)");
+  }
+  // Lumbung Pro (Huda 15 Nov 2026): masa coba 14 hari sejak toko pertama sinkron, lalu perlu kode aktivasi.
+  lisensi() {
+    const kini = Date.now(), dibuat = Number(this.meta("dibuat")) || kini, coba = dibuat + 14 * 864e5, pro = Number(this.meta("pro_sampai")) || 0;
+    return { aktif: kini < Math.max(coba, pro), coba, pro, selamanya: pro > 4e12 };
+  }
+  async pusat(u, request) {
+    const jalur = u.pathname.slice("/pusat/".length);
+    if (jalur === "buat" && request.method === "POST") {
+      let b = {}; try { b = await request.json(); } catch (e) {}
+      const hari = Math.max(0, Math.min(3650, Math.round(Number(b.hari) || 0))), n = Math.max(1, Math.min(50, Math.round(Number(b.jumlah) || 1)));
+      const huruf = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", hasil = [];
+      for (let i = 0; i < n; i++) {
+        const a = new Uint8Array(8); crypto.getRandomValues(a);
+        const t = [...a].map((x) => huruf[x % huruf.length]).join(""), kode = "LMB-" + t.slice(0, 4) + "-" + t.slice(4);
+        this.sql.exec("INSERT OR IGNORE INTO kode (kode, hari, dibuat, catatan, toko, dipakai) VALUES (?, ?, ?, ?, '', 0)", kode, hari, Date.now(), String(b.catatan || "").slice(0, 80));
+        hasil.push(kode);
+      }
+      return Response.json({ ok: true, kode: hasil, hari });
+    }
+    if (jalur === "daftar") return Response.json({ kode: this.sql.exec("SELECT kode, hari, dibuat, catatan, toko, dipakai FROM kode ORDER BY dibuat DESC LIMIT 500").toArray() });
+    if (jalur === "pakai" && request.method === "POST") {
+      let b = {}; try { b = await request.json(); } catch (e) {}
+      const kode = String(b.kode || ""), toko = String(b.toko || "");
+      const r = this.sql.exec("SELECT hari, toko FROM kode WHERE kode = ?", kode).toArray();
+      if (!r.length) return Response.json({ galat: "Kode tidak ditemukan. Periksa lagi hurufnya." }, { status: 404 });
+      if (r[0].toko && r[0].toko !== toko) return Response.json({ galat: "Kode ini sudah dipakai toko lain." }, { status: 409 });
+      if (r[0].toko === toko) return Response.json({ galat: "Kode ini sudah dipakai di toko ini." }, { status: 409 });
+      this.sql.exec("UPDATE kode SET toko = ?, dipakai = ? WHERE kode = ?", toko, Date.now(), kode);
+      return Response.json({ ok: true, hari: r[0].hari });
+    }
+    if (jalur === "batal" && request.method === "POST") {
+      // Kembalikan kode bila toko gagal diperpanjang setelah kode ditandai terpakai.
+      let b = {}; try { b = await request.json(); } catch (e) {}
+      this.sql.exec("UPDATE kode SET toko = '', dipakai = 0 WHERE kode = ? AND toko = ?", String(b.kode || ""), String(b.toko || ""));
+      return Response.json({ ok: true });
+    }
+    return Response.json({ galat: "alamat" }, { status: 404 });
+  }
+  meta(k) { const r = this.sql.exec("SELECT v FROM meta WHERE k = ?", k).toArray(); return r.length ? r[0].v : null; }
+  aturMeta(k, v) { this.sql.exec("INSERT OR REPLACE INTO meta (k, v) VALUES (?, ?)", k, String(v)); }
+  async fetch(request) {
+    const u = new URL(request.url);
+    if (u.pathname.startsWith("/pusat/")) return this.pusat(u, request);
+    const kunci = request.headers.get("x-kunci") || "";
+    if (kunci.length < 24 || kunci.length > 80) return Response.json({ galat: "kunci" }, { status: 401 });
+    const h = await sidikKunci(kunci), ada = this.meta("kunci");
+    if (u.pathname === "/cek") {
+      // Sebelum aktivasi: pastikan kunci benar. Toko yang belum pernah sinkron langsung didaftarkan.
+      if (ada && ada !== h) return Response.json({ galat: "kunci" }, { status: 403 });
+      if (!ada) { this.aturMeta("kunci", h); this.aturMeta("dibuat", Date.now()); }
+      return Response.json({ ok: true, lisensi: this.lisensi() });
+    }
+    if (u.pathname === "/tambah" && request.method === "POST") {
+      if (ada !== h) return Response.json({ galat: "kunci" }, { status: 403 });
+      let b = {}; try { b = await request.json(); } catch (e) {}
+      const hari = Math.round(Number(b.hari) || 0), lama = Number(this.meta("pro_sampai")) || 0;
+      const sisaCoba = this.lisensi().coba; // masa coba yang belum terpakai tidak hangus
+      this.aturMeta("pro_sampai", hari <= 0 ? 9e12 : Math.max(Date.now(), lama, sisaCoba) + hari * 864e5);
+      return Response.json({ ok: true, lisensi: this.lisensi() });
+    }
+    if (u.pathname === "/ganti" && request.method === "POST") {
+      // Ganti kunci (link lama tidak berlaku lagi) tanpa kehilangan data dan langganan Pro.
+      if (!ada || ada !== h) return Response.json({ galat: "kunci" }, { status: 403 });
+      let b = {}; try { b = await request.json(); } catch (e) {}
+      const baru = String(b.baru || "");
+      if (baru.length < 24 || baru.length > 80) return Response.json({ galat: "kunci" }, { status: 400 });
+      this.aturMeta("kunci", await sidikKunci(baru));
+      return Response.json({ ok: true, lisensi: this.lisensi() });
+    }
+    if (u.pathname === "/cadangan") {
+      if (!ada || ada !== h) return Response.json({ galat: "kunci" }, { status: 403 });
+      if (request.method === "POST") {
+        const L = this.lisensi(); if (!L.aktif) return Response.json({ galat: "pro", lisensi: L }, { status: 402 });
+        const teks = await request.text();
+        if (teks.length > 1900000) return Response.json({ galat: "Cadangan terlalu besar (lebih dari 1,9 MB). Perkecil logo/QRIS." }, { status: 413 });
+        try { JSON.parse(teks); } catch (e) { return Response.json({ galat: "json" }, { status: 400 }); }
+        const w = Date.now();
+        this.sql.exec("INSERT OR REPLACE INTO cadangan (w, d) VALUES (?, ?)", w, teks);
+        this.sql.exec("DELETE FROM cadangan WHERE w NOT IN (SELECT w FROM cadangan ORDER BY w DESC LIMIT 3)");
+        return Response.json({ ok: true, w, lisensi: L });
+      }
+      // Memulihkan tetap boleh walau langganan habis: datanya milik toko.
+      const r = this.sql.exec("SELECT w, d FROM cadangan ORDER BY w DESC LIMIT 1").toArray();
+      if (!r.length) return Response.json({ galat: "Belum ada cadangan di server untuk toko ini." }, { status: 404 });
+      return Response.json({ w: r[0].w, data: JSON.parse(r[0].d) });
+    }
+    if (request.method === "POST") {
+      if (ada && ada !== h) return Response.json({ galat: "kunci" }, { status: 403 });
+      const teks = await request.text();
+      if (teks.length > 2000000) return Response.json({ galat: "besar" }, { status: 413 });
+      let b; try { b = JSON.parse(teks); } catch (e) { return Response.json({ galat: "json" }, { status: 400 }); }
+      if (!ada) { this.aturMeta("kunci", h); this.aturMeta("dibuat", Date.now()); }
+      if (b.nama) this.aturMeta("nama", String(b.nama).slice(0, 60));
+      let n = 0;
+      for (const j of (Array.isArray(b.jual) ? b.jual : []).slice(0, 500)) {
+        const id = String(j && j.id || "").slice(0, 60), w = Number(j && j.w);
+        if (!id || !Number.isFinite(w)) continue;
+        const d = JSON.stringify(j.d || {});
+        if (d.length > 30000) continue;
+        this.sql.exec("INSERT OR REPLACE INTO jual (id, w, d) VALUES (?, ?, ?)", id, Math.round(w), d); n++;
+      }
+      this.sql.exec("DELETE FROM jual WHERE w < ?", Date.now() - 400 * 864e5);
+      this.aturMeta("sinkron", Date.now());
+      return Response.json({ ok: true, n, lisensi: this.lisensi() });
+    }
+    if (ada && ada !== h) return Response.json({ galat: "kunci" }, { status: 403 });
+    if (!ada) { this.aturMeta("kunci", h); this.aturMeta("dibuat", Date.now()); } // toko baru menyalakan dashboard: masa coba mulai
+    const L = this.lisensi();
+    if (!L.aktif) return Response.json({ galat: "pro", nama: this.meta("nama") || "", lisensi: L }, { status: 402 });
+    const dari = Number(u.searchParams.get("dari")) || Date.now() - 864e5, sampai = Number(u.searchParams.get("sampai")) || Date.now() + 864e5;
+    const jual = this.sql.exec("SELECT d FROM jual WHERE w >= ? AND w < ? ORDER BY w LIMIT 20000", dari, sampai).toArray().map((r) => JSON.parse(r.d));
+    return Response.json({ nama: this.meta("nama") || "", sinkron: Number(this.meta("sinkron")) || 0, jual, lisensi: L });
+  }
+}
+// ===== AI gratis bersama (Huda 15 Nov 2026: "Pasang", "Gunakan di semua proyek") =====
+// Gemini dulu (secret GEMINI_API_KEY dari aistudio.google.com/apikey), Groq cadangan (secret GROQ_API_KEY,
+// model Llama & Qwen). Pasang keduanya di Cloudflare: Workers & Pages > willoapparel > Settings > Variables and Secrets.
+// Kunci tidak pernah dikirim ke HP pengguna. Mengembalikan teks, atau null kalau kunci belum ada / semua kuota habis.
+// Versi Python untuk GitHub Actions: ai/ai_gratis.py.
+async function aiGratis(env, { sistem = "", prompt, maks = 400, suhu = 0.6 }) {
+  const coba = async (url, init) => {
+    const ac = new AbortController(), t = setTimeout(() => ac.abort(), 20000);
+    try { const r = await fetch(url, { ...init, signal: ac.signal }); return r.ok ? await r.json() : (console.log("ai", url.split("/")[2], r.status), null); }
+    catch (e) { console.log("ai", e && e.message); return null; } finally { clearTimeout(t); }
+  };
+  if (env.GEMINI_API_KEY) for (const m of ["gemini-flash-lite-latest", "gemini-flash-latest"]) {
+    const j = await coba(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
+      method: "POST", headers: { "content-type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
+      body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], ...(sistem ? { systemInstruction: { parts: [{ text: sistem }] } } : {}), generationConfig: { maxOutputTokens: Math.max(maks, 256), temperature: suhu } }) });
+    const t = (((j && j.candidates && j.candidates[0] && j.candidates[0].content) || {}).parts || []).filter((p) => !p.thought).map((p) => p.text || "").join("").trim();
+    if (t) return t;
+  }
+  if (env.GROQ_API_KEY) for (const m of ["llama-3.3-70b-versatile", "qwen/qwen3-32b", "llama-3.1-8b-instant"]) {
+    const j = await coba("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + env.GROQ_API_KEY },
+      body: JSON.stringify({ model: m, max_tokens: maks, temperature: suhu, messages: [...(sistem ? [{ role: "system", content: sistem }] : []), { role: "user", content: prompt }] }) });
+    const t = String((j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || "").replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+    if (t) return t;
+  }
+  return null;
+}
+// Batas pemakaian per IP (per instance worker, cukup untuk mencegah kuota gratis dihabiskan satu orang).
+const AI_JATAH = new Map();
+function aiBoleh(ip, maksPerJam = 12) {
+  const jam = Math.floor(Date.now() / 3600000), k = ip + ":" + jam, n = (AI_JATAH.get(k) || 0) + 1;
+  if (AI_JATAH.size > 5000) AI_JATAH.clear();
+  AI_JATAH.set(k, n);
+  return n <= maksPerJam;
+}
+// POST /alat/api/ai/saran : Lumbung (Kasir > Laporan > "✨ Saran AI"). HP hanya mengirim angka ringkas laporan
+// (omzet, terlaris, cara bayar, jam ramai, stok tipis), bukan data pelanggan. Balasan: 3 saran singkat.
+async function apiAI(request, url, env) {
+  const cors = { "access-control-allow-origin": "*", "access-control-allow-methods": "POST, OPTIONS", "access-control-allow-headers": "content-type" };
+  const json = (o, st) => new Response(JSON.stringify(o), { status: st || 200, headers: { ...cors, "content-type": "application/json", "cache-control": "no-store" } });
+  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+  if (url.pathname === "/alat/api/ai/gambar" && request.method === "POST") return apiGambar(request, env, json);
+  if (url.pathname !== "/alat/api/ai/saran" || request.method !== "POST") return json({ galat: "alamat" }, 404);
+  if (!env.GEMINI_API_KEY && !env.GROQ_API_KEY) return json({ galat: "Fitur AI belum diaktifkan pemilik situs." }, 503);
+  if (!aiBoleh(request.headers.get("cf-connecting-ip") || "?")) return json({ galat: "Saran AI sudah sering dipakai. Coba lagi satu jam lagi ya." }, 429);
+  const teks = (await request.text()).slice(0, 4000);
+  let d; try { d = JSON.parse(teks); } catch (e) { return json({ galat: "Data tidak terbaca." }, 400); }
+  const ringkas = JSON.stringify(d).slice(0, 3000);
+  const t = await aiGratis(env, {
+    sistem: "Kamu konsultan usaha kecil (UMKM) di Indonesia yang ramah dan praktis. Jawab bahasa Indonesia sederhana. " +
+      "Beri TEPAT 3 saran bernomor, masing-masing 1-2 kalimat pendek, berdasarkan angka laporan yang diberikan saja. " +
+      "Saran harus bisa langsung dilakukan besok tanpa biaya besar (mis. stok, susun etalase, promo paket, jam ramai, cara bayar). " +
+      "Jangan mengarang angka yang tidak ada. Tanpa pembuka atau penutup.",
+    prompt: "Laporan penjualan toko (JSON):\n" + ringkas, maks: 350, suhu: 0.5 });
+  if (!t) return json({ galat: "AI sedang sibuk atau kuota gratis harian habis. Coba lagi nanti ya." }, 503);
+  return json({ saran: t.slice(0, 1500) });
+}
+// ===== Gambar AI gratis (Huda 16 Nov 2026: "Dua-duanya" → Flux lewat Cloudflare Workers AI) =====
+// POST /alat/api/ai/gambar {prompt, pin, kirim}. Halaman: /alat/gambar/. Model Flux.1 Schnell (Apache 2.0, boleh komersial),
+// kuota gratis harian Workers AI akun Cloudflare Willo. Dikunci PIN (secret GAMBAR_PIN) supaya kuota tidak dipakai orang lain.
+// Opsional kirim ke @Willo_video_bot: secret TG_VIDEO (token bot) + var TG_CHAT_ID. Token tidak pernah dikirim ke HP.
+async function apiGambar(request, env, json) {
+  if (!env.AI) return json({ galat: "Workers AI belum tersambung (binding AI)." }, 503);
+  if (!env.GAMBAR_PIN) return json({ galat: "PIN gambar belum dipasang pemilik situs (secret GAMBAR_PIN)." }, 503);
+  if (!aiBoleh("gbr:" + (request.headers.get("cf-connecting-ip") || "?"), 40)) return json({ galat: "Sudah terlalu banyak gambar dalam satu jam. Coba lagi nanti." }, 429);
+  let d; try { d = JSON.parse((await request.text()).slice(0, 6000)); } catch (e) { return json({ galat: "Data tidak terbaca." }, 400); }
+  if (String(d.pin || "") !== String(env.GAMBAR_PIN)) return json({ galat: "PIN salah." }, 403);
+  let prompt = String(d.prompt || "").trim().slice(0, 1500);
+  if (prompt.length < 3) return json({ galat: "Tulis dulu gambar yang diinginkan." }, 400);
+  // Flux paling paham bahasa Inggris: terjemahkan & perjelas dulu dengan AI teks gratis (kalau gagal, pakai teks asli).
+  if (d.terjemah !== false) {
+    const en = await aiGratis(env, { sistem: "Translate the user's image request into one detailed English prompt for an image model. Keep every subject, text in quotes, colors and style. Output the prompt only.", prompt, maks: 300, suhu: 0.3 });
+    if (en) prompt = en.replace(/^["']|["']$/g, "").slice(0, 2000);
+  }
+  let hasil;
+  try { hasil = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", { prompt, steps: 8 }); }
+  catch (e) { console.log("gambar", e && e.message); return json({ galat: "Kuota gambar gratis hari ini habis atau server sibuk. Coba lagi nanti." }, 503); }
+  const b64 = hasil && hasil.image;
+  if (!b64) return json({ galat: "Gambar gagal dibuat. Coba ubah kalimatnya." }, 502);
+  let terkirim = false;
+  if (d.kirim && env.TG_VIDEO && env.TG_CHAT_ID) {
+    try {
+      const bin = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+      const f = new FormData();
+      f.append("chat_id", String(env.TG_CHAT_ID));
+      f.append("caption", ("Flux (Cloudflare): " + String(d.prompt || "")).slice(0, 1000));
+      f.append("document", new Blob([bin], { type: "image/jpeg" }), "flux-" + Date.now() + ".jpg");
+      const r = await fetch("https://api.telegram.org/bot" + env.TG_VIDEO + "/sendDocument", { method: "POST", body: f });
+      terkirim = r.ok;
+    } catch (e) { console.log("tg", e && e.message); }
+  }
+  return json({ gambar: b64, prompt, terkirim });
+}
+async function apiToko(request, url, env) {
+  const cors = { "access-control-allow-origin": "*", "access-control-allow-methods": "GET, POST, OPTIONS", "access-control-allow-headers": "content-type, x-kunci, x-admin", "access-control-max-age": "86400" };
+  const jawab = (r) => new Response(r.body, { status: r.status, headers: { ...cors, "content-type": "application/json", "cache-control": "no-store" } });
+  const json = (o, st) => new Response(JSON.stringify(o), { status: st || 200, headers: { ...cors, "content-type": "application/json", "cache-control": "no-store" } });
+  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+  if (!env.TOKO || !["GET", "POST"].includes(request.method)) return json({ galat: "alamat" }, 404);
+  const pusat = env.TOKO.get(env.TOKO.idFromName("pusat-lisensi"));
+  // Admin Lumbung Pro: buat & lihat kode aktivasi. Rahasia LUMBUNG_ADMIN dipasang di Cloudflare (Settings > Variables and Secrets).
+  if (url.pathname.startsWith("/alat/api/pro/")) {
+    const jalur = url.pathname.slice("/alat/api/pro/".length);
+    if (!env.LUMBUNG_ADMIN || String(env.LUMBUNG_ADMIN).length < 12) return json({ galat: "Rahasia LUMBUNG_ADMIN belum dipasang di Cloudflare." }, 503);
+    if ((request.headers.get("x-admin") || "") !== String(env.LUMBUNG_ADMIN)) return json({ galat: "Kata sandi admin salah." }, 403);
+    if (!["buat", "daftar"].includes(jalur)) return json({ galat: "alamat" }, 404);
+    return jawab(await pusat.fetch(new Request("https://toko/pusat/" + jalur, { method: request.method, body: request.method === "POST" ? request.body : undefined })));
+  }
+  const m = url.pathname.slice("/alat/api/toko/".length).match(/^([a-z0-9]{16,40})(?:\/(aktifkan|cadangan|ganti))?$/);
+  if (!m) return json({ galat: "alamat" }, 404);
+  const toko = env.TOKO.get(env.TOKO.idFromName(m[1])), kunci = request.headers.get("x-kunci") || "";
+  if (m[2] === "aktifkan") {
+    if (request.method !== "POST") return json({ galat: "alamat" }, 404);
+    let b = {}; try { b = await request.json(); } catch (e) {}
+    const kode = String(b.kode || "").toUpperCase().replace(/[^A-Z0-9]/g, "").replace(/^LMB/, "");
+    if (kode.length !== 8) return json({ galat: "Kode aktivasi berbentuk LMB-XXXX-XXXX." }, 400);
+    const k = "LMB-" + kode.slice(0, 4) + "-" + kode.slice(4);
+    const cek = await toko.fetch(new Request("https://toko/cek", { headers: { "x-kunci": kunci } }));
+    if (!cek.ok) return jawab(cek);
+    const pakai = await pusat.fetch(new Request("https://toko/pusat/pakai", { method: "POST", body: JSON.stringify({ kode: k, toko: m[1] }) }));
+    if (!pakai.ok) return jawab(pakai);
+    const { hari } = await pakai.json();
+    const r = await toko.fetch(new Request("https://toko/tambah", { method: "POST", headers: { "x-kunci": kunci }, body: JSON.stringify({ hari }) }));
+    if (!r.ok) { await pusat.fetch(new Request("https://toko/pusat/batal", { method: "POST", body: JSON.stringify({ kode: k, toko: m[1] }) })); return jawab(r); }
+    const o = await r.json(); return json({ ok: true, hari, lisensi: o.lisensi });
+  }
+  const sub = m[2] === "cadangan" || m[2] === "ganti" ? m[2] : "";
+  return jawab(await toko.fetch(new Request("https://toko/" + sub + "?" + url.searchParams, { method: request.method, headers: request.headers, body: request.method === "POST" ? request.body : undefined })));
+}
+
 export default {
   // Cron tiap 10 menit (wrangler.jsonc triggers): kirim notifikasi HP Dunia Kotak yang jatuh tempo (panen siap, Pasar Malam, voting, pulang kampung).
   async scheduled(event, env, ctx) {
@@ -2722,6 +2984,17 @@ export default {
       url.pathname = "/pesan/";
       return Response.redirect(url.toString(), 301);
     }
+    // Alat usaha gratis (Huda 15 Nov 2026): /alat, /kasir, /antrian, /kas, /bukukas, /nota, /invoice, /alat/kasir (tanpa garis miring) → folder-nya.
+    {
+      const alat = { "/alat": "/alat/", "/kasir": "/alat/kasir/", "/alat/kasir": "/alat/kasir/", "/antrian": "/alat/antrian/", "/alat/antrian": "/alat/antrian/",
+        "/kas": "/alat/buku-kas/", "/bukukas": "/alat/buku-kas/", "/alat/bukukas": "/alat/buku-kas/", "/alat/jpgkevektor": "/alat/jpg-ke-vektor/",
+        "/nota": "/alat/nota/", "/alat/nota": "/alat/nota/", "/invoice": "/alat/nota/",
+        "/tagihan": "/alat/tagihan/", "/alat/tagihan": "/alat/tagihan/", "/alat/owner": "/alat/owner/", "/dashboard": "/alat/owner/", "/alat/pro": "/alat/pro/", "/lumbungpro": "/alat/pro/", "/alat/pengaturan": "/alat/pengaturan/", "/alat/stok": "/alat/stok/", "/alat/hpp": "/alat/hpp/", "/alat/impor": "/alat/impor/", "/alat/absen": "/alat/absen/", "/absen": "/alat/absen/", "/alat/pembelian": "/alat/pembelian/", "/pembelian": "/alat/pembelian/", "/hpp": "/alat/hpp/", "/kos": "/alat/tagihan/", "/spp": "/alat/tagihan/" };
+      if (alat[pendek] && url.pathname !== alat[pendek]) {
+        url.pathname = alat[pendek];
+        return Response.redirect(url.toString(), 301);
+      }
+    }
     // Halaman "link di bio" Instagram (Huda 13 Nov 2026): /link, /links, /bio → /link/.
     if (["/link", "/links", "/bio"].includes(pendek) && url.pathname !== "/link/") {
       url.pathname = "/link/";
@@ -2751,6 +3024,8 @@ export default {
       const r = await stub.fetch("https://do/?" + q);
       return new Response(r.body, { headers: { "content-type": "application/json", "cache-control": "no-store" } });
     }
+    if (url.pathname.startsWith("/alat/api/toko/") || url.pathname.startsWith("/alat/api/pro/")) return apiToko(request, url, env);
+    if (url.pathname.startsWith("/alat/api/ai/")) return apiAI(request, url, env);
     if (url.pathname.startsWith("/duniakotak/api/")) return apiWarga(request, env, url, ctx);
     if (pendek === "/warga" || pendek === "/daftarwarga") {
       url.pathname = "/duniakotak/";

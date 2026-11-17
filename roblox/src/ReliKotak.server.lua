@@ -27,6 +27,7 @@ local SIRKUIT = Vector3.new(-450, 0, 177.2) -- titik tengah lahan Sirkuit Reli (
 local GESER_CURUG = Vector3.new(0, 0, -10000)
 local FONT = Font.new("rbxasset://fonts/families/Montserrat.json", Enum.FontWeight.Bold)
 local TINGGI = 2.6 -- tinggi HumanoidRootPart di atas jalan saat di mobil
+local MK = require(game:GetService("ReplicatedStorage"):WaitForChild("DK_ModelKendaraan"))
 local WARNA_MOBIL = { Color3.fromRGB(230, 70, 60), Color3.fromRGB(58, 122, 224), Color3.fromRGB(255, 196, 37), Color3.fromRGB(64, 176, 96), Color3.fromRGB(240, 240, 240), Color3.fromRGB(244, 130, 40) }
 
 local store
@@ -271,46 +272,14 @@ local function pasangMobil(player)
 	local m = Instance.new("Model")
 	m.Name = "DK_MobilReli"
 	local warna = WARNA_MOBIL[player.UserId % #WARNA_MOBIL + 1]
-	local HITAM = Color3.fromRGB(30, 30, 34)
-	local function b(ukuran, geser2, w, bentuk, putar)
-		local p = Instance.new("Part")
-		p.Size = ukuran
-		p.Color = w
-		p.Material = Enum.Material.SmoothPlastic
-		p.CanCollide = false
-		p.CanQuery = false
-		p.CanTouch = false
-		p.Massless = true
-		p.TopSurface = Enum.SurfaceType.Smooth
-		p.BottomSurface = Enum.SurfaceType.Smooth
-		if bentuk then p.Shape = bentuk end
-		p.CFrame = hrp.CFrame * CFrame.new(geser2 + Vector3.new(0, -TINGGI, 0)) * (putar or CFrame.new())
-		local w2 = Instance.new("WeldConstraint")
-		w2.Part0 = hrp
-		w2.Part1 = p
-		w2.Parent = p
-		p.Parent = m
-		return p
-	end
-	-- depan mobil = arah hadap tokoh (-Z lokal)
-	b(Vector3.new(6, 1.7, 11), Vector3.new(0, 1.55, 0), warna)            -- bodi
-	b(Vector3.new(5.6, 0.9, 3.4), Vector3.new(0, 2.7, -3.2), warna)       -- kap mesin
-	b(Vector3.new(5.6, 1.4, 0.4), Vector3.new(0, 3.4, -1.5), Color3.fromRGB(170, 215, 240)).Transparency = 0.45 -- kaca depan
-	b(Vector3.new(5.6, 1.1, 2.4), Vector3.new(0, 2.8, 4.1), warna)        -- bagasi
-	b(Vector3.new(6.4, 0.7, 0.9), Vector3.new(0, 0.95, -5.6), HITAM)      -- bumper depan
-	b(Vector3.new(6.4, 0.7, 0.9), Vector3.new(0, 0.95, 5.6), HITAM)       -- bumper belakang
-	b(Vector3.new(0.4, 1.4, 0.4), Vector3.new(-2.4, 3.9, 4.9), HITAM)     -- tiang sayap
-	b(Vector3.new(0.4, 1.4, 0.4), Vector3.new(2.4, 3.9, 4.9), HITAM)
-	b(Vector3.new(6.2, 0.35, 1.5), Vector3.new(0, 4.7, 4.9), HITAM)       -- sayap belakang
-	local rem = b(Vector3.new(1.4, 0.6, 0.3), Vector3.new(-2, 2.0, 5.55), Color3.fromRGB(255, 60, 50))
-	rem.Material = Enum.Material.Neon
-	rem = b(Vector3.new(1.4, 0.6, 0.3), Vector3.new(2, 2.0, 5.55), Color3.fromRGB(255, 60, 50))
-	rem.Material = Enum.Material.Neon
-	for _, x in ipairs({ -3.1, 3.1 }) do
-		for _, z in ipairs({ -3.5, 3.5 }) do
-			b(Vector3.new(1.2, 2.8, 2.8), Vector3.new(x, 1.4, z), HITAM, Enum.PartType.Cylinder)
-		end
-	end
+	-- bentuk mobil sama dengan game web (ReplicatedStorage.DK_ModelKendaraan): Hatch Reli, Kotak GT, atau Jip Garuk
+	local jenis = ({ "hatch", "gt", "jip" })[player.UserId % 3 + 1]
+	local pinggulBerdiri, skala = MK.ukurTokoh(char)
+	local off = MK.naik(jenis, pinggulBerdiri, skala)
+	local mobil = MK.buat(jenis, warna, { las = hrp, cf = hrp.CFrame * CFrame.new(off + Vector3.new(0, -TINGGI, 0)), skala = skala })
+	for _, p in ipairs(mobil:GetChildren()) do p.Parent = m end
+	mobil:Destroy()
+	m.PrimaryPart = m:FindFirstChild("Akar")
 	m.Parent = char
 	return true
 end

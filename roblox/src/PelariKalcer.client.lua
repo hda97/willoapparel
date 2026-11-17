@@ -510,6 +510,8 @@ local function keluar()
 end
 
 local function animasiLari()
+	-- ayunan lari tokoh kotak sekarang diatur GerakKotak (mengikuti laju tokoh), jadi tidak memutar animasi Roblox
+	if true then return nil end
 	local char = player.Character
 	local hum = char and char:FindFirstChildOfClass("Humanoid")
 	local animator = hum and hum:FindFirstChildOfClass("Animator")
