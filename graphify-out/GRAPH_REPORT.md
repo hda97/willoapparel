@@ -1,17 +1,17 @@
 # Graph Report - willoapparel  (2026-11-17)
 
 ## Corpus Check
-- 1286 files · ~9,492,117 words
+- 1286 files · ~9,492,362 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 135 file(s) not represented in the graph (top: (none) 62, .xml 22, .css 9)
 
 ## Summary
-- 21917 nodes · 48598 edges · 607 communities (489 shown, 118 thin omitted)
+- 21917 nodes · 48599 edges · 607 communities (489 shown, 118 thin omitted)
 - Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 2305 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `10f7101a`
+- Built from commit: `81fcd40d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -92,7 +92,7 @@
 - ig-human/detect.py
 - Vector2
 - lab-ajaib.js
-- pasangPeta
+- mulai
 - GLTFLoader.js
 - menara-hitung.js
 - src/ikon.js
@@ -234,7 +234,7 @@
 - Basic3DScene.tsx
 - gsap.min.js
 - mulaiRute
-- animSkill
+- kabarBaru
 - Parser
 - wall-graphics.py
 - Qc
@@ -562,7 +562,7 @@
 - GridPeta.lua
 - Toko
 - AnimationObjectGroup
-- bolaUpdate
+- simpan
 - AnimationObjectGroup
 - parseSteps
 - la
@@ -625,7 +625,7 @@ Nodes (50): ANIM, base(), blue(), C01(), carve(), cat(), catFace(), CATSHOT() (+
 
 ### Community 1 - "mabar/game.js"
 Cohesion: 0.01
-Nodes (174): ADMOB, AK, AL, ALBUM, ALBUM_IKAN, ASET_CALON, ATASAN, aturKualitas() (+166 more)
+Nodes (208): ADMOB, AK, AL, ALBUM, ALBUM_IKAN, animPasar(), animPutar(), animSkill() (+200 more)
 
 ### Community 2 - "worker.js"
 Cohesion: 0.03
@@ -689,7 +689,7 @@ Nodes (54): main(), probe(), ease(), load_plan(), main(), rounded_device(), find
 
 ### Community 17 - "bangunDunia"
 Cohesion: 0.11
-Nodes (35): aturProyek(), bakeGroup(), bangunAktif(), bangunCurug(), bangunDunia(), bangunKulon(), bangunProksi(), bangunSegara() (+27 more)
+Nodes (34): aturProyek(), bakeGroup(), bangunAktif(), bangunCurug(), bangunDunia(), bangunKulon(), bangunProksi(), bangunSegara() (+26 more)
 
 ### Community 18 - "bentuk/game.js"
 Cohesion: 0.18
@@ -740,8 +740,8 @@ Cohesion: 0.08
 Nodes (68): apiUrl(), catalogue(), contactSheet(), deliver(), describePixels(), download(), emptyCache(), escapeHtml() (+60 more)
 
 ### Community 30 - "simpan"
-Cohesion: 0.22
-Nodes (15): barisHadir(), barisMenit(), daftarSesi(), dekatAir(), diTempatSesi(), infoKumpul(), jamKumpul(), jamTeks() (+7 more)
+Cohesion: 0.24
+Nodes (14): barisHadir(), barisMenit(), daftarSesi(), dekatAir(), diTempatSesi(), infoKumpul(), jamKumpul(), jamTeks() (+6 more)
 
 ### Community 31 - "Vox"
 Cohesion: 0.33
@@ -900,8 +900,8 @@ Cohesion: 0.29
 Nodes (16): W, buatPelari(), kaki(), lengan(), cGeo, cLathe, cMat, cTex (+8 more)
 
 ### Community 71 - "desaGabung.js"
-Cohesion: 0.18
-Nodes (14): ARAH(), CABANG, global(), IKON, IMG, keGambar(), LETAK, panjang() (+6 more)
+Cohesion: 0.12
+Nodes (26): buatPeta(), bukaPeta(), fotoUdaraPeta(), gambarPetaBesar(), gambarPetaMini(), keP(), pasangPeta(), pilihFasum() (+18 more)
 
 ### Community 72 - "Cs"
 Cohesion: 0.02
@@ -923,9 +923,9 @@ Nodes (16): Ih, km, _m(), $m, Nm(), sf, um, vm (+8 more)
 Cohesion: 0.24
 Nodes (10): aturPosisi(), bangunTabung(), jawabanKini(), kaca(), labu(), pasangAlat(), siapkanDunia(), topikKe() (+2 more)
 
-### Community 77 - "pasangPeta"
-Cohesion: 0.13
-Nodes (25): alamat(), buatPeta(), bukaPeta(), bukaProfil(), diTempatKerja(), dusunDari(), dusunSaya(), fotoAvatar() (+17 more)
+### Community 77 - "mulai"
+Cohesion: 0.14
+Nodes (24): avAcak(), avKerja(), bersihAv(), buatAvatarObj(), bukaPembuatAvatar(), bukaProfil(), fotoAvatar(), fotoProfil() (+16 more)
 
 ### Community 78 - "GLTFLoader.js"
 Cohesion: 0.02
@@ -1060,8 +1060,8 @@ Cohesion: 0.31
 Nodes (12): ada(), avAcak(), bacaAvatar(), bersih(), hex(), hexOk(), masuk(), pasang() (+4 more)
 
 ### Community 125 - "toast"
-Cohesion: 0.05
-Nodes (115): aksiDealer(), aksiLoket(), aksiWillo(), ALBUM_PANEN(), albumBaru(), albumHitung(), albumPunya(), ambilHadir() (+107 more)
+Cohesion: 0.06
+Nodes (91): aksiDealer(), aksiLoket(), aksiWillo(), ALBUM_PANEN(), albumBaru(), albumHitung(), albumPunya(), ambilHadir() (+83 more)
 
 ### Community 126 - "PMREMGenerator"
 Cohesion: 0.04
@@ -1080,8 +1080,8 @@ Cohesion: 0.20
 Nodes (12): convolve_st(), Band, build(), chorus(), melody(), oompah(), _r(), render() (+4 more)
 
 ### Community 131 - "esc"
-Cohesion: 0.09
-Nodes (42): ambilPiala(), barisPemula(), bisaTanam(), bukaLombaRumah(), bukaPeringkat(), bukaPiala(), bukaTanam(), dialogRaka() (+34 more)
+Cohesion: 0.07
+Nodes (55): alamat(), barisPemula(), bisaKerja(), bisaTanam(), bukaLift(), bukaLombaRumah(), bukaPeringkat(), bukaPiala() (+47 more)
 
 ### Community 132 - "jl"
 Cohesion: 0.06
@@ -1453,11 +1453,11 @@ Nodes (87): _a(), Aa(), Ab(), ac(), Animation(), _assertThisInitialized(), Bb(),
 
 ### Community 228 - "mulaiRute"
 Cohesion: 0.09
-Nodes (30): aturKavling(), bangunKavling(), bangunPasar(), bangunUnitSegara(), buang(), buatInterior(), catKavling(), cekDalamRumah() (+22 more)
+Nodes (31): ambilPiala(), aturKavling(), bangunKavling(), bangunUnitSegara(), buang(), buatInterior(), catKavling(), cekDalamRumah() (+23 more)
 
-### Community 229 - "animSkill"
-Cohesion: 0.08
-Nodes (43): ambilAjakSingkat(), animPasar(), animPutar(), animSkill(), arenaLari(), bukaPasar(), bukaWillo(), dealerKend() (+35 more)
+### Community 229 - "kabarBaru"
+Cohesion: 0.18
+Nodes (22): ambilAjakSingkat(), bukaAjak(), bukaPasar(), bukaWillo(), dekatPasar(), kabarBaru(), keArenaLari(), keDealer() (+14 more)
 
 ### Community 230 - "Parser"
 Cohesion: 0.08
@@ -1540,8 +1540,8 @@ Cohesion: 0.12
 Nodes (5): Triangle, yl(), b(), qn(), track()
 
 ### Community 256 - "loop"
-Cohesion: 0.06
-Nodes (58): avAcak(), avKerja(), bantuLajur(), bebas(), berdirikan(), bersihAv(), bisaDilalui(), buatAvatarObj() (+50 more)
+Cohesion: 0.08
+Nodes (32): bantuLajur(), bebas(), bisaDilalui(), bolaBuat(), bolaLapangan(), bolaTendang(), bolaTerima(), bolaUpdate() (+24 more)
 
 ### Community 257 - "_h"
 Cohesion: 0.04
@@ -2511,9 +2511,9 @@ Nodes (3): beli(), bulat(), pesan()
 Cohesion: 0.83
 Nodes (3): buatIndeks(), kunci(), M.di()
 
-### Community 574 - "bolaUpdate"
-Cohesion: 0.38
-Nodes (7): bolaBuat(), bolaLapangan(), bolaTendang(), bolaTerima(), bolaUpdate(), dekatBola(), skillTendang()
+### Community 574 - "simpan"
+Cohesion: 0.17
+Nodes (21): aturHadir(), baca(), bacaJ(), bantuPemula(), cekNotif(), ingatKoin(), kunciBiner(), layarMasuk() (+13 more)
 
 ### Community 576 - "AnimationObjectGroup"
 Cohesion: 0.42
@@ -2584,7 +2584,7 @@ Nodes (3): baca(), modelPilih, warnaPilih
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Td()` connect `gsap.min.js` to `0.169.0/three.module.min.js`, `_three/three.module.min.js`?**
-  _High betweenness centrality (0.141) - this node is a cross-community bridge._
+  _High betweenness centrality (0.156) - this node is a cross-community bridge._
 - **Are the 35 inferred relationships involving `_` (e.g. with `_e()` and `ao()`) actually correct?**
   _`_` has 35 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `RFC-3987`, `RFC-1951`, `FlateErrorCode` to the rest of the system?**
@@ -2592,8 +2592,8 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `duniakotak/js/desa.js` be split into smaller, more focused modules?**
   _Cohesion score 0.07966457023060797 - nodes in this community are weakly interconnected._
 - **Why does `t()` connect `gsap.min.js` to `three.core.js`?**
-  _High betweenness centrality (0.079) - this node is a cross-community bridge._
+  _High betweenness centrality (0.088) - this node is a cross-community bridge._
 - **Are the 79 inferred relationships involving `C()` (e.g. with `Co()` and `Be()`) actually correct?**
   _`C()` has 79 INFERRED edges - model-reasoned connections that need verification._
 - **Should `mabar/game.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.012573443008225616 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.012106740396296762 - nodes in this community are weakly interconnected._

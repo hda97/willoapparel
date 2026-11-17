@@ -113,9 +113,9 @@
     "semantic_hash": "16f7aa92d3e9468edf41dd30b4c182d1"
   },
   "public/duniakotak/mabar/game.js": {
-    "mtime": 1794954981.9212625,
-    "seen": 1794955050.2133353,
-    "ast_hash": "2f1e6eb5073ea95b84f51891e255179e",
+    "mtime": 1794955481.6200159,
+    "seen": 1794955647.0628903,
+    "ast_hash": "db522eb420511ea3b23d4e293bb74c3a",
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/js/aset/avatar.js": {
@@ -209,9 +209,9 @@
     "semantic_hash": "bf3f8e495130df0e60287acb7ca38561"
   },
   "worker.js": {
-    "mtime": 1794954997.1883903,
-    "seen": 1794955050.213509,
-    "ast_hash": "c17ca8a326816faea1aa8515dfbd2f27",
+    "mtime": 1794955481.624405,
+    "seen": 1794955647.0631297,
+    "ast_hash": "1424eb43280f841990a0aef3bf7187be",
     "semantic_hash": ""
   },
   "public/kantor-agen-ai/demo-kantor-ai.mp4": {
@@ -971,9 +971,9 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mabar/index.html": {
-    "mtime": 1794954981.9223049,
-    "seen": 1794955050.2147558,
-    "ast_hash": "ade0210a38373cf0781edee91af2d511",
+    "mtime": 1794955468.670651,
+    "seen": 1794955647.065212,
+    "ast_hash": "a5305ec51ecde9d4160f44a7cb7174f4",
     "semantic_hash": ""
   },
   "public/duniakotak/privasi.html": {
@@ -17999,15 +17999,15 @@
     "semantic_hash": ""
   },
   "public/duniakotak/mancing/mancing.js": {
-    "mtime": 1794953805.4492583,
-    "seen": 1794955050.213374,
-    "ast_hash": "e65622191d2d04c1ca0e596cfec16b5e",
+    "mtime": 1794955459.7584238,
+    "seen": 1794955647.0629437,
+    "ast_hash": "ee6b34ce4f224d4ccad0cb58dfd35be3",
     "semantic_hash": ""
   },
   "public/duniakotak/mancing/index.html": {
-    "mtime": 1794953318.7865734,
-    "seen": 1794955050.2147572,
-    "ast_hash": "c5bbc29eeb4b6ebd25f9da5911060e1f",
+    "mtime": 1794955468.6720152,
+    "seen": 1794955647.0652144,
+    "ast_hash": "b1f7fa37e332c4445e8c6316eccbf59e",
     "semantic_hash": ""
   },
   "public/duniakotak/reel/2026-11-18-sampul.jpg": {

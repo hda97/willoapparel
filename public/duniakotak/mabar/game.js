@@ -1214,12 +1214,16 @@ const KOLAM_MISI = [
   // makin banyak fasum dibangun di dusun-dusun, makin beragam misinya.
   {id: 'dusun', ikon: '🗺️', judul: 'Jelajah dusun yang berbeda (naik bus di terminal)', t: [2, 3], satuan: 'dusun', koin: 15},
   {id: 'khas', ikon: '📍', judul: 'Kunjungi fasum khas hari ini', t: [1], koin: 15},
+  // Mancing Kotak (Huda 18 Nov 2026: "Masuk misi harian?"): selesai 1 sesi lomba di /duniakotak/mancing/ (progres ditulis halaman itu ke dk_misi)
+  {id: 'lombamancing', ikon: '🏆', judul: 'Ikut Lomba Mancing Kotak sampai waktu habis', t: [1], koin: 10, info: 'Gapura Mancing Kotak ada di Dermaga Dusun Kotak Tlaga. Naik ke dermaga, tekan 🏆 Lomba.', ke: ['tlaga', 'Mancing Kotak']},
 ];
 function undiMisi(hari) {
   let h = 2166136261; for (const c of 'dk' + hari) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
   const r = () => { h = (h + 0x6D2B79F5) >>> 0; let t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   const a = KOLAM_MISI.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
   const pilih = a.slice(0, 6).map(m => ({...m, target: m.t[Math.floor(r() * m.t.length)]}));
+  // Lomba Mancing Kotak SELALU ada tiap hari (Huda 18 Nov 2026): kalau tidak terundi, menggantikan misi ke-6. Sama dengan misiHari() di worker.js.
+  if (!pilih.some(m => m.id === 'lombamancing')) { const lm = KOLAM_MISI.find(m => m.id === 'lombamancing'); pilih[5] = {...lm, target: lm.t[0]}; }
   const kh = pilih.find(m => m.id === 'khas');
   if (kh) { const d = FASUM_KHAS(); let h2 = 0; for (const c of hari) h2 = (h2 * 31 + c.charCodeAt(0)) >>> 0; const [dd, nm] = d[h2 % d.length];
     Object.assign(kh, {judul: `Kunjungi ${nm} di Dusun ${NAMA_DUSUN[dd] || dd}`, info: `Fasum khas Dusun ${NAMA_DUSUN[dd] || dd}. Besok fasum lain!`, ke: [dd, nm]}); }
@@ -1237,6 +1241,8 @@ function muatMisi() {
   const l = bacaJ('dk_misi') || {}; MS.p = l.t === MS.t && l.no === S.saya?.no ? l.p || {} : {};
   MS.selesai = new Set(S.saya?.misi || []);
   tandaKoin();
+  // progres dari mini-game di halaman lain (mis. Lomba Mancing Kotak) langsung diklaim saat kembali ke desa
+  if (!S.tamu && S.saya) for (const m of MISI) if (!MS.selesai.has(m.id) && progresMisi(m) >= m.target) klaimMisi(m.id);
 }
 function tandaKoin() {
   const n = MISI.filter(m => MS.selesai.has(m.id)).length;
