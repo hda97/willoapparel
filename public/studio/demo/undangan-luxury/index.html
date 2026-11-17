@@ -105,6 +105,14 @@ input,select,textarea{background:#1C1C21;border-color:#3A3222;color:#EDE6D6}
 .pesan{background:#1E2A20;color:#DDEBD8}
 .kisah div:before{background:#0D0D0F}
 .ayat{font-family:"Cormorant Garamond",serif;color:#EDE6D6}.penutup{background:#000;color:#E6CB86}.penutup h2{color:#E6CB86}
+.sampul>*:not(.hias):not(.bunga){position:relative;z-index:1}.hias{position:absolute;pointer-events:none;z-index:0}
+.sampul .bunga{display:none}
+@keyframes masuk{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}.hias.atas{animation:masuk 1.4s ease both}
+.hias.bingkai{inset:14px;border:1.4px solid #D4AF37}.hias.bingkai:after{content:"";position:absolute;inset:6px;border:.6px solid #8C7440}
+.sampul .bunga.kiri-atas,.sampul .bunga.kanan-bawah{display:block;width:120px;height:120px}
+.hias.atas{top:70px;left:50%;width:240px;margin-left:-120px;opacity:.75}
+.sampul{padding-top:90px}
+.sampul,section.alt{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E"),radial-gradient(120% 80% at 50% 30%,#232327 0%,#0D0D0F 75%)}
 </style></head>
 <body data-demo="undangan digital">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -138,6 +146,9 @@ input,select,textarea{background:#1C1C21;border-color:#3A3222;color:#EDE6D6}
 </svg>
 
 <div class="sampul" id="sampul">
+<div class="hias bingkai"></div>
+<svg class="hias atas" viewBox="0 0 240 120" aria-hidden="true"><g stroke="#D4AF37" fill="none"><path d="M20 118A100 100 0 0 1 220 118" stroke-width="1"/><path d="M50 118A70 70 0 0 1 190 118" stroke-width=".7"/>
+<g stroke-width=".7" opacity=".8"><path d="M120 118L120 18M120 118L70 31M120 118L170 31M120 118L33 68M120 118L207 68M120 118L95 22M120 118L145 22M120 118L49 47M120 118L191 47"/></g></g><circle cx="120" cy="118" r="5" fill="#D4AF37"/></svg>
   <svg class="bunga kiri-atas"><use href="#deko"/></svg>
   <svg class="bunga kanan-bawah"><use href="#deko"/></svg>
   <svg class="ikon" viewBox="0 0 120 120" style="width:96px;height:96px;margin-bottom:8px"><use href="#monogram"/></svg><small>THE WEDDING OF</small>

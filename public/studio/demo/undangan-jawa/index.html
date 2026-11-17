@@ -99,6 +99,14 @@ section.alt{background-color:var(--k2);background-image:url("data:image/svg+xml,
 .bunga.kiri-atas{left:0;top:0}.bunga.kanan-atas{right:0;top:0}.bunga.kanan-bawah{right:0;bottom:0}
 .ayat{font-family:"Cormorant Garamond",serif}
 section .bunga{width:120px;height:120px;opacity:.75}section .w{padding-top:30px}
+.sampul>*:not(.hias):not(.bunga){position:relative;z-index:1}.hias{position:absolute;pointer-events:none;z-index:0}
+.sampul .bunga{display:none}
+@keyframes masuk{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}.hias.atas{animation:masuk 1.4s ease both}
+.sampul .ikon{display:none}
+.hias.bingkai{inset:14px;border:1.5px solid #C9A46A;border-radius:6px}.hias.bingkai:after{content:"";position:absolute;inset:6px;border:.6px solid #C9A46A;border-radius:3px}
+.hias.atas{top:34px;left:50%;width:min(340px,86vw);margin-left:calc(min(340px,86vw)/-2)}
+.hias.bawah{left:32px;right:32px;bottom:104px;height:30px;border-top:1.2px solid #C9A46A;border-bottom:1.2px solid #C9A46A;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cg fill='none' stroke='%239C6B2F' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M-2 30C4 22 6 16 12 14 18 12 22 6 30 -2'/%3E%3Ccircle cx='12' cy='14' r='2.4' fill='%23C9A46A' stroke='none'/%3E%3C/g%3E%3C/svg%3E") repeat-x center/28px;opacity:.85}
+.sampul{justify-content:center;padding-top:150px}
 </style></head>
 <body data-demo="undangan digital">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -131,6 +139,10 @@ section .bunga{width:120px;height:120px;opacity:.75}section .w{padding-top:30px}
 </svg>
 
 <div class="sampul" id="sampul">
+<div class="hias bingkai"></div>
+<svg class="hias atas" viewBox="0 0 360 130" aria-hidden="true"><defs><g id="sayapJ" fill="none" stroke="#9C6B2F" stroke-width="2.2" stroke-linecap="round"><path d="M206 78C238 78 254 56 282 58 310 60 318 84 300 92 286 98 274 84 286 78"/><path d="M214 96C252 108 296 106 344 92"/><path d="M232 66C236 44 258 36 272 42 284 48 278 62 266 60"/><path d="M214 96C226 112 248 118 262 112"/><circle cx="344" cy="92" r="4" fill="#C9A46A" stroke="none"/><circle cx="262" cy="112" r="3" fill="#C9A46A" stroke="none"/></g></defs>
+<use href="#sayapJ"/><use href="#sayapJ" transform="translate(360 0) scale(-1 1)"/><use href="#gunungan" x="146" y="0" width="68" height="96"/><path d="M120 124H240" stroke="#C9A46A" stroke-width="1.2"/><path d="M180 118L186 124 180 130 174 124Z" fill="#9C6B2F"/></svg>
+<div class="hias bawah"></div>
   <svg class="bunga kiri-atas"><use href="#ukir"/></svg>
   <svg class="bunga kanan-bawah"><use href="#ukir"/></svg>
   <svg class="ikon" viewBox="0 0 100 140" style="width:78px;height:110px;margin-bottom:10px"><use href="#gunungan"/></svg><small>PAWIWAHAN</small>
