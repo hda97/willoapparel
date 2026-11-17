@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="id"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dewi &amp; Arif · Contoh Undangan Digital Willo Studio</title>
+<meta name="description" content="Contoh undangan pernikahan digital buatan Willo Studio. Nama dan acara di halaman ini fiktif.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--k:#F7F1E6;--s:#6F8466;--s2:#4C5E45;--e:#B8925A;--t:#2D2A24;--a:#7B746A}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:var(--t);background:var(--k);text-align:center;line-height:1.55}
+.serif{font-family:"Cormorant Garamond",serif}
+.w{max-width:520px;margin:0 auto;padding:0 22px}
+.sampul{position:fixed;inset:0;z-index:50;background:var(--s2);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;transition:transform .8s ease}
+.sampul.buka{transform:translateY(-100%)}
+.sampul small{letter-spacing:.2em;font-size:12px;opacity:.8}
+.sampul h1{font-size:58px;line-height:1;margin:14px 0}
+.sampul .kpd{margin:26px 0 8px;font-size:14px;opacity:.85}
+.sampul .tamu{font-size:24px;font-weight:700;margin-bottom:26px}
+.bt{border:0;background:var(--e);color:#fff;border-radius:999px;padding:13px 26px;font:700 15px "Plus Jakarta Sans";cursor:pointer}
+.bt.o{background:none;border:1.5px solid var(--e);color:var(--e)}
+section{padding:60px 0;border-bottom:1px solid #E7DCC8}
+.daun{width:120px;margin:0 auto 10px;display:block}
+h2{font-size:40px;line-height:1.05;color:var(--s2)}
+.nama{font-size:52px;line-height:1;color:var(--s2)}
+.ayat{font-style:italic;color:var(--a);font-size:19px;margin-top:14px}
+.ortu{color:var(--a);font-size:14px;margin-top:6px}
+.dan{font-size:40px;color:var(--e);margin:12px 0}
+.hitung{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:24px 0}
+.hitung div{background:#fff;border-radius:16px;padding:14px 4px}
+.hitung b{display:block;font-size:30px;font-family:"Cormorant Garamond";color:var(--s2)}
+.hitung span{font-size:12px;color:var(--a)}
+.acara{background:#fff;border-radius:22px;padding:24px;margin-top:16px}
+.acara h3{font-family:"Cormorant Garamond";font-size:30px;color:var(--s2)}
+.acara p{color:var(--a);font-size:15px}
+.galeri{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.galeri div{aspect-ratio:3/4;border-radius:16px}
+.galeri div:nth-child(1){background:linear-gradient(160deg,#C9D5BE,#8FA483)}
+.galeri div:nth-child(2){background:linear-gradient(160deg,#EAD7B5,#C9A46F);margin-top:24px}
+.galeri div:nth-child(3){background:linear-gradient(160deg,#E3C7B8,#B98E78);margin-top:-24px}
+.galeri div:nth-child(4){background:linear-gradient(160deg,#D2DCE0,#93A7B0)}
+form{display:flex;flex-direction:column;gap:10px;margin-top:20px;text-align:left}
+input,select,textarea{border:1px solid #E1D5C0;border-radius:12px;padding:12px 14px;font:inherit;background:#fff}
+.ucapan{margin-top:20px;display:flex;flex-direction:column;gap:10px;text-align:left}
+.ucapan div{background:#fff;border-radius:14px;padding:12px 14px;font-size:14px}
+.ucapan b{color:var(--s2)}
+.amplop{background:#fff;border-radius:22px;padding:22px;margin-top:16px}
+.amplop .no{font-size:24px;font-weight:700;letter-spacing:.06em;margin:6px 0}
+.pesan{background:#E7F7EC;border-radius:14px;padding:14px;white-space:pre-wrap;text-align:left;font-size:14px;margin-top:12px;display:none}
+footer{padding:36px 0;color:var(--a);font-size:13px}
+</style></head>
+<body data-demo="undangan digital">
+<div class="sampul" id="sampul">
+  <small>UNDANGAN PERNIKAHAN</small>
+  <h1 class="serif">Dewi &amp; Arif</h1>
+  <div class="kpd">Kepada Yth. Bapak/Ibu/Saudara/i</div>
+  <div class="tamu" id="tamu">Tamu Undangan</div>
+  <button class="bt" id="buka">Buka Undangan</button>
+</div>
+
+<section><div class="w">
+  <svg class="daun" viewBox="0 0 120 40"><path d="M60 36C40 30 22 30 6 20c18-4 36 0 54 16zM60 36c20-6 38-6 54-16-18-4-36 0-54 16z" fill="#6F8466"/><circle cx="60" cy="34" r="4" fill="#B8925A"/></svg>
+  <p class="ayat serif">"Dan di antara tanda-tanda kebesaran-Nya ialah Dia menciptakan pasangan untukmu dari jenismu sendiri, agar kamu merasa tenteram kepadanya."</p>
+  <p class="ortu">QS. Ar-Rum: 21</p>
+</div></section>
+
+<section><div class="w">
+  <div class="nama serif">Dewi Lestari</div>
+  <p class="ortu">Putri Bapak Sutrisno &amp; Ibu Wartini</p>
+  <div class="dan serif">&amp;</div>
+  <div class="nama serif">Arif Prasetyo</div>
+  <p class="ortu">Putra Bapak Haryanto &amp; Ibu Sumiati</p>
+</div></section>
+
+<section><div class="w">
+  <h2 class="serif">Menuju hari bahagia</h2>
+  <div class="hitung"><div><b id="hh">0</b><span>Hari</span></div><div><b id="jj">0</b><span>Jam</span></div><div><b id="mm">0</b><span>Menit</span></div><div><b id="dd">0</b><span>Detik</span></div></div>
+  <div class="acara"><h3>Akad Nikah</h3><p id="tgl1"></p><p>08.00 WIB · Masjid Contoh</p></div>
+  <div class="acara"><h3>Resepsi</h3><p id="tgl2"></p><p>11.00–14.00 WIB · Rumah mempelai wanita</p>
+    <p style="margin-top:12px"><button class="bt o" onclick="alert('Di undangan asli, tombol ini membuka Google Maps.')">Lihat lokasi</button></p></div>
+</div></section>
+
+<section><div class="w">
+  <h2 class="serif">Galeri</h2>
+  <div class="galeri"><div></div><div></div><div></div><div></div></div>
+  <p class="ortu" style="margin-top:12px">Foto prewedding tampil di sini.</p>
+</div></section>
+
+<section><div class="w">
+  <h2 class="serif">Konfirmasi kehadiran</h2>
+  <form id="rsvp">
+    <input id="rn" placeholder="Nama" required>
+    <select id="rh"><option>Insya Allah hadir</option><option>Belum bisa hadir</option></select>
+    <select id="rj"><option>1 orang</option><option>2 orang</option><option>3 orang</option></select>
+    <textarea id="ru" rows="3" placeholder="Ucapan dan doa"></textarea>
+    <button class="bt" type="submit">Kirim</button>
+  </form>
+  <div class="pesan" id="pesan"></div>
+  <div class="ucapan" id="ucapan"></div>
+</div></section>
+
+<section><div class="w">
+  <h2 class="serif">Amplop digital</h2>
+  <p class="ortu">Doa restu Anda sudah lebih dari cukup. Bagi yang ingin memberi tanda kasih:</p>
+  <div class="amplop"><p>Bank Contoh a.n. Dewi Lestari</p><div class="no" id="rek">1234 5678 90</div>
+    <button class="bt o" id="salin">Salin nomor rekening</button></div>
+</div></section>
+<footer>Nama dan acara di undangan ini fiktif. Contoh oleh Willo Studio.</footer>
+<script>
+var q=new URLSearchParams(location.search).get("to");if(q)document.getElementById("tamu").textContent=q;
+document.getElementById("buka").onclick=function(){document.getElementById("sampul").classList.add("buka");};
+var hari=new Date();hari.setDate(hari.getDate()+40);hari.setHours(8,0,0,0);
+var f=hari.toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+document.getElementById("tgl1").textContent=f;document.getElementById("tgl2").textContent=f;
+function jalan(){var s=Math.max(0,(hari-new Date())/1000);
+ document.getElementById("hh").textContent=Math.floor(s/86400);document.getElementById("jj").textContent=Math.floor(s%86400/3600);
+ document.getElementById("mm").textContent=Math.floor(s%3600/60);document.getElementById("dd").textContent=Math.floor(s%60);}
+jalan();setInterval(jalan,1000);
+var U=[{n:"Keluarga Bp. Slamet",u:"Selamat menempuh hidup baru, semoga sakinah mawaddah warahmah."},{n:"Teman kantor",u:"Barakallah! Lancar sampai hari H."}];
+try{U=JSON.parse(localStorage.getItem("demo_ucapan"))||U}catch(e){}
+function tampil(){document.getElementById("ucapan").innerHTML=U.map(function(x){var d=document.createElement("div");d.textContent=x.u;return "<div><b>"+x.n.replace(/[<>&]/g,"")+"</b><br>"+d.innerHTML+"</div>"}).join("");}
+tampil();
+document.getElementById("rsvp").onsubmit=function(e){e.preventDefault();var n=rn.value.trim(),u=ru.value.trim();
+ if(u){U.unshift({n:n,u:u});try{localStorage.setItem("demo_ucapan",JSON.stringify(U.slice(0,20)))}catch(x){}tampil();}
+ var p=document.getElementById("pesan");p.style.display="block";
+ p.textContent="Pesan yang diterima mempelai lewat WA:\n\nKonfirmasi kehadiran\nNama: "+n+"\nKehadiran: "+rh.value+"\nJumlah: "+rj.value+(u?"\nUcapan: "+u:"");this.reset();};
+document.getElementById("salin").onclick=function(){var t=document.getElementById("rek").textContent.replace(/\s/g,"");
+ (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){},function(){});this.textContent="Tersalin";};
+</script>
+<script src="../pita.js"></script>
+</body></html>

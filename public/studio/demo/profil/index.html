@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="id"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kilat Laundry · Contoh Company Profile Willo Studio</title>
+<meta name="description" content="Contoh website company profile 3 halaman buatan Willo Studio. Usaha di halaman ini fiktif.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--b:#0F6E8C;--b2:#0A4A5E;--m:#E9F6FA;--kun:#FFC94A;--t:#11232B;--a:#5A6B72;--g:#DCE9EE}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:var(--t);background:#fff;line-height:1.55}
+.w{max-width:1040px;margin:0 auto;padding:0 20px}
+h1,h2,h3{font-family:"Baloo 2",sans-serif;line-height:1.08}
+nav{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--g)}
+nav .w{display:flex;align-items:center;justify-content:space-between;height:62px}
+.logo{display:flex;align-items:center;gap:8px;font-family:"Baloo 2";font-weight:800;font-size:22px;color:var(--b2);text-decoration:none}
+.menu{display:flex;gap:4px}
+.menu a{text-decoration:none;color:var(--a);font-weight:700;font-size:14px;padding:8px 10px;border-radius:10px}
+.menu a.on{background:var(--m);color:var(--b2)}
+.hal{display:none}.hal.on{display:block}
+.hero{background:var(--b);color:#fff;padding:56px 0 64px}
+.hero .w{display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center}
+.hero h1{font-size:clamp(38px,6.5vw,62px)}
+.hero p{opacity:.9;font-size:18px;margin:14px 0 24px}
+.btn{display:inline-block;background:var(--kun);color:var(--t);font-weight:800;text-decoration:none;padding:13px 22px;border-radius:14px;border:0;cursor:pointer;font-size:15px}
+.btn.o{background:none;color:#fff;border:2px solid rgba(255,255,255,.5);margin-left:8px}
+.angka{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:-34px}
+.angka div{background:#fff;border-radius:18px;padding:18px;box-shadow:0 10px 30px rgba(15,110,140,.12);text-align:center}
+.angka b{display:block;font-family:"Baloo 2";font-size:34px;color:var(--b)}
+.angka span{color:var(--a);font-size:14px}
+section{padding:54px 0}
+h2{font-size:clamp(30px,5vw,42px);margin-bottom:8px}
+.sub{color:var(--a);margin-bottom:24px}
+.lay{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.lay div{background:var(--m);border-radius:20px;padding:22px}
+.lay h3{font-size:22px}.lay p{color:var(--a);font-size:15px}.lay b{display:block;margin-top:10px;color:var(--b2)}
+.galeri{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.galeri div{aspect-ratio:1;border-radius:16px;background:linear-gradient(135deg,#BFE3EE,#7BBFD3)}
+.galeri div:nth-child(2n){background:linear-gradient(135deg,#FFE4A3,#F5C04A)}
+.galeri div:nth-child(3n){background:linear-gradient(135deg,#D7EEDC,#8CCB9C)}
+.dua{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center}
+.visi{background:var(--m);border-radius:22px;padding:26px}
+.visi li{margin:8px 0 0 18px;color:var(--a)}
+.tim{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tim div{text-align:center;background:var(--m);border-radius:20px;padding:22px}
+.tim i{display:block;width:76px;height:76px;border-radius:50%;margin:0 auto 10px;background:var(--b);color:#fff;font:800 28px/76px "Baloo 2";font-style:normal}
+.tim small{color:var(--a)}
+.kontak{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.kontak ul{list-style:none}
+.kontak li{padding:12px 0;border-bottom:1px dashed var(--g)}
+.peta{border-radius:20px;min-height:260px;background:repeating-linear-gradient(0deg,#E6F2F6 0 22px,#DCECF2 22px 44px),#E6F2F6;position:relative}
+.peta:after{content:"";position:absolute;left:50%;top:45%;width:32px;height:32px;background:var(--b);border-radius:50% 50% 50% 0;transform:translate(-50%,-50%) rotate(-45deg);box-shadow:0 0 0 8px rgba(15,110,140,.2)}
+form{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+input,textarea{border:1px solid var(--g);border-radius:12px;padding:12px 14px;font:inherit}
+footer{background:var(--b2);color:#cfe3ea;font-size:14px;padding:26px 0;text-align:center}
+@media(max-width:760px){.hero .w,.dua,.kontak{grid-template-columns:1fr}.lay,.tim{grid-template-columns:1fr}.galeri{grid-template-columns:repeat(2,1fr)}.angka{grid-template-columns:repeat(3,1fr);gap:8px}.angka b{font-size:24px}.angka span{font-size:12px}.menu a{padding:8px 7px;font-size:13px}.logo span{display:none}.btn.o{margin:10px 0 0}}
+</style></head>
+<body data-demo="company profile">
+<nav><div class="w">
+  <a class="logo" href="#beranda"><svg width="34" height="34" viewBox="0 0 34 34"><rect width="34" height="34" rx="10" fill="#0F6E8C"/><circle cx="17" cy="18" r="8" fill="none" stroke="#FFC94A" stroke-width="3"/><circle cx="17" cy="18" r="3" fill="#fff"/><rect x="8" y="6" width="5" height="3" rx="1.5" fill="#fff"/></svg><span>Kilat Laundry</span></a>
+  <div class="menu"><a href="#beranda" data-h="beranda">Beranda</a><a href="#tentang" data-h="tentang">Tentang</a><a href="#kontak" data-h="kontak">Kontak</a></div>
+</div></nav>
+
+<div class="hal" id="beranda">
+  <div class="hero"><div class="w">
+    <div>
+      <h1>Baju bersih, wangi, rapi. Selesai dalam 1 hari.</h1>
+      <p>Laundry kiloan dan satuan dengan antar jemput gratis untuk area kota.</p>
+      <a class="btn" href="#kontak">Jadwalkan jemput</a><a class="btn o" href="#tentang">Kenali kami</a>
+    </div>
+    <svg viewBox="0 0 200 200" style="max-width:300px;width:100%;margin:0 auto"><rect x="40" y="26" width="120" height="150" rx="18" fill="#fff"/><rect x="40" y="26" width="120" height="34" rx="18" fill="#DCECF2"/><circle cx="62" cy="43" r="6" fill="#FFC94A"/><circle cx="80" cy="43" r="6" fill="#0F6E8C"/><circle cx="100" cy="114" r="46" fill="#0F6E8C"/><circle cx="100" cy="114" r="36" fill="#7BBFD3"/><path d="M66 122q17-14 34 0t34 0" stroke="#fff" stroke-width="6" fill="none"/></svg>
+  </div></div>
+  <div class="w angka"><div><b>2.000+</b><span>pelanggan</span></div><div><b>24 jam</b><span>selesai</span></div><div><b>Gratis</b><span>antar jemput</span></div></div>
+  <section><div class="w">
+    <h2>Layanan</h2><p class="sub">Harga contoh, bisa disesuaikan.</p>
+    <div class="lay">
+      <div><h3>Cuci kiloan</h3><p>Cuci, kering, setrika, lipat rapi.</p><b>Rp7.000 / kg</b></div>
+      <div><h3>Satuan &amp; jas</h3><p>Kemeja, jas, kebaya, gaun.</p><b>Mulai Rp15.000</b></div>
+      <div><h3>Bed cover &amp; karpet</h3><p>Dicuci mesin besar, wangi tahan lama.</p><b>Mulai Rp25.000</b></div>
+    </div>
+  </div></section>
+  <section style="padding-top:0"><div class="w">
+    <h2>Galeri</h2><p class="sub">Foto toko dan hasil cucian tampil di sini.</p>
+    <div class="galeri"><div></div><div></div><div></div><div></div></div>
+  </div></section>
+</div>
+
+<div class="hal" id="tentang">
+  <section><div class="w dua">
+    <div><h2>Tentang kami</h2><p class="sub">Berawal dari satu mesin cuci di garasi rumah, sekarang Kilat Laundry melayani ribuan pelanggan dengan 8 mesin dan 2 kurir. Kami percaya pelanggan cukup memikirkan pekerjaannya, urusan baju biar kami yang beres.</p></div>
+    <div class="visi"><h3>Visi &amp; janji kami</h3><ul><li>Baju kembali tepat waktu</li><li>Satu pelanggan, satu mesin, tidak dicampur</li><li>Kalau ada yang rusak atau hilang, kami ganti</li></ul></div>
+  </div></section>
+  <section style="padding-top:0"><div class="w">
+    <h2>Tim kami</h2><p class="sub">Orang-orang di balik baju wangi Anda.</p>
+    <div class="tim"><div><i>B</i><b>Bu Ratna</b><br><small>Pemilik</small></div><div><i>D</i><b>Dimas</b><br><small>Kurir</small></div><div><i>S</i><b>Sri</b><br><small>Setrika &amp; QC</small></div></div>
+  </div></section>
+</div>
+
+<div class="hal" id="kontak">
+  <section><div class="w kontak">
+    <div>
+      <h2>Kontak</h2>
+      <ul><li><b>WhatsApp:</b> 08xx-xxxx-xxxx</li><li><b>Alamat:</b> Jl. Contoh No. 2, Kota Anda</li><li><b>Jam buka:</b> Senin–Sabtu 07.00–20.00</li><li><b>Instagram:</b> @kilatlaundry (contoh)</li></ul>
+      <form id="f"><input placeholder="Nama" required><input placeholder="Alamat jemput" required><textarea rows="3" placeholder="Catatan, misal: 5 kg + 1 bed cover"></textarea><button class="btn" type="submit">Kirim lewat WA</button></form>
+    </div>
+    <div class="peta" role="img" aria-label="Peta lokasi"></div>
+  </div></section>
+</div>
+<footer>Kilat Laundry adalah usaha fiktif untuk contoh. Dibuat oleh Willo Studio.</footer>
+<script>
+function buka(){var h=(location.hash||"#beranda").slice(1);if(!document.getElementById(h))h="beranda";
+ document.querySelectorAll(".hal").forEach(function(x){x.classList.toggle("on",x.id===h)});
+ document.querySelectorAll(".menu a").forEach(function(a){a.classList.toggle("on",a.dataset.h===h)});scrollTo(0,0);}
+addEventListener("hashchange",buka);buka();
+document.getElementById("f").onsubmit=function(e){e.preventDefault();alert("Di website asli, formulir ini membuka chat WA laundry dengan data yang sudah terisi.");};
+</script>
+<script src="../pita.js"></script>
+</body></html>
