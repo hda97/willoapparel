@@ -20,7 +20,7 @@ header p{opacity:.85;font-size:14px;margin-top:4px}
 .kat button.on{background:var(--t);color:#fff;border-color:var(--t)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;padding:10px 0 96px}
 .p{background:#fff;border:1px solid var(--g);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
-.p .f{aspect-ratio:4/3;display:grid;place-items:center}
+.p .f{aspect-ratio:1;background:#F2EEE3}.p .f img{width:100%;height:100%;object-fit:cover;display:block}
 .p .i{padding:12px 14px 14px;display:flex;flex-direction:column;gap:4px;flex:1}
 .p b{font-size:16px}
 .p small{color:var(--a);font-size:13px;line-height:1.4}
@@ -64,18 +64,14 @@ footer{text-align:center;color:var(--a);font-size:13px;padding:10px 0 30px}
 </div></div>
 <footer>Camilan Bu Sari adalah usaha fiktif untuk contoh. Dibuat oleh Willo Studio.</footer>
 <script>
-var W={kun:"#F4B63F",cok:"#A0652E",mer:"#C8452F",hij:"#5E9C55",kr:"#F2D9A6"};
-function gb(a,b,c){return '<svg viewBox="0 0 120 90" width="70%"><ellipse cx="60" cy="72" rx="44" ry="8" fill="#0001"/><path d="M22 60 Q30 20 60 18 Q90 20 98 60 Q60 74 22 60z" fill="'+a+'"/><circle cx="48" cy="40" r="6" fill="'+b+'"/><circle cx="70" cy="34" r="5" fill="'+b+'"/><circle cx="76" cy="52" r="6" fill="'+b+'"/><circle cx="52" cy="56" r="4" fill="'+b+'"/></svg>';}
 var P=[
- {n:"Keripik tempe original",k:"Keripik",d:"Tipis, renyah, bumbu bawang daun.",v:{"100 gr":10000,"250 gr":22000},w:[W.kun,W.cok],bg:"#FFF3D6"},
- {n:"Keripik tempe pedas",k:"Keripik",d:"Balado level sedang.",v:{"100 gr":11000,"250 gr":24000},w:[W.mer,W.kun],bg:"#FFE5DD"},
- {n:"Keripik singkong",k:"Keripik",d:"Singkong pilihan, gurih asin.",v:{"150 gr":9000,"300 gr":17000},w:[W.kr,W.kun],bg:"#FFF6E3"},
- {n:"Keripik bayam",k:"Keripik",d:"Daun bayam lebar, tepung renyah.",v:{"100 gr":12000},w:[W.hij,W.kun],bg:"#E7F3E3"},
- {n:"Rempeyek kacang",k:"Kue kering",d:"Kacang tanah melimpah.",v:{"1 toples":25000},w:[W.kr,W.cok],bg:"#F8EEDC"},
- {n:"Kue kacang",k:"Kue kering",d:"Lumer di mulut.",v:{"1 toples":45000},w:[W.cok,W.kr],bg:"#F3E6D6"},
- {n:"Nastar",k:"Kue kering",d:"Selai nanas buatan sendiri.",v:{"1 toples":65000},w:[W.kun,W.cok],bg:"#FFF1CF"},
- {n:"Paket hampers kecil",k:"Paket",d:"3 keripik + 1 kue kering, dus kado.",v:{"1 paket":75000},w:[W.mer,W.kun],bg:"#FDE3E0"},
- {n:"Paket arisan",k:"Paket",d:"10 bungkus keripik campur.",v:{"1 paket":90000},w:[W.hij,W.kr],bg:"#E5F1E2"}
+ {n:"Keripik tempe",k:"Keripik",d:"Tipis, renyah, bumbu bawang daun.",v:{"100 gr":10000,"250 gr":22000},f:"keripik-tempe"},
+ {n:"Keripik singkong balado",k:"Keripik",d:"Pedas manis, level sedang.",v:{"150 gr":11000,"300 gr":20000},f:"keripik-pedas"},
+ {n:"Keripik bayam",k:"Keripik",d:"Daun bayam lebar, tepung renyah.",v:{"100 gr":12000},f:"keripik-bayam"},
+ {n:"Rempeyek kacang",k:"Keripik",d:"Tipis, kacang tanah melimpah.",v:{"1 toples":25000},f:"rempeyek"},
+ {n:"Kue kacang",k:"Kue kering",d:"Lumer di mulut.",v:{"1 toples":45000},f:"kue-kacang"},
+ {n:"Nastar",k:"Kue kering",d:"Selai nanas buatan sendiri.",v:{"1 toples":65000},f:"nastar"},
+ {n:"Paket hampers",k:"Paket",d:"3 keripik + 1 kue kering, dus kado + pita.",v:{"1 paket":75000},f:"hampers"}
 ];
 P.forEach(function(p,i){p.id=i;p.pilih=Object.keys(p.v)[0];});
 var keranjang={}, aktif="Semua";
@@ -90,7 +86,7 @@ function gambar(){
   var j=keranjang[kunci(p)]||0;
   var vs=Object.keys(p.v).length>1?'<div class="v">'+Object.keys(p.v).map(function(v){return '<button data-v="'+v+'" data-id="'+p.id+'" class="'+(v===p.pilih?"on":"")+'">'+v+'</button>'}).join("")+'</div>':'<small>'+p.pilih+'</small>';
   var aksi=j?'<div class="qty"><button data-m="'+p.id+'">−</button><b>'+j+'</b><button data-p="'+p.id+'">+</button></div>':'<button class="tbh" data-p="'+p.id+'">+ Tambah</button>';
-  return '<div class="p"><div class="f" style="background:'+p.bg+'">'+gb(p.w[0],p.w[1])+'</div><div class="i"><b>'+p.n+'</b><small>'+p.d+'</small>'+vs+'<div class="bw"><span class="h">'+rp(p.v[p.pilih])+'</span>'+aksi+'</div></div></div>';
+  return '<div class="p"><div class="f"><img src="img/'+p.f+'.jpg" alt="'+p.n+'" loading="lazy"></div><div class="i"><b>'+p.n+'</b><small>'+p.d+'</small>'+vs+'<div class="bw"><span class="h">'+rp(p.v[p.pilih])+'</span>'+aksi+'</div></div></div>';
  }).join(""):'<div class="kosong">Produk tidak ditemukan.</div>';
  var n=0,t=0;Object.keys(keranjang).forEach(function(k){var a=k.split("|");n+=keranjang[k];t+=keranjang[k]*P[a[0]].v[a[1]];});
  document.getElementById("kran").classList.toggle("on",n>0);

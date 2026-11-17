@@ -36,7 +36,7 @@ h2{font-size:clamp(32px,6vw,48px)}
 .demo{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
 .d{background:var(--kartu);border:1.5px solid var(--garis);border-radius:22px;overflow:hidden;text-decoration:none;display:flex;flex-direction:column;transition:transform .15s}
 .d:hover{transform:translateY(-3px)}
-.d .pv{height:150px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.d .pv{height:190px;overflow:hidden}.d .pv img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}.d:hover .pv img{transform:scale(1.05)}
 .d .pv i{display:block;width:62%;height:130px;border-radius:14px 14px 0 0;background:#fff;box-shadow:0 -4px 20px rgba(0,0,0,.12);position:relative}
 .d .pv i:before{content:"";position:absolute;left:12px;right:12px;top:12px;height:34px;border-radius:8px;background:var(--c)}
 .d .pv i:after{content:"";position:absolute;left:12px;right:30%;top:56px;height:10px;border-radius:5px;background:#e9e9e9;box-shadow:0 18px 0 #efefef,0 36px 0 #f3f3f3}
@@ -80,10 +80,10 @@ footer{text-align:center;color:var(--abu);font-size:14px;padding:10px 0 36px}
   <h2>Contoh demo</h2>
   <p class="sub">Klik untuk mencoba langsung di HP-mu. Nama usaha di demo hanya contoh.</p>
   <div class="demo">
-    <a class="d" href="demo/landing/"><div class="pv" style="background:#B3261E;--c:#FFC83D"><i></i></div><div class="in"><h3>Landing page</h3><p>Warung bakso: menu, ulasan, lokasi, tombol WA.</p><div class="h"><span>Mulai Rp150rb</span><em>Coba &rarr;</em></div></div></a>
-    <a class="d" href="demo/katalog/"><div class="pv" style="background:#2F6B3A;--c:#F4B63F"><i></i></div><div class="in"><h3>Katalog produk</h3><p>Toko camilan: cari produk, pilih ukuran, pesan via WA.</p><div class="h"><span>Mulai Rp500rb</span><em>Coba &rarr;</em></div></div></a>
-    <a class="d" href="demo/undangan/?to=Bapak%20Ibu%20Tamu"><div class="pv" style="background:#4C5E45;--c:#B8925A"><i></i></div><div class="in"><h3>Undangan digital</h3><p>Nama tamu, hitung mundur, ucapan, konfirmasi hadir, amplop.</p><div class="h"><span>Mulai Rp50rb</span><em>Coba &rarr;</em></div></div></a>
-    <a class="d" href="demo/profil/"><div class="pv" style="background:#0F6E8C;--c:#FFC94A"><i></i></div><div class="in"><h3>Company profile</h3><p>Laundry: 3 halaman Beranda, Tentang, Kontak.</p><div class="h"><span>Mulai Rp350rb</span><em>Coba &rarr;</em></div></div></a>
+    <a class="d" href="demo/landing/"><div class="pv"><img src="demo/landing/img/bakso-urat.jpg" alt="" loading="lazy"></div><div class="in"><h3>Landing page</h3><p>Warung bakso: menu, ulasan, lokasi, tombol WA.</p><div class="h"><span>Mulai Rp150rb</span><em>Coba &rarr;</em></div></div></a>
+    <a class="d" href="demo/katalog/"><div class="pv"><img src="demo/katalog/img/keripik-tempe.jpg" alt="" loading="lazy"></div><div class="in"><h3>Katalog produk</h3><p>Toko camilan: cari produk, pilih ukuran, pesan via WA.</p><div class="h"><span>Mulai Rp500rb</span><em>Coba &rarr;</em></div></div></a>
+    <a class="d" href="demo/undangan/?to=Bapak%20Ibu%20Tamu"><div class="pv"><img src="demo/undangan/img/galeri-1.jpg" alt="" loading="lazy"></div><div class="in"><h3>Undangan digital</h3><p>Nama tamu, hitung mundur, ucapan, konfirmasi hadir, amplop.</p><div class="h"><span>Mulai Rp50rb</span><em>Coba &rarr;</em></div></div></a>
+    <a class="d" href="demo/profil/"><div class="pv"><img src="demo/profil/img/laundry-toko.jpg" alt="" loading="lazy"></div><div class="in"><h3>Company profile</h3><p>Laundry: 3 halaman Beranda, Tentang, Kontak.</p><div class="h"><span>Mulai Rp350rb</span><em>Coba &rarr;</em></div></div></a>
   </div>
 </div></section>
 

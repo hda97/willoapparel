@@ -36,7 +36,7 @@ h2{font-size:clamp(30px,5vw,42px);margin-bottom:8px}
 .lay div{background:var(--m);border-radius:20px;padding:22px}
 .lay h3{font-size:22px}.lay p{color:var(--a);font-size:15px}.lay b{display:block;margin-top:10px;color:var(--b2)}
 .galeri{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.galeri div{aspect-ratio:1;border-radius:16px;background:linear-gradient(135deg,#BFE3EE,#7BBFD3)}
+.galeri img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:16px;display:block}.galeri div{aspect-ratio:1;border-radius:16px;background:linear-gradient(135deg,#BFE3EE,#7BBFD3)}
 .galeri div:nth-child(2n){background:linear-gradient(135deg,#FFE4A3,#F5C04A)}
 .galeri div:nth-child(3n){background:linear-gradient(135deg,#D7EEDC,#8CCB9C)}
 .dua{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center}
@@ -69,7 +69,7 @@ footer{background:var(--b2);color:#cfe3ea;font-size:14px;padding:26px 0;text-ali
       <p>Laundry kiloan dan satuan dengan antar jemput gratis untuk area kota.</p>
       <a class="btn" href="#kontak">Jadwalkan jemput</a><a class="btn o" href="#tentang">Kenali kami</a>
     </div>
-    <svg viewBox="0 0 200 200" style="max-width:300px;width:100%;margin:0 auto"><rect x="40" y="26" width="120" height="150" rx="18" fill="#fff"/><rect x="40" y="26" width="120" height="34" rx="18" fill="#DCECF2"/><circle cx="62" cy="43" r="6" fill="#FFC94A"/><circle cx="80" cy="43" r="6" fill="#0F6E8C"/><circle cx="100" cy="114" r="46" fill="#0F6E8C"/><circle cx="100" cy="114" r="36" fill="#7BBFD3"/><path d="M66 122q17-14 34 0t34 0" stroke="#fff" stroke-width="6" fill="none"/></svg>
+    <img src="img/laundry-toko.jpg" alt="Ruang laundry dengan mesin cuci" style="width:100%;max-width:420px;aspect-ratio:1;object-fit:cover;border-radius:28px;margin:0 auto;display:block;box-shadow:0 24px 50px rgba(0,0,0,.25)">
   </div></div>
   <div class="w angka"><div><b>2.000+</b><span>pelanggan</span></div><div><b>24 jam</b><span>selesai</span></div><div><b>Gratis</b><span>antar jemput</span></div></div>
   <section><div class="w">
@@ -81,8 +81,8 @@ footer{background:var(--b2);color:#cfe3ea;font-size:14px;padding:26px 0;text-ali
     </div>
   </div></section>
   <section style="padding-top:0"><div class="w">
-    <h2>Galeri</h2><p class="sub">Foto toko dan hasil cucian tampil di sini.</p>
-    <div class="galeri"><div></div><div></div><div></div><div></div></div>
+    <h2>Galeri</h2><p class="sub">Suasana toko dan hasil cucian kami.</p>
+    <div class="galeri"><img src="img/laundry-toko.jpg" alt="" loading="lazy"><img src="img/laundry-lipat.jpg" alt="" loading="lazy"><img src="img/laundry-setrika.jpg" alt="" loading="lazy"><img src="img/laundry-antar.jpg" alt="" loading="lazy"></div>
   </div></section>
 </div>
 
