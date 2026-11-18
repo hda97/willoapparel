@@ -1,0 +1,59 @@
+name: Posting Instagram Willo Apparel
+
+# Terbitkan reel/carousel Willo Apparel dari konten-ig/antrean-willo.apparel/<tanggal WIB>[-n].json
+# ke @willo.apparel lewat Instagram Graph API resmi (gratis). Slot harian: 06.00 atau 12.00, dan 19.00 WIB.
+# Tiap file hanya terbit sekali, dan satu run paling banyak menerbitkan satu file (yang paling awal).
+
+on:
+  push:
+    branches: [main]
+    paths: ["konten-ig/antrean-willo.apparel/**", ".github/workflows/ig-posting-willo.yml"]
+  schedule:
+    # Cron GitHub bisa telat berjam-jam atau terlewat (18 Nov: jendela 11.00–13.30 tidak jalan sama sekali),
+    # jadi dicek tiap 15 menit dari 05.00 sampai 22.45 WIB. Yang terbit tetap hanya file yang sudah lewat "jam".
+    - cron: "7,22,37,52 22-23 * * *"   # 05.00–06.59 WIB
+    - cron: "7,22,37,52 0-15 * * *"    # 07.00–22.59 WIB
+  workflow_dispatch:
+    inputs:
+      tanggal:
+        description: "Terbitkan antrean tanggal ini sekarang (YYYY-MM-DD). Kosongkan = cek jadwal biasa."
+        required: false
+      cek_token:
+        description: "Hanya uji token (tanpa posting)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ig-posting-willo
+  cancel-in-progress: false
+
+jobs:
+  posting:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: konten-ig
+      - name: Terbitkan
+        env:
+          IG_USERNAME: willo.apparel
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          IG_APP_ID: ${{ secrets.IG_APP_ID }}
+          IG_APP_SECRET: ${{ secrets.IG_APP_SECRET }}
+          PAKSA_TANGGAL: ${{ inputs.tanggal }}
+          CEK_TOKEN: ${{ (inputs.cek_token || github.event_name == 'push') && '1' || '' }}
+        run: python3 konten-ig/posting.py
+      - name: Simpan status
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898499+github-actions[bot]@users.noreply.github.com"
+          for f in konten-ig/token-willo.apparel.enc konten-ig/antrean-willo.apparel; do [ -e "$f" ] && git add "$f"; done; true
+          if ! git diff --cached --quiet; then
+            git commit -m "IG Willo: status posting $(TZ=Asia/Jakarta date +%F)"
+            for i in 1 2 3; do git pull --rebase -q origin main && git push -q origin HEAD:main && break; sleep 5; done
+          fi
