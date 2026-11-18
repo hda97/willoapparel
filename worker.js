@@ -3123,7 +3123,7 @@ async function apiFotoArtikel(request, url, env, json) {
   const prompt = String(dasar).slice(0, 1500) + ", photorealistic, natural colors, high detail, no text, no letters, no logos, no watermark";
   let hasil;
   try { hasil = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", { prompt, steps: 8 }); }
-  catch (e) { console.log("foto", e && e.message); return json({ galat: "Kuota gambar gratis habis atau server sibuk." }, 503); }
+  catch (e) { console.log("foto", e && e.message); return json({ galat: "Kuota gambar gratis habis atau server sibuk.", rinci: String(e && e.message || e).slice(0, 200) }, 503); }
   if (!hasil || !hasil.image) return json({ galat: "Gambar gagal dibuat." }, 502);
   const bin = Uint8Array.from(atob(hasil.image), (c) => c.charCodeAt(0));
   const res = new Response(bin, { headers: { "content-type": "image/jpeg", "cache-control": "public, max-age=31536000" } });
