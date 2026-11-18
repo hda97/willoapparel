@@ -42,7 +42,34 @@
     "html_handling": "none",
     // Alamat yang tidak ada → public/404.html (bukan layar putih kosong).
     "not_found_handling": "404-page",
-    // Jalankan worker.js dulu supaya www bisa dialihkan.
-    "run_worker_first": true
+    // Jalankan worker.js dulu untuk halaman, API, dan link pendek (www dialihkan, kunjungan dicatat).
+    // File statis berat (gambar, model 3D, skrip game, video) langsung dari aset TANPA memanggil worker:
+    // permintaan aset statis gratis & tak terbatas, sedangkan permintaan worker dibatasi 100.000/hari di paket gratis.
+    // (Huda 18 Nov 2026, rencana jutaan pengunjung.) Header cache folder three/ dipindah ke public/_headers.
+    "run_worker_first": [
+      "/*",
+      "!/foto-hasil/*",
+      "!/gambar-artikel/*",
+      "!/mockup/*",
+      "!/video/*",
+      "!/_three/*",
+      "!/duniakotak/three/*",
+      "!/duniakotak/js/*",
+      "!/duniakotak/ikon/*",
+      "!/duniakotak/mabar/js/*",
+      "!/duniakotak/mabar/aset/*",
+      "!/duniakotak/mabar/*.js",
+      "!/duniakotak/mabar/*.css",
+      "!/duniakotak/belajar/aset/*",
+      "!/duniakotak/pulau/*.jpg",
+      "!/duniakotak/pulau/*.json",
+      "!/style.css",
+      "!/home.css",
+      "!/script.js",
+      "!/wa-tag.js",
+      "!/logo-willo.png",
+      "!/logo-willo-putih.png",
+      "!/workshop-sablon.jpg"
+    ]
   }
 }
