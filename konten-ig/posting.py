@@ -241,7 +241,9 @@ def main():
     if os.environ.get("CEK_TOKEN") == "1" or todo:
         token, ig_id = muat_token()
         print(f"Token OK untuk IG id {ig_id}.")
-    for f, item in todo:
+    # Satu run satu postingan: kalau cron telat sampai dua slot jatuh tempo bersamaan,
+    # yang lebih awal terbit sekarang dan sisanya di run berikutnya (tidak terbit beruntun).
+    for f, item in todo[:1]:
         mid, link = terbitkan(token, ig_id, item)
         item["terbit"] = {"id": mid, "permalink": link, "waktu": dt.datetime.now(WIB).isoformat(timespec="seconds")}
         json.dump(item, open(f, "w"), ensure_ascii=False, indent=2)
