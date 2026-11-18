@@ -3053,6 +3053,7 @@ async function apiAI(request, url, env) {
   const json = (o, st) => new Response(JSON.stringify(o), { status: st || 200, headers: { ...cors, "content-type": "application/json", "cache-control": "no-store" } });
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (url.pathname === "/alat/api/ai/gambar" && request.method === "POST") return apiGambar(request, env, json);
+  if (url.pathname.startsWith("/alat/api/ai/foto-artikel/") && request.method === "GET") return apiFotoArtikel(request, url, env, json);
   if (url.pathname !== "/alat/api/ai/saran" || request.method !== "POST") return json({ galat: "alamat" }, 404);
   if (!env.GEMINI_API_KEY && !env.GROQ_API_KEY) return json({ galat: "Fitur AI belum diaktifkan pemilik situs." }, 503);
   if (!aiBoleh(request.headers.get("cf-connecting-ip") || "?")) return json({ galat: "Saran AI sudah sering dipakai. Coba lagi satu jam lagi ya." }, 429);
@@ -3103,6 +3104,31 @@ async function apiGambar(request, env, json) {
     } catch (e) { console.log("tg", e && e.message); }
   }
   return json({ gambar: b64, prompt, terkirim });
+}
+// Foto ilustrasi artikel (Huda 18 Nov 2026: tiap artikel bergambar foto, bukan vektor, gaya beda tiap artikel).
+// GET /alat/api/ai/foto-artikel/<slug>?v=N. Hanya prompt yang sudah di-commit di /gambar-artikel/prompt-foto.json yang bisa dibuat,
+// jadi kuota tidak bisa dipakai untuk gambar lain. Hasil disimpan di cache Cloudflare; repo menyimpan salinan JPG-nya.
+async function apiFotoArtikel(request, url, env, json) {
+  if (!env.AI) return json({ galat: "Workers AI belum tersambung." }, 503);
+  const slug = url.pathname.slice("/alat/api/ai/foto-artikel/".length);
+  if (!/^[a-z0-9-]{3,80}$/.test(slug)) return json({ galat: "alamat" }, 404);
+  const cache = typeof caches !== "undefined" ? caches.default : null;
+  const kunci = new Request(url.origin + "/alat/api/ai/foto-artikel/" + slug + "?v=" + (url.searchParams.get("v") || "1"), { method: "GET" });
+  if (cache) { const ada = await cache.match(kunci); if (ada) return ada; }
+  let daftar;
+  try { daftar = await (await env.ASSETS.fetch(new Request(url.origin + "/gambar-artikel/prompt-foto.json"))).json(); } catch (e) { return json({ galat: "Daftar prompt tidak terbaca." }, 500); }
+  const dasar = daftar && daftar[slug];
+  if (!dasar) return json({ galat: "Artikel belum punya prompt foto." }, 404);
+  if (!aiBoleh("foto:" + (request.headers.get("cf-connecting-ip") || "?"), 40)) return json({ galat: "Terlalu banyak permintaan." }, 429);
+  const prompt = String(dasar).slice(0, 1500) + ", photorealistic, natural colors, high detail, no text, no letters, no logos, no watermark";
+  let hasil;
+  try { hasil = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", { prompt, steps: 8 }); }
+  catch (e) { console.log("foto", e && e.message); return json({ galat: "Kuota gambar gratis habis atau server sibuk." }, 503); }
+  if (!hasil || !hasil.image) return json({ galat: "Gambar gagal dibuat." }, 502);
+  const bin = Uint8Array.from(atob(hasil.image), (c) => c.charCodeAt(0));
+  const res = new Response(bin, { headers: { "content-type": "image/jpeg", "cache-control": "public, max-age=31536000" } });
+  if (cache) await cache.put(kunci, res.clone());
+  return res;
 }
 async function apiToko(request, url, env) {
   const cors = { "access-control-allow-origin": "*", "access-control-allow-methods": "GET, POST, OPTIONS", "access-control-allow-headers": "content-type, x-kunci, x-admin", "access-control-max-age": "86400" };
