@@ -3113,7 +3113,7 @@ async function apiFotoArtikel(request, url, env, json) {
   const slug = url.pathname.slice("/alat/api/ai/foto-artikel/".length);
   if (!/^[a-z0-9-]{3,80}$/.test(slug)) return json({ galat: "alamat" }, 404);
   const cache = typeof caches !== "undefined" ? caches.default : null;
-  const kunci = new Request(url.origin + "/alat/api/ai/foto-artikel/" + slug + "?v=" + (url.searchParams.get("v") || "1"), { method: "GET" });
+  const kunci = new Request(url.origin + "/alat/api/ai/foto-artikel/k2/" + slug + "?v=" + (url.searchParams.get("v") || "1"), { method: "GET" });
   if (cache) { const ada = await cache.match(kunci); if (ada) return ada; }
   let daftar;
   try { daftar = await (await env.ASSETS.fetch(new Request(url.origin + "/gambar-artikel/prompt-foto.json"))).json(); } catch (e) { return json({ galat: "Daftar prompt tidak terbaca." }, 500); }
@@ -3121,20 +3121,12 @@ async function apiFotoArtikel(request, url, env, json) {
   if (!dasar) return json({ galat: "Artikel belum punya prompt foto." }, 404);
   if (!aiBoleh("foto:" + (request.headers.get("cf-connecting-ip") || "?"), 40)) return json({ galat: "Terlalu banyak permintaan." }, 429);
   const prompt = String(dasar).slice(0, 1500) + ", photorealistic, natural colors, high detail, no text, no letters, no logos, no watermark";
-  // 1) Workers AI (kuota gratis harian). 2) Cadangan gratis tanpa kunci: Pollinations (Flux), lalu kirim apa adanya.
+  // Workers AI (kuota gratis harian). Pollinations dicoba 18 Nov: ada watermark & batas 1/45 dtk → tidak dipakai.
   let bin = null, sumber = "", catatan = "";
   try {
     const hasil = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", { prompt, steps: 8 });
     if (hasil && hasil.image) { bin = Uint8Array.from(atob(hasil.image), (c) => c.charCodeAt(0)); sumber = "workers-ai"; }
   } catch (e) { catatan = "workers-ai " + String(e && e.message || e).slice(0, 80) + " | "; }
-  if (!bin) {
-    try {
-      const seed = [...slug].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 100000, 7) + Number(url.searchParams.get("v") || 1);
-      const r = await fetch("https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + "?width=1200&height=800&nologo=true&model=flux&seed=" + seed, { headers: { "user-agent": "willoapparel.com" } });
-      if (r.ok && (r.headers.get("content-type") || "").startsWith("image/")) { bin = new Uint8Array(await r.arrayBuffer()); sumber = "pollinations"; }
-      else { catatan = "pollinations " + r.status + " " + (await r.text()).slice(0, 160); }
-    } catch (e) { catatan = "pollinations " + String(e && e.message || e).slice(0, 160); }
-  }
   if (!bin) return json({ galat: "Semua pembuat gambar gratis sedang penuh. Coba lagi nanti.", rinci: catatan }, 503);
   const res = new Response(bin, { headers: { "content-type": "image/jpeg", "x-sumber": sumber, "cache-control": "public, max-age=31536000" } });
   if (cache) await cache.put(kunci, res.clone());
