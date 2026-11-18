@@ -2,16 +2,17 @@ name: Posting Instagram Lumbung
 
 # Terbitkan reel/carousel Lumbung dari konten-ig/antrean-miftakhul_hda/<tanggal WIB>[-n].json
 # ke @miftakhul_hda lewat Instagram Graph API resmi (gratis). Slot harian: 06.00 atau 12.00, dan 19.00 WIB.
-# Cron GitHub sering telat, jadi dicek tiap 30 menit di sekitar slot; tiap file hanya terbit sekali.
+# Tiap file hanya terbit sekali, dan satu run paling banyak menerbitkan satu file (yang paling awal).
 
 on:
   push:
     branches: [main]
     paths: ["konten-ig/antrean-miftakhul_hda/**", ".github/workflows/ig-posting-lumbung.yml"]
   schedule:
-    - cron: "0,30 22-23 * * *"   # 05.00–06.30 WIB
-    - cron: "0,30 4-6 * * *"     # 11.00–13.30 WIB
-    - cron: "0,30 11-14 * * *"   # 18.00–21.30 WIB
+    # Cron GitHub bisa telat berjam-jam atau terlewat (18 Nov: jendela 11.00–13.30 tidak jalan sama sekali),
+    # jadi dicek tiap 15 menit dari 05.00 sampai 22.45 WIB. Yang terbit tetap hanya file yang sudah lewat "jam".
+    - cron: "7,22,37,52 22-23 * * *"   # 05.00–06.59 WIB
+    - cron: "7,22,37,52 0-15 * * *"    # 07.00–22.59 WIB
   workflow_dispatch:
     inputs:
       tanggal:
