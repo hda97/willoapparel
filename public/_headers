@@ -1,0 +1,5 @@
+# Header untuk file statis yang disajikan langsung tanpa worker.js (lihat run_worker_first di wrangler.jsonc).
+# three.js berversi (0.169.0) tidak pernah berubah, jadi HP boleh menyimpannya setahun.
+/duniakotak/three/*
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
