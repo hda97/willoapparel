@@ -25,3 +25,4 @@ Sampul reel: taruh JPG 9:16 di public/duniakotak/reel/<tanggal>-sampul.jpg (di P
 - Syarat Meta sama dengan DM di atas: balas komentar bisa langsung; DM ke orang lain menunggu Advanced Access `instagram_manage_messages`. Sebelum itu bot otomatis menulis link di balasan komentar.
 <!-- picu posting 16 Nov (cron telat) -->
 <!-- picu posting 17 Nov (cron telat) -->
+<!-- picu posting 18 Nov (reel desa sendiri) -->
