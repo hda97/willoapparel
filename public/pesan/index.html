@@ -21,70 +21,71 @@
 <link rel="icon" href="/logo-willo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#E6E2DB; --kartu:#EFECE6; --tinta:#141414; --abu:#5E5A54; --garis:#C9C4BB; --biru:#2F5BFF; --wa:#1FA855; }
+  :root { --bg:#F3F5F8; --kartu:#FFFFFF; --tinta:#1A2238; --abu:#5D6880; --garis:#D8DEE8; --biru:#2F6FED; --wa:#1FA855; --display:"Baloo 2",system-ui,sans-serif; }
   * { box-sizing:border-box; margin:0; padding:0; }
   html { -webkit-text-size-adjust:100%; }
-  body { background:var(--bg); color:var(--tinta); font-family:Archivo, system-ui, sans-serif; line-height:1.5; padding-bottom:90px; }
+  body { background:var(--bg); color:var(--tinta); font-family:"Plus Jakarta Sans", system-ui, sans-serif; line-height:1.6; padding-bottom:90px; }
   a { color:inherit; }
   .w { max-width:1080px; margin:0 auto; padding:0 16px; }
-  .mono { font-family:"JetBrains Mono", ui-monospace, monospace; font-size:12px; letter-spacing:.18em; text-transform:uppercase; }
+  .mono { font-size:14px; font-weight:600; }
   .biru { color:var(--biru); }
-  .serif { font-family:"Instrument Serif", Georgia, serif; font-style:italic; font-weight:400; }
+  .serif { color:var(--abu); }
   header.top { display:flex; justify-content:space-between; align-items:center; padding:18px 0; gap:12px; }
-  .logo { font-weight:900; font-size:20px; letter-spacing:-.02em; text-decoration:none; }
+  .logo { font-family:var(--display); font-weight:800; font-size:22px; text-decoration:none; display:flex; align-items:center; gap:8px; }
+  .logo img { height:34px; width:auto; }
   .logo span { font-weight:500; color:var(--abu); }
   .kecil { font-size:14px; color:var(--abu); }
-  h1 { font-weight:900; font-size:clamp(40px, 8vw, 84px); line-height:.92; letter-spacing:-.04em; margin:12px 0 14px; }
+  h1 { font-family:var(--display); font-weight:800; font-size:clamp(40px, 7vw, 72px); line-height:1; letter-spacing:-.015em; margin:12px 0 14px; }
   .lead { font-size:clamp(18px, 2.4vw, 22px); max-width:720px; color:var(--abu); margin-bottom:28px; }
   .tata { display:grid; grid-template-columns:1.25fr 1fr; gap:28px; align-items:start; padding-bottom:48px; }
-  .blok { background:var(--kartu); border-top:3px solid var(--tinta); padding:20px; margin-bottom:16px; }
-  .blok h2 { font-weight:900; font-size:22px; letter-spacing:-.01em; margin:6px 0 12px; }
-  .blok .mono { color:var(--biru); }
+  .blok { background:var(--kartu); border:1px solid var(--garis); border-radius:16px; padding:22px; margin-bottom:16px; }
+  .blok h2 { font-family:var(--display); font-weight:800; font-size:24px; line-height:1.15; margin:6px 0 12px; }
+  .blok .mono { display:inline-grid; place-items:center; width:30px; height:30px; border-radius:50%; background:#E7EEFD; color:var(--biru); font-weight:700; font-size:13px; }
   .pilih { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
-  .pilih button { font:inherit; text-align:left; background:#fff; border:1px solid var(--garis); padding:10px 12px; cursor:pointer; border-radius:2px; font-size:15px; line-height:1.25; min-height:56px; }
+  .pilih button { font:inherit; text-align:left; background:#fff; border:1px solid var(--garis); padding:10px 12px; cursor:pointer; border-radius:12px; font-size:15px; line-height:1.25; min-height:56px; }
   .pilih button b { display:block; font-size:15px; }
   .pilih button small { color:var(--abu); font-size:12px; }
   .pilih button[aria-pressed="true"] { border-color:var(--biru); box-shadow:inset 0 0 0 2px var(--biru); }
   label { display:block; font-weight:700; font-size:15px; margin:12px 0 6px; }
-  input[type=text], input[type=date], input[type=number], select, textarea { font:inherit; width:100%; padding:11px 12px; border:1px solid var(--garis); background:#fff; border-radius:2px; font-size:16px; }
+  input[type=text], input[type=date], input[type=number], select, textarea { font:inherit; width:100%; padding:11px 12px; border:1px solid var(--garis); background:#fff; border-radius:10px; font-size:16px; }
   textarea { min-height:70px; resize:vertical; }
   .baris { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   .ukuran { display:grid; grid-template-columns:repeat(7, 1fr); gap:6px; }
   .ukuran div { text-align:center; }
-  .ukuran span { display:block; font-family:"JetBrains Mono", monospace; font-size:12px; margin-bottom:4px; }
+  .ukuran span { display:block; font-weight:700; font-size:13px; margin-bottom:4px; }
   .ukuran input { text-align:center; padding:9px 2px; }
   .cek { display:flex; flex-wrap:wrap; gap:8px; }
-  .cek label { display:flex; align-items:center; gap:8px; font-weight:500; background:#fff; border:1px solid var(--garis); padding:9px 12px; margin:0; cursor:pointer; font-size:15px; }
+  .cek label { display:flex; align-items:center; gap:8px; font-weight:500; background:#fff; border:1px solid var(--garis); padding:9px 12px; margin:0; cursor:pointer; font-size:15px; border-radius:10px; }
   .cek input { width:18px; height:18px; accent-color:var(--biru); }
   .hasil { position:sticky; top:16px; }
-  .hasil .blok { border-top-color:var(--biru); background:#fff; }
+  .hasil .blok { border-color:var(--biru); box-shadow:0 0 0 1px var(--biru); background:#fff; }
   .jadwal { list-style:none; border-left:2px solid var(--garis); margin:6px 0 4px 6px; }
   .jadwal li { position:relative; padding:0 0 14px 18px; }
   .jadwal li::before { content:""; position:absolute; left:-7px; top:6px; width:12px; height:12px; border-radius:50%; background:var(--garis); }
   .jadwal li.kunci::before { background:var(--biru); }
   .jadwal b { display:block; }
   .jadwal small { color:var(--abu); }
-  .alert { padding:12px 14px; font-size:15px; margin:10px 0; border-left:4px solid var(--biru); background:#EEF2FF; }
+  .alert { padding:12px 14px; font-size:15px; margin:10px 0; border-left:4px solid var(--biru); background:#EEF2FF; border-radius:0 10px 10px 0; }
   .alert.merah { border-color:#C2410C; background:#FFF1E8; }
   .harga { font-size:15px; margin:8px 0; }
-  .harga b { font-size:26px; font-weight:900; letter-spacing:-.02em; }
-  pre { white-space:pre-wrap; font-family:"JetBrains Mono", monospace; font-size:13px; background:var(--kartu); padding:12px; max-height:260px; overflow:auto; border:1px solid var(--garis); }
-  .btn { display:flex; justify-content:center; align-items:center; gap:10px; background:var(--wa); color:#fff; text-decoration:none; font-weight:700; font-size:18px; padding:15px 20px; border-radius:2px; border:0; width:100%; cursor:pointer; font-family:inherit; margin-top:12px; }
+  .harga b { font-family:var(--display); font-size:28px; font-weight:800; }
+  pre { white-space:pre-wrap; font-family:inherit; font-size:13.5px; background:#F3F5F8; border-radius:10px; padding:12px; max-height:260px; overflow:auto; border:1px solid var(--garis); }
+  .btn { display:flex; justify-content:center; align-items:center; gap:10px; background:var(--wa); color:#fff; text-decoration:none; font-weight:700; font-size:18px; padding:15px 20px; border-radius:12px; border:0; width:100%; cursor:pointer; font-family:inherit; margin-top:12px; }
   .btn svg { width:22px; height:22px; flex:none; }
   .btn.garis { background:transparent; color:var(--tinta); border:1px solid var(--tinta); font-size:15px; padding:11px; }
   .tautan { font-weight:700; text-decoration-color:var(--biru); text-underline-offset:4px; }
   section.info { padding:40px 0; border-top:1px solid var(--garis); }
-  section.info h2 { font-weight:900; font-size:clamp(26px, 4vw, 38px); letter-spacing:-.03em; margin:8px 0 18px; line-height:1.05; }
+  section.info h2 { font-family:var(--display); font-weight:800; font-size:clamp(28px, 4vw, 40px); margin:8px 0 18px; line-height:1.05; }
   .kartu3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; }
-  .kartu3 div { background:var(--kartu); padding:18px; border-top:3px solid var(--biru); }
-  .kartu3 b { display:block; font-size:18px; margin:6px 0 4px; }
+  .kartu3 div { background:var(--kartu); padding:20px; border:1px solid var(--garis); border-radius:16px; }
+  .kartu3 b { display:block; font-family:var(--display); font-weight:800; font-size:20px; margin:6px 0 4px; }
   .kartu3 p { color:var(--abu); font-size:15px; }
   .semua { columns:3; column-gap:24px; list-style:none; }
   .semua li { break-inside:avoid; padding:6px 0; border-bottom:1px solid var(--garis); }
   .bar { position:fixed; left:0; right:0; bottom:0; background:var(--tinta); color:#fff; padding:10px 16px; display:none; align-items:center; justify-content:space-between; gap:12px; z-index:9; }
-  .bar a { background:var(--wa); color:#fff; text-decoration:none; font-weight:700; padding:11px 16px; border-radius:2px; white-space:nowrap; }
+  .bar a { background:var(--wa); color:#fff; text-decoration:none; font-weight:700; padding:11px 16px; border-radius:12px; white-space:nowrap; }
   footer { padding:28px 0; color:var(--abu); font-size:14px; border-top:1px solid var(--garis); }
   @media (max-width:860px) {
     .tata { grid-template-columns:1fr; }
@@ -95,16 +96,17 @@
     .ukuran { grid-template-columns:repeat(4, 1fr); }
     .bar { display:flex; }
   }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline:3px solid var(--biru); outline-offset:2px; }
 </style>
 </head>
 <body>
 <div class="w">
   <header class="top">
-    <a class="logo" href="/">Willo <span>Apparel</span></a>
-    <span class="mono kecil">Ngawi · sejak 2020</span>
+    <a class="logo" href="/"><img src="/logo-willo.png" alt="" width="34" height="34">Willo Apparel</a>
+    <span class="kecil">Sablon kaos Ngawi</span>
   </header>
 
-  <p class="mono biru">Alat gratis · Rencana pesanan</p>
+  <p class="kecil" style="font-weight:600">Alat gratis untuk merencanakan pesanan</p>
   <h1>Pesan kaos custom<br><span class="serif">tanpa bingung.</span></h1>
   <p class="lead">Untuk kelas, kantor, komunitas, panitia acara, keluarga, tim olahraga, pengajian, sampai kado satu kaos. Isi sebentar, langsung tahu kapan paling lambat pesan, lalu kirim ringkasannya ke WhatsApp admin.</p>
 
@@ -175,7 +177,7 @@
 
     <aside class="hasil" aria-live="polite">
       <div class="blok">
-        <span class="mono">Ringkasan</span>
+        <span class="kecil" style="font-weight:700">Ringkasan</span>
         <h2 id="judulHasil">Pilih keperluan dulu</h2>
         <div id="hargaBox"></div>
         <div id="jadwalBox"><p class="kecil">Isi tanggal dipakai untuk melihat jadwal aman pesan.</p></div>
@@ -193,9 +195,9 @@
     <p class="mono biru">Kenapa pesan di Willo</p>
     <h2>Bisa didatangi, ada mockup, harga jelas.</h2>
     <div class="kartu3">
-      <div><span class="mono">01</span><b>Workshop di Ngawi</b><p>Jl. PB. Sudirman No.31. Boleh datang lihat bahan dan hasil sablon sebelum pesan.</p></div>
-      <div><span class="mono">02</span><b>Mockup dulu</b><p>Desain dibantu gratis. Produksi baru jalan setelah mockup kamu setujui.</p></div>
-      <div><span class="mono">03</span><b>Mulai 1 pcs</b><p>Satu kaos untuk kado sampai ratusan untuk acara. Pengerjaan 3–7 hari kerja setelah desain disetujui.</p></div>
+      <div><b>Workshop di Ngawi</b><p>Jl. PB. Sudirman No.31. Boleh datang lihat bahan dan hasil sablon sebelum pesan.</p></div>
+      <div><b>Mockup dulu</b><p>Desain dibantu gratis. Produksi baru jalan setelah mockup kamu setujui.</p></div>
+      <div><b>Mulai 1 pcs</b><p>Satu kaos untuk kado sampai ratusan untuk acara. Pengerjaan 3–7 hari kerja setelah desain disetujui.</p></div>
     </div>
   </section>
 

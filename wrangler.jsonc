@@ -64,7 +64,7 @@
       "!/duniakotak/pulau/*.jpg",
       "!/duniakotak/pulau/*.json",
       "!/style.css",
-      "!/home.css",
+      "!/home.css", "!/halaman.css",
       "!/script.js",
       "!/wa-tag.js",
       "!/logo-willo.png",

@@ -1,0 +1,70 @@
+/* Willo Apparel: gaya halaman layanan, kota & artikel (Nov 2026), senada dengan beranda "lembar film DTF".
+   Dimuat SETELAH <style> bawaan tiap halaman, jadi aturan di sini menimpa gaya lama (Anton/oranye/krem). */
+:root{
+  --ink:#1A2238;--ink2:#38425B;--muted:#5D6880;--line:#D8DEE8;--bg:#F3F5F8;--soft:#FFFFFF;
+  --accent:#2F6FED;--accent-tua:#2357C4;--kuning:#FFC928;
+  --display:'Baloo 2',system-ui,sans-serif;--mono:'Plus Jakarta Sans',system-ui,sans-serif;
+}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+main a{color:var(--accent)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+/* header */
+.ticker{display:none}
+header{background:rgba(243,245,248,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.logo{font-family:var(--display);font-weight:800;font-size:21px;letter-spacing:0;text-transform:none}
+.nav-cta{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:700;font-size:14.5px;letter-spacing:0;text-transform:none;background:var(--ink);color:#fff;border:0;border-radius:12px;padding:10px 16px;box-shadow:none}
+.nav-cta:hover{background:var(--accent-tua)}
+
+/* judul */
+.hero{border-bottom:1px solid var(--line)}
+.eyebrow{background:none;color:var(--muted);font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:14px;font-weight:600;letter-spacing:0;text-transform:none;padding:0}
+.eyebrow:hover{color:var(--accent)}
+h1{font-family:var(--display);font-weight:800;text-transform:none;letter-spacing:-.015em;line-height:1.02}
+h2{font-family:var(--display);font-weight:800;text-transform:none;letter-spacing:-.01em;line-height:1.12}
+h2::before{content:none}
+h3{font-weight:700}
+.lead{color:var(--ink2)}
+
+/* tombol */
+.btn{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:700;font-size:16px;letter-spacing:0;text-transform:none;background:var(--ink);color:#fff!important;border:0;border-radius:12px;box-shadow:none;padding:14px 22px}
+.btn:hover{transform:none;box-shadow:none;background:var(--accent-tua)}
+
+/* daftar & FAQ */
+ul.points{border-top:1px solid var(--line);background:var(--soft);border-radius:16px;padding:6px 18px}
+ul.points li{border-bottom:1px solid var(--line)}
+ul.points li:last-child{border-bottom:0}
+ul.points li::before{color:var(--accent)}
+.faq{border-top:0}
+.faq h3{font-family:var(--display);font-weight:800;text-transform:none;font-size:20px;line-height:1.25}
+.faq p{border-bottom:1px solid var(--line)}
+
+/* ajakan */
+.cta{background:var(--ink);color:#fff;border:0;border-radius:20px;box-shadow:none}
+.cta .btn{background:var(--kuning);color:var(--ink)!important;box-shadow:none}
+.cta .btn:hover{background:#ffd75a}
+.cta a[style]{color:#fff!important}
+
+/* tautan terkait */
+.related a{border:1px solid var(--line);background:var(--soft);border-radius:999px;color:var(--ink)}
+.related a:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* tabel */
+.tbl{border:1px solid var(--line);background:var(--soft);border-radius:12px}
+thead th{background:var(--ink);color:#fff;font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:13px;font-weight:700;letter-spacing:0;text-transform:none}
+
+/* WA melayang & footer */
+.wa-float{border:0;box-shadow:0 6px 18px rgba(26,34,56,.18)}
+footer{background:var(--ink);color:#B7BFD0}
+footer a{color:#fff}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* kartu artikel */
+.card{border:1px solid var(--line);background:var(--soft);border-radius:16px;box-shadow:none;transition:border-color .15s}
+.card:hover{border-color:var(--accent);box-shadow:none;transform:none}
+
+/* alat desain kaos */
+:root{--card:#FFFFFF;--accent-soft:#E7EEFD}
+
+@media (max-width:600px){.logo span{display:inline}}
