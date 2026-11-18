@@ -1,7 +1,7 @@
 # Graph Report - willoapparel  (2026-11-18)
 
 ## Corpus Check
-- 1291 files · ~9,507,502 words
+- 1291 files · ~9,507,799 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 137 file(s) not represented in the graph (top: (none) 63, .xml 22, .css 9)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c6ac9566`
+- Built from commit: `a6c87a40`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

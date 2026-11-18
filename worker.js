@@ -3210,9 +3210,13 @@ export default {
       const alat = { "/alat": "/alat/", "/kasir": "/alat/kasir/", "/alat/kasir": "/alat/kasir/", "/antrian": "/alat/antrian/", "/alat/antrian": "/alat/antrian/",
         "/kas": "/alat/buku-kas/", "/bukukas": "/alat/buku-kas/", "/alat/bukukas": "/alat/buku-kas/", "/alat/jpgkevektor": "/alat/jpg-ke-vektor/",
         "/nota": "/alat/nota/", "/alat/nota": "/alat/nota/", "/invoice": "/alat/nota/",
-        "/tagihan": "/alat/tagihan/", "/alat/tagihan": "/alat/tagihan/", "/alat/owner": "/alat/owner/", "/dashboard": "/alat/owner/", "/alat/pro": "/alat/pro/", "/lumbungpro": "/alat/pro/", "/alat/pengaturan": "/alat/pengaturan/", "/alat/stok": "/alat/stok/", "/alat/hpp": "/alat/hpp/", "/alat/impor": "/alat/impor/", "/alat/absen": "/alat/absen/", "/absen": "/alat/absen/", "/alat/pembelian": "/alat/pembelian/", "/pembelian": "/alat/pembelian/", "/hpp": "/alat/hpp/", "/kos": "/alat/tagihan/", "/spp": "/alat/tagihan/" };
+        "/tagihan": "/alat/tagihan/", "/alat/tagihan": "/alat/tagihan/", "/alat/owner": "/alat/owner/", "/dashboard": "/alat/owner/", "/alat/pro": "/alat/pro/", "/lumbungpro": "/alat/pro/", "/alat/pengaturan": "/alat/pengaturan/", "/alat/stok": "/alat/stok/", "/alat/hpp": "/alat/hpp/", "/alat/impor": "/alat/impor/", "/alat/absen": "/alat/absen/", "/absen": "/alat/absen/", "/alat/pembelian": "/alat/pembelian/", "/pembelian": "/alat/pembelian/", "/hpp": "/alat/hpp/", "/kos": "/alat/tagihan/", "/spp": "/alat/tagihan/",
+        // Huda 18 Nov 2026 ("gas reel"): link pendek yang disebut di akhir reel.
+        "/stok": "/alat/stok/", "/split": "/splitbill/coba/", "/splitbill": "/splitbill/coba/", "/patungan": "/splitbill/coba/" };
       if (alat[pendek] && url.pathname !== alat[pendek]) {
         url.pathname = alat[pendek];
+        // Link pendek yang diketik dari reel (tanpa parameter & tanpa referer) ditandai supaya kelihatan di GA4.
+        if (!url.search && !request.headers.get("referer")) url.searchParams.set("utm_source", "link_pendek");
         return Response.redirect(url.toString(), 301);
       }
     }
