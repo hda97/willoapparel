@@ -3611,9 +3611,32 @@ const tanahDasar = (x, z) => { if (I.tanah) return I.tanah(x, z); const d = I.de
 // Semua permukaan datar yang lebih tinggi (lantai fasum, tribun, bangku, tepi sungai, trotoar) bisa dipijak.
 // Saat dunia dibangun (sebelum digabung), kotak tiap benda yang cukup lebar dicatat ke grid; tinggi pijakan = puncak kotak.
 const PETAK_PJ = 10, NAIK_MAKS = .7 * VS, gridPJ = new Map();
+// BENDA PADAT (Huda 18 Nov 2026: "tidak bisa menembus benda yang keras"): tiap benda (pohon, tiang, bangku, perabot, kendaraan pajangan, pagar)
+// yang terlalu tinggi untuk dinaiki dan setinggi badan menghalangi avatar. Daun pintu, kaca, tanah/tanjakan, dan benda besar (>20x20, sudah punya dinding) tidak.
+const gridPD = new Map(), R_BADAN = .22 * VS, TINGGI_BADAN = 2.4;
+function catatPadat(bb) {
+  const w = bb.max.x - bb.min.x, d = bb.max.z - bb.min.z; if (w < .25 || d < .25 || w * d > 400 || bb.max.y - bb.min.y < 1) return;
+  const k = [bb.min.x - R_BADAN, bb.max.x + R_BADAN, bb.min.z - R_BADAN, bb.max.z + R_BADAN, bb.max.y, bb.min.y];
+  for (let i = Math.floor(k[0] / PETAK_PJ); i <= Math.floor(k[1] / PETAK_PJ); i++) for (let j = Math.floor(k[2] / PETAK_PJ); j <= Math.floor(k[3] / PETAK_PJ); j++) {
+    const key = i * 100003 + j; let a = gridPD.get(key); if (!a) gridPD.set(key, a = []); a.push(k);
+  }
+}
+// true = titik (x,z) bertabrakan dengan benda padat untuk kaki setinggi y
+function padat(x, z, y) {
+  const a = gridPD.get(Math.floor(x / PETAK_PJ) * 100003 + Math.floor(z / PETAK_PJ)); if (!a) return false;
+  for (const k of a) if (x > k[0] && x < k[1] && z > k[2] && z < k[3] && k[4] > y + NAIK_MAKS && k[5] < y + TINGGI_BADAN) return true;
+  return false;
+}
 function kumpulPijakan(root) {
   if (!root) return; root.updateMatrixWorld(true);
   const bb = new THREE.Box3(), m = new THREE.Matrix4(), im = new THREE.Matrix4();
+  root.traverse(o => {
+    if (!o.isMesh || !o.geometry || o.userData.daun || (o.userData.bukanPijakan && !o.userData.perabot)) return;
+    const mt = o.material; if (mt && !Array.isArray(mt) && mt.transparent && mt.opacity < .9) return;
+    if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
+    if (o.isInstancedMesh) { for (let n = 0; n < o.count; n++) { o.getMatrixAt(n, im); m.multiplyMatrices(o.matrixWorld, im); bb.copy(o.geometry.boundingBox).applyMatrix4(m); catatPadat(bb); } }
+    else { bb.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld); catatPadat(bb); }
+  });
   const catat = () => {
     if (bb.max.y <= .05 || bb.max.y > 40 * VS || bb.max.x - bb.min.x < 1.2 || bb.max.z - bb.min.z < 1.2) return;
     const k = [bb.min.x, bb.max.x, bb.min.z, bb.max.z, bb.max.y];
@@ -3650,6 +3673,8 @@ const bebas = (x, z) => {
   for (const {rects} of lotRuntime.values()) for (const [x0, x1, z0, z1] of rects) if (x > x0 - 1.2 && x < x1 + 1.2 && z > z0 - 1.2 && z < z1 + 1.2) return false;
   for (const f of fasumBangun) { const r = f.rect; if (!r || x < r[0] - 1.2 || x > r[1] + 1.2 || z < r[2] - 1.2 || z > r[3] + 1.2) continue;
     for (const k of f.dinding || [r]) if (x > k[0] - 1.2 && x < k[1] + 1.2 && z > k[2] - 1.2 && z < k[3] + 1.2) return false; }
+  // benda padat: kalau avatar terlanjur di dalam (muncul/teleport), tetap boleh bergerak supaya tidak terkunci
+  const me = tokoh.saya; if (me && padat(x, z, me.position.y) && !padat(me.position.x, me.position.z, me.position.y)) return false;
   return true;
 };
 // kualitas menyesuaikan HP: kalau rata-rata < 28 fps, turunkan resolusi lalu matikan bayangan
@@ -3913,4 +3938,4 @@ var tegakSesi = false; try { localStorage.removeItem('dk_tegak'); } catch (e) {}
 $('tetapTegak').onclick = () => { tegakSesi = true; $('miring').hidden = true; };
 onResize();
 layarMasuk();
-window.__dk = {S, HS, uji: {terima: q => terima(q), bangunUlang: n => bangunUlangKavling(n), hadiahPk: d => tampilHadiahPk(d), tambahWarga: w => tambahWarga(w), nebeng: () => NEBENG, naikNebeng: () => naikNebeng(), turunNebeng: () => turunNebeng()}, belanja: () => bukaBelanja(), tokoDekat: () => tokoDekat(tokoh.saya), segara: () => ({I, tokoh, bukaLift, pindahZona}), peta: () => peta, voting: w => bukaVoting(w), wnpc: () => wnpc, avAcak: n => avAcak(n), proyek: aturProyek, iklan: siapIklan, tonton: tontonIklan, rectLot: (n, a, b, c, d) => rectLot(I.lots[n], a, b, c, d), mancing: () => skillMancing(), dekatAir: () => dekatAir(tokoh.saya), tulisDana, VT: v => { VT = v; tulisVoting(); $('panelVoting').hidden = false; }, segarKebun, kebunSiap: () => { kebunTahap = null; segarKebun(); }, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }, lalin: () => lalin, kend: {naikkan, turunkan, bukaDealer, DLR, set: v => { NAIK = v; }}};
+window.__dk = {S, HS, uji: {terima: q => terima(q), bangunUlang: n => bangunUlangKavling(n), hadiahPk: d => tampilHadiahPk(d), tambahWarga: w => tambahWarga(w), nebeng: () => NEBENG, naikNebeng: () => naikNebeng(), turunNebeng: () => turunNebeng()}, belanja: () => bukaBelanja(), tokoDekat: () => tokoDekat(tokoh.saya), segara: () => ({I, tokoh, bukaLift, pindahZona}), peta: () => peta, voting: w => bukaVoting(w), wnpc: () => wnpc, avAcak: n => avAcak(n), proyek: aturProyek, iklan: siapIklan, tonton: tontonIklan, rectLot: (n, a, b, c, d) => rectLot(I.lots[n], a, b, c, d), mancing: () => skillMancing(), dekatAir: () => dekatAir(tokoh.saya), tulisDana, VT: v => { VT = v; tulisVoting(); $('panelVoting').hidden = false; }, segarKebun, kebunSiap: () => { kebunTahap = null; segarKebun(); }, profil: bukaProfil, tanam: () => bukaTanam(), profesi: () => bukaProfesi(), kerja: () => skillKerja(), sh: () => SH, bisaKerja: () => bisaKerja(tokoh.saya), makan: () => skillMakan(), segar: hitungOnline, ulangKav: bangunUlangKavling, rute: () => rute, nav: () => navSiap(), npc: () => npc, fasum: fasumBangun, gerak, bebas: (x, z) => bebas(x, z), padat: (x, z, y) => padat(x, z, y), gridPD, taruhBola: (x, z) => { BOLA.x = x; BOLA.z = z; BOLA.vx = BOLA.vz = 0; }, bola: () => { const f = I.fas[12]; return {dx: +(BOLA.x - f.x).toFixed(1), dz: +(BOLA.z - f.z).toFixed(1), v: +Math.hypot(BOLA.vx, BOLA.vz).toFixed(1)}; }, I: () => I, tanah: (x, z, r) => tanah(x, z, r), tokoh, lotRuntime, R, kamera: (z, y) => { zoom = z; if (y != null) yaw = y; }, lalin: () => lalin, kend: {naikkan, turunkan, bukaDealer, DLR, set: v => { NAIK = v; }}};
