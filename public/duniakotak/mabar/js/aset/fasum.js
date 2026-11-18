@@ -26,7 +26,7 @@ function ruang(g,{x=0,z=0,w,d,y0=.35,h,c,t=.3,bukaan=[],tanpa=[],lantaiC=null,zo
 // isi ruangan: tidak dipijak, tidak menghalangi (kecuali diberi dinding)
 function perabot(g,m,x,y,z,ry=0){g.ad(m,x,y,z,ry);m.userData.bukanPijakan=true;m.userData.perabot=true;return m}
 // daun pintu terbuka 90° ke dalam (engsel di kiri bukaan, sisi depan)
-function daun(g,x,zMuka,w,h,col,y0=.35){const m=g.ad(box(.1,h,w,col,.02),x-w/2+.08,y0+h/2,zMuka-w/2-.05);m.userData.bukanPijakan=true;return m}
+function daun(g,x,zMuka,w,h,col,y0=.35){const m=g.ad(box(.1,h,w,col,.02),x-w/2+.08,y0+h/2,zMuka-w/2-.05);m.userData.bukanPijakan=true;m.userData.daun=true;return m}
 const kayu=0x8a5a2a,putih=0xf4f4f0;
 function bangku(g,x,z,w,col=kayu,ry=0){perabot(g,box(w,.06,.32,col,.02),x,.6,z,ry);perabot(g,box(w,.28,.06,col,.02),x,.76,z-(ry?0:.15),ry);[-1,1].forEach(s=>perabot(g,box(.06,.25,.3,col,.01),x+s*(w/2-.1),.47,z,ry))}
 function meja(g,x,z,w,dd,col=kayu,ht=.5){perabot(g,box(w,.06,dd,col,.02),x,.35+ht,z);[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>perabot(g,box(.06,ht,.06,col,.01),x+a*(w/2-.06),.35+ht/2,z+b*(dd/2-.06)))}
