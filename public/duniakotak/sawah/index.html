@@ -57,11 +57,23 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
 .bibit button b{font-size:10px;font-weight:900;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bibit button small{font-size:8.5px;font-weight:800;color:var(--redup);white-space:nowrap}
 .bibit button.mahal{opacity:.42}
+/* Sawah v2: pesanan warga (3 kotak sebaris) & mini-game panen (jarum bolak-balik, zona kuning/emas di tengah) */
+.pesan{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.pesan span{display:flex;flex-direction:column;align-items:center;padding:3px 2px 4px;border-radius:9px;background:rgba(255,255,255,.1);min-width:0;line-height:1.15}
+.pesan i{font-style:normal;font-size:17px}
+.pesan b{font-size:9.5px;font-weight:900;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pesan small{font-size:9.5px;font-weight:900;color:var(--kuning)}
+.pesan span.ok{background:rgba(108,200,90,.28)}
+.timing{position:relative;height:30px;border-radius:10px;background:rgba(255,255,255,.14);overflow:hidden}
+.timing em{position:absolute;top:0;bottom:0}
+.timing .z1{left:33%;right:33%;background:rgba(242,193,74,.45)}
+.timing .z2{left:43%;right:43%;background:linear-gradient(90deg,#ffd23a,#fff2a0,#ffd23a)}
+.timing i{position:absolute;top:-2px;bottom:-2px;width:4px;margin-left:-2px;border-radius:2px;background:#fff;box-shadow:0 0 0 2px #13141f}
 #toast{position:fixed;left:calc((var(--vw,1vw) * 100 - var(--panel)) / 2);top:calc(70px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:grid;gap:6px;justify-items:center;pointer-events:none;max-width:calc(var(--vw,1vw) * 100 - var(--panel) - 30px)}
 #toast div{padding:8px 14px;font-size:13px;font-weight:900;text-align:center;animation:muncul 3s forwards}
 @keyframes muncul{0%{opacity:0;transform:translateY(8px) scale(.9)}8%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
 #muat{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#a8d8f2;font-weight:900;font-size:16px;color:#1d2a10}
-@media (max-height:340px){.judul h1{font-size:19px}.chips span{padding:3px 7px;font-size:10.5px}#panel{padding:7px 9px;gap:5px}.utama{padding:8px;font-size:13.5px}.besar i{font-size:26px}.ket{font-size:10.5px}.bibit button i{font-size:16px}.bibit button{padding:2px 1px 3px}.pAtas h2{font-size:14px}.kedua{padding:7px}}
+@media (max-height:340px){.judul h1{font-size:19px}.chips span{padding:3px 7px;font-size:10.5px}#panel{padding:7px 9px;gap:5px}.utama{padding:8px;font-size:13.5px}.besar i{font-size:26px}.ket{font-size:10.5px}.bibit button i{font-size:16px}.pesan i{font-size:14px}.timing{height:24px}.legenda{display:none}.bibit button{padding:2px 1px 3px}.pAtas h2{font-size:14px}.kedua{padding:7px}}
 </style>
 <script type="importmap">{"imports":{"three":"/duniakotak/three/0.169.0/three.module.min.js","three/addons/geometries/RoundedBoxGeometry.js":"/duniakotak/mabar/js/kotakBulat.js?v=20261108r","three/addons/":"/duniakotak/three/0.169.0/jsm/"}}</script>
 </head>
@@ -69,11 +81,11 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
 <canvas id="kanvas"></canvas>
 <div id="atas">
  <div class="judul"><small>🌾 SAWAH DESA · KOTAK WETAN</small><h1>Sawah <span>Wetan</span></h1></div>
- <div class="chips"><span class="kaca" id="cKoin">🪙 –</span><span class="kaca" id="cPetak">🌾 Petakku 0</span><span class="kaca" id="cJual">🏷️ – dijual</span></div>
+ <div class="chips"><span class="kaca" id="cKoin">🪙 –</span><span class="kaca" id="cLv" hidden>👨‍🌾 Lv 1</span><span class="kaca" id="cPetak">🌾 Petakku 0</span><span class="kaca" id="cJual">🏷️ – dijual</span></div>
 </div>
 <div id="panel" class="kaca"></div>
 <div id="toast"></div>
 <div id="muat">🌾 Menuju sawah…</div>
-<script type="module" src="sawah.js?v=20261118b"></script>
+<script type="module" src="sawah.js?v=20261118c"></script>
 </body>
 </html>
