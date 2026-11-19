@@ -117,6 +117,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible,label:focus-visible{o
 .shot{margin:0;background:var(--kartu);border:1px solid var(--garis);border-radius:var(--r-kartu);overflow:hidden;display:flex;flex-direction:column}
 .shot img{width:100%;aspect-ratio:3/4;object-fit:cover}
 .shot picture{display:block}
+.gallery-kotak .shot img{aspect-ratio:1/1}
 .shot figcaption{padding:12px 16px 14px}
 .shot figcaption b{display:block;font-weight:700;font-size:16px}
 .shot-cta{background:var(--tinta);color:#fff;padding:24px 20px;justify-content:flex-end;gap:8px;text-decoration:none;min-height:220px;border-color:var(--tinta)}
