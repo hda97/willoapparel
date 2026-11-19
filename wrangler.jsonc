@@ -32,7 +32,8 @@
   ],
   // Client ID Google (publik, bukan rahasia) untuk tombol "Lanjut dengan Google" di /duniakotak/.
   // Kosong = tombol belum aktif. Isi dengan Client ID dari Google Cloud Console.
-  "vars": { "GOOGLE_CLIENT_ID": "1082997408742-9515voc2uflmub1q0bfr9o0htuvof5dn.apps.googleusercontent.com", "TG_CHAT_ID": "5667928446" },
+  // RS_TOKO = ID toko kasir Lumbung Willo (bukan rahasia; kuncinya tetap di link owner) untuk masuk /reseller/admin/ dengan link owner.
+  "vars": { "GOOGLE_CLIENT_ID": "1082997408742-9515voc2uflmub1q0bfr9o0htuvof5dn.apps.googleusercontent.com", "TG_CHAT_ID": "5667928446", "RS_TOKO": "r653w141jc0vmpfy7elj" },
   // Workers AI (kuota gratis harian) untuk gambar Flux di /alat/gambar/ (lihat apiGambar di worker.js).
   "ai": { "binding": "AI" },
   "assets": {

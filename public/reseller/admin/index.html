@@ -52,7 +52,10 @@
   <header><div class="logo"><img src="/logo-willo.png" alt="">Admin Reseller</div><button class="btn abu tersembunyi" id="keluar" type="button">Keluar</button></header>
 
   <form id="fMasuk" class="blok">
-    <label for="sandi">Kata sandi admin (sama dengan admin Lumbung Pro)</label>
+    <label for="owner">Tempel link Dashboard Owner Lumbung toko Willo</label>
+    <input id="owner" placeholder="https://willoapparel.com/alat/owner/#t=...&k=..." autocomplete="off">
+    <p class="kecil" style="margin:10px 0 0">atau</p>
+    <label for="sandi">Kata sandi admin Lumbung Pro</label>
     <input type="password" id="sandi" autocomplete="current-password">
     <button class="btn" style="margin-top:10px" type="submit">Masuk</button>
     <div class="galat" id="gMasuk"></div>
@@ -122,10 +125,15 @@
   var $ = function (i) { return document.getElementById(i); };
   var rp = function (n) { return "Rp" + Math.round(n || 0).toLocaleString("id-ID"); };
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return "&#" + c.charCodeAt(0) + ";"; }); };
-  var K = "willo_reseller_admin", sandi = "", data = null, dlgId = "";
-  try { sandi = sessionStorage.getItem(K) || localStorage.getItem(K) || ""; } catch (e) {}
+  var K = "willo_reseller_admin", KO = "willo_reseller_owner", sandi = "", owner = "", data = null, dlgId = "";
+  try {
+    sandi = localStorage.getItem(K) || localStorage.getItem("willo_admin_pro") || "";
+    owner = localStorage.getItem(KO) || "";
+    var dash = JSON.parse(localStorage.getItem("willo_dash_owner_v1") || "null"); // link owner yang pernah dibuka di HP ini
+    if (!owner && dash && dash.t && dash.k) owner = "t=" + dash.t + "&k=" + dash.k;
+  } catch (e) {}
   function api(jalur, body) {
-    return fetch("/alat/api/reseller/admin/" + jalur, { method: body ? "POST" : "GET", headers: { "x-admin": sandi, "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined })
+    return fetch("/alat/api/reseller/admin/" + jalur, { method: body ? "POST" : "GET", headers: { "x-admin": sandi.trim(), "x-owner": owner, "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined })
       .then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.galat || "Gagal (" + r.status + ")"); return d; }); });
   }
   function hpWa(h) { h = String(h || "").replace(/\D/g, ""); return h.charAt(0) === "0" ? "62" + h.slice(1) : h; }
@@ -210,11 +218,14 @@
   };
   $("tokoSimpan").onclick = function () { $("gToko").textContent = ""; api("toko", { link: $("tokoLink").value }).then(function () { $("tokoLink").value = ""; muat(); }, function (er) { $("gToko").textContent = er.message; }); };
   $("fMasuk").onsubmit = function (e) {
-    e.preventDefault(); sandi = $("sandi").value;
-    muat().then(function () { try { localStorage.setItem(K, sandi); } catch (er) {} }, function (er) { $("gMasuk").textContent = er.message; });
+    e.preventDefault(); sandi = $("sandi").value.trim();
+    var t = /t=([a-z0-9]{16,40})/.exec($("owner").value), k = /k=([a-z0-9]{24,80})/.exec($("owner").value);
+    owner = t && k ? "t=" + t[1] + "&k=" + k[1] : "";
+    if (!sandi && !owner) { $("gMasuk").textContent = "Tempel link owner atau isi kata sandi."; return; }
+    muat().then(function () { try { if (sandi) localStorage.setItem(K, sandi); if (owner) localStorage.setItem(KO, owner); } catch (er) {} }, function (er) { $("gMasuk").textContent = er.message; });
   };
-  $("keluar").onclick = function () { try { localStorage.removeItem(K); sessionStorage.removeItem(K); } catch (e) {} location.reload(); };
-  if (sandi) muat().catch(function () { sandi = ""; });
+  $("keluar").onclick = function () { try { localStorage.removeItem(K); localStorage.removeItem(KO); } catch (e) {} location.reload(); };
+  if (sandi || owner) muat().catch(function () { sandi = ""; owner = ""; });
 })();
 </script>
 </body>
