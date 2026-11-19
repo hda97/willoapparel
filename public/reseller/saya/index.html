@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Dashboard Reseller | Willo Apparel</title>
+<link rel="icon" href="/logo-willo.png">
+<link rel="manifest" href="data:application/json,%7B%22name%22%3A%22Reseller%20Willo%22%2C%22start_url%22%3A%22%2Freseller%2Fsaya%2F%22%2C%22display%22%3A%22standalone%22%7D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#F3F5F8; --kartu:#FFF; --tinta:#1A2238; --abu:#5D6880; --garis:#D8DEE8; --biru:#2F6FED; --wa:#1FA855; --display:"Baloo 2",system-ui,sans-serif; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--tinta); font-family:"Plus Jakarta Sans",system-ui,sans-serif; line-height:1.5; }
+  .w { max-width:760px; margin:0 auto; padding:0 16px 60px; }
+  header { display:flex; justify-content:space-between; align-items:center; padding:16px 0; }
+  .logo { font-family:var(--display); font-weight:800; font-size:20px; text-decoration:none; color:inherit; display:flex; gap:8px; align-items:center; }
+  .logo img { height:30px; }
+  h1 { font-family:var(--display); font-size:30px; line-height:1.1; margin:6px 0 4px; }
+  h2 { font-family:var(--display); font-size:22px; margin:26px 0 10px; }
+  .kecil { font-size:14px; color:var(--abu); }
+  .blok { background:var(--kartu); border:1px solid var(--garis); border-radius:16px; padding:18px; margin-top:12px; }
+  .kode { font-family:var(--display); font-size:40px; color:var(--biru); line-height:1; }
+  .link { font-family:ui-monospace,Menlo,monospace; font-size:14px; background:#EEF2F7; border-radius:8px; padding:8px 10px; word-break:break-all; margin:10px 0; }
+  .tombol { display:flex; gap:8px; flex-wrap:wrap; }
+  .btn { font:inherit; font-weight:700; font-size:15px; border:0; border-radius:10px; padding:11px 16px; cursor:pointer; background:var(--biru); color:#fff; text-decoration:none; display:inline-flex; align-items:center; }
+  .btn.wa { background:var(--wa); } .btn.abu { background:#E7ECF5; color:var(--tinta); }
+  .angka { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  .angka div { background:var(--kartu); border:1px solid var(--garis); border-radius:14px; padding:14px; }
+  .angka b { display:block; font-family:var(--display); font-size:26px; line-height:1.1; }
+  .angka small { color:var(--abu); font-size:13px; }
+  .saldo { background:var(--biru) !important; color:#fff; grid-column:1/-1; }
+  .saldo small { color:#dbe6ff !important; }
+  .bar { height:10px; background:#E3E9F4; border-radius:6px; overflow:hidden; margin:8px 0 4px; }
+  .bar i { display:block; height:100%; background:var(--biru); }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--garis); vertical-align:top; }
+  th { color:var(--abu); font-weight:600; font-size:13px; }
+  td.r, th.r { text-align:right; }
+  .coret { text-decoration:line-through; color:var(--abu); }
+  .tag { font-size:12px; font-weight:700; padding:2px 8px; border-radius:10px; background:#E7EEFD; color:var(--biru); }
+  .tunggu { background:#FFF7E0; border-color:#F2D27A; }
+  label { display:block; font-weight:700; font-size:14px; margin:10px 0 4px; }
+  input, select { font:inherit; width:100%; padding:10px; border:1px solid var(--garis); border-radius:10px; font-size:16px; }
+  .galat { color:#b91c1c; font-weight:600; }
+  .tersembunyi { display:none !important; }
+</style>
+</head>
+<body>
+<div class="w">
+  <header><a class="logo" href="/reseller/"><img src="/logo-willo.png" alt="">Reseller Willo</a><span class="kecil" id="nama"></span></header>
+
+  <div id="tanpa" class="blok tersembunyi">
+    <h1>Link dashboard dibutuhkan</h1>
+    <p class="kecil">Buka dashboard dari link yang kamu terima saat mendaftar atau dari admin Willo. Belum daftar? <a href="/reseller/#daftar">Daftar di sini</a>.</p>
+  </div>
+  <p id="galat" class="galat"></p>
+
+  <div id="isi" class="tersembunyi">
+    <div id="menunggu" class="blok tunggu tersembunyi">
+      <h1>Pendaftaran sedang diverifikasi</h1>
+      <p>Admin Willo akan menghubungimu lewat WhatsApp untuk verifikasi KTP atau kartu pelajar. Setelah disetujui, kode reseller dan link pribadimu muncul di halaman ini.</p>
+      <p class="kecil" style="margin-top:8px">Simpan halaman ini: bagikan atau tambahkan ke layar utama HP supaya tidak hilang.</p>
+    </div>
+
+    <div id="aktif" class="tersembunyi">
+      <div class="blok">
+        <div class="kecil">Kode reseller kamu · <span id="level" class="tag"></span></div>
+        <div class="kode" id="kode"></div>
+        <div class="link" id="link"></div>
+        <div class="tombol">
+          <button class="btn" id="salin" type="button">Salin link</button>
+          <a class="btn wa" id="bagi" target="_blank" rel="noopener">Bagikan ke WA</a>
+        </div>
+        <p class="kecil" style="margin-top:10px">Pembeli yang membuka link ini tercatat atas namamu selama 90 hari. Yang datang ke toko cukup menyebut kodemu ke kasir.</p>
+      </div>
+
+      <h2>Bulan ini</h2>
+      <div class="angka">
+        <div class="saldo"><small>Saldo siap dicairkan</small><b id="saldo">Rp0</b><small id="saldoKet"></small></div>
+        <div><small>Kaos terjual</small><b id="kaos">0</b></div>
+        <div><small>Untung jual sendiri</small><b id="untung">Rp0</b></div>
+        <div><small>Komisi afiliasi</small><b id="komisi">Rp0</b></div>
+        <div><small>Bonus</small><b id="bonus">Rp0</b></div>
+      </div>
+      <div class="blok">
+        <b id="targetJudul"></b>
+        <div class="bar"><i id="targetBar" style="width:0"></i></div>
+        <div class="kecil" id="targetKet"></div>
+      </div>
+
+      <h2>Riwayat per bulan</h2>
+      <div class="blok"><table><thead><tr><th>Bulan</th><th class="r">Kaos</th><th class="r">Untung + komisi + bonus</th></tr></thead><tbody id="tBulan"></tbody></table></div>
+
+      <h2>Penjualan tercatat</h2>
+      <div class="blok"><table><thead><tr><th>Tanggal</th><th>Jenis</th><th class="r">Kaos</th><th class="r">Untuk kamu</th></tr></thead><tbody id="tJual"></tbody></table>
+        <p class="kecil" style="margin-top:8px">Penjualan dihitung setelah lunas. Ada yang belum masuk? Kirim klaim ke admin maksimal 7 hari setelah transaksi.</p></div>
+
+      <h2>Pencairan</h2>
+      <div class="blok">
+        <table><thead><tr><th>Tanggal</th><th>Lewat</th><th class="r">Jumlah</th></tr></thead><tbody id="tBayar"></tbody></table>
+        <form id="fCair" style="margin-top:12px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div><label for="cair">Cairkan ke</label><select id="cair"><option>DANA</option><option>GoPay</option><option>OVO</option><option>ShopeePay</option><option>Transfer bank</option><option>Rekening ortu</option><option>SimPel</option><option>Tunai di toko Willo</option></select></div>
+            <div><label for="norek">Nomor</label><input id="norek" inputmode="numeric"></div>
+          </div>
+          <button class="btn abu" style="margin-top:10px" type="submit">Simpan cara pencairan</button> <span id="cairOk" class="kecil"></span>
+        </form>
+        <p class="kecil" style="margin-top:8px">Dibayar tiap tanggal 5 bila saldo minimal <span id="minCair">Rp50.000</span>. Saldo di bawahnya dibawa ke bulan berikutnya.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  var rp = function (n) { return "Rp" + Math.round(n || 0).toLocaleString("id-ID"); };
+  var K = "willo_reseller_saya";
+  var h = /[#&]i=([a-z0-9]{8,30})&k=([a-z0-9]{24,80})/.exec(location.hash), sesi = null;
+  if (h) { sesi = { i: h[1], k: h[2] }; try { localStorage.setItem(K, JSON.stringify(sesi)); } catch (e) {} }
+  else { try { sesi = JSON.parse(localStorage.getItem(K) || "null"); } catch (e) {} if (sesi) history.replaceState(null, "", "#i=" + sesi.i + "&k=" + sesi.k); }
+  if (!sesi) { $("tanpa").classList.remove("tersembunyi"); return; }
+  var hdr = { "x-id": sesi.i, "x-kunci": sesi.k, "content-type": "application/json" };
+  function bulanNama(b) { var p = b.split("-"); return ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"][+p[1] - 1] + " " + p[0]; }
+  function bulanIni() { var d = new Date(Date.now() + 7 * 3600e3); return d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, "0"); }
+  function muat() {
+    fetch("/alat/api/reseller/saya", { headers: hdr }).then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.galat || "Gagal memuat."); return d; }); }).then(tampil)
+      .catch(function (e) { $("galat").textContent = e.message; });
+  }
+  function tampil(d) {
+    var o = d.orang, A = d.aturan; $("isi").classList.remove("tersembunyi"); $("nama").textContent = o.nama;
+    $("cair").value = o.cair || "DANA"; $("norek").value = o.norek || ""; $("minCair").textContent = rp(A.minCair);
+    if (o.status !== "aktif" || !o.kode) { $("menunggu").classList.remove("tersembunyi"); if (o.status === "tolak" || o.status === "nonaktif") { $("menunggu").querySelector("h1").textContent = "Akun belum aktif"; $("menunggu").querySelector("p").textContent = "Hubungi admin Willo lewat WhatsApp untuk informasi lebih lanjut."; } return; }
+    $("aktif").classList.remove("tersembunyi");
+    var link = "https://willoapparel.com/pesan/?kode=" + encodeURIComponent(o.kode);
+    $("kode").textContent = o.kode; $("level").textContent = o.level; $("link").textContent = link;
+    $("salin").onclick = function () { (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(function () { $("salin").textContent = "Tersalin ✓"; }, function () { prompt("Salin link ini:", link); }); };
+    $("bagi").href = "https://wa.me/?text=" + encodeURIComponent("Mau bikin kaos sablon custom? Pesan di Willo Apparel lewat link ini ya: " + link);
+    var bi = (d.bulan || []).filter(function (x) { return x.bulan === bulanIni(); })[0] || { kaos: 0, untung: 0, komisi: 0, bonus: 0 };
+    $("kaos").textContent = bi.kaos; $("untung").textContent = rp(bi.untung); $("komisi").textContent = rp(bi.komisi); $("bonus").textContent = rp(bi.bonus);
+    $("saldo").textContent = rp(d.saldo);
+    $("saldoKet").textContent = d.saldo >= A.minCair ? "Dibayar tanggal 5 bulan depan" : "Minimal pencairan " + rp(A.minCair);
+    var target = o.level === "Siswa" ? null : A.bonusMin;
+    if (o.level === "Siswa") { $("targetJudul").textContent = "Target sertifikat semester ini"; var s = bi.kaos; var tg = s < 10 ? 10 : s < 25 ? 25 : 50; $("targetBar").style.width = Math.min(100, s / tg * 100) + "%"; $("targetKet").textContent = s >= 50 ? "Sudah mencapai tingkat Emas!" : "Lagi " + (tg - s) + " kaos menuju tingkat " + (tg === 10 ? "Perunggu" : tg === 25 ? "Perak" : "Emas") + " (hitungan bulan ini)."; }
+    else { $("targetJudul").textContent = "Menuju bonus " + rp(A.bonus); $("targetBar").style.width = Math.min(100, bi.kaos / target * 100) + "%"; $("targetKet").textContent = bi.kaos >= target ? "Bonus bulan ini sudah didapat!" : "Lagi " + (target - bi.kaos) + " kaos bulan ini untuk bonus " + rp(A.bonus) + "." + (o.level !== "Agen" ? " Jual " + A.agenMin + " kaos sebulan untuk naik ke level Agen." : ""); }
+    $("tBulan").innerHTML = (d.bulan || []).map(function (b) { return "<tr><td>" + bulanNama(b.bulan) + "</td><td class=r>" + b.kaos + "</td><td class=r>" + rp(b.total) + (b.dipegang ? "<br><span class=kecil>+" + rp(b.dipegang) + " sudah kamu pegang</span>" : "") + "</td></tr>"; }).join("") || "<tr><td colspan=3 class=kecil>Belum ada penjualan.</td></tr>";
+    $("tJual").innerHTML = (d.jual || []).map(function (j) { var mati = j.batal || j.tolak; var untuk = j.untung + j.komisi; return "<tr class='" + (mati ? "coret" : "") + "'><td>" + new Date(j.w).toLocaleDateString("id-ID", { day: "numeric", month: "short" }) + "</td><td>" + j.jenis + (j.sumber === "kasir" ? " · toko" : "") + (j.batal ? " (belum lunas/batal)" : j.tolak ? " (tidak dihitung)" : "") + "</td><td class=r>" + j.qty + "</td><td class=r>" + rp(untuk) + "</td></tr>"; }).join("") || "<tr><td colspan=4 class=kecil>Belum ada penjualan. Bagikan link pribadimu!</td></tr>";
+    $("tBayar").innerHTML = (d.bayar || []).map(function (b) { return "<tr><td>" + new Date(b.w).toLocaleDateString("id-ID") + "</td><td>" + (b.cara || "") + "</td><td class=r>" + rp(b.jumlah) + "</td></tr>"; }).join("") || "<tr><td colspan=3 class=kecil>Belum ada pencairan.</td></tr>";
+  }
+  $("fCair").onsubmit = function (e) {
+    e.preventDefault();
+    fetch("/alat/api/reseller/saya", { method: "POST", headers: hdr, body: JSON.stringify({ cair: $("cair").value, norek: $("norek").value }) })
+      .then(function (r) { $("cairOk").textContent = r.ok ? "Tersimpan ✓" : "Gagal menyimpan"; });
+  };
+  muat();
+})();
+</script>
+</body>
+</html>
