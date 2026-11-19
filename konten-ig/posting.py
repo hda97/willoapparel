@@ -79,7 +79,9 @@ def muat_token(akun=None):
             return turunkan(user, akun)
         except SystemExit as e:
             print(f"IG_TOKEN baru tidak bisa dipakai, tetap pakai token lama: {e}")
-            simpan_token(d["page_token"], d["ig_id"], akun=akun)
+            # src lama dipertahankan: run berikutnya mencoba lagi IG_TOKEN baru (mis. setelah
+            # Halaman baru ditetapkan ke System User), bukan menganggapnya sudah dicoba.
+            simpan_token(d["page_token"], d["ig_id"], src=d.get("src"), akun=akun)
             return d["page_token"], d["ig_id"]
     return turunkan(user, akun)
 
