@@ -252,6 +252,17 @@
     l.innerHTML = '<input type="checkbox" value="' + p + '"' + (i === 0 ? ' checked' : '') + '> ' + p;
     $('posisi').appendChild(l);
   });
+  // Kode siswa reseller/afiliasi: dari ?kode= atau yang tersimpan 90 hari (sama dengan /wa-tag.js).
+  var KODE = (function () {
+    var baru = (new URLSearchParams(location.search).get('kode') || '').trim().toUpperCase();
+    if (!/^[A-Z0-9][A-Z0-9-]{2,23}$/.test(baru)) baru = '';
+    try {
+      var sp = JSON.parse(localStorage.getItem('willo_kode_siswa') || 'null');
+      if (sp && sp.s > Date.now() && sp.k) return sp.k;
+      if (baru) localStorage.setItem('willo_kode_siswa', JSON.stringify({ k: baru, s: Date.now() + 90 * 24 * 3600 * 1000 }));
+    } catch (e) {}
+    return baru;
+  })();
   JENIS.forEach(function (j) {
     j.hal.forEach(function (h) {
       var li = document.createElement('li');
@@ -265,7 +276,7 @@
     document.querySelectorAll('#pilih button').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.id === id ? 'true' : 'false'); });
     var nomor = document.querySelector('#posisi input[value^="Nama"]');
     if (nomor && pilihan.nomor) nomor.checked = true;
-    try { history.replaceState(null, '', '?untuk=' + id); } catch (e) {}
+    try { history.replaceState(null, '', '?untuk=' + id + (KODE ? '&kode=' + encodeURIComponent(KODE) : '')); } catch (e) {}
     hitung();
   }
 
@@ -346,6 +357,7 @@
     t += '\nDesain: ' + $('desain').value;
     t += '\nPengambilan: ' + $('kirim').value + (kota && $('kirim').value === 'Dikirim' ? ' (' + kota + ')' : '');
     if (cat) t += '\nCatatan: ' + cat;
+    if (KODE) t += '\nKode siswa: ' + KODE;
     t += '\n\nMohon simulasi harganya. Terima kasih.';
     try {
       if (Number(localStorage.getItem('willo_dari_meta') || 0) > Date.now()) t += ' (dari IG/FB)';
@@ -366,6 +378,7 @@
     if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
     if (typeof gtag === 'function') gtag('event', 'salin_rencana', { keperluan: pilihan ? pilihan.id : '-' });
   };
+  if (KODE) { var kb = document.createElement('p'); kb.className = 'kecil'; kb.id = 'kodeSiswa'; kb.style.cssText = 'font-weight:600;border:1.5px dashed currentColor;border-radius:10px;padding:8px 12px;display:inline-block'; kb.textContent = 'Kode siswa tercatat: ' + KODE + '. Kode ini ikut terkirim di pesan WhatsApp.'; var ld = document.querySelector('.lead'); if (ld) ld.after(kb); }
   var awal = new URLSearchParams(location.search).get('untuk');
   if (awal && JENIS.some(function (j) { return j.id === awal; })) pilih(awal); else hitung();
 })();

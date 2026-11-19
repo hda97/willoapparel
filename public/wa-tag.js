@@ -55,6 +55,34 @@ if (WILLO_PIXEL_ID) {
   });
 })();
 
+// Kode siswa reseller/afiliasi (Program Reseller Siswa SMK).
+// Link siswa: willoapparel.com/pesan/?kode=N1-XITKJ1-07 (bisa juga di halaman lain).
+// Kode disimpan 90 hari di perangkat pembeli; kode pertama yang tersimpan yang dipakai.
+// Setiap klik tombol WhatsApp otomatis membawa "(kode siswa: ...)" di pesannya.
+function willoKodeSiswa() {
+  var KEY = 'willo_kode_siswa', HARI90 = 90 * 24 * 3600 * 1000;
+  var baru = (new URLSearchParams(location.search).get('kode') || '').trim().toUpperCase();
+  if (!/^[A-Z0-9][A-Z0-9-]{2,23}$/.test(baru)) baru = '';
+  try {
+    var simpan = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (simpan && simpan.s > Date.now() && simpan.k) return simpan.k;
+    if (baru) localStorage.setItem(KEY, JSON.stringify({ k: baru, s: Date.now() + HARI90 }));
+  } catch (e) {}
+  return baru;
+}
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="wa.me/"]');
+  var kode = a && willoKodeSiswa();
+  if (!kode) return;
+  try {
+    var u = new URL(a.href);
+    var text = u.searchParams.get('text') || 'Halo Willo Apparel';
+    if (text.toLowerCase().indexOf('kode siswa') === -1) u.searchParams.set('text', text + ' (kode siswa: ' + kode + ')');
+    a.href = u.toString();
+  } catch (err) {}
+}, true);
+willoKodeSiswa();
+
 // Catatan kunjungan milik sendiri (worker.js → Analytics Engine): satu sinyal "view" per halaman
 // dari browser sungguhan, dan satu sinyal "wa" per klik tombol WhatsApp.
 function willoKirim(t) {
