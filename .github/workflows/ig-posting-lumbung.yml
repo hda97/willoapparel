@@ -8,6 +8,8 @@ name: Posting Instagram Lumbung
 # satu pun run terjadwal). Jadi satu run berjalan ±5,5 jam, mengecek antrean tiap 5 menit (selalu
 # menarik main terbaru), lalu memicu dirinya sendiri lagi, sama seperti ig-kata-kunci.yml.
 # Cron di bawah hanya cadangan kalau rantai putus.
+# Rantai juga putus setelah run "Hanya uji token" (mode itu tidak memicu run berikutnya);
+# push perubahan file ini menyalakan rantai lagi.
 
 on:
   push:
