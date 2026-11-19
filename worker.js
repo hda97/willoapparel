@@ -2972,9 +2972,23 @@ export class Toko extends DurableObject {
   async fetch(request) {
     const u = new URL(request.url);
     if (u.pathname.startsWith("/pusat/")) return this.pusat(u, request);
+    // Program reseller (instans "program-reseller"); hanya bisa dipanggil dari apiReseller di worker ini.
+    if (u.pathname.startsWith("/rs/")) return rsTangani(this, u, request);
+    // Penjualan toko kasir Willo yang membawa kode reseller (dipanggil instans program-reseller, bukan dari internet).
+    if (u.pathname === "/rs-ambil") {
+      const rows = this.sql.exec("SELECT d FROM jual WHERE w >= ? ORDER BY w", Date.now() - 400 * 864e5).toArray();
+      const jual = [];
+      for (const r of rows) {
+        let j; try { j = JSON.parse(r.d); } catch (e) { continue; }
+        const rs = String(j.rs || "").toUpperCase() || ((RS_KODE.exec(String(j.pel || "").toUpperCase()) || [])[1] || "");
+        if (rs) jual.push({ kid: j.kid, no: j.no, w: j.w, isi: j.isi, batal: j.batal ? 1 : 0, sisa: j.sisa || 0, lunas: j.lunas || 0, rs });
+      }
+      return Response.json({ jual });
+    }
     const kunci = request.headers.get("x-kunci") || "";
     if (kunci.length < 24 || kunci.length > 80) return Response.json({ galat: "kunci" }, { status: 401 });
     const h = await sidikKunci(kunci), ada = this.meta("kunci");
+    if (u.pathname === "/cek-kunci") return ada && ada === h ? Response.json({ ok: true }) : Response.json({ galat: "kunci" }, { status: 403 });
     if (u.pathname === "/cek") {
       // Sebelum aktivasi: pastikan kunci benar. Toko yang belum pernah sinkron langsung didaftarkan.
       if (ada && ada !== h) return Response.json({ galat: "kunci" }, { status: 403 });
@@ -3164,6 +3178,227 @@ async function apiFotoArtikel(request, url, env, json) {
   if (cache) await cache.put(kunci, res.clone());
   return res;
 }
+// ===== Program Reseller & Afiliasi Willo (Huda 19 Nov 2026) =====
+// Data disimpan di satu instans Toko bernama "program-reseller" (tanpa migrasi DO baru).
+// Pendaftaran online, dashboard reseller (/reseller/saya/), dashboard admin (/reseller/admin/, sandi = LUMBUNG_ADMIN).
+// Penjualan kasir Lumbung yang membawa kode reseller (kolom "Kode reseller" atau kode di nama pelanggan)
+// ditarik otomatis dari toko kasir Willo yang dihubungkan admin.
+const RS_ATURAN = {
+  potong: 5000,          // harga modal Reseller/Siswa = harga resmi − Rp5.000
+  agenPersen: 10,        // harga modal Agen = harga resmi − 10%
+  tingkat: [[75000, 5000], [60000, 3000]], // komisi afiliasi per kaos menurut harga resmi
+  minCair: 50000,        // minimal saldo untuk dicairkan
+  bonusMin: 100, bonus: 50000, // bonus bulanan reseller umum (bukan siswa)
+  agenMin: 50,           // kaos per bulan untuk level Agen
+};
+const RS_LEVEL = ["Afiliasi", "Reseller", "Agen", "Siswa"];
+const RS_KODE = /\b(R-\d{3,4}|[A-Z0-9]{1,5}-[A-Z0-9]{2,8}-\d{1,3})\b/;
+function rsKomisi(harga) { for (const [b, k] of RS_ATURAN.tingkat) if (harga >= b) return k; return 0; }
+function rsModal(resmi, level) { return level === "Agen" ? Math.round(resmi * (1 - RS_ATURAN.agenPersen / 100)) : resmi - RS_ATURAN.potong; }
+function rsBulan(w) { const d = new Date(w + 7 * 3600e3); return d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, "0"); }
+function rsAcak(n, huruf) { const a = huruf || "abcdefghijklmnopqrstuvwxyz0123456789", b = new Uint8Array(n); crypto.getRandomValues(b); return [...b].map((x) => a[x % a.length]).join(""); }
+function rsTeks(v, n) { return String(v == null ? "" : v).replace(/[\u0000-\u001f<>]/g, " ").trim().slice(0, n); }
+function rsHp(v) { let s = String(v || "").replace(/\D/g, ""); if (s.startsWith("62")) s = "0" + s.slice(2); return s.slice(0, 15); }
+
+async function rsTangani(self, u, request) {
+  const sql = self.sql;
+  sql.exec("CREATE TABLE IF NOT EXISTS rs_orang (id TEXT PRIMARY KEY, kode TEXT, sidik TEXT, nama TEXT, wa TEXT, kota TEXT, level TEXT, cair TEXT, norek TEXT, rencana TEXT, status TEXT, dibuat INTEGER, disetujui INTEGER, catatan TEXT)");
+  sql.exec("CREATE UNIQUE INDEX IF NOT EXISTS rs_orang_kode ON rs_orang(kode) WHERE kode IS NOT NULL");
+  sql.exec("CREATE TABLE IF NOT EXISTS rs_jual (id TEXT PRIMARY KEY, kode TEXT, w INTEGER, no TEXT, jenis TEXT, qty INTEGER, resmi INTEGER, jual INTEGER, modal INTEGER, untung INTEGER, komisi INTEGER, cara TEXT, sumber TEXT, catatan TEXT, batal INTEGER DEFAULT 0, tolak INTEGER DEFAULT 0)");
+  sql.exec("CREATE INDEX IF NOT EXISTS rs_jual_kode ON rs_jual(kode, w)");
+  sql.exec("CREATE TABLE IF NOT EXISTS rs_bayar (id TEXT PRIMARY KEY, kode TEXT, w INTEGER, jumlah INTEGER, cara TEXT, catatan TEXT)");
+  const jalur = u.pathname.slice("/rs/".length);
+  let b = {}; if (request.method === "POST") { try { b = await request.json(); } catch (e) {} }
+  const J = (o, st) => Response.json(o, { status: st || 200 });
+  const orangDari = (id) => sql.exec("SELECT * FROM rs_orang WHERE id = ?", String(id || "")).toArray()[0];
+  const orangKode = (kode) => sql.exec("SELECT * FROM rs_orang WHERE kode = ?", String(kode || "")).toArray()[0];
+  const bersih = (o) => { if (!o) return o; const c = { ...o }; delete c.sidik; return c; };
+
+  // Tarik penjualan kasir Willo yang membawa kode reseller (maks. sekali per 2 menit).
+  const tarikKasir = async () => {
+    const toko = self.meta("rs_toko"); if (!toko || !self.env || !self.env.TOKO) return;
+    const akhir = Number(self.meta("rs_tarik")) || 0; if (Date.now() - akhir < 120e3) return;
+    self.aturMeta("rs_tarik", Date.now());
+    let d; try { const r = await self.env.TOKO.get(self.env.TOKO.idFromName(toko)).fetch("https://toko/rs-ambil"); if (!r.ok) return; d = await r.json(); } catch (e) { return; }
+    for (const j of d.jual || []) {
+      const kode = String(j.rs || "").toUpperCase(); if (!kode) continue;
+      const id = "k-" + String(j.kid || j.w) + "-" + String(j.no || "");
+      const kaos = (j.isi || []).filter((x) => /kaos|polo|tunik|jersey|oversize|big size/i.test((x.k || "") + " " + (x.n || "")));
+      const qty = kaos.reduce((a, x) => a + (Number(x.q) || 0), 0);
+      const komisi = kaos.reduce((a, x) => a + (Number(x.q) || 0) * rsKomisi(Number(x.h) || 0), 0);
+      const nilai = kaos.reduce((a, x) => a + (Number(x.q) || 0) * (Number(x.h) || 0), 0);
+      const batal = j.batal || (j.sisa > 0 && !j.lunas) ? 1 : 0;
+      sql.exec("INSERT INTO rs_jual (id, kode, w, no, jenis, qty, resmi, jual, modal, untung, komisi, cara, sumber, catatan, batal, tolak) VALUES (?, ?, ?, ?, 'Afiliasi', ?, ?, 0, 0, 0, ?, 'A', 'kasir', ?, ?, 0) ON CONFLICT(id) DO UPDATE SET kode = excluded.kode, qty = excluded.qty, resmi = excluded.resmi, komisi = excluded.komisi, catatan = excluded.catatan, batal = excluded.batal",
+        id, kode, Math.round(Number(j.w) || Date.now()), rsTeks(j.no, 20), qty, qty ? Math.round(nilai / qty) : 0, komisi, rsTeks((j.isi || []).map((x) => x.q + " " + x.n).join(", "), 120), batal);
+    }
+  };
+
+  const ringkas = (kode, level) => {
+    const jual = sql.exec("SELECT * FROM rs_jual WHERE kode = ? AND batal = 0 AND tolak = 0 ORDER BY w", kode).toArray();
+    const bln = {};
+    for (const j of jual) {
+      const k = rsBulan(j.w), o = bln[k] || (bln[k] = { bulan: k, kaos: 0, untung: 0, dipegang: 0, komisi: 0, bonus: 0 });
+      o.kaos += j.qty; o.komisi += j.komisi;
+      if (j.cara === "B") o.dipegang += j.untung; else o.untung += j.untung;
+    }
+    let total = 0;
+    for (const o of Object.values(bln)) {
+      if (level !== "Siswa" && o.kaos >= RS_ATURAN.bonusMin) o.bonus = RS_ATURAN.bonus;
+      o.total = o.untung + o.komisi + o.bonus; total += o.total;
+    }
+    const dibayar = sql.exec("SELECT COALESCE(SUM(jumlah), 0) AS s FROM rs_bayar WHERE kode = ?", kode).toArray()[0].s;
+    return { bulan: Object.values(bln).sort((a, c) => c.bulan.localeCompare(a.bulan)), total, dibayar, saldo: total - dibayar };
+  };
+
+  if (jalur === "daftar" && request.method === "POST") {
+    const nama = rsTeks(b.nama, 60), wa = rsHp(b.wa), kota = rsTeks(b.kota, 40);
+    const level = RS_LEVEL.includes(b.level) ? b.level : "Reseller";
+    if (nama.length < 2 || wa.length < 9 || !kota) return J({ galat: "Nama, nomor WA, dan kota wajib diisi." }, 400);
+    const jam = Math.floor(Date.now() / 3600e3), kj = "rs_daftar_" + jam, n = Number(self.meta(kj)) || 0;
+    if (n >= 40) return J({ galat: "Pendaftaran sedang ramai. Coba lagi sebentar lagi atau hubungi admin lewat WA." }, 429);
+    self.aturMeta(kj, n + 1);
+    const lama = sql.exec("SELECT status FROM rs_orang WHERE wa = ? AND status IN ('tunggu', 'aktif')", wa).toArray()[0];
+    if (lama) return J({ galat: "Nomor WA ini sudah terdaftar (" + (lama.status === "aktif" ? "aktif" : "menunggu verifikasi") + "). Buka dashboard dari link yang dulu kamu simpan, atau minta link baru ke admin." }, 409);
+    const id = rsAcak(14), kunci = rsAcak(32);
+    sql.exec("INSERT INTO rs_orang (id, kode, sidik, nama, wa, kota, level, cair, norek, rencana, status, dibuat, disetujui, catatan) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, 'tunggu', ?, 0, '')",
+      id, await sidikKunci(kunci), nama, wa, kota, level, rsTeks(b.cair, 30), rsTeks(b.norek, 40), rsTeks(b.rencana, 200), Date.now());
+    return J({ ok: true, id, kunci, nama, level });
+  }
+
+  if (jalur === "saya") {
+    const o = orangDari(request.headers.get("x-id"));
+    if (!o || o.sidik !== await sidikKunci(request.headers.get("x-kunci") || "")) return J({ galat: "Link dashboard tidak berlaku. Minta link baru ke admin Willo." }, 403);
+    if (request.method === "POST") {
+      // Reseller boleh mengubah cara & nomor pencairan sendiri.
+      sql.exec("UPDATE rs_orang SET cair = ?, norek = ? WHERE id = ?", rsTeks(b.cair, 30) || o.cair, rsTeks(b.norek, 40), o.id);
+      return J({ ok: true });
+    }
+    if (o.kode) await tarikKasir();
+    const r = o.kode ? ringkas(o.kode, o.level) : { bulan: [], total: 0, dibayar: 0, saldo: 0 };
+    const jual = o.kode ? sql.exec("SELECT id, w, no, jenis, qty, resmi, jual, untung, komisi, cara, sumber, batal, tolak FROM rs_jual WHERE kode = ? ORDER BY w DESC LIMIT 300", o.kode).toArray() : [];
+    const bayar = o.kode ? sql.exec("SELECT w, jumlah, cara, catatan FROM rs_bayar WHERE kode = ? ORDER BY w DESC LIMIT 100", o.kode).toArray() : [];
+    return J({ orang: bersih(o), aturan: RS_ATURAN, ...r, jual, bayar });
+  }
+
+  // ---- Admin (sandi sudah dicek di worker) ----
+  if (!jalur.startsWith("admin/")) return J({ galat: "alamat" }, 404);
+  const a = jalur.slice("admin/".length);
+  // Admin yang masuk lewat link owner toko Willo otomatis menghubungkan kasirnya.
+  const tokoOwner = request.headers.get("x-rs-toko"); if (tokoOwner && !self.meta("rs_toko")) { self.aturMeta("rs_toko", tokoOwner); self.aturMeta("rs_tarik", 0); }
+  if (a === "ringkas") {
+    await tarikKasir();
+    const kini = rsBulan(Date.now());
+    const orang = sql.exec("SELECT * FROM rs_orang ORDER BY dibuat DESC LIMIT 2000").toArray().map((o) => {
+      const c = bersih(o); if (!o.kode) return c;
+      const r = ringkas(o.kode, o.level), b0 = r.bulan.find((x) => x.bulan === kini);
+      return { ...c, kaosBulanIni: b0 ? b0.kaos : 0, totalBulanIni: b0 ? b0.total : 0, saldo: r.saldo, dibayar: r.dibayar, siapCair: r.saldo >= RS_ATURAN.minCair };
+    });
+    const asing = sql.exec("SELECT kode, COUNT(*) AS n, SUM(qty) AS kaos FROM rs_jual WHERE kode NOT IN (SELECT kode FROM rs_orang WHERE kode IS NOT NULL) GROUP BY kode").toArray();
+    return J({ orang, asing, aturan: RS_ATURAN, toko: self.meta("rs_toko") ? "terhubung" : "", tarik: Number(self.meta("rs_tarik")) || 0 });
+  }
+  if (a === "jual") {
+    const kode = String(u.searchParams.get("kode") || ""), bulan = String(u.searchParams.get("bulan") || "");
+    let rows = kode ? sql.exec("SELECT * FROM rs_jual WHERE kode = ? ORDER BY w DESC LIMIT 1000", kode).toArray() : sql.exec("SELECT * FROM rs_jual ORDER BY w DESC LIMIT 1000").toArray();
+    if (bulan) rows = rows.filter((j) => rsBulan(j.w) === bulan);
+    const bayar = kode ? sql.exec("SELECT * FROM rs_bayar WHERE kode = ? ORDER BY w DESC", kode).toArray() : [];
+    return J({ jual: rows, bayar });
+  }
+  if (request.method !== "POST") return J({ galat: "alamat" }, 404);
+  if (a === "setujui") {
+    const o = orangDari(b.id); if (!o) return J({ galat: "Pendaftar tidak ditemukan." }, 404);
+    let kode = rsTeks(b.kode, 24).toUpperCase().replace(/[^A-Z0-9-]/g, "");
+    if (!kode) {
+      let n = Number(self.meta("rs_no")) || 0;
+      do { n++; kode = "R-" + String(n).padStart(3, "0"); } while (orangKode(kode));
+      self.aturMeta("rs_no", n);
+    } else if (!/^[A-Z0-9][A-Z0-9-]{2,23}$/.test(kode)) return J({ galat: "Kode hanya huruf besar, angka, dan tanda minus (3–24 karakter)." }, 400);
+    const pakai = orangKode(kode); if (pakai && pakai.id !== o.id) return J({ galat: "Kode " + kode + " sudah dipakai " + pakai.nama + "." }, 409);
+    const level = RS_LEVEL.includes(b.level) ? b.level : o.level;
+    sql.exec("UPDATE rs_orang SET kode = ?, level = ?, status = 'aktif', disetujui = ? WHERE id = ?", kode, level, Date.now(), o.id);
+    return J({ ok: true, kode, orang: bersih(orangDari(o.id)) });
+  }
+  if (a === "ubah") {
+    const o = orangDari(b.id); if (!o) return J({ galat: "Data tidak ditemukan." }, 404);
+    const status = ["tunggu", "aktif", "tolak", "nonaktif"].includes(b.status) ? b.status : o.status;
+    const level = RS_LEVEL.includes(b.level) ? b.level : o.level;
+    sql.exec("UPDATE rs_orang SET status = ?, level = ?, nama = ?, wa = ?, kota = ?, cair = ?, norek = ?, catatan = ? WHERE id = ?", status, level,
+      rsTeks(b.nama ?? o.nama, 60), rsHp(b.wa ?? o.wa), rsTeks(b.kota ?? o.kota, 40), rsTeks(b.cair ?? o.cair, 30), rsTeks(b.norek ?? o.norek, 40), rsTeks(b.catatan ?? o.catatan, 200), o.id);
+    return J({ ok: true, orang: bersih(orangDari(o.id)) });
+  }
+  if (a === "link") {
+    // Buat link dashboard baru (link lama tidak berlaku lagi).
+    const o = orangDari(b.id); if (!o) return J({ galat: "Data tidak ditemukan." }, 404);
+    const kunci = rsAcak(32); sql.exec("UPDATE rs_orang SET sidik = ? WHERE id = ?", await sidikKunci(kunci), o.id);
+    return J({ ok: true, id: o.id, kunci });
+  }
+  if (a === "catat") {
+    const o = orangKode(String(b.kode || "").toUpperCase()); if (!o) return J({ galat: "Kode reseller tidak terdaftar." }, 404);
+    const jenis = ["Jual sendiri", "Afiliasi", "Promo/reject"].includes(b.jenis) ? b.jenis : "Afiliasi";
+    const qty = Math.max(1, Math.min(5000, Math.round(Number(b.qty) || 0))), resmi = Math.max(0, Math.round(Number(b.resmi) || 0)), jual = Math.max(0, Math.round(Number(b.jual) || 0));
+    if (!resmi) return J({ galat: "Isi harga resmi per kaos." }, 400);
+    let modal = 0, untung = 0, komisi = 0;
+    if (jenis === "Jual sendiri") {
+      if (!jual) return J({ galat: "Isi harga jual reseller per kaos." }, 400);
+      if (jual < resmi) return J({ galat: "Harga jual tidak boleh di bawah harga resmi." }, 400);
+      modal = rsModal(resmi, o.level); untung = (jual - modal) * qty;
+    } else if (jenis === "Afiliasi") komisi = rsKomisi(resmi) * qty;
+    const w = Number(b.w) || Date.now(), id = "a-" + rsAcak(10);
+    sql.exec("INSERT INTO rs_jual (id, kode, w, no, jenis, qty, resmi, jual, modal, untung, komisi, cara, sumber, catatan, batal, tolak) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'admin', ?, 0, 0)",
+      id, o.kode, w, rsTeks(b.no, 20), jenis, qty, resmi, jual, modal, untung, komisi, b.cara === "B" ? "B" : "A", rsTeks(b.catatan, 120));
+    return J({ ok: true, id, modal, untung, komisi });
+  }
+  if (a === "tolak") {
+    sql.exec("UPDATE rs_jual SET tolak = ? WHERE id = ?", b.tolak ? 1 : 0, String(b.id || ""));
+    return J({ ok: true });
+  }
+  if (a === "bayar") {
+    const o = orangKode(String(b.kode || "").toUpperCase()); if (!o) return J({ galat: "Kode tidak terdaftar." }, 404);
+    const jumlah = Math.round(Number(b.jumlah) || 0); if (jumlah <= 0) return J({ galat: "Isi jumlah yang dibayar." }, 400);
+    sql.exec("INSERT INTO rs_bayar (id, kode, w, jumlah, cara, catatan) VALUES (?, ?, ?, ?, ?, ?)", "b-" + rsAcak(10), o.kode, Date.now(), jumlah, rsTeks(b.cara || o.cair, 30), rsTeks(b.catatan, 120));
+    return J({ ok: true, saldo: ringkas(o.kode, o.level).saldo });
+  }
+  if (a === "toko") {
+    // Admin menempel link Dashboard Owner Lumbung toko Willo; kuncinya dicek ke toko tsb.
+    const t = /[#&?]t=([a-z0-9]{16,40})/.exec(String(b.link || "")), k = /[#&?]k=([a-z0-9]{24,80})/.exec(String(b.link || ""));
+    if (!t || !k) return J({ galat: "Tempel link Dashboard Owner yang lengkap (berisi #t= dan &k=)." }, 400);
+    const r = await self.env.TOKO.get(self.env.TOKO.idFromName(t[1])).fetch("https://toko/cek-kunci", { headers: { "x-kunci": k[1] } });
+    if (!r.ok) return J({ galat: "Link owner tidak cocok. Salin ulang dari menu Dashboard Owner di Lumbung." }, 403);
+    self.aturMeta("rs_toko", t[1]); self.aturMeta("rs_tarik", 0);
+    return J({ ok: true });
+  }
+  return J({ galat: "alamat" }, 404);
+}
+
+async function apiReseller(request, url, env, ctx) {
+  const json = (o, st) => new Response(JSON.stringify(o), { status: st || 200, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  if (!env.TOKO || !["GET", "POST"].includes(request.method)) return json({ galat: "alamat" }, 404);
+  const jalur = url.pathname.slice("/alat/api/reseller/".length);
+  if (!/^(daftar|saya|admin\/[a-z]+)$/.test(jalur)) return json({ galat: "alamat" }, 404);
+  // Header yang diteruskan ke DO disusun ulang (header internal dari HP tidak ikut).
+  const hdr = new Headers({ "content-type": "application/json" });
+  for (const k of ["x-id", "x-kunci"]) if (request.headers.get(k)) hdr.set(k, request.headers.get(k));
+  if (jalur.startsWith("admin/")) {
+    // Masuk admin: sandi LUMBUNG_ADMIN, ATAU link Dashboard Owner Lumbung toko Willo (var RS_TOKO).
+    const sandi = (request.headers.get("x-admin") || "").trim(), owner = /t=([a-z0-9]{16,40})&k=([a-z0-9]{24,80})/.exec(request.headers.get("x-owner") || "");
+    let boleh = !!(env.LUMBUNG_ADMIN && String(env.LUMBUNG_ADMIN).length >= 12 && sandi && sandi === String(env.LUMBUNG_ADMIN).trim());
+    if (!boleh && owner && env.RS_TOKO && owner[1] === String(env.RS_TOKO)) {
+      const c = await env.TOKO.get(env.TOKO.idFromName(owner[1])).fetch("https://toko/cek-kunci", { headers: { "x-kunci": owner[2] } });
+      if (c.ok) { boleh = true; hdr.set("x-rs-toko", owner[1]); }
+    }
+    if (!boleh) return json({ galat: owner ? "Link owner tidak cocok dengan toko kasir Willo." : "Kata sandi admin salah." }, 403);
+  }
+  const stub = env.TOKO.get(env.TOKO.idFromName("program-reseller"));
+  const r = await stub.fetch(new Request("https://toko/rs/" + jalur + url.search, { method: request.method, headers: hdr, body: request.method === "POST" ? await request.text() : undefined }));
+  const teks = await r.text();
+  if (jalur === "daftar" && r.ok && env.TG_VIDEO && env.TG_CHAT_ID) {
+    // Kabari admin di Telegram ada pendaftar baru (tanpa kunci dashboard).
+    let d = {}; try { d = JSON.parse(teks); } catch (e) {}
+    const isi = "Pendaftar reseller baru: " + (d.nama || "") + " (" + (d.level || "") + "). Setujui di willoapparel.com/reseller/admin/";
+    ctx.waitUntil(fetch("https://api.telegram.org/bot" + env.TG_VIDEO + "/sendMessage", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ chat_id: String(env.TG_CHAT_ID), text: isi }) }).catch(() => {}));
+  }
+  return new Response(teks, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+}
+
 async function apiToko(request, url, env) {
   const cors = { "access-control-allow-origin": "*", "access-control-allow-methods": "GET, POST, OPTIONS", "access-control-allow-headers": "content-type, x-kunci, x-admin", "access-control-max-age": "86400" };
   const jawab = (r) => new Response(r.body, { status: r.status, headers: { ...cors, "content-type": "application/json", "cache-control": "no-store" } });
@@ -3249,6 +3484,11 @@ export default {
       url.pathname = "/pesan/";
       return Response.redirect(url.toString(), 301);
     }
+    // Program reseller umum (Huda 19 Nov 2026): /reseller, /mitra, /afiliasi → /reseller/.
+    if (["/reseller", "/mitra", "/afiliasi"].includes(pendek) && url.pathname !== "/reseller/") {
+      url.pathname = "/reseller/";
+      return Response.redirect(url.toString(), 301);
+    }
     // Alat usaha gratis (Huda 15 Nov 2026): /alat, /kasir, /antrian, /kas, /bukukas, /nota, /invoice, /alat/kasir (tanpa garis miring) → folder-nya.
     {
       const alat = { "/alat": "/alat/", "/kasir": "/alat/kasir/", "/alat/kasir": "/alat/kasir/", "/antrian": "/alat/antrian/", "/alat/antrian": "/alat/antrian/",
@@ -3294,6 +3534,7 @@ export default {
       return new Response(r.body, { headers: { "content-type": "application/json", "cache-control": "no-store" } });
     }
     if (url.pathname.startsWith("/alat/api/toko/") || url.pathname.startsWith("/alat/api/pro/")) return apiToko(request, url, env);
+    if (url.pathname.startsWith("/alat/api/reseller/")) return apiReseller(request, url, env, ctx);
     if (url.pathname.startsWith("/alat/api/ai/")) return apiAI(request, url, env);
     if (url.pathname.startsWith("/duniakotak/api/")) return apiWarga(request, env, url, ctx);
     if (pendek === "/warga" || pendek === "/daftarwarga") {
