@@ -6,6 +6,7 @@ import { buatVapid, kirimPush, endpointSah } from "./notif.js";
 export class Pengunjung extends DurableObject {
   async fetch(request) {
     const u = new URL(request.url);
+    if (u.pathname.startsWith("/titip/")) return this.titip(request, u);
     const now = Date.now();
     const hari = new Date(now + 7 * 3600 * 1000).toISOString().slice(0, 10);
     const v = (u.searchParams.get("v") || "").slice(0, 40);
@@ -25,6 +26,37 @@ export class Pengunjung extends DurableObject {
     const lain = baru.filter((x) => x.v !== v).reverse().slice(0, 3)
       .map((x) => ({ kota: x.kota, menit: Math.floor((now - x.t) / 60000) }));
     return Response.json({ hari, n, lain });
+  }
+  // Titipan gambar sementara (Huda 19 Nov 2026: foto artikel dibuat di Google Flow lewat Chrome laptop,
+  // lalu dikirim ke sini agar bisa diambil tim untuk dipasang di artikel). Teks dataURL dipecah 100 KB, kedaluwarsa 48 jam.
+  async titip(request, u) {
+    const nama = u.pathname.slice(7);
+    const st = this.ctx.storage;
+    const now = Date.now();
+    let daftar = ((await st.get("titip:daftar")) || []).filter((x) => now - x.t < 48 * 3600 * 1000);
+    if (nama === "") return Response.json(daftar.map((x) => x.nama));
+    const lama = daftar.find((x) => x.nama === nama);
+    if (request.method === "POST") {
+      const teks = await request.text();
+      if (!teks.startsWith("data:image/") || teks.length > 1500000) return new Response("ditolak", { status: 400 });
+      if (!lama && daftar.length >= 80) return new Response("penuh", { status: 429 });
+      const potong = [];
+      for (let i = 0; i < teks.length; i += 100000) potong.push(teks.slice(i, i + 100000));
+      for (let i = 0; i < potong.length; i++) await st.put(`titip:${nama}:${i}`, potong[i]);
+      daftar = daftar.filter((x) => x.nama !== nama);
+      daftar.push({ nama, t: now, n: potong.length });
+      await st.put("titip:daftar", daftar);
+      return Response.json({ ok: true, nama, n: potong.length });
+    }
+    if (!lama) return new Response("tidak ada", { status: 404 });
+    if (request.method === "DELETE") {
+      for (let i = 0; i < lama.n; i++) await st.delete(`titip:${nama}:${i}`);
+      await st.put("titip:daftar", daftar.filter((x) => x.nama !== nama));
+      return Response.json({ ok: true });
+    }
+    let teks = "";
+    for (let i = 0; i < lama.n; i++) teks += (await st.get(`titip:${nama}:${i}`)) || "";
+    return new Response(teks, { headers: { "content-type": "text/plain" } });
   }
 }
 
@@ -3177,6 +3209,18 @@ export default {
   },
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    // Titipan gambar sementara (lihat Pengunjung.titip). Kunci rahasia di ?k=, hanya sidiknya yang ada di sini.
+    if (url.pathname.startsWith("/alat/api/titip/") && env.PENGUNJUNG) {
+      const cors = { "access-control-allow-origin": "*" };
+      const sidik = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(url.searchParams.get("k") || "")))]
+        .map((b) => b.toString(16).padStart(2, "0")).join("");
+      if (sidik !== "45298b8f92f4d8a743fdc7497906e2abbf0f8ae269fb97275dc993bde03f4594") return new Response("kunci salah", { status: 403, headers: cors });
+      const nama = url.pathname.slice(16).toLowerCase();
+      if (!/^[a-z0-9-]{0,80}$/.test(nama)) return new Response("nama salah", { status: 400, headers: cors });
+      const stub = env.PENGUNJUNG.get(env.PENGUNJUNG.idFromName("titip-gambar"));
+      const r = await stub.fetch(new Request("https://do/titip/" + nama, { method: request.method, body: request.method === "POST" ? request.body : null }));
+      return new Response(r.body, { status: r.status, headers: { ...cors, "content-type": r.headers.get("content-type") || "text/plain" } });
+    }
     if (url.hostname.startsWith("www.")) {
       url.hostname = url.hostname.slice(4);
       return Response.redirect(url.toString(), 301);
