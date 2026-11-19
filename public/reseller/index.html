@@ -73,7 +73,7 @@
 <div class="w">
   <header class="top">
     <a class="logo" href="/"><img src="/logo-willo.png" alt="Willo Apparel" width="34" height="34">Willo</a>
-    <a class="kecil" href="/pesan/">Pesan kaos</a>
+    <a class="kecil" href="/reseller/saya/">Dashboard saya</a>
   </header>
 
   <span class="label">Program Reseller</span>
@@ -115,7 +115,7 @@
 
   <h2>Cara kerjanya</h2>
   <div class="langkah">
-    <div class="blok"><div><b>Daftar lewat formulir di bawah</b>Pesanmu langsung terkirim ke WhatsApp admin Willo.</div></div>
+    <div class="blok"><div><b>Daftar lewat formulir di bawah</b>Kamu langsung dapat dashboard pribadi untuk memantau penjualan dan komisi.</div></div>
     <div class="blok"><div><b>Terima kode reseller</b>Misalnya <span class="kode">R-001</span>, plus link pribadi <span class="kode">willoapparel.com/pesan/?kode=R-001</span> dan katalog desain.</div></div>
     <div class="blok"><div><b>Tawarkan ke pembeli</b>Lewat WA, status, IG, grup, atau teman. Pembeli yang membuka linkmu otomatis tercatat atas kodemu.</div></div>
     <div class="blok"><div><b>Pembeli bayar ke Willo</b>Kamu tidak perlu menalangi uang. Willo yang mencetak dan menyablon.</div></div>
@@ -153,8 +153,8 @@
     <textarea id="jual" placeholder="mis. teman kantor, grup komunitas motor, kelas adik"></textarea>
     <label class="cek"><input type="checkbox" id="setuju"> Saya sudah membaca aturan kode di atas dan berusia minimal 17 tahun, atau sudah mendapat izin orang tua.</label>
     <div class="galat" id="galat" role="alert"></div>
-    <button class="btn wa" type="submit">Kirim pendaftaran ke WhatsApp</button>
-    <p class="catatan">Setelah pesan terkirim, admin akan meminta foto KTP atau kartu pelajar untuk verifikasi, lalu mengirim kode reseller kamu.</p>
+    <button class="btn wa" type="submit">Daftar sekarang</button>
+    <p class="catatan">Setelah daftar, kamu langsung dapat link dashboard pribadi. Kirim foto KTP atau kartu pelajar ke admin lewat WA untuk verifikasi. Sudah terdaftar? <a href="/reseller/saya/">Buka dashboard</a>.</p>
   </form>
 
   <h2>Pertanyaan yang sering muncul</h2>
@@ -167,27 +167,41 @@
 </div>
 <script>
 (function () {
-  var f = document.getElementById('f');
+  var f = document.getElementById('f'), g = document.getElementById('galat'), tombol = f.querySelector('button[type=submit]');
+  var v = function (id) { return document.getElementById(id).value.trim(); };
+  function pesanWa(extra) {
+    return 'Halo Willo, saya mau daftar Program Reseller.\n\n' +
+      'Nama: ' + v('nama') + '\nWA: ' + v('wa') + '\nKota: ' + v('kota') + '\nIkut sebagai: ' + v('level') + '\n' +
+      'Pencairan: ' + v('cair') + (v('norek') ? ' ' + v('norek') : '') + '\n' +
+      (v('jual') ? 'Rencana jualan: ' + v('jual') + '\n' : '') + (extra || '') + '\nSaya kirim foto KTP/kartu pelajar untuk verifikasi.';
+  }
   f.addEventListener('submit', function (e) {
     e.preventDefault();
-    var v = function (id) { return document.getElementById(id).value.trim(); };
-    var g = document.getElementById('galat');
     var hp = v('wa').replace(/[^0-9]/g, '');
     if (!v('nama')) { g.textContent = 'Nama lengkap belum diisi.'; return; }
     if (hp.length < 9) { g.textContent = 'Nomor WhatsApp belum benar.'; return; }
     if (!v('kota')) { g.textContent = 'Kota atau kecamatan belum diisi.'; return; }
     if (!document.getElementById('setuju').checked) { g.textContent = 'Centang persetujuan aturan dulu, ya.'; return; }
-    g.textContent = '';
-    var t = 'Halo Willo, saya mau daftar Program Reseller.\n\n' +
-      'Nama: ' + v('nama') + '\n' +
-      'WA: ' + v('wa') + '\n' +
-      'Kota: ' + v('kota') + '\n' +
-      'Ikut sebagai: ' + v('level') + '\n' +
-      'Pencairan: ' + v('cair') + (v('norek') ? ' ' + v('norek') : '') + '\n' +
-      (v('jual') ? 'Rencana jualan: ' + v('jual') + '\n' : '') +
-      '\nSaya sudah membaca aturan kode.';
-    if (window.gtag) gtag('event', 'daftar_reseller', { level: v('level') });
-    window.open('https://wa.me/6285816900722?text=' + encodeURIComponent(t), '_blank');
+    g.textContent = ''; tombol.disabled = true; tombol.textContent = 'Mendaftarkan...';
+    var lvl = v('level') === 'Belum tahu, mau tanya dulu' ? 'Reseller' : v('level');
+    fetch('/alat/api/reseller/daftar', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ nama: v('nama'), wa: v('wa'), kota: v('kota'), level: lvl, cair: v('cair'), norek: v('norek'), rencana: v('jual') }) })
+      .then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.galat || 'Gagal mendaftar.'); return d; }); })
+      .then(function (d) {
+        if (window.gtag) gtag('event', 'daftar_reseller', { level: lvl });
+        var dash = '/reseller/saya/#i=' + d.id + '&k=' + d.kunci;
+        try { localStorage.setItem('willo_reseller_saya', JSON.stringify({ i: d.id, k: d.kunci })); } catch (er) {}
+        f.innerHTML = '<h3 style="font-family:var(--display);font-size:28px;line-height:1.1">Pendaftaran terkirim! 🎉</h3>' +
+          '<p style="margin:8px 0">Langkah terakhir: kirim foto KTP atau kartu pelajar ke admin lewat WhatsApp. Setelah diverifikasi, kode reseller kamu muncul di dashboard.</p>' +
+          '<a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/6285816900722?text=' + encodeURIComponent(pesanWa('No. pendaftaran: ' + d.id.slice(0, 6).toUpperCase() + '\n')) + '">Kirim KTP ke admin via WA</a>' +
+          '<a class="btn biru" style="width:100%;margin-top:10px" href="' + dash + '">Buka dashboard saya</a>' +
+          '<p class="catatan">Simpan link dashboard ini. Bagikan ke diri sendiri atau tambahkan ke layar utama HP: <br><span class="kode" style="word-break:break-all">willoapparel.com' + dash + '</span></p>';
+      })
+      .catch(function (er) {
+        tombol.disabled = false; tombol.textContent = 'Daftar sekarang';
+        if (/terdaftar|ramai/.test(er.message)) { g.textContent = er.message; return; }
+        // Server gagal: tetap daftar lewat WA seperti biasa.
+        window.open('https://wa.me/6285816900722?text=' + encodeURIComponent(pesanWa()), '_blank');
+      });
   });
 })();
 </script>

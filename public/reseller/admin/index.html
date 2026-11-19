@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Admin Reseller | Willo Apparel</title>
+<link rel="icon" href="/logo-willo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#F3F5F8; --kartu:#FFF; --tinta:#1A2238; --abu:#5D6880; --garis:#D8DEE8; --biru:#2F6FED; --wa:#1FA855; --display:"Baloo 2",system-ui,sans-serif; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--tinta); font-family:"Plus Jakarta Sans",system-ui,sans-serif; line-height:1.45; }
+  .w { max-width:980px; margin:0 auto; padding:0 16px 60px; }
+  header { display:flex; justify-content:space-between; align-items:center; padding:16px 0; gap:10px; }
+  .logo { font-family:var(--display); font-weight:800; font-size:20px; display:flex; gap:8px; align-items:center; }
+  .logo img { height:30px; }
+  h2 { font-family:var(--display); font-size:22px; margin:22px 0 8px; }
+  .kecil { font-size:13px; color:var(--abu); }
+  .blok { background:var(--kartu); border:1px solid var(--garis); border-radius:14px; padding:16px; margin-top:10px; }
+  .tab { display:flex; gap:6px; flex-wrap:wrap; margin:6px 0 4px; }
+  .tab button { font:inherit; font-weight:700; border:1px solid var(--garis); background:#fff; border-radius:20px; padding:8px 14px; cursor:pointer; font-size:14px; }
+  .tab button.pilih { background:var(--biru); color:#fff; border-color:var(--biru); }
+  .btn { font:inherit; font-weight:700; font-size:14px; border:0; border-radius:9px; padding:9px 13px; cursor:pointer; background:var(--biru); color:#fff; text-decoration:none; display:inline-block; }
+  .btn.wa { background:var(--wa); } .btn.abu { background:#E7ECF5; color:var(--tinta); } .btn.merah { background:#FDE2E2; color:#B91C1C; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--garis); vertical-align:top; }
+  th { color:var(--abu); font-weight:600; font-size:12px; }
+  .r { text-align:right; }
+  .scroll { overflow-x:auto; }
+  label { display:block; font-weight:700; font-size:13px; margin:8px 0 4px; }
+  input, select, textarea { font:inherit; width:100%; padding:9px; border:1px solid var(--garis); border-radius:9px; font-size:16px; background:#fff; }
+  .g2 { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  .g4 { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .angka { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .angka div { background:#fff; border:1px solid var(--garis); border-radius:12px; padding:12px; }
+  .angka b { display:block; font-family:var(--display); font-size:24px; }
+  .tag { font-size:11px; font-weight:700; padding:2px 7px; border-radius:9px; background:#E7EEFD; color:var(--biru); white-space:nowrap; }
+  .tag.ok { background:#DCFCE7; color:#15803D; } .tag.wait { background:#FEF3C7; color:#92400E; } .tag.off { background:#F1F5F9; color:#64748B; }
+  .coret td { text-decoration:line-through; color:var(--abu); }
+  .galat { color:#B91C1C; font-weight:600; min-height:20px; margin-top:6px; }
+  .tersembunyi { display:none !important; }
+  dialog { border:0; border-radius:16px; padding:18px; width:min(520px, 94vw); }
+  dialog::backdrop { background:rgba(10,20,40,.45); }
+  @media (max-width:700px) { .g4, .angka { grid-template-columns:repeat(2,1fr); } }
+</style>
+</head>
+<body>
+<div class="w">
+  <header><div class="logo"><img src="/logo-willo.png" alt="">Admin Reseller</div><button class="btn abu tersembunyi" id="keluar" type="button">Keluar</button></header>
+
+  <form id="fMasuk" class="blok">
+    <label for="sandi">Kata sandi admin (sama dengan admin Lumbung Pro)</label>
+    <input type="password" id="sandi" autocomplete="current-password">
+    <button class="btn" style="margin-top:10px" type="submit">Masuk</button>
+    <div class="galat" id="gMasuk"></div>
+  </form>
+
+  <div id="app" class="tersembunyi">
+    <div class="angka">
+      <div><span class="kecil">Reseller aktif</span><b id="nAktif">0</b></div>
+      <div><span class="kecil">Menunggu verifikasi</span><b id="nTunggu">0</b></div>
+      <div><span class="kecil">Kaos bulan ini</span><b id="nKaos">0</b></div>
+      <div><span class="kecil">Siap dicairkan</span><b id="nCair">Rp0</b></div>
+    </div>
+    <div class="tab" id="tab">
+      <button type="button" data-t="tunggu" class="pilih">Pendaftar</button>
+      <button type="button" data-t="aktif">Reseller</button>
+      <button type="button" data-t="catat">Catat penjualan</button>
+      <button type="button" data-t="atur">Pengaturan</button>
+    </div>
+
+    <section id="s-tunggu"><div class="blok scroll"><table><thead><tr><th>Daftar</th><th>Nama / WA</th><th>Kota</th><th>Ingin jadi</th><th></th></tr></thead><tbody id="tTunggu"></tbody></table></div></section>
+
+    <section id="s-aktif" class="tersembunyi">
+      <input id="cari" placeholder="Cari nama atau kode" style="margin-top:10px">
+      <div class="blok scroll"><table><thead><tr><th>Kode</th><th>Nama</th><th>Level</th><th class="r">Kaos bln ini</th><th class="r">Saldo</th><th>Cair ke</th><th></th></tr></thead><tbody id="tAktif"></tbody></table></div>
+      <div id="asing" class="blok tersembunyi"></div>
+    </section>
+
+    <section id="s-catat" class="tersembunyi">
+      <form id="fCatat" class="blok">
+        <div class="g4">
+          <div><label>Kode reseller</label><input id="cKode" list="dlKode" required></div>
+          <div><label>Jenis</label><select id="cJenis"><option>Afiliasi</option><option>Jual sendiri</option><option>Promo/reject</option></select></div>
+          <div><label>Tanggal lunas</label><input type="date" id="cTgl"></div>
+          <div><label>No. nota / pesanan</label><input id="cNo"></div>
+          <div><label>Jumlah kaos</label><input type="number" id="cQty" min="1" required></div>
+          <div><label>Harga resmi / kaos</label><input type="number" id="cResmi" min="0" step="500" required></div>
+          <div class="jualS"><label>Harga jual reseller / kaos</label><input type="number" id="cJual" min="0" step="500"></div>
+          <div class="jualS"><label>Pembeli bayar ke</label><select id="cCara"><option value="A">A · Willo</option><option value="B">B · tunai ke reseller</option></select></div>
+        </div>
+        <label>Catatan</label><input id="cCat" placeholder="mis. kaos kelas XI TKJ 1">
+        <p class="kecil" id="cHitung" style="margin-top:8px"></p>
+        <button class="btn" type="submit" style="margin-top:8px">Simpan penjualan</button>
+        <div class="galat" id="gCatat"></div>
+      </form>
+      <datalist id="dlKode"></datalist>
+      <p class="kecil" style="margin-top:8px">Penjualan di kasir Lumbung yang diberi kode reseller masuk otomatis, tidak perlu dicatat di sini.</p>
+    </section>
+
+    <section id="s-atur" class="tersembunyi">
+      <div class="blok">
+        <b>Hubungkan Kasir Lumbung</b>
+        <p class="kecil" id="tokoStatus"></p>
+        <label>Tempel link Dashboard Owner Lumbung toko Willo</label>
+        <input id="tokoLink" placeholder="https://willoapparel.com/alat/owner/#t=...&k=...">
+        <button class="btn" id="tokoSimpan" type="button" style="margin-top:8px">Hubungkan</button>
+        <div class="galat" id="gToko"></div>
+      </div>
+      <div class="blok kecil" id="aturan"></div>
+    </section>
+  </div>
+</div>
+
+<dialog id="dOrang"><div id="dIsi"></div><div class="galat" id="gDlg"></div><p style="margin-top:12px"><button class="btn abu" type="button" onclick="this.closest('dialog').close()">Tutup</button></p></dialog>
+
+<script>
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  var rp = function (n) { return "Rp" + Math.round(n || 0).toLocaleString("id-ID"); };
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return "&#" + c.charCodeAt(0) + ";"; }); };
+  var K = "willo_reseller_admin", sandi = "", data = null, dlgId = "";
+  try { sandi = sessionStorage.getItem(K) || localStorage.getItem(K) || ""; } catch (e) {}
+  function api(jalur, body) {
+    return fetch("/alat/api/reseller/admin/" + jalur, { method: body ? "POST" : "GET", headers: { "x-admin": sandi, "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.galat || "Gagal (" + r.status + ")"); return d; }); });
+  }
+  function hpWa(h) { h = String(h || "").replace(/\D/g, ""); return h.charAt(0) === "0" ? "62" + h.slice(1) : h; }
+  function tgl(w) { return w ? new Date(w).toLocaleDateString("id-ID", { day: "numeric", month: "short" }) : ""; }
+  function muat() {
+    return api("ringkas").then(function (d) {
+      data = d; $("fMasuk").classList.add("tersembunyi"); $("app").classList.remove("tersembunyi"); $("keluar").classList.remove("tersembunyi");
+      var o = d.orang, akt = o.filter(function (x) { return x.status === "aktif"; }), tg = o.filter(function (x) { return x.status === "tunggu"; });
+      $("nAktif").textContent = akt.length; $("nTunggu").textContent = tg.length;
+      $("nKaos").textContent = akt.reduce(function (a, x) { return a + (x.kaosBulanIni || 0); }, 0);
+      $("nCair").textContent = rp(akt.reduce(function (a, x) { return a + (x.siapCair ? x.saldo : 0); }, 0));
+      $("tab").querySelector("[data-t=tunggu]").textContent = "Pendaftar" + (tg.length ? " (" + tg.length + ")" : "");
+      $("tTunggu").innerHTML = tg.map(function (x) {
+        return "<tr><td>" + tgl(x.dibuat) + "</td><td><b>" + esc(x.nama) + "</b><br><a href='https://wa.me/" + hpWa(x.wa) + "' target=_blank>" + esc(x.wa) + "</a></td><td>" + esc(x.kota) + "</td><td>" + esc(x.level) + (x.rencana ? "<br><span class=kecil>" + esc(x.rencana) + "</span>" : "") + "</td><td><button class='btn' data-setujui='" + x.id + "'>Setujui</button> <button class='btn merah' data-tolak='" + x.id + "'>Tolak</button></td></tr>";
+      }).join("") || "<tr><td colspan=5 class=kecil>Tidak ada pendaftar baru.</td></tr>";
+      gambarAktif();
+      $("dlKode").innerHTML = akt.map(function (x) { return "<option value='" + esc(x.kode) + "'>" + esc(x.nama) + "</option>"; }).join("");
+      $("asing").classList.toggle("tersembunyi", !d.asing.length);
+      $("asing").innerHTML = "<b>Kode di kasir yang belum terdaftar</b><p class=kecil>" + d.asing.map(function (a) { return esc(a.kode) + " (" + a.kaos + " kaos)"; }).join(", ") + ". Periksa ejaan kode di nota.</p>";
+      $("tokoStatus").textContent = d.toko ? "Terhubung. Data kasir terakhir ditarik " + (d.tarik ? new Date(d.tarik).toLocaleString("id-ID") : "-") + "." : "Belum terhubung. Penjualan kasir dengan kode reseller belum masuk otomatis.";
+      var A = d.aturan;
+      $("aturan").innerHTML = "<b>Aturan yang berlaku</b><br>Harga modal Reseller/Siswa = harga resmi − " + rp(A.potong) + "; Agen = harga resmi − " + A.agenPersen + "%.<br>Komisi afiliasi: " + A.tingkat.map(function (t) { return rp(t[1]) + "/kaos untuk harga ≥ " + rp(t[0]); }).join(", ") + "; di bawahnya tanpa komisi.<br>Minimal cair " + rp(A.minCair) + ". Bonus " + rp(A.bonus) + " untuk reseller umum yang menjual ≥" + A.bonusMin + " kaos/bulan. Level Agen: ≥" + A.agenMin + " kaos/bulan.";
+    });
+  }
+  function gambarAktif() {
+    var q = $("cari").value.trim().toLowerCase();
+    var o = data.orang.filter(function (x) { return x.status !== "tunggu" && (!q || (x.nama + " " + (x.kode || "")).toLowerCase().indexOf(q) >= 0); });
+    $("tAktif").innerHTML = o.map(function (x) {
+      return "<tr class='" + (x.status === "aktif" ? "" : "coret") + "'><td><b>" + esc(x.kode || "-") + "</b></td><td>" + esc(x.nama) + "<br><span class=kecil>" + esc(x.kota) + "</span></td><td><span class='tag'>" + esc(x.level) + "</span>" + (x.status !== "aktif" ? " <span class='tag off'>" + x.status + "</span>" : "") + "</td><td class=r>" + (x.kaosBulanIni || 0) + "</td><td class=r>" + rp(x.saldo) + (x.siapCair ? "<br><span class='tag ok'>siap cair</span>" : "") + "</td><td class=kecil>" + esc(x.cair) + "<br>" + esc(x.norek) + "</td><td><button class='btn abu' data-buka='" + x.id + "'>Buka</button></td></tr>";
+    }).join("") || "<tr><td colspan=7 class=kecil>Belum ada reseller.</td></tr>";
+  }
+  function cari(id) { return data.orang.filter(function (x) { return x.id === id; })[0]; }
+  function kirimLink(x, d) {
+    var link = "https://willoapparel.com/pesan/?kode=" + x.kode;
+    var dash = d ? "Link dashboard baru (jangan dibagikan, link lama tidak berlaku): https://willoapparel.com/reseller/saya/#i=" + d.id + "&k=" + d.kunci : "Pantau penjualan & komisi di dashboard kamu: willoapparel.com/reseller/saya/ (buka dari HP yang dipakai saat daftar).";
+    var t = "Halo " + x.nama + ", " + (d ? "ini link dashboard reseller Willo kamu." : "pendaftaran Program Reseller Willo kamu sudah disetujui!") + "\n\nKode kamu: " + x.kode + "\nLink pribadi untuk dibagikan: " + link + "\n\n" + dash;
+    return "https://wa.me/" + hpWa(x.wa) + "?text=" + encodeURIComponent(t);
+  }
+  function bukaOrang(x) {
+    dlgId = x.id; $("gDlg").textContent = "";
+    $("dIsi").innerHTML = "<h2 style='margin-top:0'>" + esc(x.kode) + " · " + esc(x.nama) + "</h2><p class=kecil>WA " + esc(x.wa) + " · " + esc(x.kota) + " · cair ke " + esc(x.cair) + " " + esc(x.norek) + "</p>" +
+      "<div class=g2><div><label>Level</label><select id=dLevel>" + ["Afiliasi", "Reseller", "Agen", "Siswa"].map(function (l) { return "<option" + (l === x.level ? " selected" : "") + ">" + l + "</option>"; }).join("") + "</select></div><div><label>Status</label><select id=dStatus>" + ["aktif", "nonaktif"].map(function (l) { return "<option" + (l === x.status ? " selected" : "") + ">" + l + "</option>"; }).join("") + "</select></div></div>" +
+      "<p style='margin-top:8px'><button class=btn id=dSimpan>Simpan</button> <button class='btn wa' id=dLink>Kirim link dashboard baru via WA</button></p>" +
+      "<h2>Bayar komisi</h2><p>Saldo: <b>" + rp(x.saldo) + "</b></p><div class=g2><div><label>Jumlah</label><input id=dJml type=number value='" + Math.max(0, x.saldo) + "'></div><div><label>Lewat</label><input id=dCara value='" + esc(x.cair) + "'></div></div><p style='margin-top:8px'><button class=btn id=dBayar>Tandai sudah dibayar</button></p>" +
+      "<h2>Penjualan</h2><div class=scroll id=dJual>Memuat…</div>";
+    $("dOrang").showModal();
+    $("dSimpan").onclick = function () { api("ubah", { id: x.id, level: $("dLevel").value, status: $("dStatus").value }).then(function () { $("gDlg").textContent = "Tersimpan ✓"; muat(); }, function (e) { $("gDlg").textContent = e.message; }); };
+    $("dLink").onclick = function () { if (!confirm("Link dashboard lama tidak akan berlaku lagi. Lanjut?")) return; api("link", { id: x.id }).then(function (d) { location.href = kirimLink(x, d); }, function (e) { $("gDlg").textContent = e.message; }); };
+    $("dBayar").onclick = function () { var j = +$("dJml").value; if (!(j > 0) || !confirm("Catat pembayaran " + rp(j) + " ke " + x.nama + "?")) return; api("bayar", { kode: x.kode, jumlah: j, cara: $("dCara").value }).then(function () { $("dOrang").close(); muat(); }, function (e) { $("gDlg").textContent = e.message; }); };
+    api("jual?kode=" + encodeURIComponent(x.kode)).then(function (d) {
+      $("dJual").innerHTML = "<table><tr><th>Tgl</th><th>Jenis</th><th class=r>Kaos</th><th class=r>Untuk reseller</th><th></th></tr>" + d.jual.map(function (j) {
+        return "<tr class='" + (j.batal || j.tolak ? "coret" : "") + "'><td>" + tgl(j.w) + "<br><span class=kecil>" + esc(j.no) + "</span></td><td>" + esc(j.jenis) + (j.sumber === "kasir" ? " · kasir" : "") + (j.cara === "B" ? " · tunai" : "") + "<br><span class=kecil>" + esc(j.catatan) + "</span></td><td class=r>" + j.qty + "</td><td class=r>" + rp(j.untung + j.komisi) + "</td><td><button class='btn abu' data-tolakjual='" + j.id + "' data-v='" + (j.tolak ? 0 : 1) + "'>" + (j.tolak ? "Hitung" : "Batal") + "</button></td></tr>";
+      }).join("") + "</table>" + (d.bayar.length ? "<p class=kecil style='margin-top:8px'>Sudah dibayar: " + d.bayar.map(function (b) { return tgl(b.w) + " " + rp(b.jumlah); }).join(", ") + "</p>" : "");
+    });
+  }
+  document.addEventListener("click", function (e) {
+    var t = e.target;
+    if (t.dataset.setujui) { var x = cari(t.dataset.setujui); var kode = prompt("Kode untuk " + x.nama + " (kosongkan = otomatis R-xxx; siswa pakai kode sekolah, mis. N1-XITKJ1-07):", ""); if (kode === null) return;
+      api("setujui", { id: x.id, kode: kode.trim() }).then(function (d) { muat(); if (confirm("Disetujui dengan kode " + d.kode + ". Kabari " + x.nama + " lewat WA sekarang?")) location.href = kirimLink(d.orang, null); }, function (er) { alert(er.message); }); }
+    if (t.dataset.tolak) { if (!confirm("Tolak pendaftar ini?")) return; api("ubah", { id: t.dataset.tolak, status: "tolak" }).then(muat); }
+    if (t.dataset.buka) bukaOrang(cari(t.dataset.buka));
+    if (t.dataset.tolakjual) api("tolak", { id: t.dataset.tolakjual, tolak: +t.dataset.v }).then(function () { var id = dlgId; $("dOrang").close(); muat().then(function () { bukaOrang(cari(id)); }); });
+  });
+  $("tab").onclick = function (e) { var b = e.target.closest("button"); if (!b) return; [].forEach.call(this.children, function (c) { c.classList.toggle("pilih", c === b); }); ["tunggu", "aktif", "catat", "atur"].forEach(function (s) { $("s-" + s).classList.toggle("tersembunyi", s !== b.dataset.t); }); };
+  $("cari").oninput = gambarAktif;
+  function hitung() {
+    var j = $("cJenis").value, q = +$("cQty").value || 0, r = +$("cResmi").value || 0, s = +$("cJual").value || 0, A = data && data.aturan;
+    [].forEach.call(document.querySelectorAll(".jualS"), function (el) { el.classList.toggle("tersembunyi", j !== "Jual sendiri"); });
+    if (!A || !q || !r) { $("cHitung").textContent = ""; return; }
+    var x = data.orang.filter(function (o) { return o.kode === $("cKode").value.trim().toUpperCase(); })[0];
+    if (j === "Afiliasi") { var k = 0; A.tingkat.forEach(function (t) { if (!k && r >= t[0]) k = t[1]; }); $("cHitung").textContent = "Komisi: " + q + " × " + rp(k) + " = " + rp(q * k); }
+    else if (j === "Jual sendiri") { var m = x && x.level === "Agen" ? Math.round(r * (1 - A.agenPersen / 100)) : r - A.potong; $("cHitung").textContent = "Harga modal " + rp(m) + "/kaos. Untung reseller: " + q + " × " + rp(s - m) + " = " + rp(q * (s - m)) + (s && s < r ? ". Harga jual di bawah harga resmi!" : ""); }
+    else $("cHitung").textContent = "Dihitung untuk target saja, tanpa komisi.";
+  }
+  ["cJenis", "cQty", "cResmi", "cJual", "cKode"].forEach(function (i) { $(i).oninput = hitung; });
+  $("cTgl").value = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+  $("fCatat").onsubmit = function (e) {
+    e.preventDefault(); $("gCatat").textContent = "";
+    var w = new Date($("cTgl").value + "T12:00:00+07:00").getTime();
+    api("catat", { kode: $("cKode").value.trim().toUpperCase(), jenis: $("cJenis").value, w: w, no: $("cNo").value, qty: +$("cQty").value, resmi: +$("cResmi").value, jual: +$("cJual").value, cara: $("cCara").value, catatan: $("cCat").value })
+      .then(function () { $("gCatat").textContent = "Tersimpan ✓"; ["cNo", "cQty", "cJual", "cCat"].forEach(function (i) { $(i).value = ""; }); $("cHitung").textContent = ""; muat(); }, function (er) { $("gCatat").textContent = er.message; });
+  };
+  $("tokoSimpan").onclick = function () { $("gToko").textContent = ""; api("toko", { link: $("tokoLink").value }).then(function () { $("tokoLink").value = ""; muat(); }, function (er) { $("gToko").textContent = er.message; }); };
+  $("fMasuk").onsubmit = function (e) {
+    e.preventDefault(); sandi = $("sandi").value;
+    muat().then(function () { try { localStorage.setItem(K, sandi); } catch (er) {} }, function (er) { $("gMasuk").textContent = er.message; });
+  };
+  $("keluar").onclick = function () { try { localStorage.removeItem(K); sessionStorage.removeItem(K); } catch (e) {} location.reload(); };
+  if (sandi) muat().catch(function () { sandi = ""; });
+})();
+</script>
+</body>
+</html>

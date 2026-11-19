@@ -303,6 +303,7 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
 <!-- Bayar -->
 <dialog id="dBayar"><div class="isi-dialog">
   <label class="isi">Nama pelanggan <small>Boleh kosong. Ditulis di struk</small><input type="text" id="byNama" maxlength="30" autocomplete="off"></label>
+  <label class="isi tersembunyi" id="byRsL">Kode reseller <small>Tanya pembeli: "Ada kode reseller?"</small><input type="text" id="byRs" maxlength="24" autocomplete="off" placeholder="mis. R-001" style="text-transform:uppercase"></label>
   <div class="metode" id="metode">
     <button data-m="Tunai" class="pilih">💵 Tunai</button>
     <button data-m="QRIS">▦ QRIS</button>
@@ -402,7 +403,7 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
   }
   function isiIkon(el, em){ if (/^ik:/.test(em || "")) { el.innerHTML = ikonSvg(em); el.classList.add("ik"); } else { el.textContent = em || "📦"; el.classList.remove("ik"); } }
   var S;
-  var dsMan = { v:0, persen:false }, bayarNama = "", bank = "";
+  var dsMan = { v:0, persen:false }, bayarNama = "", bayarRs = "", bank = "";
   function muat(){
     try { S = JSON.parse(localStorage.getItem(KUNCI)) || null; } catch(e){ S = null; }
     if (!S) S = { baru:true, nama:"", alamat:"", rek:"", qris:"", kas:true, no:0 };
@@ -495,7 +496,7 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
     var dasar = Math.max(0, subtotal() - n * per - promo), man = dsMan.persen ? Math.round(dasar * Math.min(dsMan.v, 100) / 100) : Math.min(dsMan.v, dasar);
     return { n:n, per:per, gr:n * per, lagi:lagi, promo:promo, pn:pn, man:man, jml:n * per + promo + man };
   }
-  function resetBayar(){ dsMan = { v:0, persen:false }; bayarNama = ""; }
+  function resetBayar(){ dsMan = { v:0, persen:false }; bayarNama = ""; bayarRs = ""; }
   var total = function(){ return subtotal() - diskon().jml; };
 
   function bacaKas(){ try { var k = JSON.parse(localStorage.getItem(KAS)) || {}; k.tx = k.tx || []; k.awal = k.awal || 0; return k; } catch(e){ return { tx:[], awal:0 }; } }
@@ -647,7 +648,7 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
       var pr = S.produk.filter(function(p){ return x.id != null ? p.id === x.id : p.nama === x.n; })[0];
       return { id:x.id != null ? x.id : (pr ? pr.id : "b" + Math.random().toString(36).slice(2)), nama:x.n, harga:x.h, q:x.q, g:!!(pr && pr.grosir), pk:(pr && pr.paket) || null };
     });
-    resetBayar(); bayarNama = j.pel || "";
+    resetBayar(); bayarNama = j.pel || ""; bayarRs = j.rs || "";
     var lebih = (j.ds || 0) - diskon().jml; if (lebih > 0) dsMan = { v:lebih, persen:false };
     ubahDari = { no:j.no, w:j.w };
     ["dStruk","dRiwayat","dLaporan"].forEach(function(id){ if ($(id).open) $(id).close(); });
@@ -977,6 +978,7 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
   $("byDpCek").onchange = function(){ $("pDp").classList.toggle("tersembunyi", !this.checked); if (this.checked) $("byDp").focus(); segarBayar(); };
   formatInput($("byDp"), segarBayar);
   $("byNama").oninput = function(){ bayarNama = this.value.trim(); };
+  $("byRs").oninput = function(){ bayarRs = this.value.trim().toUpperCase().replace(/[^A-Z0-9-]/g, ""); };
   function hitungKembali(){
     var t = bayarSekarang(), d = angka($("byTerima").value), k = $("byKembali");
     if (metode !== "Tunai") { $("bySelesai").disabled = false; return; }
@@ -998,7 +1000,7 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
   }
   $("bBayar").onclick = function(){
     $("byTerima").value = ""; $("byDp").value = ""; $("byDpCek").checked = false; $("pDp").classList.add("tersembunyi");
-    $("byNama").value = bayarNama; $("byDiskon").value = dsMan.v ? dsMan.v.toLocaleString("id-ID") : "";
+    $("byNama").value = bayarNama; $("byRs").value = bayarRs; $("byRsL").classList.toggle("tersembunyi", !/willo/i.test(S.nama || "")); $("byDiskon").value = dsMan.v ? dsMan.v.toLocaleString("id-ID") : "";
     Array.prototype.forEach.call($("byDsJenis").children, function(x){ x.classList.toggle("pilih", (x.dataset.j === "persen") === dsMan.persen); });
     bank = ""; aturMetode("Tunai"); segarBayar(); $("dBayar").showModal();
   };
@@ -1170,6 +1172,7 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
     var jj = { kid:kid, no:no, w:w, m:mt, tot:t, ds:diskon().jml };
     if (ub) jj.ubah = Date.now();
     if (bayarNama) jj.pel = bayarNama;
+    if (bayarRs) jj.rs = bayarRs; // Program Reseller Willo: komisi dihitung otomatis di /reseller/admin/
     if (metode === "Tunai" && terima) jj.tr = terima;
     if (diskon().jml) jj.sub = subtotal();
     if (dp < t) { jj.dp = dp; jj.sisa = t - dp; }
