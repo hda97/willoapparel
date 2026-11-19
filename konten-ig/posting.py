@@ -84,6 +84,28 @@ def muat_token(akun=None):
     return turunkan(user, akun)
 
 
+def cadangan(akun=None):
+    """Token Halaman akun ini rusak (mis. sesi dibatalkan Facebook) dan IG_TOKEN kedaluwarsa:
+    coba turunkan ulang dari token pengguna jangka panjang yang tersimpan di token*.enc akun lain
+    (token.enc @duniakotak.id menyimpan token pengguna bila IG_USER_ID dipakai)."""
+    akun = (akun or AKUN).lower()
+    for f in [TOKEN_FILE] + sorted(glob.glob(os.path.join(DIR, "token-*.enc"))):
+        if f == file_token(akun) or not os.path.exists(f):
+            continue
+        try:
+            tok = json.loads(openssl(["-d"], open(f, "rb").read()))["page_token"]
+            for p in daftar_halaman(tok):
+                ig = p.get("instagram_business_account") or {}
+                if ig.get("username", "").lower() == akun:
+                    d = json.loads(openssl(["-d"], open(file_token(akun), "rb").read())) if os.path.exists(file_token(akun)) else {}
+                    simpan_token(p["access_token"], ig["id"], src=d.get("src"), akun=akun)
+                    print(f"Token Halaman @{akun} diturunkan ulang dari {os.path.basename(f)}.")
+                    return p["access_token"], ig["id"]
+        except (SystemExit, Exception) as e:
+            print(f"Cadangan {os.path.basename(f)} tidak bisa dipakai: {str(e)[:160]}")
+    raise SystemExit(f"Tidak ada token cadangan yang menjangkau @{akun}. Perbarui secret IG_TOKEN.")
+
+
 def daftar_halaman(user):
     """Semua Halaman + akun IG yang bisa dijangkau token pengguna (untuk cek akun)."""
     return req("GET", "me/accounts", access_token=user,
@@ -244,7 +266,14 @@ def main():
     # Satu run satu postingan: kalau cron telat sampai dua slot jatuh tempo bersamaan,
     # yang lebih awal terbit sekarang dan sisanya di run berikutnya (tidak terbit beruntun).
     for f, item in todo[:1]:
-        mid, link = terbitkan(token, ig_id, item)
+        try:
+            mid, link = terbitkan(token, ig_id, item)
+        except SystemExit as e:
+            if '"code":190' not in str(e):
+                raise
+            print(f"Token Halaman ditolak, coba token cadangan: {str(e)[:200]}")
+            token, ig_id = cadangan()
+            mid, link = terbitkan(token, ig_id, item)
         item["terbit"] = {"id": mid, "permalink": link, "waktu": dt.datetime.now(WIB).isoformat(timespec="seconds")}
         json.dump(item, open(f, "w"), ensure_ascii=False, indent=2)
         print(f"TERBIT: {link}")
