@@ -31,7 +31,8 @@ permissions:
 
 concurrency:
   group: ig-posting-lumbung
-  cancel-in-progress: false
+  # Push ke file workflow ini mengganti run berantai lama (mis. setelah secret IG_TOKEN diganti)
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 
 jobs:
   posting:
