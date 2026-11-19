@@ -112,6 +112,8 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
 .riwayat li{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f0ede6;font-size:14px}
 .riwayat li .ket{flex:1;min-width:0}
 .riwayat li small{display:block;color:var(--redup);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ubah-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px;padding:8px 10px;border-radius:10px;background:#fff4d6;border:1px solid #f0d58a;color:#6b4e00;font-size:14px}
+.ubah-bar b{font-weight:700}
 .riwayat li.batal .ket,.riwayat li.batal .angka{text-decoration:line-through;color:var(--redup)}
 .lap-bar{height:6px;border-radius:3px;background:var(--utama);opacity:.75;margin-top:3px}
 .kat{display:flex;gap:6px;overflow-x:auto;margin:0 0 10px;padding-bottom:2px;scrollbar-width:none}
@@ -168,6 +170,7 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
 
   <section class="kartu" style="margin-top:14px">
     <div class="tahan tersembunyi" id="dTahanan"></div>
+    <div class="ubah-bar tersembunyi" id="ubahBar"><span>Mengubah nota <b id="ubahNo"></b>. Perbaiki isinya lalu tekan Bayar.</span><button class="btn dua kecil" id="ubahBatal">Batal ubah</button></div>
     <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px"><h2 style="margin:0">Pesanan</h2><span class="baris" style="gap:6px"><button class="btn dua kecil" id="bTahan" title="Simpan pesanan ini sebentar, layani pembeli lain dulu">✋ Tahan</button><button class="btn dua kecil" id="bKosong">Kosongkan</button></span></div>
     <ul class="keranjang" id="keranjang"></ul>
     <button class="btn dua kecil" id="bBebas" style="margin-top:10px">＋ Nominal bebas</button>
@@ -351,6 +354,7 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
     <button class="btn hijau" id="stWaBtn">Kirim WA</button>
   </div>
   <p class="kecil redup" style="margin:8px 0 0">Printer USB / laptop: <a href="#" id="stCetak">cetak biasa</a>. <span class="hanya-web">Printer Bluetooth tidak muncul? Pasang aplikasi gratis RawBT lalu <a href="#" id="stRawbt">cetak lewat RawBT</a>.</span></p>
+  <button class="btn dua lebar tersembunyi" id="stUbah" data-owner style="margin-top:10px">Ubah nota ini</button>
   <button class="btn lebar" id="stBaru" autofocus style="margin-top:10px">Transaksi baru</button>
 </div></dialog>
 
@@ -622,12 +626,52 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
       if (!j.batal && !j.lama) {
         var bt = document.createElement("button"); bt.className = "btn dua kecil"; bt.textContent = "Batalkan";
         bt.onclick = function(){ batalkan(j.no, j.w); };
-        li.appendChild(bt);
+        var bu = document.createElement("button"); bu.className = "btn dua kecil"; bu.textContent = "Ubah";
+        bu.onclick = function(){ ubahNota(j.no, j.w); };
+        li.appendChild(bu); li.appendChild(bt);
       }
       ul.appendChild(li);
     });
     return ul;
   }
+  // Ubah nota (Huda 19 Nov 2026): owner memperbaiki nota yang salah. Isi nota dimuat ke Pesanan;
+  // nota lama baru diganti setelah "Sudah dibayar" (nomor & tanggal tetap, stok & Buku Kas disesuaikan).
+  var ubahDari = null;
+  var tglDari = function(w){ var d = new Date(w); return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); };
+  function ubahNota(no, w){
+    if (window.LumbungOwner && LumbungOwner.terkunci()) { pesan("Hanya owner yang bisa mengubah nota"); return; }
+    var j = bacaJual().filter(function(x){ return x.no === no && x.w === w; })[0];
+    if (!j || j.batal || j.lama) return;
+    if (keranjang.length && !(ubahDari && ubahDari.no === no) && !confirm("Pesanan yang sedang diisi akan diganti isi nota " + no + ". Lanjut?")) return;
+    keranjang = (j.isi || []).map(function(x){
+      var pr = S.produk.filter(function(p){ return x.id != null ? p.id === x.id : p.nama === x.n; })[0];
+      return { id:x.id != null ? x.id : (pr ? pr.id : "b" + Math.random().toString(36).slice(2)), nama:x.n, harga:x.h, q:x.q, g:!!(pr && pr.grosir), pk:(pr && pr.paket) || null };
+    });
+    resetBayar(); bayarNama = j.pel || "";
+    var lebih = (j.ds || 0) - diskon().jml; if (lebih > 0) dsMan = { v:lebih, persen:false };
+    ubahDari = { no:j.no, w:j.w };
+    ["dStruk","dRiwayat","dLaporan"].forEach(function(id){ if ($(id).open) $(id).close(); });
+    gambar(); gambarUbah();
+    var kr = $("keranjang"); if (kr && kr.scrollIntoView) kr.scrollIntoView({ behavior:"smooth", block:"center" });
+    pesan("Nota " + no + " dimuat. Perbaiki lalu tekan Bayar.");
+  }
+  function gambarUbah(){ $("ubahBar").classList.toggle("tersembunyi", !ubahDari); if (ubahDari) $("ubahNo").textContent = ubahDari.no; $("bySelesai").textContent = ubahDari ? "Simpan perubahan nota" : "✓ Sudah dibayar"; }
+  function selesaiUbah(){ ubahDari = null; gambarUbah(); }
+  // Kembalikan stok & hapus catatan Buku Kas nota lama (termasuk pelunasannya) sebelum diganti.
+  function balikNota(j){
+    ubahStok(j.isi || [], 1);
+    if (!j.kid) return;
+    var k = bacaKas(); k.tx = k.tx.filter(function(t){ return !((t.id === j.kid || t.ref === j.kid) && t.sumber === "kasir"); });
+    try { localStorage.setItem(KAS, JSON.stringify(k)); } catch(e){}
+  }
+  function gantiJual(j){
+    var a = bacaJual(), i = -1;
+    a.forEach(function(x, n){ if (x.no === j.no && x.w === j.w) i = n; });
+    if (i < 0) a.push(j); else a[i] = j;
+    try { localStorage.setItem(JUAL, JSON.stringify(a)); } catch(e){ pesan("Memori penuh: perubahan tidak tercatat"); }
+    if (window.LumbungSinkron) LumbungSinkron.antre(j);
+  }
+  $("ubahBatal").onclick = function(){ keranjang = []; resetBayar(); selesaiUbah(); gambar(); pesan("Ubah nota dibatalkan, nota lama tetap"); };
   // Pelunasan sisa DP: masuk Buku Kas sebagai penjualan baru, transaksi ditandai lunas.
   function lunasi(no, w){
     var a = bacaJual(), j = a.filter(function(x){ return x.no === no && x.w === w; })[0];
@@ -806,7 +850,7 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
     if (pas.length === 1) { tambah(pas[0]); this.value = ""; gambarProduk(); }
     else if (!pas.length) pesan("Kode " + this.value.trim() + " belum ada. Tambahkan di barang (tekan lama).");
   });
-  $("bKosong").onclick = function(){ keranjang = []; resetBayar(); gambar(); };
+  $("bKosong").onclick = function(){ keranjang = []; resetBayar(); selesaiUbah(); gambar(); };
   // Tahan transaksi: simpan pesanan sementara, layani pembeli lain, lanjutkan nanti.
   function gambarTahan(){
     var c = $("dTahanan"), t = S.tahan || []; c.innerHTML = "";
@@ -829,7 +873,7 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
     if (!keranjang.length) { pesan("Pesanan masih kosong"); return; }
     var nama = (prompt("Nama/penanda pesanan (boleh kosong):", "") || "").trim().slice(0, 20) || ("Pesanan " + jam());
     S.tahan = S.tahan || []; S.tahan.push({ nama:nama, jam:Date.now(), isi:keranjang });
-    keranjang = []; simpan(); gambar(); pesan("Pesanan " + nama + " ditahan");
+    keranjang = []; selesaiUbah(); simpan(); gambar(); pesan("Pesanan " + nama + " ditahan");
   };
   $("bBebas").onclick = function(){ $("dbNama").value = ""; $("dbJml").value = ""; $("dBebas").showModal(); };
   formatInput($("dbJml"));
@@ -1116,24 +1160,27 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
   }
   $("bySelesai").onclick = function(){
     var t = total(), terima = angka($("byTerima").value), dp = bayarSekarang(), mt = namaMetode();
-    S.no = (S.no || 0) + 1; simpan();
-    var no = "A-" + String(S.no).padStart(5, "0");
-    noStruk = no; strukTeks = buatStruk(no, terima);
-    var kid = Date.now();
+    // Ubah nota (khusus owner): nomor & waktu nota lama dipakai lagi, isi lama diganti.
+    var ub = ubahDari ? bacaJual().filter(function(x){ return x.no === ubahDari.no && x.w === ubahDari.w && !x.batal; })[0] : null;
+    var no, w = Date.now(), kid = w;
+    if (ub) { no = ub.no; w = ub.w; kid = ub.kid || w; balikNota(ub); }
+    else { S.no = (S.no || 0) + 1; simpan(); no = "A-" + String(S.no).padStart(5, "0"); }
+    noStruk = no; strukTeks = buatStruk(no, terima, ub ? { w:w, isi:keranjang, sub:subtotal(), ds:diskon().jml, t:t, dp:dp, mt:mt, pel:bayarNama, tunai:metode === "Tunai" } : null);
     ubahStok(keranjang, -1);
-    var jj = { kid:kid, no:no, w:Date.now(), m:mt, tot:t, ds:diskon().jml };
+    var jj = { kid:kid, no:no, w:w, m:mt, tot:t, ds:diskon().jml };
+    if (ub) jj.ubah = Date.now();
     if (bayarNama) jj.pel = bayarNama;
     if (metode === "Tunai" && terima) jj.tr = terima;
     if (diskon().jml) jj.sub = subtotal();
     if (dp < t) { jj.dp = dp; jj.sisa = t - dp; }
-    catatJual(Object.assign(jj, { isi:keranjang.map(function(k){ var pr = S.produk.filter(function(x){ return x.id === k.id; })[0]; var o = { id:k.id, n:k.nama, q:k.q, h:k.harga, k:(pr && pr.kat) || "" }; if (pr && pr.modal) o.m = pr.modal; return o; }) }));
+    (ub ? gantiJual : catatJual)(Object.assign(jj, { isi:keranjang.map(function(k){ var pr = S.produk.filter(function(x){ return x.id === k.id; })[0]; var o = { id:k.id, n:k.nama, q:k.q, h:k.harga, k:(pr && pr.kat) || "" }; if (pr && pr.modal) o.m = pr.modal; return o; }) }));
     if (S.kas !== false) {
       var k = bacaKas();
       var ket = keranjang.map(function(x){ return x.q + " " + x.nama; }).join(", ");
-      k.tx.push({ id:kid, t:"masuk", jml:dp, kat:"Penjualan", ket:((dp < t ? "DP " : "") + "Kasir #" + no + (bayarNama ? " " + bayarNama : "") + ": " + ket).slice(0, 80), tgl:tglIni(), metode:mt, sumber:"kasir" });
+      k.tx.push({ id:kid, t:"masuk", jml:dp, kat:"Penjualan", ket:((dp < t ? "DP " : "") + "Kasir #" + no + (bayarNama ? " " + bayarNama : "") + ": " + ket).slice(0, 80), tgl:ub ? tglDari(w) : tglIni(), metode:mt, sumber:"kasir" });
       try { localStorage.setItem(KAS, JSON.stringify(k)); } catch(e){ pesan("Buku Kas penuh, penjualan tidak tercatat"); }
     }
-    $("dBayar").close(); resetBayar(); dariRiwayat = false; $("stJudul").textContent = "✓ Pembayaran dicatat"; $("stBaru").textContent = "Transaksi baru";
+    $("dBayar").close(); resetBayar(); selesaiUbah(); dariRiwayat = false; $("stJudul").textContent = ub ? "Nota " + no + " sudah diperbarui" : "✓ Pembayaran dicatat"; $("stBaru").textContent = "Transaksi baru"; $("stUbah").classList.add("tersembunyi");
     $("strukTeks").textContent = strukTeks; $("stWa").value = "";
     $("strukLogo").classList.toggle("tersembunyi", !S.logo); if (S.logo) $("strukLogo").src = S.logo;
     $("dStruk").showModal();
@@ -1166,7 +1213,8 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
   }
   function bukaNota(j){
     noStruk = j.no; strukTeks = strukDari(j); dariRiwayat = true;
-    $("stJudul").textContent = "Nota " + j.no + (j.batal ? " (DIBATALKAN)" : ""); $("stBaru").textContent = "Tutup";
+    $("stJudul").textContent = "Nota " + j.no + (j.batal ? " (DIBATALKAN)" : "") + (j.ubah ? " (diubah)" : ""); $("stBaru").textContent = "Tutup";
+    var bu = $("stUbah"); bu.classList.toggle("tersembunyi", !!(j.batal || j.lama)); bu.onclick = function(){ ubahNota(j.no, j.w); };
     $("strukTeks").textContent = strukTeks; $("stWa").value = "";
     $("strukLogo").classList.toggle("tersembunyi", !S.logo); if (S.logo) $("strukLogo").src = S.logo;
     $("dStruk").showModal();
