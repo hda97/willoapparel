@@ -3249,6 +3249,11 @@ export default {
       url.pathname = "/pesan/";
       return Response.redirect(url.toString(), 301);
     }
+    // Program reseller umum (Huda 19 Nov 2026): /reseller, /mitra, /afiliasi → /reseller/.
+    if (["/reseller", "/mitra", "/afiliasi"].includes(pendek) && url.pathname !== "/reseller/") {
+      url.pathname = "/reseller/";
+      return Response.redirect(url.toString(), 301);
+    }
     // Alat usaha gratis (Huda 15 Nov 2026): /alat, /kasir, /antrian, /kas, /bukukas, /nota, /invoice, /alat/kasir (tanpa garis miring) → folder-nya.
     {
       const alat = { "/alat": "/alat/", "/kasir": "/alat/kasir/", "/alat/kasir": "/alat/kasir/", "/antrian": "/alat/antrian/", "/alat/antrian": "/alat/antrian/",
