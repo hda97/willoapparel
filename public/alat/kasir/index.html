@@ -576,7 +576,10 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
       if (t.kat === "Ambil pribadi") return;
       o.ops += t.jml || 0; o.opsKat[t.kat || "Lainnya"] = (o.opsKat[t.kat || "Lainnya"] || 0) + (t.jml || 0);
     });
-    o.laba = o.omzet - o.modal - o.ops;
+    // Modal dari HPP barang (usaha stok) atau dari Belanja bahan di Buku Kas (usaha pesanan: DP dulu baru belanja, seperti Willo).
+    o.md = S.modalDari || (o.adaModal ? "hpp" : "bahan");
+    o.biaya = o.md === "bahan" ? o.bahan : o.modal;
+    o.laba = o.omzet - o.biaya - o.ops;
     return o;
   }
   function judulP(){ return PERIODE.filter(function(p){ return p[0] === lapP; })[0][1]; }
@@ -592,11 +595,11 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
     if (o.adaModal) { var un = o.untung - (o.tanpaModal ? 0 : o.ds); h += '<div class="lap-angka" style="grid-template-columns:1fr"><div><small>Perkiraan untung' + (o.tanpaModal ? ' (dari ' + o.adaModal + ' pcs yang ada HPP-nya)' : ' setelah diskon') + '</small><b class="angka" style="color:var(--hijau)">' + rp(un) + '</b></div></div>'; }
     else h += '<p class="kecil redup" style="margin:-4px 0 12px">Isi HPP barang di menu <a href="/alat/hpp/">Hitung HPP</a> supaya laporan menampilkan untung.</p>';
     // Laba bersih = omzet − modal barang terjual − pengeluaran operasional (Buku Kas).
-    var bl = '<tr><td>Omzet (sudah dipotong diskon)</td><td class="angka">' + rp(o.omzet) + '</td></tr><tr><td>Modal barang terjual (HPP)</td><td class="angka">−' + rp(o.modal) + '</td></tr>';
+    var bl = '<tr><td>Omzet (sudah dipotong diskon)</td><td class="angka">' + rp(o.omzet) + '</td></tr><tr><td>' + (o.md === "bahan" ? "Belanja bahan (Buku Kas)" : "Modal barang terjual (HPP)") + '</td><td class="angka">−' + rp(o.biaya) + '</td></tr>';
     Object.keys(o.opsKat).sort(function(a,b){ return o.opsKat[b] - o.opsKat[a]; }).forEach(function(k){ bl += '<tr><td>' + esc(k) + '</td><td class="angka">−' + rp(o.opsKat[k]) + '</td></tr>'; });
     if (!o.ops) bl += '<tr><td class="redup">Pengeluaran operasional</td><td class="angka redup">Rp0</td></tr>';
-    h += '<div class="laba-box"><div class="laba-atas"><small>Laba bersih</small><b class="angka" style="color:' + (o.laba < 0 ? 'var(--merah)' : 'var(--hijau)') + '">' + (o.laba < 0 ? '−' : '') + rp(Math.abs(o.laba)) + '</b></div><table class="lap-tabel" style="margin:6px 0 0">' + bl + '</table>' +
-         '<p class="kecil redup" style="margin:6px 0 0">Pengeluaran diambil dari <a href="/alat/buku-kas/">Buku Kas</a> (gaji, sewa, listrik, iklan, transport, lainnya). Belanja bahan' + (o.bahan ? ' (' + rp(o.bahan) + ')' : '') + ' tidak dikurangi lagi karena sudah masuk modal barang; ambil pribadi bukan biaya usaha.' + (o.tanpaModal ? ' <b>' + o.tanpaModal + ' pcs belum ada HPP-nya</b>, modalnya dianggap Rp0 sehingga laba terlihat lebih besar.' : '') + '</p></div>';
+    h += '<div class="laba-box"><div class="laba-atas"><small>Laba bersih</small><b class="angka" style="color:' + (o.laba < 0 ? 'var(--merah)' : 'var(--hijau)') + '">' + (o.laba < 0 ? '−' : '') + rp(Math.abs(o.laba)) + '</b></div><div class="kecil" style="margin:6px 0 2px">Modal dihitung dari:</div><div class="tab" id="lapMd"><button type="button" data-md="hpp"' + (o.md === "hpp" ? ' class="pilih"' : '') + '>HPP barang</button><button type="button" data-md="bahan"' + (o.md === "bahan" ? ' class="pilih"' : '') + '>Belanja bahan</button></div><table class="lap-tabel" style="margin:6px 0 0">' + bl + '</table>' +
+         '<p class="kecil redup" style="margin:6px 0 0">Pengeluaran diambil dari <a href="/alat/buku-kas/">Buku Kas</a> (gaji, sewa, listrik, iklan, transport, lainnya). ' + (o.md === "bahan" ? 'Modal = semua Belanja bahan pada periode ini (cocok untuk usaha pesanan: terima DP dulu, baru belanja). Ambil pribadi bukan biaya usaha.' : 'Belanja bahan' + (o.bahan ? ' (' + rp(o.bahan) + ')' : '') + ' tidak dikurangi lagi karena sudah masuk modal barang; ambil pribadi bukan biaya usaha.') + (o.md === "hpp" && o.tanpaModal ? ' <b>' + o.tanpaModal + ' pcs belum ada HPP-nya</b>, modalnya dianggap Rp0 sehingga laba terlihat lebih besar.' : '') + '</p></div>';
     var brg = Object.keys(o.brg).map(function(k){ return [k, o.brg[k]]; }).sort(function(a,b){ return b[1].q - a[1].q || b[1].rp - a[1].rp; });
     var maks = brg.length ? brg[0][1].q : 1;
     h += '<h3 style="margin:0 0 4px;font-size:15px">🏆 Barang terlaris</h3><table class="lap-tabel"><tr><th>Barang</th><th>Qty</th><th>Rupiah</th></tr>';
@@ -618,6 +621,7 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
     if (tipis.length) { h += '<h3 style="margin:0 0 4px;font-size:15px">⚠️ Stok menipis</h3><table class="lap-tabel">'; tipis.sort(function(a,b){ return a.stok - b.stok; }).forEach(function(p){ h += '<tr><td>' + esc(p.nama) + '</td><td class="angka" style="color:var(--merah)">' + p.stok + '</td></tr>'; }); h += '</table>'; }
     h += '<h3 style="margin:0 0 4px;font-size:15px">🧾 Riwayat transaksi</h3><p class="kecil redup" style="margin:0 0 4px">Salah input atau barang dikembalikan? Ketuk Batalkan.</p>';
     el.innerHTML = h;
+    Array.prototype.forEach.call(el.querySelectorAll("[data-md]"), function(b){ b.onclick = function(){ S.modalDari = b.dataset.md; simpan(); gambarLap(); }; });
     el.appendChild(gambarRiwayat(o));
   }
   // Stok: hanya barang yang punya angka stok. arah -1 = terjual, +1 = dibatalkan.
@@ -723,7 +727,7 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
     var o = hitungLap(); if (!o.n) { pesan("Belum ada penjualan pada periode ini"); return; }
     var brg = Object.keys(o.brg).sort(function(a,b){ return o.brg[b].q - o.brg[a].q; }).slice(0, 5);
     var t = "*Laporan " + (S.nama || "toko") + "* (" + judulP() + ")\nOmzet: " + rp(o.omzet) + "\nTransaksi: " + o.n + "\nBarang terjual: " + o.pcs + " pcs\n";
-    if (o.modal || o.ops) t += "Modal barang: " + rp(o.modal) + "\nPengeluaran: " + rp(o.ops) + "\n*Laba bersih: " + (o.laba < 0 ? "-" : "") + rp(Math.abs(o.laba)) + "*\n";
+    if (o.biaya || o.ops) t += (o.md === "bahan" ? "Belanja bahan: " : "Modal barang: ") + rp(o.biaya) + "\nPengeluaran: " + rp(o.ops) + "\n*Laba bersih: " + (o.laba < 0 ? "-" : "") + rp(Math.abs(o.laba)) + "*\n";
     Object.keys(o.metode).forEach(function(m){ t += m + ": " + rp(o.metode[m]) + "\n"; });
     t += "\nTerlaris:\n" + brg.map(function(k, i){ return (i + 1) + ". " + k + " (" + o.brg[k].q + ")"; }).join("\n");
     window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank", "noopener");
@@ -734,7 +738,7 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
     var o = hitungLap(), box = $("lapAiIsi"), b = $("lapAi"); if (!o.n) { pesan("Belum ada penjualan pada periode ini"); return; }
     var top = function(obj, f, n){ return Object.keys(obj).sort(function(a,c){ return f(obj[c]) - f(obj[a]); }).slice(0, n); };
     var d = { toko: S.nama || "", periode: judulP(), omzet: o.omzet, transaksi: o.n, barang_terjual: o.pcs, diskon: o.ds,
-      perkiraan_untung: o.adaModal ? o.untung : null, laba_bersih: o.adaModal ? o.laba : null, pengeluaran_operasional: o.ops,
+      perkiraan_untung: o.adaModal ? o.untung : null, laba_bersih: (o.md === "bahan" || o.adaModal) ? o.laba : null, pengeluaran_operasional: o.ops,
       terlaris: top(o.brg, function(x){ return x.q; }, 8).map(function(k){ return { barang: k, qty: o.brg[k].q, rp: o.brg[k].rp }; }),
       paling_sepi: top(o.brg, function(x){ return -x.q; }, 3).map(function(k){ return { barang: k, qty: o.brg[k].q }; }),
       cara_bayar: o.metode, transaksi_per_jam: o.jam,
