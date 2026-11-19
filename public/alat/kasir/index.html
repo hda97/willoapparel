@@ -114,6 +114,10 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
 .riwayat li small{display:block;color:var(--redup);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ubah-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px;padding:8px 10px;border-radius:10px;background:#fff4d6;border:1px solid #f0d58a;color:#6b4e00;font-size:14px}
 .ubah-bar b{font-weight:700}
+.laba-box{border:1px solid var(--garis,#e6e2d8);border-radius:12px;padding:10px 12px;margin:0 0 14px}
+.laba-atas{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.laba-atas small{font-weight:700;font-size:15px}
+.laba-atas b{font-size:24px}
 .riwayat li.batal .ket,.riwayat li.batal .angka{text-decoration:line-through;color:var(--redup)}
 .lap-bar{height:6px;border-radius:3px;background:var(--utama);opacity:.75;margin-top:3px}
 .kat{display:flex;gap:6px;overflow-x:auto;margin:0 0 10px;padding-bottom:2px;scrollbar-width:none}
@@ -550,18 +554,29 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
   }
   function hitungLap(){
     var r = rentang(lapP), semua = bacaJual().filter(function(j){ return j.w >= r[0] && j.w < r[1]; }), js = semua.filter(function(j){ return !j.batal; });
-    var o = { semua:semua, js:js, omzet:0, ds:0, untung:0, adaModal:0, tanpaModal:0, n:js.length, pcs:0, metode:{}, brg:{}, kat:{}, jam:{} };
+    var o = { semua:semua, js:js, omzet:0, ds:0, untung:0, modal:0, adaModal:0, tanpaModal:0, n:js.length, pcs:0, metode:{}, brg:{}, kat:{}, jam:{} };
     js.forEach(function(j){
       o.omzet += j.tot; o.ds += j.ds || 0;
       o.metode[j.m] = (o.metode[j.m] || 0) + j.tot;
       var h = new Date(j.w).getHours(); o.jam[h] = (o.jam[h] || 0) + 1;
       j.isi.forEach(function(x){
         o.pcs += x.q;
-        if (x.m) { o.untung += x.q * (x.h - x.m); o.adaModal += x.q; } else o.tanpaModal += x.q;
+        if (x.m) { o.untung += x.q * (x.h - x.m); o.modal += x.q * x.m; o.adaModal += x.q; } else o.tanpaModal += x.q;
         var b = o.brg[x.n] || (o.brg[x.n] = { q:0, rp:0 }); b.q += x.q; b.rp += x.q * x.h;
         var kk = x.k || "Lainnya"; o.kat[kk] = (o.kat[kk] || 0) + x.q * x.h;
       });
     });
+    // Laba bersih (Huda 19 Nov 2026): pengeluaran operasional dari Buku Kas pada periode yang sama.
+    // Belanja bahan tidak dihitung (sudah lewat modal/HPP barang), Ambil pribadi bukan biaya usaha, refund kasir sudah lewat Batalkan.
+    var tg = function(w){ var d = new Date(w); return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); };
+    var t0 = tg(r[0]), t1 = tg(r[1] - 1); o.ops = 0; o.opsKat = {}; o.bahan = 0;
+    bacaKas().tx.forEach(function(t){
+      if (t.t !== "keluar" || !t.tgl || t.tgl < t0 || t.tgl > t1 || t.sumber === "kasir") return;
+      if (t.kat === "Belanja bahan") { o.bahan += t.jml || 0; return; }
+      if (t.kat === "Ambil pribadi") return;
+      o.ops += t.jml || 0; o.opsKat[t.kat || "Lainnya"] = (o.opsKat[t.kat || "Lainnya"] || 0) + (t.jml || 0);
+    });
+    o.laba = o.omzet - o.modal - o.ops;
     return o;
   }
   function judulP(){ return PERIODE.filter(function(p){ return p[0] === lapP; })[0][1]; }
@@ -576,6 +591,12 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
     if (o.ds) h += '<p class="kecil redup" style="margin:-4px 0 12px">Diskon grosir diberikan: ' + rp(o.ds) + '</p>';
     if (o.adaModal) { var un = o.untung - (o.tanpaModal ? 0 : o.ds); h += '<div class="lap-angka" style="grid-template-columns:1fr"><div><small>Perkiraan untung' + (o.tanpaModal ? ' (dari ' + o.adaModal + ' pcs yang ada HPP-nya)' : ' setelah diskon') + '</small><b class="angka" style="color:var(--hijau)">' + rp(un) + '</b></div></div>'; }
     else h += '<p class="kecil redup" style="margin:-4px 0 12px">Isi HPP barang di menu <a href="/alat/hpp/">Hitung HPP</a> supaya laporan menampilkan untung.</p>';
+    // Laba bersih = omzet − modal barang terjual − pengeluaran operasional (Buku Kas).
+    var bl = '<tr><td>Omzet (sudah dipotong diskon)</td><td class="angka">' + rp(o.omzet) + '</td></tr><tr><td>Modal barang terjual (HPP)</td><td class="angka">−' + rp(o.modal) + '</td></tr>';
+    Object.keys(o.opsKat).sort(function(a,b){ return o.opsKat[b] - o.opsKat[a]; }).forEach(function(k){ bl += '<tr><td>' + esc(k) + '</td><td class="angka">−' + rp(o.opsKat[k]) + '</td></tr>'; });
+    if (!o.ops) bl += '<tr><td class="redup">Pengeluaran operasional</td><td class="angka redup">Rp0</td></tr>';
+    h += '<div class="laba-box"><div class="laba-atas"><small>Laba bersih</small><b class="angka" style="color:' + (o.laba < 0 ? 'var(--merah)' : 'var(--hijau)') + '">' + (o.laba < 0 ? '−' : '') + rp(Math.abs(o.laba)) + '</b></div><table class="lap-tabel" style="margin:6px 0 0">' + bl + '</table>' +
+         '<p class="kecil redup" style="margin:6px 0 0">Pengeluaran diambil dari <a href="/alat/buku-kas/">Buku Kas</a> (gaji, sewa, listrik, iklan, transport, lainnya). Belanja bahan' + (o.bahan ? ' (' + rp(o.bahan) + ')' : '') + ' tidak dikurangi lagi karena sudah masuk modal barang; ambil pribadi bukan biaya usaha.' + (o.tanpaModal ? ' <b>' + o.tanpaModal + ' pcs belum ada HPP-nya</b>, modalnya dianggap Rp0 sehingga laba terlihat lebih besar.' : '') + '</p></div>';
     var brg = Object.keys(o.brg).map(function(k){ return [k, o.brg[k]]; }).sort(function(a,b){ return b[1].q - a[1].q || b[1].rp - a[1].rp; });
     var maks = brg.length ? brg[0][1].q : 1;
     h += '<h3 style="margin:0 0 4px;font-size:15px">🏆 Barang terlaris</h3><table class="lap-tabel"><tr><th>Barang</th><th>Qty</th><th>Rupiah</th></tr>';
@@ -702,6 +723,7 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
     var o = hitungLap(); if (!o.n) { pesan("Belum ada penjualan pada periode ini"); return; }
     var brg = Object.keys(o.brg).sort(function(a,b){ return o.brg[b].q - o.brg[a].q; }).slice(0, 5);
     var t = "*Laporan " + (S.nama || "toko") + "* (" + judulP() + ")\nOmzet: " + rp(o.omzet) + "\nTransaksi: " + o.n + "\nBarang terjual: " + o.pcs + " pcs\n";
+    if (o.modal || o.ops) t += "Modal barang: " + rp(o.modal) + "\nPengeluaran: " + rp(o.ops) + "\n*Laba bersih: " + (o.laba < 0 ? "-" : "") + rp(Math.abs(o.laba)) + "*\n";
     Object.keys(o.metode).forEach(function(m){ t += m + ": " + rp(o.metode[m]) + "\n"; });
     t += "\nTerlaris:\n" + brg.map(function(k, i){ return (i + 1) + ". " + k + " (" + o.brg[k].q + ")"; }).join("\n");
     window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank", "noopener");
@@ -712,7 +734,7 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
     var o = hitungLap(), box = $("lapAiIsi"), b = $("lapAi"); if (!o.n) { pesan("Belum ada penjualan pada periode ini"); return; }
     var top = function(obj, f, n){ return Object.keys(obj).sort(function(a,c){ return f(obj[c]) - f(obj[a]); }).slice(0, n); };
     var d = { toko: S.nama || "", periode: judulP(), omzet: o.omzet, transaksi: o.n, barang_terjual: o.pcs, diskon: o.ds,
-      perkiraan_untung: o.adaModal ? o.untung : null,
+      perkiraan_untung: o.adaModal ? o.untung : null, laba_bersih: o.adaModal ? o.laba : null, pengeluaran_operasional: o.ops,
       terlaris: top(o.brg, function(x){ return x.q; }, 8).map(function(k){ return { barang: k, qty: o.brg[k].q, rp: o.brg[k].rp }; }),
       paling_sepi: top(o.brg, function(x){ return -x.q; }, 3).map(function(k){ return { barang: k, qty: o.brg[k].q }; }),
       cara_bayar: o.metode, transaksi_per_jam: o.jam,
