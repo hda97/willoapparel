@@ -3283,6 +3283,8 @@ async function rsTangani(self, u, request) {
   // ---- Admin (sandi sudah dicek di worker) ----
   if (!jalur.startsWith("admin/")) return J({ galat: "alamat" }, 404);
   const a = jalur.slice("admin/".length);
+  // Admin yang masuk lewat link owner toko Willo otomatis menghubungkan kasirnya.
+  const tokoOwner = request.headers.get("x-rs-toko"); if (tokoOwner && !self.meta("rs_toko")) { self.aturMeta("rs_toko", tokoOwner); self.aturMeta("rs_tarik", 0); }
   if (a === "ringkas") {
     await tarikKasir();
     const kini = rsBulan(Date.now());
@@ -3372,12 +3374,21 @@ async function apiReseller(request, url, env, ctx) {
   if (!env.TOKO || !["GET", "POST"].includes(request.method)) return json({ galat: "alamat" }, 404);
   const jalur = url.pathname.slice("/alat/api/reseller/".length);
   if (!/^(daftar|saya|admin\/[a-z]+)$/.test(jalur)) return json({ galat: "alamat" }, 404);
+  // Header yang diteruskan ke DO disusun ulang (header internal dari HP tidak ikut).
+  const hdr = new Headers({ "content-type": "application/json" });
+  for (const k of ["x-id", "x-kunci"]) if (request.headers.get(k)) hdr.set(k, request.headers.get(k));
   if (jalur.startsWith("admin/")) {
-    if (!env.LUMBUNG_ADMIN || String(env.LUMBUNG_ADMIN).length < 12) return json({ galat: "Rahasia LUMBUNG_ADMIN belum dipasang di Cloudflare." }, 503);
-    if ((request.headers.get("x-admin") || "") !== String(env.LUMBUNG_ADMIN)) return json({ galat: "Kata sandi admin salah." }, 403);
+    // Masuk admin: sandi LUMBUNG_ADMIN, ATAU link Dashboard Owner Lumbung toko Willo (var RS_TOKO).
+    const sandi = (request.headers.get("x-admin") || "").trim(), owner = /t=([a-z0-9]{16,40})&k=([a-z0-9]{24,80})/.exec(request.headers.get("x-owner") || "");
+    let boleh = !!(env.LUMBUNG_ADMIN && String(env.LUMBUNG_ADMIN).length >= 12 && sandi && sandi === String(env.LUMBUNG_ADMIN).trim());
+    if (!boleh && owner && env.RS_TOKO && owner[1] === String(env.RS_TOKO)) {
+      const c = await env.TOKO.get(env.TOKO.idFromName(owner[1])).fetch("https://toko/cek-kunci", { headers: { "x-kunci": owner[2] } });
+      if (c.ok) { boleh = true; hdr.set("x-rs-toko", owner[1]); }
+    }
+    if (!boleh) return json({ galat: owner ? "Link owner tidak cocok dengan toko kasir Willo." : "Kata sandi admin salah." }, 403);
   }
   const stub = env.TOKO.get(env.TOKO.idFromName("program-reseller"));
-  const r = await stub.fetch(new Request("https://toko/rs/" + jalur + url.search, { method: request.method, headers: request.headers, body: request.method === "POST" ? await request.text() : undefined }));
+  const r = await stub.fetch(new Request("https://toko/rs/" + jalur + url.search, { method: request.method, headers: hdr, body: request.method === "POST" ? await request.text() : undefined }));
   const teks = await r.text();
   if (jalur === "daftar" && r.ok && env.TG_VIDEO && env.TG_CHAT_ID) {
     // Kabari admin di Telegram ada pendaftar baru (tanpa kunci dashboard).
