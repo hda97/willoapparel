@@ -2926,6 +2926,8 @@ export class Toko extends DurableObject {
     this.sql.exec("CREATE INDEX IF NOT EXISTS jual_w ON jual(w)");
     this.sql.exec("CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT)");
     this.sql.exec("CREATE TABLE IF NOT EXISTS cadangan (w INTEGER PRIMARY KEY, d TEXT)");
+    // Pengeluaran Buku Kas (uang keluar saja) untuk Laba bersih di dashboard owner (Huda 19 Nov 2026). Dikirim utuh, menggantikan isi lama.
+    this.sql.exec("CREATE TABLE IF NOT EXISTS kas (id TEXT PRIMARY KEY, tgl TEXT, jml INTEGER, kat TEXT)");
     // Hanya dipakai instans "pusat-lisensi": daftar kode aktivasi Lumbung Pro.
     this.sql.exec("CREATE TABLE IF NOT EXISTS kode (kode TEXT PRIMARY KEY, hari INTEGER, dibuat INTEGER, catatan TEXT, toko TEXT, dipakai INTEGER)");
   }
@@ -3045,8 +3047,18 @@ export class Toko extends DurableObject {
         this.sql.exec("INSERT OR REPLACE INTO jual (id, w, d) VALUES (?, ?, ?)", id, Math.round(w), d); n++;
       }
       this.sql.exec("DELETE FROM jual WHERE w < ?", Date.now() - 400 * 864e5);
+      let nk = null;
+      if (Array.isArray(b.kas)) {
+        this.sql.exec("DELETE FROM kas"); nk = 0;
+        for (const t of b.kas.slice(0, 8000)) {
+          const id = String(t && t.id || "").slice(0, 40), tgl = String(t && t.tgl || ""), jml = Math.round(Number(t && t.jml) || 0);
+          if (!id || !/^\d{4}-\d{2}-\d{2}$/.test(tgl) || jml <= 0) continue;
+          this.sql.exec("INSERT OR REPLACE INTO kas (id, tgl, jml, kat) VALUES (?, ?, ?, ?)", id, tgl, jml, String(t.kat || "").slice(0, 30)); nk++;
+        }
+      }
+      if (b.modalDari !== undefined && ["", "hpp", "bahan"].includes(b.modalDari)) this.aturMeta("modalDari", b.modalDari);
       this.aturMeta("sinkron", Date.now());
-      return Response.json({ ok: true, n, lisensi: this.lisensi() });
+      return Response.json({ ok: true, n, kas: nk, lisensi: this.lisensi() });
     }
     if (ada && ada !== h) return Response.json({ galat: "kunci" }, { status: 403 });
     if (!ada) { this.aturMeta("kunci", h); this.aturMeta("dibuat", Date.now()); } // toko baru menyalakan dashboard: masa coba mulai
@@ -3054,7 +3066,10 @@ export class Toko extends DurableObject {
     if (!L.aktif) return Response.json({ galat: "pro", nama: this.meta("nama") || "", lisensi: L }, { status: 402 });
     const dari = Number(u.searchParams.get("dari")) || Date.now() - 864e5, sampai = Number(u.searchParams.get("sampai")) || Date.now() + 864e5;
     const jual = this.sql.exec("SELECT d FROM jual WHERE w >= ? AND w < ? ORDER BY w LIMIT 20000", dari, sampai).toArray().map((r) => JSON.parse(r.d));
-    return Response.json({ nama: this.meta("nama") || "", sinkron: Number(this.meta("sinkron")) || 0, jual, lisensi: L });
+    // Tanggal Buku Kas (YYYY-MM-DD, waktu HP) diberi kelonggaran ±1 hari; dashboard menyaring sesuai zona waktunya.
+    const tg = (ms) => new Date(ms).toISOString().slice(0, 10);
+    const kas = this.sql.exec("SELECT tgl, jml, kat FROM kas WHERE tgl >= ? AND tgl <= ? ORDER BY tgl LIMIT 20000", tg(dari - 864e5), tg(sampai + 864e5)).toArray();
+    return Response.json({ nama: this.meta("nama") || "", sinkron: Number(this.meta("sinkron")) || 0, jual, kas, modalDari: this.meta("modalDari") || "", lisensi: L });
   }
 }
 // ===== AI gratis bersama (Huda 15 Nov 2026: "Pasang", "Gunakan di semua proyek") =====

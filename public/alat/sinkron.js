@@ -7,6 +7,17 @@
   function baca(){ try { return JSON.parse(localStorage.getItem(K)) || {}; } catch(e){ return {}; } }
   function tulis(o){ try { localStorage.setItem(K, JSON.stringify(o)); } catch(e){} }
   function bacaJual(){ try { return JSON.parse(localStorage.getItem(J)) || []; } catch(e){ return []; } }
+  // Pengeluaran Buku Kas untuk Laba bersih di dashboard (Huda 19 Nov 2026). Hanya uang keluar: tanggal, jumlah, kategori.
+  function kasKeluar(){
+    try {
+      var k = JSON.parse(localStorage.getItem("willo_kas_v1")) || {}, d = new Date(Date.now() - 400 * 864e5);
+      var batas = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      return (k.tx || []).filter(function(t){ return t.t === "keluar" && t.sumber !== "kasir" && t.tgl >= batas; })
+        .map(function(t){ return { id:String(t.id), tgl:t.tgl, jml:Math.round(t.jml || 0), kat:String(t.kat || "").slice(0, 30) }; });
+    } catch(e){ return []; }
+  }
+  function modalDari(){ try { return (JSON.parse(localStorage.getItem("willo_kasir_v1")) || {}).modalDari || ""; } catch(e){ return ""; } }
+  function sidik(t){ var h = 0; for (var i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) | 0; return h + ":" + t.length; }
   function kunciJ(j){ return String(j.no) + "-" + j.w; }
   function aktif(){ var s = baca(); return !!(s.id && s.kunci && s.aktif); }
   function acak(n){ var a = "abcdefghijklmnopqrstuvwxyz0123456789", b = new Uint8Array(n), o = ""; crypto.getRandomValues(b); for (var i = 0; i < n; i++) o += a[b[i] % 36]; return o; }
@@ -14,15 +25,16 @@
   var jalan = false;
   function kirim(){
     if (!aktif() || jalan || navigator.onLine === false) return Promise.resolve();
-    var s = baca(); if (!(s.antre || []).length) return Promise.resolve();
+    var s = baca(), kas = kasKeluar(), md = modalDari(), kh = sidik(JSON.stringify(kas) + "|" + md), kasBeda = kh !== s.kasH;
+    if (!(s.antre || []).length && !kasBeda) return Promise.resolve();
     var peta = {}; bacaJual().forEach(function(j){ peta[kunciJ(j)] = j; });
     var batch = s.antre.slice(0, 300), isi = batch.map(function(k){ return peta[k]; }).filter(Boolean).map(function(j){ return { id: kunciJ(j), w: j.w, d: j }; });
     var nama = ""; try { nama = (JSON.parse(localStorage.getItem("willo_kasir_v1")) || {}).nama || ""; } catch(e){}
     jalan = true;
-    return fetch(API + s.id, { method: "POST", headers: { "content-type": "application/json", "x-kunci": s.kunci }, body: JSON.stringify({ nama: nama, jual: isi }) })
+    return fetch(API + s.id, { method: "POST", headers: { "content-type": "application/json", "x-kunci": s.kunci }, body: JSON.stringify(Object.assign({ nama: nama, jual: isi }, kasBeda ? { kas: kas, modalDari: md } : {})) })
       .then(function(r){ if (!r.ok) throw new Error("server " + r.status); return r.json(); })
       .then(function(d){
-        var s2 = baca(); if (d && d.lisensi) s2.lisensi = d.lisensi; s2.antre = (s2.antre || []).filter(function(k){ return batch.indexOf(k) < 0; }); s2.terakhir = Date.now(); s2.galat = ""; tulis(s2); jalan = false; kabari();
+        var s2 = baca(); if (d && d.lisensi) s2.lisensi = d.lisensi; s2.antre = (s2.antre || []).filter(function(k){ return batch.indexOf(k) < 0; }); if (kasBeda && d && d.kas != null) s2.kasH = kh; s2.terakhir = Date.now(); s2.galat = ""; tulis(s2); jalan = false; kabari();
         if (s2.antre.length) return kirim();
       })
       .catch(function(e){ jalan = false; var s2 = baca(); s2.galat = String(e && e.message || e); tulis(s2); kabari(); });
@@ -33,7 +45,7 @@
   }
   function nyalakan(){
     var s = baca(); if (!s.id) { s.id = acak(20); s.kunci = acak(32); }
-    var batas = Date.now() - 120 * 864e5; s.aktif = true;
+    var batas = Date.now() - 120 * 864e5; s.aktif = true; delete s.kasH;
     s.antre = bacaJual().filter(function(j){ return j.w >= batas; }).map(kunciJ); tulis(s); kabari();
     return kirim().then(function(){ return cekLisensi(); });
   }

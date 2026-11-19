@@ -31,6 +31,10 @@ main{padding-bottom:40px}
 .angka4 div{background:#fff;border:1px solid var(--garis);border-radius:14px;padding:12px 14px}
 .angka4 div.utama{grid-column:1 / -1;background:var(--teks);color:#fff;border-color:var(--teks)}
 .angka4 small{display:block;font-size:12.5px;color:var(--redup)}
+.angka4 div.laba{grid-column:1 / -1}
+.angka4 .laba table{width:100%;border-collapse:collapse;margin-top:6px;font-size:13.5px}
+.angka4 .laba td{padding:4px 0;border-top:1px solid var(--garis)}
+.angka4 .laba td:last-child{text-align:right;font-variant-numeric:tabular-nums}
 .angka4 .utama small{color:#c9c9cf}
 .angka4 b{font-size:21px}
 .angka4 .utama b{font-size:clamp(30px,9vw,40px)}
@@ -74,6 +78,7 @@ main{padding-bottom:40px}
       <div><small>Barang terjual</small><b class="angka" id="aPcs">0</b></div>
       <div><small>Rata-rata / transaksi</small><b class="angka" id="aRata">Rp0</b></div>
       <div><small>Diskon & promo</small><b class="angka" id="aDiskon">Rp0</b></div>
+      <div class="laba"><small>Laba bersih</small><b class="angka" id="aLaba">Rp0</b><table id="labaRinci"></table><p class="kecil redup" id="labaKet" style="margin:6px 0 0"></p></div>
     </div>
     <div class="dua-kolom">
       <section class="kartu"><h2>🏆 Terlaris</h2><div id="laris"></div></section>
@@ -137,6 +142,7 @@ main{padding-bottom:40px}
     });
     $("aOmzet").textContent = rp(omzet); $("aTx").textContent = sah.length.toLocaleString("id-ID"); $("aPcs").textContent = pcs.toLocaleString("id-ID");
     $("aRata").textContent = rp(sah.length ? omzet / sah.length : 0); $("aDiskon").textContent = rp(ds);
+    gambarLaba(data, sah, omzet, r);
     var bnd = banding.filter(function(j){ return !j.batal && j.w >= r[2] && j.w < r[3]; }).reduce(function(a, j){ return a + (j.tot || 0); }, 0);
     var eb = $("aBanding"); eb.textContent = ""; eb.className = "";
     if (bnd > 0) { var pr = Math.round((omzet - bnd) / bnd * 100); eb.textContent = (pr >= 0 ? "▲ " : "▼ ") + Math.abs(pr) + "% dari periode sebelumnya"; eb.className = pr >= 0 ? "naik" : "turun"; }
@@ -162,6 +168,26 @@ main{padding-bottom:40px}
       li.querySelector(".lencana").textContent = NAMA_BAYAR[j.m] || j.m || "Tunai"; li.querySelector("b").textContent = rp(j.tot);
       ul.appendChild(li);
     });
+  }
+  // Laba bersih = omzet − modal (HPP barang terjual, atau Belanja bahan di Buku Kas) − pengeluaran operasional Buku Kas.
+  // Pilihan modal mengikuti Laporan di kasir (dikirim bersama data). Ambil pribadi bukan biaya usaha.
+  function gambarLaba(data, sah, omzet, r){
+    var tg = function(w){ var d = new Date(w); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+    var t0 = tg(r[0]), t1 = tg(r[1] - 1), hpp = 0, adaHpp = 0, tanpa = 0, bahan = 0, ops = 0, opsKat = {};
+    sah.forEach(function(j){ (j.isi || []).forEach(function(x){ if (x.m) { hpp += (x.q || 0) * x.m; adaHpp += x.q || 0; } else tanpa += x.q || 0; }); });
+    (data.kas || []).forEach(function(t){
+      if (t.tgl < t0 || t.tgl > t1) return;
+      if (t.kat === "Belanja bahan") bahan += t.jml; else if (t.kat !== "Ambil pribadi") { ops += t.jml; opsKat[t.kat || "Lainnya"] = (opsKat[t.kat || "Lainnya"] || 0) + t.jml; }
+    });
+    var md = data.modalDari || (adaHpp ? "hpp" : "bahan"), modal = md === "bahan" ? bahan : hpp, laba = omzet - modal - ops;
+    var b = $("aLaba"); b.textContent = (laba < 0 ? "−" : "") + rp(Math.abs(laba)); b.style.color = laba < 0 ? "var(--merah)" : "var(--hijau)";
+    var tb = $("labaRinci"); tb.innerHTML = "";
+    var baris = function(a, n, min){ var tr = document.createElement("tr"); tr.innerHTML = "<td></td><td></td>"; tr.children[0].textContent = a; tr.children[1].textContent = (min ? "−" : "") + rp(n); tb.appendChild(tr); };
+    baris("Omzet", omzet); baris(md === "bahan" ? "Belanja bahan" : "Modal barang (HPP)", modal, true);
+    Object.keys(opsKat).sort(function(a, c){ return opsKat[c] - opsKat[a]; }).forEach(function(k){ baris(k, opsKat[k], true); });
+    if (!ops) baris("Pengeluaran lain", 0, true);
+    $("labaKet").textContent = data.kas == null ? "Pengeluaran Buku Kas belum terkirim. Buka aplikasi kasir dengan internet menyala." :
+      (md === "bahan" ? "Modal dihitung dari Belanja bahan di Buku Kas. Lebih tepat dilihat per bulan." : "Modal dihitung dari HPP barang." + (tanpa ? " " + tanpa + " pcs belum ada HPP-nya." : "")) + " Ubah pilihan di Laporan kasir.";
   }
   var sedang = false;
   function muat(){

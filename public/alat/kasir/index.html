@@ -621,7 +621,7 @@ dialog.tagihan-layar{max-width:none;width:100vw;height:100vh;height:100dvh;max-h
     if (tipis.length) { h += '<h3 style="margin:0 0 4px;font-size:15px">⚠️ Stok menipis</h3><table class="lap-tabel">'; tipis.sort(function(a,b){ return a.stok - b.stok; }).forEach(function(p){ h += '<tr><td>' + esc(p.nama) + '</td><td class="angka" style="color:var(--merah)">' + p.stok + '</td></tr>'; }); h += '</table>'; }
     h += '<h3 style="margin:0 0 4px;font-size:15px">🧾 Riwayat transaksi</h3><p class="kecil redup" style="margin:0 0 4px">Salah input atau barang dikembalikan? Ketuk Batalkan.</p>';
     el.innerHTML = h;
-    Array.prototype.forEach.call(el.querySelectorAll("[data-md]"), function(b){ b.onclick = function(){ S.modalDari = b.dataset.md; simpan(); gambarLap(); }; });
+    Array.prototype.forEach.call(el.querySelectorAll("[data-md]"), function(b){ b.onclick = function(){ S.modalDari = b.dataset.md; simpan(); gambarLap(); if (window.LumbungSinkron) LumbungSinkron.kirim(); }; });
     el.appendChild(gambarRiwayat(o));
   }
   // Stok: hanya barang yang punya angka stok. arah -1 = terjual, +1 = dibatalkan.
