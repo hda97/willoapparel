@@ -55,10 +55,10 @@ if (WILLO_PIXEL_ID) {
   });
 })();
 
-// Kode siswa reseller/afiliasi (Program Reseller Siswa SMK).
+// Kode siswa reseller/afiliasi (Reseller Siswa SMK + reseller umum /reseller/).
 // Link siswa: willoapparel.com/pesan/?kode=N1-XITKJ1-07 (bisa juga di halaman lain).
 // Kode disimpan 90 hari di perangkat pembeli; kode pertama yang tersimpan yang dipakai.
-// Setiap klik tombol WhatsApp otomatis membawa "(kode siswa: ...)" di pesannya.
+// Setiap klik tombol WhatsApp otomatis membawa "(kode reseller: ...)" di pesannya.
 function willoKodeSiswa() {
   var KEY = 'willo_kode_siswa', HARI90 = 90 * 24 * 3600 * 1000;
   var baru = (new URLSearchParams(location.search).get('kode') || '').trim().toUpperCase();
@@ -77,7 +77,7 @@ document.addEventListener('click', function (e) {
   try {
     var u = new URL(a.href);
     var text = u.searchParams.get('text') || 'Halo Willo Apparel';
-    if (text.toLowerCase().indexOf('kode siswa') === -1) u.searchParams.set('text', text + ' (kode siswa: ' + kode + ')');
+    if (text.toLowerCase().indexOf('kode reseller') === -1) u.searchParams.set('text', text + ' (kode reseller: ' + kode + ')');
     a.href = u.toString();
   } catch (err) {}
 }, true);

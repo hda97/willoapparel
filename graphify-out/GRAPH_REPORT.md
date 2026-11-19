@@ -1,7 +1,7 @@
 # Graph Report - willoapparel  (2026-11-19)
 
 ## Corpus Check
-- 1295 files · ~9,512,871 words
+- 1295 files · ~9,514,128 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 138 file(s) not represented in the graph (top: (none) 63, .xml 22, .css 10)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `360f82de`
+- Built from commit: `db3a664a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -2635,7 +2635,7 @@ Nodes (3): gambarPeta(), pX(), pZ()
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Td()` connect `gsap.min.js` to `0.169.0/three.module.min.js`, `_three/three.module.min.js`?**
-  _High betweenness centrality (0.111) - this node is a cross-community bridge._
+  _High betweenness centrality (0.114) - this node is a cross-community bridge._
 - **Are the 35 inferred relationships involving `_` (e.g. with `_e()` and `ao()`) actually correct?**
   _`_` has 35 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `RFC-3987`, `RFC-1951`, `FlateErrorCode` to the rest of the system?**
@@ -2643,7 +2643,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `duniakotak/js/desa.js` be split into smaller, more focused modules?**
   _Cohesion score 0.07966457023060797 - nodes in this community are weakly interconnected._
 - **Why does `t()` connect `gsap.min.js` to `three.core.js`?**
-  _High betweenness centrality (0.068) - this node is a cross-community bridge._
+  _High betweenness centrality (0.062) - this node is a cross-community bridge._
 - **Are the 79 inferred relationships involving `C()` (e.g. with `Co()` and `Be()`) actually correct?**
   _`C()` has 79 INFERRED edges - model-reasoned connections that need verification._
 - **Should `mabar/game.js` be split into smaller, more focused modules?**
