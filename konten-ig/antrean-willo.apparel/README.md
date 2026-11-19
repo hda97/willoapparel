@@ -4,3 +4,4 @@ Media disimpan di willo-ig/ dan dirujuk lewat URL raw.githubusercontent.com.
 Token Halaman disimpan terenkripsi di konten-ig/token-willo.apparel.enc (dibuat otomatis saat run pertama dari secret IG_TOKEN).
 Cron GitHub bisa terlewat; kalau antrean belum terbit, ubah file di folder ini (push) untuk memicu run, yang tetap menerbitkan antrean yang sudah lewat jam.
 Jika token Halaman ditolak (kode 190), posting.py menurunkan ulang token dari token*.enc akun lain (PR #445).
+Picu ulang 19 Nov 22.46 WIB setelah IG_TOKEN baru.
