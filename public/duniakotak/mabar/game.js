@@ -1580,7 +1580,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {musim: 'dk_kabar_musim1', tandajuara: 'dk_kabar_tandajuara1', hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', mancingkotak: 'dk_kabar_mancingkotak1', sawah: 'dk_kabar_sawah1', sawah2: 'dk_kabar_sawah2', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2', musik: 'dk_kabar_musik1', rawat: 'dk_kabar_rawat2', minigame: 'dk_kabar_minigame1'};
+const KABAR_LAMA = {musim: 'dk_kabar_musim1', tandajuara: 'dk_kabar_tandajuara1', hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', mancingkotak: 'dk_kabar_mancingkotak1', sawah: 'dk_kabar_sawah1', sawah2: 'dk_kabar_sawah2', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2', musik: 'dk_kabar_musik1', rawat: 'dk_kabar_rawat2', minigame: 'dk_kabar_minigame1', aktchat: 'dk_kabar_aktchat1'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   if (window.DK_APP) simpan(KABAR_LAMA.notif, '1');   // aplikasi Android belum bisa notifikasi web
@@ -3171,12 +3171,12 @@ function tempel(obj, tinggi, teks, cls, dy = 0) {
 // =====================================================================
 const EMO = {sapa: '👋', hati: '❤️', tawa: '😂', main: '🏠'};
 function tambahChat(ch, nama, m, kls) {
-  const arr = S.chat[ch]; arr.push({nama, m, kls}); if (arr.length > 60) arr.shift();
+  const arr = S.chat[ch]; arr.push({nama, m, kls}); if (arr.length > 80) arr.shift();
   if (S.ch === ch) tulisChat();
 }
 function tulisChat() {
   const el = $('isiChat');
-  el.innerHTML = S.chat[S.ch].map(x => x.kls === 'sistem' ? `<div class="sistem">${esc(x.m)}</div>` : `<div><b class="${x.kls || ''}">${esc(x.nama)}:</b> ${esc(x.m)}</div>`).join('') || '<div class="sistem">Belum ada pesan. Sapa warga lain!</div>';
+  el.innerHTML = S.chat[S.ch].map(x => x.kls === 'sistem' ? `<div class="sistem">${esc(x.m)}</div>` : x.kls === 'akt' ? `<div class="akt"><b>${esc(x.nama)}</b> ${esc(x.m)}</div>` : `<div><b class="${x.kls || ''}">${esc(x.nama)}:</b> ${esc(x.m)}</div>`).join('') || '<div class="sistem">Belum ada pesan. Sapa warga lain!</div>';
   el.scrollTop = el.scrollHeight;
 }
 function gelembung(no, m, emo) { const t = no === 'raka' ? tokoh.raka : no === S.saya?.no ? tokoh.saya : S.others.get(no)?.obj; if (!t || !t.visible) return; t.userData.gel = {m, emo, sampai: performance.now() + (emo ? 2500 : 6000)}; }
@@ -3214,7 +3214,11 @@ function tambahWarga(w) {
 function namaDesa(c) { return '@' + c.ig + (c.d && c.d !== DI && NAMA_DUSUN[c.d] ? ' (' + NAMA_DUSUN[c.d].replace('Kotak ', '') + ')' : ''); }
 function terima(q) {
   if (q.t === 'bola') { bolaTerima(q); return; }
-  if (q.t === 'halo') { q.warga.forEach(tambahWarga); S.chat.dusun = []; q.chat.forEach(c => tambahChat('dusun', namaDesa(c), c.m)); hitungOnline(); }
+  if (q.t === 'halo') { q.warga.forEach(tambahWarga); S.chat.dusun = [];
+    // Catatan aktivitas warga (Huda 20 Nov 2026) diselipkan di Chat Desa sesuai urutan waktu.
+    const isi = q.chat.map(c => ({...c})).concat((q.akt || []).map(c => ({...c, akt: 1}))).sort((a, b) => (a.t || 0) - (b.t || 0));
+    isi.forEach(c => c.akt ? (S.bisu.has(c.no) || tambahChat('dusun', '@' + c.ig, c.m, 'akt')) : tambahChat('dusun', namaDesa(c), c.m)); hitungOnline(); }
+  else if (q.t === 'a') { if (!S.bisu.has(q.no)) tambahChat('dusun', '@' + q.ig, q.m, 'akt'); }
   else if (q.t === 'masuk') { tambahWarga(q.w); hitungOnline(); tambahChat('sekitar', '', '@' + q.w.ig + ' masuk ke desa', 'sistem'); bunyi('masuk'); }
   else if (q.t === 'keluar') { const o = S.others.get(q.no); if (o) { sc.remove(o.obj); S.others.delete(q.no); } hitungOnline(); }
   else if (q.t === 'p') { for (const [no, x, z, r, a, n, b] of q.d) { const o = S.others.get(no); if (o) { o.tx = x; o.tz = z; o.tr = r; o.a = a; o.akhir = performance.now();
