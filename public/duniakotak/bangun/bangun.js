@@ -89,6 +89,20 @@ function tumbuhSampai(k) {
   const target = k >= TK_BAHAN ? N : awal + Math.round((N - awal) * k / TK_BAHAN);
   while (BANG.tampak < target) munculBagian();
 }
+// tinggi lantai fasum di (x, z): tukang, tumpukan bahan & titik setor berdiri DI ATAS lantai bangunan (mis. apron Bandara),
+// bukan tenggelam ke dalamnya (Huda 21 Nov "Tukang tenggelam"). Hanya permukaan rendah (< 3,2) yang diinjak; dinding/pesawat tidak dipanjat.
+const RAY = new THREE.Raycaster(), BAWAH = new THREE.Vector3(0, -1, 0), ASAL = new THREE.Vector3(), TL = new Map(); let TL_KEY = '';
+function lantai(x, z) {
+  if (!BANG || !BANG.tampak) return 0;
+  const key = BANG.tampak + ':' + BANG.pop.length; if (key !== TL_KEY || BANG.pop.length) { TL.clear(); TL_KEY = key; BANG.vis = BANG.bagian.filter(b => b.m.visible).map(b => b.m); }
+  const gx = Math.round(x * 2) / 2, gz = Math.round(z * 2) / 2, k = gx + ',' + gz; let h = TL.get(k);
+  if (h === undefined) { RAY.set(ASAL.set(gx, 3.2, gz), BAWAH); RAY.far = 3.4; const hit = RAY.intersectObjects(BANG.vis, true)[0]; h = hit ? Math.max(0, hit.point.y) : 0; TL.set(k, h); }
+  return h;
+}
+function pasangLantai() {   // tumpukan bahan & lingkaran setor ikut naik ke permukaan lantai
+  for (const b of BAHAN) { const y = lantai(b.x, b.z); b.g.position.y = y; b.papan[0].position.y = 6.2 + y; b.papan[1].position.y = b.papan[2].position.y = 2.5 + y; }
+  const y = lantai(SETOR.x, SETOR.z); cincin.position.y = .12 + y; cakram.position.y = .1 + y;
+}
 const DEBU = [];
 function debu(p) { for (let i = 0; i < 5; i++) { const m = kotak(1.2, 1.2, 1.2, 0xe8dcc0, p.x + (Math.random() - .5) * 4, Math.max(1, p.y), p.z + (Math.random() - .5) * 4, {transparent: true, opacity: .8}); m.castShadow = false; sc.add(m); DEBU.push({m, t: 0, v: new THREE.Vector3((Math.random() - .5) * 6, 4 + Math.random() * 3, (Math.random() - .5) * 6)}); } }
 
@@ -135,7 +149,7 @@ const tandaNama = (() => { const c = document.createElement('canvas'); c.width =
   g.fillStyle = '#fff'; g.font = '900 40px Montserrat, system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('KAMU', 128, 41);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
   const s = new THREE.Sprite(new THREE.SpriteMaterial({map: t, depthTest: false})); s.scale.set(3.6, 1.35, 1); s.renderOrder = 9; sc.add(s); return s; })();
-function pasangTanda() { tandaKaki.position.set(SAYA.x, .14, SAYA.z); tandaNama.position.set(SAYA.x, 6, SAYA.z); }
+function pasangTanda() { const y = lantai(SAYA.x, SAYA.z); tandaKaki.position.set(SAYA.x, .14 + y, SAYA.z); tandaNama.position.set(SAYA.x, 6 + y, SAYA.z); }
 function gantiAvatar(av) { sc.remove(SAYA.o); SAYA.o = siapAvatar(av); sc.add(SAYA.o); }   // avatar asli warga dari server + helm & rompi tukang
 // tumpukan bahan di punggung (ikut avatar)
 const punggung = new THREE.Group(); sc.add(punggung);
@@ -215,15 +229,16 @@ function loop(t) {
   const dt = Math.min(.05, (t - tLalu) / 1000); tLalu = t;
   if (MAIN) langkah(dt, t);
   else { const a = Math.sin(t / 14000) * .5, sempit = innerWidth < 700; KAM.tPos.set(Math.sin(a) * 140 - (sempit ? 0 : 30), 66, Math.cos(a) * 140 + 30); KAM.tLihat.set(sempit ? 0 : -24, 4, 16);
-    SAYA.o.position.set(SAYA.x, 0, SAYA.z); SAYA.o.rotation.y = SAYA.arah; pasangTanda(); pose(SAYA.o, {armR: Math.sin(t / 300) * .3, armL: -Math.sin(t / 300) * .2}); }
+    SAYA.o.position.set(SAYA.x, lantai(SAYA.x, SAYA.z), SAYA.z); SAYA.o.rotation.y = SAYA.arah; pasangTanda(); pose(SAYA.o, {armR: Math.sin(t / 300) * .3, armL: -Math.sin(t / 300) * .2}); }
+  pasangLantai();
   // NPC gotong royong
   for (const n of NPC) {
     n.t += dt / 7; const f = n.t % 1, pergi = f < .5, s = pergi ? f * 2 : (f - .5) * 2, k = s * s * (3 - 2 * s);
     const ax = n.b.x + 4, az = n.b.z - 3, bx = SETOR.x + (n.b.x > 0 ? 3 : n.b.x < 0 ? -3 : 0), bz = SETOR.z + 2;
     const x = pergi ? ax + (bx - ax) * k : bx + (ax - bx) * k, z = pergi ? az + (bz - az) * k : bz + (az - bz) * k;
-    n.o.position.set(x, 0, z); n.o.rotation.y = Math.atan2(pergi ? bx - ax : ax - bx, pergi ? bz - az : az - bz);
+    const ny = lantai(x, z); n.o.position.set(x, ny, z); n.o.rotation.y = Math.atan2(pergi ? bx - ax : ax - bx, pergi ? bz - az : az - bz);
     const ph = t / 110; pose(n.o, {legL: Math.sin(ph) * .6, legR: -Math.sin(ph) * .6, armL: pergi ? -2.6 : -Math.sin(ph) * .5, armR: pergi ? -2.6 : Math.sin(ph) * .5});
-    n.beban.visible = pergi; n.beban.position.set(x, 5.6, z); n.beban.rotation.y = n.o.rotation.y;
+    n.beban.visible = pergi; n.beban.position.set(x, 5.6 + ny, z); n.beban.rotation.y = n.o.rotation.y;
   }
   // bahan terbang ke bangunan
   TERBANG = TERBANG.filter(f => {
@@ -251,10 +266,10 @@ function langkah(dt, t) {
     if (Math.abs(dx) < hx && Math.abs(dz) < hz) { if (hx - Math.abs(dx) < hz - Math.abs(dz)) SAYA.x = b.x + Math.sign(dx || 1) * hx; else SAYA.z = b.z + Math.sign(dz || 1) * hz; }
     for (const m of b.papan) m.visible = m.position.z < SAYA.z + 1; }   // papan di antara kamera & avatar disembunyikan
   SAYA.ph += dt * (lari ? 11 : 0);
-  const o = SAYA.o; o.position.set(SAYA.x, 0, SAYA.z); o.rotation.y = SAYA.arah;
+  const y0 = lantai(SAYA.x, SAYA.z), o = SAYA.o; o.position.set(SAYA.x, y0, SAYA.z); o.rotation.y = SAYA.arah;
   const bawa = SAYA.bawa.length > 0;
   pose(o, {legL: lari ? Math.sin(SAYA.ph) * .7 : 0, legR: lari ? -Math.sin(SAYA.ph) * .7 : 0, armL: bawa ? -2.7 : lari ? -Math.sin(SAYA.ph) * .6 : 0, armR: bawa ? -2.7 : lari ? Math.sin(SAYA.ph) * .6 : 0});
-  punggung.position.set(SAYA.x, 0, SAYA.z); punggung.rotation.y = SAYA.arah;
+  punggung.position.set(SAYA.x, y0, SAYA.z); punggung.rotation.y = SAYA.arah;
   // ambil bahan di dekat tumpukan
   const dekat = BAHAN.find(b => Math.hypot(SAYA.x - b.x, SAYA.z - (b.z - 3)) < 8);
   SAYA.ambilT -= dt;
@@ -264,7 +279,7 @@ function langkah(dt, t) {
   SAYA.setorT -= dt;
   if (Math.hypot(SAYA.x - SETOR.x, SAYA.z - SETOR.z) < 5.6 && SAYA.bawa.length && SAYA.setorT <= 0 && KERJA.sesiBahan < TK_BAHAN) {
     SAYA.setorT = .13; const id = SAYA.bawa.pop(); susunPunggung();
-    const m = kotak(1.6, .7, 1.1, BAHAN.find(x => x.id === id).w); const a = new THREE.Vector3(SAYA.x, 2.6 + SAYA.bawa.length * .74, SAYA.z);
+    const m = kotak(1.6, .7, 1.1, BAHAN.find(x => x.id === id).w); const a = new THREE.Vector3(SAYA.x, y0 + 2.6 + SAYA.bawa.length * .74, SAYA.z);
     const target = BANG && BANG.bagian[Math.min(BANG.bagian.length - 1, BANG.tampak)]; const b = target ? target.c.clone() : new THREE.Vector3(0, 4, 20);
     m.position.copy(a); sc.add(m); TERBANG.push({m, a, b, t: 0});
     KERJA.setor++; KERJA.sesiBahan++;
@@ -273,8 +288,8 @@ function langkah(dt, t) {
   // panah: ke tumpukan terdekat bila kosong, ke lingkaran setor bila membawa bahan
   const tuju = SAYA.bawa.length >= MUAT || (SAYA.bawa.length && !dekat) ? SETOR : BAHAN.reduce((p, b) => Math.hypot(b.x - SAYA.x, b.z - SAYA.z) < Math.hypot(p.x - SAYA.x, p.z - SAYA.z) ? b : p);
   const tz = tuju.z - (tuju === SETOR ? 0 : 3), jx = tuju.x - SAYA.x, jz = tz - SAYA.z, jd = Math.hypot(jx, jz);
-  panah.visible = tz < SAYA.z + 2; panah.position.set(tuju.x, 8 + Math.sin(t / 180) * 1, tz);   // panah atas hanya bila tujuan di depan (tidak menutupi kamera)
-  panahKaki.visible = jd > 6; if (jd > 6) { panahKaki.position.set(SAYA.x + jx / jd * 3.4, .5, SAYA.z + jz / jd * 3.4); panahKaki.rotation.y = Math.atan2(jx, jz); }
+  panah.visible = tz < SAYA.z + 2; panah.position.set(tuju.x, 8 + lantai(tuju.x, tz) + Math.sin(t / 180) * 1, tz);   // panah atas hanya bila tujuan di depan (tidak menutupi kamera)
+  panahKaki.visible = jd > 6; if (jd > 6) { panahKaki.position.set(SAYA.x + jx / jd * 3.4, .5 + lantai(SAYA.x + jx / jd * 3.4, SAYA.z + jz / jd * 3.4), SAYA.z + jz / jd * 3.4); panahKaki.rotation.y = Math.atan2(jx, jz); }
   petunjuk();
   // kamera di belakang avatar, menghadap bangunan
   KAM.tPos.set(SAYA.x, 11.5, SAYA.z + 16); KAM.tLihat.set(SAYA.x, 2.5, SAYA.z - 8); pasangTanda();   // kamera orang ketiga di belakang avatar
