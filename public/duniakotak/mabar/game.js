@@ -3212,13 +3212,16 @@ function tambahWarga(w) {
 }
 // Chat Desa tersambung semua dusun: pesan dari dusun lain diberi label asal dusunnya.
 function namaDesa(c) { return '@' + c.ig + (c.d && c.d !== DI && NAMA_DUSUN[c.d] ? ' (' + NAMA_DUSUN[c.d].replace('Kotak ', '') + ')' : ''); }
+function tambahAkt(c) { tambahChat('dusun', '@' + c.ig, c.m, 'akt'); tambahChat('sekitar', '@' + c.ig, c.m, 'akt'); }
 function terima(q) {
   if (q.t === 'bola') { bolaTerima(q); return; }
   if (q.t === 'halo') { q.warga.forEach(tambahWarga); S.chat.dusun = [];
     // Catatan aktivitas warga (Huda 20 Nov 2026) diselipkan di Chat Desa sesuai urutan waktu.
     const isi = q.chat.map(c => ({...c})).concat((q.akt || []).map(c => ({...c, akt: 1}))).sort((a, b) => (a.t || 0) - (b.t || 0));
-    isi.forEach(c => c.akt ? (S.bisu.has(c.no) || tambahChat('dusun', '@' + c.ig, c.m, 'akt')) : tambahChat('dusun', namaDesa(c), c.m)); hitungOnline(); }
-  else if (q.t === 'a') { if (!S.bisu.has(q.no)) tambahChat('dusun', '@' + q.ig, q.m, 'akt'); }
+    // Aktivitas juga tampil di tab Sekitar (tab yang terbuka saat masuk), supaya langsung terlihat.
+    S.chat.sekitar = S.chat.sekitar.filter(x => x.kls !== 'akt');
+    isi.forEach(c => c.akt ? (S.bisu.has(c.no) || tambahAkt(c)) : tambahChat('dusun', namaDesa(c), c.m)); hitungOnline(); }
+  else if (q.t === 'a') { if (!S.bisu.has(q.no)) tambahAkt(q); }
   else if (q.t === 'masuk') { tambahWarga(q.w); hitungOnline(); tambahChat('sekitar', '', '@' + q.w.ig + ' masuk ke desa', 'sistem'); bunyi('masuk'); }
   else if (q.t === 'keluar') { const o = S.others.get(q.no); if (o) { sc.remove(o.obj); S.others.delete(q.no); } hitungOnline(); }
   else if (q.t === 'p') { for (const [no, x, z, r, a, n, b] of q.d) { const o = S.others.get(no); if (o) { o.tx = x; o.tz = z; o.tr = r; o.a = a; o.akhir = performance.now();
