@@ -28,6 +28,8 @@ button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:2
 .chat .isi b{color:var(--emas)}
 .chat .isi b.raka{color:#ff9b5a}
 .chat .isi .sistem{color:var(--redup);font-style:italic}
+.chat .isi .akt{color:#cfeed6;font-weight:600;font-size:11.5px;background:rgba(126,224,138,.1);border-left:3px solid var(--hijau);border-radius:6px;padding:2px 6px}
+.chat .isi .akt b{color:var(--hijau)}
 .chat form{display:flex;gap:6px}
 .chat input{flex:1;min-width:0;border-radius:12px;border:1px solid var(--garis);background:rgba(255,255,255,.08);color:#fff;padding:8px 10px;font:700 13px Montserrat,sans-serif;user-select:text;-webkit-user-select:text}
 .chat form button{border:0;border-radius:12px;background:var(--biru);color:#0d1530;font-weight:900;padding:0 12px}
