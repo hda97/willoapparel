@@ -10,7 +10,7 @@
 import '../mabar/js/putar.js'; // HP tegak -> tampil mendatar, sama seperti game desa & Reli Kotak
 import * as THREE from 'three';
 import {warga, pose} from '../mabar/js/aset/avatar.js';
-import {ikanMesh, perahu} from './model.js?v=20261118m';   // ikan per jenis & perahu
+import {ikanMesh, perahu} from './model.js?v=20261120lv';   // ikan per jenis & perahu
 import {getar, bisaGetar, getarNyala, aturGetar, suaraNyala, aturSuara} from '../mabar/js/rasa.js?v=20261120g';   // getar HP + saklar suara/getar (dipakai semua mini game)
 
 const $ = id => document.getElementById(id);
@@ -83,29 +83,62 @@ async function apiM(op, data = {}) {
 // =====================================================================
 // 1. LOKASI & IKAN
 // =====================================================================
-// ikan: [nama, ikon, kg min, kg maks, peluang, warna badan, warna perut, panjang dasar]; kg 0 = sampah (lucu, tidak dihitung ekor)
+// ikan: [nama, ikon, kg min, kg maks, peluang, warna badan, warna perut, panjang dasar, LEVEL ⭐, raksasa]; kg 0 = sampah (lucu, tidak dihitung ekor)
+// LEVEL IKAN (Huda 20 Nov 2026: "level ikan, perbanyak jenis ikan sesuai habitatnya, ikan di laut level paling tinggi, ada ikan raksasa"):
+// Danau ⭐1–3, Sungai ⭐1–4, Laut ⭐2–5. Tiap habitat punya ikan RAKSASA (jarang; butuh umpan level tinggi & lemparan jauh).
+// Ikan yang levelnya di atas level joran melawan jauh lebih keras (gampang lolos) → alasan upgrade joran. Semua nama ikan umum Nusantara.
 const LOKASI = [
   {nama: 'Danau Tlaga', ikon: '🏞️', judul: 'DERMAGA KOTAK TLAGA', jenis: 'danau', langit: 0x8fd0f2, kabut: 0xb4dcf0, air: 0x3a92d8, jauh: 26,
-    ikan: [['Nila', '🐟', .2, 1.1, 30, 0x7e8e9e, 0xd8dde2, 1], ['Mujair', '🐟', .15, .6, 24, 0x5d6e5a, 0xc8d0b8, .85], ['Lele', '🐟', .3, 2, 12, 0x46464e, 0x9a9aa2, 1.3],
-      ['Gurami', '🐠', .6, 3, 12, 0xb09a6a, 0xeee0b8, 1.2], ['Ikan Mas', '🐠', .5, 3.5, 9, 0xf09a2a, 0xffd27a, 1.15], ['Patin', '🐟', 1, 5, 6, 0xaab4c0, 0xf0f2f4, 1.6],
-      ['Sepatu butut', '👟', 0, 0, 4, 0x6a4a3a, 0xe8e0d0, .9]]},
+    ikan: [['Nila', '🐟', .2, 1.1, 30, 0x7e8e9e, 0xd8dde2, 1, 1], ['Mujair', '🐟', .15, .6, 24, 0x5d6e5a, 0xc8d0b8, .85, 1], ['Tawes', '🐟', .15, .7, 18, 0xb8c0b0, 0xf0f2e8, .9, 1],
+      ['Lele', '🐟', .3, 2, 12, 0x46464e, 0x9a9aa2, 1.3, 1], ['Gurami', '🐠', .6, 3, 12, 0xb09a6a, 0xeee0b8, 1.2, 2], ['Ikan Mas', '🐠', .5, 3.5, 9, 0xf09a2a, 0xffd27a, 1.15, 2],
+      ['Betutu', '🐟', .3, 1.5, 7, 0x6a5a3a, 0xd8c8a0, 1, 2], ['Patin', '🐟', 1, 5, 6, 0xaab4c0, 0xf0f2f4, 1.6, 2], ['Toman', '🐟', 2, 8, 4, 0x3a4a3a, 0xc0c8a8, 1.8, 3],
+      ['Patin Raksasa', '🐋', 8, 20, 1.2, 0x8a96a6, 0xf0f2f4, 2.6, 3, 1], ['Sepatu butut', '👟', 0, 0, 4, 0x6a4a3a, 0xe8e0d0, .9, 0]]},
   {nama: 'Sungai Wetan', ikon: '🌾', judul: 'TEPI SUNGAI KOTAK WETAN', jenis: 'sungai', langit: 0x9ad6ff, kabut: 0xc2e6f8, air: 0x4a9ac0, jauh: 22,
-    ikan: [['Wader', '🐟', .05, .2, 30, 0xb8c4c8, 0xf4f6f6, .6], ['Nilem', '🐟', .1, .4, 20, 0x6a8a7a, 0xd0dcd0, .8], ['Betok', '🐟', .1, .35, 15, 0x5a6a3a, 0xc8c890, .7],
-      ['Belut', '🐍', .2, 1, 10, 0x6a5a2a, 0xb8a060, 1.4], ['Gabus', '🐟', .5, 3.5, 9, 0x3e4a3a, 0xa8b098, 1.3], ['Baung', '🐟', .6, 4, 7, 0x8a7a6a, 0xe0d8c8, 1.35],
-      ['Kaleng bekas', '🥫', 0, 0, 4, 0xc0c4c8, 0xe0503a, .7]]},
+    ikan: [['Wader', '🐟', .05, .2, 30, 0xb8c4c8, 0xf4f6f6, .6, 1], ['Nilem', '🐟', .1, .4, 20, 0x6a8a7a, 0xd0dcd0, .8, 1], ['Betok', '🐟', .1, .35, 15, 0x5a6a3a, 0xc8c890, .7, 1],
+      ['Belut', '🐍', .2, 1, 10, 0x6a5a2a, 0xb8a060, 1.4, 2], ['Gabus', '🐟', .5, 3.5, 9, 0x3e4a3a, 0xa8b098, 1.3, 2], ['Baung', '🐟', .6, 4, 7, 0x8a7a6a, 0xe0d8c8, 1.35, 2],
+      ['Jelawat', '🐟', 1, 5, 6, 0xc0b8a0, 0xf4f0e0, 1.4, 3], ['Hampala', '🐟', 1.5, 6, 5, 0x9aa8a0, 0xeef2ea, 1.5, 3], ['Belida', '🐟', 2, 9, 4, 0x8a8a90, 0xe8e8ec, 1.8, 4],
+      ['Tapah Raksasa', '🐋', 12, 35, 1, 0x5a5a62, 0xc8c8d0, 2.9, 4, 1], ['Kaleng bekas', '🥫', 0, 0, 4, 0xc0c4c8, 0xe0503a, .7, 0]]},
   {nama: 'Laut Segara', ikon: '🌊', judul: 'PELABUHAN KOTAK SEGARA', jenis: 'laut', langit: 0x86ccff, kabut: 0xbfe4fa, air: 0x2a7ec8, jauh: 30,
-    ikan: [['Ikan Layang', '🐟', .1, .4, 25, 0x4a7aa8, 0xe4eef6, .8], ['Baronang', '🐠', .3, 1.5, 18, 0x9a8a5a, 0xe8e0c0, 1], ['Cumi', '🦑', .2, 1, 12, 0xf0c8c0, 0xfff0ea, .9],
-      ['Tongkol', '🐟', 1, 4, 15, 0x2a4a7a, 0xd8e0ea, 1.3], ['Kakap Merah', '🐠', 1, 6, 10, 0xd8443a, 0xffc8b8, 1.4], ['Kerapu', '🐠', 1, 8, 8, 0x8a5a3a, 0xe0b890, 1.5],
-      ['Tenggiri', '🐟', 2, 10, 5, 0x6a8ab0, 0xeef2f6, 2], ['Botol plastik', '🧴', 0, 0, 3, 0x8ad0e8, 0xffffff, .8]]},
+    ikan: [['Ikan Layang', '🐟', .1, .4, 25, 0x4a7aa8, 0xe4eef6, .8, 2], ['Baronang', '🐠', .3, 1.5, 18, 0x9a8a5a, 0xe8e0c0, 1, 2], ['Cumi', '🦑', .2, 1, 12, 0xf0c8c0, 0xfff0ea, .9, 2],
+      ['Tongkol', '🐟', 1, 4, 15, 0x2a4a7a, 0xd8e0ea, 1.3, 3], ['Kakap Merah', '🐠', 1, 6, 10, 0xd8443a, 0xffc8b8, 1.4, 3], ['Kerapu', '🐠', 1, 8, 8, 0x8a5a3a, 0xe0b890, 1.5, 3],
+      ['Tenggiri', '🐟', 2, 10, 6, 0x6a8ab0, 0xeef2f6, 2, 4], ['Barakuda', '🐟', 3, 12, 5, 0x7a8a9a, 0xe8eef2, 2.1, 4], ['Kuwe Rambe', '🐟', 5, 18, 4, 0x8a9aa8, 0xe8eef2, 1.9, 4],
+      ['Tuna Sirip Kuning', '🐟', 10, 40, 3, 0x2a3a6a, 0xe8eef4, 2.4, 5], ['Kerapu Raksasa', '🐋', 30, 90, .8, 0x6a5a3a, 0xd8c098, 3.2, 5, 1],
+      ['Ikan Layaran', '🐋', 25, 60, .8, 0x1a3a7a, 0xe0eaf4, 3.3, 5, 1], ['Botol plastik', '🧴', 0, 0, 3, 0x8ad0e8, 0xffffff, .8, 0]]},
 ];
 const NL = Math.max(1, Math.min(LOKASI.length, Math.floor(+new URLSearchParams(location.search).get('l') || baca('dk_mancing_l') || 1)));
 const L_NO = NL <= (LOKAL.buka >= 3 ? 3 : 1) ? NL : 1, LT = LOKASI[L_NO - 1];   // lokasi terkunci → kembali ke lokasi 1
-const KG_MAKS = Math.max(...LT.ikan.map(i => i[3]));
-function undiIkan(jauh) {   // jauh 0..1: lemparan jauh = peluang ikan besar lebih tinggi
-  const bobot = LT.ikan.map(i => i[4] * (1 + jauh * 1.6 * (i[3] / KG_MAKS)));
+const KG_MAKS = Math.max(...LT.ikan.filter(i => !i[9]).map(i => i[3]));   // ikan terberat bukan raksasa (ukuran "besar")
+
+// ---------- PERLENGKAPAN: joran, kail, umpan Lv 1–5 (Huda 20 Nov 2026) ----------
+// Dibeli pakai 🪙 di server (aksi mancing op "beli"); kail & umpan Lv n butuh joran Lv n-1, joran Lv n butuh kail & umpan Lv n.
+// Dipilih lewat pop up 🎒 Perlengkapan (warga boleh memakai level yang lebih rendah). Tamu memakai Lv 1.
+const ALAT = {
+  j: {judul: 'Joran', ikon: '🎣', harga: [0, 0, 50, 120, 250, 450], efek: 'Gulung lebih kuat, senar lebih awet, lempar lebih jauh',
+    lv: [null, ['Joran Bambu', '🎋', 0xc8a050, 0x8a6a2a], ['Joran Fiber', '🎣', 0x3a7bd5, 0xf4f4f4], ['Joran Karbon', '🎣', 0x2a2c34, 0xe0503a], ['Joran Titanium', '⚙️', 0xb8c0c8, 0x3aa860], ['Joran Juragan', '✨', 0xf2c14a, 0xffffff]]},
+  k: {judul: 'Kail', ikon: '🪝', harga: [0, 0, 30, 70, 150, 300], efek: 'Ikan lebih jarang lolos, waktu TARIK! lebih lama',
+    lv: [null, ['Kail Kecil', '🪝'], ['Kail Tajam', '🪝'], ['Kail Baja', '🔩'], ['Kail Kait Ganda', '⚓'], ['Kail Emas', '🌟']]},
+  u: {judul: 'Umpan', ikon: '🪱', harga: [0, 0, 30, 70, 150, 300], efek: 'Ikan level tinggi & raksasa lebih sering makan, sampah jarang',
+    lv: [null, ['Cacing', '🪱'], ['Pelet', '🟤'], ['Udang', '🦐'], ['Cumi Potong', '🦑'], ['Umpan Kilau', '💎']]},
+};
+const MILIK = Object.assign({j: 1, k: 1, u: 1}, LOKAL.alat || {});                    // level yang dimiliki (dari server)
+const PAKAI = Object.assign({j: 9, k: 9, u: 9}, baca('dk_mancing_pakai') || {});     // level yang dipilih (9 = yang tertinggi)
+const lv = b => AKUN ? Math.max(1, Math.min(MILIK[b] || 1, PAKAI[b] || 9)) : 1;
+function aturMilik(a) { if (!a) return; const j0 = lv('j'); for (const b of 'jku') MILIK[b] = Math.max(1, Math.min(5, +a[b] || 1)); LOKAL.alat = {...MILIK}; simpan('dk_mancing', LOKAL);
+  if (typeof tulisJoran === 'function') { tulisJoran(); if (lv('j') !== j0) pasangJoran(); } }
+const bintang = n => '⭐'.repeat(Math.max(0, n));
+
+function undiIkan(jauh) {   // jauh 0..1: lemparan jauh = peluang ikan besar lebih tinggi; umpan menentukan level ikan yang mau makan
+  const U = lv('u');
+  const bobot = LT.ikan.map(i => { const L = i[8];
+    if (!L) return i[4] * Math.max(.3, 1.4 - .25 * (U - 1));                                        // sampah: makin bagus umpan makin jarang
+    if (i[9]) return U >= L - 1 ? i[4] * (U >= L ? 2 : 1) * (.4 + jauh) : 0;                         // raksasa: butuh umpan hampir setara
+    const naik = L > U + 1 ? .1 : L === U + 1 ? .45 : 1 + .5 * (U - 1) * (L - 1) / 4;
+    return i[4] * naik * (1 + jauh * 1.2 * (i[3] / KG_MAKS)); });
   let r = Math.random() * bobot.reduce((a, b) => a + b, 0), k = 0; while (r > bobot[k] && k < bobot.length - 1) r -= bobot[k++];
-  const i = LT.ikan[k], u = Math.random() ** (2.1 - jauh * .8);
-  return {nama: i[0], ikon: i[1], g: i[3] ? Math.round((i[2] + (i[3] - i[2]) * u) * 1000) : 0, warna: i[5], perut: i[6], pj: i[7], kuat: i[3] ? .55 + 1.5 * (i[2] + (i[3] - i[2]) * u) / KG_MAKS : .25};
+  const i = LT.ikan[k], u = Math.random() ** (2.1 - jauh * .8), J = lv('j');
+  let kuat = i[3] ? .35 + .32 * i[8] + .3 * u + (i[9] ? .5 : 0) : .25;
+  if (i[3] && i[8] > J) kuat *= 1 + .2 * (i[8] - J);                                                // ikan di atas level joran: melawan jauh lebih keras
+  return {nama: i[0], ikon: i[1], g: i[3] ? Math.round((i[2] + (i[3] - i[2]) * u) * 1000) : 0, warna: i[5], perut: i[6], pj: i[7], lv: i[8], raksasa: !!i[9], kuat};
 }
 
 // =====================================================================
@@ -199,10 +232,7 @@ const DERMAGA_Y = .75, DZ1 = LT.jenis === 'sungai' ? 12 : 24;
   const sp = perahu(LT.jenis === 'laut' ? 'jukung' : 'sampan', LT.jenis === 'laut' ? 0x2a9a9a : 0xc8553d); sp.position.set(LT.jenis === 'laut' ? -6.2 : -4.3, .05, 7.5); sp.rotation.y = .06; sc.add(sp); PERAHU.push(sp); }
 
 // ---- avatar warga (asli dari akun) + joran ----
-const JORAN = [{id: 'bambu', nama: 'Joran Bambu', ikon: '🎋', batang: 0xc8a050, ruas: 0x8a6a2a}, {id: 'karbon', nama: 'Joran Karbon', ikon: '🎣', batang: 0x2a2c34, ruas: 0xe0503a},
-  {id: 'juragan', nama: 'Joran Juragan', ikon: '✨', batang: 0xf2c14a, ruas: 0xffffff}];
 const PELAMPUNG = [['merah', 0xe0503a], ['oranye', 0xf28a2a], ['hijau', 0x3aa860], ['biru', 0x3a7bd5], ['ungu', 0x8a5ad8]];
-let joranPilih = Math.max(0, JORAN.findIndex(j => j.id === baca('dk_mancing_joran')));
 let pelampungPilih = Math.max(0, PELAMPUNG.findIndex(p => p[0] === baca('dk_mancing_pelampung')));
 const ORANG = new THREE.Group(); ORANG.position.set(0, DERMAGA_Y + .09, .9); sc.add(ORANG);
 let AV = null;
@@ -216,7 +246,7 @@ pasangAvatar(LOKAL.av);
 const POROS = new THREE.Group(); POROS.position.set(.42, DERMAGA_Y + 1.15, .3); sc.add(POROS);
 const JORAN_P = 3.4; let UJUNG = new THREE.Object3D();
 function pasangJoran() {
-  POROS.clear(); const j = JORAN[joranPilih], g = new THREE.Group();
+  POROS.clear(); const [, , batang, ruas] = ALAT.j.lv[lv('j')], j = {batang, ruas}, g = new THREE.Group();
   const b = new THREE.Mesh(new THREE.CylinderGeometry(.03, .065, JORAN_P, 6), matS(j.batang, {roughness: .5})); b.position.y = JORAN_P / 2; b.castShadow = true; g.add(b);
   g.add(kotak(.16, .55, .16, 0x1d1e24, 0, .3, 0));                                   // gagang
   const rl = kotak(.26, .26, .22, j.ruas, .14, .62, 0); g.add(rl);                    // gulungan (reel)
@@ -259,13 +289,14 @@ function keSiap() {
   MODE = 'siap'; PL.visible = SENAR.visible = SERU.visible = false; if (IKAN3D) IKAN3D.visible = false; S.tahan = false;
   tombol('🎣', 'LEMPAR', 'TAHAN · LEPAS'); meter(false); petunjuk('Tahan tombol untuk isi tenaga, lepas untuk melempar. Makin jauh, peluang ikan besar makin tinggi.');
 }
+const jauhMaks = () => LT.jauh * (1 + .08 * (lv('j') - 1));
 function lempar() {
-  MODE = 'terbang'; S.jauh = S.kuat; const d = 5 + S.kuat * (LT.jauh - 5); S.tx = (Math.random() - .5) * (2 + d * .35); S.tz = ORANG.position.z - 1 - d;
+  MODE = 'terbang'; S.jauh = S.kuat; const d = 5 + S.kuat * (jauhMaks() - 5); S.tx = (Math.random() - .5) * (2 + d * .35); S.tz = ORANG.position.z - 1 - d;
   S.tTerbang = 0; S.ayun = 1; PL.visible = SENAR.visible = true; getar('klik'); bunyi(520, .1, 'triangle', .05); bunyi(780, .12, 'triangle', .04);
   tombol('⏳', 'TUNGGU', 'IKAN MENDEKAT', 'tunggu'); meter(false); petunjuk('Tunggu pelampung tenggelam, lalu langsung ketuk TARIK!');
 }
 function mulaiTunggu() { MODE = 'tunggu'; S.tTunggu = .9 + Math.random() * 2.3 - S.jauh * .3; S.getarN = Math.floor(Math.random() * 3); S.ikan = undiIkan(S.jauh); cebur(); riak(S.tx, S.tz, 1.4); }
-function sambar() { MODE = 'sambar'; S.sambarT = 1.6; SERU.visible = true; bunyi(990, .1, 'square', .07); bunyi(1320, .14, 'square', .06); getar('sambar'); riak(S.tx, S.tz, 2);
+function sambar() { MODE = 'sambar'; S.sambarT = 1.6 + .2 * (lv('k') - 1); SERU.visible = true; bunyi(990, .1, 'square', .07); bunyi(1320, .14, 'square', .06); getar('sambar'); riak(S.tx, S.tz, 2);
   tombol('❗', 'TARIK!', 'KETUK SEKARANG', 'tarik'); petunjuk('Pelampung tenggelam! Ketuk TARIK!'); }
 function mulaiTarik() {
   MODE = 'tarik'; SERU.visible = false; S.jarak0 = S.jarak = Math.hypot(S.tx, S.tz - ORANG.position.z); S.tegang = .25; S.kendor = 0; S.lawan = 0; S.lawanT = .5 + Math.random() * .8; S.tahan = false;
@@ -273,14 +304,15 @@ function mulaiTarik() {
   pasangIkan3D(S.ikan); bunyi(660, .08); getar('tuk');
   tombol('🌀', 'GULUNG', 'TAHAN', 'gulung'); petunjuk(S.ikan.g ? 'Tahan GULUNG saat ikan capek, LEPAS saat ikan menarik kuat. Tarik ulur sampai ikan lemas!' : 'Kok ringan ya… gulung saja!');
 }
+const batasLolos = () => 3 + (lv('k') >= 3) + (lv('k') >= 5);   // kail bagus = ikan lebih jarang lolos
 function tenagaIkan(on) { const e = $('tenaga'); if (!e) return; e.hidden = !on || !(S.ikan && S.ikan.g); if (!e.hidden) { e.firstElementChild.style.width = Math.round(Math.max(0, S.tenaga) * 100) + '%'; e.classList.toggle('lemas', S.tenaga < .25); e.classList.toggle('lari', S.lawan > 0); } }
 function lepasUmpan(t) { MODE = 'gulungKosong'; SERU.visible = false; tenagaIkan(false); meter(false); if (IKAN3D) IKAN3D.visible = false; S.tDapat = .7; kabar(t, 2000); bunyi(300, .18, 'triangle', .05); tombol('⏳', '…', 'MENGGULUNG', 'tunggu'); }
 function dapatIkan() {
   const f = S.ikan; MODE = 'dapat'; S.tDapat = 1.5;
   if (f.g) { totalG += f.g; ekor++; if (!terbesar || f.g > terbesar.g) terbesar = f; TANGKAP.push(f); }
   tulisTangkap(); tenagaIkan(false);
-  const besar = f.g && (f.g >= KG_MAKS * 450 || (terbesar === f && ekor > 1));
-  if (f.g) { meriah(besar); getar(besar ? 'besar' : 'dapat'); konfeti(besar ? 46 : 26); kabar(`${f.ikon} ${f.nama} · ${kgTeks(f.g)}${terbesar === f && ekor > 1 ? ' · TERBESAR!' : ''}`, 2000, 'ikan'); }
+  const besar = f.g && (f.raksasa || f.g >= KG_MAKS * 450 || (terbesar === f && ekor > 1));
+  if (f.g) { meriah(besar); getar(besar ? 'besar' : 'dapat'); konfeti(f.raksasa ? 80 : besar ? 46 : 26); if (f.raksasa) { setTimeout(() => meriah(true), 900); kabar('🐋 IKAN RAKSASA!', 2600, 'ikan'); } kabar(`${f.ikon} ${f.nama} ${bintang(f.lv)} · ${kgTeks(f.g)}${terbesar === f && ekor > 1 ? ' · TERBESAR!' : ''}`, 2000, 'ikan'); }
   else { getar('tuk'); bunyi(330, .2, 'sawtooth', .04); kabar(`${f.ikon} Dapat ${f.nama.toLowerCase()}… he he. Tidak dihitung ya`, 2200); }
   tombol('✨', 'DAPAT!', f.g ? kgTeks(f.g) : 'SAMPAH', 'gulung'); petunjuk(f.g ? (besar ? '🎉 Mantap, ikan besar!' : '🎉 Dapat ikan!') : 'He he… lempar lagi!'); meter(false); SENAR.visible = false; PL.visible = false;
 }
@@ -315,7 +347,7 @@ function langkah(dt, t) {
     $('jWaktu').textContent = jamTeks(sisa > 0 ? sisa : 0);
   }
   // tenaga lemparan: naik-turun bolak-balik selama ditahan
-  if (MODE === 'isi') { S.kuatT += dt; const f = (S.kuatT / 1.4) % 2; S.kuat = f < 1 ? f : 2 - f; meter(true, S.kuat, 'kuat', Math.round(5 + S.kuat * (LT.jauh - 5)) + ' m'); S.ayun = -S.kuat * .9; }
+  if (MODE === 'isi') { S.kuatT += dt; const f = (S.kuatT / 1.4) % 2; S.kuat = f < 1 ? f : 2 - f; meter(true, S.kuat, 'kuat', Math.round(5 + S.kuat * (jauhMaks() - 5)) + ' m'); S.ayun = -S.kuat * .9; }
   if (MODE === 'terbang') {
     S.tTerbang += dt / .75; const k = Math.min(1, S.tTerbang); UJUNG.getWorldPosition(_v);
     PL.position.set(_v.x + (S.tx - _v.x) * k, _v.y + (0 - _v.y) * k + Math.sin(k * Math.PI) * (2 + S.jauh * 5), _v.z + (S.tz - _v.z) * k);
@@ -331,10 +363,12 @@ function langkah(dt, t) {
       // senar keluar berbunyi "zrrrt") dan CAPEK (saatnya menggulung). Menahan gulung saat ikan menarik = tegangan naik cepat, jadi lepas dulu,
       // lalu gulung lagi saat ikan capek. Tenaga ikan (bar 🐟) habis pelan-pelan; ikan lemas = mudah digulung. Santai tanpa kalah: senar tidak putus,
       // paling buruk ikan lolos setelah 3x senar kendor → cukup lempar lagi, berat yang sudah didapat tidak berkurang.
-      const f = S.ikan, kuat = f.kuat, ef = f.g ? .3 + .7 * S.tenaga : 0;   // ef: tenaga tarikan ikan saat ini
+      const f = S.ikan, kuat = f.kuat, ef = f.g ? .3 + .7 * S.tenaga : 0, J = lv('j'), JR = 1 + .15 * (J - 1), JT = 1 - .07 * (J - 1);   // JR/JT: joran bagus gulung lebih cepat, tegangan naik lebih pelan   // ef: tenaga tarikan ikan saat ini
       S.lawanT -= dt;
       if (S.lawanT <= 0) {
         if (S.lawan > 0) { S.lawan = 0; S.lawanT = (.7 + Math.random() * 1.1) / (.7 + .3 * kuat) + (1 - S.tenaga) * 1.4; }   // ikan capek sebentar
+        else if (f.g && f.lv > J && S.tenaga > .3 && Math.random() < .1 * (f.lv - J) - .02 * (lv('k') - 1)) {   // ikan terlalu kuat untuk joran ini: lepas (tanpa rugi)
+          getar('kendor'); bunyi(200, .2, 'triangle', .05); lepasUmpan(`💪 ${f.nama} ${bintang(f.lv)} terlalu kuat untuk Joran Lv ${J}! Naikkan joran di 🎒`); return; }
         else if (f.g) { S.lawan = (.9 + Math.random() * 1.1) * (.6 + .4 * kuat) * (.45 + .55 * S.tenaga); S.lawanT = S.lawan; S.arah = Math.random() < .65 ? -S.arah : S.arah;
           bunyi(240, .1, 'sawtooth', .04); getar(S.tenaga > .4 ? 'lawan' : 'tuk'); riak(S.tx, S.tz, 1.8);
           if (kuat > .9 && S.jarak > 4 && S.jarak < 16 && Math.random() < .35) { S.loncat = .75; cebur(.08); } }   // ikan besar kadang meloncat keluar air
@@ -343,8 +377,8 @@ function langkah(dt, t) {
       if (S.kendor > 0) { S.kendor -= dt; S.tahan = false; }
       const gulung = S.tahan && S.kendor <= 0;
       if (gulung) {
-        if (lari) { S.jarak += (.4 + .3 * kuat) * ef * dt; S.tegang += (.42 + .75 * kuat) * ef * dt; S.tenaga -= .13 * dt / Math.sqrt(kuat); }   // adu kuat: senar tetap keluar sedikit
-        else { S.jarak -= Math.max(2.2, 5.4 - kuat * 1.6) * (1 + (1 - S.tenaga) * .5) * dt; S.tegang += (.1 + .16 * kuat) * dt; S.tenaga -= .035 * dt / Math.sqrt(kuat); }
+        if (lari) { S.jarak += (.4 + .3 * kuat) * ef * dt / JR; S.tegang += (.42 + .75 * kuat) * ef * dt * JT; S.tenaga -= .13 * dt / Math.sqrt(kuat); }   // adu kuat: senar tetap keluar sedikit
+        else { S.jarak -= Math.max(2.2, 5.4 - kuat * 1.6) * (1 + (1 - S.tenaga) * .5) * dt * JR; S.tegang += (.1 + .16 * kuat) * dt * JT; S.tenaga -= .035 * dt / Math.sqrt(kuat); }
         S.klik += dt; if (S.klik > .07) { S.klik = 0; bunyi(1800 + Math.random() * 200, .015, 'square', .02); }
       } else {
         S.tegang -= (lari ? 1.05 : .8) * dt;
@@ -357,8 +391,8 @@ function langkah(dt, t) {
       S.denyutT -= dt; if (gulung && S.tegang > .55 && S.denyutT <= 0) { S.denyutT = .32 - S.tegang * .2; getar(lari ? 30 : 'tegang'); }
       if (S.tegang >= 1) {
         S.tegang = .78; S.kendor = 1; S.jarak = Math.min(S.jarak0 + 7, S.jarak + 1.5); S.lepasN++; bunyi(200, .2, 'triangle', .05); getar('kendor');
-        if (S.lepasN >= 3 && f.g && S.tenaga > .3) { lepasUmpan(`💨 Yah, ${f.nama.toLowerCase()} lolos! Tidak apa-apa, lempar lagi 🎣`); return; }
-        kabar(S.lepasN === 2 && f.g ? '⚠️ Senar kendor lagi! Sekali lagi ikannya bisa lolos' : '〰️ Senar kendor sebentar, ikannya menjauh', 1600);
+        if (S.lepasN >= batasLolos() && f.g && S.tenaga > .3) { lepasUmpan(`💨 Yah, ${f.nama.toLowerCase()} lolos! Tidak apa-apa, lempar lagi 🎣`); return; }
+        kabar(S.lepasN === batasLolos() - 1 && f.g ? '⚠️ Senar kendor lagi! Sekali lagi ikannya bisa lolos' : '〰️ Senar kendor sebentar, ikannya menjauh', 1600);
       }
       const k = S.jarak / Math.max(.1, Math.hypot(S.tx, S.tz - ORANG.position.z)); S.tx *= Math.min(1.2, k); S.tz = ORANG.position.z + (S.tz - ORANG.position.z) * Math.min(1.2, k);
       // ikan berenang ke samping: kencang saat menarik, pelan saat capek
@@ -433,8 +467,42 @@ function tulisLobi(top) {
   if (top) { const L = (top.top || []).slice(0, 3); $('lTop').innerHTML = L.length ? L.map((x, n) => `<span class="kaca ${AKUN && x.no === AKUN.no ? 'saya' : ''}">${['🥇', '🥈', '🥉'][n]} ${esc(x.u ? '@' + x.u : 'Warga ' + x.no)} ${kgPendek(x.g)}</span>`).join('') : '<span class="kaca">Belum ada rekor. Jadi yang pertama!</span>'; }
   $('lAturan').textContent = AKUN ? `${DURASI} detik, kejar ikan terberat · +${KOIN_SESI} 🪙 (3x sehari)` : 'Mode tamu: latihan. Masuk desa sebagai warga untuk rekor & 🪙';
 }
-function tulisJoran() { const j = JORAN[joranPilih]; $('lJoran').innerHTML = `<i>${j.ikon}</i>${esc(j.nama)}`; $('lJoran').setAttribute('aria-label', 'Ganti joran, sekarang ' + j.nama); }
-$('lJoran').onclick = () => { joranPilih = (joranPilih + 1) % JORAN.length; simpan('dk_mancing_joran', JORAN[joranPilih].id); tulisJoran(); pasangJoran(); siapSuara(); bunyi(660, .06); }; tulisJoran();
+// ---------- POP UP 🎒 PERLENGKAPAN: pilih & beli joran, kail, umpan (Huda 20 Nov 2026: "pilih umpan joran kail bentuk pop up") ----------
+function tulisJoran() { const j = ALAT.j.lv[lv('j')], k = ALAT.k.lv[lv('k')], u = ALAT.u.lv[lv('u')];
+  $('lJoran').innerHTML = `<i>🎒</i>Perlengkapan&nbsp;<small>Lv ${lv('j')}·${lv('k')}·${lv('u')}</small>`; $('lJoran').setAttribute('aria-label', 'Buka perlengkapan: ' + j[0] + ', ' + k[0] + ', ' + u[0]); }
+let calon = null, koinSaya = null;   // calon = {b, n}: ketukan pertama pada harga, ketukan kedua = beli
+function syarat(b, n) { if (b === 'j') return MILIK.k >= n && MILIK.u >= n ? '' : `Butuh Kail & Umpan Lv ${n} dulu`; return MILIK.j >= n - 1 ? '' : `Butuh Joran Lv ${n - 1} dulu`; }
+function tulisAlat(ket) {
+  $('alKoin').textContent = AKUN ? (koinSaya != null ? `🪙 ${koinSaya}` : '🪙 …') : 'Tamu';
+  $('alBaris').innerHTML = ['j', 'k', 'u'].map(b => { const A = ALAT[b], d = A.lv[lv(b)];
+    const chip = [1, 2, 3, 4, 5].map(n => { const nm = A.lv[n];
+      if (AKUN && n <= MILIK[b]) return `<button class="chip ${n === lv(b) ? 'pakai' : ''}" data-b="${b}" data-n="${n}" aria-label="Pakai ${esc(nm[0])}"><i>${nm[1]}</i>Lv${n}</button>`;
+      if (AKUN && n === MILIK[b] + 1) { const sy = syarat(b, n), pilih = calon && calon.b === b && calon.n === n;
+        return `<button class="chip beli ${sy ? 'syarat' : ''} ${pilih ? 'yakin' : ''}" data-b="${b}" data-n="${n}" aria-label="Beli ${esc(nm[0])} ${A.harga[n]} koin"><i>${pilih ? '✔' : nm[1]}</i>${pilih ? 'BELI?' : A.harga[n] + '🪙'}</button>`; }
+      return `<button class="chip kunci" data-b="${b}" data-n="${n}" aria-label="${esc(nm[0])} terkunci"><i>🔒</i>Lv${n}</button>`; }).join('');
+    return `<div class="alRow"><div class="alNama"><b>${A.ikon} ${A.judul}</b><small>${esc(d[0])}</small></div><div class="alChip">${chip}</div></div>`; }).join('');
+  $('alKet').textContent = ket || (AKUN ? 'Ketuk level milikmu untuk dipakai · ketuk harga untuk membeli' : 'Mode tamu memakai Lv 1. Masuk sebagai warga di desa untuk membeli perlengkapan.');
+}
+async function bukaAlat() {
+  calon = null; tulisAlat(); $('alat').hidden = false; siapSuara(); bunyi(660, .06);
+  if (AKUN) { const j = await apiM('alat'); if (j && j.saya) { aturMilik(j.saya.alat); koinSaya = j.saya.koin ?? koinSaya; } if (!$('alat').hidden) tulisAlat(); }
+}
+$('lJoran').onclick = bukaAlat;
+$('alTutup').onclick = () => { $('alat').hidden = true; calon = null; };
+$('alBaris').addEventListener('click', async e => {
+  const c = e.target.closest('.chip'); if (!c) return; const b = c.dataset.b, n = +c.dataset.n, A = ALAT[b], nm = A.lv[n];
+  if (!AKUN) return tulisAlat('Masuk sebagai warga di desa untuk membeli perlengkapan.');
+  if (n <= MILIK[b]) { PAKAI[b] = n; simpan('dk_mancing_pakai', PAKAI); calon = null; bunyi(880, .05); getar('klik'); if (b === 'j') pasangJoran(); tulisJoran(); return tulisAlat(`Dipakai: ${nm[0]} Lv${n} · ${A.efek}`); }
+  if (n > MILIK[b] + 1) { bunyi(220, .1); return tulisAlat(`${nm[0]} Lv${n}: beli Lv${MILIK[b] + 1} dulu`); }
+  const sy = syarat(b, n); if (sy) { calon = null; bunyi(220, .1); return tulisAlat(`${nm[0]} Lv${n}: ${sy}`); }
+  if (!calon || calon.b !== b || calon.n !== n) { calon = {b, n}; bunyi(660, .05); return tulisAlat(`${nm[0]} Lv${n} · ${A.harga[n]} 🪙 · ${A.efek}. Ketuk BELI? sekali lagi.`); }
+  calon = null; tulisAlat('Membeli…'); const j = await apiM('beli', {b});
+  if (j && j.saya) { aturMilik(j.saya.alat); if (j.saya.koin != null) koinSaya = j.saya.koin; }
+  if (!j || j.galat) { bunyi(220, .12); return tulisAlat(j && j.galat ? j.galat : 'Gagal membeli, coba lagi.'); }
+  PAKAI[b] = 9; simpan('dk_mancing_pakai', PAKAI); if (b === 'j') pasangJoran(); tulisJoran();
+  meriah(b === 'j'); getar('dapat'); konfeti(30); tulisAlat(`🎉 ${nm[0]} Lv${n} jadi milikmu! ${A.efek}.`);
+});
+tulisJoran();
 PELAMPUNG.forEach(([n, c], i) => { const b = document.createElement('button'); b.className = 'titik'; b.style.background = '#' + c.toString(16).padStart(6, '0'); b.title = 'Pelampung ' + n; b.setAttribute('aria-label', 'Warna pelampung ' + n);
   if (i === pelampungPilih) b.classList.add('pilih'); b.onclick = () => { document.querySelectorAll('#lWarna .titik').forEach(x => x.classList.remove('pilih')); b.classList.add('pilih'); pelampungPilih = i; simpan('dk_mancing_pelampung', n); warnaPelampung(); siapSuara(); bunyi(880, .05); }; $('lWarna').append(b); });
 // saklar 🔊 suara & 📳 getar di lobi (diingat di HP, sama dengan pengaturan desa). Tombol getar disembunyikan di HP yang tidak bisa getar (iPhone).
@@ -451,7 +519,7 @@ async function mulaiSesi() {
   $('hasil').hidden = true; MODE = 'hitung'; tampilHUD(true); const id = ++idSesi;
   sisa = DURASI; tambahan = 0; totalG = 0; ekor = 0; terbesar = null; TANGKAP = []; tulisTangkap(); $('jWaktu').textContent = jamTeks(DURASI); $('jam').classList.remove('habis'); $('jKet').textContent = 'SISA WAKTU';
   tombol('🎣', 'SIAP…', ''); meter(false); petunjuk('Siapkan joranmu…'); PL.visible = SENAR.visible = SERU.visible = false;
-  if (AKUN) apiM('mulai').then(j => { if (j && j.saya) { if (j.saya.buka > LOKAL.buka) { LOKAL.buka = j.saya.buka; simpan('dk_mancing', LOKAL); } if (j.saya.avatar && JSON.stringify(j.saya.avatar) !== JSON.stringify(LOKAL.av)) { LOKAL.av = j.saya.avatar; simpan('dk_mancing', LOKAL); pasangAvatar(LOKAL.av); } } });
+  if (AKUN) apiM('mulai').then(j => { if (j && j.saya) { aturMilik(j.saya.alat); koinSaya = j.saya.koin ?? koinSaya; if (j.saya.buka > LOKAL.buka) { LOKAL.buka = j.saya.buka; simpan('dk_mancing', LOKAL); } if (j.saya.avatar && JSON.stringify(j.saya.avatar) !== JSON.stringify(LOKAL.av)) { LOKAL.av = j.saya.avatar; simpan('dk_mancing', LOKAL); pasangAvatar(LOKAL.av); } } });
   for (const t of ['3', '2', '1']) { if (id !== idSesi) return; $('hitung').hidden = false; $('hitung').innerHTML = `<b>${t}</b>`; bunyi(440, .18, 'square', .07); await new Promise(r => setTimeout(r, 800)); }
   if (id !== idSesi) return; $('hitung').innerHTML = '<b style="color:#9ef0a0">MANCING!</b>'; bunyi(880, .35, 'square', .08); setTimeout(() => { if (id === idSesi) $('hitung').hidden = true; }, 700);
   keSiap();
@@ -468,7 +536,7 @@ async function selesaiSesi() {
   let j = null; if (AKUN) j = await apiM('selesai', {g: totalG, e: ekor});
   await new Promise(r => setTimeout(r, Math.max(0, 1400 - (performance.now() - t0))));
   if (id !== idSesi) return;
-  if (j && j.saya) { if (j.saya.rekor) LOKAL.rk[L_NO] = j.saya.rekor; LOKAL.pos[L_NO] = j.saya.pos || LOKAL.pos[L_NO]; if (j.saya.buka > LOKAL.buka) LOKAL.buka = j.saya.buka; if (j.saya.avatar) LOKAL.av = j.saya.avatar;
+  if (j && j.saya) { aturMilik(j.saya.alat); koinSaya = j.saya.koin ?? koinSaya; if (j.saya.rekor) LOKAL.rk[L_NO] = j.saya.rekor; LOKAL.pos[L_NO] = j.saya.pos || LOKAL.pos[L_NO]; if (j.saya.buka > LOKAL.buka) LOKAL.buka = j.saya.buka; if (j.saya.avatar) LOKAL.av = j.saya.avatar;
     $('dompet').textContent = `🪙 ${j.saya.koin ?? 0}  💎 ${j.saya.permata ?? 0}`; }
   simpan('dk_mancing', LOKAL);
   // misi harian "Ikut Lomba Mancing Kotak": progres ditulis ke dk_misi (sama dengan game desa), diklaim saat warga kembali ke desa

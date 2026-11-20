@@ -67,6 +67,20 @@ const JENIS = {
   'Kakap Merah': {b: 'pipih', w: .17, h: .3, ekor: 'lancip', pg: 'duri'},
   'Kerapu': {b: 'pipih', w: .2, h: .27, ekor: 'bulat', pg: 'duri', pola: 'bintik'},
   'Tenggiri': {b: 'ramping', w: .12, h: .16, ekor: 'garpu', pg: 'tinggi', pola: 'bintik', L: 1.35},
+  // ikan baru (Huda 20 Nov 2026: level ikan & ikan raksasa per habitat)
+  'Tawes': {b: 'pipih', w: .13, h: .28, ekor: 'garpu', pg: 'tinggi'},
+  'Betutu': {b: 'panjang', w: .16, h: .15, ekor: 'bulat', pg: 'rendah', pola: 'bintik'},
+  'Toman': {b: 'panjang', w: .16, h: .16, ekor: 'bulat', pg: 'rendah', pola: 'belang', L: 1.3},
+  'Patin Raksasa': {b: 'ramping', w: .17, h: .22, ekor: 'garpu', pg: 'tinggi', kumis: 2, L: 1.3},
+  'Jelawat': {b: 'ramping', w: .14, h: .22, ekor: 'garpu', pg: 'tinggi'},
+  'Hampala': {b: 'ramping', w: .14, h: .24, ekor: 'garpu', pg: 'tinggi', pola: 'belang'},
+  'Belida': {b: 'pipih', w: .1, h: .3, ekor: 'lancip', pg: 'tidak', pola: 'bintik', L: 1.3},
+  'Tapah Raksasa': {b: 'panjang', w: .17, h: .16, ekor: 'bulat', pg: 'rendah', kumis: 4, L: 1.4},
+  'Barakuda': {b: 'ramping', w: .1, h: .13, ekor: 'garpu', pg: 'tinggi', pola: 'belang', L: 1.5},
+  'Kuwe Rambe': {b: 'pipih', w: .16, h: .32, ekor: 'garpu', pg: 'tinggi'},
+  'Tuna Sirip Kuning': {b: 'ramping', w: .22, h: .27, ekor: 'garpu', pg: 'tinggi', pola: 'garis', L: 1.25},
+  'Kerapu Raksasa': {b: 'pipih', w: .24, h: .28, ekor: 'bulat', pg: 'duri', pola: 'bintik', L: 1.15},
+  'Ikan Layaran': {b: 'ramping', w: .12, h: .17, ekor: 'garpu', pg: 'layar', paruh: 1, L: 1.5},
 };
 
 // f: {nama, warna, perut, pj, g}. Badan sejajar sumbu Z, kepala di +Z. userData.ekor = grup ekor yang bisa dikibaskan.
@@ -88,6 +102,7 @@ export function ikanMesh(f) {
   if (j.pg === 'tinggi') g.add(sirip([[0, top * .8], [-.08 * L, top * .8], [.02 * L, top + h * .55], [.14 * L, top * .85]], sirC));
   else if (j.pg === 'panjang') g.add(sirip([[-.05 * L, top * .8], [-.32 * L, top * .55], [-.25 * L, top + h * .3], [.05 * L, top + h * .45], [.22 * L, top * .9]], sirC));
   else if (j.pg === 'rendah') g.add(sirip([[-.1 * L, top * .7], [-.42 * L, top * .25], [-.38 * L, top + h * .25], [.1 * L, top + h * .25], [.18 * L, top * .85]], sirC));
+  else if (j.pg === 'layar') g.add(sirip([[-.3 * L, top * .8], [-.36 * L, top + h * .2], [-.2 * L, top + h * 1.6], [.05 * L, top + h * 2.1], [.3 * L, top + h * 1.2], [.34 * L, top * .9]], sirC));   // sirip layar tinggi
   else if (j.pg === 'duri') { const p = [[-.05 * L, top * .8], [-.3 * L, top * .55]]; for (let k = 0; k <= 6; k++) p.push([-.26 * L + k * .07 * L, top + h * (k % 2 ? .18 : .42)]); p.push([.2 * L, top * .9]); g.add(sirip(p, sirC)); }
   // sirip perut & dada (kiri-kanan, sedikit miring keluar)
   if (j.b !== 'belut') {
@@ -98,6 +113,7 @@ export function ikanMesh(f) {
   const zM = L / 2 - (j.b === 'pipih' ? .18 : .14) * L * .9;
   mata(g, w * .62, h * .28, zM, Math.max(.035, Math.min(.06, h * .2)));
   g.add(kotak(w * .7, .025, .04, 0x3a2224, 0, -h * .12, L / 2 - .015));
+  if (j.paruh) { const p = new THREE.Mesh(new THREE.ConeGeometry(h * .18, L * .4, 6), mat(gelap(f.warna, .7))); p.rotation.x = Math.PI / 2; p.position.set(0, h * .05, L / 2 + L * .18); g.add(p); }   // moncong runcing
   if (j.kumis) for (let k = 0; k < j.kumis; k++) { const sx = k % 2 ? 1 : -1, ats = k < 2, pj = ats ? .34 : .2;   // kumis: dari sudut mulut melengkung ke samping-belakang
     const km = new THREE.Group(); km.position.set(sx * w * .35, -h * (ats ? .08 : .3), L / 2 - .03);
     const b = kotak(pj, .016, .016, 0x2a2624, sx * pj / 2, 0, 0); km.add(b); km.rotation.set(0, sx * (ats ? .55 : .8), sx * (ats ? -.25 : -.55)); g.add(km); }
