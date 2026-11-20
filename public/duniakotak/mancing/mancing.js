@@ -11,6 +11,7 @@ import '../mabar/js/putar.js'; // HP tegak -> tampil mendatar, sama seperti game
 import * as THREE from 'three';
 import {warga, pose} from '../mabar/js/aset/avatar.js';
 import {ikanMesh, perahu} from './model.js?v=20261118m';   // ikan per jenis & perahu
+import {getar, bisaGetar, getarNyala, aturGetar, suaraNyala, aturSuara} from '../mabar/js/rasa.js?v=20261120g';   // getar HP + saklar suara/getar (dipakai semua mini game)
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
@@ -22,23 +23,53 @@ const jamTeks = s => { s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) 
 let AKUN = null; { const w = baca('dk_warga'); if (w && w.kunci) AKUN = {no: w.no, kunci: w.kunci, ig: w.ig}; }
 const LOKAL = Object.assign({rk: {}, pos: {}, av: null, buka: 1}, baca('dk_mancing') || {});   // cache di HP: rekor & posisi per lokasi, avatar, lokasi terbuka
 for (const k of ['rk', 'pos']) if (!LOKAL[k] || typeof LOKAL[k] !== 'object') LOKAL[k] = {};
-const DURASI = 90, KOIN_SESI = 10, TAMBAHAN = 20;   // detik main; detik tambahan maksimal untuk menyelesaikan tarikan saat waktu habis
+const DURASI = 90, KOIN_SESI = 10, TAMBAHAN = 30;   // detik main; detik tambahan maksimal untuk menyelesaikan tarikan saat waktu habis
 
 // ---------- suara kecil (WebAudio, tanpa file) ----------
-let AC = null;
+let AC = null, SUARA = suaraNyala();
 function siapSuara() { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) {} }
 function bunyi(fr = 660, d = .08, tipe = 'square', v = .05) {
   try { if (!AC) return; const o = AC.createOscillator(), g = AC.createGain();
-    o.type = tipe; o.frequency.value = fr; g.gain.setValueAtTime(v, AC.currentTime); g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + d);
+    if (!SUARA) return; o.type = tipe; o.frequency.value = fr; g.gain.setValueAtTime(v, AC.currentTime); g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + d);
     o.connect(g).connect(AC.destination); o.start(); o.stop(AC.currentTime + d + .02); } catch (e) {}
 }
 function cebur(v = .12) {   // bunyi "plung" pelampung jatuh ke air
-  try { if (!AC) return; const n = AC.sampleRate * .25 | 0, b = AC.createBuffer(1, n, AC.sampleRate), d = b.getChannelData(0);
+  try { if (!AC || !SUARA) return; const n = AC.sampleRate * .25 | 0, b = AC.createBuffer(1, n, AC.sampleRate), d = b.getChannelData(0);
     for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n) ** 3;
     const s = AC.createBufferSource(), f = AC.createBiquadFilter(), g = AC.createGain(); f.type = 'lowpass'; f.frequency.value = 900; g.gain.value = v;
     s.buffer = b; s.connect(f).connect(g).connect(AC.destination); s.start(); } catch (e) {}
 }
-const getar = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
+// SUARA MERIAH saat dapat ikan (Huda 20 Nov 2026): terompet kecil naik + akor + gemerincing konfeti + "dug" bedug, semua disintesis (tanpa file, bebas hak cipta).
+// besar = ikan terbesar sesi / ikan berat → lagu lebih panjang dengan akor kedua.
+function nadaJ(fr, t0, d, tipe = 'triangle', v = .05, fr1 = 0) {
+  const t = AC.currentTime + t0, o = AC.createOscillator(), g = AC.createGain(); o.type = tipe; o.frequency.setValueAtTime(fr, t); if (fr1) o.frequency.exponentialRampToValueAtTime(fr1, t + d);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .012); g.gain.exponentialRampToValueAtTime(.0001, t + d); o.connect(g).connect(AC.destination); o.start(t); o.stop(t + d + .03);
+}
+function kerincing(t0, d, v = .05) {   // derau tinggi bergetar = konfeti/lonceng kecil
+  const n = AC.sampleRate * d | 0, b = AC.createBuffer(1, n, AC.sampleRate), x = b.getChannelData(0);
+  for (let i = 0; i < n; i++) x[i] = (Math.random() * 2 - 1) * (1 - i / n) * (.55 + .45 * Math.sin(i / AC.sampleRate * 2 * Math.PI * 18));
+  const s = AC.createBufferSource(), f = AC.createBiquadFilter(), g = AC.createGain(); f.type = 'highpass'; f.frequency.value = 5200; g.gain.value = v;
+  s.buffer = b; s.connect(f).connect(g).connect(AC.destination); s.start(AC.currentTime + t0);
+}
+function meriah(besar) {
+  try { if (!AC || !SUARA) return;
+    nadaJ(150, 0, .25, 'sine', .22, 45); nadaJ(150, .36, .22, 'sine', .16, 50);                 // dug… dug
+    const naik = besar ? [523, 659, 784, 1046, 1318] : [523, 659, 784, 1046];
+    naik.forEach((f, i) => { nadaJ(f, i * .075, .16, 'square', .028); nadaJ(f * 2, i * .075, .12, 'triangle', .018); });
+    const t1 = naik.length * .075;
+    for (const f of [1046, 1318, 1568]) { nadaJ(f, t1, besar ? .5 : .6, 'triangle', .045); nadaJ(f / 2, t1, .5, 'square', .012); }
+    kerincing(t1, .7, .06);
+    if (besar) { const t2 = t1 + .42; for (const f of [1175, 1480, 1760, 2349]) nadaJ(f, t2, .8, 'triangle', .04); nadaJ(150, t2, .3, 'sine', .22, 45); kerincing(t2, 1, .07);
+      [2093, 2637, 3136].forEach((f, i) => nadaJ(f, t2 + .5 + i * .07, .14, 'sine', .03)); }
+  } catch (e) {}
+}
+// konfeti di layar (DOM ringan, hilang sendiri)
+function konfeti(banyak = 26) {
+  const w = $('konfeti'); if (!w) return; const W = ['#f2c14a', '#e0503a', '#3aa860', '#3a7bd5', '#ffffff', '#ff8ac8'];
+  for (let i = 0; i < banyak; i++) { const d = document.createElement('i'), a = Math.random() * Math.PI * 2, r = 90 + Math.random() * 170;
+    d.style.background = W[i % W.length]; d.style.setProperty('--x', Math.cos(a) * r + 'px'); d.style.setProperty('--y', Math.sin(a) * r * .7 - 40 + 'px'); d.style.setProperty('--r', (Math.random() * 720 - 360) + 'deg');
+    d.style.animationDelay = Math.random() * .12 + 's'; w.append(d); setTimeout(() => d.remove(), 1500); }
+}
 
 // ---------- API (hemat: lobi pakai GET publik yang di-cache server; POST hanya saat mulai & selesai) ----------
 async function apiM(op, data = {}) {
@@ -216,39 +247,42 @@ function pasangIkan3D(f) { if (IKAN3D) sc.remove(IKAN3D); IKAN3D = ikanMesh(f); 
 // =====================================================================
 // MODE: lobi | hitung | siap (siap lempar) | isi (menahan, mengisi tenaga) | terbang | tunggu | sambar | tarik | dapat | habis
 let MODE = 'lobi', sisa = DURASI, tambahan = 0, totalG = 0, ekor = 0, terbesar = null, TANGKAP = [];
-const S = {kuat: 0, kuatT: 0, tx: 0, tz: -10, jauh: 0, tTunggu: 0, sambarT: 0, getarN: 0, ikan: null, jarak: 0, jarak0: 0, tegang: 0, kendor: 0, lawan: 0, lawanT: 0, tahan: false, tTerbang: 0, ayun: 0, tDapat: 0, klik: 0, pesanT: 0};
+const S = {kuat: 0, kuatT: 0, tx: 0, tz: -10, jauh: 0, tTunggu: 0, sambarT: 0, getarN: 0, ikan: null, jarak: 0, jarak0: 0, tegang: 0, kendor: 0, lawan: 0, lawanT: 0, tenaga: 1, arah: 1, lepasN: 0, loncat: 0, zipT: 0, denyutT: 0, tahan: false, tTerbang: 0, ayun: 0, tDapat: 0, klik: 0, pesanT: 0};
 const JALAN_AWAL = new THREE.Vector3();
 function petunjuk(t) { const p = $('petunjuk'); if (p._t !== t) { p._t = t; p.textContent = t; } }
 function kabar(t, ms = 2200, kelas = '') { const k = $('kabar'); if (k.childElementCount > 1) k.firstChild.remove(); const d = document.createElement('div'); d.className = 'kaca ' + kelas; d.textContent = t; d.style.animationDuration = ms + 'ms'; k.append(d); setTimeout(() => d.remove(), ms); }
 function tombol(ikon, teks, kecil, kelas = '') { const b = $('bAksi'); b.className = kelas; b.querySelector('i').textContent = ikon; $('bAksiT').textContent = teks; $('bAksiK').textContent = kecil; }
 function meter(on, nilai = 0, kelas = '', label = '') { const m = $('meter'); m.style.visibility = on ? 'visible' : 'hidden'; m.className = kelas; m.firstElementChild.style.height = Math.round(Math.max(0, Math.min(1, nilai)) * 100) + '%'; $('meterL').textContent = label; }
 function tulisTangkap() { $('tBerat').textContent = kgTeks(totalG); $('tEkor').textContent = ekor + ' EKOR' + (terbesar ? ' · TERBESAR ' + kgPendek(terbesar.g) : ''); }
-function tampilHUD(on) { for (const id of ['keluar', 'jam', 'tangkap', 'petunjuk', 'kendali']) $(id).hidden = !on; $('lobi').hidden = on; $('dompet').hidden = on || !$('dompet').textContent; }
+function tampilHUD(on) { for (const id of ['keluar', 'jam', 'tangkap', 'petunjuk', 'kendali']) $(id).hidden = !on; $('lobi').hidden = on; $('rasa').hidden = on; if (!on) tenagaIkan(false); $('dompet').hidden = on || !$('dompet').textContent; }
 function keSiap() {
   MODE = 'siap'; PL.visible = SENAR.visible = SERU.visible = false; if (IKAN3D) IKAN3D.visible = false; S.tahan = false;
   tombol('🎣', 'LEMPAR', 'TAHAN · LEPAS'); meter(false); petunjuk('Tahan tombol untuk isi tenaga, lepas untuk melempar. Makin jauh, peluang ikan besar makin tinggi.');
 }
 function lempar() {
   MODE = 'terbang'; S.jauh = S.kuat; const d = 5 + S.kuat * (LT.jauh - 5); S.tx = (Math.random() - .5) * (2 + d * .35); S.tz = ORANG.position.z - 1 - d;
-  S.tTerbang = 0; S.ayun = 1; PL.visible = SENAR.visible = true; bunyi(520, .1, 'triangle', .05); bunyi(780, .12, 'triangle', .04);
+  S.tTerbang = 0; S.ayun = 1; PL.visible = SENAR.visible = true; getar('klik'); bunyi(520, .1, 'triangle', .05); bunyi(780, .12, 'triangle', .04);
   tombol('⏳', 'TUNGGU', 'IKAN MENDEKAT', 'tunggu'); meter(false); petunjuk('Tunggu pelampung tenggelam, lalu langsung ketuk TARIK!');
 }
 function mulaiTunggu() { MODE = 'tunggu'; S.tTunggu = .9 + Math.random() * 2.3 - S.jauh * .3; S.getarN = Math.floor(Math.random() * 3); S.ikan = undiIkan(S.jauh); cebur(); riak(S.tx, S.tz, 1.4); }
-function sambar() { MODE = 'sambar'; S.sambarT = 1.6; SERU.visible = true; bunyi(990, .1, 'square', .07); bunyi(1320, .14, 'square', .06); getar(80); riak(S.tx, S.tz, 2);
+function sambar() { MODE = 'sambar'; S.sambarT = 1.6; SERU.visible = true; bunyi(990, .1, 'square', .07); bunyi(1320, .14, 'square', .06); getar('sambar'); riak(S.tx, S.tz, 2);
   tombol('❗', 'TARIK!', 'KETUK SEKARANG', 'tarik'); petunjuk('Pelampung tenggelam! Ketuk TARIK!'); }
 function mulaiTarik() {
-  MODE = 'tarik'; SERU.visible = false; S.jarak0 = S.jarak = Math.hypot(S.tx, S.tz - ORANG.position.z); S.tegang = .25; S.kendor = 0; S.lawan = 0; S.lawanT = 1 + Math.random() * 2; S.tahan = false;
-  pasangIkan3D(S.ikan); bunyi(660, .08); getar(40);
-  tombol('🌀', 'GULUNG', 'TAHAN', 'gulung'); petunjuk(S.ikan.g ? 'Tahan GULUNG untuk menarik. Kalau meter merah, lepas sebentar.' : 'Kok ringan ya… gulung saja!');
+  MODE = 'tarik'; SERU.visible = false; S.jarak0 = S.jarak = Math.hypot(S.tx, S.tz - ORANG.position.z); S.tegang = .25; S.kendor = 0; S.lawan = 0; S.lawanT = .5 + Math.random() * .8; S.tahan = false;
+  S.tenaga = 1; S.lepasN = 0; S.loncat = 0; S.arah = Math.random() < .5 ? -1 : 1; tenagaIkan(true);
+  pasangIkan3D(S.ikan); bunyi(660, .08); getar('tuk');
+  tombol('🌀', 'GULUNG', 'TAHAN', 'gulung'); petunjuk(S.ikan.g ? 'Tahan GULUNG saat ikan capek, LEPAS saat ikan menarik kuat. Tarik ulur sampai ikan lemas!' : 'Kok ringan ya… gulung saja!');
 }
-function lepasUmpan(t) { MODE = 'gulungKosong'; SERU.visible = false; S.tDapat = .7; kabar(t, 2000); bunyi(300, .18, 'triangle', .05); tombol('⏳', '…', 'MENGGULUNG', 'tunggu'); }
+function tenagaIkan(on) { const e = $('tenaga'); if (!e) return; e.hidden = !on || !(S.ikan && S.ikan.g); if (!e.hidden) { e.firstElementChild.style.width = Math.round(Math.max(0, S.tenaga) * 100) + '%'; e.classList.toggle('lemas', S.tenaga < .25); e.classList.toggle('lari', S.lawan > 0); } }
+function lepasUmpan(t) { MODE = 'gulungKosong'; SERU.visible = false; tenagaIkan(false); meter(false); if (IKAN3D) IKAN3D.visible = false; S.tDapat = .7; kabar(t, 2000); bunyi(300, .18, 'triangle', .05); tombol('⏳', '…', 'MENGGULUNG', 'tunggu'); }
 function dapatIkan() {
   const f = S.ikan; MODE = 'dapat'; S.tDapat = 1.5;
   if (f.g) { totalG += f.g; ekor++; if (!terbesar || f.g > terbesar.g) terbesar = f; TANGKAP.push(f); }
-  tulisTangkap(); getar([40, 40, 60]);
-  if (f.g) { bunyi(880, .1, 'triangle', .06); setTimeout(() => bunyi(1175, .12, 'triangle', .06), 90); setTimeout(() => bunyi(1568, .2, 'triangle', .06), 190); kabar(`${f.ikon} ${f.nama} · ${kgTeks(f.g)}${terbesar === f && ekor > 1 ? ' · TERBESAR!' : ''}`, 2000, 'ikan'); }
-  else { bunyi(330, .2, 'sawtooth', .04); kabar(`${f.ikon} Dapat ${f.nama.toLowerCase()}… he he. Tidak dihitung ya`, 2200); }
-  tombol('✨', 'DAPAT!', f.g ? kgTeks(f.g) : 'SAMPAH', 'gulung'); meter(false); SENAR.visible = false; PL.visible = false;
+  tulisTangkap(); tenagaIkan(false);
+  const besar = f.g && (f.g >= KG_MAKS * 450 || (terbesar === f && ekor > 1));
+  if (f.g) { meriah(besar); getar(besar ? 'besar' : 'dapat'); konfeti(besar ? 46 : 26); kabar(`${f.ikon} ${f.nama} · ${kgTeks(f.g)}${terbesar === f && ekor > 1 ? ' · TERBESAR!' : ''}`, 2000, 'ikan'); }
+  else { getar('tuk'); bunyi(330, .2, 'sawtooth', .04); kabar(`${f.ikon} Dapat ${f.nama.toLowerCase()}… he he. Tidak dihitung ya`, 2200); }
+  tombol('✨', 'DAPAT!', f.g ? kgTeks(f.g) : 'SAMPAH', 'gulung'); petunjuk(f.g ? (besar ? '🎉 Mantap, ikan besar!' : '🎉 Dapat ikan!') : 'He he… lempar lagi!'); meter(false); SENAR.visible = false; PL.visible = false;
 }
 // ---------- kontrol: satu tombol besar (tahan/lepas), keyboard Spasi/Enter ----------
 function tekan() {
@@ -289,31 +323,62 @@ function langkah(dt, t) {
   }
   if (MODE === 'tunggu' || MODE === 'sambar' || MODE === 'tarik' || MODE === 'gulungKosong') {
     let dip = 0;
-    if (MODE === 'tunggu') { S.tTunggu -= dt; if (S.getarN > 0 && S.tTunggu < S.getarN * .7) { S.getarN--; dip = .12; riak(S.tx, S.tz, .7); bunyi(420, .05, 'triangle', .03); } if (S.tTunggu <= 0) sambar(); }
+    if (MODE === 'tunggu') { S.tTunggu -= dt; if (S.getarN > 0 && S.tTunggu < S.getarN * .7) { S.getarN--; dip = .12; riak(S.tx, S.tz, .7); bunyi(420, .05, 'triangle', .03); getar('klik'); } if (S.tTunggu <= 0) sambar(); }
     if (MODE === 'sambar') { S.sambarT -= dt; dip = .45 + .1 * Math.sin(t * 30); if (S.sambarT <= 0) lepasUmpan('Ikannya makan umpan lalu kabur 😅 Lempar lagi!'); }
     if (MODE === 'gulungKosong') { S.tDapat -= dt; const k = Math.max(0, S.tDapat / .7); POROS.getWorldPosition(_u); S.tx = _u.x + (S.tx - _u.x) * Math.min(1, k + .2); S.tz = ORANG.position.z - 1 + (S.tz - ORANG.position.z + 1) * Math.min(1, k + .2); if (S.tDapat <= 0) keSiap(); }
     if (MODE === 'tarik') {
-      const f = S.ikan, kuat = f.kuat;
-      S.lawanT -= dt; if (S.lawanT <= 0) { if (S.lawan > 0) { S.lawan = 0; S.lawanT = 1.2 + Math.random() * 2.2 / Math.max(.6, kuat); } else if (f.g) { S.lawan = .7 + Math.random() * .6; S.lawanT = S.lawan; bunyi(250, .08, 'sawtooth', .03); getar(30); } }
+      // TARIK ULUR (Huda 20 Nov 2026: "ikan lebih melawan lagi biar terasa tarik ulur"): ikan bergantian MENARIK KUAT (lari ke samping & menjauh,
+      // senar keluar berbunyi "zrrrt") dan CAPEK (saatnya menggulung). Menahan gulung saat ikan menarik = tegangan naik cepat, jadi lepas dulu,
+      // lalu gulung lagi saat ikan capek. Tenaga ikan (bar 🐟) habis pelan-pelan; ikan lemas = mudah digulung. Santai tanpa kalah: senar tidak putus,
+      // paling buruk ikan lolos setelah 3x senar kendor → cukup lempar lagi, berat yang sudah didapat tidak berkurang.
+      const f = S.ikan, kuat = f.kuat, ef = f.g ? .3 + .7 * S.tenaga : 0;   // ef: tenaga tarikan ikan saat ini
+      S.lawanT -= dt;
+      if (S.lawanT <= 0) {
+        if (S.lawan > 0) { S.lawan = 0; S.lawanT = (.7 + Math.random() * 1.1) / (.7 + .3 * kuat) + (1 - S.tenaga) * 1.4; }   // ikan capek sebentar
+        else if (f.g) { S.lawan = (.9 + Math.random() * 1.1) * (.6 + .4 * kuat) * (.45 + .55 * S.tenaga); S.lawanT = S.lawan; S.arah = Math.random() < .65 ? -S.arah : S.arah;
+          bunyi(240, .1, 'sawtooth', .04); getar(S.tenaga > .4 ? 'lawan' : 'tuk'); riak(S.tx, S.tz, 1.8);
+          if (kuat > .9 && S.jarak > 4 && S.jarak < 16 && Math.random() < .35) { S.loncat = .75; cebur(.08); } }   // ikan besar kadang meloncat keluar air
+      }
+      const lari = S.lawan > 0;
       if (S.kendor > 0) { S.kendor -= dt; S.tahan = false; }
-      if (S.tahan && S.kendor <= 0) {
-        S.jarak -= Math.max(2.6, 6.2 - kuat * 1.7) * dt * (S.lawan > 0 ? .45 : 1);
-        S.tegang += (.12 + .22 * kuat + (S.lawan > 0 ? .7 * kuat : 0)) * dt;
+      const gulung = S.tahan && S.kendor <= 0;
+      if (gulung) {
+        if (lari) { S.jarak += (.4 + .3 * kuat) * ef * dt; S.tegang += (.42 + .75 * kuat) * ef * dt; S.tenaga -= .13 * dt / Math.sqrt(kuat); }   // adu kuat: senar tetap keluar sedikit
+        else { S.jarak -= Math.max(2.2, 5.4 - kuat * 1.6) * (1 + (1 - S.tenaga) * .5) * dt; S.tegang += (.1 + .16 * kuat) * dt; S.tenaga -= .035 * dt / Math.sqrt(kuat); }
         S.klik += dt; if (S.klik > .07) { S.klik = 0; bunyi(1800 + Math.random() * 200, .015, 'square', .02); }
-      } else { S.tegang -= .8 * dt; S.jarak = Math.min(S.jarak0 + 3, S.jarak + kuat * (S.lawan > 0 ? 1.6 : .5) * dt); }
-      S.tegang = Math.max(0, S.tegang);
-      if (S.tegang >= 1) { S.tegang = .78; S.kendor = 1; S.jarak = Math.min(S.jarak0 + 3, S.jarak + 1.5); kabar('〰️ Senar kendor sebentar, ikannya menjauh', 1500); bunyi(200, .2, 'triangle', .05); getar(60); }
+      } else {
+        S.tegang -= (lari ? 1.05 : .8) * dt;
+        if (lari) { S.jarak += kuat * 2.1 * ef * dt; S.tenaga -= .05 * dt / Math.sqrt(kuat); } else S.jarak += kuat * .25 * ef * dt;
+      }
+      S.jarak = Math.min(S.jarak0 + 7, S.jarak); S.tenaga = Math.max(0, S.tenaga); S.tegang = Math.max(0, S.tegang);
+      // bunyi senar keluar (drag gulungan) saat ikan menarik
+      if (lari && f.g) { S.zipT += dt; if (S.zipT > (gulung ? .05 : .035)) { S.zipT = 0; bunyi(gulung ? 900 : 1150 + Math.random() * 150, .012, 'square', .018); } }
+      // getar: denyut makin rapat saat senar makin tegang
+      S.denyutT -= dt; if (gulung && S.tegang > .55 && S.denyutT <= 0) { S.denyutT = .32 - S.tegang * .2; getar(lari ? 30 : 'tegang'); }
+      if (S.tegang >= 1) {
+        S.tegang = .78; S.kendor = 1; S.jarak = Math.min(S.jarak0 + 7, S.jarak + 1.5); S.lepasN++; bunyi(200, .2, 'triangle', .05); getar('kendor');
+        if (S.lepasN >= 3 && f.g && S.tenaga > .3) { lepasUmpan(`💨 Yah, ${f.nama.toLowerCase()} lolos! Tidak apa-apa, lempar lagi 🎣`); return; }
+        kabar(S.lepasN === 2 && f.g ? '⚠️ Senar kendor lagi! Sekali lagi ikannya bisa lolos' : '〰️ Senar kendor sebentar, ikannya menjauh', 1600);
+      }
       const k = S.jarak / Math.max(.1, Math.hypot(S.tx, S.tz - ORANG.position.z)); S.tx *= Math.min(1.2, k); S.tz = ORANG.position.z + (S.tz - ORANG.position.z) * Math.min(1.2, k);
-      S.tx += Math.sin(t * (1.5 + kuat)) * dt * (S.lawan > 0 ? 3 : .8) * (f.g ? 1 : 0);
+      // ikan berenang ke samping: kencang saat menarik, pelan saat capek
+      const lebar = 2.5 + S.jarak * .45;
+      S.tx += (lari ? S.arah * (2.2 + kuat * 1.6) * ef : Math.sin(t * (1.5 + kuat)) * .8 * ef) * dt;
+      if (Math.abs(S.tx) > lebar) { S.tx = Math.sign(S.tx) * lebar; S.arah = -Math.sign(S.tx); }
       meter(true, S.tegang, S.tegang > .82 ? 'bahaya' : S.tegang > .6 ? 'awas' : '', Math.max(0, S.jarak).toFixed(1).replace('.', ',') + ' m');
-      petunjuk(S.kendor > 0 ? 'Senar kendor… tunggu sebentar, lalu tahan GULUNG lagi.' : S.lawan > 0 ? '🐟 Ikan melawan! Lepas dulu kalau meter merah.' : S.tegang > .82 ? 'Meter merah! Lepas sebentar.' : 'Tahan GULUNG untuk menarik ikan.');
+      tenagaIkan(true);
+      petunjuk(S.kendor > 0 ? 'Senar kendor… tunggu sebentar, lalu tahan GULUNG lagi.' : !f.g ? 'Kok ringan ya… gulung saja!'
+        : lari ? (S.tegang > .7 ? '🐟 Ikan menarik kuat! LEPAS dulu, jangan dilawan.' : '🐟 Ikan menarik! Ulur dulu atau tahan pelan-pelan.')
+        : S.tenaga < .25 ? '😮‍💨 Ikan sudah lemas, gulung terus!' : S.tegang > .82 ? 'Meter merah! Lepas sebentar.' : 'Ikan capek, sekarang TAHAN GULUNG!');
       $('bAksi').classList.toggle('tekan', S.tahan);
       if (S.jarak <= .8) dapatIkan();
     }
     const yAir = tinggiAir(S.tx, S.tz, t);
     PL.position.set(S.tx, yAir + .05 - dip + (MODE === 'tunggu' ? .03 * Math.sin(t * 2.4) : 0) - (MODE === 'tarik' ? .15 + S.tegang * .2 : 0), S.tz);
     // ikan terlihat di bawah permukaan saat dekat (<7 m), menggelepar
-    if (MODE === 'tarik' && IKAN3D) { IKAN3D.visible = S.jarak < 7; IKAN3D.position.set(S.tx, yAir - .45 + Math.max(0, 7 - S.jarak) * .04, S.tz - .3); IKAN3D.rotation.set(0, Math.PI + Math.sin(t * 9) * .4, 0); if (IKAN3D.userData.ekor) IKAN3D.userData.ekor.rotation.y = Math.sin(t * 18) * .5; }
+    if (MODE === 'tarik' && IKAN3D && S.loncat > 0) { S.loncat -= dt; const k = 1 - Math.max(0, S.loncat) / .75; IKAN3D.visible = true; IKAN3D.position.set(S.tx, yAir - .3 + Math.sin(k * Math.PI) * (1.2 + S.ikan.kuat * .5), S.tz);
+      IKAN3D.rotation.set(Math.PI / 2 * (k - .5) * 1.6, Math.PI / 2, Math.sin(t * 20) * .3); if (S.loncat <= 0) { riak(S.tx, S.tz, 2.2); cebur(.12); getar('tuk'); } }
+    else if (MODE === 'tarik' && IKAN3D) { IKAN3D.visible = S.jarak < 7; IKAN3D.position.set(S.tx, yAir - .45 + Math.max(0, 7 - S.jarak) * .04, S.tz - .3); IKAN3D.rotation.set(0, Math.PI + Math.sin(t * 9) * .4, 0); if (IKAN3D.userData.ekor) IKAN3D.userData.ekor.rotation.y = Math.sin(t * 18) * .5; }
     if (MODE === 'tarik' && Math.random() < dt * (S.lawan > 0 ? 6 : 1.5)) riak(S.tx, S.tz, S.lawan > 0 ? 1.4 : .8);
   }
   if (MODE === 'dapat') {
@@ -326,7 +391,7 @@ function langkah(dt, t) {
     if (S.tDapat <= 0) { if (IKAN3D) IKAN3D.visible = false; if (sisa <= 0) return selesaiSesi(); keSiap(); }
   }
   // ayunan joran: siap = tegak condong ke depan, isi = ditarik ke belakang, terbang = maju, tarik = melengkung naik-turun
-  const target = MODE === 'isi' ? -S.kuat * .9 : MODE === 'terbang' ? .55 : MODE === 'tarik' ? -.25 - S.tegang * .35 + Math.sin(t * 14) * .03 * (S.lawan > 0 ? 3 : 1) : MODE === 'dapat' ? -.55 : .25;
+  const target = MODE === 'isi' ? -S.kuat * .9 : MODE === 'terbang' ? .55 : MODE === 'tarik' ? -.25 - S.tegang * .35 - (S.lawan > 0 ? .15 * S.tenaga : 0) + Math.sin(t * (S.lawan > 0 ? 22 : 14)) * .03 * (S.lawan > 0 ? 4 : 1) : MODE === 'dapat' ? -.55 : .25;
   S.ayun += (target - S.ayun) * Math.min(1, dt * (MODE === 'terbang' ? 18 : 8));
   POROS.rotation.x = -(.75 - S.ayun);   // 0 rad = tegak; negatif = condong ke air (-z)
   if (POROS.userData.reel) POROS.userData.reel.rotation.x += (MODE === 'tarik' && S.tahan ? 18 : MODE === 'gulungKosong' ? 14 : 0) * dt;
@@ -372,6 +437,12 @@ function tulisJoran() { const j = JORAN[joranPilih]; $('lJoran').innerHTML = `<i
 $('lJoran').onclick = () => { joranPilih = (joranPilih + 1) % JORAN.length; simpan('dk_mancing_joran', JORAN[joranPilih].id); tulisJoran(); pasangJoran(); siapSuara(); bunyi(660, .06); }; tulisJoran();
 PELAMPUNG.forEach(([n, c], i) => { const b = document.createElement('button'); b.className = 'titik'; b.style.background = '#' + c.toString(16).padStart(6, '0'); b.title = 'Pelampung ' + n; b.setAttribute('aria-label', 'Warna pelampung ' + n);
   if (i === pelampungPilih) b.classList.add('pilih'); b.onclick = () => { document.querySelectorAll('#lWarna .titik').forEach(x => x.classList.remove('pilih')); b.classList.add('pilih'); pelampungPilih = i; simpan('dk_mancing_pelampung', n); warnaPelampung(); siapSuara(); bunyi(880, .05); }; $('lWarna').append(b); });
+// saklar 🔊 suara & 📳 getar di lobi (diingat di HP, sama dengan pengaturan desa). Tombol getar disembunyikan di HP yang tidak bisa getar (iPhone).
+function tulisRasa() { const s = $('bSuara'), g = $('bGetar'); s.textContent = SUARA ? '🔊' : '🔇'; s.classList.toggle('mati', !SUARA); s.setAttribute('aria-label', 'Suara ' + (SUARA ? 'nyala' : 'mati'));
+  g.hidden = !bisaGetar; g.textContent = '📳'; g.classList.toggle('mati', !getarNyala()); g.setAttribute('aria-label', 'Getar ' + (getarNyala() ? 'nyala' : 'mati')); }
+$('bSuara').onclick = () => { SUARA = !SUARA; aturSuara(SUARA); siapSuara(); bunyi(880, .06); kabar(SUARA ? '🔊 Suara nyala' : '🔇 Suara mati', 1200); tulisRasa(); };
+$('bGetar').onclick = () => { const on = !getarNyala(); aturGetar(on); kabar(on ? '📳 Getar nyala' : '📴 Getar mati', 1200); tulisRasa(); };
+tulisRasa();
 tulisLobi(null);
 apiM(null).then(j => { if (j && !j.galat) tulisLobi(j); });
 let idSesi = 0;
@@ -433,4 +504,4 @@ window.__mk = {S, mode: () => MODE, sim: detik => {   // main otomatis dengan la
       if (MODE === 'siap') tekan(); else if (MODE === 'isi' && S.kuat > .85) lepas(); else if (MODE === 'sambar' && S.sambarT < 1.2) tekan();
       else if (MODE === 'tarik') { if (S.tegang > .75) lepas(); else if (S.tegang < .4) tekan(); if (S.kendor > 0) kendor++; }
       langkah(1 / 60, t); n++; }
-    return {mode: MODE, detik: +(n / 60).toFixed(1), totalG, ekor, kendor}; }, mulai: mulaiSesi, tekan, lepas, sisa: v => { if (v != null) sisa = v; return sisa; }, hasil: () => ({totalG, ekor, terbesar}), L_NO, LOKAL};
+    return {mode: MODE, detik: +(n / 60).toFixed(1), totalG, ekor, kendor}; }, mulai: mulaiSesi, tekan, lepas, sisa: v => { if (v != null) sisa = v; return sisa; }, hasil: () => ({totalG, ekor, terbesar}), langkah, L_NO, LOKAL};

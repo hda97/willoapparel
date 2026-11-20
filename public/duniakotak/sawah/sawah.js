@@ -11,6 +11,7 @@ import '../mabar/js/putar.js'; // HP tegak -> tampil mendatar, sama seperti game
 import * as THREE from 'three';
 import {warga} from '../mabar/js/aset/avatar.js';
 import {buatKebun} from '../mabar/js/tanamanSawah.js?v=20261118a';
+import {getar, suaraNyala} from '../mabar/js/rasa.js?v=20261120g';   // getar HP + saklar suara (Huda 20 Nov 2026)
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
@@ -44,6 +45,7 @@ async function api(op, data = {}) {
 // ---------- suara kecil (WebAudio, tanpa file) ----------
 let AC = null;
 function bunyi(fr = 660, d = .08, tipe = 'square', v = .05) {
+  if (!suaraNyala()) return;
   try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume();
     const o = AC.createOscillator(), g = AC.createGain(); o.type = tipe; o.frequency.value = fr;
     g.gain.setValueAtTime(v, AC.currentTime); g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + d);
@@ -213,7 +215,7 @@ async function usir(g) {
   if (!AKUN) return toast(`${GG_IKON[g.jenis]} Masuk sebagai warga dulu untuk mengusir ${GG_NAMA[g.jenis]}.`);
   if (PILIH !== g.p) { PILIH = g.p; MODE = 'info'; avatarKe(g.p); }
   const pt = petakDi(g.p), saya = SAYA && pt && pt.no === SAYA.no, tn = pt && D.tanaman[pt.b];
-  aksi('usir', {p: g.p, i: g.i}, j => { LONCAT = .4; semprot(g.p, [0x9ae03a, 0x2f6a2a, 0x8a5a32][g.jenis], 12, 6); nada(988, 1175);
+  aksi('usir', {p: g.p, i: g.i}, j => { LONCAT = .4; semprot(g.p, [0x9ae03a, 0x2f6a2a, 0x8a5a32][g.jenis], 12, 6); nada(988, 1175); getar('tuk');
     toast(j.usir && j.usir.dapat ? `${GG_IKON[g.jenis]} ${GG_NAMA[g.jenis][0].toUpperCase() + GG_NAMA[g.jenis].slice(1)} tetangga diusir! Kamu +${j.usir.dapat} 🪙` : saya ? `${GG_IKON[g.jenis]} ${GG_NAMA[g.jenis][0].toUpperCase() + GG_NAMA[g.jenis].slice(1)} pergi! Panen nanti +${tn ? bonusGG(tn) : 1} 🪙` : `${GG_IKON[g.jenis]} Diusir! Tetangga senang.`, 2200); });
 }
 function pilih(p) { PILIH = p; MODE = 'info'; bunyi(p >= 0 ? 760 : 420, .05); if (p >= 0 && AKUN) avatarKe(p); bangunTanaman(); tulisPanel(); }
@@ -307,14 +309,14 @@ $('panel').addEventListener('click', e => {
   if (b.dataset.bibit && (D.tanaman[b.dataset.bibit].lv || 1) > (SAYA.lv || 1)) { const t = D.tanaman[b.dataset.bibit]; return toast(`🔒 ${t.nama} terbuka di Level Petani ${t.lv}. Panen terus untuk dapat XP!`); }
   if (b.id === 'bTanam') { MODE = 'bibit'; bunyi(700, .04); return tulisPanel(); }
   if (b.dataset.bibit) { const t = D.tanaman[b.dataset.bibit]; if (SAYA && SAYA.koin < t.bibit) return toast(`Koinmu kurang untuk bibit ${t.nama} (${t.bibit} 🪙).`);
-    return aksi('tanam', {b: b.dataset.bibit}, () => { MODE = 'info'; LONCAT = .5; semprot(PILIH, 0x6cc04a, 12, 4); nada(523, 659, 784); toast(`🌱 ${t.nama} ditanam! Panen ${durasi(t.menit * 60e3)} lagi.`); }); }
-  if (b.id === 'bBeli') return aksi('beli', {}, j => { LONCAT = .5; semprot(PILIH, 0xf2c14a, 18); nada(523, 659, 784, 1046); toast(`🎉 Petak ${PILIH + 1} jadi milikmu! Sekarang tanam bibit.`); });
-  if (b.id === 'bSiram') return aksi('siram', {}, j => { LONCAT = .4; semprot(PILIH, 0x56b8ff, 20, 5); nada(880, 988); toast(j.siram && j.siram.dapat ? `💧 Disiram! Tetangga senang, kamu +${j.siram.dapat} 🪙` : `💧 Disiram! Tumbuh ${durasi(j.siram.cepat * 60e3)} lebih cepat.`); });
+    return aksi('tanam', {b: b.dataset.bibit}, () => { MODE = 'info'; LONCAT = .5; semprot(PILIH, 0x6cc04a, 12, 4); nada(523, 659, 784); getar('tuk'); toast(`🌱 ${t.nama} ditanam! Panen ${durasi(t.menit * 60e3)} lagi.`); }); }
+  if (b.id === 'bBeli') return aksi('beli', {}, j => { LONCAT = .5; semprot(PILIH, 0xf2c14a, 18); nada(523, 659, 784, 1046); getar('dapat'); toast(`🎉 Petak ${PILIH + 1} jadi milikmu! Sekarang tanam bibit.`); });
+  if (b.id === 'bSiram') return aksi('siram', {}, j => { LONCAT = .4; semprot(PILIH, 0x56b8ff, 20, 5); nada(880, 988); getar('tuk'); toast(j.siram && j.siram.dapat ? `💧 Disiram! Tetangga senang, kamu +${j.siram.dapat} 🪙` : `💧 Disiram! Tumbuh ${durasi(j.siram.cepat * 60e3)} lebih cepat.`); });
   if (b.id === 'bUsir') { const pt = petakDi(PILIH), ga = gangguanAktif(pt); if (ga.length) return usir({p: PILIH, i: ga[0], jenis: jenisGG(pt, ga[0])}); return; }
   if (b.id === 'bPanen') { MODE = 'panen'; bunyi(700, .04); return tulisPanel(); }
   if (b.id === 'bTarik') { const pos = posJarum(), dz = Math.abs(pos - .5), q = dz <= .07 ? 2 : dz <= .17 ? 1 : 0; JARUM_T0 = -1; b.disabled = true;
     return aksi('panen', {q}, j => { MODE = 'info'; const pn = j.panen, r = pn.rinci || {}, tn = D.tanaman[pn.b];
-      LONCAT = .6; semprot(PILIH, 0xffd23a, r.raya ? 40 : 22, r.raya ? 10 : 7); nada(659, 784, 988, 1318);
+      LONCAT = .6; semprot(PILIH, 0xffd23a, r.raya ? 40 : 22, r.raya ? 10 : 7); nada(659, 784, 988, 1318); getar(r.raya || q === 2 ? 'besar' : 'dapat');
       toast(`${['🧺 Panen', '👍 Panen bagus', '🎯 PANEN SEMPURNA'][q]} ${tn.ikon} ${tn.nama}! +${pn.dapat} 🪙`, 3200);
       if (r.raya) setTimeout(() => { toast(`✨ PANEN RAYA! Hasil ${tn.nama} dobel +${r.raya} 🪙`, 3500); nada(784, 988, 1318, 1568); semprot(PILIH, 0xfff07a, 30, 11); }, 500);
       if (pn.pesanan) setTimeout(() => { toast(`📦 Pesanan ${D.tanaman[pn.pesanan.b].ikon} terkirim! +${pn.pesanan.h} 🪙`, 3200); nada(659, 880, 1046); }, r.raya ? 1500 : 700);

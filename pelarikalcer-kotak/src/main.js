@@ -8,6 +8,7 @@ import { rumahMesh, warungMesh } from '../../public/duniakotak/mabar/js/aset/rum
 import * as F from '../../public/duniakotak/mabar/js/aset/fasum.js';
 import { kucingMesh } from '../../public/duniakotak/mabar/js/aset/kucing.js';
 import { RUTE, TEKS_JALAN, TEKS_TEPI } from './lintasan.js';
+import { getar } from '../../public/duniakotak/mabar/js/rasa.js';   // getar HP (Huda 20 Nov 2026), saklar di ⚙ Atur desa
 
 // ---------------- konstanta ----------------
 const U = 2.2;                       // satuan dunia per meter
@@ -565,7 +566,7 @@ function mulaiGPS() {
   setTimeout(() => { $('gps').classList.add('kunci'); $('gpsTeks').textContent = 'GPS LOCKED'; bunyi(1320, .12); setTimeout(() => bunyi(1320, .12), 160); }, tunggu);
   setTimeout(() => { $('gps').hidden = true; hitungMundur(); }, tunggu + 1000);
 }
-function hitungMundur() { mode = 'hitung'; $('hud').hidden = false; $('kontrol').hidden = false; let n = 3; const t = () => { $('toast').textContent = n > 0 ? n : 'GO!'; $('toast').hidden = false; bunyi(n > 0 ? 520 : 880, .1); if (n-- > 0) setTimeout(t, 650); else { setTimeout(() => $('toast').hidden = true, 600); mode = 'lari'; jamLalu = performance.now(); $('kontrol').classList.remove('pudar'); setTimeout(() => $('kontrol').classList.add('pudar'), 6000); } }; t(); }
+function hitungMundur() { mode = 'hitung'; $('hud').hidden = false; $('kontrol').hidden = false; let n = 3; const t = () => { $('toast').textContent = n > 0 ? n : 'GO!'; $('toast').hidden = false; bunyi(n > 0 ? 520 : 880, .1); if (n === 0) getar('lawan'); if (n-- > 0) setTimeout(t, 650); else { setTimeout(() => $('toast').hidden = true, 600); mode = 'lari'; jamLalu = performance.now(); $('kontrol').classList.remove('pudar'); setTimeout(() => $('kontrol').classList.add('pudar'), 6000); } }; t(); }
 let toastT = 0; function toast(s, ms = 1300) { if (mode === 'rayakan') { RK.toast.push([s, ms]); return; } $('toast').textContent = s; $('toast').hidden = false; clearTimeout(toastT); toastT = setTimeout(() => $('toast').hidden = true, ms); }
 const fmtWaktu = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 function hud() {
@@ -706,16 +707,16 @@ function posHantu() { if (!HANTU) return null; const j = HANTU.j, k = Math.max(0
 function ambilAir() { if (mode !== 'lari' || P.wsAmbil || !(P.d > WS.buka && P.d < WS.tutup)) return; P.wsAmbil = true; P.stamina = Math.min(100, P.stamina + 35); P.koin += 5; toast('💧 Isotonik! +35% stamina · +5 🪙'); bunyi(990, .1); setTimeout(() => bunyi(1320, .1), 90); }
 function kena(o) {
   if (P.kebal > 0) return;
-  if (P.perisai > 0) { P.perisai = 0; P.kebal = 1; toast('🛡️ Perisai menahan benturan'); bunyi(300, .1); o.habis = true; if (o.mesh) o.mesh.visible = false; return; }
-  P.nyawa--; P.pernahKena = true; P.kebal = 1.6; P.v *= .45; bunyi(140, .25, 'sawtooth', .07); toast(o.jenis === 'lubang' ? 'Aduh, lubang jalan!' : o.jenis === 'akar' ? 'Kesandung akar!' : o.jenis === 'kayu' ? 'Nabrak batang kayu!' : 'Nabrak ' + o.jenis + '!');
+  if (P.perisai > 0) { P.perisai = 0; P.kebal = 1; toast('🛡️ Perisai menahan benturan'); bunyi(300, .1); getar('tuk'); o.habis = true; if (o.mesh) o.mesh.visible = false; return; }
+  P.nyawa--; P.pernahKena = true; P.kebal = 1.6; P.v *= .45; bunyi(140, .25, 'sawtooth', .07); getar('tabrak'); toast(o.jenis === 'lubang' ? 'Aduh, lubang jalan!' : o.jenis === 'akar' ? 'Kesandung akar!' : o.jenis === 'kayu' ? 'Nabrak batang kayu!' : 'Nabrak ' + o.jenis + '!');
   if (P.nyawa <= 0) gagal();
 }
 function ambil(o) { o.habis = true; if (o.mesh) o.mesh.visible = false;
-  if (o.jenis === 'koin') { P.koin += 1; bunyi(1180 + rnd() * 200, .05, 'triangle'); }
-  if (o.jenis === 'petir') { P.stamina = Math.min(100, P.stamina + 30); toast('⚡ +30% stamina'); bunyi(800, .12, 'triangle'); }
-  if (o.jenis === 'magnet') { P.magnet = 8; toast('🧲 Magnet 8 detik'); bunyi(700, .12, 'triangle'); }
-  if (o.jenis === 'perisai') { P.perisai = 8; toast('🛡️ Perisai 8 detik'); bunyi(600, .12, 'triangle'); }
-  if (o.jenis === 'hati') { P.nyawa = Math.min(5, P.nyawa + 1); toast('❤️ +1 nyawa'); bunyi(900, .12, 'triangle'); }
+  if (o.jenis === 'koin') { P.koin += 1; bunyi(1180 + rnd() * 200, .05, 'triangle'); getar('klik'); }
+  if (o.jenis === 'petir') { P.stamina = Math.min(100, P.stamina + 30); toast('⚡ +30% stamina'); bunyi(800, .12, 'triangle'); getar('tuk'); }
+  if (o.jenis === 'magnet') { P.magnet = 8; toast('🧲 Magnet 8 detik'); bunyi(700, .12, 'triangle'); getar('tuk'); }
+  if (o.jenis === 'perisai') { P.perisai = 8; toast('🛡️ Perisai 8 detik'); bunyi(600, .12, 'triangle'); getar('tuk'); }
+  if (o.jenis === 'hati') { P.nyawa = Math.min(5, P.nyawa + 1); toast('❤️ +1 nyawa'); bunyi(900, .12, 'triangle'); getar('tuk'); }
 }
 function gagal() { mode = 'gagal'; setorLari({ koin: P.koin, finish: false }); D.tas = {}; D.warm = false; simpanD(); setTimeout(() => { $('gagal').hidden = false; $('kontrol').hidden = true; $('gagalInfo').textContent = `Berhenti di ${(P.d / 1000).toFixed(2).replace('.', ',')} KM. Coba lagi, pelan-pelan jaga stamina.`; }, 700); }
 // foto struk: avatar pemain berkalung medali finisher, dirender di studio kecil terpisah
@@ -734,7 +735,7 @@ function fotoMedali(w = 150, h = 180, pr = 2) {
   } catch (e) { return ''; }
 }
 function selesai() {
-  mode = 'selesai'; $('kontrol').hidden = true; bunyi(880, .15); setTimeout(() => bunyi(1100, .15), 150); setTimeout(() => bunyi(1320, .3), 300);
+  mode = 'selesai'; $('kontrol').hidden = true; getar('dapat'); bunyi(880, .15); setTimeout(() => bunyi(1100, .15), 150); setTimeout(() => bunyi(1320, .3), 300);
   const t0 = P.waktu * SKALA_WAKTU, posisi = peringkat(), stk = streakKini(), stkBaru = stk.hariIni ? stk.n : stk.n + 1;
   setorLari({ koin: P.koin, finish: true, waktu: Math.round(t0 * 10) / 10, pos: posisi, iso: !!P.wsAmbil, mulus: !P.pernahKena, rute: RUTE_I });
   const ruteBaru = RUTE_I === ruteBuka() && RUTE_I < RUTE.length - 1 ? RUTE[RUTE_I + 1] : null; if (ruteBaru) D.ruteBuka = RUTE_I + 1; D.tas = {}; D.warm = false; const baru = !D.rekor || t0 < D.rekor; if (baru) { D.rekor = t0; simpanHantu(t0); } simpanD();
@@ -765,7 +766,7 @@ function bukaRayakan(i) {
   const k = $('rkKartu'); k.classList.remove('muncul'); void k.offsetWidth; k.classList.add('muncul');
   [523, 659, 784, 1047, 1319].forEach((f, n) => setTimeout(() => bunyi(f, n === 4 ? .35 : .12, 'square', .06), n * 110));
   setTimeout(() => bunyi(1568, .4, 'triangle', .05), 640);
-  konfeti(); setTimeout(() => $('bRkCoba').focus({ preventScroll: true }), 300);
+  konfeti(); getar('besar'); setTimeout(() => $('bRkCoba').focus({ preventScroll: true }), 300);
 }
 function tutupRayakan() { $('rayakan').hidden = true; document.body.classList.remove('rayakan'); RK.kf = []; resetLari(); const q = RK.toast.splice(0); if (q.length) setTimeout(() => toast(q[q.length - 1][0], q[q.length - 1][1]), 400); }
 $('bRkCoba').onclick = () => { tutupRayakan(); bunyi(660, .08); $('pemanasan').hidden = true; $('struk').hidden = true; mulaiGPS(); };

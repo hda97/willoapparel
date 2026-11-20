@@ -8,6 +8,8 @@
 // Tidak ada kalah. Koordinat sentuh & getBoundingClientRect sudah disesuaikan putar.js (HP tegak), jadi cukup clientX/Y.
 // mainRawat({nama, bunyi, selesai, batal}) → selesai() dipanggil sekali setelah tahap 5; batal() bila ditutup.
 
+import {getar} from './rasa.js?v=20261120g';   // getar HP tiap tugas kecil selesai (Huda 20 Nov 2026)
+
 const CSS = `
 .rwLatar{position:fixed;inset:0;z-index:70;background:rgba(10,12,20,.55);display:flex;align-items:center;justify-content:center;padding:8px;font-family:Montserrat,sans-serif}
 .rwPanel{position:relative;width:min(760px,calc(98*var(--vw,1vw)));height:min(430px,calc(96*var(--vh,1vh)));background:#fff6dc;border:3px solid #2a2218;border-radius:10px;box-shadow:0 6px 0 #2a2218;display:flex;flex-direction:column;overflow:hidden;color:#2a2218}
@@ -70,6 +72,7 @@ const TAHAP = [
 const acak = (a, b) => a + Math.random() * (b - a);
 
 export function mainRawat({nama = 'tetangga', bunyi = () => {}, selesai = () => {}, batal = () => {}, tutup: diTutup = () => {}, dariTahap = 0} = {}) {
+  const bunyiAsli = bunyi; bunyi = n => { bunyiAsli(n); if (n === 'klik') getar('klik'); else if (n === 'kirim') getar('tuk'); else if (n === 'emosi') getar('gagal'); };
   if (!gayaDipasang) { const s = document.createElement('style'); s.textContent = CSS; document.head.appendChild(s); gayaDipasang = true; }
   const latar = document.createElement('div'); latar.className = 'rwLatar';
   latar.innerHTML = `<div class="rwPanel"><div class="rwAtas"><b>🧹 Rawat rumah ${esc(nama)}</b><div class="rwTahap">${TAHAP.map(t => `<i>${t.ikon}</i>`).join('')}</div><button class="rwX" aria-label="Berhenti">✕</button></div>
@@ -204,7 +207,7 @@ export function mainRawat({nama = 'tetangga', bunyi = () => {}, selesai = () => 
     const henti = () => { aktif = null; }; p.addEventListener('pointerup', henti); p.addEventListener('pointercancel', henti);
   }
   function akhir() {
-    const det = Math.round((performance.now() - t0) / 1000);
+    const det = Math.round((performance.now() - t0) / 1000); getar('dapat');
     pet.textContent = '✨ Rumah ' + nama + ' rapi lagi!'; hit.textContent = det + ' dtk';
     const k = document.createElement('div'); k.className = 'rwSelesai';
     k.innerHTML = `<div style="font-size:44px">🏡✨</div><b>Rumah ${esc(nama)} rapi lagi!</b><small>Rumput dicabut, daun disapu, jendela kinclong, bunga disiram, pagar dicat. Waktu kerja ${det} detik.</small><small class="rwStatus">Menyimpan…</small>`;

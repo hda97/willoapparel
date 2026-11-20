@@ -73,6 +73,17 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
 #bAksi.tarik{background:#e0503a;color:#fff;animation:denyut .45s ease-in-out infinite alternate}
 #bAksi.gulung{background:#3aa860;color:#fff}
 #bAksi.tunggu{background:rgba(30,33,56,.75);color:#fff;box-shadow:none}
+#tenaga{position:absolute;right:0;bottom:132px;width:122px;height:16px;border-radius:8px;background:rgba(19,20,31,.65);border:2px solid rgba(255,255,255,.45);overflow:hidden}
+#tenaga i{position:absolute;left:0;top:0;bottom:0;width:100%;background:linear-gradient(90deg,#f2a33a,#e0503a);transition:width .15s}
+#tenaga.lemas i{background:#9aa0b0}#tenaga.lari{animation:goyang .12s linear infinite alternate}
+#tenaga span{position:absolute;inset:0;font-size:9px;font-weight:900;line-height:12px;text-align:center;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.8);letter-spacing:.04em}
+@keyframes goyang{to{transform:translateX(2px)}}
+#rasa{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:6px}
+#rasa button{width:40px;height:40px;border-radius:50%;font-size:19px;display:flex;align-items:center;justify-content:center}
+#rasa button.mati{opacity:.55;text-decoration:line-through}
+#konfeti{position:fixed;left:50%;top:38%;width:0;height:0;pointer-events:none}
+#konfeti i{position:absolute;width:9px;height:13px;border-radius:2px;animation:konfeti 1.3s cubic-bezier(.15,.7,.3,1) forwards}
+@keyframes konfeti{0%{transform:translate(0,0) rotate(0) scale(.4);opacity:1}70%{opacity:1}100%{transform:translate(var(--x),calc(var(--y) + 160px)) rotate(var(--r)) scale(1);opacity:0}}
 @keyframes denyut{to{transform:scale(1.08)}}
 #hitung{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
 #hitung b{font-size:84px;font-weight:900;color:#fff;text-shadow:0 4px 0 rgba(19,20,31,.5);animation:dentum .9s ease-out}
@@ -93,7 +104,7 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
 .dua{display:grid;grid-template-columns:1fr 1.6fr;gap:8px}
 .dua .utama{padding:10px;font-size:15px}.dua .kedua{display:flex;align-items:center;justify-content:center}
 @media (max-height:330px){#lobi{gap:5px}.judul h1{font-size:22px}.status{padding:5px 10px}.utama{padding:9px;font-size:15px}.warna{padding:4px 8px}.lokasi button{padding:2px 0}
- #bAksi{width:100px;height:100px;font-size:13px}#bAksi i{font-size:28px}#meter{height:100px}#meterL{bottom:106px}#jam b{font-size:20px}#tangkap b{font-size:15px}#kabar{top:62px}#petunjuk{font-size:11px;padding:6px 10px}}
+ #bAksi{width:100px;height:100px;font-size:13px}#bAksi i{font-size:28px}#meter{height:100px}#meterL{bottom:106px}#tenaga{width:100px;bottom:108px}#jam b{font-size:20px}#tangkap b{font-size:15px}#kabar{top:62px}#petunjuk{font-size:11px;padding:6px 10px}}
 </style>
 <script type="importmap">{"imports":{"three":"/duniakotak/three/0.169.0/three.module.min.js","three/addons/geometries/RoundedBoxGeometry.js":"/duniakotak/mabar/js/kotakBulat.js?v=20261108r","three/addons/":"/duniakotak/three/0.169.0/jsm/"}}</script>
 </head>
@@ -109,12 +120,14 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
  <div class="teladan" id="lTop"></div>
 </div>
 <div id="dompet" class="kaca" hidden></div>
+<div id="rasa"><button id="bSuara" class="kaca" type="button">🔊</button><button id="bGetar" class="kaca" type="button" hidden>📳</button></div>
+<div id="konfeti"></div>
 
 <button id="keluar" class="kaca" hidden>✕ Keluar</button>
 <div id="jam" hidden><b id="jWaktu">1:30</b><small id="jKet">SISA WAKTU</small></div>
 <div id="tangkap" class="kaca" hidden><b id="tBerat">0,00 kg</b><small id="tEkor">0 EKOR</small></div>
 <div id="petunjuk" class="kaca" hidden></div>
-<div id="kendali" hidden><div id="meter"><i></i><span id="meterL"></span></div><button id="bAksi" type="button"><i>🎣</i><span id="bAksiT">LEMPAR</span><small id="bAksiK">TAHAN · LEPAS</small></button></div>
+<div id="kendali" hidden><div id="tenaga" hidden><i></i><span>🐟 TENAGA IKAN</span></div><div id="meter"><i></i><span id="meterL"></span></div><button id="bAksi" type="button"><i>🎣</i><span id="bAksiT">LEMPAR</span><small id="bAksiK">TAHAN · LEPAS</small></button></div>
 <div id="hitung" hidden></div>
 <div id="kabar"></div>
 <div id="hasil" class="popup" hidden>
@@ -125,6 +138,6 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--kuning);outline-off
   <div class="dua"><a class="kedua tombol" id="bDesa2" href="/duniakotak/mabar/?dusun=tlaga&amp;ke=mancing">Ke desa</a><button class="utama" id="bLagi">🎣 MANCING LAGI</button></div>
  </div>
 </div>
-<script type="module" src="mancing.js?v=20261118model"></script>
+<script type="module" src="mancing.js?v=20261120tarik"></script>
 </body>
 </html>

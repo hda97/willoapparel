@@ -7,6 +7,7 @@ import '../mabar/js/putar.js'; // HP tegak -> tampil mendatar, sama seperti game
 import * as THREE from 'three';
 import * as F from '../mabar/js/aset/fasum.js';
 import {warga, pose} from '../mabar/js/aset/avatar.js';
+import {getar, suaraNyala} from '../mabar/js/rasa.js?v=20261120g';   // getar HP + saklar suara (Huda 20 Nov 2026)
 
 const $ = id => document.getElementById(id);
 const VS = 5;            // skala fasum di game desa
@@ -24,6 +25,7 @@ const dusunNo = no => no > 860 ? 'segara' : no > 660 ? 'tlaga' : no > 460 ? 'cur
 // ---------- suara kecil (WebAudio, tanpa file) ----------
 let AC = null;
 function bunyi(f = 660, d = .08, tipe = 'square', v = .05) {
+  if (!suaraNyala()) return;
   try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const o = AC.createOscillator(), g = AC.createGain();
     o.type = tipe; o.frequency.value = f; g.gain.setValueAtTime(v, AC.currentTime); g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + d);
     o.connect(g).connect(AC.destination); o.start(); o.stop(AC.currentTime + d + .02); } catch (e) {}
@@ -201,7 +203,7 @@ async function catatSesi() {
 async function misiSelesai() {
   MAIN = false; panah.visible = false; panahKaki.visible = false; for (const b of BAHAN) for (const m of b.papan) m.visible = true; STIK.x = STIK.y = 0;
   for (const id of ['hud', 'tas', 'stik', 'petunjuk']) $(id).hidden = true;
-  bunyi(660, .1); setTimeout(() => bunyi(990, .16), 120); setTimeout(() => bunyi(1320, .2), 260);
+  bunyi(660, .1); setTimeout(() => bunyi(990, .16), 120); setTimeout(() => bunyi(1320, .2), 260); getar('dapat');
   $('hsJudul').textContent = 'Misi selesai! Menghitung upah…'; $('hsRinci').innerHTML = ''; $('hsHadiah').textContent = ''; $('bLagi').disabled = true; $('hasil').hidden = false;
   await catatSesi();
   tulisUpah();
@@ -227,7 +229,7 @@ function loop(t) {
   TERBANG = TERBANG.filter(f => {
     f.t += dt / .55; const k = Math.min(1, f.t);
     f.m.position.lerpVectors(f.a, f.b, k); f.m.position.y += Math.sin(k * Math.PI) * 14; f.m.rotation.x += dt * 8; f.m.rotation.z += dt * 6;
-    if (k >= 1) { sc.remove(f.m); KERJA.mendarat++; tumbuhSampai(KERJA.mendarat); debu(f.b); bunyi(520 + Math.random() * 300, .07, 'triangle', .06); tulisHud();
+    if (k >= 1) { sc.remove(f.m); KERJA.mendarat++; tumbuhSampai(KERJA.mendarat); debu(f.b); bunyi(520 + Math.random() * 300, .07, 'triangle', .06); getar('klik'); tulisHud();
       if (KERJA.mendarat >= TK_BAHAN && !KERJA.tutup) { KERJA.tutup = true; kabar(`🎉 ${esc((INFO?.aktif?.nama || 'Fasum').replace(/^\S+ /, ''))} 100%!`); setTimeout(misiSelesai, 1300); } return false; }
     return true; });
   // pop bagian bangunan + debu
@@ -256,7 +258,7 @@ function langkah(dt, t) {
   // ambil bahan di dekat tumpukan
   const dekat = BAHAN.find(b => Math.hypot(SAYA.x - b.x, SAYA.z - (b.z - 3)) < 8);
   SAYA.ambilT -= dt;
-  if (dekat && SAYA.bawa.length < MUAT && SAYA.ambilT <= 0) { SAYA.ambilT = .16; SAYA.bawa.push(dekat.id); susunPunggung(); bunyi(300 + SAYA.bawa.length * 60, .05, 'triangle', .05); tulisHud();
+  if (dekat && SAYA.bawa.length < MUAT && SAYA.ambilT <= 0) { SAYA.ambilT = .16; SAYA.bawa.push(dekat.id); susunPunggung(); bunyi(300 + SAYA.bawa.length * 60, .05, 'triangle', .05); getar('klik'); tulisHud();
     if (SAYA.bawa.length === MUAT) kabar('🎒 Penuh! Bawa ke gerbang proyek'); }
   // setor di lingkaran kuning: bahan satu per satu terbang ke bagian bangunan berikutnya
   SAYA.setorT -= dt;
