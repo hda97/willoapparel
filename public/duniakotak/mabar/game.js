@@ -235,6 +235,8 @@ function selesaiMasuk(s) {
   if (s) { S.saya = s; S.kunci = s.kunci; S.hias = s.hias || null; muatPemula(s); aturHadir(s.hadir); simpan('dk_warga', {no: s.no, ig: s.ig, kunci: s.kunci}); muatTasServer(s); terimaMenit(s.menit); cekNotif();
     // Pulang kampung (audit ekonomi #3): bonus warga yang ≥3 hari tidak main
     if (s.hadiahPk) setTimeout(() => tampilHadiahPk(s.hadiahPk), 6000);
+    // Rawat Rumah Tetangga: kabar siapa yang merawat rumahku selama aku pergi
+    if (s.dirawat) setTimeout(() => { bunyi('masuk'); toast(`🧹 Selama kamu pergi, rumahmu dirawat ${s.dirawat.u.join(', ')}${s.dirawat.n > s.dirawat.u.length ? ' dan tetangga lain' : ''}. Balas kebaikan mereka: kirim 👋 di chat atau rawat rumah tetangga yang sepi!`, 7500); }, s.pulang ? 11500 : 5000);
     if (s.pulang) setTimeout(() => { try { bunyi('masuk'); koinTerbang(`+${s.pulang.koin} 🪙 +${s.pulang.permata} 💎`); } catch (e) {} toast(`🏡 Selamat pulang kampung! ${s.pulang.hari} hari tidak ketemu, Oyen kangen. Bonus +${s.pulang.koin} koin dan +${s.pulang.permata} 💎.`, 6500); }, 4500); }
   $('masuk').hidden = true;
   if (!S.tamu && !baca('dk_aturan')) { $('aturan').hidden = false; $('setujuAturan').onclick = () => { simpan('dk_aturan', '1'); $('aturan').hidden = true; lanjutAvatar(); }; }
@@ -724,7 +726,7 @@ function bangunKulon(buat = kulon) {
   bangunProksi();
 }
 async function bangunDunia() {
-  try { const w = (wargaAwal && await wargaAwal) || await (await fetch('/duniakotak/api/warga')).json(); wargaAwal = null; w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; if (x.hs) HS[x.no] = x.hs; if (x.bt) BT[x.no] = x.bt; if (x.jr) JR = x.no; if (x.tr) { TR3[x.no] = x.tr; if (x.tr === 1) TR = x.no; } if (x.rj) RJ[x.no] = x.rj; if (x.al) AL[x.no] = x.al; if (x.xp) XP[x.no] = x.xp; }); } catch (e) {}
+  try { const w = (wargaAwal && await wargaAwal) || await (await fetch('/duniakotak/api/warga')).json(); wargaAwal = null; w.warga.forEach(x => { if (x.ig || x.tiktok) NM[x.no] = '@' + (x.ig || x.tiktok); if (x.kc) KC[x.no] = x.kc; if (x.ak) AK[x.no] = x.ak; if (x.hs) HS[x.no] = x.hs; if (x.bt) BT[x.no] = x.bt; if (x.jr) JR = x.no; if (x.tr) { TR3[x.no] = x.tr; if (x.tr === 1) TR = x.no; } if (x.rj) RJ[x.no] = x.rj; if (x.al) AL[x.no] = x.al; if (x.xp) XP[x.no] = x.xp; if (x.dibuat) DBT[x.no] = x.dibuat; }); if (w.rawat) Object.assign(RW, w.rawat); if (w.rawatAturan) RAWAT = w.rawatAturan; } catch (e) {}
   if (S.saya && S.saya.kucing) KC[S.saya.no] = S.saya.kucing;
   if (S.saya && S.saya.ig) NM[S.saya.no] = '@' + S.saya.ig;
   bukaSegara(Math.max(S.saya ? S.saya.no : 0, ...Object.keys(NM).map(Number)));
@@ -1237,6 +1239,7 @@ const KOLAM_MISI = [
   // Mancing Kotak (Huda 18 Nov 2026: "Masuk misi harian?"): selesai 1 sesi lomba di /duniakotak/mancing/ (progres ditulis halaman itu ke dk_misi)
 ];
 const MISI_MANCING = {id: 'lombamancing', ikon: '🏆', judul: 'Ikut Lomba Mancing Kotak sampai waktu habis', t: [1], koin: 10, info: 'Gapura Mancing Kotak ada di Dermaga Dusun Kotak Tlaga. Naik ke dermaga, tekan 🏆 Lomba.', ke: ['tlaga', 'Mancing Kotak']};
+const MISI_RAWAT = {id: 'rawat', ikon: '🧹', judul: 'Rawat rumah tetangga yang lama tak pulang', t: [1], satuan: 'rumah', koin: 10, info: 'Rumah warga yang 3 hari tidak main penuh rumput liar & daun kering. Dekati rumahnya, tekan 🧹 Rawat.', rawat: 1};
 const MISI_SAWAH = {id: 'sawah', ikon: '🌾', judul: 'Rawat Sawah Wetan: beli petak, tanam, siram, atau panen', t: [2], satuan: 'kali', koin: 10, info: 'Sawah di seberang sungai Kotak Wetan. Belum punya petak? Siram tanaman tetangga juga dihitung.', sawah: 1};
 function undiMisi(hari) {
   let h = 2166136261; for (const c of 'dk' + hari) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
@@ -1251,6 +1254,8 @@ function undiMisi(hari) {
   pilih.push({...MISI_SAWAH, target: MISI_SAWAH.t[0]});
   // Lomba Mancing Kotak juga misi tetap (Huda 18 Nov 2026), dihitung di /duniakotak/mancing/ (dk_misi.p.lombamancing), diklaim saat kembali ke desa.
   pilih.push({...MISI_MANCING, target: MISI_MANCING.t[0]});
+  // Rawat Rumah Tetangga (Huda 20 Nov 2026) juga misi tetap (worker.js misiHari: "rawat"), dihitung saat 🧹 Rawat berhasil.
+  pilih.push({...MISI_RAWAT, target: MISI_RAWAT.t[0]});
   return pilih;
 }
 let MISI = [];
@@ -1301,7 +1306,7 @@ function tulisMisi() {
   $('isiMisi').innerHTML = MISI.map(m => {
     const p = progresMisi(m), ok = MS.selesai.has(m.id);
     return `<div class="misi ${ok ? 'ok' : ''}"><span class="mi">${ok ? '✅' : m.ikon}</span><div><b>${esc(m.judul)}</b>
-      <div class="bar"><i style="width:${Math.round(100 * (ok ? 1 : p / m.target))}%"></i></div><small>${ok ? 'Selesai' : m.target > 1 ? `${p}/${m.target} ${m.satuan || ''}` : 'Belum'}</small>${!ok && m.info ? `<small class="info">📍 ${esc(m.info)}</small>` : ''}${!ok && m.antar ? `<button class="antar" data-antar="${m.antar}">🧭 Antar ke sana</button>` : ''}${!ok && m.sawah ? `<button class="antar" data-kesawah="1">🧭 Antar ke Sawah</button>` : ''}${!ok && m.ke ? `<button class="antar" data-ke="${m.ke[0]}" data-kenama="${esc(m.ke[1])}">${m.ke[0] === DI ? '🧭 Antar ke sana' : `🚌 Naik bus ke Dusun ${esc(NAMA_DUSUN[m.ke[0]] || m.ke[0])}`}</button>` : ''}</div><span class="koin">+${m.koin * kaliKoin()} 🪙</span></div>`;
+      <div class="bar"><i style="width:${Math.round(100 * (ok ? 1 : p / m.target))}%"></i></div><small>${ok ? 'Selesai' : m.target > 1 ? `${p}/${m.target} ${m.satuan || ''}` : 'Belum'}</small>${!ok && m.info ? `<small class="info">📍 ${esc(m.info)}</small>` : ''}${!ok && m.antar ? `<button class="antar" data-antar="${m.antar}">🧭 Antar ke sana</button>` : ''}${!ok && m.sawah ? `<button class="antar" data-kesawah="1">🧭 Antar ke Sawah</button>` : ''}${!ok && m.rawat ? `<button class="antar" data-kerawat="1">🧭 Antar ke rumah yang perlu dirawat</button>` : ''}${!ok && m.ke ? `<button class="antar" data-ke="${m.ke[0]}" data-kenama="${esc(m.ke[1])}">${m.ke[0] === DI ? '🧭 Antar ke sana' : `🚌 Naik bus ke Dusun ${esc(NAMA_DUSUN[m.ke[0]] || m.ke[0])}`}</button>` : ''}</div><span class="koin">+${m.koin * kaliKoin()} 🪙</span></div>`;
   }).join('') + `<div class="misi bonus ${MS.selesai.has('bonus') ? 'ok' : ''}"><span class="mi">🎁</span><div><b>Bonus: selesaikan semua misi</b><small>${MS.selesai.has('bonus') ? 'Sudah diambil' : `Otomatis masuk setelah ${MISI.length} misi selesai`}</small></div><span class="koin">+${BONUS_MISI * kaliKoin()} 🪙 +3 💎</span></div>`;
   // Misi tetap tiap hari (Huda 8 Nov): ikut lari Pelari Kalcer sampai finish, selesai otomatis di server saat finish.
   const okLari = MS.selesai.has('pelari');
@@ -1323,6 +1328,7 @@ document.addEventListener('click', e => { if (e.target.closest?.('[data-lari]'))
 document.addEventListener('click', e => { if (e.target.closest?.('[data-arena]')) { $('panelMisi').hidden = true; keArenaLari(); } });
 document.addEventListener('click', e => { if (e.target.closest?.('[data-bangun]')) ikutBangun(); });
 document.addEventListener('click', e => { const b = e.target.closest?.('[data-kesawah]'); if (!b) return; $('panelMisi').hidden = true; keSawah(); });
+document.addEventListener('click', e => { if (!e.target.closest?.('[data-kerawat]')) return; $('panelMisi').hidden = true; antarRawat(); });
 document.addEventListener('click', e => { const b = e.target.closest?.('[data-antar]'); if (!b) return; $('panelMisi').hidden = true; pergiKe(+b.dataset.antar); });
 // misi di dusun lain: naik bus (pindah dusun, misi lanjut di sana) atau diantar ke fasumnya bila sudah di dusun itu
 document.addEventListener('click', e => { const b = e.target.closest?.('[data-ke]'); if (!b) return; $('panelMisi').hidden = true;
@@ -1574,7 +1580,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {musim: 'dk_kabar_musim1', tandajuara: 'dk_kabar_tandajuara1', hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', mancingkotak: 'dk_kabar_mancingkotak1', sawah: 'dk_kabar_sawah1', sawah2: 'dk_kabar_sawah2', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2', musik: 'dk_kabar_musik1'};
+const KABAR_LAMA = {musim: 'dk_kabar_musim1', tandajuara: 'dk_kabar_tandajuara1', hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', mancingkotak: 'dk_kabar_mancingkotak1', sawah: 'dk_kabar_sawah1', sawah2: 'dk_kabar_sawah2', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2', musik: 'dk_kabar_musik1', rawat: 'dk_kabar_rawat1', minigame: 'dk_kabar_minigame1'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   if (window.DK_APP) simpan(KABAR_LAMA.notif, '1');   // aplikasi Android belum bisa notifikasi web
@@ -2187,7 +2193,7 @@ function animSkill(dt, me) {
   // tombol skill menyala bila bisa dipakai
   const t = now | 0; if (t % 4 === 0 || !animSkill.t || now - animSkill.t > 300) { animSkill.t = now;
     // tombol hanya muncul saat skill bisa dipakai; joran sedang dipakai = tombol Mancing hilang
-    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sSuka: !!rumahTetangga(me), sLari: dekatGapuraCFD(me), sReli: dekatReli(me), sLomba: dekatLombaMancing(me), sSawah: dekatSawah(me), sBangun: dekatProyek(me), sPasar: dekatPasar(me), sKafe: !!tokoDekat(me), sWahana: !!dekatHiburan(me), sJog: !!dekatTaman(me) && !TM.jog && !TM.jogOk && !S.tamu, sWillo: dekatTokoWillo(me), sDealer: dekatDealer(me), sNaik: dekatParkiranSaya(me), sNebeng: !!mobilDekat(me), sTurun: !!NAIK || !!NEBENG, sLompat: !NAIK && !NEBENG, sLift: !!(I.gedung && I.gedung.dekatLift(me.position.x, me.position.z))};
+    const air = dekatAir(me), bisa = {sTendang: dekatBola(me), sAmbil: !!dekatItem(me), sMancing: air && !mancing.on, sMakan: !!dekatKucing(me), sPanen: bisaPanen(me), sTanam: bisaTanam(me), sJual: bisaJual(me), sKerja: bisaKerja(me), sSuka: !!rumahTetangga(me), sRawat: !!rumahRawatDekat(tokoh.saya), sLari: dekatGapuraCFD(me), sReli: dekatReli(me), sLomba: dekatLombaMancing(me), sSawah: dekatSawah(me), sBangun: dekatProyek(me), sPasar: dekatPasar(me), sKafe: !!tokoDekat(me), sWahana: !!dekatHiburan(me), sJog: !!dekatTaman(me) && !TM.jog && !TM.jogOk && !S.tamu, sWillo: dekatTokoWillo(me), sDealer: dekatDealer(me), sNaik: dekatParkiranSaya(me), sNebeng: !!mobilDekat(me), sTurun: !!NAIK || !!NEBENG, sLompat: !NAIK && !NEBENG, sLift: !!(I.gedung && I.gedung.dekatLift(me.position.x, me.position.z))};
     for (const id in bisa) { const b = $(id); if (b.classList.contains('siap') !== bisa[id] || b.hidden === bisa[id]) { b.classList.toggle('siap', bisa[id]); b.hidden = !bisa[id]; } }
     if (air) misiMaju('sungai'); }
 }
@@ -2635,6 +2641,79 @@ async function sukaRumah() {
     RS.sisa = r.sisa; RS.sudah.push(n);
     toast(`❤️ Kamu suka rumah ${NM[n] || 'No. ' + n}! Kini ${r.suka} ❤️ minggu ini (peringkat #${r.pos}). Sisa ❤️ hari ini: ${r.sisa}`, 4200);
   } catch (e) { toast(e.message, 3200); }
+}
+// ---------- Rawat Rumah Tetangga (Huda 20 Nov 2026: "misi rawat rumah tetangga") ----------
+// Rumah warga yang ≥ RAWAT.sepi hari tidak main (atau belum pernah main) tampil kurang terurus: rumput liar & daun kering di
+// pekarangan. Warga lain mendekat → 🧹 Rawat → pekarangan bersih untuk semua warga hari itu ("✨ dirawat @nama").
+// Server (worker.js aksi rawat): 1 rumah 1 perawat/hari, maks RAWAT.hari rumah/warga/hari, +RAWAT.koin koin. Pemilik dikabari saat main lagi.
+const DBT = {}, RW = {};   // DBT: no → waktu daftar; RW: no → "@perawat" hari ini
+let RAWAT = {sepi: 3, hari: 3, koin: 5}, rawatJalan = false;
+function rumahSepi(n) {
+  if (!n || n === 1 || n === S.saya?.no || !NM[n] || RW[n]) return false;
+  for (const [x] of S.others) if (x === n) return false;   // pemiliknya sedang main
+  const batas = Date.now() - RAWAT.sepi * 864e5;
+  return AK[n] ? AK[n] < batas : (DBT[n] || 0) < batas;
+}
+let rwCache = {t: 0, n: 0};
+function rumahRawatDekat(me) {
+  if (S.tamu || !S.saya || !I || rawatJalan) return 0;
+  const t = performance.now(); if (t - rwCache.t < 400) return rwCache.n;
+  let best = 0, bd = 6.5 * VS;   // sampai depan gerbang (gerbang ±4,5 dari tengah kavling)
+  for (const n of lotRuntime.keys()) { if (!rumahSepi(n)) continue; const L = I.lots[n]; if (!L) continue;
+    const d = Math.hypot(L.c.x - me.position.x, L.c.z - me.position.z); if (d < bd) { bd = d; best = n; } }
+  rwCache = {t, n: best}; return best;
+}
+function antarRawat() {
+  const me = tokoh.saya; if (!me || !I) return;
+  let best = 0, bd = Infinity;
+  for (const n of Object.keys(I.lots)) { const no = +n; if (!rumahSepi(no)) continue; const L = I.lots[no];
+    const d = Math.hypot(L.c.x - me.position.x, L.c.z - me.position.z); if (d < bd) { bd = d; best = no; } }
+  if (!best) { toast('🧹 Semua rumah di dusun ini sudah rapi. Coba cek dusun lain lewat 🚌 Dusun!', 4000); return; }
+  pergiKe(best); toast(`🧭 Menuju rumah ${NM[best] || 'No. ' + best} yang lama tak dihuni pemiliknya…`, 3000);
+}
+async function rawatRumah() {
+  const n = rumahRawatDekat(tokoh.saya); if (!n || rawatJalan) return;
+  rawatJalan = true; $('sRawat').hidden = true; bunyi('sapu'); toast(`🧹 Mencabut rumput & menyapu daun di rumah ${NM[n] || 'No. ' + n}…`, 1600);
+  const t0 = performance.now();
+  try {
+    const r = await api('rawat', {kunci: S.kunci, ke: n});
+    const sisa = 1300 - (performance.now() - t0); if (sisa > 0) await new Promise(res => setTimeout(res, sisa));
+    RW[n] = S.saya.ig ? (String(S.saya.ig).startsWith('@') ? S.saya.ig : '@' + S.saya.ig) : 'kamu'; segarRawat(true);
+    if (r.koin != null) S.saya.koin = r.koin; try { hitungOnline(); } catch (e) {}
+    bunyi('masuk'); koinTerbang(`+${r.dapat} 🪙`); misiMaju('rawat');
+    toast(`✨ Rumah ${NM[n] || 'No. ' + n} jadi rapi lagi! +${r.dapat} koin. ${r.sisa > 0 ? `Masih bisa rawat ${r.sisa} rumah lagi hari ini.` : 'Jatah rawat hari ini habis, besok lagi ya!'} Pemiliknya akan dikabari saat pulang.`, 5000);
+  } catch (e) { if (/warga lain|sudah kamu rawat|rajin main/.test(e.message)) { RW[n] = RW[n] || 'tetangga'; segarRawat(true); } toast(e.message, 3500); }
+  rawatJalan = false; rwCache.t = 0;
+}
+// Rumput liar & daun kering di pekarangan rumah sepi (kotak kecil, satu geometri dipakai ulang). Koordinat lokal kavling (lebar 10, dalam 9).
+const RAWAT_TITIK = [[3.9, 3.2], [4.2, 1.2], [3.8, -1.4], [-4.3, 1.4], [-4.1, -1.2], [.4, 4.0], [-3, 3.9], [2.6, 4.1]];
+let rawatGeo = null;
+const rawatMesh = new Map();   // no → Group
+function buatSemak(L, no) {
+  if (!rawatGeo) rawatGeo = {b: new THREE.BoxGeometry(1, 1, 1), rumput: new THREE.MeshStandardMaterial({color: 0x5d7f2c, roughness: 1}), rumput2: new THREE.MeshStandardMaterial({color: 0x7a8f34, roughness: 1}),
+    daun: new THREE.MeshStandardMaterial({color: 0xa8743a, roughness: 1}), daun2: new THREE.MeshStandardMaterial({color: 0x8a5a2a, roughness: 1})};
+  const G = new THREE.Group(), R = rawatGeo; let h = no * 9301;
+  const acak = () => { h = (h * 16807) % 2147483647; return h / 2147483647; };
+  for (const [lx, lz] of RAWAT_TITIK) {
+    const cx = L.c.x + L.dir * lx * VS, cz = L.c.z + L.dir * lz * VS;
+    if (acak() < .6) for (let k = 0; k < 7; k++) {   // rumpun rumput liar
+      const m = new THREE.Mesh(R.b, k % 2 ? R.rumput : R.rumput2), t = (.5 + acak() * .6) * VS;
+      m.scale.set(.11 * VS, t, .11 * VS); m.position.set(cx + (acak() - .5) * .6 * VS, (L.c.y || 0) + t / 2, cz + (acak() - .5) * .6 * VS); m.rotation.y = acak() * 3; m.rotation.z = (acak() - .5) * .5; G.add(m);
+    } else for (let k = 0; k < 6; k++) {               // tumpukan daun kering
+      const m = new THREE.Mesh(R.b, k % 2 ? R.daun : R.daun2);
+      m.scale.set(.32 * VS, .03 * VS, .22 * VS); m.position.set(cx + (acak() - .5) * .9 * VS, (L.c.y || 0) + .02 * VS + k * .012 * VS, cz + (acak() - .5) * .9 * VS); m.rotation.y = acak() * 3; G.add(m);
+    }
+  }
+  G.traverse(o => { if (o.isMesh) o.castShadow = false; });
+  return G;
+}
+let rawatT = 0;
+function segarRawat(paksa) {
+  const t = performance.now(); if (!paksa && t - rawatT < 1500) return; rawatT = t;
+  if (!I || !I.lots) return;
+  for (const [n, g] of rawatMesh) if (!lotRuntime.has(n) || !rumahSepi(n)) {
+    sc.remove(g); rawatMesh.delete(n); }
+  for (const n of lotRuntime.keys()) if (!rawatMesh.has(n) && rumahSepi(n)) { const L = I.lots[n]; if (!L) continue; const g = buatSemak(L, n); sc.add(g); rawatMesh.set(n, g); }
 }
 function dekatRumah(me) {
   if (S.tamu || !S.saya || !I || !lotRuntime.has(S.saya.no)) return false;
@@ -3428,6 +3507,7 @@ const SFX = {
   masuk: () => [784, 988, 1175].forEach((f, i) => nada(f, f, .35, 'triangle', .1, i * .09)),
   jepret: () => { desis(.05, 3000, .7, .5); nada(2200, 1200, .03, 'square', .06); desis(.08, 1800, .8, .35, .09); },
   buka: () => nada(440, 660, .14, 'triangle', .14),
+  sapu: () => [0, .28, .56, .84].forEach(d => desis(.2, 2600, .9, .28, d)),
 };
 function bunyi(n) { try { SFX[n] && SFX[n](); } catch (e) {} }
 function musikSiap() {
@@ -3540,14 +3620,14 @@ function aturHUD() {
   $('bProfesi').onclick = () => { $('panelAtur').hidden = true; bukaProfesi(); }; $('pfProfesiB').onclick = () => { $('panelProfil').hidden = true; bukaProfesi(); }; $('tutupProfesi').onclick = () => { $('panelProfesi').hidden = true; };
   $('bToko').onclick = () => { $('panelAtur').hidden = true; bukaToko(); }; $('tutupToko').onclick = () => { $('panelToko').hidden = true; }; $('tutupVoting').onclick = () => { if (vtWajib) return toast('Taruh 1 bintang gratismu di fasum pilihanmu dulu ya ⭐', 3000); $('panelVoting').hidden = true; };
   $('panelAtur').addEventListener('click', e => { if (e.target === $('panelAtur')) $('panelAtur').hidden = true; });
-  $('bDusun').onclick = pilihDusun;
+  $('bDusun').onclick = pilihDusun; $('bGame').onclick = pilihGame;
   musikSiap();
   // pointerdown (bukan click): click tidak terpicu di HP saat jari lain masih menahan joystick -> bisa lompat sambil lari
   $('sLari').onclick = ikutLari; $('sReli').onclick = ikutReli; $('sLomba').onclick = ikutMancingKotak; $('sSawah').onclick = ikutSawah; $('sBangun').onclick = ikutBangun; $('sPasar').onclick = bukaPasar; $('sKafe').onclick = bukaBelanja; $('sWahana').onclick = bukaWahana; $('sJog').onclick = mulaiJog; $('tutupWahana').onclick = () => { $('panelWahana').hidden = true; }; $('tutupBelanja').onclick = () => { $('panelBelanja').hidden = true; }; $('sWillo').onclick = () => bukaWillo('tombol'); $('sDealer').onclick = bukaDealer; $('sNaik').onclick = naikKendaraan; $('sTurun').onclick = () => NEBENG ? turunNebeng() : turunKendaraan(); $('sNebeng').onclick = naikNebeng;
   $('bPasar').onclick = () => { $('panelAtur').hidden = true; bukaPasar(); }; $('tutupPasar').onclick = () => { $('panelPasar').hidden = true; };
   $('bWillo').onclick = () => bukaWillo('atur'); $('bDealer').onclick = bukaDealer; $('tutupWillo').onclick = () => { $('panelWillo').hidden = true; };
   $('sLift').onclick = () => { const d = I.gedung && I.gedung.dekatLift(tokoh.saya.position.x, tokoh.saya.position.z); if (d) bukaLift(d); };
-  $('sLompat').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); mulaiLompat(); }); $('sTendang').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); skillTendang(); }); $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan(); $('sPanen').onclick = () => skillPanen(); $('sTanam').onclick = () => bukaTanam(); $('sJual').onclick = () => skillJual(); $('sKerja').onclick = () => skillKerja(); $('sSuka').onclick = () => sukaRumah(); $('tutupKerja').onclick = () => { $('panelKerja').hidden = true; }; $('tutupTanam').onclick = () => { $('panelTanam').hidden = true; };
+  $('sLompat').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); mulaiLompat(); }); $('sTendang').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); skillTendang(); }); $('sAmbil').onclick = () => skillAmbil(); $('sMancing').onclick = () => skillMancing(); $('sMakan').onclick = () => skillMakan(); $('sPanen').onclick = () => skillPanen(); $('sTanam').onclick = () => bukaTanam(); $('sJual').onclick = () => skillJual(); $('sKerja').onclick = () => skillKerja(); $('sSuka').onclick = () => sukaRumah(); $('sRawat').onclick = () => rawatRumah(); $('tutupKerja').onclick = () => { $('panelKerja').hidden = true; }; $('tutupTanam').onclick = () => { $('panelTanam').hidden = true; };
   // semua tombol skill bereaksi saat disentuh (pointerdown), jadi tetap jalan walau jari lain menahan joystick
   for (const b of document.querySelectorAll('.zoom.skill button')) { const f = b.onclick; if (!f) continue; b.onclick = null; b.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); f.call(b, e); }); }
   if (innerHeight < 500) { $('chat').hidden = true; $('bBukaChat').hidden = false; zoom = .85; }
@@ -3779,7 +3859,7 @@ function loop(t) {
   if (npc) for (const n of npc.daftar) if (n.obj.visible && n.jauh < 130) { const lap = n.kerja === 'bola' || n.kerja === 'main' || n.wasit; lbl(n.obj, n.tinggi, n.nama + ' · ' + n.peran, lap ? 'nm npcl' : 'nm npc', '', lap ? '' : n.id); }   // pemain & wasit sedang bertanding: tidak bisa diajak ngobrol
   if (wnpc) for (const n of wnpc.daftar) if (n.obj.visible && n.jauh < 110) lbl(n.obj, 5.2, (n.gotong >= 0 ? '🔨 ' : '') + '@' + n.u, 'nm npcw');
   for (const f of fasumBangun) { const d = Math.hypot(f.position.x - me.position.x, f.position.z - me.position.z); if (d < 170) lbl(f, f.tinggi, f.nama, 'nm fasum'); }
-  jejakWarga(me);
+  jejakWarga(me); segarRawat();
   const now = performance.now();
   for (const o of [me, tokoh.raka, ...[...S.others.values()].map(x => x.obj), ...(npc ? npc.daftar.filter(n => n.obj.visible).map(n => n.obj) : [])]) { const g = o.userData.gel; if (g && g.sampai > now) tempel(o, 6.6, g.m, g.emo ? 'gel emo' : 'gel', -4); }
   pool.forEach(d => { if (!d.dipakai && d.el.style.display !== 'none') d.el.style.display = 'none'; });
@@ -3869,6 +3949,37 @@ function pilihDusun() {
   p.querySelector('.tiketBus').textContent = teksTiket().trim() || 'Jalan kaki lewat Gapura gratis.';
   p.hidden = false;
 }
+// ---------- Tombol 🎮 Game (Huda 20 Nov 2026): pop up seperti 🚌 Dusun, isinya semua mini game desa ----------
+// Langsung main dari mana saja tanpa harus jalan ke gapura/arenanya. Game baru cukup ditambah satu baris di MINI_GAME
+// (id, ikon, nama, keterangan singkat, label bawah, warna kartu, fungsi main; `ada` opsional = syarat kartu bisa dipakai).
+const MINI_GAME = [
+  {id: 'lari', ikon: '🏃', nama: 'Pelari Kalcer', ket: 'Lari & lompati rintangan', lbl: 'Arena Kulon', w: '#ffe0ec', main: () => ikutLari()},
+  {id: 'reli', ikon: '🏁', nama: 'Reli Kotak', ket: 'Balap mobil di sirkuit', lbl: 'Sirkuit Curug', w: '#e8f1fa', main: () => ikutReli()},
+  {id: 'mancing', ikon: '🎣', nama: 'Mancing Kotak', ket: 'Lomba berat ikan', lbl: 'Dermaga Tlaga', w: '#ffe6c4', main: () => ikutMancingKotak()},
+  {id: 'sawah', ikon: '🌾', nama: 'Sawah Wetan', ket: 'Tanam, siram, panen', lbl: 'Sawah Wetan', w: '#d9f2c8', main: () => ikutSawah()},
+  {id: 'tukang', ikon: '🔨', nama: 'Tukang Kotak', ket: 'Bangun fasum bareng', lbl: 'Proyek desa', w: '#fff1b8',
+    ada: () => !!BANGUN_VOTING.find(b => Date.now() >= b.mulai && Date.now() < b.sampai), habis: 'TIDAK ADA PROYEK',
+    main: () => { const pb = BANGUN_VOTING.find(b => Date.now() >= b.mulai && Date.now() < b.sampai); bunyi('masuk'); toast('🔨 Pakai helm dulu, menuju lahan proyek…', 1500);
+      setTimeout(() => { location.href = '/duniakotak/bangun/?dari=desa&dusun=' + (pb ? dusunBangun(pb) : DI); }, 500); }},
+];
+function pilihGame() {
+  let p = $('pilihGame');
+  if (!p) {
+    p = document.createElement('div'); p.id = 'pilihGame'; p.className = 'dsnLatar';
+    p.innerHTML = `<div class="dsnPanel"><div class="dsnJudul"><i class="gmJudulIkon">🎮</i><b>Mau main game apa?</b><button class="dsnTutup" data-g="" aria-label="Tutup">✕</button></div>
+      <div class="tiketBus">Langsung main dari mana saja. Koin &amp; misi tetap dihitung.</div><div class="dsnDaftar">${MINI_GAME.map(g => `<button class="dsnKartu gmKartu" data-g="${g.id}" style="--dsn:${g.w}">
+        <span class="dsnIkon gmIkon">${g.ikon}</span><b>${esc(g.nama)}</b><small>${esc(g.ket)}</small><em>${esc(g.lbl)}</em><span class="dsnIni"></span></button>`).join('')}
+        <div class="dsnKartu gmKartu gmSegera" style="--dsn:#eceae4"><span class="dsnIkon gmIkon">🎁</span><b>Game baru</b><small>Sedang disiapkan</small><em>SEGERA</em></div></div></div>`;
+    p.onclick = e => { const b = e.target.closest('button'); if (e.target === p || (b && !b.dataset.g)) { p.hidden = true; return; }
+      const g = b && MINI_GAME.find(x => x.id === b.dataset.g); if (!g) return;
+      if (g.ada && !g.ada()) { toast('🔨 Belum ada proyek fasum yang sedang dibangun. Ikut voting supaya proyek berikutnya cepat mulai!', 3500); return; }
+      p.hidden = true; g.main(); };
+    document.body.appendChild(p);
+  }
+  p.querySelectorAll('.gmKartu[data-g]').forEach(b => { const g = MINI_GAME.find(x => x.id === b.dataset.g), mati = !!(g.ada && !g.ada());
+    b.classList.toggle('terkunci', mati); b.querySelector('.dsnIni').textContent = mati ? g.habis || 'TUTUP' : ''; });
+  bunyi('buka'); p.hidden = false;
+}
 function pindahDusun(ke, no) {
   if (ke === DI) return;
   if (!confirm(`Naik bus ke Dusun ${NAMA_DUSUN[ke]}?` + (no ? ` Rumah No. ${no} ada di sana.` : '') + teksTiket())) return;
@@ -3906,7 +4017,7 @@ function jejakWarga(me) {
     if (Math.abs(L.gate.x - me.position.x) > 45 || Math.abs(L.gate.z - me.position.z) > 45) continue;
     let online = false; for (const [x] of S.others) if (x === no) { online = true; break; }
     titikRumah.position.set(L.gate.x, L.c.y || 0, L.gate.z);
-    const el = tempel(titikRumah, 3.2, online ? '🟢 sedang main' : AK[no] ? '🕓 main ' + lalu(AK[no]) : '🏠 rumah ' + NM[no], 'nm jejak'); if (el) { el.dataset.no = ''; el.dataset.npc = ''; }
+    const el = tempel(titikRumah, 3.2, online ? '🟢 sedang main' : RW[no] ? '✨ dirawat ' + RW[no] : rumahSepi(no) ? '🧹 perlu dirawat' : AK[no] ? '🕓 main ' + lalu(AK[no]) : '🏠 rumah ' + NM[no], 'nm jejak'); if (el) { el.dataset.no = ''; el.dataset.npc = ''; }
     if (++k >= 6) break;
   }
 }

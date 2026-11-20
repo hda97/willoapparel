@@ -265,6 +265,10 @@ const PK_MISI_DESA = 15;
 // (bukan rumah sendiri/Raka, 1 rumah sekali per hari). Minggu Senin–Minggu WIB; rumah dengan ❤️ terbanyak = juara minggu itu:
 // piala emas di atas rumah + lencana 🏡 selama minggu berikutnya (hanya tampilan). Juara masuk Vlog Raka (konten).
 const RUMAH_SUKA_HARI = 3;
+// Rawat Rumah Tetangga (Huda 20 Nov 2026): rumah warga yang RAWAT_SEPI_HARI hari tidak main tampil kurang terurus.
+// Warga lain boleh merawatnya: satu rumah dirawat satu warga per hari, tiap warga maks RAWAT_HARI rumah/hari, +RAWAT_KOIN koin per rumah.
+// Pemilik yang main lagi diberi kabar siapa saja yang merawat rumahnya selama ia pergi.
+const RAWAT_SEPI_HARI = 3, RAWAT_HARI = 3, RAWAT_KOIN = 5;
 // Hadiah papan peringkat mingguan (Huda 13 Nov 2026 "Papan peringkat harusnya ada reward"): dibagi tiap Senin 00.00 WIB untuk minggu lalu.
 // Piala: 3 warga poin terbanyak + semua warga dusun juara yang menyumbang ≥ dusunMin poin. Rumah: 3 rumah ❤️ terbanyak (min rumahMin ❤️).
 // Rajin Minggu Ini (koin yang didapat minggu itu): hadiah PERMATA, bukan koin, supaya yang sudah kaya tidak makin cepat kaya.
@@ -498,6 +502,7 @@ export class Warga extends DurableObject {
     this.sql.exec("CREATE TABLE IF NOT EXISTS robloxTaut (rb TEXT PRIMARY KEY, no INTEGER UNIQUE, t INTEGER)");
     // Lomba Rumah Terindah: satu baris = satu ❤️ dari warga `dari` ke rumah `ke` pada hari WIB `hari` (minggu `mg`)
     this.sql.exec("CREATE TABLE IF NOT EXISTS rumahSuka (mg TEXT, hari TEXT, dari INTEGER, ke INTEGER, t INTEGER, PRIMARY KEY (hari, dari, ke))");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS rawat (hari TEXT, ke INTEGER, dari INTEGER, t INTEGER, PRIMARY KEY (hari, ke))");
     // Piala Antardusun: poin warga per minggu (mg = Senin WIB), d = dusun saat poin didapat, lh = finish berpoin hari itu
     // Hadiah papan peringkat mingguan (Huda 13 Nov 2026): hadiahPk = hadiah yang sudah dibayar (lihat = sudah ditampilkan ke warga),
     // hadiahMg = penanda minggu yang sudah dibagi, xpMg = koinTotal warga saat pertama main di minggu itu (untuk "Rajin Minggu Ini").
@@ -655,7 +660,7 @@ export class Warga extends DurableObject {
     const lain = this.sql.exec("SELECT no, ig FROM warga WHERE no = ?", B).toArray()[0];
     if (lain) { console.log("pindah kavling batal: No. " + B + " sudah dihuni @" + lain.ig); return null; }
     const A = r.no, kini = Date.now();
-    const TABEL = [["tukang", "no"], ["reli", "no"], ["reliRekor", "no"], ["sawah", "no"], ["sawahWarga", "no"], ["mancing", "no"], ["mancingRekor", "no"], ["iuran", "no"], ["suara", "no"], ["rumahSuka", "dari"], ["rumahSuka", "ke"], ["piala", "no"], ["donasi", "no"], ["juragan", "no"], ["plakat", "no"], ["notif", "no"]];
+    const TABEL = [["tukang", "no"], ["reli", "no"], ["reliRekor", "no"], ["sawah", "no"], ["sawahWarga", "no"], ["mancing", "no"], ["mancingRekor", "no"], ["iuran", "no"], ["suara", "no"], ["rumahSuka", "dari"], ["rumahSuka", "ke"], ["rawat", "dari"], ["rawat", "ke"], ["piala", "no"], ["donasi", "no"], ["juragan", "no"], ["plakat", "no"], ["notif", "no"]];
     return this.ctx.storage.transactionSync(() => {
       const cad = { warga: this.sql.exec("SELECT * FROM warga WHERE no = ?", A).toArray() };
       for (const [t, k] of TABEL) cad[t + "." + k] = this.sql.exec(`SELECT * FROM ${t} WHERE ${k} = ?`, A).toArray();
@@ -1181,7 +1186,8 @@ export class Warga extends DurableObject {
     const rumah = q("SELECT COUNT(*) AS suka, COUNT(DISTINCT dari) AS pemberi, COUNT(DISTINCT ke) AS rumah FROM rumahSuka WHERE mg = ?", mg)[0] || {};
     const ajak = q("SELECT COUNT(ajak) AS daftar, COUNT(ajakOk) AS main FROM warga")[0] || {};
     const jr = this.juraganKini();
-    return { mg, kaos, tukang, piala: this.klasemenPiala(mg), rumah, ajak, juragan: jr && jr.mg === mg ? 1 : 0 };
+    const rawat = q("SELECT COUNT(*) AS rumah, COUNT(DISTINCT dari) AS perawat FROM rawat WHERE hari = ?", hari)[0] || {};
+    return { mg, kaos, tukang, piala: this.klasemenPiala(mg), rumah, rawat, ajak, juragan: jr && jr.mg === mg ? 1 : 0 };
   }
   async layani(request) {
     const u = new URL(request.url);
@@ -1300,6 +1306,12 @@ export class Warga extends DurableObject {
         r.koin = (r.koin || 0) + PULANG_KOIN; r.koinTotal = (r.koinTotal || 0) + PULANG_KOIN; r.permata = (r.permata || 0) + PULANG_PERMATA; r.pulang = kini;
         this.arus("+koin:pulang", PULANG_KOIN); this.arus("+permata:pulang", PULANG_PERMATA);
       }
+      // Rawat Rumah Tetangga: siapa saja yang merawat rumah ini sejak pemiliknya terakhir main (kabar sekali saat masuk lagi).
+      let dirawat = null;
+      if ((aksi === "sesi" || aksi === "kode") && !u.searchParams.has("ws") && r.aktif) {
+        try { const x = this.sql.exec("SELECT w.ig, w.tiktok, w.nama FROM rawat s LEFT JOIN warga w ON w.no = s.dari WHERE s.ke = ? AND s.t > ? ORDER BY s.t DESC LIMIT 30", r.no, r.aktif).toArray();
+          if (x.length) dirawat = { n: x.length, u: [...new Set(x.map((w) => w.ig || w.tiktok ? "@" + (w.ig || w.tiktok) : w.nama || "tetangga"))].slice(0, 5) }; } catch (e) {}
+      }
       if (!r.aktif || kini - r.aktif > 300000) { this.sql.exec("UPDATE warga SET aktif = ? WHERE no = ?", kini, r.no); r.aktif = kini; }
       if (aksi === "avatar") { const av = this.pasangTopi(this.saringKaosAv(String(q.avatar || "")), this.hiasPakai(r).topi); this.sql.exec("UPDATE warga SET avatar = ? WHERE no = ?", av, r.no); r.avatar = av; }
       // Misi harian: tiap misi sekali per hari (tanggal WIB), koin masuk di server; bonus bila semua selesai.
@@ -1312,7 +1324,8 @@ export class Warga extends DurableObject {
       const wibM = new Date(Date.now() + 7 * 3600e3), mntM = wibM.getUTCHours() * 60 + wibM.getUTCMinutes();
       const jamKumpul = JAM_KUMPUL.some(([a, b]) => mntM >= a && mntM < b);
       // 7 Nov 2026 (lima menit pertama): misi harian bisa dikerjakan SEPANJANG HARI (koin 1x); Jam Kumpul Warga tetap koin 2x.
-      if (aksi === "misi" && (MISI_SEPANJANG_HARI || jamKumpul) && MISI_HARIAN[q.id] && !ms.s.includes(q.id)) {
+      const rawatOk = q.id !== "rawat" || !!this.sql.exec("SELECT 1 FROM rawat WHERE hari = ? AND dari = ?", hari, r.no).toArray().length;
+      if (aksi === "misi" && (MISI_SEPANJANG_HARI || jamKumpul) && MISI_HARIAN[q.id] && !ms.s.includes(q.id) && rawatOk) {
         const inti = Object.keys(MISI_HARIAN).filter((k) => k !== "bonus");
         if (q.id !== "bonus" || inti.every((k) => ms.s.includes(k))) {
           ms.s.push(q.id); dapat = MISI_HARIAN[q.id] * (jamKumpul ? 2 : 1);
@@ -1383,7 +1396,7 @@ export class Warga extends DurableObject {
       }
       let av = null; try { av = r.avatar ? JSON.parse(r.avatar) : null; } catch (e) {}
       let kc = null; try { kc = r.kucing ? JSON.parse(r.kucing) : null; } catch (e) {}
-      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, kucing: kc, koin: r.koin || 0, misi: ms.s, gol: ms.g || 0, menit: { m: ms.mm || 0, h: ms.mh || [], k: Math.min(MENIT_KUMPUL_MAKS, Math.floor((ms.mk || 0) / 10)) }, dapat, bagi: r.bagi ? 1 : 0, nama: r.nama || "", kerja: r.kerja || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat, permata: r.permata || 0, hias: this.bacaHias(r), kebun: this.infoKebun(this.bacaKebun(r)), bibit: BIBIT, tas: this.bacaTas(r).isi, album: this.bacaTas(r)._al, tasImpor: this.bacaTas(r)._impor ? 1 : 0, koinTotal: r.koinTotal || r.koin || 0, profesi: this.infoProfesi(this.bacaProfesi(r)), daftarProfesi: PROFESI, pemula: { s: pm, boleh: bolehPemula, dapat: dapatPm }, hadir: { ...hadirInfo, dapat: dapatHadir }, dapatPermata, ...(pulang ? { pulang } : {}), ...(r._piala ? { piala: r._piala } : {}), ...(r._ajak ? { ajak: r._ajak } : {}), ...(hadiahPk.length ? { hadiahPk } : {}) });
+      return Response.json({ no: r.no, ig: this.nm(r), kode: r.kode, kunci: r.kunci, avatar: av, kucing: kc, koin: r.koin || 0, misi: ms.s, gol: ms.g || 0, menit: { m: ms.mm || 0, h: ms.mh || [], k: Math.min(MENIT_KUMPUL_MAKS, Math.floor((ms.mk || 0) / 10)) }, dapat, bagi: r.bagi ? 1 : 0, nama: r.nama || "", kerja: r.kerja || "", akunIg: r.ig || "", tiktok: r.tiktok || "", dibuat: r.dibuat, permata: r.permata || 0, hias: this.bacaHias(r), kebun: this.infoKebun(this.bacaKebun(r)), bibit: BIBIT, tas: this.bacaTas(r).isi, album: this.bacaTas(r)._al, tasImpor: this.bacaTas(r)._impor ? 1 : 0, koinTotal: r.koinTotal || r.koin || 0, profesi: this.infoProfesi(this.bacaProfesi(r)), daftarProfesi: PROFESI, pemula: { s: pm, boleh: bolehPemula, dapat: dapatPm }, hadir: { ...hadirInfo, dapat: dapatHadir }, dapatPermata, ...(pulang ? { pulang } : {}), ...(dirawat ? { dirawat } : {}), ...(r._piala ? { piala: r._piala } : {}), ...(r._ajak ? { ajak: r._ajak } : {}), ...(hadiahPk.length ? { hadiahPk } : {}) });
     }
     // ---- Voting fasum berbintang ----
     if (aksi === "voting") {
@@ -1423,6 +1436,28 @@ export class Warga extends DurableObject {
       const suka = this.sql.exec("SELECT COUNT(*) AS n FROM rumahSuka WHERE mg = ? AND ke = ?", mg, ke).toArray()[0].n;
       const pos = 1 + this.sql.exec("SELECT COUNT(*) AS n FROM (SELECT ke, COUNT(*) AS c FROM rumahSuka WHERE mg = ? GROUP BY ke HAVING c > ?)", mg, suka).toArray()[0].n;
       return Response.json({ ok: 1, ke, suka, pos, sisa: RUMAH_SUKA_HARI - pakai.length - 1 });
+    }
+    if (aksi === "rawat") {
+      const q = await request.json();
+      const r = this.sql.exec("SELECT no FROM warga WHERE kunci = ?", String(q.kunci || "")).toArray()[0];
+      if (!r) return Response.json({ galat: "Masuk dulu sebagai warga." }, { status: 401 });
+      const ke = Math.floor(+q.ke || 0), kini = Date.now(), hari = hariWib(kini);
+      if (ke === r.no) return Response.json({ galat: "Itu rumahmu sendiri, sudah pasti terawat 😄" }, { status: 400 });
+      if (ke <= 1) return Response.json({ galat: "Rumah Raka selalu dirawat Oyen." }, { status: 400 });
+      const w = this.sql.exec("SELECT aktif, dibuat FROM warga WHERE no = ?", ke).toArray()[0];
+      const disiapkan = !w && (Object.values(KAVLING_DISIAPKAN).includes(ke) || Object.values(KAVLING_AWALAN).includes(ke));
+      const batas = kini - RAWAT_SEPI_HARI * 864e5;
+      if (!w && !disiapkan) return Response.json({ galat: "Rumah ini belum ada pemiliknya." }, { status: 400 });
+      if (w && ((w.aktif && w.aktif > batas) || (!w.aktif && (w.dibuat || 0) > batas))) return Response.json({ galat: "Pemilik rumah ini masih rajin main, rumahnya masih rapi." }, { status: 400 });
+      const sudah = this.sql.exec("SELECT dari FROM rawat WHERE hari = ? AND ke = ?", hari, ke).toArray()[0];
+      if (sudah) return Response.json({ galat: sudah.dari === r.no ? "Rumah ini sudah kamu rawat hari ini." : "Rumah ini sudah dirawat warga lain hari ini. Cari rumah lain ya!" }, { status: 400 });
+      const n = this.sql.exec("SELECT COUNT(*) AS n FROM rawat WHERE hari = ? AND dari = ?", hari, r.no).toArray()[0].n;
+      if (n >= RAWAT_HARI) return Response.json({ galat: "Kamu sudah merawat " + RAWAT_HARI + " rumah hari ini. Istirahat dulu, besok lagi ya!" }, { status: 400 });
+      this.sql.exec("INSERT INTO rawat (hari, ke, dari, t) VALUES (?, ?, ?, ?)", hari, ke, r.no, kini);
+      this.sql.exec("UPDATE warga SET koin = COALESCE(koin, 0) + ?, koinTotal = COALESCE(koinTotal, 0) + ? WHERE no = ?", RAWAT_KOIN, RAWAT_KOIN, r.no);
+      this.arus("+koin:rawat", RAWAT_KOIN);
+      const koin = this.sql.exec("SELECT koin FROM warga WHERE no = ?", r.no).toArray()[0].koin;
+      return Response.json({ ok: 1, ke, dapat: RAWAT_KOIN, koin, sisa: RAWAT_HARI - n - 1 });
     }
     if (aksi === "ajak") return Response.json(this.infoAjak(Math.max(0, Math.floor(+u.searchParams.get("no") || 0)), Math.max(0, Math.floor(+u.searchParams.get("dari") || 0))));
     if (aksi === "piala") return Response.json(this.piala(Math.max(0, Math.floor(+u.searchParams.get("no") || 0))));
@@ -2137,6 +2172,7 @@ export class Warga extends DurableObject {
         koin = 0, koinTotal = 0, permata = 0, bintang = 0, aktif = NULL WHERE no = ?`, "hapus:" + r.no + ":" + crypto.randomUUID(), crypto.randomUUID(), r.no);
       for (const t of ["reli", "reliRekor", "sawah", "sawahWarga", "mancing", "mancingRekor", "tukang", "piala", "iuran", "plakat"]) try { this.sql.exec(`DELETE FROM ${t} WHERE no = ?`, r.no); } catch (e) {}
       try { this.sql.exec("DELETE FROM rumahSuka WHERE dari = ? OR ke = ?", r.no, r.no); } catch (e) {}
+      try { this.sql.exec("DELETE FROM rawat WHERE dari = ? OR ke = ?", r.no, r.no); } catch (e) {}
       return Response.json({ ok: 1, no: r.no });
     }
     if (aksi === "usulan-kunci") {
@@ -2195,7 +2231,9 @@ export class Warga extends DurableObject {
         .filter(([ig, no]) => !terisi.has(no) && !igTerdaftar.has(ig))
         .map(([ig, no]) => ({ no, ig, tiktok: "", label: "", usulan: "", dibuat: 0 }));
       const semua = [...siap, ...rows.map((r) => this.publik(r))].sort((x, y) => x.no - y.no);
-      return Response.json({ jumlah: semua.length, warga: semua });
+      // Rawat Rumah Tetangga: rumah yang sudah dirawat hari ini → { no: "@perawat" } (tampil bersih untuk semua warga)
+      const rawat = {}; try { for (const x of this.sql.exec("SELECT s.ke, w.ig, w.tiktok, w.nama FROM rawat s LEFT JOIN warga w ON w.no = s.dari WHERE s.hari = ?", hariWib()).toArray()) rawat[x.ke] = x.ig || x.tiktok ? "@" + (x.ig || x.tiktok) : x.nama || "tetangga"; } catch (e) {}
+      return Response.json({ jumlah: semua.length, warga: semua, rawat, rawatAturan: { sepi: RAWAT_SEPI_HARI, hari: RAWAT_HARI, koin: RAWAT_KOIN } });
     }
     return new Response("{}", { status: 404 });
   }
@@ -2417,7 +2455,7 @@ function misiHari(hari) {
   const r = () => { h = (h + 0x6D2B79F5) >>> 0; let t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   const a = MISI_KOLAM.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
   // Misi Sawah Wetan tetap ada tiap hari (Huda 18 Nov 2026), di luar undian supaya urutan undian lama tidak berubah.
-  return Object.fromEntries([...a.slice(0, 6), ["sawah", 10], ["lombamancing", 10], ["bonus", 20]]);
+  return Object.fromEntries([...a.slice(0, 6), ["sawah", 10], ["lombamancing", 10], ["rawat", 10], ["bonus", 20]]);
 }
 // Rapikan username yang diketik/ditempel: buang @, spasi, huruf besar, dan link profil (instagram.com/x, tiktok.com/@x).
 function bersihUn(v) {
@@ -2650,6 +2688,10 @@ async function apiWargaInti(request, env, url) {
   }
   if (aksi === "rumah-suka") {
     const r = await stub.fetch("https://do/rumah-suka", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), ke: Math.max(0, Math.min(99999, Math.floor(+body.ke || 0))) }) });
+    return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  }
+  if (aksi === "rawat") {
+    const r = await stub.fetch("https://do/rawat", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), ke: Math.max(0, Math.min(99999, Math.floor(+body.ke || 0))) }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "gol") {

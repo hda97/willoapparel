@@ -13,7 +13,7 @@ export const diputar = () => aktif;
 function perlu() { return sentuh && asliH() > asliW() && asliW() < 760; }
 function kelasMedia() {
   const W = innerWidth, H = innerHeight, c = document.documentElement.classList;
-  c.toggle('mq-pendek', H <= 500); c.toggle('mq-w900', W <= 900); c.toggle('mq-w700', W <= 700); c.toggle('mq-tegak', H > W && W <= 700);
+  c.toggle('mq-pendek', H <= 500); c.toggle('mq-w900', W <= 900); c.toggle('mq-w700', W <= 700); c.toggle('mq-w600', W <= 600); c.toggle('mq-tegak', H > W && W <= 700);
 }
 function terapkan() {
   const mau = perlu(), html = document.documentElement, b = document.body;
