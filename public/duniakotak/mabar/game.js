@@ -1239,7 +1239,7 @@ const KOLAM_MISI = [
   // Mancing Kotak (Huda 18 Nov 2026: "Masuk misi harian?"): selesai 1 sesi lomba di /duniakotak/mancing/ (progres ditulis halaman itu ke dk_misi)
 ];
 const MISI_MANCING = {id: 'lombamancing', ikon: '🏆', judul: 'Ikut Lomba Mancing Kotak sampai waktu habis', t: [1], koin: 10, info: 'Gapura Mancing Kotak ada di Dermaga Dusun Kotak Tlaga. Naik ke dermaga, tekan 🏆 Lomba.', ke: ['tlaga', 'Mancing Kotak']};
-const MISI_RAWAT = {id: 'rawat', ikon: '🧹', judul: 'Rawat rumah tetangga yang lama tak pulang', t: [1], satuan: 'rumah', koin: 10, info: 'Rumah warga yang 3 hari tidak main penuh rumput liar & daun kering. Dekati rumahnya, tekan 🧹 Rawat.', rawat: 1};
+const MISI_RAWAT = {id: 'rawat', ikon: '🧹', judul: 'Rawat rumah tetangga yang lama tak pulang', t: [1], satuan: 'rumah', koin: 10, info: 'Rumah warga yang 3 hari tidak main penuh rumput liar & daun kering. Dekati rumahnya, tekan 🧹 Rawat: cabut rumput, sapu daun, lap jendela, siram bunga & cat pagar (±1 menit).', rawat: 1};
 const MISI_SAWAH = {id: 'sawah', ikon: '🌾', judul: 'Rawat Sawah Wetan: beli petak, tanam, siram, atau panen', t: [2], satuan: 'kali', koin: 10, info: 'Sawah di seberang sungai Kotak Wetan. Belum punya petak? Siram tanaman tetangga juga dihitung.', sawah: 1};
 function undiMisi(hari) {
   let h = 2166136261; for (const c of 'dk' + hari) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
@@ -1580,7 +1580,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {musim: 'dk_kabar_musim1', tandajuara: 'dk_kabar_tandajuara1', hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', mancingkotak: 'dk_kabar_mancingkotak1', sawah: 'dk_kabar_sawah1', sawah2: 'dk_kabar_sawah2', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2', musik: 'dk_kabar_musik1', rawat: 'dk_kabar_rawat1', minigame: 'dk_kabar_minigame1'};
+const KABAR_LAMA = {musim: 'dk_kabar_musim1', tandajuara: 'dk_kabar_tandajuara1', hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', mancingkotak: 'dk_kabar_mancingkotak1', sawah: 'dk_kabar_sawah1', sawah2: 'dk_kabar_sawah2', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2', musik: 'dk_kabar_musik1', rawat: 'dk_kabar_rawat2', minigame: 'dk_kabar_minigame1'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   if (window.DK_APP) simpan(KABAR_LAMA.notif, '1');   // aplikasi Android belum bisa notifikasi web
@@ -2647,7 +2647,7 @@ async function sukaRumah() {
 // pekarangan. Warga lain mendekat → 🧹 Rawat → pekarangan bersih untuk semua warga hari itu ("✨ dirawat @nama").
 // Server (worker.js aksi rawat): 1 rumah 1 perawat/hari, maks RAWAT.hari rumah/warga/hari, +RAWAT.koin koin. Pemilik dikabari saat main lagi.
 const DBT = {}, RW = {};   // DBT: no → waktu daftar; RW: no → "@perawat" hari ini
-let RAWAT = {sepi: 3, hari: 3, koin: 5}, rawatJalan = false;
+let RAWAT = {sepi: 3, hari: 3, koin: 10}, rawatJalan = false, JEDA_3D = false;
 function rumahSepi(n) {
   if (!n || n === 1 || n === S.saya?.no || !NM[n] || RW[n]) return false;
   for (const [x] of S.others) if (x === n) return false;   // pemiliknya sedang main
@@ -2671,19 +2671,32 @@ function antarRawat() {
   if (!best) { toast('🧹 Semua rumah di dusun ini sudah rapi. Coba cek dusun lain lewat 🚌 Dusun!', 4000); return; }
   pergiKe(best); toast(`🧭 Menuju rumah ${NM[best] || 'No. ' + best} yang lama tak dihuni pemiliknya…`, 3000);
 }
+// Huda 20 Nov 2026 (2): "rawat rumah warga lebih komplek setidaknya 1 menit" → mini-game 5 tahap (js/rawat.js).
+// Server: op mulai (cek rumah masih sepi & belum dirawat) → main ±1 menit → op selesai (sah bila ≥55 dtk sejak mulai).
 async function rawatRumah() {
   const n = rumahRawatDekat(tokoh.saya); if (!n || rawatJalan) return;
-  rawatJalan = true; $('sRawat').hidden = true; bunyi('sapu'); toast(`🧹 Mencabut rumput & menyapu daun di rumah ${NM[n] || 'No. ' + n}…`, 1600);
-  const t0 = performance.now();
-  try {
-    const r = await api('rawat', {kunci: S.kunci, ke: n});
-    const sisa = 1300 - (performance.now() - t0); if (sisa > 0) await new Promise(res => setTimeout(res, sisa));
-    RW[n] = S.saya.ig ? (String(S.saya.ig).startsWith('@') ? S.saya.ig : '@' + S.saya.ig) : 'kamu'; segarRawat(true);
-    if (r.koin != null) S.saya.koin = r.koin; try { hitungOnline(); } catch (e) {}
-    bunyi('masuk'); koinTerbang(`+${r.dapat} 🪙`); misiMaju('rawat');
-    toast(`✨ Rumah ${NM[n] || 'No. ' + n} jadi rapi lagi! +${r.dapat} koin. ${r.sisa > 0 ? `Masih bisa rawat ${r.sisa} rumah lagi hari ini.` : 'Jatah rawat hari ini habis, besok lagi ya!'} Pemiliknya akan dikabari saat pulang.`, 5000);
-  } catch (e) { if (/warga lain|sudah kamu rawat|rajin main/.test(e.message)) { RW[n] = RW[n] || 'tetangga'; segarRawat(true); } toast(e.message, 3500); }
-  rawatJalan = false; rwCache.t = 0;
+  rawatJalan = true; $('sRawat').hidden = true;
+  const nama = NM[n] || 'No. ' + n;
+  const tMulai = Date.now();
+  try { await api('rawat', {kunci: S.kunci, ke: n, op: 'mulai'}); }
+  catch (e) { if (/warga lain|sudah kamu rawat|rajin main/.test(e.message)) { if (!/sedang dirawat/.test(e.message)) { RW[n] = RW[n] || 'tetangga'; segarRawat(true); } } toast(e.message, 3500); rawatJalan = false; rwCache.t = 0; return; }
+  let mod; try { mod = await import('./js/rawat.js?v=20261120c'); } catch (e) { toast('Mini-game rawat gagal dimuat, coba lagi.', 3000); rawatJalan = false; return; }
+  bunyi('sapu'); JEDA_3D = true; gerak.stik = null;
+  mod.mainRawat({nama, bunyi, tutup: () => { JEDA_3D = false; },
+    batal: () => { JEDA_3D = false; rawatJalan = false; rwCache.t = 0; toast('🧹 Merawat dibatalkan. Rumahnya masih menunggu!', 2500); },
+    selesai: async () => {
+      try {
+        // pemain yang sangat cepat: tunggu sampai batas minimal server (55 dtk) supaya tidak ditolak
+        const sisa = 56500 - (Date.now() - tMulai); if (sisa > 0) await new Promise(res => setTimeout(res, sisa));
+        const r = await api('rawat', {kunci: S.kunci, ke: n, op: 'selesai'});
+        RW[n] = S.saya.ig ? (String(S.saya.ig).startsWith('@') ? S.saya.ig : '@' + S.saya.ig) : 'kamu'; segarRawat(true);
+        if (r.koin != null) S.saya.koin = r.koin; try { hitungOnline(); } catch (e) {}
+        bunyi('masuk'); koinTerbang(`+${r.dapat} 🪙`); misiMaju('rawat');
+        toast(`✨ Rumah ${nama} rapi lagi! +${r.dapat} koin. ${r.sisa > 0 ? `Masih bisa rawat ${r.sisa} rumah lagi hari ini.` : 'Jatah rawat hari ini habis, besok lagi ya!'} Pemiliknya akan dikabari saat pulang.`, 5000);
+        return `+${r.dapat} 🪙 · pemiliknya dikabari saat pulang`;
+      } catch (e) { if (/warga lain/.test(e.message)) { RW[n] = RW[n] || 'tetangga'; segarRawat(true); } throw e; }
+      finally { rawatJalan = false; rwCache.t = 0; }
+    }});
 }
 // Rumput liar & daun kering di pekarangan rumah sepi (kotak kecil, satu geometri dipakai ulang). Koordinat lokal kavling (lebar 10, dalam 9).
 const RAWAT_TITIK = [[3.9, 3.2], [4.2, 1.2], [3.8, -1.4], [-4.3, 1.4], [-4.1, -1.2], [.4, 4.0], [-3, 3.9], [2.6, 4.1]];
@@ -3775,6 +3788,7 @@ function aturKualitas(t, dtAsli) {
 }
 function loop(t) {
   requestAnimationFrame(loop);
+  if (JEDA_3D) { tAkhir = t; return; }   // mini-game layar penuh (Rawat Rumah) terbuka: dunia 3D dijeda supaya HP ringan
   const dtAsli = (t - tAkhir) / 1000;
   const dt = Math.min(.05, dtAsli); tAkhir = t; if (I) aturKualitas(t, dtAsli);
   const me = tokoh.saya; let vx = 0, vz = 0;

@@ -268,7 +268,8 @@ const RUMAH_SUKA_HARI = 3;
 // Rawat Rumah Tetangga (Huda 20 Nov 2026): rumah warga yang RAWAT_SEPI_HARI hari tidak main tampil kurang terurus.
 // Warga lain boleh merawatnya: satu rumah dirawat satu warga per hari, tiap warga maks RAWAT_HARI rumah/hari, +RAWAT_KOIN koin per rumah.
 // Pemilik yang main lagi diberi kabar siapa saja yang merawat rumahnya selama ia pergi.
-const RAWAT_SEPI_HARI = 3, RAWAT_HARI = 3, RAWAT_KOIN = 5;
+// Huda 20 Nov 2026 (2): merawat = mini-game ±1 menit (5 tahap) → wajib op "mulai" dulu, "selesai" baru sah setelah RAWAT_MIN_MS.
+const RAWAT_SEPI_HARI = 3, RAWAT_HARI = 3, RAWAT_KOIN = 10, RAWAT_MIN_MS = 55000, RAWAT_MAKS_MS = 20 * 60000, RAWAT_KUNCI_MS = 3 * 60000;
 // Hadiah papan peringkat mingguan (Huda 13 Nov 2026 "Papan peringkat harusnya ada reward"): dibagi tiap Senin 00.00 WIB untuk minggu lalu.
 // Piala: 3 warga poin terbanyak + semua warga dusun juara yang menyumbang ≥ dusunMin poin. Rumah: 3 rumah ❤️ terbanyak (min rumahMin ❤️).
 // Rajin Minggu Ini (koin yang didapat minggu itu): hadiah PERMATA, bukan koin, supaya yang sudah kaya tidak makin cepat kaya.
@@ -503,6 +504,7 @@ export class Warga extends DurableObject {
     // Lomba Rumah Terindah: satu baris = satu ❤️ dari warga `dari` ke rumah `ke` pada hari WIB `hari` (minggu `mg`)
     this.sql.exec("CREATE TABLE IF NOT EXISTS rumahSuka (mg TEXT, hari TEXT, dari INTEGER, ke INTEGER, t INTEGER, PRIMARY KEY (hari, dari, ke))");
     this.sql.exec("CREATE TABLE IF NOT EXISTS rawat (hari TEXT, ke INTEGER, dari INTEGER, t INTEGER, PRIMARY KEY (hari, ke))");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS rawatMulai (no INTEGER PRIMARY KEY, ke INTEGER, t INTEGER)");
     // Piala Antardusun: poin warga per minggu (mg = Senin WIB), d = dusun saat poin didapat, lh = finish berpoin hari itu
     // Hadiah papan peringkat mingguan (Huda 13 Nov 2026): hadiahPk = hadiah yang sudah dibayar (lihat = sudah ditampilkan ke warga),
     // hadiahMg = penanda minggu yang sudah dibagi, xpMg = koinTotal warga saat pertama main di minggu itu (untuk "Rajin Minggu Ini").
@@ -660,7 +662,7 @@ export class Warga extends DurableObject {
     const lain = this.sql.exec("SELECT no, ig FROM warga WHERE no = ?", B).toArray()[0];
     if (lain) { console.log("pindah kavling batal: No. " + B + " sudah dihuni @" + lain.ig); return null; }
     const A = r.no, kini = Date.now();
-    const TABEL = [["tukang", "no"], ["reli", "no"], ["reliRekor", "no"], ["sawah", "no"], ["sawahWarga", "no"], ["mancing", "no"], ["mancingRekor", "no"], ["iuran", "no"], ["suara", "no"], ["rumahSuka", "dari"], ["rumahSuka", "ke"], ["rawat", "dari"], ["rawat", "ke"], ["piala", "no"], ["donasi", "no"], ["juragan", "no"], ["plakat", "no"], ["notif", "no"]];
+    const TABEL = [["tukang", "no"], ["reli", "no"], ["reliRekor", "no"], ["sawah", "no"], ["sawahWarga", "no"], ["mancing", "no"], ["mancingRekor", "no"], ["iuran", "no"], ["suara", "no"], ["rumahSuka", "dari"], ["rumahSuka", "ke"], ["rawat", "dari"], ["rawat", "ke"], ["rawatMulai", "no"], ["piala", "no"], ["donasi", "no"], ["juragan", "no"], ["plakat", "no"], ["notif", "no"]];
     return this.ctx.storage.transactionSync(() => {
       const cad = { warga: this.sql.exec("SELECT * FROM warga WHERE no = ?", A).toArray() };
       for (const [t, k] of TABEL) cad[t + "." + k] = this.sql.exec(`SELECT * FROM ${t} WHERE ${k} = ?`, A).toArray();
@@ -1453,6 +1455,17 @@ export class Warga extends DurableObject {
       if (sudah) return Response.json({ galat: sudah.dari === r.no ? "Rumah ini sudah kamu rawat hari ini." : "Rumah ini sudah dirawat warga lain hari ini. Cari rumah lain ya!" }, { status: 400 });
       const n = this.sql.exec("SELECT COUNT(*) AS n FROM rawat WHERE hari = ? AND dari = ?", hari, r.no).toArray()[0].n;
       if (n >= RAWAT_HARI) return Response.json({ galat: "Kamu sudah merawat " + RAWAT_HARI + " rumah hari ini. Istirahat dulu, besok lagi ya!" }, { status: 400 });
+      if (q.op === "mulai") {
+        // rumah yang sedang dirawat warga lain (mulai < 3 menit lalu) tidak bisa direbut
+        const lain = this.sql.exec("SELECT no FROM rawatMulai WHERE ke = ? AND no != ? AND t > ?", ke, r.no, kini - RAWAT_KUNCI_MS).toArray()[0];
+        if (lain) return Response.json({ galat: "Rumah ini sedang dirawat warga lain. Cari rumah sepi lainnya ya!" }, { status: 400 });
+        this.sql.exec("INSERT OR REPLACE INTO rawatMulai (no, ke, t) VALUES (?, ?, ?)", r.no, ke, kini);
+        return Response.json({ ok: 1, mulai: 1, ke, min: RAWAT_MIN_MS });
+      }
+      const m = this.sql.exec("SELECT ke, t FROM rawatMulai WHERE no = ?", r.no).toArray()[0];
+      if (!m || m.ke !== ke || kini - m.t > RAWAT_MAKS_MS) return Response.json({ galat: "Mulai merawat dulu dari tombol 🧹 Rawat di depan rumahnya." }, { status: 400 });
+      if (kini - m.t < RAWAT_MIN_MS) return Response.json({ galat: "Kerjanya terlalu cepat, rumah belum benar-benar rapi. Coba rawat lagi ya." }, { status: 400 });
+      this.sql.exec("DELETE FROM rawatMulai WHERE no = ?", r.no);
       this.sql.exec("INSERT INTO rawat (hari, ke, dari, t) VALUES (?, ?, ?, ?)", hari, ke, r.no, kini);
       this.sql.exec("UPDATE warga SET koin = COALESCE(koin, 0) + ?, koinTotal = COALESCE(koinTotal, 0) + ? WHERE no = ?", RAWAT_KOIN, RAWAT_KOIN, r.no);
       this.arus("+koin:rawat", RAWAT_KOIN);
@@ -2173,6 +2186,7 @@ export class Warga extends DurableObject {
       for (const t of ["reli", "reliRekor", "sawah", "sawahWarga", "mancing", "mancingRekor", "tukang", "piala", "iuran", "plakat"]) try { this.sql.exec(`DELETE FROM ${t} WHERE no = ?`, r.no); } catch (e) {}
       try { this.sql.exec("DELETE FROM rumahSuka WHERE dari = ? OR ke = ?", r.no, r.no); } catch (e) {}
       try { this.sql.exec("DELETE FROM rawat WHERE dari = ? OR ke = ?", r.no, r.no); } catch (e) {}
+      try { this.sql.exec("DELETE FROM rawatMulai WHERE no = ? OR ke = ?", r.no, r.no); } catch (e) {}
       return Response.json({ ok: 1, no: r.no });
     }
     if (aksi === "usulan-kunci") {
@@ -2691,7 +2705,7 @@ async function apiWargaInti(request, env, url) {
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "rawat") {
-    const r = await stub.fetch("https://do/rawat", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), ke: Math.max(0, Math.min(99999, Math.floor(+body.ke || 0))) }) });
+    const r = await stub.fetch("https://do/rawat", { method: "POST", body: JSON.stringify({ kunci: String(body.kunci || "").slice(0, 64), ke: Math.max(0, Math.min(99999, Math.floor(+body.ke || 0))), op: body.op === "mulai" ? "mulai" : "selesai" }) });
     return new Response(r.body, { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   }
   if (aksi === "gol") {
