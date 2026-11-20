@@ -84,6 +84,7 @@
    <button class="barisAtur" id="bIklan" hidden title="Tonton iklan singkat, dapat permata"><i>📺</i><span>Tonton iklan, dapat 💎<small id="iklanSisa">+3 💎 per iklan · maks 3x sehari · tidak wajib</small></span></button>
    <!-- Huda 9 Nov 2026: item yang berhubungan dengan 💎/top up & keaktifan game di atas, pengaturan biasa di bawah -->
    <button class="barisAtur" id="bMusik" title="Suara: semua / efek saja / senyap"><i>🔊</i>Suara</button>
+   <button class="barisAtur" id="bGetarAtur" hidden title="Getar HP saat main mini game"><i>📳</i>Getar: nyala</button>
    <label class="barisAtur volAtur" for="volSuara"><i>🎚️</i><span>Volume</span><input type="range" id="volSuara" min="0" max="100" step="5" value="80" aria-label="Volume musik &amp; suara"></label>
    <button class="barisAtur" id="bAvatar" title="Ubah avatar"><i>🪞</i>Ubah avatar</button>
    <button class="barisAtur" id="bPanduan" title="Tutorial bersama Raka"><i>🎬</i>Tutorial Raka (cara main)</button>
@@ -95,6 +96,7 @@
 <div id="panelKabar" class="layarPenuh popup" hidden>
  <div class="panel"><button class="popTutup" data-tutup="panelKabar" aria-label="Tutup">✕</button>
   <h2>📣 Baru di Desa!</h2>
+  <div class="kbItem" data-k="getar"><i>📳</i><div><b>Mini game sekarang bergetar &amp; Mancing makin seru</b><small>HP ikut bergetar saat ikan menyambar, mobil nyerempet, panen, dan tugas selesai. Di Mancing Kotak ikan sekarang melawan: lepas saat ikan menarik kuat, gulung saat ikan capek. Dapat ikan = suara meriah &amp; konfeti! Getar bisa dimatikan di ⚙ Atur.</small></div></div>
   <div class="kbItem" data-k="aktchat"><i>📜</i><div><b>Aktivitas warga tercatat di Chat Desa</b><small>Siapa panen, mancing, finish reli, mencetak gol, merawat rumah tetangga, belanja, beli kendaraan sampai warga baru pindah: semuanya langsung muncul di 💬 Chat (tab Sekitar &amp; Desa) dengan baris hijau. Ayo ikut ramaikan desa!</small></div></div>
   <div class="kbItem" data-k="minigame"><i>🎮</i><div><b>Tombol baru: 🎮 Game</b><small>Semua mini game desa sekarang ada di satu tombol di atas layar: Pelari Kalcer, Reli Kotak, Mancing Kotak, Sawah Wetan &amp; Tukang Kotak. Ketuk, pilih, langsung main dari mana saja!</small></div></div>
   <div class="kbItem" data-k="rawat"><i>🧹</i><div><b>Misi baru: Rawat Rumah Tetangga</b><small>Rumah warga yang 3 hari tidak main jadi penuh rumput liar &amp; daun kering. Dekati rumahnya, tekan 🧹 Rawat lalu kerjakan 5 tugas ±1 menit: cabut rumput, sapu daun, lap jendela, siram bunga &amp; cat pagar. Pekarangannya bersih lagi &amp; kamu dapat +10 koin (maks 3 rumah sehari). Pemiliknya dikabari saat pulang!</small></div></div>
@@ -341,6 +343,6 @@
 
 <div id="miring" class="layarPenuh" hidden><div class="panel"><div style="font-size:54px">📱↻</div><h2>Miringkan HP-mu</h2><p class="sub">Dunia Kotak dimainkan dengan layar mendatar.</p><button class="tipis" id="tetapTegak">Tetap main tegak</button></div></div>
 
-<script type="module" src="game.js?v=20261120akt2"></script>
+<script type="module" src="game.js?v=20261120getar"></script>
 </body>
 </html>

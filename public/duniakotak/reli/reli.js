@@ -11,6 +11,7 @@ import '../mabar/js/putar.js'; // HP tegak -> tampil mendatar, sama seperti game
 import * as THREE from 'three';
 import {warga} from '../mabar/js/aset/avatar.js';
 import {buatMobil, MODEL_MOBIL} from '../mabar/js/aset/mobil.js?v=20261111amb';
+import {getar, suaraNyala} from '../mabar/js/rasa.js?v=20261120g';   // getar HP + saklar suara (Huda 20 Nov 2026)
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
@@ -34,7 +35,7 @@ function siapSuara() {
       o.connect(f); o2.connect(f); f.connect(g).connect(AC.destination); o.start(); o2.start(); MESIN = {o, o2, f, g}; } } catch (e) {}
 }
 function bunyi(fr = 660, d = .08, tipe = 'square', v = .05) {
-  try { if (!AC) return; const o = AC.createOscillator(), g = AC.createGain();
+  try { if (!AC || !suaraNyala()) return; const o = AC.createOscillator(), g = AC.createGain();
     o.type = tipe; o.frequency.value = fr; g.gain.setValueAtTime(v, AC.currentTime); g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + d);
     o.connect(g).connect(AC.destination); o.start(); o.stop(AC.currentTime + d + .02); } catch (e) {}
 }
@@ -309,7 +310,7 @@ function fisika(dt) {
   const p2 = proyeksi(K.x, K.z, K.i), q = T[p2.i];
   if (Math.abs(p2.d) > SEMAK) { const s = Math.sign(p2.d), lebih = Math.abs(p2.d) - SEMAK; K.x -= q.nx * s * lebih; K.z -= q.nz * s * lebih;
     const vn = K.vx * q.nx * s + K.vz * q.nz * s; if (vn > 0) { K.vx -= q.nx * s * vn * 1.4; K.vz -= q.nz * s * vn * 1.4; K.vx *= .9; K.vz *= .9;
-      if (vn > 4 && performance.now() - K.tabrak > 900) { K.tabrak = performance.now(); bunyi(90, .18, 'triangle', .12); if (aktif) kabar('🌿 Nyerempet semak!'); } } }
+      if (vn > 4 && performance.now() - K.tabrak > 900) { K.tabrak = performance.now(); bunyi(90, .18, 'triangle', .12); if (aktif) { kabar('🌿 Nyerempet semak!'); getar('tabrak'); } } } }
   K.i = p2.i; K.d = p2.d;
   // tinggi & kemiringan mengikuti jalan (tikungan miring)
   const yT = yJalan(K.i, K.d); K.y += (yT - K.y) * Math.min(1, dt * 14);
@@ -432,7 +433,7 @@ async function mulaiBalap() {
   $('jWaktu').textContent = '0:00.00'; $('jGerbang').textContent = `GERBANG 0 DARI ${GERBANG}`; $('jarak').textContent = '0,00 KM';
   if (AKUN) apiR('mulai').then(j => { if (j && j.saya) { if (j.saya.buka > LOKAL.buka) { LOKAL.buka = j.saya.buka; simpan('dk_reli', LOKAL); } if (j.saya.avatar && JSON.stringify(j.saya.avatar) !== JSON.stringify(LOKAL.av)) { LOKAL.av = j.saya.avatar; simpan('dk_reli', LOKAL); pasangSupir(LOKAL.av); } } });
   for (const t of ['3', '2', '1']) { if (id !== idBalap) return; $('hitung').hidden = false; $('hitung').innerHTML = `<b>${t}</b>`; bunyi(440, .18, 'square', .07); await new Promise(r => setTimeout(r, 800)); }
-  if (id !== idBalap) return; $('hitung').innerHTML = '<b style="color:#9ef0a0">GAS!</b>'; bunyi(880, .35, 'square', .08); setTimeout(() => { if (id === idBalap) $('hitung').hidden = true; }, 700);
+  if (id !== idBalap) return; $('hitung').innerHTML = '<b style="color:#9ef0a0">GAS!</b>'; bunyi(880, .35, 'square', .08); getar('lawan'); setTimeout(() => { if (id === idBalap) $('hitung').hidden = true; }, 700);
   MODE = 'balap'; mulaiT = performance.now(); waktu = 0;
 }
 $('bMulai').onclick = mulaiBalap; $('bLagi').onclick = mulaiBalap;
@@ -443,11 +444,11 @@ function lewatGerbang() {
   const sp = $('split'); sp.hidden = false; const beda = rek ? (waktu - rek) / 1000 : null;
   sp.textContent = (n === GERBANG - 1 ? 'FINISH ' : 'GERBANG ' + (n + 1) + ' · ') + jamTeks(waktu) + (beda != null ? `  ${beda < 0 ? '−' : '+'}${Math.abs(beda).toFixed(2)}` : '');
   sp.classList.toggle('cepat', beda != null && beda < 0); clearTimeout(sp._t); sp._t = setTimeout(() => { sp.hidden = true; }, 2200);
-  bunyi(n === GERBANG - 1 ? 1046 : 784, .12, 'square', .06);
+  bunyi(n === GERBANG - 1 ? 1046 : 784, .12, 'square', .06); if (n < GERBANG - 1) getar('tuk');
   if (n === GERBANG - 1) finish();
 }
 async function finish() {
-  MODE = 'selesai'; finishT = performance.now(); const ms = Math.round(waktu), id = idBalap; bunyi(1318, .5, 'triangle', .08); kabar('🏁 FINISH! ' + jamTeks(ms), 1800);
+  MODE = 'selesai'; finishT = performance.now(); const ms = Math.round(waktu), id = idBalap; bunyi(1318, .5, 'triangle', .08); getar('dapat'); kabar('🏁 FINISH! ' + jamTeks(ms), 1800);
   const rekorLama = LOKAL.rk[L_NO], baruLokal = !rekorLama || ms < rekorLama, bukaBaru = L_NO === 1 && LOKAL.buka < 5;
   if (baruLokal) { LOKAL.rk[L_NO] = ms; LOKAL.split[L_NO] = SPLIT.slice(); }
   if (bukaBaru) LOKAL.buka = 5;   // finish lintasan 1 = lintasan 2–5 terbuka

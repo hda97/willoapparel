@@ -24,6 +24,7 @@ import {pasangDesaGabung, LETAK} from './js/desaGabung.js?v=20261111bus';
 import {musimDusun, musimkan, buatCuaca} from './js/musim.js?v=20261114ms';
 import {buatMusik, buatSuaraKendaraan} from './js/suara.js?v=20261118bs';
 import {buatKebun} from './js/tanamanSawah.js?v=20261118a';
+import {bisaGetar, getarNyala, aturGetar} from './js/rasa.js?v=20261120g';   // getar HP di mini game (Huda 20 Nov 2026)
 
 const $ = id => document.getElementById(id);
 const VS = D.VS;
@@ -1580,7 +1581,7 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-const KABAR_LAMA = {musim: 'dk_kabar_musim1', tandajuara: 'dk_kabar_tandajuara1', hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', mancingkotak: 'dk_kabar_mancingkotak1', sawah: 'dk_kabar_sawah1', sawah2: 'dk_kabar_sawah2', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2', musik: 'dk_kabar_musik1', rawat: 'dk_kabar_rawat2', minigame: 'dk_kabar_minigame1', aktchat: 'dk_kabar_aktchat1'};
+const KABAR_LAMA = {musim: 'dk_kabar_musim1', tandajuara: 'dk_kabar_tandajuara1', hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', mancingkotak: 'dk_kabar_mancingkotak1', sawah: 'dk_kabar_sawah1', sawah2: 'dk_kabar_sawah2', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2', musik: 'dk_kabar_musik1', rawat: 'dk_kabar_rawat2', minigame: 'dk_kabar_minigame1', aktchat: 'dk_kabar_aktchat1', getar: 'dk_kabar_getar1'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
   if (window.DK_APP) simpan(KABAR_LAMA.notif, '1');   // aplikasi Android belum bisa notifikasi web
@@ -2680,7 +2681,7 @@ async function rawatRumah() {
   const tMulai = Date.now();
   try { await api('rawat', {kunci: S.kunci, ke: n, op: 'mulai'}); }
   catch (e) { if (/warga lain|sudah kamu rawat|rajin main/.test(e.message)) { if (!/sedang dirawat/.test(e.message)) { RW[n] = RW[n] || 'tetangga'; segarRawat(true); } } toast(e.message, 3500); rawatJalan = false; rwCache.t = 0; return; }
-  let mod; try { mod = await import('./js/rawat.js?v=20261120c'); } catch (e) { toast('Mini-game rawat gagal dimuat, coba lagi.', 3000); rawatJalan = false; return; }
+  let mod; try { mod = await import('./js/rawat.js?v=20261120g'); } catch (e) { toast('Mini-game rawat gagal dimuat, coba lagi.', 3000); rawatJalan = false; return; }
   bunyi('sapu'); JEDA_3D = true; gerak.stik = null;
   mod.mainRawat({nama, bunyi, tutup: () => { JEDA_3D = false; },
     batal: () => { JEDA_3D = false; rawatJalan = false; rwCache.t = 0; toast('🧹 Merawat dibatalkan. Rumahnya masih menunggu!', 2500); },
@@ -3535,6 +3536,9 @@ function musikSiap() {
   const sekali = () => { removeEventListener('pointerdown', sekali); removeEventListener('keydown', sekali); putarMusik(); };
   addEventListener('pointerdown', sekali); addEventListener('keydown', sekali);
   putarMusik();
+  // 📳 Getar: nyala/mati untuk semua mini game (disembunyikan di HP yang tidak bisa getar, mis. iPhone)
+  const bg = $('bGetarAtur'); if (bg) { const tulisG = () => { bg.innerHTML = `<i>📳</i>Getar: ${getarNyala() ? 'nyala' : 'mati'}`; }; bg.hidden = !bisaGetar; tulisG();
+    bg.onclick = () => { aturGetar(!getarNyala()); tulisG(); }; }
   $('bMusik').onclick = () => { M.mode = {semua: 'efek', efek: 'senyap', senyap: 'semua'}[M.mode] || 'semua'; simpan('dk_suara', M.mode); tandaMusik(); putarMusik(); };
   const vs = $('volSuara'); if (vs) { vs.oninput = () => { M.vol = vs.value / 100; simpan('dk_vol', String(vs.value)); if (M.ctx) { M.gain.gain.setTargetAtTime(volMusik(), M.ctx.currentTime, .05); M.fx.gain.setTargetAtTime(volEfek(), M.ctx.currentTime, .05); } };
     vs.onchange = () => bunyi('pesan'); }
