@@ -224,7 +224,23 @@ export function tanamanBedeng(l,kind,tahap){const [nm0,th0]=PETA_TANAMAN[kind]||
  im.userData.bedeng={l,kind};
  const M=new THREE.Matrix4(),P=new THREE.Vector3(),Q=new THREE.Quaternion(),S=new THREE.Vector3(u*.98,u*.98,u*.98);let i=0;
  for(const b of l){const ry=(b.p.x*7+b.p.z*13)%6;Q.setFromAxisAngle(new THREE.Vector3(0,1,0),ry);for(const [x,y,z,col] of sel){P.set(x*u,(y+.5)*u,z*u).applyQuaternion(Q);P.x+=b.p.x;P.z+=b.p.z;P.y+=.02;M.compose(P,Q,S);im.setMatrixAt(i,M);im.setColorAt(i++,col)}}
- im.instanceMatrix.needsUpdate=true;return im}
+ im.instanceMatrix.needsUpdate=true;pasangLod(im,l,sel,u);return im}
+// LOD kebun (audit kelancaran 21 Nov 2026): satu kebun = ±2.600 kubus (31 rb segitiga). Kebun yang jauh dari pemain
+// diganti 3 kubus per tanaman (warna rata-rata tiap pita tinggi) → ±27 kubus. game.js mengatur jauh/dekat lewat LOD_BEDENG.
+export const LOD_BEDENG=new Set();
+function pitaSel(sel){if(sel._pita)return sel._pita;const ys=sel.map(v=>v[1]),y0=Math.min(...ys),y1=Math.max(...ys),nb=3,h=(y1-y0+1)/nb,p=[];
+ for(let k=0;k<nb;k++){const vs=sel.filter(v=>v[1]>=y0+k*h-1e-6&&v[1]<y0+(k+1)*h-1e-6);if(!vs.length)continue;const a=[1e9,1e9,1e9],b=[-1e9,-1e9,-1e9],c=new THREE.Color(0,0,0);
+  for(const v of vs){for(let i=0;i<3;i++){a[i]=Math.min(a[i],v[i]);b[i]=Math.max(b[i],v[i])}c.r+=v[3].r;c.g+=v[3].g;c.b+=v[3].b}c.multiplyScalar(1/vs.length);
+  p.push({x:(a[0]+b[0])/2,y:(a[1]+b[1]+1)/2,z:(a[2]+b[2])/2,w:(b[0]-a[0]+1)*.8,h:b[1]-a[1]+1,d:(b[2]-a[2]+1)*.8,c})}
+ return sel._pita=p}
+function pasangLod(im,l,sel,u){if(!sel.length||!l.length)return;const p=pitaSel(sel);
+ const low=new THREE.InstancedMesh(GEO_TANAMAN,new THREE.MeshStandardMaterial({roughness:.85}),p.length*l.length);low.castShadow=false;low.receiveShadow=true;
+ const M=new THREE.Matrix4(),P=new THREE.Vector3(),Q=new THREE.Quaternion(),S=new THREE.Vector3(),Y=new THREE.Vector3(0,1,0);let i=0,cx=0,cz=0;
+ for(const b of l){const ry=(b.p.x*7+b.p.z*13)%6;Q.setFromAxisAngle(Y,ry);cx+=b.p.x;cz+=b.p.z;
+  for(const q of p){P.set(q.x*u,q.y*u,q.z*u).applyQuaternion(Q);P.x+=b.p.x;P.z+=b.p.z;P.y+=.02;S.set(q.w*u,q.h*u,q.d*u);M.compose(P,Q,S);low.setMatrixAt(i,M);low.setColorAt(i++,q.c)}}
+ low.instanceMatrix.needsUpdate=true;low.visible=false;low.userData.jangan=true;
+ im.computeBoundingSphere();low.computeBoundingSphere();   // dihitung saat penuh: count=0 nanti tidak merusak culling
+ im.add(low);im.userData.lod={low,n:im.count,cx:cx/l.length,cz:cz/l.length,jauh:false,yatim:0};LOD_BEDENG.add(im)}
 function lumbung(G,x,z){const g=new THREE.Group();const w=box(5,3.4,4,0xa8432f,.05);w.position.y=1.7;g.add(w);const gb=prism(5,1.8,4,0xa8432f);gb.position.y=3.4;g.add(gb);const rf=roofPlanes(5,1.8,4,0x5a4a3a);rf.position.y=3.4;g.add(rf);
  const dr=box(2.2,2.4,.1,0xf0e6d6,.03);dr.position.set(0,1.2,2.03);g.add(dr);[[0,1.2,.02,2.2,.14],[0,1.2,.02,.14,2.4]].forEach(([a,b,c,w2,h2])=>{const s=box(w2,h2,.06,0xa8432f,.01);s.position.set(a,b,2.1);g.add(s)});
  const hay=box(1.4,.9,.9,0xe8c860,.08);hay.position.set(2.9,.45,1.8);g.add(hay);const hay2=hay.clone();hay2.position.set(3.1,1.3,1.8);g.add(hay2);g.position.set(x,0,z);G.add(g)}

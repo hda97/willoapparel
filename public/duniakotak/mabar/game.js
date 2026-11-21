@@ -27,9 +27,11 @@ import {musimDusun, musimkan, buatCuaca} from './js/musim.js?v=20261114ms';
 import {buatMusik, buatSuaraKendaraan} from './js/suara.js?v=20261118bs';
 import {buatKebun} from './js/tanamanSawah.js?v=20261118a';
 import {bisaGetar, getarNyala, aturGetar, getar} from './js/rasa.js?v=20261120g';   // getar HP di mini game (Huda 20 Nov 2026)
+import {pasangIkonHUD, angkaDompet, IKON as IKON_HUD} from './js/ikon.js?v=20261121ikon';   // ikon HUD khas Dunia Kotak, bukan emoji (Huda 21 Nov 2026)
 import {LANGKA, TINGKAT, kgTeks as kgLangka, modelLangka, etalaseMesh, ETALASE, ikonLangka} from './js/langka.js?v=20261121langka';   // Koleksi Langka (Huda 21 Nov 2026)
 
 const $ = id => document.getElementById(id);
+pasangIkonHUD();
 const VS = D.VS;
 const LOT_D = 9;
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -740,6 +742,8 @@ async function bangunDunia() {
   DI = NAMA_DUSUN[minta] ? minta : (S.saya ? dusunDari(S.saya.no) : 'wetan');
   // musim tetap tiap dusun (Huda 14 Nov 2026): kabut lebih rapat saat hujan/salju, partikel cuaca 1 draw call
   MSM = musimDusun(DI); if (MSM) { sc.fog.near *= MSM.kabut; sc.fog.far *= MSM.kabut; CUACA = buatCuaca(sc, MSM, hemat); }
+  // audit kelancaran 21 Nov 2026: benda di balik kabut tebal tidak terlihat, jadi jangan digambar (Curug: kabut habis 344, kamera dulu 450)
+  cam.far = Math.min(cam.far, sc.fog.far + 12); cam.updateProjectionMatrix();
   if (DI === 'kulon') return bangunKulon();
   if (DI === 'curug') return bangunCurug();
   if (DI === 'tlaga') return bangunTlaga();
@@ -1281,7 +1285,7 @@ function muatMisi() {
 }
 function tandaKoin() {
   const n = MISI.filter(m => MS.selesai.has(m.id)).length;
-  if ($('bMisi')) $('bMisi').innerHTML = `<i>📋</i>Misi ${n}/${MISI.length}`;
+  if ($('bMisi')) $('bMisi').innerHTML = `<i class="ikDK">${IKON_HUD.misi}</i>Misi ${n}/${MISI.length}`;
   hitungOnline();
 }
 let simpanMisiT = 0;
@@ -3348,7 +3352,7 @@ function hitungOnline() {
   // kartu profil dipersimpel (Huda 6 Nov 2026): avatar + nama, koin & permata di sampingnya; detail lain di panel Profil
   $('dompet').hidden = S.tamu || !S.saya;
   document.querySelector('#profil .pfNm').hidden = !S.tamu && !!S.saya;   // Huda: pojok cukup foto avatar + koin + permata
-  if (!S.tamu && S.saya) { $('dKoin').textContent = '🪙 ' + (S.saya.koin || 0); $('dPermata').textContent = '💎 ' + (S.saya.permata || 0); cekXP(); }
+  if (!S.tamu && S.saya) { $('dKoin').innerHTML = angkaDompet('koin', S.saya.koin || 0); $('dPermata').innerHTML = angkaDompet('permata', S.saya.permata || 0); cekXP(); }
   $('dLevel').hidden = S.tamu || !S.saya;
   $('profOnline').textContent = `🟢 ${jumlahOnline()} online`; $('dOnline').innerHTML = `<i class="titikOn"></i>${jumlahOnline()}`; $('dOnline').title = jumlahOnline() + ' warga online · ketuk untuk lihat per dusun';
   if (!$('panelProfil').hidden) tulisProfil();
@@ -3890,27 +3894,39 @@ const bebas = (x, z) => {
   const me = tokoh.saya; if (me && padat(x, z, me.position.y) && !padat(me.position.x, me.position.z, me.position.y)) return false;
   return true;
 };
-// kualitas menyesuaikan HP: kalau rata-rata < 28 fps, turunkan resolusi lalu matikan bayangan
+// kualitas menyesuaikan HP: kalau rata-rata < 36 fps, turunkan resolusi lalu matikan bayangan
 const kualitas = {n: 0, jml: 0, tingkat: 0, mulai: 0};
+// LOD kebun (audit kelancaran 21 Nov 2026): kebun warga yang jauh dari pemain digambar 3 kubus per tanaman, bukan ±290 kubus
+const LOD_V = new THREE.Vector3(); let tLod = 0;
+function lodBedeng(t) {
+  if (t - tLod < 300 || !tokoh.saya || !D.LOD_BEDENG) return; tLod = t;   // D.LOD_BEDENG kosong kalau desa.js lama masih di cache
+  const me = tokoh.saya.position, R2 = (kualitas.tingkat >= 3 ? 40 : hemat ? 55 : 80) ** 2;
+  for (const im of D.LOD_BEDENG) {
+    const L = im.userData.lod; let akar = im; while (akar.parent) akar = akar.parent; if (akar !== sc) { if (++L.yatim > 20) D.LOD_BEDENG.delete(im); continue; } L.yatim = 0;
+    LOD_V.set(L.cx, 0, L.cz).applyMatrix4(im.matrixWorld);
+    const jauh = (LOD_V.x - me.x) ** 2 + (LOD_V.z - me.z) ** 2 > R2;
+    if (jauh !== L.jauh) { L.jauh = jauh; im.count = jauh ? 0 : L.n; L.low.visible = jauh; }
+  }
+}
 function aturKualitas(t, dtAsli) {
   if (document.hidden || dtAsli > .5) return;
   if (!kualitas.mulai) kualitas.mulai = t;
   kualitas.n++; kualitas.jml += dtAsli;
   if (t - kualitas.mulai < 4000) return;
   const fps = kualitas.n / kualitas.jml; kualitas.n = 0; kualitas.jml = 0; kualitas.mulai = t;
-  if (fps >= 28 || kualitas.tingkat >= 3) return;
+  if (fps >= 36 || kualitas.tingkat >= 3) return;   // 21 Nov 2026: patokan lancar dinaikkan dari 28 ke 36 fps
   kualitas.tingkat++;
   // tidak pernah di bawah 1x supaya gambar tetap tajam
   if (kualitas.tingkat === 1 && R.shadowMap.enabled) { R.shadowMap.enabled = false; I.light.castShadow = false; sc.traverse(m => { if (m.material) [].concat(m.material).forEach(x => { x.needsUpdate = true; }); }); }
   else if (kualitas.tingkat <= 2) R.setPixelRatio(Math.min(1.25, DPR));
-  else { R.setPixelRatio(1); jarak.rx = 95; jarak.zf = 125; }
+  else { R.setPixelRatio(1); jarak.rx = 95; jarak.zf = 125; sc.fog.near *= .85; sc.fog.far *= .85; cam.far = Math.min(cam.far, sc.fog.far + 12); cam.updateProjectionMatrix(); }
   onResize();
 }
 function loop(t) {
   requestAnimationFrame(loop);
   if (JEDA_3D) { tAkhir = t; return; }   // mini-game layar penuh (Rawat Rumah) terbuka: dunia 3D dijeda supaya HP ringan
   const dtAsli = (t - tAkhir) / 1000;
-  const dt = Math.min(.05, dtAsli); tAkhir = t; if (I) aturKualitas(t, dtAsli);
+  const dt = Math.min(.05, dtAsli); tAkhir = t; if (I) { aturKualitas(t, dtAsli); lodBedeng(t); }
   const me = tokoh.saya; let vx = 0, vz = 0;
   if (G) G.pulihkan(me);   // lepas geser naik/turun gerakan sebelum posisi diperbarui
   if (DG) DG.cek(me);
