@@ -2180,7 +2180,7 @@ function bukaAlbum() { tulisAlbum(); $('panelAlbum').hidden = false; }
 // Item langka (ikan raksasa Mancing Kotak + kepiting langka sungai) disimpan server dengan NOMOR SERI = urutan pemilik di desa.
 // Maks 3 dipajang di etalase teras rumah (terlihat warga lain), "Pamerin" = item melayang di atas kepala + kabar di chat.
 let LK = [];   // koleksi sendiri: [{k, seri, g, n, p (slot pajang 0-3), pemilik}]
-const POS_ETALASE = [.15, 1.0], LK_PAJANG = 3, LK_JEDA = 60e3;
+const POS_ETALASE = [2.95, 3.8], LK_PAJANG = 3, LK_JEDA = 60e3;   // Huda 21 Nov: etalase di depan, samping Warung Panen (menghadap jalan)
 function pajanganKavling(n) {
   if (S.saya && !S.tamu && n === S.saya.no) return LK.filter(x => x.p > 0).sort((a, b) => a.p - b.p).map(x => [x.k, x.seri, x.g]);
   return LP[n] || [];
