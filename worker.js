@@ -2493,6 +2493,8 @@ export class Ruang extends DurableObject {
       return;
     }
     if (q.t === "e" && q.e === "lompat") { if (now - (a.lompat || 0) > 500) { ws.serializeAttachment({ ...a, lompat: now }); this.siar({ t: "e", no: a.no, e: "lompat" }, ws); } return; }
+    // gerakan warga (roda Gerak, 21 Nov 2026): "g_<id>" mulai, "g_" berhenti; tidak dipantulkan ke pengirim
+    if (q.t === "e" && typeof q.e === "string" && q.e.startsWith("g_")) { const g = q.e.slice(2); if ((g === "" || GERAK_WARGA.includes(g)) && now - (a.gerak || 0) > 400) { ws.serializeAttachment({ ...a, gerak: now }); this.siar({ t: "e", no: a.no, e: q.e }, ws); } return; }
     if (q.t === "e") { const e = ["sapa", "hati", "tawa", "main"].includes(q.e) ? q.e : null; if (e && now - (a.emote || 0) > 1500) { ws.serializeAttachment({ ...a, emote: now }); this.siar({ t: "e", no: a.no, e }); } return; }
     if (q.t === "bola") {   // bola stadion: tendangan warga diteruskan ke warga lain di dusun yang sama
       const b = { t: "bola", x: +q.x, z: +q.z, vx: +q.vx, vz: +q.vz };
@@ -2541,6 +2543,7 @@ const PEMULA_BATAS_KOIN = 300;   // warga lama yang sudah kumpul ≥300 koin tid
 const PEMULA_SALDO = 50;   // Huda 7 Nov: warga lama yang saldo koinnya < 50 juga ikut misi pemula
 // Hadiah hadir beruntun hari ke-1..7 (koin), lalu berulang.
 const HADIAH_HADIR = [10, 15, 20, 25, 30, 40, 60];
+const GERAK_WARGA = ["duduk", "baring", "tidur", "joget", "robot", "goyang", "senam", "tepuk", "lambai", "hormat", "pushup", "mikir", "ketawa", "nangis"];   // sama dengan js/gerak.js
 const MISI_KOLAM = [["jalan", 10], ["sapa", 10], ["raka", 5], ["tetangga", 10], ["foto", 10], ["ambil", 10], ["mancing", 10], ["sungai", 5], ["lari", 5], ["kucing", 5], ["lompat", 5], ["fasum", 10], ["stadion", 5], ["npc", 10], ["supermarket", 5], ["rs", 5], ["dusun", 15], ["khas", 15]];
 function misiHari(hari) {
   let h = 2166136261; for (const c of "dk" + hari) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;

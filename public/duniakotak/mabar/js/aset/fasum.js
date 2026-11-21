@@ -28,7 +28,7 @@ function perabot(g,m,x,y,z,ry=0){g.ad(m,x,y,z,ry);m.userData.bukanPijakan=true;m
 // daun pintu terbuka 90° ke dalam (engsel di kiri bukaan, sisi depan)
 function daun(g,x,zMuka,w,h,col,y0=.35){const m=g.ad(box(.1,h,w,col,.02),x-w/2+.08,y0+h/2,zMuka-w/2-.05);m.userData.bukanPijakan=true;m.userData.daun=true;return m}
 const kayu=0x8a5a2a,putih=0xf4f4f0;
-function bangku(g,x,z,w,col=kayu,ry=0){perabot(g,box(w,.06,.32,col,.02),x,.6,z,ry);perabot(g,box(w,.28,.06,col,.02),x,.76,z-(ry?0:.15),ry);[-1,1].forEach(s=>perabot(g,box(.06,.25,.3,col,.01),x+s*(w/2-.1),.47,z,ry))}
+function bangku(g,x,z,w,col=kayu,ry=0){{const t=new THREE.Object3D();t.position.set(x,.63,z);t.rotation.y=ry;t.userData.bangku=w;g.add(t)}/* penanda tempat duduk pejalan kaki & tombol Gerak (21 Nov 2026) */perabot(g,box(w,.06,.32,col,.02),x,.6,z,ry);perabot(g,box(w,.28,.06,col,.02),x,.76,z-(ry?0:.15),ry);[-1,1].forEach(s=>perabot(g,box(.06,.25,.3,col,.01),x+s*(w/2-.1),.47,z,ry))}
 function meja(g,x,z,w,dd,col=kayu,ht=.5){perabot(g,box(w,.06,dd,col,.02),x,.35+ht,z);[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>perabot(g,box(.06,ht,.06,col,.01),x+a*(w/2-.06),.35+ht/2,z+b*(dd/2-.06)))}
 function kursi(g,x,z,col=0x3a6ab8,dy=0){perabot(g,box(.32,.05,.32,col,.02),x,.6+dy,z);perabot(g,box(.32,.3,.05,col,.02),x,.78+dy,z+.15);perabot(g,box(.26,.25,.26,0x555555,.02),x,.47+dy,z)}
 function rak(g,x,z,w,dd,ht,cols){const m=perabot(g,box(w,ht,dd,0xe8e4dc,.03),x,.35+ht/2,z);m.userData.dinding=true;for(let k=0;k<3;k++)for(let i=0;i<Math.floor(w/.35);i++)perabot(g,box(.26,.18,dd+.04,cols[(i+k)%cols.length],.03),x-w/2+.2+i*.35,.35+.25+k*(ht/3.2),z);return m}

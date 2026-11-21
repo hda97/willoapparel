@@ -188,5 +188,5 @@ export function buatLaluLintas({sc, I, VS, tanah, warga, pose, siapAv, buatMobil
     hasil.lajur = Math.min(hasil.rw * .5, (dua ? .9 : 1.6) * M) + (dua ? hasil.rw * .25 : 0);
     return hasil;
   }
-  return {update, armada, grup: g, jumlahSimpang: simpang.size, jalurDi};
+  return {update, armada, grup: g, jumlahSimpang: simpang.size, jalurDi, jaringan: {xs, zs, rwX, rwZ, tetangga, NI, NJ, simpang, nx, nz}};   // jaringan: dipakai pejalan kaki (js/pejalan.js)
 }
