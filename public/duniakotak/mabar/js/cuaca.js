@@ -69,24 +69,3 @@ export function warnaLangit(M, C) {
   if (C && C.cerah) langit = campur(langit, 0x7cc0f6, C.cerah);
   return {langit, malam};
 }
-
-// ---------- ikon piksel 12x12 khas Dunia Kotak (bukan emoji) ----------
-const PAL = {K: '#2a2218', Y: '#f2c14a', O: '#e8742a', W: '#ffffff', w: '#dfe6ee', g: '#9aa6b4', d: '#5f6b7a', D: '#434c58', B: '#5ab4ff', L: '#ffe14a'};
-const AWAN = ['....www.....', '..wwWWwww...', '.wWWWWWWww..', 'wWWWWWWWWWw.', 'wwwwwwwwwwww', '.gggggggggg.'];
-const AWAN_GELAP = ['....ggg.....', '..ggwwggg...', '.gwwwwwwgg..', 'gwwwwggggwg.', 'gggggggggggg', '.dddddddddd.'];
-const IKON = {
-  cerah:   ['.....Y......', '..Y..Y..Y...', '...YYYYY....', '..YYOOOYY...', 'YYYOYYYOYYY.', '..YOYYYYOY..', '..YYOOOYY...', '...YYYYY....', '..Y..Y..Y...', '.....Y......', '............', '............'],
-  berawan: ['.....Y......', '..Y.YYY.Y...', '...YYOYY....', '..YYOYYYY...', '.Y.YYwww.Y..', '...YwWWWw...', '..wwWWWWWww.', '.wWWWWWWWWWw', '.wwwwwwwwwww', '..gggggggg..', '............', '............'],
-  mendung: ['............', '............', ...AWAN, '..gggggggg..', '............', '............', '............'],
-  gerimis: [...AWAN, '............', '..B.....B...', '.....B......', '.B......B...', '....B.....B.', '............'],
-  hujan:   [...AWAN, '.B..B..B..B.', 'B..B..B..B..', '.B..B..B..B.', 'B..B..B..B..', '.B..B..B..B.', '............'],
-  badai:   [...AWAN_GELAP, '.....LL.....', '....LL......', '...LLLLL....', '.....LL.....', '....LL......', '...L........'],
-  salju:   [...AWAN, '.W....W.....', '...W....W...', 'W....W....W.', '..W....W....', '.....W....W.', '.W..........'],
-  kabut:   ['............', 'wwwwwwww....', '............', '..wwwwwwwwww', '............', 'wwwwwwwww...', '............', '...wwwwwwwww', '............', 'wwwwwwwwwww.', '............', '............'],
-  angin:   ['............', 'wwwwwwwww...', '.........w..', 'wwwwwwwwww..', '............', '..wwwwwwwww.', '...........w', 'wwwww......w', '.....w...ww.', '......ww....', '............', '............'],
-};
-export function svgCuaca(ik, cls = 'ikCu') {
-  const g = IKON[ik] || IKON.cerah; let r = '';
-  g.forEach((baris, y) => { for (let x = 0; x < baris.length; x++) { const w = PAL[baris[x]]; if (w) r += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${w}"/>`; } });
-  return `<svg class="${cls}" viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
-}

@@ -24,7 +24,7 @@ import {segara, AWAL_SEGARA, kodeUnit} from './js/segara.js';
 import {buatNav, pecahRute} from './js/navigasi.js';
 import {pasangDesaGabung, LETAK} from './js/desaGabung.js?v=20261111bus';
 import {musimDusun, musimkan, buatCuaca} from './js/musim.js?v=20261121cu';
-import {cuacaHari, kunciHari, warnaLangit, svgCuaca} from './js/cuaca.js?v=20261121cu';   // cuaca harian tiap dusun (Huda 21 Nov 2026)
+import {cuacaHari, kunciHari, warnaLangit} from './js/cuaca.js?v=20261121cu';   // cuaca harian tiap dusun (Huda 21 Nov 2026)
 import {buatMusik, buatSuaraKendaraan} from './js/suara.js?v=20261118bs';
 import {buatKebun} from './js/tanamanSawah.js?v=20261118a';
 import {bisaGetar, getarNyala, aturGetar, getar} from './js/rasa.js?v=20261120g';   // getar HP di mini game (Huda 20 Nov 2026)
@@ -1599,7 +1599,6 @@ async function bukaAjak() {
 // Pengumuman fitur baru (Huda 9 Nov 2026 "pastikan warga tau"): pop up sekali per HP, menunggu sampai tidak ada pop up lain
 // (voting harian, panduan, misi pemula). Tanda BARU di tombol Atur hilang setelah panel Ajak dibuka.
 // Tiap fitur baru = satu .kbItem[data-k] di #panelKabar; item yang sudah pernah dilihat di HP ini disembunyikan.
-document.querySelectorAll('.kbItem[data-k="cuaca"] i').forEach(e => { e.innerHTML = svgCuaca('badai', 'lkIkon'); });
 const KABAR_LAMA = {cuaca: 'dk_kabar_cuaca1', pejalan: 'dk_kabar_pejalan1', gerak: 'dk_kabar_gerak1', musim: 'dk_kabar_musim1', tandajuara: 'dk_kabar_tandajuara1', hadiahpk: 'dk_kabar_hadiahpk1', nebeng: 'dk_kabar_nebeng1', bus: 'dk_kabar_bus1', taman: 'dk_kabar_taman1', level: 'dk_kabar_level1', tutor: 'dk_kabar_tutor1', bawa: 'dk_kabar_bawa1', dealer: 'dk_kabar_dealer1', willo: 'dk_kabar_willo1', ajak: 'dk_kabar_ajak1', piala: 'dk_kabar_ajak1', rumah: 'dk_kabar_rumah1', npc: 'dk_kabar_npc1', album: 'dk_kabar_album1', langka: 'dk_kabar_langka1', pasar: 'dk_kabar_pasar1', tersebar: 'dk_kabar_tersebar1', berantai: 'dk_kabar_berantai1', kafe: 'dk_kabar_kafe1', bandara: 'dk_kabar_bandara1', belanja: 'dk_kabar_belanja1', lamamain: 'dk_kabar_lamamain1', tukang: 'dk_kabar_tukang1', arena: 'dk_kabar_arena1', reli: 'dk_kabar_reli1', mancingkotak: 'dk_kabar_mancingkotak1', sawah: 'dk_kabar_sawah1', sawah2: 'dk_kabar_sawah2', notif: 'dk_kabar_notif1', mobil: 'dk_kabar_mobil2', musik: 'dk_kabar_musik1', rawat: 'dk_kabar_rawat2', minigame: 'dk_kabar_minigame1', aktchat: 'dk_kabar_aktchat1', getar: 'dk_kabar_getar1', alatmancing: 'dk_kabar_alatmancing1'};
 function kabarBaru(n = 0) {
   if (!baca('dk_ajak_lihat')) $('bAtur').classList.add('baru');
@@ -3690,7 +3689,7 @@ async function mulai() {
   // foto profil butuh renderer kedua (berat): tampilkan warna kulit dulu, fotonya menyusul
   $('profAva').style.background = S.av.kulit; setTimeout(fotoProfil, 2500);
   buatPeta();
-  hitungOnline(); kabarWarga(); if (CH) tambahChat('sekitar', '', `Cuaca hari ini di Dusun ${NAMA_DUSUN[DI]}: ${CH.nama}. Besok bisa beda, cek dusun lain di menu Bus.`, 'sistem'); tulisChat(); aturHUD(); sambung();
+  hitungOnline(); kabarWarga(); if (CH) tambahChat('sekitar', '', `Cuaca hari ini di Dusun ${NAMA_DUSUN[DI]}: ${CH.nama}. Besok bisa beda lagi.`, 'sistem'); tulisChat(); aturHUD(); sambung();
   if (!baca('dk_panduan')) mulaiTutor(true);
   // Voting Fasum muncul sebagai pop up saat masuk game, sekali per hari (Huda 6 Nov 2026), sekalian ambil bintang gratis harian.
   // Wajib pilih (Huda 6 Nov): tanda dk_vt baru disimpan setelah menaruh bintang, jadi muat ulang tidak melewati voting.
@@ -4095,7 +4094,7 @@ function pilihDusun() {
     p.innerHTML = `<div class="dsnPanel"><div class="dsnJudul"><i class="dsnBus">${svgPiksel(IKON_BUS, PAL_DSN)}</i><b>Naik bus ke dusun mana?</b><button class="dsnTutup" data-d="" aria-label="Tutup">✕</button></div>
       <div class="tiketBus"></div><div class="dsnDaftar">${semua.map(k => `<button class="dsnKartu" data-d="${k}" style="--dsn:${KET_DSN[k][2]}">
         <span class="dsnIkon">${svgPiksel(IKON_DSN[k], PAL_DSN)}<span class="dsnKunci">${svgPiksel(IKON_GEMBOK, PAL_DSN)}</span></span>
-        <b>Kotak ${k[0].toUpperCase() + k.slice(1)}</b><small>${KET_DSN[k][0]}</small><em>${KET_DSN[k][1]}</em><span class="dsnCuaca"></span><span class="dsnIni"></span></button>`).join('')}</div></div>`;
+        <b>Kotak ${k[0].toUpperCase() + k.slice(1)}</b><small>${KET_DSN[k][0]}</small><em>${KET_DSN[k][1]}</em><span class="dsnIni"></span></button>`).join('')}</div></div>`;
     p.onclick = e => { const b = e.target.closest('button'); if (e.target === p || (b && !b.dataset.d)) { p.hidden = true; return; }
       if (b && b.classList.contains('terkunci')) { toast(`🔒 Dusun Kotak Segara dibuka setelah ada warga No. ${AWAL_SEGARA + 1}. Ajak temanmu daftar!`, 3000); return; }
       if (b && b.dataset.d && b.dataset.d !== DI) { p.hidden = true; naikBus(b.dataset.d); } };
@@ -4103,8 +4102,7 @@ function pilihDusun() {
   }
   p.querySelectorAll('.dsnKartu').forEach(b => { const k = b.dataset.d, kunci = !NAMA_DUSUN[k], ini = k === DI;
     b.classList.toggle('terkunci', kunci); b.classList.toggle('ini', ini);
-    b.querySelector('.dsnIni').textContent = ini ? 'KAMU DI SINI' : kunci ? `BUKA DI NO. ${AWAL_SEGARA + 1}` : '';
-    const m = musimDusun(k), c = m && cuacaHari(k, m.id); b.querySelector('.dsnCuaca').innerHTML = c ? svgCuaca(c.ik) + c.nama : ''; });   // cuaca hari ini tiap dusun
+    b.querySelector('.dsnIni').textContent = ini ? 'KAMU DI SINI' : kunci ? `BUKA DI NO. ${AWAL_SEGARA + 1}` : ''; });
   p.querySelector('.tiketBus').textContent = teksTiket().trim() || 'Jalan kaki lewat Gapura gratis.';
   p.hidden = false;
 }
@@ -4204,9 +4202,7 @@ function siangMalam(t) {
   langitNow.setHex(L.malam).lerp(new THREE.Color(L.langit), terang);
   sc.background = langitNow; sc.fog.color = langitNow; IL = (.5 + 1.9 * terang) * (MSM ? MSM.cahaya : 1) * (CH && CH.cahaya || 1); I.light.intensity = IL; R.toneMappingExposure = .85 + .4 * terang;
   const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-  if ($('chipDusun') && $('chipDusun')._d !== DI) { $('chipDusun')._d = DI; const c = $('chipDusun'); c._d = DI;
-    c.innerHTML = `📍 <b>${NAMA_DUSUN[DI]}</b>${CH ? ' ' + svgCuaca(CH.ik) + CH.nama : MSM ? ' ' + MSM.ik : ''}`;
-    c.title = `Dusun ${NAMA_DUSUN[DI]}${MSM ? ' · ' + MSM.nama : ''}${CH ? ' · cuaca hari ini: ' + CH.nama : ''}`; }
+  if ($('chipDusun') && $('chipDusun')._d !== DI) { $('chipDusun')._d = DI; $('chipDusun')._d = DI; $('chipDusun').innerHTML = `📍 <b>Dusun ${NAMA_DUSUN[DI]}</b>${MSM ? ' ' + MSM.ik : ''}`; }
   $('jam').innerHTML = `<span class="dsn">Dusun ${NAMA_DUSUN[DI]} · </span>${HARI[d.getUTCDay()]} ${String(d.getUTCHours()).padStart(2, '0')}.${String(d.getUTCMinutes()).padStart(2, '0')} ${terang > .5 ? '☀️' : '🌙'}<small>🌱 Tanam di kebun rumahmu · jual di warung</small>`;
 }
 function onResize() {

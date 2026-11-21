@@ -147,8 +147,6 @@ canvas#layar{touch-action:none}
 /* keterangan dusun yang sedang dikunjungi (di bawah peta mini) */
 .chipDusun{position:fixed;top:200px;right:max(12px,env(safe-area-inset-right));background:rgba(19,20,31,.82);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;text-align:center}
 .chipDusun b{color:#ffd23a;font-weight:900}
-.ikCu{display:inline-block;width:13px;height:13px;vertical-align:-2px;margin-right:3px;image-rendering:pixelated}
-.dsnCuaca{display:flex;align-items:center;font:800 9.5px/1.2 Montserrat,sans-serif;color:#2a2218;margin-top:3px;white-space:nowrap}.dsnCuaca .ikCu{width:14px;height:14px;margin-right:3px;background:#2a2218;border-radius:2px;padding:1px}
 /* chat terbuka & menutupi joystick di layar pendek: joystick disembunyikan sementara */
 body.chatPenuh #stik{visibility:hidden}
 /* layar pendek (HP landscape): tombol skill berderet ke kiri, tidak menumpuk ke atas menabrak peta mini */
