@@ -91,20 +91,22 @@ function tekstur(jenis) {
   else { x.fillStyle = '#fff'; x.beginPath(); x.moveTo(16, 2); x.quadraticCurveTo(30, 16, 16, 30); x.quadraticCurveTo(2, 16, 16, 2); x.fill(); }
   const t = new THREE.CanvasTexture(c); t.colorSpace = SRGB; return t;
 }
-export function buatCuaca(sc, M, hemat) {
-  if (!M || !M.partikel) return null;
-  const jenis = M.partikel, R = 110, TINGGI = 70;
-  const N = jenis === 'hujan' ? (hemat ? 420 : 800) : jenis === 'salju' ? (hemat ? 380 : 700) : (hemat ? 160 : 280);
+// C = cuaca harian (js/cuaca.js, opsional): menentukan jenis partikel, jumlah (n), angin, dan gerimis tipis
+export function buatCuaca(sc, M, hemat, C) {
+  const jenis = C ? C.p : M && M.partikel;
+  if (!M || !jenis) return null;
+  const R = 110, TINGGI = 70, angin = (C && C.angin) || 0, miring = .5 + angin * 1.4, geser = angin * 11;
+  const N = Math.max(40, Math.round((jenis === 'hujan' ? (hemat ? 420 : 800) : jenis === 'salju' ? (hemat ? 380 : 700) : (hemat ? 160 : 280)) * ((C && C.n) || 1)));
   const pos = new Float32Array(N * (jenis === 'hujan' ? 6 : 3)), v = new Float32Array(N * 3), fase = new Float32Array(N);
   for (let i = 0; i < N; i++) {
     const x = (Math.random() * 2 - 1) * R, y = Math.random() * TINGGI, z = (Math.random() * 2 - 1) * R;
-    if (jenis === 'hujan') { pos.set([x, y, z, x - .5, y + 4.5, z], i * 6); v.set([0, -95 - Math.random() * 30, 0], i * 3); }
+    if (jenis === 'hujan') { pos.set([x, y, z, x - miring, y + 4.5, z], i * 6); v.set([0, -95 - Math.random() * 30, 0], i * 3); }
     else { pos.set([x, y, z], i * 3); v.set([0, jenis === 'salju' ? -(5 + Math.random() * 5) : -(4 + Math.random() * 3), 0], i * 3); }
     fase[i] = Math.random() * 6.28;
   }
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
   let obj;
-  if (jenis === 'hujan') obj = new THREE.LineSegments(g, new THREE.LineBasicMaterial({color: 0xcfe0f0, transparent: true, opacity: .45, depthWrite: false}));
+  if (jenis === 'hujan') obj = new THREE.LineSegments(g, new THREE.LineBasicMaterial({color: 0xcfe0f0, transparent: true, opacity: C && C.tipis ? .3 : .45, depthWrite: false}));
   else {
     if (jenis !== 'salju') {   // kelopak sakura / daun gugur: tiap partikel beda warna
       const col = new Float32Array(N * 3), cc = new THREE.Color(), P = jenis === 'kelopak' ? [0xffc3d8, 0xffa8c8, 0xfff0f5, 0xff8fb8] : [0xe8742a, 0xd2462a, 0xf2b234, 0xb8562a];
@@ -125,7 +127,8 @@ export function buatCuaca(sc, M, hemat) {
       for (let i = 0; i < N; i++) {
         const o = i * per; let dx = v[i * 3 + 1] * dt;
         let sx = 0, sz = 0;
-        if (jenis !== 'hujan') { sx = Math.sin(t * 1.3 + fase[i]) * (jenis === 'salju' ? 1.2 : 3.2) * dt + (jenis === 'salju' ? 0 : 2.2 * dt); sz = Math.cos(t * .9 + fase[i]) * (jenis === 'salju' ? 1 : 2) * dt; }
+        if (jenis === 'hujan') sx = geser * dt;
+        else { sx = Math.sin(t * 1.3 + fase[i]) * (jenis === 'salju' ? 1.2 : 3.2) * dt + ((jenis === 'salju' ? 0 : 2.2) + angin * (jenis === 'salju' ? 3 : 5)) * dt; sz = Math.cos(t * .9 + fase[i]) * (jenis === 'salju' ? 1 : 2) * dt; }
         a[o] += sx; a[o + 1] += dx; a[o + 2] += sz;
         // bungkus ke kotak di sekitar pemain
         let ox = 0, oz = 0, oy = 0;
@@ -133,10 +136,10 @@ export function buatCuaca(sc, M, hemat) {
         if (a[o + 2] - z > R) oz = -2 * R; else if (a[o + 2] - z < -R) oz = 2 * R;
         if (a[o + 1] < y - 4) oy = TINGGI;
         if (ox || oz || oy) { a[o] += ox; a[o + 1] += oy; a[o + 2] += oz; if (per === 6) { a[o + 3] += ox; a[o + 4] += oy; a[o + 5] += oz; } }
-        if (per === 6) { a[o + 3] = a[o] - .5; a[o + 4] = a[o + 1] + 4.5; a[o + 5] = a[o + 2]; }
+        if (per === 6) { a[o + 3] = a[o] - miring; a[o + 4] = a[o + 1] + 4.5; a[o + 5] = a[o + 2]; }
       }
       // pindah dusun/teleport jauh: sebar ulang di sekitar pemain
-      if (Math.abs(x - px) > R || Math.abs(z - pz) > R) for (let i = 0; i < N; i++) { const o = i * per, nx = x + (Math.random() * 2 - 1) * R, nz = z + (Math.random() * 2 - 1) * R, ny = y + Math.random() * TINGGI; a[o] = nx; a[o + 1] = ny; a[o + 2] = nz; if (per === 6) { a[o + 3] = nx - .5; a[o + 4] = ny + 4.5; a[o + 5] = nz; } }
+      if (Math.abs(x - px) > R || Math.abs(z - pz) > R) for (let i = 0; i < N; i++) { const o = i * per, nx = x + (Math.random() * 2 - 1) * R, nz = z + (Math.random() * 2 - 1) * R, ny = y + Math.random() * TINGGI; a[o] = nx; a[o + 1] = ny; a[o + 2] = nz; if (per === 6) { a[o + 3] = nx - miring; a[o + 4] = ny + 4.5; a[o + 5] = nz; } }
       px = x; pz = z;
       g.attributes.position.needsUpdate = true;
     },
