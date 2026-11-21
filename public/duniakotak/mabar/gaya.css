@@ -674,3 +674,9 @@ html.putar.mq-pendek .gmKartu{width:94px;padding:5px 4px 6px}html.putar.mq-pende
 .rodaBawah{display:flex;gap:10px;align-items:center;font-size:11px;font-weight:700;color:#fff;background:rgba(19,20,31,.9);border-radius:999px;padding:4px 4px 4px 14px;position:relative;z-index:2}
 .rodaBawah button{border:2px solid rgba(255,255,255,.3);background:rgba(19,20,31,.85);color:#fff;border-radius:999px;padding:6px 12px;font-weight:800;font-size:12px;cursor:pointer}
 .rodaBawah .rodaHenti{background:#a8322a;border-color:#ffb0a8}
+/* Ikon HUD khas Dunia Kotak (js/ikon.js, Huda 21 Nov 2026): ukuran ikut font-size <i> lama supaya aturan layar kecil tetap berlaku */
+i.ikDK{display:block;width:1.45em;height:1.45em;margin:0 auto}
+i.ikDK svg{display:block;width:100%;height:100%;overflow:visible}
+.zoom.skill button i.ikDK{width:1.4em;height:1.4em}
+.dompet svg{width:1.1em;height:1.1em;vertical-align:-.22em;margin-right:3px}
+.dompet b{font-weight:inherit}
