@@ -643,6 +643,17 @@ html.putar.mq-pendek .gmKartu{width:94px;padding:5px 4px 6px}html.putar.mq-pende
 .volAtur{cursor:default}.volAtur span{flex:0 0 auto}
 .volAtur input[type=range]{flex:1;min-width:0;height:28px;accent-color:#ffcf7a;cursor:pointer}
 .volAtur input[type=range]:disabled{opacity:.35}
+/* Koleksi Langka (Huda 21 Nov 2026): daftar ringkas, muat layar HP (isi panjang digeser di dalam pop up) */
+.lkIkon{display:block;image-rendering:pixelated}
+.barisAtur i .lkIkon,.kbItem i .lkIkon{width:24px;height:24px}
+.lkDaftar{display:grid;gap:6px;margin:6px 0 8px}
+.lkKartu{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.22)}
+.lkKartu.on{border:1px solid #ffd23a;background:rgba(255,210,58,.08)}
+.lkIk{flex:none}.lkIk.kunci{filter:grayscale(1) opacity(.5)}
+.lkTeks{flex:1;min-width:0;display:grid;gap:1px;text-align:left}.lkTeks b{font-size:13px;line-height:1.2}.lkTeks b em{font-style:normal;color:#ffd23a}.lkTeks>small{font-size:10.5px;opacity:.75;line-height:1.25}
+.lkTg{font-size:10px;font-weight:900;letter-spacing:.02em}
+.lkAksi{flex:none;display:flex;gap:4px}.lkAksi button{padding:5px 8px;font-size:11.5px;min-height:30px;border-radius:8px}
+.lkAksi button.on{background:#2a9a5a;color:#fff;border-color:#2a9a5a}
 /* ---- tombol Gerak + roda gerakan warga (21 Nov 2026, js/gerak.js): ikon SVG kepala kotak khas Dunia Kotak ---- */
 .zoom.skill button i.ikSvg{width:34px;height:34px;display:block}
 .zoom.skill button.gerakBtn{opacity:1}

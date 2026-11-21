@@ -533,7 +533,8 @@ async function selesaiSesi() {
   const rekorLama = LOKAL.rk[L_NO] || 0, baruLokal = totalG > rekorLama, bukaBaru = L_NO === 1 && LOKAL.buka < 3;
   if (baruLokal) LOKAL.rk[L_NO] = totalG;
   if (bukaBaru) LOKAL.buka = 3;   // selesai satu sesi di Danau Tlaga = lokasi 2–3 terbuka
-  let j = null; if (AKUN) j = await apiM('selesai', {g: totalG, e: ekor});
+  // ikan raksasa ikut dikirim → Koleksi Langka bernomor seri di desa (Huda 21 Nov 2026: pamer item rare antar warga)
+  let j = null; if (AKUN) j = await apiM('selesai', {g: totalG, e: ekor, rk: TANGKAP.filter(f => f.raksasa).slice(0, 3).map(f => ({n: f.nama, g: f.g}))});
   await new Promise(r => setTimeout(r, Math.max(0, 1400 - (performance.now() - t0))));
   if (id !== idSesi) return;
   if (j && j.saya) { aturMilik(j.saya.alat); koinSaya = j.saya.koin ?? koinSaya; if (j.saya.rekor) LOKAL.rk[L_NO] = j.saya.rekor; LOKAL.pos[L_NO] = j.saya.pos || LOKAL.pos[L_NO]; if (j.saya.buka > LOKAL.buka) LOKAL.buka = j.saya.buka; if (j.saya.avatar) LOKAL.av = j.saya.avatar;
@@ -550,6 +551,9 @@ async function selesaiSesi() {
     : j && j.galat ? j.galat : j && j.dapat ? `Sesi ke-${j.saya.sesiHari} hari ini. Koin tinggal ${j.saya.sisaKoin}x lagi hari ini.` : 'Jatah koin hari ini habis. Rekor tetap dicatat, kejar posisi #1!');
   if (bukaBaru) { $('hsJudul').textContent = '🔓 2 LOKASI BARU TERBUKA!'; $('hsHadiah').innerHTML = esc($('hsHadiah').textContent) + ' <button class="kedua" id="bLanjut" style="display:inline-block;width:auto;padding:5px 10px;margin-top:4px;color:#f2c14a">🌾 Coba Sungai Wetan →</button>';
     $('bLanjut').onclick = () => { simpan('dk_mancing_l', 2); const u = new URL(location.href); u.searchParams.set('l', 2); location.href = u.toString(); }; }
+  if (j && Array.isArray(j.langka) && j.langka.length) {   // Koleksi Langka: tampil di desa (etalase teras & tombol Pamerin)
+    const b = j.langka.find(h => h.baru); if (b) $('hsJudul').textContent = '🏅 MASUK KOLEKSI LANGKA!';
+    $('hsHadiah').insertAdjacentHTML('beforeend', '<br>' + j.langka.map(h => `🏅 <b>${esc(h.nama)} #${h.seri}</b>${h.baru ? ` · kamu pemilik ke-${h.seri} di desa!` : h.terberat ? ' · rekor terberatmu!' : ''}`).join('<br>') + '<br><small>Pajang di etalase teras rumah atau Pamerin lewat ⚙ Atur › Koleksi Langka di desa.</small>'); }
   $('hasil').hidden = false; tulisLobi(j);
 }
 
