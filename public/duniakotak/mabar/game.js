@@ -27,7 +27,7 @@ import {musimDusun, musimkan, buatCuaca} from './js/musim.js?v=20261114ms';
 import {buatMusik, buatSuaraKendaraan} from './js/suara.js?v=20261118bs';
 import {buatKebun} from './js/tanamanSawah.js?v=20261118a';
 import {bisaGetar, getarNyala, aturGetar, getar} from './js/rasa.js?v=20261120g';   // getar HP di mini game (Huda 20 Nov 2026)
-import {pasangIkonHUD, angkaDompet, IKON as IKON_HUD} from './js/ikon.js?v=20261121ikon';   // ikon HUD khas Dunia Kotak, bukan emoji (Huda 21 Nov 2026)
+import {pasangIkonHUD, angkaDompet, IKON as IKON_HUD} from './js/ikon.js?v=20261121kotak3d';   // ikon HUD khas Dunia Kotak, bukan emoji (Huda 21 Nov 2026)
 import {LANGKA, TINGKAT, kgTeks as kgLangka, modelLangka, etalaseMesh, ETALASE, ikonLangka} from './js/langka.js?v=20261121langka';   // Koleksi Langka (Huda 21 Nov 2026)
 
 const $ = id => document.getElementById(id);
