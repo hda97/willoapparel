@@ -654,3 +654,23 @@ html.putar.mq-pendek .gmKartu{width:94px;padding:5px 4px 6px}html.putar.mq-pende
 .lkTg{font-size:10px;font-weight:900;letter-spacing:.02em}
 .lkAksi{flex:none;display:flex;gap:4px}.lkAksi button{padding:5px 8px;font-size:11.5px;min-height:30px;border-radius:8px}
 .lkAksi button.on{background:#2a9a5a;color:#fff;border-color:#2a9a5a}
+/* ---- tombol Gerak + roda gerakan warga (21 Nov 2026, js/gerak.js): ikon SVG kepala kotak khas Dunia Kotak ---- */
+.zoom.skill button i.ikSvg{width:34px;height:34px;display:block}
+.zoom.skill button.gerakBtn{opacity:1}
+@media (max-height:500px){:where(html:not(.putar)) .zoom.skill button i.ikSvg{width:27px;height:27px}}
+:where(html.putar.mq-pendek) .zoom.skill button i.ikSvg{width:27px;height:27px}
+.rodaGerak{position:fixed;inset:0;z-index:45;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(10,12,22,.45);touch-action:none}
+.rodaGerak[hidden]{display:none}
+.rodaWadah{--S:min(calc(76*var(--vh,1vh)),calc(84*var(--vw,1vw)),340px);position:relative;width:var(--S);height:var(--S);border-radius:50%;background:radial-gradient(circle,rgba(19,20,31,.55) 0 30%,rgba(19,20,31,.88) 31% 62%,rgba(19,20,31,.55) 63%);border:3px solid rgba(255,216,74,.55);box-shadow:0 10px 40px rgba(0,0,0,.45),inset 0 0 0 10px rgba(255,255,255,.04);cursor:grab}
+.rodaCincin{position:absolute;inset:0}
+.rodaItem{position:absolute;left:0;top:0;width:calc(var(--S)*.17);height:calc(var(--S)*.17);min-width:44px;min-height:44px;border-radius:12px;border:2px solid rgba(255,255,255,.22);background:#2a3d5c;color:#fff;padding:2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:background .15s,border-color .15s;cursor:pointer}
+.rodaItem i{display:block;width:72%;height:72%}
+.rodaItem span{font-size:8px;font-weight:800;line-height:1;white-space:nowrap;max-width:118%;overflow:hidden;text-overflow:ellipsis}
+.rodaItem.atas{background:#2f6b3a;border-color:#ffd84a;box-shadow:0 0 0 3px rgba(255,216,74,.35)}
+.rodaTengah{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:calc(var(--S)*.4);height:calc(var(--S)*.4);border-radius:50%;border:3px solid #ffd84a;background:#2f6b3a;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px;cursor:pointer}
+.rodaTengah b{display:flex;flex-direction:column;align-items:center;font-size:11px;font-weight:900;line-height:1.1;text-align:center}
+.rodaTengah b i{display:block;width:calc(var(--S)*.18);height:calc(var(--S)*.18)}
+.rodaTengah small{font-size:8.5px;opacity:.85;font-weight:700}
+.rodaBawah{display:flex;gap:10px;align-items:center;font-size:11px;font-weight:700;color:#fff;background:rgba(19,20,31,.9);border-radius:999px;padding:4px 4px 4px 14px;position:relative;z-index:2}
+.rodaBawah button{border:2px solid rgba(255,255,255,.3);background:rgba(19,20,31,.85);color:#fff;border-radius:999px;padding:6px 12px;font-weight:800;font-size:12px;cursor:pointer}
+.rodaBawah .rodaHenti{background:#a8322a;border-color:#ffb0a8}
