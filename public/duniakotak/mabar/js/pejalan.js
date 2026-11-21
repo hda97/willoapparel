@@ -60,6 +60,9 @@ const DIALOG = [
   ['Tadi aku lihat warga baru pindahan.', 'Wah, desa makin ramai.', 'Nanti kita sapa, yuk.'],
 ];
 
+const SERU = ['Aduh!', 'Waaa!', 'Eh eh eh!'];
+export const KALIMAT = {SAPA, OBROLAN, KAGET, NGOMEL, PERMISI, KLAKSON, DIALOG, SERU};   // juga dipakai skrip rekam suara (suara-npc/)
+
 // ---------- geometri figuran (proporsi = avatar warga js/aset/avatar.js) ----------
 // slot warna per titik: 0 baju, 1 celana, 2 kulit, 3 rambut/hijab, 4 hitam (sepatu, mata)
 function kotak(arr, w, h, d, x, y, z, slot) {
@@ -93,7 +96,7 @@ function bahanFiguran() {
   return b;
 }
 
-export function buatPejalan({sc, jaringan, VS, tanah, padat, hemat, KEC = 15, I = {}, hujan = () => false, panggil = () => 'Kak', efek = () => {}}) {
+export function buatPejalan({sc, jaringan, VS, tanah, padat, hemat, KEC = 15, I = {}, hujan = () => false, panggil = () => 'Kak', efek = () => {}, bicara = () => {}}) {
   if (!jaringan) return null;
   const {xs, zs, rwX, rwZ, tetangga, NI, NJ, simpang, nx, nz} = jaringan;
   const id = (i, j) => j * NI + i, ada = (k, n) => tetangga[k].includes(n);
@@ -165,7 +168,7 @@ export function buatPejalan({sc, jaringan, VS, tanah, padat, hemat, KEC = 15, I 
   for (let i = 0; i < N; i++) P.push({i, aktif: false, pos: new THREE.Vector3(), y: 0, yaw: 0, wp: [], mode: 'jalan', t: 0, ph: acak() * 6, cepat: 1,
     ox: 0, oz: 0, tox: 0, toz: 0, kembali: 0, gel: null, cool: 0, sapaT: 0, kag: 0, headY: 0, kecil: false, s: 1, hijab: false, payung: false, nyebrang: false});
   function dandani(p) {
-    p.kecil = acak() < .15; p.s = p.kecil ? .72 : .94 + acak() * .1; p.hijab = !p.kecil && acak() < .35;
+    p.kecil = acak() < .15; p.s = p.kecil ? .72 : .94 + acak() * .1; p.hijab = !p.kecil && acak() < .35; p.suara = p.kecil ? 'A' : p.hijab ? 'P' : 'L';
     p.kulit = pilih(KULIT); p.baju = pilih(BAJU); p.celana = pilih(CELANA); p.rambut = p.hijab ? pilih(HIJAB) : pilih(RAMBUT);
     if (p.kecil && acak() < .6) { p.baju = '#f4f4f4'; p.celana = '#c8202a'; }   // anak sekolah
     p.warnaPayung = pilih(PAYUNG); p.cepat = (p.kecil ? 1.15 : .85) + acak() * .3; p.payung = false; warnai(p.i, p);
@@ -217,7 +220,8 @@ export function buatPejalan({sc, jaringan, VS, tanah, padat, hemat, KEC = 15, I 
     g.anggota.forEach((p, q) => { p.grup = null; p.mode = 'jalan'; const ke = q % 2 ? g.r.a : g.r.b; p.ke = ke; p.dari = q % 2 ? g.r.b : g.r.a; const B = pojok(...ke); p.wp.length = 0; p.wp.push({x: B.x, z: B.z}); });
     g.anggota = []; kelompok.splice(kelompok.indexOf(g), 1);
   }
-  const ucap = (p, teks, lama = 3200) => { p.gel = {m: teks.replace('{p}', panggil()), sampai: performance.now() + lama}; };
+  // teks gelembung = kunci rekaman suara (suara-npc/): anak memanggil 'Kak'
+  const ucap = (p, teks, lama = 3200) => { const m = teks.replace('{p}', p.suara === 'A' ? 'Kak' : panggil()); p.gel = {m, sampai: performance.now() + lama}; bicara(m, p.suara, p.pos); };
 
   // ---------- rencana di tiap pojok simpang ----------
   function syaratNyebrang(k, vert, cx, cz) {
@@ -285,7 +289,7 @@ export function buatPejalan({sc, jaringan, VS, tanah, padat, hemat, KEC = 15, I 
       p.mode = 'jatuh'; p.t = 0; p.cool = now + 6000;
       const l = sp || 1, gx = vx / l * 1.4 * M, gz = vz / l * 1.4 * M; if (!padat(p.pos.x + p.ox + gx, p.pos.z + p.oz + gz, p.y)) { p.tox = p.ox + gx; p.toz = p.oz + gz; } p.yaw = Math.atan2(-vx, -vz);
       if (p.grup) { const g = p.grup; g.anggota = g.anggota.filter(x => x !== p); p.grup = null; }
-      ucap(p, pilih(['Aduh!', 'Waaa!', 'Eh eh eh!']), 1200); efek('serempet', p.pos); return;
+      ucap(p, pilih(SERU), 1200); efek('serempet', p.pos); return;
     }
     // pemain mendekat cepat: kaget & meloncat menghindar; pemain jalan biasa: minggir sopan
     if (sp > .45 * KEC && now > p.kag && p.mode !== 'ngobrol') {
@@ -328,8 +332,8 @@ export function buatPejalan({sc, jaringan, VS, tanah, padat, hemat, KEC = 15, I 
   const klakson = new Map();
   function cekKlakson(now) {
     for (const c of armada) {
-      const k = klakson.get(c) || {t: 0, cool: 0, gel: null}; klakson.set(c, k);
-      if (c.dihalangi) { k.t += 1; if (k.t > 70 && now > k.cool) { k.cool = now + 9000; k.gel = {m: pilih(KLAKSON).replace('{p}', panggil()), sampai: now + 2600}; } } else k.t = 0;
+      const k = klakson.get(c) || {t: 0, cool: 0, gel: null, suara: acak() < .3 ? 'P' : 'L'}; klakson.set(c, k);
+      if (c.dihalangi) { k.t += 1; if (k.t > 70 && now > k.cool) { k.cool = now + 9000; k.gel = {m: pilih(KLAKSON).replace('{p}', panggil()), sampai: now + 2600}; if (c.o) bicara(k.gel.m, k.suara, c.o.position); } } else k.t = 0;
     }
   }
 
